@@ -1,5 +1,8 @@
+import 'package:beige_creative_app/service/config.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'SplashScreen/splash_screen.dart';
 import 'utility/ColorCode.dart';
 
 void main() async {
@@ -16,6 +19,7 @@ void main() async {
   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
   runApp(MyApp(isLoggedIn: isLoggedIn));
+
 }
 
 class MyApp extends StatelessWidget {
@@ -47,9 +51,9 @@ class MyApp extends StatelessWidget {
       //     ?  Mainscreen()
       //     :  SplashScreen(),
 
-      /*    home: isLoggedIn
-          ?  Mainscreen()
-          :  Mainscreen(),*/
+          home: isLoggedIn
+          ?  SplashScreen()
+          :  SplashScreen(),
     );
   }
 }
