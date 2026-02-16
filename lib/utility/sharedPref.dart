@@ -8,7 +8,8 @@
 //   static String stringListKey = "string_list_key";
 //
 //
-//   static String getStringPref(String keyName)
+//   static String getStringPref(String keyN
+//   me)
 //   {
 //     String value="";
 //     GetStorage getStorage=GetStorage();

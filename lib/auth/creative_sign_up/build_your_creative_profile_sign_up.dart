@@ -67,6 +67,7 @@ class _BuildYourCreativeProfileSignUpState extends State<BuildYourCreativeProfil
   Offset startOffset = Offset.zero;
 
 
+
   bool get isFormValid {
     return
         passwordController.text.isNotEmpty &&

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 
+import '../auth/New_Creative_sing_up_follow/new_build_your_creative_profile.dart';
 import '../auth/creative_sign_up/build_your_creative_profile_sign_up.dart';
 import '../utility/ColorCode.dart';
 
@@ -155,7 +156,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>  BuildYourCreativeProfileSignUp(),
+                      builder: (_) =>  New_build_your_creativeScreen(),
                     ),
                   );
                 },
