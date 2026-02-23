@@ -8,6 +8,7 @@ import 'package:lottie/lottie.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
+import '../ProfileDetailsScreen .dart';
 import 'build_your_creative_profile_sign_up.dart';
 
 class ProfessionalDetailsSingUp extends StatefulWidget {
@@ -16,7 +17,10 @@ class ProfessionalDetailsSingUp extends StatefulWidget {
   final String? email;
   final String? firstName;
   final String? lastName;
-  const ProfessionalDetailsSingUp({super.key,  this.crewMemberId, this.profileImage, this.email, this.firstName, this.lastName});
+
+  final String? location;          // ✅ ADD THIS
+  final String? workingDistance;
+  const ProfessionalDetailsSingUp({super.key,  this.crewMemberId, this.profileImage, this.email, this.firstName, this.lastName, this.location, this.workingDistance});
 
   @override
   State<ProfessionalDetailsSingUp> createState() =>
@@ -250,7 +254,15 @@ class _ProfessionalDetailsSingUpState
               profileImage: widget.profileImage,
               email:widget.email,
               firstName: widget.firstName,
-              lastName: widget.lastName
+              lastName: widget.lastName,
+              location: widget.location,
+              workingDistance: widget.workingDistance,
+              primaryRole: primaryRole ?? "",
+              experience: YearofExperienceController.text.trim(),
+              hourlyRate: HourlyRateController.text.trim(),
+              bio: bioController.text.trim(),
+              skills: selectedSkills.join(", "),
+              equipments: selectedEquipments.join(", "),
             ),
           ),
         );
@@ -417,7 +429,7 @@ class _ProfessionalDetailsSingUpState
                   const SizedBox(height: 20),
 
                   _textField(
-                    title: "Year of Experience*",
+                    title: "Year sssssof Experience*",
                     controller: YearofExperienceController,
                     isNumber: true, // 🔥 numeric keyboard
                   ),
@@ -942,7 +954,6 @@ class _ProfessionalDetailsSingUpState
       ),
     );
   }
-
   Widget _userPreviewCard() {
     final firstName = widget.firstName?.trim() ?? "";
     final lastName  = widget.lastName?.trim() ?? "";
@@ -957,67 +968,138 @@ class _ProfessionalDetailsSingUpState
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withOpacity(0.15),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
 
-          /// 🔵 PROFILE IMAGE
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: Colors.grey.shade200,
-            backgroundImage:
-            image != null ? FileImage(image) : null,
-            child: image == null
-                ? const Icon(Icons.person,
-                size: 26, color: Colors.grey)
-                : null,
+          /// 🔹 TOP ROW (IMAGE + NAME + EMAIL)
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: Colors.grey.shade200,
+                backgroundImage:
+                image != null ? FileImage(image) : null,
+                child: image == null
+                    ? const Icon(Icons.person,
+                    size: 26, color: Colors.grey)
+                    : null,
+              ),
+
+              const SizedBox(width: 14),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "$firstName $lastName",
+                      style: const TextStyle(
+                        fontFamily: "Outfit",
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      email.isEmpty ? "Your Email" : email,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: "Outfit",
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(height: 14),
 
-          /// 📝 NAME + EMAIL
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
+          /// 🔹 BOTTOM ROW (BUTTON + %)
+          Row(
+            children: [
 
-                Text(
-                  "$firstName $lastName",
-                  style: const TextStyle(
+              Expanded(
+                child: SizedBox(
+                  height: 38,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => ProfileDetailsScreen(
+                          firstName: widget.firstName ?? "",
+                          lastName: widget.lastName ?? "",
+                          email: widget.email ?? "",
+                          profileImage: widget.profileImage,
+                          location: widget.location ?? "",                 // ✅ FIXED
+                          workingDistance: widget.workingDistance ?? "",
+                          primaryRole: primaryRole ?? "",
+                          experience: YearofExperienceController.text.trim(),
+                          hourlyRate: HourlyRateController.text.trim(),
+                          bio: bioController.text.trim(),
+                          skills: selectedSkills.join(", "),
+                          equipments: selectedEquipments.join(", "),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      "View Details",
+                      style: TextStyle(
+                        fontFamily: "Outfit",
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: ColorCode.kButtonColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 10),
+
+              Container(
+                height: 38,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  "70% Completed",
+                  style: TextStyle(
                     fontFamily: "Outfit",
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                     color: Colors.black,
                   ),
                 ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  email.isEmpty
-                      ? "Your Email"
-                      : email,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: "Outfit",
-                    fontSize: 12,
-                    color: Colors.black54,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

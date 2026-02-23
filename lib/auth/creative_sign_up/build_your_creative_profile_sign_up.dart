@@ -619,14 +619,14 @@ class _BuildYourCreativeProfileSignUpState extends State<BuildYourCreativeProfil
           return;
         }
 
-        Navigator.pushReplacement(
+      /*  Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (_) => ProfessionalDetailsSingUp(
               crewMemberId: crewMemberId,
             ),
           ),
-        );
+        );*/
       } else {
         _showSnack(response?['message'] ?? "Signup failed");
       }

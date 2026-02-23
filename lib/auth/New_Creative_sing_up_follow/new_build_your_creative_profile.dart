@@ -15,8 +15,9 @@ import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../service/google_config.dart';
 import '../../utility/ColorCode.dart';
+import '../ProfileDetailsScreen .dart';
 import '../creative_sign_up/professional_details_sing_up.dart';
-import '../login.dart';
+import '../login/login.dart';
 
 
 
@@ -613,6 +614,8 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
               email: emailController.text.trim(),
               firstName: firstNameController.text.trim(),
               lastName: lastNameController.text.trim(),
+              location: searchController.text.trim(),
+              workingDistance: selectedDistance ?? "",
             ),
           ),
         );
@@ -1518,75 +1521,144 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
       ),
     );
   }
-
   Widget _userPreviewCard() {
     final firstName = firstNameController.text.trim();
     final lastName  = lastNameController.text.trim();
     final email     = emailController.text.trim();
 
     if (firstName.isEmpty && lastName.isEmpty && email.isEmpty && profileImage == null) {
-      return const SizedBox(); // nothing show
+      return const SizedBox();
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
 
-          /// 🔵 PROFILE IMAGE
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: Colors.grey.shade200,
-            backgroundImage:
-            profileImage != null ? FileImage(profileImage!) : null,
-            child: profileImage == null
-                ? const Icon(Icons.person, size: 26, color: Colors.grey)
-                : null,
+          /// 🔹 TOP ROW (Image + Name + Email)
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: Colors.grey.shade200,
+                backgroundImage:
+                profileImage != null ? FileImage(profileImage!) : null,
+                child: profileImage == null
+                    ? const Icon(Icons.person, size: 26, color: Colors.grey)
+                    : null,
+              ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${firstName.isEmpty ? '' : firstName} ${lastName.isEmpty ? '' : lastName}",
+                      style: const TextStyle(
+                        fontFamily: "Outfit",
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      email.isEmpty ? "Your Email" : email,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: "Outfit",
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(height: 12),
 
-          /// 📝 NAME + EMAIL
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          /// 🔹 VIEW DETAILS BUTTON
+          Row(
+            children: [
 
-                Text(
-                  "${firstName.isEmpty ? '' : firstName} ${lastName.isEmpty ? '' : lastName}",
-                  style: const TextStyle(
+              /// 🔹 VIEW DETAILS BUTTON
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => ProfileDetailsScreen(
+                          firstName: firstNameController.text.trim(),
+                          lastName: lastNameController.text.trim(),
+                          email: emailController.text.trim(),
+                          profileImage: profileImage,
+                          location: searchController.text.trim(),
+                          workingDistance: selectedDistance ?? "",
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      "View Details",
+                      style: TextStyle(
+                        fontFamily: "Outfit",
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: ColorCode.kButtonColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 10),
+
+              /// 🔹 30% COMPLETED CONTAINER
+              Container(
+                height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  "30% Completed",
+                  style: TextStyle(
                     fontFamily: "Outfit",
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                     color: Colors.black,
                   ),
                 ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  email.isEmpty ? "Your Email" : email,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: "Outfit",
-                    fontSize: 12,
-                    color: Colors.black54,
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            ],
+          )
         ],
       ),
     );

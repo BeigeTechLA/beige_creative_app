@@ -8,6 +8,7 @@ import 'package:open_file/open_file.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
+import '../ProfileDetailsScreen .dart';
 
 class SocialEngagementSingup extends StatefulWidget {
   final int ?crewMemberId;
@@ -15,7 +16,31 @@ class SocialEngagementSingup extends StatefulWidget {
   final String? email;
   final String? firstName;
   final String? lastName;
-  const SocialEngagementSingup({super.key, this.crewMemberId, this.profileImage, this.email, this.firstName, this.lastName});
+  final String? location;          // ✅ ADD
+  final String? workingDistance;
+
+  final String primaryRole;
+  final String experience;
+  final String hourlyRate;
+  final String bio;
+  final String skills;
+  final String equipments;
+  const SocialEngagementSingup({
+    super.key,
+    this.crewMemberId,
+    this.profileImage,
+    this.email,
+    this.firstName,
+    this.lastName, this.location,
+    this.workingDistance,
+
+    this.primaryRole = "",
+    this.experience = "",
+    this.hourlyRate = "",
+    this.bio = "",
+    this.skills = "",
+    this.equipments = "",
+  });
 
   @override
   State<SocialEngagementSingup> createState() =>_SocialEngagementSingupState();
@@ -1328,93 +1353,8 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
 
     );
 
-
   }
 
-
-  Widget _userPreviewCard() {
-    final firstName = widget.firstName?.trim() ?? "";
-    final lastName  = widget.lastName?.trim() ?? "";
-    final email     = widget.email?.trim() ?? "";
-    final image     = widget.profileImage;
-
-    if (firstName.isEmpty &&
-        lastName.isEmpty &&
-        email.isEmpty &&
-        image == null) {
-      return const SizedBox();
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-
-          /// 🔵 PROFILE IMAGE
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: Colors.grey.shade200,
-            backgroundImage:
-            image != null ? FileImage(image) : null,
-            child: image == null
-                ? const Icon(Icons.person,
-                size: 26, color: Colors.grey)
-                : null,
-          ),
-
-          const SizedBox(width: 14),
-
-          /// 📝 NAME + EMAIL
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
-
-                Text(
-                  "$firstName $lastName",
-                  style: const TextStyle(
-                    fontFamily: "Outfit",
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  email.isEmpty
-                      ? "Your Email"
-                      : email,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: "Outfit",
-                    fontSize: 12,
-                    color: Colors.black54,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-//Featured Work
   void _featuredSheet() {
     showModalBottomSheet(
       context: context,
@@ -1926,542 +1866,169 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
   }
 
 
-//       body: Stack(
-//         children: [
-//           SafeArea(
-//             child: SingleChildScrollView(
-//               child: Padding(
-//                 padding:  EdgeInsets.all(20),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//
-//                     Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         InkWell(
-//                           onTap: () => Navigator.pop(context),
-//                           child: Image.asset(
-//                             "assets/Icons/Reply.png",
-//                             height: 24,
-//                             color: Colors.white,
-//                           ),
-//                         ),
-//                         const Text(
-//                           ""
-//                               "3/3",
-//                           style: TextStyle(color: Colors.white),
-//                         )
-//                       ],
-//                     ),
-//
-//                     const SizedBox(height: 12),
-//
-//                     /// 🔵 PROGRESS BAR
-//                     Row(
-//                       children: List.generate(
-//                         3,
-//                             (index) => Expanded(
-//                           child: Container(
-//                             margin: const EdgeInsets.only(right: 6),
-//                             height: 5,
-//                             decoration: BoxDecoration(
-//                               color: index <= 1
-//                                   ? ColorCode.kButtonColor
-//                                   : ColorCode.kSubtextColor,
-//                               borderRadius: BorderRadius.circular(10),
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//
-//                     const SizedBox(height: 24),
-//
-//                     /// 📝 TITLE
-//                     const Text(
-//                       "Social Engagement",
-//                       style: TextStyle(
-//                         fontSize: 16,
-//                         fontFamily: "Unbounded",
-//                         fontWeight: FontWeight.w500,
-//                         color: Colors.white,
-//                       ),
-//                     ),
-//
-//                     const SizedBox(height: 10),
-//
-//                     /// SUBTITLE
-//                     const Text(
-//                       "Complete your profile and connect with top studios\nand filmmakers.",
-//                       style: TextStyle(
-//                         fontSize: 14,
-//                         fontFamily: "Outfit",
-//                         color: ColorCode.kWhiteOpacity70,
-//                       ),
-//                     ),
-//
-//                     const SizedBox(height: 24),
-//
-//                     ///  ADD SOCIAL LINKS
-//                     ///
-//                     if (savedLinks.isNotEmpty)
-//                       Column(
-//                         children: savedLinks.asMap().entries.map((entry) {
-//                           final index = entry.key;
-//                           final item = entry.value;
-//
-//                           return Container(
-//                             margin: const EdgeInsets.only(bottom: 8),
-//                             padding: const EdgeInsets.all(10),
-//                             decoration: BoxDecoration(
-//                               borderRadius: BorderRadius.circular(16),
-//                               border: Border.all(color: Colors.white24),
-//                               color: Colors.black26,
-//                             ),
-//                             child: Row(
-//                               children: [
-//                                 /// ICON
-//                                 Container(
-//                                   height: 40,
-//                                   width: 40,
-//                                   decoration: BoxDecoration(
-//                                     color: ColorCode.kButtonColor.withOpacity(0.15),
-//                                     borderRadius: BorderRadius.circular(12),
-//                                   ),
-//                                   child: Image.asset(
-//                                     item['icon'],
-//                                     color: ColorCode.kButtonColor,
-//                                   ),
-//                                 ),
-//
-//                                 const SizedBox(width: 12),
-//
-//                                 /// NAME
-//                                 Expanded(
-//                                   child: Text(
-//                                     item['name'],
-//                                     style: const TextStyle(
-//                                       color: Colors.white,
-//                                       fontWeight: FontWeight.w600,
-//                                     ),
-//                                   ),
-//                                 ),
-//
-//                                 /// ✏️ EDIT
-//                                 IconButton(
-//                                   icon: const Icon(Icons.edit, color: Colors.white),
-//                                   onPressed: () {
-//                                     setState(() {
-//                                       editingIndex = index;
-//                                       selectedSocialIndex =
-//                                           socialNames.indexOf(item['name']);
-//                                       nameLinkController.text = item['name'];
-//                                       linkController.text = item['url'];
-//                                     });
-//
-//                                     _openSocialSheet();
-//                                   },
-//                                 ),
-//
-//                                 /// 🗑 DELETE
-//                                 IconButton(
-//                                   icon: const Icon(Icons.delete, color: Colors.redAccent),
-//                                   onPressed: () {
-//                                     setState(() {
-//                                       savedLinks.removeAt(index);
-//                                     });
-//                                   },
-//                                 ),
-//                               ],
-//                             ),
-//                           );
-//                         }).toList(),
-//                       ),
-//
-//                     _buildAddTile(
-//                       title: "Add Social Links",
-//                       onTap: _openSocialSheet,
-//                     ),
-//                     const SizedBox(height: 20),
-//
-//
-//                     Container(
-//                       padding: const EdgeInsets.all(16),
-//                       decoration: BoxDecoration(
-//                         color: ColorCode.bcakgroundcolor,
-//                         borderRadius: BorderRadius.circular(16),
-//                         border: Border.all(color: Colors.white24),
-//                       ),
-//                       child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//
-//                           /// HEADER
-//                           Row(
-//                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                             children: [
-//                               const Text(
-//                                 "Featured Work",
-//                                 style: TextStyle(
-//                                   color: Colors.white,
-//                                   fontSize: 14,
-//                                   fontWeight: FontWeight.w600,
-//                                 ),
-//                               ),
-//
-//                               InkWell(
-//                                 onTap: _featuredSheet,
-//                                 child: Row(
-//                                   children: const [
-//                                     Icon(Icons.add, size: 18, color: Color(0xFFF4E1C1)),
-//                                     SizedBox(width: 4),
-//                                     Text(
-//                                       "Add another",
-//                                       style: TextStyle(
-//                                         color: Color(0xFFF4E1C1),
-//                                         fontSize: 13,
-//                                         fontWeight: FontWeight.w500,
-//                                       ),
-//                                     ),
-//                                   ],
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//
-//                           const SizedBox(height: 12),
-//
-//                           /// EMPTY STATE
-//                           if (featuredImages.isEmpty)
-//                             GestureDetector(
-//                               onTap: _featuredSheet,
-//                               child: Container(
-//                                 height: 120,
-//                                 decoration: BoxDecoration(
-//                                   borderRadius: BorderRadius.circular(12),
-//                                   border: Border.all(color: Colors.white38),
-//                                 ),
-//                                 child: const Center(
-//                                   child: Text("Add", style: TextStyle(color: Colors.white)),
-//                                 ),
-//                               ),
-//                             ),
-//
-//                           /// 🔥 ROW IMAGE LIST (AFTER SAVE)
-//                           if (featuredImages.isNotEmpty)
-//                             SizedBox(
-//                               height: 110,
-//                               child: ListView.builder(
-//                                 scrollDirection: Axis.horizontal,
-//                                 itemCount: featuredImages.length,
-//                                 itemBuilder: (context, index) {
-//                                   return Container(
-//                                     width: 140,
-//                                     margin: const EdgeInsets.only(right: 10),
-//                                     child: ClipRRect(
-//                                       borderRadius: BorderRadius.circular(12),
-//                                       child: Image.file(
-//                                         featuredImages[index],
-//                                         fit: BoxFit.cover,
-//                                       ),
-//                                     ),
-//                                   );
-//                                 },
-//                               ),
-//                             ),
-//                         ],
-//                       ),
-//                     ),
-//
-//
-//
-//
-//
-//                     SizedBox(height: 16),
-//
-//                     Container(
-//                       padding: const EdgeInsets.all(16),
-//                       decoration: BoxDecoration(
-//                         color: ColorCode.bcakgroundcolor,
-//                         borderRadius: BorderRadius.circular(16),
-//                         border: Border.all(color: Colors.white24),
-//                       ),
-//                       child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//
-//                           /// 🔹 HEADER
-//                           Row(
-//                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                             children: [
-//                               const Text(
-//                                 "Upload Certifications",
-//                                 style: TextStyle(
-//                                   color: Colors.white,
-//                                   fontSize: 14,
-//                                   fontWeight: FontWeight.w600,
-//                                 ),
-//                               ),
-//
-//                               if (certificateFiles.isNotEmpty)
-//                                 InkWell(
-//                                   onTap: _pickCertificate,
-//                                   child: Row(
-//                                     children: const [
-//                                       Icon(Icons.add, size: 18, color: Color(0xFFF4E1C1)),
-//                                       SizedBox(width: 4),
-//                                       Text(
-//                                         "Add another",
-//                                         style: TextStyle(
-//                                           color: Color(0xFFF4E1C1),
-//                                           fontSize: 13,
-//                                           fontWeight: FontWeight.w500,
-//                                         ),
-//                                       ),
-//                                     ],
-//                                   ),
-//                                 ),
-//                             ],
-//                           ),
-//
-//                           const SizedBox(height: 12),
-//
-//                           /// 🔹 EMPTY STATE (UPLOAD BOX)
-//                           if (certificateFiles.isEmpty)
-//                             GestureDetector(
-//                               onTap: _pickCertificate,
-//                               child: Container(
-//                                 height: 90,
-//                                 decoration: BoxDecoration(
-//                                   borderRadius: BorderRadius.circular(12),
-//                                   border: Border.all(color: Colors.white38),
-//                                 ),
-//                                 child: const Center(
-//                                   child: Text(
-//                                     "Upload",
-//                                     style: TextStyle(color: Colors.white),
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//
-//                           /// 🔹 FILE LIST
-//                           if (certificateFiles.isNotEmpty)
-//                             Column(
-//                               children: List.generate(certificateFiles.length, (index) {
-//                                 final file = certificateFiles[index];
-//                                 final fileName = file.path.split('/').last;
-//
-//                                 return Container(
-//                                   margin: const EdgeInsets.only(bottom: 10),
-//                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-//                                   decoration: BoxDecoration(
-//                                     color: Colors.black26,
-//                                     borderRadius: BorderRadius.circular(12),
-//                                     border: Border.all(color: Colors.white24),
-//                                   ),
-//                                   child: Row(
-//                                     children: [
-//
-//                                       /// FILE ICON
-//                                       const Icon(Icons.link, color: Colors.white),
-//
-//                                       const SizedBox(width: 10),
-//
-//                                       /// FILE NAME
-//                                       Expanded(
-//                                         child: Text(
-//                                           fileName,
-//                                           maxLines: 1,
-//                                           overflow: TextOverflow.ellipsis,
-//                                           style: const TextStyle(color: Colors.white),
-//                                         ),
-//                                       ),
-//
-//                                       /// VIEW
-//                                       IconButton(
-//                                         icon: const Icon(Icons.remove_red_eye, color: Colors.white),
-//                                         onPressed: () => viewFile(file),
-//                                       ),
-//
-//
-//                                       /// DELETE
-//                                       IconButton(
-//                                         icon: const Icon(Icons.delete, color: Colors.white),
-//                                         onPressed: () {
-//                                           setState(() {
-//                                             certificateFiles.removeAt(index);
-//                                           });
-//                                         },
-//                                       ),
-//                                     ],
-//                                   ),
-//                                 );
-//                               }),
-//                             ),
-//                         ],
-//                       ),
-//                     ),
-//
-//
-//
-//
-//                     SizedBox(height: 16),
-//
-//
-//                     Column(
-//                       children: [
-//                         Container(
-//                           padding: const EdgeInsets.all(16),
-//                           decoration: BoxDecoration(
-//                             color: ColorCode.bcakgroundcolor,
-//                             borderRadius: BorderRadius.circular(16),
-//                             border: Border.all(color: Colors.white24),
-//                           ),
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//
-//                               /// TITLE
-//                               const Text(
-//                                 "Upload Documents",
-//                                 style: TextStyle(
-//                                   color: Colors.white,
-//                                   fontSize: 14,
-//                                   fontWeight: FontWeight.w600,
-//                                 ),
-//                               ),
-//
-//                               const SizedBox(height: 12),
-//
-//                               /// RESUME
-//                               _documentBlock(
-//                                 label: "Upload Resume/CV",
-//                                 file: documentFile,
-//                                 onUpload: _pickDocument,
-//                                 onDelete: () {
-//                                   setState(() => documentFile = null);
-//                                 },
-//                               ),
-//
-//                               const SizedBox(height: 12),
-//
-//                               /// PORTFOLIO
-//                               _documentBlock(
-//                                 label: "Upload Portfolio",
-//                                 file: portfolioFile,
-//                                 onUpload: _pickPortfolio,
-//                                 onDelete: () {
-//                                   setState(() => portfolioFile = null);
-//                                 },
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//
-//                     SizedBox(height: 12),
-//
-//
-//
-//                     SizedBox(
-//                       width: double.infinity,
-//                       height: 55,
-//                       child: ElevatedButton(
-//                         /*      onPressed: () {
-//
-//
-//                        *//* Navigator.pushReplacement(
-//                           context,
-//                           MaterialPageRoute(
-//                             builder: (_) => Mainscreen(), // change screen name
-//                           ),
-//                         );*//*
-//                       }
-//                       ,*/
-//                         onPressed: isLoggingIn
-//                             ? null
-//                             : () {
-//                           debugPrint("🟢 CREATE PROFILE CLICKED");
-//                           _fetchSingup3();
-//                         },
-//
-//                         /*  onPressed:
-//                       isLoggingIn
-//                           ? null
-//                           : () {
-//                         debugPrint("🟢 NEXT BUTTON CLICKED");
-//                         _fetchSingup3();
-//                       },*/
-//                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: ColorCode.kButtonColor,
-//                           shape: RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(14),
-//                           ),
-//                         ),
-//                         child: const Text(
-//                           "Create Profile",
-//                           style: TextStyle(
-//                             fontSize: 16,
-//                             fontFamily: "Unbounded",
-//                             color: ColorCode.kHeadingColor,
-//                             fontWeight: FontWeight.w500,
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//
-//                     const SizedBox(height: 20),
-//
-//                     /// LOGIN TEXT
-//                     Center(
-//                       child: Text.rich(
-//                         TextSpan(
-//                           text: "Already have an account? ",
-//                           style: const TextStyle(
-//                             color: ColorCode.kWhiteOpacity70,
-//                           ),
-//                           children: [
-//                             TextSpan(
-//                               text: "Login",
-//                               style: TextStyle(
-//                                 color: ColorCode.kButtonColor,
-//                               ),
-//                             )
-//                           ],
-//                         ),
-//                       ),
-//                     )
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ),
-//           if (isLoggingIn)
-//             Positioned.fill(
-//               child: AbsorbPointer(
-//                 absorbing: true,
-//                 child: BackdropFilter(
-//                   filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-//                   child: Container(
-//                     color: Colors.black.withOpacity(0.4),
-//                     alignment: Alignment.center,
-//                     child: Lottie.asset(
-//                       "assets/lottie/Untitled_file.json",
-//                       width: 140,
-//                       height: 140,
-//                       repeat: true,
-//                       fit: BoxFit.contain,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//         ],
-//
-//       ),
+  Widget _userPreviewCard() {
+    final firstName = widget.firstName?.trim() ?? "";
+    final lastName  = widget.lastName?.trim() ?? "";
+    final email     = widget.email?.trim() ?? "";
+    final image     = widget.profileImage;
+
+    if (firstName.isEmpty &&
+        lastName.isEmpty &&
+        email.isEmpty &&
+        image == null) {
+      return const SizedBox();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+
+          /// 🔵 PROFILE IMAGE
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: Colors.grey.shade200,
+            backgroundImage: image != null ? FileImage(image) : null,
+            child: image == null
+                ? const Icon(Icons.person, size: 28, color: Colors.grey)
+                : null,
+          ),
+
+          const SizedBox(width: 14),
+
+          /// 📝 NAME + EMAIL + BUTTON COLUMN
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                /// NAME
+                Text(
+                  "$firstName $lastName",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: "Outfit",
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                /// EMAIL
+                Text(
+                  email.isEmpty ? "Your Email" : email,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: "Outfit",
+                    fontSize: 12,
+                    color: Colors.black54,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                /// BUTTON ROW
+                Row(
+                  children: [
+
+                    /// VIEW DETAILS BUTTON
+                    Expanded(
+                      child: SizedBox(
+                        height: 36,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (_) => ProfileDetailsScreen(
+                                firstName: widget.firstName ?? "",
+                                lastName: widget.lastName ?? "",
+                                email: widget.email ?? "",
+                                location: widget.location ?? "",
+                                workingDistance: widget.workingDistance ?? "",
+                                profileImage: widget.profileImage,
+
+
+                                primaryRole: widget.primaryRole,
+                                experience: widget.experience,
+                                hourlyRate: widget.hourlyRate,
+                                bio: widget.bio,
+                                skills: widget.skills,
+                                equipments: widget.equipments,
+
+                                featuredImages: featuredImages,
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            "View Details",
+                            style: TextStyle(
+                              fontFamily: "Outfit",
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: ColorCode.kButtonColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    /// COMPLETION PERCENT
+                    Container(
+                      height: 36,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        "70%",
+                        style: TextStyle(
+                          fontFamily: "Outfit",
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 
 }
 
