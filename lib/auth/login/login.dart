@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../MainScreen.dart';
 import '../../utility/ColorCode.dart';
 import '../../widgets/custom_text_field.dart';
 import '../ForgotPassword/forgot_password_screen.dart';
@@ -243,8 +244,13 @@ class _LoginState extends State<Login> {
                               width: double.infinity,
                               height: 50,
                               child: ElevatedButton(
-                                onPressed: () {
-
+                                 onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => Mainscreen(),
+                                    ),
+                                  );
                                 },
 
                                 style: ElevatedButton.styleFrom(

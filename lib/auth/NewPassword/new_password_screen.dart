@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utility/ColorCode.dart';
 import '../../widgets/custom_text_field.dart';
+import '../you’re_all_set.dart';
 import 'new_password_controller.dart';
 
 class NewPasswordScreen extends StatefulWidget {
@@ -171,9 +172,13 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                               height: 50,
                               child: ElevatedButton(
                                 onPressed: () {
-
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => youreall_set(),
+                                    ),
+                                  );
                                 },
-
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: ColorCode.kGoldGradientLight,
                                   shape: RoundedRectangleBorder(

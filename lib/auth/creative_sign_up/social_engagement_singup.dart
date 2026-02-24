@@ -9,6 +9,7 @@ import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
 import '../ProfileDetailsScreen .dart';
+import '../login/login.dart';
 
 class SocialEngagementSingup extends StatefulWidget {
   final int ?crewMemberId;
@@ -18,6 +19,7 @@ class SocialEngagementSingup extends StatefulWidget {
   final String? lastName;
   final String? location;          // ✅ ADD
   final String? workingDistance;
+  final int step2Progress;
 
   final String primaryRole;
   final String experience;
@@ -25,6 +27,7 @@ class SocialEngagementSingup extends StatefulWidget {
   final String bio;
   final String skills;
   final String equipments;
+
   const SocialEngagementSingup({
     super.key,
     this.crewMemberId,
@@ -39,7 +42,7 @@ class SocialEngagementSingup extends StatefulWidget {
     this.hourlyRate = "",
     this.bio = "",
     this.skills = "",
-    this.equipments = "",
+    this.equipments = "", required this.step2Progress,
   });
 
   @override
@@ -208,10 +211,10 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
       debugPrint("📥 STEP-3 RESPONSE => $response");
 
       if (response != null && response['error'] == false) {
-      /*  Navigator.pushReplacement(
+        Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) =>  LoginScreen()),
-        );*/
+          MaterialPageRoute(builder: (_) =>  Login()),
+        );
       } else {
         _showSnack(response?['message'] ?? "Submission failed");
       }
@@ -292,6 +295,20 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
       // 🔥 PDF / DOC / ANY FILE
       OpenFile.open(file.path);
     }
+  }
+  int _calculateStep3Progress() {
+    int totalFields = 5;
+    int filled = 0;
+
+    if (savedLinks.isNotEmpty) filled++;
+    if (featuredImages.isNotEmpty) filled++;
+    if (certificateFiles.isNotEmpty) filled++;
+    if (documentFile != null) filled++;
+    if (portfolioFile != null) filled++;
+
+    double step3Percent = (filled / totalFields) * 30;
+
+    return widget.step2Progress + step3Percent.toInt();
   }
 
   @override
@@ -421,7 +438,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                               /// 🧱 MAIN FORM CONTAINER
                               Container(
                                 width: double.infinity,
-                                padding: const EdgeInsets.fromLTRB(20, 36, 20, 20), // 👈 top extra
+                                padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
                                 margin: const EdgeInsets.symmetric(horizontal: 16),
                                 decoration: BoxDecoration(
                                   color: ColorCode.bcakgroundcolor,
@@ -2008,8 +2025,8 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       alignment: Alignment.center,
-                      child: const Text(
-                        "70%",
+                      child:  Text(
+                        "${_calculateStep3Progress()}%Completed",
                         style: TextStyle(
                           fontFamily: "Outfit",
                           fontSize: 12,

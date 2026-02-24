@@ -17,10 +17,18 @@ class ProfessionalDetailsSingUp extends StatefulWidget {
   final String? email;
   final String? firstName;
   final String? lastName;
-
-  final String? location;          // ✅ ADD THIS
+  final int step1Progress;
+  final String? location;
   final String? workingDistance;
-  const ProfessionalDetailsSingUp({super.key,  this.crewMemberId, this.profileImage, this.email, this.firstName, this.lastName, this.location, this.workingDistance});
+  const ProfessionalDetailsSingUp({super.key,
+    this.crewMemberId,
+    this.profileImage,
+    this.email,
+    this.firstName,
+    this.lastName,
+    this.location,
+    this.workingDistance,
+    required this.step1Progress});
 
   @override
   State<ProfessionalDetailsSingUp> createState() =>
@@ -55,6 +63,22 @@ class _ProfessionalDetailsSingUpState
   Map<String, int> skillMap = {};
   Map<String, int> equipmentMap = {};
 
+  int _calculateStep2Progress() {
+    int totalFields = 6;
+    int filled = 0;
+
+    if (primaryRole != null && primaryRole!.isNotEmpty) filled++;
+    if (YearofExperienceController.text.trim().isNotEmpty) filled++;
+    if (HourlyRateController.text.trim().isNotEmpty) filled++;
+    if (bioController.text.trim().isNotEmpty) filled++;
+    if (selectedSkills.isNotEmpty) filled++;
+    if (selectedEquipments.isNotEmpty) filled++;
+
+    // Step 2 ka max = 40%
+    double step2Percent = (filled / totalFields) * 40;
+
+    return widget.step1Progress + step2Percent.toInt();
+  }
 
 
   @override
@@ -62,6 +86,10 @@ class _ProfessionalDetailsSingUpState
     super.initState();
     _fetchhome_roles();
     _fetchhome_Skills();
+
+    YearofExperienceController.addListener(() => setState(() {}));
+    HourlyRateController.addListener(() => setState(() {}));
+    bioController.addListener(() => setState(() {}));
   }
 
   Future<void> _fetchhome_roles() async {
@@ -263,6 +291,7 @@ class _ProfessionalDetailsSingUpState
               bio: bioController.text.trim(),
               skills: selectedSkills.join(", "),
               equipments: selectedEquipments.join(", "),
+              step2Progress: _calculateStep2Progress(),
             ),
           ),
         );
@@ -277,7 +306,11 @@ class _ProfessionalDetailsSingUpState
       debugPrint("🔚 STEP-2 LOADING STOPPED");
     }
   }
-
+/*  bool get isPreviewVisible =>
+      firstNameController.text.trim().isNotEmpty ||
+          lastNameController.text.trim().isNotEmpty ||
+          emailController.text.trim().isNotEmpty ||
+          profileImage != null;*/
 
   @override
   Widget build(BuildContext context) {
@@ -404,7 +437,7 @@ class _ProfessionalDetailsSingUpState
                       /// 🧱 MAIN FORM CONTAINER
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(20, 36, 20, 20), // 👈 top extra
+                        padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
                           color: ColorCode.bcakgroundcolor,
@@ -680,63 +713,9 @@ class _ProfessionalDetailsSingUpState
 
                       const SizedBox(height: 20),
                       /// 🏷️ FLOATING CHIP (BORDER PE STUCK)
+
                       Positioned(
-                        top: -24,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: ColorCode.k282828,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.12),
-                                width: 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.35),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  height: 28,
-                                  width: 28,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.08),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.person_outline,
-                                    size: 16,
-                                    color: ColorCode.kWhiteOpacity70,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                const Text(
-                                  "Tell Us About Yourself & Add Details",
-                                  style: TextStyle(
-                                    fontFamily: "Outfit",
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
-                                    color: ColorCode.kWhiteOpacity70,
-                                    letterSpacing: 0.2,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: -30,
+                        top: -40,
                         left: 20,
                         right: 20,
                         child: _userPreviewCard(),
@@ -1089,8 +1068,8 @@ class _ProfessionalDetailsSingUpState
                   borderRadius: BorderRadius.circular(20),
                 ),
                 alignment: Alignment.center,
-                child: const Text(
-                  "70% Completed",
+                child:  Text(
+                  "${_calculateStep2Progress()}% Completed",
                   style: TextStyle(
                     fontFamily: "Outfit",
                     fontSize: 12,
