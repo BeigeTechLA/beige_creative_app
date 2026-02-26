@@ -17,148 +17,11 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
   String selectedRange = "Month";
   int selectedTab = 0; // 0 = Photo, 1 = Video
-  Widget _buildDrawer() {
-    return Drawer(
-      backgroundColor: const Color(0xFF111111),
-      child: SafeArea(
-        child: Column(
-          children: [
-
-            /// TOP SECTION
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  /// LOGO + CLOSE
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      /// BELL
-                      Image.asset(
-                        "assets/home/Group.png",
-
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      )
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// PROFILE CARD
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD6B98C),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-
-                        const CircleAvatar(
-                          radius: 25,
-                          backgroundImage:
-                          AssetImage("assets/home/Vector.png"), // add image
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                "Priya Smith",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  fontFamily: "Outfit",
-                                  color: ColorCode.black
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                "priyasmith@gmail.com",
-                                style: TextStyle(fontSize: 12,
-                                    fontFamily: "Outfit",
-                                    fontWeight: FontWeight.w500,
-                                    color: ColorCode.black
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const Icon(Icons.arrow_forward_ios, size: 16)
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const Divider(color: Colors.grey),
-
-            /// MENU ITEMS
-            Expanded(
-              child: ListView(
-                children: [
-                  _drawerItem("Dashboard", Icons.dashboard),
-                  _drawerItem("Shoots", Icons.camera_alt),
-                  _drawerItem("Manage Availability", Icons.calendar_month),
-                  _drawerItem("File Manager", Icons.folder),
-                  _drawerItem("Meetings", Icons.video_call),
-                  _drawerItem("Messages", Icons.message),
-                  _drawerItem("Payouts", Icons.currency_rupee),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 🔥 Drawer Item Method
-  Widget _drawerItem(String title, IconData icon) {
-    return Column(
-      children: [
-        ListTile(
-          contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-          leading: Icon(icon, color: Colors.white70, size: 20),
-          title: Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontFamily: "Outfit",
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          onTap: () => Navigator.pop(context),
-        ),
-         Divider(
-           color: ColorCode.kDividerWhite12,
-          thickness: 0.8,
-
-        )
-      ],
-    );
-  }
 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: _buildDrawer(), // 👈 Yaha attach kiya
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
         child: Column(
           children: [
 
@@ -1276,8 +1139,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
           ],
         ),
-      ),
-    );
+        );
+
   }
   Widget _dashboardCard({
     required int index,

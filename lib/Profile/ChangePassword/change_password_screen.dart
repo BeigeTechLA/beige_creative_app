@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../utility/ColorCode.dart';
 import '../../widgets/custom_text_field.dart';
 import 'change_password_controller.dart';
+import 'enter_otp_screen.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -104,15 +105,27 @@ class _ChangePasswordScreenState
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorCode.kButtonColor,
+                    elevation: 0, // shadow remove
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14), // rounded corners
+                    ),
+                  ),
                   onPressed: () {
-
-                  },
-                  child:const Text(
+                      Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const EnterOtpScreen(),
+      ),
+    );                  },
+                  child: const Text(
                     "Send OTP",
                     style: TextStyle(
                       fontSize: 14,
                       fontFamily: "Unbounded",
                       fontWeight: FontWeight.w500,
+                      color: Colors.black, // dark text
                     ),
                   ),
                 ),

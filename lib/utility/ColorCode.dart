@@ -19,6 +19,10 @@ class ColorCode {
     static const Color kDividerWhite12 = Color(0x1FFFFFFF);
 
   static const Color k737373 = Color(0xFF737373); //Medium grey
+// ⭐ Soft Pastel Colors
+  static const Color kSoftPeach = Color(0xFFEECCC9);   // #EECCC9
+  static const Color kSoftMint  = Color(0xFFD8FDE6);   // #D8FDE6
+
 
   // ⭐ Light Red / Remove Background
   static const Color kLightRed = Color(0xFFFFC9C9);

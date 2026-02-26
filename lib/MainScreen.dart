@@ -1,3 +1,4 @@
+/*
 import 'package:beige_creative_app/utility/ColorCode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -69,21 +70,22 @@ class _MainscreenState extends State<Mainscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
+      drawer: _buildDrawer(),
       body: _pages[_selectedIndex],
-
 
 
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: ColorCode.bcakgroundcolor, // 🔥 background color
-          /* boxShadow: [
+          */
+/* boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.35),
                 blurRadius: 10,
                 offset: const Offset(0, -3),
               ),
-            ],*/
+            ],*//*
+
         ),
         child: BottomNavigationBar(
           currentIndex: _selectedIndex,
@@ -170,20 +172,151 @@ class _MainscreenState extends State<Mainscreen> {
 
     );
   }
+  Widget _buildDrawer() {
+    return Drawer(
+      backgroundColor: const Color(0xFF111111),
+      child: SafeArea(
+        child: Column(
+          children: [
+
+            /// TOP SECTION
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  /// LOGO + CLOSE
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      /// BELL
+                      Image.asset(
+                        "assets/home/Group.png",
+
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      )
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// PROFILE CARD
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD6B98C),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+
+                        const CircleAvatar(
+                          radius: 25,
+                          backgroundImage:
+                          AssetImage("assets/home/Vector.png"), // add image
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                "Priya Smith",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    fontFamily: "Outfit",
+                                    color: ColorCode.black
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                "priyasmith@gmail.com",
+                                style: TextStyle(fontSize: 12,
+                                    fontFamily: "Outfit",
+                                    fontWeight: FontWeight.w500,
+                                    color: ColorCode.black
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const Icon(Icons.arrow_forward_ios, size: 16)
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Divider(color: Colors.grey),
+
+            /// MENU ITEMS
+            Expanded(
+              child: ListView(
+                children: [
+                  _drawerItem("Dashboard", Icons.dashboard),
+                  _drawerItem("Shoots", Icons.camera_alt),
+                  _drawerItem("Manage Availability", Icons.calendar_month),
+                  _drawerItem("File Manager", Icons.folder),
+                  _drawerItem("Meetings", Icons.video_call),
+                  _drawerItem("Messages", Icons.message),
+                  _drawerItem("Payouts", Icons.currency_rupee),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 🔥 Drawer Item Method
+  Widget _drawerItem(String title, IconData icon) {
+    return Column(
+      children: [
+        ListTile(
+          contentPadding:
+          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          leading: Icon(icon, color: Colors.white70, size: 20),
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontFamily: "Outfit",
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          onTap: () => Navigator.pop(context),
+        ),
+        Divider(
+          color: ColorCode.kDividerWhite12,
+          thickness: 0.8,
+
+        )
+      ],
+    );
+  }
+
 }
 
 
-
-
-
-/*
-import 'package:beige/ChooseYourRole/choose_your_role_screen.dart';
-import 'package:beige/utility/ColorCode.dart';
+*/
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'Booking/booking_all_screen.dart';
-import 'Home/Specialities/specialities.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'ManageAvailability/manage_availability_screen.dart';
+import 'Shoots/shoots_screen.dart';
+import 'utility/ColorCode.dart';
 import 'Home/home_screen.dart';
 
 class Mainscreen extends StatefulWidget {
@@ -195,85 +328,222 @@ class Mainscreen extends StatefulWidget {
 
 class _MainscreenState extends State<Mainscreen> {
   int _selectedIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  /// 🔹 SERVICES / SPECIALITIES REMOVED
-  final List<Widget> _pages = [
-    HomeScreen(),          // 0
-    Specialities(),
-    BookingAllScreen(),    // 1 (Book Shoot / Booking)
-    Center(child: Text("Message", style: TextStyle(fontSize: 22))),
+  final List<Widget> _pages = const [
+    HomeScreen(),
+    ShootsScreen(),
+
+    Center(child: Text("File Manager", style: TextStyle(color: Colors.white))),
+    Center(child: Text("Messages", style: TextStyle(color: Colors.white))),
+    ManageAvailabilityScreen(),
   ];
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: ColorCode.bcakgroundcolor,
+      drawer: _buildDrawer(),
       body: _pages[_selectedIndex],
+      bottomNavigationBar: _buildBottomBar(),
+    );
+  }
 
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: ColorCode.bcakgroundcolor,
+  Widget _buildBottomBar() {
+    return BottomNavigationBar(
+      currentIndex: _selectedIndex,
+      backgroundColor: ColorCode.bcakgroundcolor,
+      type: BottomNavigationBarType.fixed,
+      selectedItemColor: Colors.white,
+      unselectedItemColor: ColorCode.kWhiteOpacity70,
+      onTap: _onItemTapped,
+      items: [
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            _selectedIndex == 0
+                ? "assets/Active/Dashboard.svg"
+                : "assets/NonActive/dashboard-square-02.svg",
+            height: 26,
+            colorFilter: ColorFilter.mode(
+              _selectedIndex == 0
+                  ? Colors.white
+                  : ColorCode.kWhiteOpacity70,
+              BlendMode.srcIn,
+            ),
+          ),
+          label: "Dashboard",
         ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          type: BottomNavigationBarType.fixed,
-
-          selectedItemColor: Colors.white,
-          unselectedItemColor: ColorCode.kWhiteOpacity70,
-
-          selectedLabelStyle: const TextStyle(
-            fontFamily: "Outfit",
-            fontWeight: FontWeight.w500,
-            fontSize: 12,
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            _selectedIndex == 1
+                ? "assets/Active/Shoots.svg"
+                : "assets/NonActive/Shoots(1).svg",
+            height: 26,
+            colorFilter: ColorFilter.mode(
+              _selectedIndex == 1
+                  ? Colors.white
+                  : ColorCode.kWhiteOpacity70,
+              BlendMode.srcIn,
+            ),
           ),
-          unselectedLabelStyle: const TextStyle(
-            fontFamily: "Outfit",
-            fontWeight: FontWeight.w500,
-            fontSize: 12,
-          ),
+          label: "Shoots",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.folder),
+          label: "File Manager",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.message),
+          label: "Messages",
+        ),
+      ],
+    );
+  }
+  Widget _buildDrawer() {
+    return Drawer(
+      backgroundColor: const Color(0xFF111111),
+      child: SafeArea(
+        child: Column(
+          children: [
 
+            /// TOP SECTION
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-          items: [
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                _selectedIndex == 0
-                    ? "assets/Icons/home_10.png"
-                    : "assets/Icons/inactive_home.png",
-                height: 28,
+                  /// LOGO + CLOSE
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      /// BELL
+                      Image.asset(
+                        "assets/home/Group.png",
+
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      )
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// PROFILE CARD
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD6B98C),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+
+                        const CircleAvatar(
+                          radius: 25,
+                          backgroundImage:
+                          AssetImage("assets/home/Vector.png"), // add image
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                "Priya Smith",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    fontFamily: "Outfit",
+                                    color: ColorCode.black
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                "priyasmith@gmail.com",
+                                style: TextStyle(fontSize: 12,
+                                    fontFamily: "Outfit",
+                                    fontWeight: FontWeight.w500,
+                                    color: ColorCode.black
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const Icon(Icons.arrow_forward_ios, size: 16)
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              label: "Home",
             ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                _selectedIndex == 1
-                    ? "assets/Icons/Group 2087328965.png"
-                    : "assets/Icons/inactive_book_shoot.png",
-                height: 28,
+
+            const Divider(color: Colors.grey),
+
+            /// MENU ITEMS
+            Expanded(
+              child: ListView(
+                children: [
+                  _drawerItem("Dashboard", Icons.dashboard, 0),
+                  _drawerItem("Shoots", Icons.camera_alt, 1),
+                  _drawerItem("File Manager", Icons.folder, 2),
+                  _drawerItem("Messages", Icons.message, 3),
+
+                  _drawerItem("Manage Availability", Icons.currency_rupee,4),
+
+                ],
               ),
-              label: "Book Shoot",
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                _selectedIndex == 2
-                    ? "assets/Icons/Calendar4.png"
-                    : "assets/Icons/inactive_booking.png",
-                height: 28,
-              ),
-              label: "My Shoots",
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "assets/Icons/chat-1-line 1.png",
-                height: 28,
-              ),
-              label: "Messages",
             ),
           ],
         ),
       ),
     );
   }
+
+  /// 🔥 Drawer Item Method
+  Widget _drawerItem(String title, IconData icon, int index) {
+    return Column(
+      children: [
+        ListTile(
+          contentPadding:
+          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          leading: Icon(icon, color: Colors.white70, size: 20),
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontFamily: "Outfit",
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          onTap: () {
+            setState(() {
+              _selectedIndex = index;   // 👈 THIS IS IMPORTANT
+            });
+            Navigator.pop(context);     // drawer close
+          },
+        ),
+        Divider(
+          color: ColorCode.kDividerWhite12,
+          thickness: 0.8,
+        )
+      ],
+    );
+  }
+
 }
-*/
