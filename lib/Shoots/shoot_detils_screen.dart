@@ -1,6 +1,7 @@
 import 'package:beige_creative_app/utility/ColorCode.dart';
 import 'package:flutter/material.dart';
 
+import 'shoot_cancelled_screen.dart';
 import 'shoot_request_accepted.dart';
 
 class ShootDetilsScreen extends StatefulWidget {
@@ -11,6 +12,10 @@ class ShootDetilsScreen extends StatefulWidget {
 }
 
 class _ShootDetilsScreenState extends State<ShootDetilsScreen> {
+  String selectedReason = "";
+  bool isOtherSelected = false;
+  TextEditingController commentController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -481,7 +486,25 @@ class _ShootDetilsScreenState extends State<ShootDetilsScreen> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () {
-                          Navigator.pop(context); // close current screen
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              transitionDuration: const Duration(milliseconds: 400),
+                              pageBuilder: (_, __, ___) => const CancelScreen(),
+                              transitionsBuilder: (_, animation, __, child) {
+                                return SlideTransition(
+                                  position: Tween(
+                                    begin: const Offset(0, 1), // 👈 bottom se start
+                                    end: Offset.zero,
+                                  ).animate(CurvedAnimation(
+                                    parent: animation,
+                                    curve: Curves.easeOut,
+                                  )),
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
                         },
                         child: Container(
                           height: 48,
@@ -849,6 +872,7 @@ class _ShootDetilsScreenState extends State<ShootDetilsScreen> {
       },
     );
   }
+
   Widget timelineStaticItem({
     required IconData icon,
     required String title,
@@ -948,4 +972,264 @@ class _ShootDetilsScreenState extends State<ShootDetilsScreen> {
     );
   }
 
+  void showCancelDialog( context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1B1B1B),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(30),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  /// DRAG HANDLE
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// HEADER
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Cancel Shoot Request",
+                        style: TextStyle(
+                          fontFamily: "Unbounded",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.close, color: Colors.white),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  const Text(
+                    "Please let us know why you're declining this request. "
+                        "This helps improve future matching.",
+                    style: TextStyle(
+                      fontFamily: "Outfit",
+                      fontSize: 13,
+                      color: Colors.white70,
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  Divider(color: Colors.white12),
+
+                  const SizedBox(height: 10),
+
+                  /// REASON TITLE
+                  const Text(
+                    "Reason for Cancelling",
+                    style: TextStyle(
+                      fontFamily: "Outfit",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  /// RADIO LIST
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        _buildReasonTile("Schedule conflict"),
+                        _buildReasonTile("Equipment unavailable"),
+                        _buildReasonTile("Location too far"),
+                        _buildReasonTile("Rate too low"),
+                        _buildReasonTile("Others"),
+
+                        /// 👇 SHOW TEXTFIELD ONLY IF OTHERS SELECTED
+                        if (isOtherSelected) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: Colors.white24),
+                            ),
+                            child: TextField(
+                              controller: commentController,
+                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                              maxLines: 3,
+                              decoration: const InputDecoration(
+                                hintText: "Any additional details..",
+                                hintStyle: TextStyle(color: Colors.white38),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ]
+                      ],
+                    ),
+                  ),
+
+                  /// COMMENT FIELD
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: TextField(
+                      controller: commentController,
+                      style: const TextStyle(color: Colors.white),
+                      maxLines: 2,
+                      decoration: const InputDecoration(
+                        hintText: "Any additional details..",
+                        hintStyle: TextStyle(color: Colors.white38),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  /// BUTTONS
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.white30),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text(
+                            "Cancel",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 14),
+
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFE8D1AB),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            "Decline",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+                ],
+              ),
+            );
+
+            /// RADIO TILE FUNCTION
+
+          },
+
+        );
+      },
+    );
+  }
+  Widget _buildReasonTile(String title) {
+    bool isSelected = selectedReason == title;
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          selectedReason = title;
+          isOtherSelected = title == "Others";
+        });
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+
+            /// 🔘 CUSTOM CIRCLE
+            Container(
+              height: 20,
+              width: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? const Color(0xFFE8D1AB)
+                      : Colors.white54,
+                  width: 2,
+                ),
+              ),
+              child: isSelected
+                  ? Center(
+                child: Container(
+                  height: 10,
+                  width: 10,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFFE8D1AB),
+                  ),
+                ),
+              )
+                  : null,
+            ),
+
+            const SizedBox(width: 14),
+
+            /// 📝 TEXT
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: "Outfit",
+                fontSize: 14, // 👈 proper size
+                fontWeight: FontWeight.w400,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

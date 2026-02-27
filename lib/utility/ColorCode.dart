@@ -22,7 +22,8 @@ class ColorCode {
 // ⭐ Soft Pastel Colors
   static const Color kSoftPeach = Color(0xFFEECCC9);   // #EECCC9
   static const Color kSoftMint  = Color(0xFFD8FDE6);   // #D8FDE6
-
+// ⭐ Soft Light Blue
+  static const Color kSoftLightBlue = Color(0xFFC8E1FF); // #C8E1FF
 
   // ⭐ Light Red / Remove Background
   static const Color kLightRed = Color(0xFFFFC9C9);
@@ -43,7 +44,7 @@ class ColorCode {
   static const Color kCircleBorderDark = Color(0xFF1D1D1B);
 
   static const Color kBlackOpacity10 = Color(0x1A000000); // #0000001A
-
+  static const Color kPrimaryPurple = Color(0xFFC026D3);
   static const Color wine = Color(0xFF5A0760);
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);

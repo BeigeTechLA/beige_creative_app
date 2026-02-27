@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
-
 import '../utility/ColorCode.dart';
 
-class ManageAvailabilityScreen extends StatefulWidget {
+class ManageAvailabilityScreen extends StatelessWidget {
   const ManageAvailabilityScreen({super.key});
 
   @override
-  State<ManageAvailabilityScreen> createState() => _ManageAvailabilityScreenState();
-}
-
-class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen> {
-  @override
   Widget build(BuildContext context) {
-    return SafeArea(child:
-      Column(
+    return SafeArea(
+      child: Column(
         children: [
+
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 16, vertical: 12),
             child: Row(
               children: [
 
-                /// MENU
                 Builder(
                   builder: (context) => InkWell(
                     onTap: () {
@@ -36,7 +31,6 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen> {
 
                 const Spacer(),
 
-                /// TITLE
                 const Text(
                   "Manage Availability",
                   style: TextStyle(
@@ -48,13 +42,12 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen> {
                 ),
 
                 const Spacer(),
-
               ],
             ),
           ),
+
         ],
       ),
-
     );
   }
 }

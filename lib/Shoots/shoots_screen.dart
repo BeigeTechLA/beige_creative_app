@@ -1,6 +1,7 @@
 import 'package:beige_creative_app/Shoots/shoot_detils_screen.dart';
 import 'package:flutter/material.dart';
 import '../utility/ColorCode.dart';
+import 'shoot_cancelled_screen.dart';
 
 class ShootsScreen extends StatelessWidget {
   const ShootsScreen({super.key});
@@ -296,7 +297,27 @@ class ShootsScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(25),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            transitionDuration: const Duration(milliseconds: 400),
+                            pageBuilder: (_, __, ___) => const CancelScreen(),
+                            transitionsBuilder: (_, animation, __, child) {
+                              return SlideTransition(
+                                position: Tween(
+                                  begin: const Offset(0, 1), // 👈 bottom se start
+                                  end: Offset.zero,
+                                ).animate(CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeOut,
+                                )),
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
+                      },
                       child: const Text("Decline",
                         style: TextStyle(
                           color: ColorCode.red,

@@ -314,7 +314,9 @@ class _MainscreenState extends State<Mainscreen> {
 */
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'FileManager/file_manager_screen.dart';
 import 'ManageAvailability/manage_availability_screen.dart';
+import 'Messages/messages_screen.dart';
 import 'Shoots/shoots_screen.dart';
 import 'utility/ColorCode.dart';
 import 'Home/home_screen.dart';
@@ -331,14 +333,12 @@ class _MainscreenState extends State<Mainscreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<Widget> _pages = const [
-    HomeScreen(),
-    ShootsScreen(),
-
-    Center(child: Text("File Manager", style: TextStyle(color: Colors.white))),
-    Center(child: Text("Messages", style: TextStyle(color: Colors.white))),
+    HomeScreen(),          // 0
+    ShootsScreen(),        // 1
+    FileManagerScreen(),   // 2
+    MessagesScreen(),                   // 3
     ManageAvailabilityScreen(),
   ];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -351,14 +351,18 @@ class _MainscreenState extends State<Mainscreen> {
       key: _scaffoldKey,
       backgroundColor: ColorCode.bcakgroundcolor,
       drawer: _buildDrawer(),
+
       body: _pages[_selectedIndex],
+
+
       bottomNavigationBar: _buildBottomBar(),
     );
   }
 
   Widget _buildBottomBar() {
     return BottomNavigationBar(
-      currentIndex: _selectedIndex,
+      // currentIndex: _selectedIndex,
+      currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
       backgroundColor: ColorCode.bcakgroundcolor,
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.white,
@@ -380,6 +384,7 @@ class _MainscreenState extends State<Mainscreen> {
           ),
           label: "Dashboard",
         ),
+
         BottomNavigationBarItem(
           icon: SvgPicture.asset(
             _selectedIndex == 1
@@ -395,12 +400,30 @@ class _MainscreenState extends State<Mainscreen> {
           ),
           label: "Shoots",
         ),
+
         BottomNavigationBarItem(
-          icon: Icon(Icons.folder),
+          icon: SvgPicture.asset(
+            _selectedIndex == 2
+                ? "assets/Active/FileManager.svg"
+                : "assets/NonActive/FileManager(1).svg",
+            height: 26,
+            colorFilter: ColorFilter.mode(
+              _selectedIndex == 2  // ✅ FIXED
+              ? Colors.white
+                : ColorCode.kWhiteOpacity70,
+            BlendMode.srcIn,
+            ),
+          ),
           label: "File Manager",
         ),
+
         BottomNavigationBarItem(
-          icon: Icon(Icons.message),
+          icon: SvgPicture.asset(
+            _selectedIndex == 3
+                ? "assets/Active/Messages.svg"
+                : "assets/NonActive/Messages (1).svg",
+            height: 28,
+          ),
           label: "Messages",
         ),
       ],
@@ -498,12 +521,20 @@ class _MainscreenState extends State<Mainscreen> {
             Expanded(
               child: ListView(
                 children: [
-                  _drawerItem("Dashboard", Icons.dashboard, 0),
-                  _drawerItem("Shoots", Icons.camera_alt, 1),
-                  _drawerItem("File Manager", Icons.folder, 2),
-                  _drawerItem("Messages", Icons.message, 3),
+                  _drawerBottomNavItem("Dashboard", Icons.dashboard, 0),
+                  _drawerBottomNavItem("Shoots", Icons.camera_alt, 1),
+                  _drawerBottomNavItem("File Manager", Icons.folder, 2),
+                  _drawerBottomNavItem("Messages", Icons.message, 3),
 
-                  _drawerItem("Manage Availability", Icons.currency_rupee,4),
+                  _drawerBottomNavItem(
+                    "Manage Availability",
+                    Icons.calendar_month,
+                    4,
+                  ),
+                  _drawerPushItem("Meetings", Icons.video_call, const ManageAvailabilityScreen()),
+                  _drawerPushItem("Payouts", Icons.currency_rupee, const ManageAvailabilityScreen()),
+
+
 
                 ],
               ),
@@ -515,35 +546,46 @@ class _MainscreenState extends State<Mainscreen> {
   }
 
   /// 🔥 Drawer Item Method
-  Widget _drawerItem(String title, IconData icon, int index) {
-    return Column(
-      children: [
-        ListTile(
-          contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-          leading: Icon(icon, color: Colors.white70, size: 20),
-          title: Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontFamily: "Outfit",
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          onTap: () {
-            setState(() {
-              _selectedIndex = index;   // 👈 THIS IS IMPORTANT
-            });
-            Navigator.pop(context);     // drawer close
-          },
+  /// 🔥 Bottom Nav Type Item
+  Widget _drawerBottomNavItem(String title, IconData icon, int index) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white70, size: 20),
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white,
+          fontFamily: "Outfit",
+          fontWeight: FontWeight.w500,
         ),
-        Divider(
-          color: ColorCode.kDividerWhite12,
-          thickness: 0.8,
-        )
-      ],
+      ),
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+        Navigator.pop(context);
+      },
     );
   }
 
+  /// 🔥 Push New Screen Item
+  Widget _drawerPushItem(String title, IconData icon, Widget screen) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white70, size: 20),
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white,
+          fontFamily: "Outfit",
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => screen),
+        );
+      },
+    );
+  }
 }
