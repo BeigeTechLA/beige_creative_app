@@ -10,6 +10,11 @@ class CustomTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final int maxLines;
   final Widget? suffixIcon;
+
+  /// ✅ Add these properly
+  final bool readOnly;
+  final VoidCallback? onTap;
+
   const CustomTextField({
     super.key,
     required this.label,
@@ -20,6 +25,8 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.maxLines = 1,
     this.suffixIcon,
+    this.readOnly = false,   // ✅ default false
+    this.onTap,              // ✅ optional
   });
 
   @override
@@ -29,13 +36,15 @@ class CustomTextField extends StatelessWidget {
       maxLines: maxLines,
       obscureText: isPassword ? !isVisible : false,
       keyboardType: keyboardType,
+      readOnly: readOnly,     // ✅ apply here
+      onTap: onTap,           // ✅ apply here
       cursorColor: ColorCode.kWhiteOpacity70,
       style: const TextStyle(
         color: Colors.white,
         fontSize: 14,
       ),
       decoration: InputDecoration(
-        labelText: "$label",
+        labelText: label,
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelStyle: const TextStyle(
           color: ColorCode.kWhiteOpacity70,
@@ -44,7 +53,6 @@ class CustomTextField extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
           vertical: 18,
-
         ),
         suffixIcon: suffixIcon,
         enabledBorder: OutlineInputBorder(
