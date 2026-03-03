@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../Profile/MyProfile/MyProfile.dart' show Myprofile;
+import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../utility/ColorCode.dart';
 import '../widgets/multi_arc_painter.dart';
 
@@ -340,7 +341,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: ()
+                           {
+            Navigator.push(
+            context,
+            MaterialPageRoute(
+            builder: (context) => UpcomingShootViewDetils(), // 👈 next screen
+            ),
+            );
+            },
                           child: const Text(
                             "View Details",
                             style: TextStyle(color: Colors.black, fontSize: 11),

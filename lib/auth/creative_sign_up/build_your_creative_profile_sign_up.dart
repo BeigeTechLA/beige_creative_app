@@ -20,7 +20,6 @@ import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../service/google_config.dart';
 import '../../utility/ColorCode.dart';
-import '../../utility/imges_icons.dart';
 
 
 class BuildYourCreativeProfileSignUp extends StatefulWidget {
@@ -713,15 +712,15 @@ class _BuildYourCreativeProfileSignUpState extends State<BuildYourCreativeProfil
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                          InkWell  (
+             /*             InkWell  (
                     onTap: () {
               Navigator.pop(context);
               },
                           child: Image.asset(
-                            AppImages.reply,
+
                             height: 24,
                           )
-                        ),
+                        ),*/
                         SizedBox(height: 30),
                         Padding(
                           padding: EdgeInsets.only(right: 16),

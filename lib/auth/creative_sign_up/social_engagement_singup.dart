@@ -8,6 +8,7 @@ import 'package:open_file/open_file.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
+import '../../widgets/custom_text_field.dart';
 import '../ProfileDetailsScreen .dart';
 import '../login/login.dart';
 
@@ -55,6 +56,16 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
   final TextEditingController linkController = TextEditingController();
 
   final TextEditingController enter_work_titleController = TextEditingController();
+
+  int selectedPortfolioIndex = -1;
+  int? editingPortfolioIndex;
+
+  final TextEditingController portfolioNameController = TextEditingController();
+  final TextEditingController portfolioLinkController = TextEditingController();
+
+  List<Map<String, dynamic>> savedPortfolioLinks = [];
+
+
   int selectedSocialIndex = -1;
   int? editingIndex;
 
@@ -86,6 +97,20 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
   bool isPicking = false;
   List<File> certificateFiles = [];
 
+  final List<String> Portfoliolname  = [
+    "Vimeo",
+    "YouTube",
+    "Google Drive",
+  ];
+
+  final List<String> Portfolioicons = [
+    "assets/icons/vimeo-icon 1.png",
+    "assets/icons/YouTube.png",
+    "assets/icons/Google_Drive.png",
+  ];
+
+
+
   final List<String> socialNames = [
     "Facebook",
     "Instagram",
@@ -102,7 +127,6 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
     "assets/icons/behance.png",
     "assets/icons/webside.png",
   ];
-
 
   Future<void> _pickCertificate() async {
     final result = await FilePicker.platform.pickFiles(
@@ -530,95 +554,217 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                       onTap: _openSocialSheet,
                     ),
                     const SizedBox(height: 20),
+                                    if (savedPortfolioLinks.isNotEmpty)
+                                      Column(
+                                        children: savedPortfolioLinks.asMap().entries.map((entry) {
+                                          final index = entry.key;
+                                          final item = entry.value;
 
+                                          return Container(
+                                            margin: const EdgeInsets.only(bottom: 8),
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(16),
+                                              border: Border.all(color: Colors.white24),
+                                              color: Colors.black26,
+                                            ),
+                                            child: Row(
+                                              children: [
 
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: ColorCode.bcakgroundcolor,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white24),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                                                Container(
+                                                  height: 40,
+                                                  width: 40,
+                                                  decoration: BoxDecoration(
+                                                    color: ColorCode.kButtonColor.withOpacity(0.15),
+                                                    borderRadius: BorderRadius.circular(12),
+                                                  ),
+                                                  child: Image.asset(
+                                                    item['icon'],
+                                                    color: ColorCode.kButtonColor,
+                                                  ),
+                                                ),
 
-                          /// HEADER
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                "Featured Work",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                                                const SizedBox(width: 12),
 
-                              InkWell(
-                                onTap: _featuredSheet,
-                                child: Row(
-                                  children: const [
-                                    Icon(Icons.add, size: 18, color: Color(0xFFF4E1C1)),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      "Add another",
-                                      style: TextStyle(
-                                        color: Color(0xFFF4E1C1),
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
+                                                Expanded(
+                                                  child: Text(
+                                                    item['name'],
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                IconButton(
+                                                  icon: const Icon(Icons.edit, color: Colors.white),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      editingPortfolioIndex = index;
+                                                      selectedPortfolioIndex =
+                                                          Portfoliolname.indexOf(item['name']);
+                                                      portfolioNameController.text = item['name'];
+                                                      portfolioLinkController.text = item['url'];
+                                                    });
+
+                                                    _openPortfoliole();
+                                                  },
+                                                ),
+
+                                                IconButton(
+                                                  icon: const Icon(Icons.delete, color: Colors.redAccent),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      savedPortfolioLinks.removeAt(index);
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    _buildAddTile(
+                                      title: "Add Portfolio Link (Optional)",
+                                      onTap: _openPortfoliole,
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Container(
+                                      constraints: const BoxConstraints(
+                                        minHeight: 220,
+                                      ),
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: ColorCode.bcakgroundcolor,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(color: Colors.white24),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+
+                                          /// 🔹 HEADER
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              const Text(
+                                                "Featured Work",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+
+                                              InkWell(
+                                                onTap: _featuredSheet,
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      height: 28,
+                                                      width: 28,
+                                                      decoration: const BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Color(0xFFF4E1C1),
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.add,
+                                                        size: 16,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 6),
+                                                    const Text(
+                                                      "Add another",
+                                                      style: TextStyle(
+                                                        color: ColorCode.kWhiteOpacity70,
+                                                        fontSize: 13,
+                                                        fontFamily: "Outfit",
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+
+                                          const SizedBox(height: 14),
+
+                                          /// 🔹 EMPTY STATE
+                                          if (featuredImages.isEmpty)
+                                            GestureDetector(
+                                              onTap: _featuredSheet,
+                                              child: Container(
+                                                height: 150,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  border: Border.all(color: Colors.white38),
+                                                ),
+                                                child: const Center(
+                                                  child: Text(
+                                                    "Add",
+                                                    style: TextStyle(color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+
+                                          /// 🔹 IMAGE LIST
+                                          if (featuredImages.isNotEmpty)
+                                            SizedBox(
+                                              height: 150,
+                                              child: ListView.builder(
+                                                scrollDirection: Axis.horizontal,
+                                                itemCount: featuredImages.length,
+                                                itemBuilder: (context, index) {
+                                                  return Stack(
+                                                    children: [
+                                                      Container(
+                                                        width: 140,
+                                                        margin: const EdgeInsets.only(right: 10),
+                                                        child: ClipRRect(
+                                                          borderRadius: BorderRadius.circular(12),
+                                                          child: Image.file(
+                                                            featuredImages[index],
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                      ),
+
+                                                      /// 🔥 DELETE BUTTON ON IMAGE
+                                                      Positioned(
+                                                        top: 6,
+                                                        right: 16,
+                                                        child: GestureDetector(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              featuredImages.removeAt(index);
+                                                            });
+                                                          },
+                                                          child: Container(
+                                                            height: 24,
+                                                            width: 24,
+                                                            decoration: const BoxDecoration(
+                                                              shape: BoxShape.circle,
+                                                              color: Colors.black54,
+                                                            ),
+                                                            child: const Icon(
+                                                              Icons.close,
+                                                              size: 14,
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          /// EMPTY STATE
-                          if (featuredImages.isEmpty)
-                            GestureDetector(
-                              onTap: _featuredSheet,
-                              child: Container(
-                                height: 120,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.white38),
-                                ),
-                                child: const Center(
-                                  child: Text("Add", style: TextStyle(color: Colors.white)),
-                                ),
-                              ),
-                            ),
-
-                          /// 🔥 ROW IMAGE LIST (AFTER SAVE)
-                          if (featuredImages.isNotEmpty)
-                            SizedBox(
-                              height: 110,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: featuredImages.length,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                    width: 140,
-                                    margin: const EdgeInsets.only(right: 10),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.file(
-                                        featuredImages[index],
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
 
 
 
@@ -1181,9 +1327,18 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
 
                           const SizedBox(height: 20),
 
-                          _buildField("Name of the Link", nameLinkController),
-                          SizedBox(height: 20),
-                          _buildField("Link URL", linkController),
+                          CustomTextField(
+                            label: "Name of the Link*",
+                            controller: nameLinkController,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          CustomTextField(
+                            label: "Link URL*",
+                            controller: linkController,
+                            keyboardType: TextInputType.url,
+                          ),
 
                           const SizedBox(height: 24),
 
@@ -1267,50 +1422,189 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
   }
 
 
-  Widget _buildField(String title, TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      cursorColor: ColorCode.white,
 
-      style: const TextStyle(
-        color: ColorCode.white, // typed text color
-      ),
+  void _openPortfoliole() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-      decoration: InputDecoration(
-        labelText: "$title*",
-        floatingLabelBehavior: FloatingLabelBehavior.always,
+                  /// Drag Indicator
+                  Center(
+                    child: Container(
+                      height: 4,
+                      width: 40,
+                      margin: const EdgeInsets.only(bottom: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
 
-        labelStyle: const TextStyle(
-          color: ColorCode.kWhiteOpacity70, // #1D1D1B 60% opacity
-        ),
+                  /// Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Add Portfolio Links",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: "Unbounded",
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: Colors.white),
+                      )
+                    ],
+                  ),
 
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 18,
-        ),
+                  const SizedBox(height: 6),
 
-        /// ⭐ 0.5px BORDER + OPACITY COLOR
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: ColorCode.kWhiteOpacity70, // #1D1D1B99 (60% opacity)
-            width: 0.5,                       // 🔥 exact 0.5px
-          ),
-        ),
+                  const Text(
+                    "Add YouTube, Vimeo, or Google Drive links to showcase your portfolio.",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                    ),
+                  ),
 
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: ColorCode.kWhiteOpacity70, // #1D1D1B99 (60% opacity)
-            width: 0.5,                          // focus border thicker
-          ),
-        ),
+                  const SizedBox(height: 20),
 
-        floatingLabelStyle: const TextStyle(
-          color: ColorCode.kWhiteOpacity70,
-        ),)
-      ,);
+                  /// ICONS ROW
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(
+                      Portfolioicons.length,
+                          (index) => InkWell(
+                        onTap: () {
+                          setModalState(() {
+                            selectedPortfolioIndex = index;
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height: 52,
+                          width: 52,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: selectedPortfolioIndex == index
+                                  ? ColorCode.kButtonColor
+                                  : Colors.white24,
+                            ),
+                            color: selectedPortfolioIndex == index
+                                ? ColorCode.kButtonColor.withOpacity(0.15)
+                                : Colors.transparent,
+                          ),
+                          child: Center(
+                            child: Image.asset(
+                              Portfolioicons[index],
+                              height: 22,
+                              color: selectedPortfolioIndex == index
+                                  ? ColorCode.kButtonColor
+                                  : Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// SINGLE INPUT FIELD (LIKE IMAGE)
+                  TextField(
+                    controller: portfolioLinkController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: "Name of the Link",
+                      hintStyle: const TextStyle(color: Colors.white54),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(color: Colors.white24),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide:
+                        BorderSide(color: ColorCode.kButtonColor),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  /// SAVE BUTTON
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFEAD3A1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: () {
+                        if (selectedPortfolioIndex == -1 ||
+                            portfolioLinkController.text.trim().isEmpty) {
+                          _showSnack("Select platform & enter link");
+                          return;
+                        }
+
+                        setState(() {
+                          savedPortfolioLinks.add({
+                            "name": Portfoliolname[selectedPortfolioIndex],
+                            "url": portfolioLinkController.text.trim(),
+                            "icon": Portfolioicons[selectedPortfolioIndex],
+                          });
+                        });
+
+                        selectedPortfolioIndex = -1;
+                        portfolioLinkController.clear();
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "Save Link",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
+
+
   Widget _socialImage({
     required int index,
     required String imagePath,
@@ -1372,6 +1666,50 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
 
   }
 
+
+
+  Widget _PortfolioImage({
+    required int index,
+    required String imagePath,
+    required void Function(void Function()) setModalState,
+  }) {
+    final bool isSelected = selectedPortfolioIndex == index;
+
+    return InkWell(
+      onTap: () {
+        setModalState(() {
+          selectedPortfolioIndex = index;
+          portfolioNameController.text = Portfoliolname[index];
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        height: 52,
+        width: 52,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? ColorCode.kButtonColor.withOpacity(0.2)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? ColorCode.kButtonColor
+                : Colors.white24,
+          ),
+        ),
+        child: Center(
+          child: Image.asset(
+            imagePath,
+            height: 22,
+            width: 22,
+            color: isSelected
+                ? ColorCode.kButtonColor
+                : Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
   void _featuredSheet() {
     showModalBottomSheet(
       context: context,
@@ -1440,11 +1778,10 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                      SizedBox(height: 20),
 
                     /// ✏️ WORK TITLE
-                    _buildField(
-                      "Enter Work Title",
-                      enter_work_titleController,
+                    CustomTextField(
+                      label: "Enter Work Title*",
+                      controller: enter_work_titleController,
                     ),
-
                     SizedBox(height: 16),
 
                 /*    GestureDetector(
@@ -1525,75 +1862,99 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                 GestureDetector(
                   onTap: () => pickFeaturedImages(setModalState),
                   child: Container(
+                    height: 190, // 🔥 fixed clean height
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white24,
-                        style: BorderStyle.solid, // agar dashed chahiye to custom painter lagega
-                      ),
+                      border: Border.all(color: Colors.white24),
                     ),
                     child: tempFeaturedImages.isEmpty
+
+                    /// 🔹 EMPTY STATE
                         ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
                         Icon(
                           Icons.upload,
                           color: Colors.white,
-                          size: 32,
+                          size: 28,
                         ),
-                        SizedBox(height: 12),
-
-                        /// MAIN TEXT
+                        SizedBox(height: 10),
                         Text(
                           "Upload new image, video, or browse",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: "Outfit",
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                        SizedBox(height: 6),
 
-                        SizedBox(height: 8),
-
-                        /// HELPER TEXT (👇 YE TUM CHAHTE THE)
                         Text(
-                          "Choose a file in a 4:3, 5:4, 9:16, or 16:9 aspect ratio.\n"
-                              "Max 10MB (images), 500MB (videos).",
+                          "Choose 4:3, 5:4, 9:16, or 16:9.\nMax 10MB images, 500MB videos.",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: "Outfit",
                             color: Colors.white70,
-                            fontSize: 12,
-                            height: 1.4,
+                            fontSize: 11,
+                            height: 1.3,
                           ),
                         ),
                       ],
                     )
 
-                    /// 🔥 PREVIEW MODE (ROW)
-                        : SizedBox(
-                      height: 200,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: tempFeaturedImages.length,
-                        itemBuilder: (_, index) {
-                          return Container(
-                            width: 130,
-                            margin: const EdgeInsets.only(right: 10),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.file(
-                                tempFeaturedImages[index],
-                                fit: BoxFit.fill,
+                    /// 🔹 PREVIEW MODE
+                        : ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: tempFeaturedImages.length,
+                      itemBuilder: (_, index) {
+                        return Stack(
+                          children: [
+
+                            /// IMAGE
+                            Container(
+                              width: 130,
+                              margin: const EdgeInsets.only(right: 10),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.file(
+                                  tempFeaturedImages[index],
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                          );
-                        },
-                      ),
+
+                            /// 🔥 CANCEL ICON (TOP RIGHT)
+                            Positioned(
+                              top: 6,
+                              right: 16,
+                              child: GestureDetector(
+                                onTap: () {
+                                  setModalState(() {
+                                    tempFeaturedImages.removeAt(index);
+                                  });
+                                },
+                                child: Container(
+                                  height: 22,
+                                  width: 22,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.black.withOpacity(0.7),
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -1606,50 +1967,92 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
 
                     /// 🏷️ ADD TAGS
                     /// 🏷️ TAG SECTION
-                    GestureDetector(
-                      onTap: _openAddTagSheet, // 👉 edit ke liye bhi same sheet
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: selectedTags.isEmpty
-                            ? Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                GestureDetector(
+                  onTap: _openAddTagSheet,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: selectedTags.isEmpty
+                        ? Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius:
+                        BorderRadius.circular(20),
+                        border:
+                        Border.all(color: Colors.white24),
+                      ),
+                      child: Row(
+                        mainAxisSize:
+                        MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.local_offer_outlined,
+                              size: 16,
+                              color: Colors.white),
+                          SizedBox(width: 6),
+                          Text(
+                            "# Add Tags",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    )
+                        : Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                      selectedTags.map((tag) {
+                        return Container(
+                          padding:
+                          const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.black26,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.white24),
+                            color: Colors.black,
+                            borderRadius:
+                            BorderRadius.circular(
+                                20),
+                            border: Border.all(
+                                color: Colors.white24),
                           ),
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(Icons.local_offer_outlined,
-                                  size: 16, color: Colors.white),
-                              SizedBox(width: 6),
+                            mainAxisSize:
+                            MainAxisSize.min,
+                            children: [
                               Text(
-                                "# Add Tags",
-                                style: TextStyle(color: Colors.white, fontSize: 13),
+                                tag,
+                                style:
+                                const TextStyle(
+                                    color:
+                                    Colors.white,
+                                    fontSize: 12),
+                              ),
+                              const SizedBox(
+                                  width: 6),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedTags
+                                        .remove(tag);
+                                  });
+                                },
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 14,
+                                  color:
+                                  Colors.white70,
+                                ),
                               ),
                             ],
+
                           ),
-                        )
-                            : Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: selectedTags.map((tag) {
-                            return Chip(
-                              label: Text(tag),
-                              backgroundColor: Colors.black,
-                              labelStyle: const TextStyle(color: Colors.white),
-                              deleteIconColor: Colors.white,
-                              onDeleted: () {
-                                setState(() {
-                                  selectedTags.remove(tag);
-                                });
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ),
+                        );
+                      }).toList(),
                     ),
+                  ),
+                ),
 
 
                     SizedBox(height: 24),
@@ -1712,14 +2115,15 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                 padding: const EdgeInsets.all(20),
                 decoration: const BoxDecoration(
                   color: Color(0xFF1E1E1E),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  borderRadius:
+                  BorderRadius.vertical(top: Radius.circular(24)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    /// 🔘 TOP DRAG INDICATOR
+                    /// Drag
                     Center(
                       child: Container(
                         height: 4,
@@ -1732,9 +2136,10 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                       ),
                     ),
 
-                    /// 🟢 HEADER
+                    /// Header
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
                           "Add Tag",
@@ -1747,101 +2152,131 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                         ),
                         IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close, color: Colors.white),
+                          icon: const Icon(Icons.close,
+                              color: Colors.white),
                         )
                       ],
                     ),
 
-                     SizedBox(height: 8),
+                    const SizedBox(height: 8),
 
-                     Text(
+                    const Text(
                       "Help people find your work",
                       style: TextStyle(
-                        color: ColorCode.kWhiteOpacity70,
+                        color: Colors.white70,
                         fontSize: 13,
                       ),
                     ),
 
-                     SizedBox(height: 16),
-                     Divider(color: ColorCode.kDividerWhite12),
-                     SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                    /// TextField
+                    /// Input
                     TextField(
                       controller: tagController,
-                      style: const TextStyle(color: Colors.white),
+                      style:
+                      const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
-                        // label: "Tag",
-                        hintText: "Type Tag and Press Enter",
-                        hintStyle: TextStyle
-                          (
-                          fontSize: 14,
-                          fontFamily: "Outfit",
-                            color: Colors.white54
-
-
-                        ),
-                        contentPadding:  EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 18,
-                        ),
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-
+                        hintText: "Type tag and press enter",
+                        hintStyle:
+                        TextStyle(color: Colors.white54),
+                        contentPadding:
+                        EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                          borderSide: BorderSide(color: Colors.white24),
+                          borderRadius:
+                          BorderRadius.all(
+                              Radius.circular(12)),
+                          borderSide: BorderSide(
+                              color: Colors.white24),
                         ),
-                        focusedBorder: OutlineInputBorder(                          borderRadius: BorderRadius.all(Radius.circular(12)),
-
-                          borderSide: BorderSide(color: Colors.white),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius:
+                          BorderRadius.all(
+                              Radius.circular(12)),
+                          borderSide:
+                          BorderSide(color: Colors.white),
                         ),
                       ),
                       onSubmitted: (value) {
-                        if (value.trim().isNotEmpty &&
-                            !tempTags.contains(value.trim())) {
+                        final tag = value.trim();
+                        if (tag.isNotEmpty &&
+                            !tempTags.contains(tag)) {
                           setModalState(() {
-                            tempTags.add(value.trim());
+                            tempTags.add(tag);
                             tagController.clear();
                           });
                         }
                       },
-
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
-                    /// Tags Chips
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: tempTags.map((tag) {
-                        return Chip(
-                          label: Text(tag),
-                          backgroundColor: Colors.black,
-                          labelStyle:
-                          const TextStyle(color: Colors.white),
-                          deleteIconColor: Colors.white,
-                          onDeleted: () {
-                            setModalState(() {
-                              tempTags.remove(tag);
-                            });
-                          },
-                        );
-                      }).toList(),
-                    ),
+                    /// Live Chips Preview
+                    if (tempTags.isNotEmpty)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: tempTags.map((tag) {
+                          return Container(
+                            padding:
+                            const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius:
+                              BorderRadius.circular(20),
+                              border: Border.all(
+                                  color: Colors.white24),
+                            ),
+                            child: Row(
+                              mainAxisSize:
+                              MainAxisSize.min,
+                              children: [
+                                Text(
+                                  tag,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                GestureDetector(
+                                  onTap: () {
+                                    setModalState(() {
+                                      tempTags.remove(tag);
+                                    });
+                                  },
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 14,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
 
-                    /// Save Button
+                    /// Save
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFEAD3A1),
+                          backgroundColor:
+                          const Color(0xFFEAD3A1),
                           foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          padding:
+                          const EdgeInsets.symmetric(
+                              vertical: 14),
+                          shape:
+                          RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(14),
                           ),
                         ),
                         onPressed: () {
@@ -1850,28 +2285,14 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                           });
                           Navigator.pop(context);
                         },
-                        child: const Text("Save"),
+                        child: const Text(
+                          "Save",
+                          style: TextStyle(
+                              fontWeight:
+                              FontWeight.w600),
+                        ),
                       ),
                     ),
-                    if (selectedTags.isNotEmpty)
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: selectedTags.map((tag) {
-                          return Chip(
-                            label: Text(tag),
-                            backgroundColor: Colors.black,
-                            labelStyle: const TextStyle(color: Colors.white),
-                            deleteIconColor: Colors.white,
-                            onDeleted: () {
-                              setState(() {
-                                selectedTags.remove(tag);
-                              });
-                            },
-                          );
-                        }).toList(),
-                      ),
-
                   ],
                 ),
               ),

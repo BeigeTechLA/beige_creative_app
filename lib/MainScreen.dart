@@ -1,325 +1,295 @@
-/*
-import 'package:beige_creative_app/utility/ColorCode.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-
-import 'Home/home_screen.dart';
-
-
-
-class Mainscreen extends StatefulWidget {
-  const Mainscreen({super.key});
-
-  @override
-  State<Mainscreen> createState() => _MainscreenState();
-}
-
-class _MainscreenState extends State<Mainscreen> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    HomeScreen(),
-    Center(child: Text("Book Shoot")),
-    Center(child: Text("Booking")),
-    Center(child: Text("Chat")),
-  ];
-  /// 🔐 LOGOUT DIALOG
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) {
-        return AlertDialog(
-          backgroundColor: ColorCode.bcakgroundcolor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text(
-            "Logout",
-            style: TextStyle(color: Colors.white),
-          ),
-          content: const Text(
-            "Are you sure you want to logout?",
-            style: TextStyle(color: Colors.white70),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                "Cancel",
-                style: TextStyle(color: Colors.white70),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-
-                debugPrint("User Logged Out");
-              },
-              child: const Text(
-                "Logout",
-                style: TextStyle(color: Colors.redAccent),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: _buildDrawer(),
-      body: _pages[_selectedIndex],
-
-
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: ColorCode.bcakgroundcolor, // 🔥 background color
-          */
-/* boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.35),
-                blurRadius: 10,
-                offset: const Offset(0, -3),
-              ),
-            ],*//*
-
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          type: BottomNavigationBarType.fixed,
-
-          selectedItemColor: Colors.white,
-          unselectedItemColor: ColorCode.kWhiteOpacity70,
-
-          /// 🔹 SELECTED TEXT STYLE
-          selectedLabelStyle: const TextStyle(
-            fontFamily: "Outfit",
-            fontWeight: FontWeight.w500,
-            fontSize: 12,
-          ),
-
-          /// 🔹 UNSELECTED TEXT STYLE
-          unselectedLabelStyle: const TextStyle(
-            fontFamily: "Outfit",
-            fontWeight: FontWeight.w500,
-            fontSize: 12,
-          ),
-
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-
-          items: [
-            BottomNavigationBarItem(
-              icon: SvgPicture.asset(
-                _selectedIndex == 0
-                    ? "assets/Active/Dashboard.svg"
-                    : "assets/NonActive/dashboard-square-02.svg",
-                height: 28,
-                colorFilter: ColorFilter.mode(
-                  _selectedIndex == 0
-                      ? Colors.white
-                      : ColorCode.kWhiteOpacity70,
-                  BlendMode.srcIn,
-                ),
-              ),
-              label: "Dashboard",
-            ),
-            BottomNavigationBarItem(
-              icon: SvgPicture.asset(
-                _selectedIndex == 1
-                    ? "assets/Active/Shoots.svg"
-                    : "assets/NonActive/Shoots(1).svg",
-                height: 28,
-                colorFilter: ColorFilter.mode(
-                  _selectedIndex == 1
-                      ? Colors.white
-                      : ColorCode.kWhiteOpacity70,
-                  BlendMode.srcIn,
-                ),
-              ),
-              label: "Shoot",
-            ),
-            BottomNavigationBarItem(
-              icon:SvgPicture.asset(
-                _selectedIndex == 2
-                    ? "assets/Active/FileManager.svg"
-                    : "assets/NonActive/FileManager(1).svg",
-                height: 28,
-              ),
-              label: "File Manager",
-            ),
-            BottomNavigationBarItem(
-              icon: SvgPicture.asset(
-                _selectedIndex == 3
-                    ? "assets/Active/Messages.svg"
-                    : "assets/NonActive/Messages (1).svg",
-                height: 28,
-              ),
-              label: "Messages",
-            ),
-          ],
-        ),
-
-      ),
-
-    );
-  }
-  Widget _buildDrawer() {
-    return Drawer(
-      backgroundColor: const Color(0xFF111111),
-      child: SafeArea(
-        child: Column(
-          children: [
-
-            /// TOP SECTION
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  /// LOGO + CLOSE
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      /// BELL
-                      Image.asset(
-                        "assets/home/Group.png",
-
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      )
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// PROFILE CARD
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD6B98C),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-
-                        const CircleAvatar(
-                          radius: 25,
-                          backgroundImage:
-                          AssetImage("assets/home/Vector.png"), // add image
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                "Priya Smith",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    fontFamily: "Outfit",
-                                    color: ColorCode.black
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                "priyasmith@gmail.com",
-                                style: TextStyle(fontSize: 12,
-                                    fontFamily: "Outfit",
-                                    fontWeight: FontWeight.w500,
-                                    color: ColorCode.black
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const Icon(Icons.arrow_forward_ios, size: 16)
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const Divider(color: Colors.grey),
-
-            /// MENU ITEMS
-            Expanded(
-              child: ListView(
-                children: [
-                  _drawerItem("Dashboard", Icons.dashboard),
-                  _drawerItem("Shoots", Icons.camera_alt),
-                  _drawerItem("Manage Availability", Icons.calendar_month),
-                  _drawerItem("File Manager", Icons.folder),
-                  _drawerItem("Meetings", Icons.video_call),
-                  _drawerItem("Messages", Icons.message),
-                  _drawerItem("Payouts", Icons.currency_rupee),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 🔥 Drawer Item Method
-  Widget _drawerItem(String title, IconData icon) {
-    return Column(
-      children: [
-        ListTile(
-          contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-          leading: Icon(icon, color: Colors.white70, size: 20),
-          title: Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontFamily: "Outfit",
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          onTap: () => Navigator.pop(context),
-        ),
-        Divider(
-          color: ColorCode.kDividerWhite12,
-          thickness: 0.8,
-
-        )
-      ],
-    );
-  }
-
-}
+//
+// import 'package:flutter/material.dart';
+// import 'package:flutter_svg/flutter_svg.dart';
+// import 'FileManager/file_manager_screen.dart';
+// import 'ManageAvailability/manage_availability_screen.dart';
+// import 'Messages/messages_screen.dart';
+// import 'Shoots/shoots_screen.dart';
+// import 'utility/ColorCode.dart';
+// import 'Home/home_screen.dart';
+//
+// class Mainscreen extends StatefulWidget {
+//   const Mainscreen({super.key});
+//
+//   @override
+//   State<Mainscreen> createState() => _MainscreenState();
+// }
+//
+// class _MainscreenState extends State<Mainscreen> {
+//   int _selectedIndex = 0;
+//   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+//
+//   final List<Widget> _pages = const [
+//     HomeScreen(),          // 0
+//     ShootsScreen(),        // 1
+//     FileManagerScreen(),   // 2
+//     MessagesScreen(),                   // 3
+//     // ManageAvailabilityScreen(),
+//   ];
+//   void _onItemTapped(int index) {
+//     setState(() {
+//       _selectedIndex = index;
+//     });
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       key: _scaffoldKey,
+//       backgroundColor: ColorCode.bcakgroundcolor,
+//       drawer: _buildDrawer(),
+//
+//       body: _pages[_selectedIndex],
+//
+//
+//       bottomNavigationBar: _buildBottomBar(),
+//     );
+//   }
+//
+//   Widget _buildBottomBar() {
+//     return BottomNavigationBar(
+//       currentIndex: _selectedIndex,
+//       // currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
+//       backgroundColor: ColorCode.bcakgroundcolor,
+//       type: BottomNavigationBarType.fixed,
+//       selectedItemColor: Colors.white,
+//       unselectedItemColor: ColorCode.kWhiteOpacity70,
+//       onTap: _onItemTapped,
+//       items: [
+//         BottomNavigationBarItem(
+//           icon: SvgPicture.asset(
+//             _selectedIndex == 0
+//                 ? "assets/Active/Dashboard.svg"
+//                 : "assets/NonActive/dashboard-square-02.svg",
+//             height: 26,
+//             colorFilter: ColorFilter.mode(
+//               _selectedIndex == 0
+//                   ? Colors.white
+//                   : ColorCode.kWhiteOpacity70,
+//               BlendMode.srcIn,
+//             ),
+//           ),
+//           label: "Dashboard",
+//         ),
+//
+//         BottomNavigationBarItem(
+//           icon: SvgPicture.asset(
+//             _selectedIndex == 1
+//                 ? "assets/Active/Shoots.svg"
+//                 : "assets/NonActive/Shoots(1).svg",
+//             height: 26,
+//             colorFilter: ColorFilter.mode(
+//               _selectedIndex == 1
+//                   ? Colors.white
+//                   : ColorCode.kWhiteOpacity70,
+//               BlendMode.srcIn,
+//             ),
+//           ),
+//           label: "Shoots",
+//         ),
+//
+//         BottomNavigationBarItem(
+//           icon: SvgPicture.asset(
+//             _selectedIndex == 2
+//                 ? "assets/Active/FileManager.svg"
+//                 : "assets/NonActive/FileManager(1).svg",
+//             height: 26,
+//             colorFilter: ColorFilter.mode(
+//               _selectedIndex == 2  // ✅ FIXED
+//               ? Colors.white
+//                 : ColorCode.kWhiteOpacity70,
+//             BlendMode.srcIn,
+//             ),
+//           ),
+//           label: "File Manager",
+//         ),
+//
+//         BottomNavigationBarItem(
+//           icon: SvgPicture.asset(
+//             _selectedIndex == 3
+//                 ? "assets/Active/Messages.svg"
+//                 : "assets/NonActive/Messages (1).svg",
+//             height: 28,
+//           ),
+//           label: "Messages",
+//         ),
+//       ],
+//     );
+//   }
+//   Widget _buildDrawer() {
+//     return Drawer(
+//       backgroundColor: const Color(0xFF111111),
+//       child: SafeArea(
+//         child: Column(
+//           children: [
+//
+//             /// TOP SECTION
+//             Padding(
+//               padding: const EdgeInsets.all(20),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//
+//                   /// LOGO + CLOSE
+//                   Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       /// BELL
+//                       Image.asset(
+//                         "assets/home/Group.png",
+//
+//                       ),
+//                       IconButton(
+//                         icon: const Icon(Icons.close, color: Colors.white),
+//                         onPressed: () {
+//                           Navigator.pop(context);
+//                         },
+//                       )
+//                     ],
+//                   ),
+//
+//                   const SizedBox(height: 20),
+//
+//                   /// PROFILE CARD
+//                   Container(
+//                     padding: const EdgeInsets.all(12),
+//                     decoration: BoxDecoration(
+//                       color: const Color(0xFFD6B98C),
+//                       borderRadius: BorderRadius.circular(16),
+//                     ),
+//                     child: Row(
+//                       children: [
+//
+//                         const CircleAvatar(
+//                           radius: 25,
+//                           backgroundImage:
+//                           AssetImage("assets/home/Vector.png"), // add image
+//                         ),
+//
+//                         const SizedBox(width: 12),
+//
+//                         Expanded(
+//                           child: Column(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: const [
+//                               Text(
+//                                 "Priya Smith",
+//                                 style: TextStyle(
+//                                     fontWeight: FontWeight.bold,
+//                                     fontSize: 16,
+//                                     fontFamily: "Outfit",
+//                                     color: ColorCode.black
+//                                 ),
+//                               ),
+//                               SizedBox(height: 4),
+//                               Text(
+//                                 "priyasmith@gmail.com",
+//                                 style: TextStyle(fontSize: 12,
+//                                     fontFamily: "Outfit",
+//                                     fontWeight: FontWeight.w500,
+//                                     color: ColorCode.black
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//
+//                         const Icon(Icons.arrow_forward_ios, size: 16)
+//                       ],
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//
+//             const Divider(color: Colors.grey),
+//
+//             /// MENU ITEMS
+//             Expanded(
+//               child: ListView(
+//                 children: [
+//                   _drawerBottomNavItem("Dashboard", Icons.dashboard, 0),
+//                   _drawerBottomNavItem("Shoots", Icons.camera_alt, 1),
+//                   _drawerBottomNavItem("File Manager", Icons.folder, 2),
+//                   _drawerBottomNavItem("Messages", Icons.message, 3),
+//
+//               /*    _drawerBottomNavItem(
+//                     "Manage Availability",
+//                     Icons.calendar_month,
+//                     4,
+//                   ),*/
+//
+//                   _drawerPushItem(
+//                     "Manage Availability",
+//                     Icons.calendar_month,
+//                     const ManageAvailabilityScreen(),
+//                   ),
+//
+//
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//
+//   /// 🔥 Drawer Item Method
+//   /// 🔥 Bottom Nav Type Item
+//   Widget _drawerBottomNavItem(String title, IconData icon, int index) {
+//     return ListTile(
+//       leading: Icon(icon, color: Colors.white70, size: 20),
+//       title: Text(
+//         title,
+//         style: const TextStyle(
+//           color: Colors.white,
+//           fontFamily: "Outfit",
+//           fontWeight: FontWeight.w500,
+//         ),
+//       ),
+//       onTap: () {
+//         setState(() {
+//           _selectedIndex = index;
+//         });
+//         Navigator.pop(context);
+//       },
+//     );
+//   }
+//
+//   /// 🔥 Push New Screen Item
+//   Widget _drawerPushItem(String title, IconData icon, Widget screen) {
+//     return ListTile(
+//       leading: Icon(icon, color: Colors.white70, size: 20),
+//       title: Text(
+//         title,
+//         style: const TextStyle(
+//           color: Colors.white,
+//           fontFamily: "Outfit",
+//           fontWeight: FontWeight.w500,
+//         ),
+//       ),
+//       onTap: () {
+//         Navigator.pop(context);
+//         Navigator.push(
+//           context,
+//           MaterialPageRoute(builder: (_) => screen),
+//         );
+//       },
+//     );
+//   }
+// }
 
 
-*/
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'FileManager/file_manager_screen.dart';
-import 'ManageAvailability/manage_availability_screen.dart';
-import 'Messages/messages_screen.dart';
-import 'Shoots/shoots_screen.dart';
-import 'utility/ColorCode.dart';
+
 import 'Home/home_screen.dart';
+import 'Shoots/shoots_screen.dart';
+import 'FileManager/file_manager_screen.dart';
+import 'Messages/messages_screen.dart';
+import 'ManageAvailability/manage_availability_screen.dart';
+import 'utility/ColorCode.dart';
 
 class Mainscreen extends StatefulWidget {
   const Mainscreen({super.key});
@@ -330,15 +300,16 @@ class Mainscreen extends StatefulWidget {
 
 class _MainscreenState extends State<Mainscreen> {
   int _selectedIndex = 0;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  /// 🔥 Bottom Navigation Pages
   final List<Widget> _pages = const [
-    HomeScreen(),          // 0
-    ShootsScreen(),        // 1
-    FileManagerScreen(),   // 2
-    MessagesScreen(),                   // 3
+    HomeScreen(),
+    ShootsScreen(),
+    FileManagerScreen(),
+    MessagesScreen(),
     ManageAvailabilityScreen(),
   ];
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -348,16 +319,22 @@ class _MainscreenState extends State<Mainscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: ColorCode.bcakgroundcolor,
       drawer: _buildDrawer(),
 
-      body: _pages[_selectedIndex],
-
+      /// 🔥 IndexedStack = state safe
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
 
       bottomNavigationBar: _buildBottomBar(),
     );
   }
+
+  // ================================
+  // 🔥 Bottom Navigation
+  // ================================
 
   Widget _buildBottomBar() {
     return BottomNavigationBar(
@@ -370,65 +347,58 @@ class _MainscreenState extends State<Mainscreen> {
       onTap: _onItemTapped,
       items: [
         BottomNavigationBarItem(
-          icon: SvgPicture.asset(
-            _selectedIndex == 0
-                ? "assets/Active/Dashboard.svg"
-                : "assets/NonActive/dashboard-square-02.svg",
-            height: 26,
-            colorFilter: ColorFilter.mode(
-              _selectedIndex == 0
-                  ? Colors.white
-                  : ColorCode.kWhiteOpacity70,
-              BlendMode.srcIn,
-            ),
+          icon: _navIcon(
+            "assets/Active/Dashboard.svg",
+            "assets/NonActive/dashboard-square-02.svg",
+            0,
           ),
           label: "Dashboard",
         ),
-
         BottomNavigationBarItem(
-          icon: SvgPicture.asset(
-            _selectedIndex == 1
-                ? "assets/Active/Shoots.svg"
-                : "assets/NonActive/Shoots(1).svg",
-            height: 26,
-            colorFilter: ColorFilter.mode(
-              _selectedIndex == 1
-                  ? Colors.white
-                  : ColorCode.kWhiteOpacity70,
-              BlendMode.srcIn,
-            ),
+          icon: _navIcon(
+            "assets/Active/Shoots.svg",
+            "assets/NonActive/Shoots(1).svg",
+            1,
           ),
           label: "Shoots",
         ),
-
         BottomNavigationBarItem(
-          icon: SvgPicture.asset(
-            _selectedIndex == 2
-                ? "assets/Active/FileManager.svg"
-                : "assets/NonActive/FileManager(1).svg",
-            height: 26,
-            colorFilter: ColorFilter.mode(
-              _selectedIndex == 2  // ✅ FIXED
-              ? Colors.white
-                : ColorCode.kWhiteOpacity70,
-            BlendMode.srcIn,
-            ),
+          icon: _navIcon(
+            "assets/Active/FileManager.svg",
+            "assets/NonActive/FileManager(1).svg",
+            2,
           ),
           label: "File Manager",
         ),
-
         BottomNavigationBarItem(
-          icon: SvgPicture.asset(
-            _selectedIndex == 3
-                ? "assets/Active/Messages.svg"
-                : "assets/NonActive/Messages (1).svg",
-            height: 28,
+          icon: _navIcon(
+            "assets/Active/Messages.svg",
+            "assets/NonActive/Messages (1).svg",
+            3,
           ),
           label: "Messages",
         ),
       ],
     );
   }
+
+  Widget _navIcon(String active, String inactive, int index) {
+    return SvgPicture.asset(
+      _selectedIndex == index ? active : inactive,
+      height: 26,
+      colorFilter: ColorFilter.mode(
+        _selectedIndex == index
+            ? Colors.white
+            : ColorCode.kWhiteOpacity70,
+        BlendMode.srcIn,
+      ),
+    );
+  }
+
+  // ================================
+  // 🔥 Drawer
+  // ================================
+
   Widget _buildDrawer() {
     return Drawer(
       backgroundColor: const Color(0xFF111111),
@@ -436,34 +406,23 @@ class _MainscreenState extends State<Mainscreen> {
         child: Column(
           children: [
 
-            /// TOP SECTION
+            /// 🔹 Profile Section
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
-                  /// LOGO + CLOSE
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      /// BELL
-                      Image.asset(
-                        "assets/home/Group.png",
-
-                      ),
+                      Image.asset("assets/home/Group.png"),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                        onPressed: () => Navigator.pop(context),
                       )
                     ],
                   ),
-
                   const SizedBox(height: 20),
 
-                  /// PROFILE CARD
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -471,43 +430,40 @@ class _MainscreenState extends State<Mainscreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
-                      children: [
-
-                        const CircleAvatar(
+                      children: const [
+                        CircleAvatar(
                           radius: 25,
                           backgroundImage:
-                          AssetImage("assets/home/Vector.png"), // add image
+                          AssetImage("assets/home/Vector.png"),
                         ),
-
-                        const SizedBox(width: 12),
-
+                        SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
+                            children: [
                               Text(
                                 "Priya Smith",
                                 style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    fontFamily: "Outfit",
-                                    color: ColorCode.black
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  fontFamily: "Outfit",
+                                  color: ColorCode.black,
                                 ),
                               ),
                               SizedBox(height: 4),
                               Text(
                                 "priyasmith@gmail.com",
-                                style: TextStyle(fontSize: 12,
-                                    fontFamily: "Outfit",
-                                    fontWeight: FontWeight.w500,
-                                    color: ColorCode.black
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: "Outfit",
+                                  fontWeight: FontWeight.w500,
+                                  color: ColorCode.black,
                                 ),
                               ),
                             ],
                           ),
                         ),
-
-                        const Icon(Icons.arrow_forward_ios, size: 16)
+                        Icon(Icons.arrow_forward_ios, size: 16)
                       ],
                     ),
                   ),
@@ -517,25 +473,27 @@ class _MainscreenState extends State<Mainscreen> {
 
             const Divider(color: Colors.grey),
 
-            /// MENU ITEMS
+            /// 🔹 Menu Items
             Expanded(
               child: ListView(
                 children: [
-                  _drawerBottomNavItem("Dashboard", Icons.dashboard, 0),
-                  _drawerBottomNavItem("Shoots", Icons.camera_alt, 1),
-                  _drawerBottomNavItem("File Manager", Icons.folder, 2),
-                  _drawerBottomNavItem("Messages", Icons.message, 3),
 
-                  _drawerBottomNavItem(
+                  /// Bottom linked
+                  _drawerBottomItem("Dashboard", Icons.dashboard, 0),
+                  _drawerBottomItem("Shoots", Icons.camera_alt, 1),
+                  _drawerBottomItem("File Manager", Icons.folder, 2),
+                  _drawerBottomItem("Messages", Icons.message, 3),
+                  _drawerBottomItem(
                     "Manage Availability",
                     Icons.calendar_month,
-                    4,
+                    4, // index of page
                   ),
-                  _drawerPushItem("Meetings", Icons.video_call, const ManageAvailabilityScreen()),
-                  _drawerPushItem("Payouts", Icons.currency_rupee, const ManageAvailabilityScreen()),
-
-
-
+                  /// Push type screen
+                /*  _drawerPushItem(
+                    "Manage Availability",
+                    Icons.calendar_month,
+                    const ManageAvailabilityScreen(),
+                  ),*/
                 ],
               ),
             ),
@@ -545,46 +503,39 @@ class _MainscreenState extends State<Mainscreen> {
     );
   }
 
-  /// 🔥 Drawer Item Method
-  /// 🔥 Bottom Nav Type Item
-  Widget _drawerBottomNavItem(String title, IconData icon, int index) {
+  /// 🔥 Drawer Bottom Linked
+  Widget _drawerBottomItem(String title, IconData icon, int index) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white70, size: 20),
+      leading: Icon(icon, color: Colors.white70),
       title: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontFamily: "Outfit",
-          fontWeight: FontWeight.w500,
-        ),
+        style: const TextStyle(color: Colors.white),
       ),
       onTap: () {
+        Navigator.pop(context);
         setState(() {
           _selectedIndex = index;
         });
-        Navigator.pop(context);
       },
     );
   }
 
-  /// 🔥 Push New Screen Item
+  /// 🔥 Drawer Push Screen
   Widget _drawerPushItem(String title, IconData icon, Widget screen) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white70, size: 20),
+      leading: Icon(icon, color: Colors.white70),
       title: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontFamily: "Outfit",
-          fontWeight: FontWeight.w500,
-        ),
+        style: const TextStyle(color: Colors.white),
       ),
       onTap: () {
         Navigator.pop(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => screen),
-        );
+        Future.delayed(const Duration(milliseconds: 200), () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => screen),
+          );
+        });
       },
     );
   }
