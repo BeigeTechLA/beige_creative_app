@@ -1,6 +1,5 @@
-
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '../OnbodingScreen/onboding_screen.dart';
 import '../utility/ColorCode.dart';
@@ -12,75 +11,53 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  int currentIndex = 0;
-  Timer? _timer;
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
 
-  final List<String> centerImages = [
-    "assets/Splash/Property_1.png",
-    "assets/Splash/Property_2.png",
-    "assets/Splash/Property_3.png",
-    "assets/Splash/Property_4.png",
-    "assets/Splash/Propety_5.png",
-    "assets/Splash/Property_6.png",
-  ];
+  late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _startImageSwap();
+    _controller = AnimationController(vsync: this);
   }
 
-  void _startImageSwap() {
-    _timer = Timer.periodic(const Duration(milliseconds: 450), (timer) {
-      if (currentIndex < centerImages.length - 1) {
-        setState(() {
-          currentIndex++;
-        });
-      } else {
-        timer.cancel();
-
-        // hold last frame & navigate
-        Future.delayed(const Duration(milliseconds: 600), () {
-          if (!mounted) return;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) =>  OnboardingScreen(),
-            ),
-          );
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+  void _goToNextScreen() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OnboardingScreen(),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          /// 🔹 SOLID BACKGROUND (same as design)
-          Container(
-            color: ColorCode.kHeadingColor,
+      body: Container(
+        color: ColorCode.kHeadingColor,
+        child: Center(
+          child: Lottie.asset(
+            "assets/lottie/Component10.json",
+            controller: _controller,
+            width: 250,
+            fit: BoxFit.contain,
+            onLoaded: (composition) {
+              _controller
+                ..duration = composition.duration
+                ..forward().whenComplete(() {
+                  _goToNextScreen(); // ✅ animation end → next screen
+                });
+            },
           ),
-
-          /// 🔹 CENTER IMAGE (ONLY THIS CHANGES)
-          Center(
-            child: Image.asset(
-              centerImages[currentIndex],
-              width: 240,
-              fit: BoxFit.contain, // ✅ no distortion
-            ),
-          ),
-        ],
+        ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
