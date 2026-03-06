@@ -1,4 +1,6 @@
+import 'package:beige_creative_app/ManageAvailability/AddAvailability/add_availability_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../Profile/MyProfile/MyProfile.dart' show Myprofile;
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
@@ -18,8 +20,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
   String selectedRange = "Month";
   int selectedTab = 0; // 0 = Photo, 1 = Video
+  String selectedEvent = "All Events";
+  List<String> eventList = ["All Events", "Available", "Shoot"];
+  DateTime _focusedDay = DateTime.now();
 
-
+  String getMonthYear(DateTime date) {
+    return "${DateFormat('MMMM yyyy').format(date)}";
+  }
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -384,20 +391,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       /// + Add Button
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffE8D7B9), // beige color
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          backgroundColor: ColorCode.kButtonColor, // beige color
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                        onPressed: () {},
-                        icon: const Icon(Icons.add, size: 16, color: Colors.black),
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => AddAvailabilityScreen(),));
+
+                        },
+                        icon: const Icon(Icons.add, size: 18, color: ColorCode.black),
                         label: const Text(
                           "Add",
                           style: TextStyle(
-                            color: Colors.black,
+                            fontFamily: "Outfit",
+                            color: ColorCode.black,
                             fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -405,38 +416,122 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 12),
                   Container(
-                    margin: const EdgeInsets.only(top: 16),
-                    padding: const EdgeInsets.all(12),
+
                     decoration: BoxDecoration(
                       color: ColorCode.k282828,
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white12),
                     ),
-                    child: TableCalendar(
-                      firstDay: DateTime(2020),
-                      lastDay: DateTime(2030),
-                      focusedDay: DateTime.now(),
-                      headerStyle: const HeaderStyle(
-                        formatButtonVisible: false,
-                        titleCentered: true,
-                        leftChevronIcon: Icon(Icons.chevron_left, color: Colors.white),
-                        rightChevronIcon: Icon(Icons.chevron_right, color: Colors.white),
-                        titleTextStyle: TextStyle(color: Colors.white),
-                      ),
-                      daysOfWeekStyle: const DaysOfWeekStyle(
-                        weekdayStyle: TextStyle(color: Colors.white70),
-                        weekendStyle: TextStyle(color: Colors.white70),
-                      ),
-                      calendarStyle: CalendarStyle(
-                        defaultTextStyle: const TextStyle(color: Colors.white),
-                        weekendTextStyle: const TextStyle(color: Colors.white),
-                        todayDecoration: BoxDecoration(
-                          color: Colors.grey.shade700,
-                          shape: BoxShape.circle,
-                        ),
-                        selectedDecoration: BoxDecoration(
-                          color: Color(0xffE8D7B9),
-                          shape: BoxShape.circle,
-                        ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Column(
+                        children: [
+
+                          /// HEADER
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+
+                              Row(
+                                children: [
+
+                                  IconButton(
+                                    icon: const Icon(Icons.chevron_left, color: Colors.white),
+                                    onPressed: () {
+                                      setState(() {
+                                        _focusedDay =
+                                            DateTime(_focusedDay.year, _focusedDay.month - 1);
+                                      });
+                                    },
+                                  ),
+
+                                  Text(
+                                    getMonthYear(_focusedDay),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+
+                                  IconButton(
+                                    icon: const Icon(Icons.chevron_right, color: Colors.white),
+                                    onPressed: () {
+                                      setState(() {
+                                        _focusedDay =
+                                            DateTime(_focusedDay.year, _focusedDay.month + 1);
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              /// DROPDOWN
+                              Container(margin: EdgeInsets.only(top: 6),
+
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 2,),
+                                decoration: BoxDecoration(
+                                  color: ColorCode.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: selectedEvent,
+                                    icon: const Icon(Icons.keyboard_arrow_down,
+                                        color: Colors.black),
+                                    dropdownColor: Colors.white,
+                                    style: const TextStyle(color: Colors.black, fontSize: 12),
+                                    items: eventList.map((String value) {
+                                      return DropdownMenuItem(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedEvent = value!;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          /// CALENDAR
+                          TableCalendar(
+                            firstDay: DateTime(2020),
+                            lastDay: DateTime(2050),
+                            focusedDay: _focusedDay,
+                            headerVisible: false,
+                            rowHeight: 80,
+
+                            /// PERFECT GRID
+                            calendarStyle: CalendarStyle(
+                              tableBorder: TableBorder.all(
+                                color: ColorCode.kDividerWhite12,
+                                width: 1,
+                              ),
+                              defaultTextStyle: const TextStyle(color: Colors.white),
+                              weekendTextStyle: const TextStyle(color: Colors.white),
+                              outsideTextStyle: const TextStyle(color: Colors.white38),
+                            ),
+
+                            daysOfWeekStyle: const DaysOfWeekStyle(
+                              weekdayStyle: TextStyle(color: Colors.white70),
+                              weekendStyle: TextStyle(color: Colors.white70),
+                            ),
+
+                            onPageChanged: (focusedDay) {
+                              setState(() {
+                                _focusedDay = focusedDay;
+                              });
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),

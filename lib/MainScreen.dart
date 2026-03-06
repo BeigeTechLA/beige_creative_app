@@ -285,6 +285,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'Home/home_screen.dart';
+import 'Profile/MyProfile/MyProfile.dart';
 import 'Shoots/shoots_screen.dart';
 import 'FileManager/file_manager_screen.dart';
 import 'Messages/messages_screen.dart';
@@ -423,54 +424,66 @@ class _MainscreenState extends State<Mainscreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD6B98C),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: const [
-                        CircleAvatar(
-                          radius: 25,
-                          backgroundImage:
-                          AssetImage("assets/home/Vector.png"),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>  Myprofile(),
                         ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Priya Smith",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  fontFamily: "Outfit",
-                                  color: ColorCode.black,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                "priyasmith@gmail.com",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: "Outfit",
-                                  fontWeight: FontWeight.w500,
-                                  color: ColorCode.black,
-                                ),
-                              ),
-                            ],
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD6B98C),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: const [
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundImage: AssetImage("assets/home/Vector.png"),
                           ),
-                        ),
-                        Icon(Icons.arrow_forward_ios, size: 16)
-                      ],
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Priya Smith",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    fontFamily: "Outfit",
+                                    color: ColorCode.black,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  "priyasmith@gmail.com",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: "Outfit",
+                                    fontWeight: FontWeight.w500,
+                                    color: ColorCode.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: ColorCode.black,
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-
             const Divider(color: Colors.grey),
 
             /// 🔹 Menu Items
@@ -479,15 +492,45 @@ class _MainscreenState extends State<Mainscreen> {
                 children: [
 
                   /// Bottom linked
-                  _drawerBottomItem("Dashboard", Icons.dashboard, 0),
-                  _drawerBottomItem("Shoots", Icons.camera_alt, 1),
-                  _drawerBottomItem("File Manager", Icons.folder, 2),
-                  _drawerBottomItem("Messages", Icons.message, 3),
                   _drawerBottomItem(
+                    "Dashboard",
+                    "assets/Active/Dashboard.svg",
+                    "assets/NonActive/dashboard-square-02.svg",
+                    0,
+                  ),
+
+                  _drawerBottomItem(
+                    "Shoots",
+                    "assets/Active/Shoots.svg",
+                    "assets/NonActive/Shoots(1).svg",
+                    1,
+                  ),
+
+                  _drawerBottomItem(
+                    "File Manager",
+                    "assets/Active/FileManager.svg",
+                    "assets/NonActive/FileManager(1).svg",
+                    2,
+                  ),
+
+                  _drawerBottomItem(
+                    "Messages",
+                    "assets/Active/Messages.svg",
+                    "assets/NonActive/Messages (1).svg",
+                    3,
+                  ),
+                  _drawerBottomItem(
+                    "Manage Availability",
+                    "assets/Active/Manage Availability.svg",
+                    "assets/NonActive/ManageAvailability(2).svg",
+                    4,
+                  ),
+
+                /*  _drawerBottomItem(
                     "Manage Availability",
                     Icons.calendar_month,
                     4, // index of page
-                  ),
+                  ),*/
                   /// Push type screen
                 /*  _drawerPushItem(
                     "Manage Availability",
@@ -504,12 +547,29 @@ class _MainscreenState extends State<Mainscreen> {
   }
 
   /// 🔥 Drawer Bottom Linked
-  Widget _drawerBottomItem(String title, IconData icon, int index) {
+  Widget _drawerBottomItem(
+      String title,
+      String activeIcon,
+      String inactiveIcon,
+      int index,
+      ) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white70),
+      leading: SvgPicture.asset(
+        _selectedIndex == index ? activeIcon : inactiveIcon,
+        height: 22,
+        colorFilter: ColorFilter.mode(
+          _selectedIndex == index
+              ? Colors.white
+              : ColorCode.kWhiteOpacity70,
+          BlendMode.srcIn,
+        ),
+      ),
       title: Text(
         title,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(
+          color: Colors.white,
+          fontFamily: "Outfit",
+        ),
       ),
       onTap: () {
         Navigator.pop(context);
