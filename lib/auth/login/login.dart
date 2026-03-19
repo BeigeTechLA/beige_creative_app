@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../MainScreen.dart';
 import '../../utility/ColorCode.dart';
@@ -18,6 +19,7 @@ class _LoginState extends State<Login> {
   bool isLoggingIn =false;
   bool showConfirmPassword = false;
   bool savePassword = false;
+  bool showPassword = false;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool get isFormValid {
@@ -167,14 +169,31 @@ class _LoginState extends State<Login> {
 
                             const SizedBox(height: 20),
 
+
+
+
+
+
                             CustomTextField(
                               label: "Password",
                               controller: passwordController,
                               isPassword: true,
-                              isVisible: showConfirmPassword,
-                              onToggle: () =>
-                                  setState(() =>
-                                  showConfirmPassword = !showConfirmPassword),
+                              isVisible: showPassword,
+
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    showPassword = !showPassword;
+                                  });
+                                },
+                                icon: SvgPicture.asset(
+                                  showPassword
+                                      ? "assets/svg/eyes1.svg"
+                                      : "assets/svg/eyes2.svg",
+                                  height: 24,
+                                  width: 24,
+                                ),
+                              ),
                             ),
 
                             const SizedBox(height: 20),

@@ -137,7 +137,7 @@ bool isLoggingIn = false;
 
 
                             CustomTextField(
-                              label: "Email ID",
+                              label: "Email ID*",
                               controller: emailController,
                               keyboardType: TextInputType.emailAddress,
                             ),

@@ -198,11 +198,11 @@ class _OtpScreenState extends State<OtpScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "Didn’t receive the code? ",
+                        Text(
+                          "Didn't receive the code? ",
                           style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.033,
                             color: ColorCode.white,
-                            fontWeight: FontWeight.w500,
                             fontFamily: "Unbounded",
                           ),
                         ),
@@ -212,17 +212,16 @@ class _OtpScreenState extends State<OtpScreen> {
                             otp.resendOtp(() {
                               setState(() {});
                             });
-
                             print("OTP Resent Successfully");
                           }
                               : null,
                           child: Text(
-                            "Resend OTP",
+                            "Resend the Code",
                             style: TextStyle(
                               color: otp.seconds == 0
                                   ? ColorCode.kGoldGradientLight
                                   : ColorCode.kWhiteOpacity60,
-                              fontSize: 15,
+                              fontSize: MediaQuery.of(context).size.width * 0.033,
                               fontWeight: FontWeight.bold,
                               decoration: TextDecoration.underline,
                             ),
@@ -230,6 +229,7 @@ class _OtpScreenState extends State<OtpScreen> {
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 20),
                     /// VERIFY BUTTON
                     SizedBox(

@@ -274,7 +274,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                 const SizedBox(height: 5),
 
                 const Text(
-                  "Create new folder for user",
+                  "Create new folder for users",
                   style: TextStyle(
                     color: ColorCode.kWhiteOpacity70,
                     fontSize: 12,
@@ -292,7 +292,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                 SizedBox(height: 12),
                 CustomTextField(label: "Folder Name",controller:folderController ,),
                 const SizedBox(height: 15),
-                CustomTextField(label: "Folder Name",controller: categoryController,),
+                CustomTextField(label: "Category",controller: categoryController,),
 
                 const SizedBox(height: 25),
 
@@ -328,7 +328,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       ),
                     ),
 
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 5),
 
                     Expanded(
                       child: SizedBox(
@@ -336,6 +336,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                         child: ElevatedButton(
                           style:
                           ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(0),
                             backgroundColor:
                             const Color(0xFFE8D1AB),
                             elevation: 0,
@@ -353,7 +354,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                           child: const Text(
                             "Create Folder",
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               fontFamily: "Unbounded",
                               fontWeight:
                               FontWeight.w500,

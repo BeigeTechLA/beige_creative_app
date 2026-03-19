@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../utility/ColorCode.dart';
+import '../../widgets/CustomDropdown.dart';
 import '../../widgets/Custom_dropdown_field.dart';
 import '../../widgets/custom_text_field.dart';
 
@@ -14,8 +15,11 @@ class AddAvailabilityScreen extends StatefulWidget {
 }
 
 class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
-  String selectedType = "Available";
-  String selectedRecurrence = "Daily";
+  String ?selectedType;
+  String ?selectedRecurrence;
+
+  final List abc=["Available", "Time Off", "Blocked"];
+  final List recurence=["Daily", "Weekly", "Monthly", "None"];
 
   bool repeatEveryDay = true;
   bool includeWeekends = false;
@@ -89,15 +93,20 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-
+  SizedBox(height: 6,),
                       /// Select Type
-                      CustomDropdownField(
+                      CustomDropdown(
+
                         label: "Type",
                         value: selectedType,
-                        items: ["Available", "Time Off", "Blocked"],
+                        items:abc.map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e,style: TextStyle(
+                          color:  Colors.white,
+                        ),)),).toList(),
                         onChanged: (val) {
                           setState(() {
-                            selectedType = val!;
+                            selectedType = val.toString();
                           });
                         },
                       ),
@@ -223,16 +232,35 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       const SizedBox(height: 18),
 
                       /// Recurrence
-                      CustomDropdownField(
+                      CustomDropdown(
                         label: "Recurrence",
                         value: selectedRecurrence,
-                        items: ["Daily", "Weekly", "Monthly", "None"],
+                        items: recurence.map((e) => DropdownMenuItem(
+                          value: e,
+                            child: Text(e,style: TextStyle(
+                              color: Colors.white
+                            ),))).toList(),
                         onChanged: (val) {
                           setState(() {
-                            selectedRecurrence = val!;
+                            selectedRecurrence = val.toString();
                           });
                         },
                       ),
+    // CustomDropdown(
+    //
+    // label: "Type",
+    // value: selectedType,
+    // items:abc.map((e) => DropdownMenuItem(
+    // value: e,
+    // child: Text(e,style: TextStyle(
+    // color:  Colors.white,//
+    // ),)),).toList(),
+    // onChanged: (val) {
+    // setState(() {
+    // selectedType = val.toString();
+    // });
+    // },
+    // ),
 
                       const SizedBox(height: 18),
                       /// =============================

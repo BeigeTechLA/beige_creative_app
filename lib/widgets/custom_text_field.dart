@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../utility/ColorCode.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
   final bool isPassword;
@@ -10,10 +11,11 @@ class CustomTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final int maxLines;
   final Widget? suffixIcon;
-
-  /// ✅ Add these properly
   final bool readOnly;
   final VoidCallback? onTap;
+  final Iterable<String>? autofillHints;
+  final List<TextInputFormatter>? inputFormatters;
+  final Function(String)? onChanged;
 
   const CustomTextField({
     super.key,
@@ -25,50 +27,101 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.maxLines = 1,
     this.suffixIcon,
-    this.readOnly = false,   // ✅ default false
-    this.onTap,              // ✅ optional
+    this.readOnly = false,
+    this.onTap,
+    this.autofillHints,
+    this.inputFormatters,
+    this.onChanged,
   });
 
   @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _focusNode.addListener(() {
+      setState(() {});
+    });
+
+    widget.controller.addListener(() {
+      setState(() {});
+    });
+  }
+  @override
+  void didUpdateWidget(CustomTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isVisible != widget.isVisible) {
+      setState(() {});
+    }
+  }
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    bool isFocused = _focusNode.hasFocus;
+    bool hasText = widget.controller.text.isNotEmpty;
+    bool highlight = isFocused || hasText;
+
     return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      obscureText: isPassword ? !isVisible : false,
-      keyboardType: keyboardType,
-      readOnly: readOnly,     // ✅ apply here
-      onTap: onTap,           // ✅ apply here
-      cursorColor: ColorCode.kWhiteOpacity70,
+      controller: widget.controller,
+      focusNode: _focusNode,
+      readOnly: widget.readOnly,
+      onTap: widget.onTap,
+      obscureText: widget.isPassword ? !widget.isVisible : false,
+      keyboardType: widget.keyboardType,
+      cursorColor: ColorCode.kButtonColor,
+      autofillHints: widget.autofillHints,
+      onChanged: widget.onChanged,
+      maxLines: widget.maxLines,
+      inputFormatters: widget.inputFormatters,
       style: const TextStyle(
-        color: Colors.white,
-        fontSize: 14,
+        color: ColorCode.white,
+        fontFamily: "Outfit",
+        fontSize: 15,
       ),
       decoration: InputDecoration(
-        labelText: label,
+        labelText: widget.label,
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        labelStyle: const TextStyle(
-          color: ColorCode.kWhiteOpacity70,
-          fontSize: 13,
+        labelStyle: TextStyle(
+          fontSize: 14,
+          color: highlight
+              ? ColorCode.kButtonColor
+              : ColorCode.kWhiteOpacity70,
+          fontFamily: "Outfit",
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
+          horizontal: 18,
           vertical: 18,
         ),
-        suffixIcon: suffixIcon,
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: ColorCode.kWhiteOpacity70,
-            width: 0.6,
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: highlight
+                ? ColorCode.textfieldbordercollor
+                : ColorCode.kWhiteOpacity70,
+            width: 0.5,//
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(
-            color: ColorCode.kWhiteOpacity70,
-            width: 0.6,
+            color:ColorCode.textfieldbordercollor,
+            width: 0.5,
           ),
         ),
+        suffixIcon: widget.suffixIcon,
+
+
       ),
     );
   }

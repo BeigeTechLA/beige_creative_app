@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../utility/ColorCode.dart';
 import '../../widgets/custom_text_field.dart';
@@ -137,32 +138,56 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                             const SizedBox(height: 12),
 
 
-
                             CustomTextField(
-                              label: "New Password",
+                              label: "New Password*",
                               controller: newController.passwordController,
                               isPassword: true,
                               isVisible: newController.isPasswordVisible,
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    newController.isPasswordVisible = !newController.isPasswordVisible;
+                                  });
+                                },
+                                icon: SvgPicture.asset(
+                                  newController.isPasswordVisible
+                                      ? "assets/svg/eyes1.svg"
+                                      : "assets/svg/eyes2.svg",
+                                  height: 24,
+                                  width: 24,
+                                ),
+                              ),
                               onToggle: () {
                                 setState(() {
-                                  newController.isPasswordVisible =
-                                  !newController.isPasswordVisible;
+                                  newController.isPasswordVisible = !newController.isPasswordVisible;
                                 });
                               },
                             ),
 
                             const SizedBox(height: 20),
-                            const SizedBox(height: 20),
 
                             CustomTextField(
-                              label: "Confirm Password",
+                              label: "Confirm Password*",
                               controller: newController.confirmPasswordController,
                               isPassword: true,
                               isVisible: newController.isConfirmPasswordVisible,
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    newController.isConfirmPasswordVisible = !newController.isConfirmPasswordVisible;
+                                  });
+                                },
+                                icon: SvgPicture.asset(
+                                  newController.isConfirmPasswordVisible
+                                      ? "assets/svg/eyes1.svg"
+                                      : "assets/svg/eyes2.svg",
+                                  height: 24,
+                                  width: 24,
+                                ),
+                              ),
                               onToggle: () {
                                 setState(() {
-                                  newController.isConfirmPasswordVisible =
-                                  !newController.isConfirmPasswordVisible;
+                                  newController.isConfirmPasswordVisible = !newController.isConfirmPasswordVisible;
                                 });
                               },
                             ),

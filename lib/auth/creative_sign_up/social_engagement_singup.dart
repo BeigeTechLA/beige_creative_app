@@ -1530,27 +1530,28 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                   const SizedBox(height: 20),
 
                   /// SINGLE INPUT FIELD (LIKE IMAGE)
-                  TextField(
-                    controller: portfolioLinkController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      hintText: "Name of the Link",
-                      hintStyle: const TextStyle(color: Colors.white54),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: Colors.white24),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide:
-                        BorderSide(color: ColorCode.kButtonColor),
-                      ),
-                    ),
-                  ),
+                  // TextField(
+                  //   controller: portfolioLinkController,
+                  //   style: const TextStyle(color: Colors.white),
+                  //   decoration: InputDecoration(
+                  //     hintText: "Name of the Link",
+                  //     hintStyle: const TextStyle(color: Colors.white54),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //       horizontal: 20,
+                  //       vertical: 16,
+                  //     ),
+                  //     enabledBorder: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(14),
+                  //       borderSide: const BorderSide(color: Colors.white24),
+                  //     ),
+                  //     focusedBorder: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(14),
+                  //       borderSide:
+                  //       BorderSide(color: ColorCode.kButtonColor),
+                  //     ),
+                  //   ),
+                  // ),
+                  CustomTextField(label:"Name of the Link", controller:portfolioLinkController),
 
                   const SizedBox(height: 24),
 

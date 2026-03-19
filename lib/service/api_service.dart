@@ -45,6 +45,7 @@ class ApiService {
     // final response = await http.get(Uri.parse(_baseUrl + url));
 
     if (response.statusCode == 200) {
+
       // If the server returns a 200 OK response, parse the JSON.
       return json.decode(response.body);
     } else {

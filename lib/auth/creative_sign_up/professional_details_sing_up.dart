@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:beige_creative_app/auth/creative_sign_up/social_engagement_singup.dart';
+import 'package:beige_creative_app/widgets/CustomDropdown.dart';
+import 'package:beige_creative_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
@@ -143,7 +145,7 @@ class _ProfessionalDetailsSingUpState
   }
 
 
-  Future<void> _fetchhome_Skills() async {
+  Future<void> _fetchhome_Skills() async{
     try {
       final response =
       await ApiService().fetchData(ApiEndpoints.register_Skill);
@@ -449,43 +451,73 @@ class _ProfessionalDetailsSingUpState
                         ),
                         child: Column(
                           children: [
-                            SizedBox(height: 20),
-                            _dropdownField(
-                    "Primary Role*",
-                    primaryRole,
-                    roleList,
-                        (v) {
-                      setState(() => primaryRole = v);
-                    },
-                  ),
+                            SizedBox(height: 20),//
+                  //           _dropdownField(
+                  //   "Primary Role*",
+                  //   primaryRole,
+                  //   roleList,
+                  //       (v) {
+                  //     setState(() => primaryRole = v);
+                  //   },
+                  // ),
+
+                            CustomDropdown(
+                              value: primaryRole,
+                                label:'Primary Role*',
+                              items: roleList
+                                  .map((e) => DropdownMenuItem<String>(
+                                value: e,
+                                child: Text(e,
+                                    style: const TextStyle(color: Colors.white)),
+                              ))
+                                  .toList(),
+                              onChanged: (v) {
+                                setState(() => primaryRole = v);
+                              },
+                            ),
 
                   const SizedBox(height: 20),
 
-                  _textField(
-                    title: "Year sssssof Experience*",
-                    controller: YearofExperienceController,
-                    isNumber: true, // 🔥 numeric keyboard
-                  ),
+                  // _textField(
+                  //   title: "Year sssssof Experience*",
+                  //   controller: YearofExperienceController,
+                  //   isNumber: true, // 🔥 numeric keyboard
+                  // ),
+
+                      CustomTextField(label:"Year of Experience*",
+                          controller: YearofExperienceController,
+                         keyboardType: TextInputType.number,
+                      ),
 
                   const SizedBox(height: 20),
 
-                  _textField(
-                    title: "Hourly Rate*",
-                    controller: HourlyRateController,
-                    isNumber: true, // 🔥 numeric keyboard
-                  ),
+                  // _textField(
+                  //   title: "Hourly Rate*",
+                  //   controller: HourlyRateController,
+                  //   isNumber: true, // 🔥 numeric keyboard
+                  // ),
+
+                            CustomTextField(label:"Hourly Rate*",
+                              controller: HourlyRateController,
+                              keyboardType: TextInputType.number,
+                            ),
 
                   const SizedBox(height: 20),
 
-                  /// BIO FIELD
-                  _textField(
-                    title: "Bio / About",
-
-                    controller: bioController,
-                    isMultiline: true, // 👈 NEW
-
-                    maxLines: 4,
-                  ),
+                  // BIO FIELD
+                  // _textField(
+                  //   title: "Bio / About",
+                  //
+                  //   controller: bioController,
+                  //   isMultiline: true, // 👈 NEW
+                  //
+                  //   maxLines: 4,
+                  // ),
+                            CustomTextField(label:"Bio / About",
+                              controller: bioController,
+                              maxLines:4,
+                              keyboardType: TextInputType.multiline,//
+                            ),
                   SizedBox(height: 5,),
                   Row(
                     children: [
@@ -574,14 +606,14 @@ class _ProfessionalDetailsSingUpState
                     children: [
 
                       /// 🔍 EQUIPMENT TEXT FIELD (TOP)
-                      TextField(
+                      CustomTextField(
                         controller: equipmentController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: _inputDecoration("Add Equipment"),
+                        label: 'Add Equipment',
                         onChanged: (value) {
                           _fetchhome_equipment(value);
                         },
                       ),
+
 
                       /// ⏳ LOADING
                       if (equipmentLoading)
@@ -1088,3 +1120,97 @@ class _ProfessionalDetailsSingUpState
 }
 
 
+class _MyTextField extends StatefulWidget {
+  final String title;
+  final TextEditingController controller;
+  final int maxLines;
+  final bool isNumber;
+  final bool isMultiline;
+
+  const _MyTextField({
+    required this.title,
+    required this.controller,
+    this.maxLines = 1,
+    this.isNumber = false,
+    this.isMultiline = false,
+  });
+
+  @override
+  State<_MyTextField> createState() => _MyTextFieldState();
+}
+
+class _MyTextFieldState extends State<_MyTextField> {
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (mounted) setState(() {});
+    });
+    widget.controller.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool highlight = _focusNode.hasFocus || widget.controller.text.isNotEmpty;
+
+    return TextField(
+      controller: widget.controller,
+      focusNode: _focusNode,
+      maxLines: widget.isMultiline ? widget.maxLines : 1,
+      minLines: widget.isMultiline ? widget.maxLines : 1,
+      keyboardType: widget.isMultiline
+          ? TextInputType.multiline
+          : widget.isNumber
+          ? const TextInputType.numberWithOptions(decimal: false)
+          : TextInputType.text,
+      textInputAction: widget.isMultiline
+          ? TextInputAction.newline
+          : TextInputAction.done,
+      inputFormatters: widget.isNumber
+          ? [FilteringTextInputFormatter.digitsOnly]
+          : [],
+      onChanged: (_) => setState(() {}),
+      style: const TextStyle(
+        color: Colors.white,
+        fontFamily: "Outfit",
+        fontSize: 15,
+      ),
+      decoration: InputDecoration(
+        labelText: widget.title,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        labelStyle: TextStyle(
+          fontSize: 14,
+          fontFamily: "Outfit",
+          color: highlight ? ColorCode.kButtonColor : ColorCode.kWhiteOpacity70,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: highlight
+                ? ColorCode.textfieldbordercollor
+                : ColorCode.kWhiteOpacity70,
+            width: 0.5,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: ColorCode.kButtonColor,
+            width: 0.5,
+          ),
+        ),
+      ),
+    );
+  }
+}

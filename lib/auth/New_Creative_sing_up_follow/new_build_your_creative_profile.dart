@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -15,6 +16,8 @@ import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../service/google_config.dart';
 import '../../utility/ColorCode.dart';
+import '../../widgets/CustomDropdown.dart';
+import '../../widgets/custom_text_field.dart';
 import '../ProfileDetailsScreen .dart';
 import '../creative_sign_up/professional_details_sing_up.dart';
 import '../login/login.dart';
@@ -853,15 +856,27 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
                           child: Column(
                             children: [
 
-                              _buildField("First Name",  firstNameController),
+                             // _buildField("First Name",  firstNameController),
+                              CustomTextField(
+                                label: "First Name",
+                                controller: firstNameController,
+                              ),
 
                               SizedBox(height: 20),
 
-                              _buildField("Last Name", lastNameController),
+                             // _buildField("Last Name", lastNameController),
+                              CustomTextField(
+                                label: "Last Name",
+                                controller: lastNameController,
+                              ),
 
                               SizedBox(height: 20),
 
-                              _buildField("Email Address", emailController),
+                           //   _buildField("Email Address", emailController),
+                              CustomTextField(
+                                label: "Email Address",
+                                controller: emailController,
+                              ),
 
 
                               SizedBox(height: 20),
@@ -1007,25 +1022,81 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
 
                               SizedBox(height: 20),
 
-                              _workingDistanceDropdown(),
+                             // _workingDistanceDropdown(),//
+                              CustomDropdown<String>(
+                                label: "Working Distance*",
+                                value: selectedDistance,
+                                items: distances
+                                    .map((e) => DropdownMenuItem<String>(
+                                  value: e,
+                                  child: Text(
+                                    e,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ))
+                                    .toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedDistance = value;
+                                  });
+                                },
+                              ),
                               SizedBox(height: 20),
 
-                              _buildPasswordField(
-                                "Create Password",
-                                showPassword,
-                                    () => setState(() => showPassword = !showPassword),
-                                passwordController,
-                                _passwordFocus,
+                              // _buildPasswordField(
+                              //   "Create Password",
+                              //   showPassword,
+                              //       () => setState(() => showPassword = !showPassword),
+                              //   passwordController,
+                              //   _passwordFocus,
+                              // ),
+
+                              CustomTextField(
+                                isVisible: showPassword,
+
+                              suffixIcon:IconButton(onPressed:() {
+
+                                setState(() {
+                                   showPassword= !showPassword;
+                                });
+                               },
+                                icon: SvgPicture.asset(
+                                  showPassword
+                                      ? "assets/svg/eyes1.svg"
+                                      : "assets/svg/eyes2.svg",
+                                  height: 24,  // ✅ add karo
+                                  width: 24,   // ✅ add karo
+                                ),
+
+                              ),
+                                isPassword: true,
+                                label:'Create Password',
+                                  controller: passwordController,
+
                               ),
 
                               SizedBox(height: 20),
 
-                              _buildPasswordField(
-                                "Confirm Password",
-                                showConfirmPassword,
-                                    () => setState(() => showConfirmPassword = !showConfirmPassword),
-                                confirmPasswordController,
-                                _confirmPasswordFocus,
+                              CustomTextField(
+                                isVisible: showConfirmPassword,
+                                isPassword: true,
+                                label: 'Confirm Password',
+                                controller: confirmPasswordController,
+
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      showConfirmPassword = !showConfirmPassword;
+                                    });
+                                  },
+                                  icon: SvgPicture.asset(
+                                    showConfirmPassword
+                                        ? "assets/svg/eyes1.svg"
+                                        : "assets/svg/eyes2.svg",
+                                    height: 24,
+                                    width: 24,
+                                  ),
+                                ),
                               ),
 
                               SizedBox(height: 20),
@@ -1265,6 +1336,7 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
       controller: controller,
       cursorColor: ColorCode.white,
 
+
       style: const TextStyle(
         color: ColorCode.white, // typed text color
       ),
@@ -1274,7 +1346,7 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
         floatingLabelBehavior: FloatingLabelBehavior.always,
 
         labelStyle: const TextStyle(
-          color: ColorCode.kWhiteOpacity70, // #1D1D1B 60% opacity
+          color: ColorCode.kButtonColor, // #1D1D1B 60% opacity
         ),
 
         contentPadding: const EdgeInsets.symmetric(
@@ -1294,7 +1366,7 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: ColorCode.kWhiteOpacity70, // #1D1D1B99 (60% opacity)
+            color: ColorCode.textfieldbordercollor, // #1D1D1B99 (60% opacity)
             width: 0.5,                          // focus border thicker
           ),
         ),
@@ -1306,139 +1378,139 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
   }
 
 
-  Widget _workingDistanceDropdown() {
-    return DropdownButtonFormField<String>(
-      value: selectedDistance,
-      dropdownColor: const Color(0xFF1C1C1C),
-      icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+  // Widget _workingDistanceDropdown() {
+  //   return DropdownButtonFormField<String>(
+  //     value: selectedDistance,
+  //     dropdownColor: const Color(0xFF1C1C1C),
+  //     icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+  //
+  //     style: const TextStyle(color: Colors.white),
+  //
+  //     decoration: InputDecoration(
+  //       labelText: "Working Distance*",
+  //       floatingLabelBehavior: FloatingLabelBehavior.always,
+  //
+  //       labelStyle: TextStyle(
+  //         color: selectedDistance != null
+  //             ? ColorCode.kButtonColor   // active
+  //             : ColorCode.kWhiteOpacity70,
+  //       ),
+  //
+  //       contentPadding: const EdgeInsets.symmetric(
+  //         horizontal: 20,
+  //         vertical: 18,
+  //       ),
+  //
+  //       enabledBorder: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(12),
+  //         borderSide: const BorderSide(
+  //           color: ColorCode.kWhiteOpacity70,
+  //           width: 0.5,
+  //         ),
+  //       ),
+  //
+  //       focusedBorder: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(12),
+  //         borderSide: const BorderSide(
+  //           color: ColorCode.kButtonColor,
+  //           width: 1,
+  //         ),
+  //       ),
+  //     ),
+  //
+  //     /*  hint: const Text(
+  //       "Select distance",
+  //       style: TextStyle(color: Colors.white54),
+  //     ),*/
+  //
+  //     items: distances
+  //         .map(
+  //           (e) => DropdownMenuItem<String>(
+  //         value: e,
+  //         child: Text(
+  //           e,
+  //           style: const TextStyle(color: Colors.white),
+  //         ),
+  //       ),
+  //     )
+  //         .toList(),
+  //
+  //     onChanged: (value) {
+  //       setState(() {
+  //         selectedDistance = value;
+  //       });
+  //     },
+  //   );
+  // }
 
-      style: const TextStyle(color: Colors.white),
 
-      decoration: InputDecoration(
-        labelText: "Working Distance*",
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-
-        labelStyle: TextStyle(
-          color: selectedDistance != null
-              ? ColorCode.kButtonColor   // active
-              : ColorCode.kWhiteOpacity70,
-        ),
-
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 18,
-        ),
-
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: ColorCode.kWhiteOpacity70,
-            width: 0.5,
-          ),
-        ),
-
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: ColorCode.kButtonColor,
-            width: 1,
-          ),
-        ),
-      ),
-
-      /*  hint: const Text(
-        "Select distance",
-        style: TextStyle(color: Colors.white54),
-      ),*/
-
-      items: distances
-          .map(
-            (e) => DropdownMenuItem<String>(
-          value: e,
-          child: Text(
-            e,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
-      )
-          .toList(),
-
-      onChanged: (value) {
-        setState(() {
-          selectedDistance = value;
-        });
-      },
-    );
-  }
-
-
-  Widget _buildPasswordField(
-      String title,
-      bool isVisible,
-      VoidCallback onToggle,
-      TextEditingController controller,
-      FocusNode focusNode,
-      ) {
-    return TextField(
-      controller: controller,
-      focusNode: focusNode,
-      obscureText: !isVisible,
-      cursorColor: ColorCode.kButtonColor,
-
-      style: const TextStyle(
-        color: ColorCode.white,
-      ),
-
-      decoration: InputDecoration(
-        labelText: "$title*",
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-
-        /// 🔥 LABEL COLOR CHANGE
-        labelStyle: TextStyle(
-          color: focusNode.hasFocus
-              ? ColorCode.kButtonColor
-              : ColorCode.kWhiteOpacity70,
-        ),
-
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 18,
-        ),
-
-        /// 👁️ EYE ICON
-        suffixIcon: IconButton(
-          onPressed: onToggle,
-          icon: Icon(
-            isVisible ? Icons.visibility : Icons.visibility_off,
-            color: focusNode.hasFocus
-                ? ColorCode.kButtonColor
-                : ColorCode.kWhiteOpacity70,
-            size: 20,
-          ),
-        ),
-
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: ColorCode.kWhiteOpacity70,
-            width: 0.5,
-          ),
-        ),
-
-        /// 🔥 ACTIVE BORDER
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: ColorCode.kButtonColor,
-            width: 1,
-          ),
-        ),
-      ),
-
-      onTap: () => setState(() {}),
-      onChanged: (_) => setState(() {}),
-    );
-  }
+  // Widget _buildPasswordField(
+  //     String title,
+  //     bool isVisible,
+  //     VoidCallback onToggle,
+  //     TextEditingController controller,
+  //     FocusNode focusNode,
+  //     ) {
+  //   return TextField(
+  //     controller: controller,
+  //     focusNode: focusNode,
+  //     obscureText: !isVisible,
+  //     cursorColor: ColorCode.kButtonColor,
+  //
+  //     style: const TextStyle(
+  //       color: ColorCode.white,
+  //     ),
+  //
+  //     decoration: InputDecoration(
+  //       labelText: "$title*",
+  //       floatingLabelBehavior: FloatingLabelBehavior.always,
+  //
+  //       /// 🔥 LABEL COLOR CHANGE
+  //       labelStyle: TextStyle(
+  //         color: focusNode.hasFocus
+  //             ? ColorCode.kButtonColor
+  //             : ColorCode.kWhiteOpacity70,
+  //       ),
+  //
+  //       contentPadding: const EdgeInsets.symmetric(
+  //         horizontal: 20,
+  //         vertical: 18,
+  //       ),
+  //
+  //       /// 👁️ EYE ICON
+  //       suffixIcon: IconButton(
+  //         onPressed: onToggle,
+  //         icon: Icon(
+  //           isVisible ? Icons.visibility : Icons.visibility_off,
+  //           color: focusNode.hasFocus
+  //               ? ColorCode.kButtonColor
+  //               : ColorCode.kWhiteOpacity70,
+  //           size: 20,
+  //         ),
+  //       ),
+  //
+  //       enabledBorder: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(14),
+  //         borderSide: const BorderSide(
+  //           color: ColorCode.kWhiteOpacity70,
+  //           width: 0.5,
+  //         ),
+  //       ),
+  //
+  //       /// 🔥 ACTIVE BORDER
+  //       focusedBorder: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(12),
+  //         borderSide: const BorderSide(
+  //           color: ColorCode.kButtonColor,
+  //           width: 1,
+  //         ),
+  //       ),
+  //     ),
+  //
+  //     onTap: () => setState(() {}),
+  //     onChanged: (_) => setState(() {}),
+  //   );
+  // }
 
 
   Widget _profilePictureCard() {
