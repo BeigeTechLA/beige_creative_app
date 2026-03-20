@@ -2822,91 +2822,110 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
 
                     /// 🏷️ ADD TAGS
                     /// 🏷️ TAG SECTION
-                    GestureDetector(
-                      onTap: _openAddTagSheet,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: selectedTags.isEmpty
-                            ? Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.black26,
-                            borderRadius:
-                            BorderRadius.circular(20),
-                            border:
-                            Border.all(color: Colors.white24),
-                          ),
-                          child: Row(
-                            mainAxisSize:
-                            MainAxisSize.min,
-                            children: const [
-                              Icon(Icons.local_offer_outlined,
-                                  size: 16,
-                                  color: Colors.white),
-                              SizedBox(width: 6),
-                              Text(
-                                "# Add Tags",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 13),
-                              ),
-                            ],
-                          ),
-                        )
-                            : Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children:
-                          selectedTags.map((tag) {
-                            return Container(
-                              padding:
-                              const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6),
+                    Row(
+                       children: [
+                      //   Container(
+                      //     width: 124,
+                      //     height: 36,
+                      //     decoration: BoxDecoration(
+                      //         border: Border.all(
+                      //         width: 0.5,
+                      //         color: Color(0xffE8D1AB80),//
+                      //       )
+                      //     ),
+                      //   ),
+
+
+
+
+                        GestureDetector(
+                          onTap: _openAddTagSheet,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: selectedTags.isEmpty
+                                ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 8),
                               decoration: BoxDecoration(
-                                color: Colors.black,
+                                color: Colors.black26,
                                 borderRadius:
-                                BorderRadius.circular(
-                                    20),
-                                border: Border.all(
-                                    color: Colors.white24),
+                                BorderRadius.circular(20),
+                                border:
+                                Border.all(color: Colors.white24),
                               ),
                               child: Row(
                                 mainAxisSize:
                                 MainAxisSize.min,
-                                children: [
+                                children: const [
+                                  Icon(Icons.local_offer_outlined,
+                                      size: 16,
+                                      color: Colors.white),
+                                  SizedBox(width: 6),
                                   Text(
-                                    tag,
-                                    style:
-                                    const TextStyle(
-                                        color:
-                                        Colors.white,
-                                        fontSize: 12),
-                                  ),
-                                  const SizedBox(
-                                      width: 6),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        selectedTags
-                                            .remove(tag);
-                                      });
-                                    },
-                                    child: const Icon(
-                                      Icons.close,
-                                      size: 14,
-                                      color:
-                                      Colors.white70,
-                                    ),
+                                    "# Add Tags",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13),
                                   ),
                                 ],
-
                               ),
-                            );
-                          }).toList(),
+                            )
+                                : Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children:
+                              selectedTags.map((tag) {
+                                return Container(
+                                  padding:
+                                  const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius:
+                                    BorderRadius.circular(
+                                        20),
+                                    border: Border.all(
+                                        color: Colors.white24),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize:
+                                    MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        tag,
+                                        style:
+                                        const TextStyle(
+                                            color:
+                                            Colors.white,
+                                            fontSize: 12),
+                                      ),
+                                      const SizedBox(
+                                          width: 6),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            selectedTags
+                                                .remove(tag);
+                                          });
+                                        },
+                                        child: const Icon(
+                                          Icons.close,
+                                          size: 14,
+                                          color:
+                                          Colors.white70,
+                                        ),
+                                      ),
+                                    ],
+
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
                         ),
-                      ),
+
+                      ],
                     ),
 
 
