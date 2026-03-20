@@ -33,6 +33,12 @@ class New_build_your_creativeScreen extends StatefulWidget {
 
 class _New_build_your_creativeScreenState extends State<New_build_your_creativeScreen> {
 
+
+  Offset offset=Offset.zero;
+  double scale = 1.0;
+  Offset _lastFocalPoint = Offset.zero; // 👈 add karo
+
+
   File? profileImage;
   final ImagePicker _picker = ImagePicker();
   final FocusNode _locationFocus = FocusNode();
@@ -56,10 +62,10 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
 
 
 
-  double scale = 1.0;
+  //double scale = 1.0;
   double startScale = 1.0;
 
-  Offset offset = Offset.zero;
+ // Offset offset = Offset.zero;
   Offset startOffset = Offset.zero;
 
   bool get isFormValid {
@@ -192,11 +198,15 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
                         onScaleStart: (details) {
                           startScale = scale;
                           startOffset = offset;
+                          _lastFocalPoint = details.focalPoint;
+
                         },
                         onScaleUpdate: (details) {
                           setSheetState(() {
                             scale = (startScale * details.scale).clamp(1.0, 4.0);
-                            offset = startOffset + details.focalPointDelta;
+                            final delta = details.focalPoint - _lastFocalPoint;
+                            offset = offset + delta;
+                            _lastFocalPoint = details.focalPoint;
                           });
                         },
                         child: Stack(

@@ -92,6 +92,7 @@ flutter:
     - assets/NonActive/
     - assets/home/
     - assets/profile/
+    - assets/svg/
 
   #   - images/a_dot_ham.jpeg
 
