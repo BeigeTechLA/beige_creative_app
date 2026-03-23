@@ -1282,187 +1282,202 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<String> typeOptions = [
       "All", "Shoots", "Events", "Projects"
     ];
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      isScrollControlled: true,
+      isScrollControlled: true,  // ✅ already have this
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return widget(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1E1E1E),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-              
-                    /// DRAG INDICATOR
-                    Container(
-                      height: 4,
-                      width: 40,
-                      margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(4),
+            return DraggableScrollableSheet(   // ✅ ADD THIS
+              initialChildSize: 0.6,
+              minChildSize: 0.4,
+              maxChildSize: 0.95,
+              expand: false,
+              builder: (context, scrollController) {
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1E1E1E),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+
+                      /// DRAG INDICATOR
+                      Container(
+                        height: 4,
+                        width: 40,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white24,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                       ),
-                    ),
-              
-                    /// HEADER
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Filter",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: const Icon(Icons.close, color: Colors.white),
-                        ),
-                      ],
-                    ),
-              
-                    const SizedBox(height: 16),
-              
-                    /// FILTER BY DATE
-                    _filterSection(
-                      title: "Filter By Date",
-                      isExpanded: isDateExpanded,
-                      onTap: () => setState(() => isDateExpanded = !isDateExpanded),
-                      children: isDateExpanded
-                          ? dateOptions.map((label) => _radioOption(
-                        label: label,
-                        selected: selectedDate == label,
-                        onTap: () => setState(() => selectedDate = label),
-                      )).toList()
-                          : [],
-                    ),
-              
-                    const SizedBox(height: 8),
-              
-                    /// FILTER BY STATUS
-                    _filterSection(
-                      title: "Filter By Status",
-                      isExpanded: isStatusExpanded,
-                      onTap: () => setState(() => isStatusExpanded = !isStatusExpanded),
-                      children: isStatusExpanded
-                          ? statusOptions.map((label) => _radioOption(
-                        label: label,
-                        selected: selectedStatus == label,
-                        onTap: () => setState(() => selectedStatus = label),
-                      )).toList()
-                          : [],
-                    ),
-              
-                    const SizedBox(height: 8),
-              
-                    /// FILTER BY CATEGORY
-                    _filterSection(
-                      title: "Filter By Category",
-                      isExpanded: isCategoryExpanded,
-                      onTap: () => setState(() => isCategoryExpanded = !isCategoryExpanded),
-                      children: isCategoryExpanded
-                          ? categoryOptions.map((label) => _radioOption(
-                        label: label,
-                        selected: selectedCategory == label,
-                        onTap: () => setState(() => selectedCategory = label),
-                      )).toList()
-                          : [],
-                    ),
-              
-                    const SizedBox(height: 8),
-              
-                    /// FILTER BY TYPE
-                    _filterSection(
-                      title: "Filter By Type",
-                      isExpanded: isTypeExpanded,
-                      onTap: () => setState(() => isTypeExpanded = !isTypeExpanded),
-                      children: isTypeExpanded
-                          ? typeOptions.map((label) => _radioOption(
-                        label: label,
-                        selected: selectedType == label,
-                        onTap: () => setState(() => selectedType = label),
-                      )).toList()
-                          : [],
-                    ),
-              
-                    const SizedBox(height: 20),
-              
-                    /// BUTTONS
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () {
-                              setState(() {
-                                selectedDate = null;
-                                selectedStatus = null;
-                                selectedCategory = null;
-                                selectedType = null;
-                              });
-                            },
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Colors.white38),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                            child: const Text(
-                              "Clear All",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Unbounded",
-                                fontWeight: FontWeight.w500,
-                              ),
+
+                      /// HEADER (fixed, not scrollable)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Filter",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontFamily: "Unbounded",
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // ✅ USE YOUR SELECTED VALUES HERE
-                              print("Date: $selectedDate");
-                              print("Status: $selectedStatus");
-                              print("Category: $selectedCategory");
-                              print("Type: $selectedType");
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFE8D1AB),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: const Icon(Icons.close, color: Colors.white),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      /// ✅ SCROLLABLE CONTENT
+                      Expanded(
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          child: Column(
+                            children: [
+
+                              /// FILTER BY DATE
+                              _filterSection(
+                                title: "Filter By Date",
+                                isExpanded: isDateExpanded,
+                                onTap: () => setState(() => isDateExpanded = !isDateExpanded),
+                                children: isDateExpanded
+                                    ? dateOptions.map((label) => _radioOption(
+                                  label: label,
+                                  selected: selectedDate == label,
+                                  onTap: () => setState(() => selectedDate = label),
+                                )).toList()
+                                    : [],
                               ),
-                            ),
-                            child: const Text(
-                              "Apply",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontFamily: "Unbounded",
-                                fontWeight: FontWeight.w500,
+
+                              const SizedBox(height: 8),
+
+                              /// FILTER BY STATUS
+                              _filterSection(
+                                title: "Filter By Status",
+                                isExpanded: isStatusExpanded,
+                                onTap: () => setState(() => isStatusExpanded = !isStatusExpanded),
+                                children: isStatusExpanded
+                                    ? statusOptions.map((label) => _radioOption(
+                                  label: label,
+                                  selected: selectedStatus == label,
+                                  onTap: () => setState(() => selectedStatus = label),
+                                )).toList()
+                                    : [],
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              /// FILTER BY CATEGORY
+                              _filterSection(
+                                title: "Filter By Category",
+                                isExpanded: isCategoryExpanded,
+                                onTap: () => setState(() => isCategoryExpanded = !isCategoryExpanded),
+                                children: isCategoryExpanded
+                                    ? categoryOptions.map((label) => _radioOption(
+                                  label: label,
+                                  selected: selectedCategory == label,
+                                  onTap: () => setState(() => selectedCategory = label),
+                                )).toList()
+                                    : [],
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              /// FILTER BY TYPE
+                              _filterSection(
+                                title: "Filter By Type",
+                                isExpanded: isTypeExpanded,
+                                onTap: () => setState(() => isTypeExpanded = !isTypeExpanded),
+                                children: isTypeExpanded
+                                    ? typeOptions.map((label) => _radioOption(
+                                  label: label,
+                                  selected: selectedType == label,
+                                  onTap: () => setState(() => selectedType = label),
+                                )).toList()
+                                    : [],
+                              ),
+
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      /// BUTTONS (fixed at bottom)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedDate = null;
+                                  selectedStatus = null;
+                                  selectedCategory = null;
+                                  selectedType = null;
+                                });
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Colors.white38),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              child: const Text(
+                                "Clear All",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "Unbounded",
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-              
-                    const SizedBox(height: 10),
-                  ],
-                ),
-              ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                print("Date: $selectedDate");
+                                print("Status: $selectedStatus");
+                                print("Category: $selectedCategory");
+                                print("Type: $selectedType");
+                                Navigator.pop(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFE8D1AB),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              child: const Text(
+                                "Apply",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: "Unbounded",
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                );
+              },
             );
           },
         );
