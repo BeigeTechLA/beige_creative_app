@@ -15,6 +15,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final List<String> statusOptions = ["Upcoming", "Active", "Completed", "Cancelled"];
+  final List<String> categoryOptions = ["Photography", "Videography", "Editing", "Marketing Analytics"];
+  final List<String> typeOptions = ["All", "Shoots", "Events", "Projects"];
+  final List<String> dateOptions = ["Today", "This Week", "This Month", "Custom Range"];
   int selectedDashboardIndex = 0;
   bool isExpanded = false;
   int currentIndex = 0;
@@ -205,8 +209,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       /// 🔍 SEARCH FIELD
                       Expanded(
                         child: Container(
-                          height: 52,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                         // height: 52,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           decoration: BoxDecoration(
                             color: Colors.transparent,
                             borderRadius: BorderRadius.circular(12),
@@ -218,6 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: const TextField(
                             style: TextStyle(color: Colors.white),
                             decoration: InputDecoration(
+                              contentPadding: EdgeInsetsGeometry.symmetric(vertical: 12,horizontal: 0),
                               prefixIcon: Icon(
                                 Icons.search,
                                 color: Colors.white54,
@@ -237,7 +242,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       /// ⚙️ FILTER BUTTON
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          _showFilterBottomSheet();
+
+                        },
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           height: 52,
@@ -1246,6 +1254,317 @@ class _HomeScreenState extends State<HomeScreen> {
         );
 
   }
+
+  void _showFilterBottomSheet() {
+    String? selectedDate;
+    String? selectedStatus;
+    String? selectedCategory;
+    String? selectedType;
+
+    bool isDateExpanded = true;
+    bool isStatusExpanded = false;
+    bool isCategoryExpanded = false;
+    bool isTypeExpanded = false;
+
+    // ✅ YOUR CUSTOM OPTIONS
+    final List<String> dateOptions = [
+      "Today", "This Week", "This Month", "Custom Range"
+    ];
+
+    final List<String> statusOptions = [
+      "Upcoming", "Active", "Completed", "Cancelled"
+    ];
+
+    final List<String> categoryOptions = [
+      "Photography", "Videography", "Editing", "Marketing Analytics"
+    ];
+
+    final List<String> typeOptions = [
+      "All", "Shoots", "Events", "Projects"
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return widget(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+              
+                    /// DRAG INDICATOR
+                    Container(
+                      height: 4,
+                      width: 40,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+              
+                    /// HEADER
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Filter",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontFamily: "Unbounded",
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: const Icon(Icons.close, color: Colors.white),
+                        ),
+                      ],
+                    ),
+              
+                    const SizedBox(height: 16),
+              
+                    /// FILTER BY DATE
+                    _filterSection(
+                      title: "Filter By Date",
+                      isExpanded: isDateExpanded,
+                      onTap: () => setState(() => isDateExpanded = !isDateExpanded),
+                      children: isDateExpanded
+                          ? dateOptions.map((label) => _radioOption(
+                        label: label,
+                        selected: selectedDate == label,
+                        onTap: () => setState(() => selectedDate = label),
+                      )).toList()
+                          : [],
+                    ),
+              
+                    const SizedBox(height: 8),
+              
+                    /// FILTER BY STATUS
+                    _filterSection(
+                      title: "Filter By Status",
+                      isExpanded: isStatusExpanded,
+                      onTap: () => setState(() => isStatusExpanded = !isStatusExpanded),
+                      children: isStatusExpanded
+                          ? statusOptions.map((label) => _radioOption(
+                        label: label,
+                        selected: selectedStatus == label,
+                        onTap: () => setState(() => selectedStatus = label),
+                      )).toList()
+                          : [],
+                    ),
+              
+                    const SizedBox(height: 8),
+              
+                    /// FILTER BY CATEGORY
+                    _filterSection(
+                      title: "Filter By Category",
+                      isExpanded: isCategoryExpanded,
+                      onTap: () => setState(() => isCategoryExpanded = !isCategoryExpanded),
+                      children: isCategoryExpanded
+                          ? categoryOptions.map((label) => _radioOption(
+                        label: label,
+                        selected: selectedCategory == label,
+                        onTap: () => setState(() => selectedCategory = label),
+                      )).toList()
+                          : [],
+                    ),
+              
+                    const SizedBox(height: 8),
+              
+                    /// FILTER BY TYPE
+                    _filterSection(
+                      title: "Filter By Type",
+                      isExpanded: isTypeExpanded,
+                      onTap: () => setState(() => isTypeExpanded = !isTypeExpanded),
+                      children: isTypeExpanded
+                          ? typeOptions.map((label) => _radioOption(
+                        label: label,
+                        selected: selectedType == label,
+                        onTap: () => setState(() => selectedType = label),
+                      )).toList()
+                          : [],
+                    ),
+              
+                    const SizedBox(height: 20),
+              
+                    /// BUTTONS
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedDate = null;
+                                selectedStatus = null;
+                                selectedCategory = null;
+                                selectedType = null;
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.white38),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            child: const Text(
+                              "Clear All",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "Unbounded",
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // ✅ USE YOUR SELECTED VALUES HERE
+                              print("Date: $selectedDate");
+                              print("Status: $selectedStatus");
+                              print("Category: $selectedCategory");
+                              print("Type: $selectedType");
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFE8D1AB),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            child: const Text(
+                              "Apply",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontFamily: "Unbounded",
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+              
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _filterSection({
+    required String title,
+    required bool isExpanded,
+    required VoidCallback onTap,
+    required List<Widget> children,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2A2A),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(14),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontFamily: "Outfit",
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Icon(
+                    isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (children.isNotEmpty) ...children,
+          if (children.isNotEmpty) const SizedBox(height: 6),
+        ],
+      ),
+    );
+  }
+
+  Widget _radioOption({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 14,
+                fontFamily: "Outfit",
+              ),
+            ),
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected ? const Color(0xFFE8D1AB) : Colors.white38,
+                  width: 2,
+                ),
+              ),
+              child: selected
+                  ? Center(
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFFE8D1AB),
+                  ),
+                ),
+              )
+                  : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   Widget _dashboardCard({
     required int index,
     required String title,

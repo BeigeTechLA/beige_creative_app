@@ -10,6 +10,27 @@ class AppImages {
   static const String googledrive = "assets/svg/googledrive.svg";
   static const String Pencil = "assets/svg/Pencil.svg";
   static const String delete = "assets/svg/delete.svg";
+  static const String profilepicture = "assets/home/profilepicture.png";
+  static const String myprofileeditphoto = "assets/svg/myprofileeditphoto.svg";
+
+  static const String doller = "assets/svg/doller.svg";
+  static const String medal = "assets/svg/medal.svg";
+  static const String map = "assets/svg/map.svg";
+  static const String SQAREPEN = "assets/svg/SQAREPEN.svg";
+  static const String userid = "assets/svg/userid.svg";
+  static const String gallery = "assets/svg/gallery.svg";
+  static const String certificates = "assets/svg/certificates.svg";
+  static const String resume = "assets/svg/resume.svg";
+  static const String appperference= "assets/svg/appperference.svg";
+  static const String notificationsetting= "assets/svg/notificationsetting.svg";
+
+
+
+
+
+
+
+
 
 
 

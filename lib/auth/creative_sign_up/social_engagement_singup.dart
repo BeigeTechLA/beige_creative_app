@@ -414,7 +414,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                                   children:  [
 
                                     Text(
-                                      "Social EngagementVBC",
+                                      "Social Engagement",
                                       style: TextStyle(
                                         fontFamily: "Unbounded",
                                         fontSize: 16,
@@ -2823,108 +2823,60 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                     /// 🏷️ ADD TAGS
                     /// 🏷️ TAG SECTION
                     Row(
-                       children: [
-                      //   Container(
-                      //     width: 124,
-                      //     height: 36,
-                      //     decoration: BoxDecoration(
-                      //         border: Border.all(
-                      //         width: 0.5,
-                      //         color: Color(0xffE8D1AB80),//
-                      //       )
-                      //     ),
-                      //   ),
-
-
-
-
-                        GestureDetector(
-                          onTap: _openAddTagSheet,
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: selectedTags.isEmpty
-                                ? Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.black26,
-                                borderRadius:
-                                BorderRadius.circular(20),
-                                border:
-                                Border.all(color: Colors.white24),
-                              ),
-                              child: Row(
-                                mainAxisSize:
-                                MainAxisSize.min,
-                                children: const [
-                                  Icon(Icons.local_offer_outlined,
-                                      size: 16,
-                                      color: Colors.white),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    "# Add Tags",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13),
-                                  ),
-                                ],
-                              ),
-                            )
-                                : Wrap(
+                      children: [
+                        Expanded(                        // ✅ ADD Expanded
+                          child: GestureDetector(
+                            onTap: () => _openAddTagSheet(setModalState),
+                            child: Wrap(
                               spacing: 8,
                               runSpacing: 8,
-                              children:
-                              selectedTags.map((tag) {
-                                return Container(
-                                  padding:
-                                  const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6),
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                ...selectedTags.map((tag) {
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(color: Colors.white24),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(tag, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                                        const SizedBox(width: 6),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setModalState(() { selectedTags.remove(tag); });
+                                            setState(() { selectedTags.remove(tag); });
+                                          },
+                                          child: const Icon(Icons.close, size: 14, color: Colors.white70),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                   decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius:
-                                    BorderRadius.circular(
-                                        20),
-                                    border: Border.all(
-                                        color: Colors.white24),
+                                    color: Colors.black26,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: Colors.white24),
                                   ),
                                   child: Row(
-                                    mainAxisSize:
-                                    MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        tag,
-                                        style:
-                                        const TextStyle(
-                                            color:
-                                            Colors.white,
-                                            fontSize: 12),
-                                      ),
-                                      const SizedBox(
-                                          width: 6),
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            selectedTags
-                                                .remove(tag);
-                                          });
-                                        },
-                                        child: const Icon(
-                                          Icons.close,
-                                          size: 14,
-                                          color:
-                                          Colors.white70,
-                                        ),
-                                      ),
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: const [
+                                      Icon(Icons.local_offer_outlined, size: 16, color: Colors.white),
+                                      SizedBox(width: 6),
+                                      Text("# Add Tags", style: TextStyle(color: Colors.white, fontSize: 13)),
                                     ],
-
                                   ),
-                                );
-                              }).toList(),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-
+                        ),  // ✅ close Expanded
                       ],
                     ),
 
@@ -2942,12 +2894,16 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
+                        // Save button in _featuredSheet
+                        // REPLACE WITH:
                         onPressed: () {
-                          setState(() {
-                            featuredImages.addAll(tempFeaturedImages);
+                          final imagesToAdd = List<File>.from(tempFeaturedImages); // ✅ copy first
+                          setModalState(() {
+                            tempFeaturedImages.clear();//
                           });
-
-                          tempFeaturedImages.clear();
+                          setState(() {
+                            featuredImages.addAll(imagesToAdd); // ✅ use copy
+                          });
                           Navigator.pop(context);
                         },
                         child: const Text(
@@ -2987,7 +2943,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
 
 
 
-  void _openAddTagSheet() {
+  void _openAddTagSheet(StateSetter setFeaturedModalState) {
     TextEditingController tagController = TextEditingController();
     List<String> tempTags = List.from(selectedTags);
 
@@ -3062,43 +3018,59 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                     const SizedBox(height: 20),
 
                     /// Input
-                    TextField(
-                      controller: tagController,
-                      style:
-                      const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        hintText: "Type tag and press enter",
-                        hintStyle:
-                        TextStyle(color: Colors.white54),
-                        contentPadding:
-                        EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.all(
-                              Radius.circular(12)),
-                          borderSide: BorderSide(
-                              color: Colors.white24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: tagController,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: const InputDecoration(
+                              hintText: "Type tag and press + or Enter",
+                              hintStyle: TextStyle(color: Colors.white54),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                borderSide: BorderSide(color: Colors.white24),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                            ),
+                            onSubmitted: (value) {
+                              final tag = value.trim();
+                              if (tag.isNotEmpty && !tempTags.contains(tag)) {
+                                setModalState(() {
+                                  tempTags.add(tag);
+                                  tagController.clear();
+                                });
+                              }
+                            },
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.all(
-                              Radius.circular(12)),
-                          borderSide:
-                          BorderSide(color: Colors.white),
-                        ),
-                      ),
-                      onSubmitted: (value) {
-                        final tag = value.trim();
-                        if (tag.isNotEmpty &&
-                            !tempTags.contains(tag)) {
-                          setModalState(() {
-                            tempTags.add(tag);
-                            tagController.clear();
-                          });
-                        }
-                      },
+                        // const SizedBox(width: 8),
+                        // // ✅ ADD BUTTON so user doesn't need to press Enter
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     final tag = tagController.text.trim();
+                        //     if (tag.isNotEmpty && !tempTags.contains(tag)) {
+                        //       setModalState(() {
+                        //         tempTags.add(tag);
+                        //         tagController.clear();
+                        //       });
+                        //     }
+                        //   },
+                        //   child: Container(
+                        //     height: 50,
+                        //     width: 50,
+                        //     decoration: BoxDecoration(
+                        //       color: const Color(0xFFEAD3A1),
+                        //       borderRadius: BorderRadius.circular(12),
+                        //     ),
+                        //     child: const Icon(Icons.add, color: Colors.black),
+                        //   ),
+                        // ),
+                      ],
                     ),
 
                     const SizedBox(height: 16),
@@ -3171,8 +3143,19 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                           ),
                         ),
                         onPressed: () {
+                          // ✅ Agar textfield mein kuch likha hai to pehle add karo
+                          final currentText = tagController.text.trim();
+                          if (currentText.isNotEmpty && !tempTags.contains(currentText)) {
+                            tempTags.add(currentText);
+                            tagController.clear();
+                          }
+
+                          final List<String> savedTags = List<String>.from(tempTags);
+                          setFeaturedModalState(() {
+                            selectedTags = savedTags;
+                          });
                           setState(() {
-                            selectedTags = tempTags;
+                            selectedTags = savedTags;
                           });
                           Navigator.pop(context);
                         },

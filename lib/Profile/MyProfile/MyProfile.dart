@@ -1,5 +1,7 @@
 import 'package:beige_creative_app/auth/login/login.dart';
+import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../auth/ProfileDetailsScreen .dart';
 import '../../service/shared_service.dart';
@@ -19,6 +21,7 @@ class Myprofile extends StatefulWidget {
 }
 
 class _MyprofileState extends State<Myprofile> {
+
   TextEditingController nameController = TextEditingController();
   TextEditingController linkController = TextEditingController();
   List<Map<String, String>> socialLinks = [];
@@ -36,11 +39,16 @@ class _MyprofileState extends State<Myprofile> {
 
 
   final List<String> socialIcons = [
-    "assets/icons/facbook_iIcon.png",
-    "assets/icons/ins_icon.png",
-    "assets/icons/ticktok.png",
-    "assets/icons/behance.png",
-    "assets/icons/webside.png",
+    // "assets/icons/facbook_iIcon.png",
+    // "assets/icons/ins_icon.png",
+    // "assets/icons/ticktok.png",
+    // "assets/icons/behance.png",
+    // "assets/icons/webside.png",
+    AppImages.facebook,
+    AppImages.insta,
+    AppImages.tiktok,
+    AppImages.be,
+    "assets/svg/Ball.svg"
   ];
 
   final List<String> Portfoliolname  = [
@@ -50,9 +58,12 @@ class _MyprofileState extends State<Myprofile> {
   ];
 
   final List<String> Portfolioicons = [
-    "assets/icons/vimeo-icon 1.png",
-    "assets/icons/YouTube.png",
-    "assets/icons/Google_Drive.png",
+    // "assets/icons/vimeo-icon 1.png",
+    // "assets/icons/YouTube.png",
+    // "assets/icons/Google_Drive.png",
+    AppImages.v,
+    AppImages.youtube,
+    AppImages.googledrive,
   ];
 
   @override
@@ -130,7 +141,7 @@ class _MyprofileState extends State<Myprofile> {
                             backgroundColor: Colors.grey.shade200,
                             child: ClipOval(
                               child: Image.asset(
-                                "assets/home/Vector.png",
+                                AppImages.profilepicture,
                                 width: 96,
                                 height: 96,
                                 fit: BoxFit.cover,
@@ -144,16 +155,16 @@ class _MyprofileState extends State<Myprofile> {
                           bottom: 2,
                           right: 2,
                           child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
+                            padding: const EdgeInsets.all(9),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.white,
+                              ),
+                              color: ColorCode.kGoldGradientLight,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
-                              Icons.edit,
-                              size: 16,
-                              color: ColorCode.black
-                            ),
+
+                            child: SvgPicture.asset(AppImages.myprofileeditphoto,height: 16,width: 16,),
                           ),
                         ),
                       ],
@@ -227,17 +238,17 @@ class _MyprofileState extends State<Myprofile> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       infoCard(
-                        icon: Icons.group_outlined,
                         value: "\$${49}",
                         title: "Clients",
+                        icon: AppImages.doller,
                       ),
                       infoCard(
-                        icon: Icons.verified_outlined,
+                        icon: AppImages.medal,
                         value: "02 yrs",
                         title: "Experience",
                       ),
                       infoCard(
-                        icon: Icons.star_border,
+                        icon: AppImages.map,
                         value: "05-10 Km",
                         title: "Ratings",
                       ),
@@ -310,10 +321,11 @@ class _MyprofileState extends State<Myprofile> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child:  Image.asset(
-                            color: ColorCode.k282828,
+                            color: Color(0xff1D1D1B),
                             "assets/profile/SquarePen.png",
                             fit: BoxFit.cover,
                           ),
+
                         ),
                       ),
                     ],
@@ -382,7 +394,7 @@ class _MyprofileState extends State<Myprofile> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child:  Image.asset(
-                            color: ColorCode.k282828,
+                            color: Color(0xff1D1D1B),
                             "assets/profile/SquarePen.png",
                             fit: BoxFit.cover,
                           ),
@@ -464,7 +476,7 @@ class _MyprofileState extends State<Myprofile> {
             child: Column(
               children: [
                 _menuRow(
-                  "assets/profile/User_Id.png",
+                  AppImages.userid,
                   "Profile Details",
                   onTap: () {
                     Navigator.push(
@@ -530,7 +542,7 @@ class _MyprofileState extends State<Myprofile> {
               children: [
 
 
-                _menuRow("assets/profile/Gallery_Wide.png", "Featured Works", onTap: () {
+                _menuRow(AppImages.gallery, "Featured Works", onTap: () {
                     Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -539,7 +551,7 @@ class _MyprofileState extends State<Myprofile> {
                   );
                 }),
                 _divider(),
-                _menuRow("assets/profile/Icon_Frame.png", "Certificates",onTap: () {
+                _menuRow(AppImages.certificates, "Certificates",onTap: () {
 
                   Navigator.push(
                     context,
@@ -549,7 +561,7 @@ class _MyprofileState extends State<Myprofile> {
                   );
                 },),
                 _divider(),
-                _menuRow("assets/profile/Document_Text.png", "Resume",onTap: () {
+                _menuRow(AppImages.resume, "Resume",onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -591,7 +603,7 @@ class _MyprofileState extends State<Myprofile> {
             ),
             child: Column(
               children: [
-                _menuRow("assets/profile/mobile-navigator-01.png", "App Preferences",
+                _menuRow("assets/svg/App.svg", "App Preferences",
                     onTap: () {
                       Navigator.push(
                         context,
@@ -601,7 +613,7 @@ class _MyprofileState extends State<Myprofile> {
                       );
                     }),
                 _divider(),
-                _menuRow("assets/profile/Settings Minimalistic.png" ,"Notifications Settings"),
+                _menuRow(AppImages.notificationsetting ,"Notifications Settings"),
                 _divider(),
         /*        _menuRow(
                   "assets/Icons/Exit.png",
@@ -634,12 +646,14 @@ class _MyprofileState extends State<Myprofile> {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Image.asset(
-                  iconPath,
-                  height: 22,
-                  width: 22,
-                  color: ColorCode.white,
-                ),
+                child: SvgPicture.asset(iconPath,width: 22,height: 22,color: ColorCode.white,)
+
+                // Image.asset(
+                //   iconPath,
+                //   height: 22,
+                //   width: 22,
+                //   color: ColorCode.white,
+                // ),
               ),
             ),
             const SizedBox(width: 16),
@@ -675,7 +689,7 @@ class _MyprofileState extends State<Myprofile> {
     );
   }
   Widget infoCard({
-    required IconData icon,
+    required String icon,
     required String value,
     required String title,
   }) {
@@ -712,6 +726,7 @@ class _MyprofileState extends State<Myprofile> {
               Positioned(
                 top: -1,
                 child: Container(
+                  padding: EdgeInsets.all(8),
                   width: 38,
                   height: 42,
                   decoration: BoxDecoration(
@@ -720,9 +735,10 @@ class _MyprofileState extends State<Myprofile> {
                       bottom: Radius.circular(14),
                     ),
                   ),
-                  child: Icon(
+                  child: SvgPicture.asset(
                     icon,
-                    size: 20,
+                    // width: 16,
+                    // height: 16,
                     color: Colors.black,
                   ),
                 ),
@@ -762,34 +778,32 @@ class _MyprofileState extends State<Myprofile> {
   }
 
   void openSocialDialog() {
+    bool showForm = socialLinks.isEmpty;
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) {
-
         return StatefulBuilder(
-          builder: (context, setModalState) {
-
-            return Padding(
+          builder: (context, setInnerState) {
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 100),
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: ColorCode.bcakgroundcolor,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-
-                child: SingleChildScrollView(
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    color: ColorCode.bcakgroundcolor,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      /// DRAG HANDLE
+                      /// DRAG INDICATOR
                       Center(
                         child: Container(
                           height: 5,
@@ -818,11 +832,9 @@ class _MyprofileState extends State<Myprofile> {
                           IconButton(
                             onPressed: () => Navigator.pop(context),
                             icon: const Icon(Icons.close, color: Colors.white),
-                          )
+                          ),
                         ],
                       ),
-
-                      const SizedBox(height: 6),
 
                       const Text(
                         "Add links that showcase your work, recognition,\npersonality and more!",
@@ -830,47 +842,65 @@ class _MyprofileState extends State<Myprofile> {
                           color: ColorCode.kWhiteOpacity70,
                           fontSize: 14,
                           fontFamily: "Outfit",
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
 
                       const SizedBox(height: 20),
-
-                      Divider(color: ColorCode.kDividerWhite12),
-
+                      const Divider(color: ColorCode.kDividerWhite12),
                       const SizedBox(height: 20),
 
-                      /// SOCIAL ICONS
+                      /// SOCIAL ICONS ROW
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: List.generate(
                           socialIcons.length,
                               (index) => InkWell(
+                            borderRadius: BorderRadius.circular(16),
                             onTap: () {
-                              setModalState(() {
+                              setInnerState(() {
                                 selectedSocialIndex = index;
                                 nameController.text = socialNames[index];
                               });
                             },
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              height: 52,
+                              width: 52,
                               decoration: BoxDecoration(
                                 color: selectedSocialIndex == index
-                                    ? ColorCode.kButtonColor
-                                    : const Color(0xFF2A2A2A),
-                                borderRadius: BorderRadius.circular(12),
+                                    ? ColorCode.kButtonColor.withOpacity(0.2)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
                                   color: selectedSocialIndex == index
                                       ? ColorCode.kButtonColor
-                                      : Colors.white12,
+                                      : Colors.white24,
+                                  width: selectedSocialIndex == index ? 1.5 : 0.8,
                                 ),
+                                boxShadow: selectedSocialIndex == index
+                                    ? [
+                                  BoxShadow(
+                                    color: ColorCode.kButtonColor.withOpacity(0.35),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  )
+                                ]
+                                    : [],
                               ),
-                              child: Image.asset(
-                                socialIcons[index],
-                                height: 26,
-                                width: 26,
-                                color: selectedSocialIndex == index
-                                    ? Colors.black
-                                    : Colors.white,
+                              child: Center(
+                             child:  SvgPicture.asset(
+                                  socialIcons[index],
+                                  height: 22,
+                                  width: 22,
+                                  colorFilter: ColorFilter.mode(
+                                    selectedSocialIndex == index
+                                        ? ColorCode.kButtonColor
+                                        : Colors.white,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+
                               ),
                             ),
                           ),
@@ -879,163 +909,255 @@ class _MyprofileState extends State<Myprofile> {
 
                       const SizedBox(height: 20),
 
-                      /// COUNTER
-                      if (socialLinks.isNotEmpty)
+                      /// SAVED LINKS LIST
+                      if (socialLinks.isNotEmpty) ...[
                         Text(
                           "${socialLinks.length}/6",
-                          style: const TextStyle(color: Colors.white60),
+                          style: const TextStyle(
+                            color: Colors.white54,
+                            fontSize: 12,
+                            fontFamily: "Outfit",
+                          ),
                         ),
+                        const SizedBox(height: 10),
 
-                      const SizedBox(height: 10),
-
-                      /// SAVED LINKS
-                      Column(
-                        children: List.generate(socialLinks.length, (index) {
-
-                          final item = socialLinks[index];
+                        ...socialLinks.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final item = entry.value;
 
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
                             decoration: BoxDecoration(
-                              color: ColorCode.k282828,
                               borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white24),
+                              color: Colors.black26,
                             ),
                             child: Row(
                               children: [
-
+                                /// DRAG BOX
                                 Container(
-                                  padding: const EdgeInsets.all(12),
+                                  width: MediaQuery.of(context).size.width * 0.09,
+                                  height: MediaQuery.of(context).size.width * 0.09,
                                   decoration: BoxDecoration(
-                                    color: ColorCode.kButtonColor,
                                     borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xff282828),
                                   ),
-                                    child: Image.asset(item["icon"]!, height: 22,color: ColorCode.black,),
+                                  child: Transform.rotate(
+                                    angle: 3.14159 / 2,
+                                    child: const Icon(
+                                      Icons.drag_indicator,
+                                      color: ColorCode.kButtonColor,
+                                      size: 18,
+                                    ),
+                                  ),
                                 ),
+                                const SizedBox(width: 8),
+
+                                /// ICON
+                                // Image.asset(
+                                //   item["icon"]!,
+                                //   height: 20,
+                                //   width: 20,
+                                //   color: Colors.white,
+                                // ),
+                                SvgPicture.asset(item["icon"]!,width: 20,height: 20,color: Colors.white,),
 
                                 const SizedBox(width: 10),
 
+                                /// NAME
                                 Expanded(
                                   child: Text(
                                     item["name"]!,
                                     style: const TextStyle(
                                       color: Colors.white,
+                                      fontWeight: FontWeight.w500,
                                       fontFamily: "Outfit",
                                     ),
                                   ),
                                 ),
 
-                                /// EDIT
-                                IconButton(
-                                  icon: const Icon(Icons.edit, color: Colors.white),
-                                  onPressed: () {
-
-                                    nameController.text = item["name"]!;
-                                    linkController.text = item["url"]!;
-
-                                  },
+                                /// EDIT BUTTON
+                                Container(
+                                  width: 35,
+                                  height: 35,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xff282828),
+                                  ),
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.white, size: 16),
+                                    onPressed: () {
+                                      setInnerState(() {
+                                        showForm = true;
+                                        selectedSocialIndex =
+                                            socialNames.indexOf(item["name"]!);
+                                        nameController.text = item["name"]!;
+                                        linkController.text = item["url"]!;
+                                      });
+                                    },
+                                  ),
                                 ),
 
-                                /// DELETE
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () {
+                                const SizedBox(width: 7),
 
-                                    setModalState(() {
-                                      socialLinks.removeAt(index);
-                                    });
-
-                                  },
+                                /// DELETE BUTTON
+                                Container(
+                                  width: 35,
+                                  height: 35,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xff282828),
+                                  ),
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.redAccent, size: 16),
+                                    onPressed: () {
+                                      setInnerState(() {
+                                        setState(() {
+                                          socialLinks.removeAt(index);
+                                        });
+                                      });
+                                    },
+                                  ),
                                 ),
-
                               ],
                             ),
                           );
+                        }).toList(),
 
-                        }),
-                      ),
+                        const SizedBox(height: 10),
+                      ],
 
-                      const SizedBox(height: 20),
+                      /// FORM FIELDS
+                      if (showForm) ...[
+                        CustomTextField(
+                          label: "Name of the Link*",
+                          controller: nameController,
+                        ),
+                        const SizedBox(height: 16),
+                        CustomTextField(
+                          label: "Link URL*",
+                          controller: linkController,
+                        ),
+                        const SizedBox(height: 20),
 
-                      /// NAME FIELD
-                      CustomTextField(
-                        label: "Name of the Link",
-                        controller: nameController,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      /// LINK FIELD
-                      CustomTextField(
-                        label: "Link URL",
-                        controller: linkController,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      /// ADD ANOTHER LINK
-                      Row(
-                        children:  [
-                          Container(
-                            decoration: BoxDecoration(borderRadius: 
-                            BorderRadius.circular(30),
-                              color:  ColorCode.white,),
-
-                              padding: const EdgeInsets.all(5),
-                              child: Icon(Icons.add, color: ColorCode.black)),
-                          SizedBox(width: 6),
-                          Text(
-                            "Add another link",
-                            style: TextStyle(color: Colors.white),
-                          )
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      /// SAVE BUTTON
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ColorCode.kButtonColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorCode.kButtonColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
                             ),
-                          ),
-                          onPressed: () {
+                            onPressed: () {
+                              if (selectedSocialIndex == -1 ||
+                                  linkController.text.trim().isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Please select platform and enter link"),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
 
-                            if (selectedSocialIndex == -1 ||
-                                linkController.text.isEmpty) return;
+                              final name = socialNames[selectedSocialIndex];
+                              final icon = socialIcons[selectedSocialIndex];
+                              final url = linkController.text.trim();
 
-                            setModalState(() {
-
-                              socialLinks.add({
-                                "name": nameController.text,
-                                "url": linkController.text,
-                                "icon": socialIcons[selectedSocialIndex],
+                              setInnerState(() {
+                                setState(() {
+                                  socialLinks.add({
+                                    "name": name,
+                                    "url": url,
+                                    "icon": icon,
+                                  });
+                                });
+                                showForm = false;
+                                selectedSocialIndex = -1;
+                                nameController.clear();
+                                linkController.clear();
                               });
-
-                              nameController.clear();
-                              linkController.clear();
-                              selectedSocialIndex = -1;
-
-                            });
-
-                          },
-                          child: const Text(
-                            "Save",
-                            style: TextStyle(
-                              fontFamily: "Unbounded",
-                              fontSize: 14,
-                              color: ColorCode.kHeadingColor,
+                            },
+                            child: const Text(
+                              "Save Link",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
 
-                      const SizedBox(height: 20),
+                      /// ADD ANOTHER + SAVE
+                      if (!showForm) ...[
+                        const SizedBox(height: 10),
+                        InkWell(
+                          onTap: () {
+                            setInnerState(() {
+                              showForm = true;
+                              selectedSocialIndex = -1;
+                              nameController.clear();
+                              linkController.clear();
+                            });
+                          },
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 30,
+                                width: 30,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                ),
+                                child: const Icon(Icons.add,
+                                    color: Colors.black, size: 18),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                "Add another link",
+                                style: TextStyle(
+                                  color: ColorCode.kWhiteOpacity70,
+                                  fontSize: 14,
+                                  fontFamily: "Outfit",
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorCode.kButtonColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text(
+                              "Save",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 10),
                     ],
                   ),
                 ),
@@ -1048,39 +1170,38 @@ class _MyprofileState extends State<Myprofile> {
   }
 
   void openPortfolioDialog() {
+    bool showForm = portfolioLinks.isEmpty;
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) {
-
         return StatefulBuilder(
           builder: (context, setModalState) {
-
-            return Padding(
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 100),
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: ColorCode.bcakgroundcolor,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-
-                child: SingleChildScrollView(
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    color: ColorCode.bcakgroundcolor,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                  ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      /// DRAG HANDLE
+                      /// DRAG INDICATOR
                       Center(
                         child: Container(
-                          height: 5,
+                          height: 4,
                           width: 40,
-                          margin: const EdgeInsets.only(bottom: 12),
+                          margin: const EdgeInsets.only(bottom: 14),
                           decoration: BoxDecoration(
                             color: Colors.white24,
                             borderRadius: BorderRadius.circular(4),
@@ -1104,30 +1225,25 @@ class _MyprofileState extends State<Myprofile> {
                           IconButton(
                             onPressed: () => Navigator.pop(context),
                             icon: const Icon(Icons.close, color: Colors.white),
-                          )
+                          ),
                         ],
                       ),
 
                       const SizedBox(height: 6),
 
                       const Text(
-                        "Add YouTube, Vimeo, or Google Drive links to\nshowcase your portfolio.",
+                        "Add YouTube, Vimeo, or Google Drive links to showcase your portfolio.",
                         style: TextStyle(
                           color: ColorCode.kWhiteOpacity70,
-                          fontSize: 14,
-                          fontFamily: "Outfit",
+                          fontSize: 13,
                         ),
                       ),
 
                       const SizedBox(height: 20),
 
-                      Divider(color: ColorCode.kDividerWhite12),
-
-                      const SizedBox(height: 20),
-
-                      /// SOCIAL ICONS
+                      /// PORTFOLIO ICONS ROW
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: List.generate(
                           Portfolioicons.length,
                               (index) => InkWell(
@@ -1135,29 +1251,35 @@ class _MyprofileState extends State<Myprofile> {
                               setModalState(() {
                                 selectedPortfolioIndex = index;
                                 nameController.text = Portfoliolname[index];
-
                               });
                             },
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              height: 52,
+                              width: 52,
                               decoration: BoxDecoration(
-                                color: selectedPortfolioIndex == index
-                                    ? ColorCode.kButtonColor
-                                    : const Color(0xFF2A2A2A),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
                                   color: selectedPortfolioIndex == index
                                       ? ColorCode.kButtonColor
-                                      : Colors.white12,
+                                      : Colors.white24,
                                 ),
-                              ),
-                              child: Image.asset(
-                                Portfolioicons[index],
-                                height: 26,
-                                width: 26,
                                 color: selectedPortfolioIndex == index
-                                    ? Colors.black
-                                    : Colors.white,
+                                    ? ColorCode.kButtonColor.withOpacity(0.15)
+                                    : Colors.transparent,
+                              ),
+                              child: Center(
+                              child:   SvgPicture.asset(
+                                  Portfolioicons[index],
+                                  height: 22,
+                                  width: 22,
+                                  colorFilter: ColorFilter.mode(
+                                    selectedPortfolioIndex == index
+                                        ? ColorCode.kButtonColor
+                                        : Colors.white,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -1166,162 +1288,252 @@ class _MyprofileState extends State<Myprofile> {
 
                       const SizedBox(height: 20),
 
-                      /// COUNTER
-                      if (portfolioLinks.isNotEmpty)
+                      /// SAVED PORTFOLIO LINKS LIST
+                      if (portfolioLinks.isNotEmpty) ...[
                         Text(
-                          "${portfolioLinks.length}/6",
-                          style: const TextStyle(color: Colors.white60),
+                          "${portfolioLinks.length}/3",
+                          style: const TextStyle(
+                            color: Colors.white54,
+                            fontSize: 12,
+                            fontFamily: "Outfit",
+                          ),
                         ),
+                        const SizedBox(height: 10),
 
-                      const SizedBox(height: 10),
-
-                      /// SAVED LINKS
-                      Column(
-                        children: List.generate(portfolioLinks.length, (index) {
-
-                          final item = portfolioLinks[index];
+                        ...portfolioLinks.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final item = entry.value;
 
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
                             decoration: BoxDecoration(
-                              color: ColorCode.k282828,
                               borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white24),
+                              color: Colors.black26,
                             ),
                             child: Row(
                               children: [
 
+                                /// DRAG BOX
                                 Container(
-                                  padding: const EdgeInsets.all(12),
+                                  width: 35,
+                                  height: 35,
                                   decoration: BoxDecoration(
-                                    color: ColorCode.kButtonColor,
                                     borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xff282828),
                                   ),
-                                  child: Image.asset(item["icon"]!, height: 22,color: ColorCode.black,),
+                                  child: Transform.rotate(
+                                    angle: 3.14159 / 2,
+                                    child: const Icon(
+                                      Icons.drag_indicator,
+                                      size: 18,
+                                      color: ColorCode.kButtonColor,
+                                    ),
+                                  ),
                                 ),
 
+                                const SizedBox(width: 8),
+
+                                /// PLATFORM ICON
+                                // Image.asset(
+                                //   item["icon"]!,
+                                //   height: 20,
+                                //   width: 20,
+                                //   color: const Color(0xffE8D1AB),
+                                // ),
+
+                                SvgPicture.asset(item["icon"]!,height: 20,width: 20,color: const Color(0xffE8D1AB),),
                                 const SizedBox(width: 10),
 
+                                /// NAME
                                 Expanded(
                                   child: Text(
                                     item["name"]!,
                                     style: const TextStyle(
                                       color: Colors.white,
+                                      fontWeight: FontWeight.w500,
                                       fontFamily: "Outfit",
                                     ),
                                   ),
                                 ),
 
-                                /// EDIT
-                                IconButton(
-                                  icon: const Icon(Icons.edit, color: Colors.white),
-                                  onPressed: () {
-
-
-                                    linkController.text = item["url"]!;
-
-                                  },
+                                /// EDIT BUTTON
+                                Container(
+                                  width: 35,
+                                  height: 35,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xff282828),
+                                  ),
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.white, size: 16),
+                                    onPressed: () {
+                                      setModalState(() {
+                                        showForm = true;
+                                        selectedPortfolioIndex =
+                                            Portfoliolname.indexOf(item["name"]!);
+                                        nameController.text = item["name"]!;
+                                        linkController.text = item["url"]!;
+                                      });
+                                    },
+                                  ),
                                 ),
 
-                                /// DELETE
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () {
+                                const SizedBox(width: 7),
 
-                                    setModalState(() {
-                                      portfolioLinks.removeAt(index);
-                                    });
-
-                                  },
+                                /// DELETE BUTTON
+                                Container(
+                                  width: 35,
+                                  height: 35,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xff282828),
+                                  ),
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.redAccent, size: 16),
+                                    onPressed: () {
+                                      setModalState(() {
+                                        setState(() {
+                                          portfolioLinks.removeAt(index);
+                                        });
+                                      });
+                                    },
+                                  ),
                                 ),
-
                               ],
                             ),
                           );
+                        }).toList(),
 
-                        }),
-                      ),
+                        const SizedBox(height: 10),
+                      ],
 
+                      /// FORM FIELDS
+                      if (showForm) ...[
+                        CustomTextField(
+                          label: "Link URL",
+                          controller: linkController,
+                        ),
+                        const SizedBox(height: 24),
 
-                      /// NAME FIELD
-
-
-                      const SizedBox(height: 16),
-
-                      /// LINK FIELD
-                      CustomTextField(
-                        label: "Link URL",
-                        controller: linkController,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      /// ADD ANOTHER LINK
-                      Row(
-                        children:  [
-                          Container(
-                              decoration: BoxDecoration(borderRadius:
-                              BorderRadius.circular(30),
-                                color:  ColorCode.white,),
-
-                              padding: const EdgeInsets.all(5),
-                              child: Icon(Icons.add, color: ColorCode.black)),
-                          SizedBox(width: 6),
-                          Text(
-                            "Add another link",
-                            style: TextStyle(color: Colors.white),
-                          )
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      /// SAVE BUTTON
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ColorCode.kButtonColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorCode.kButtonColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
                             ),
-                          ),
-                          onPressed: () {
+                            onPressed: () {
+                              if (selectedPortfolioIndex == -1 ||
+                                  linkController.text.trim().isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Select platform & enter link"),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
 
-                            if (selectedPortfolioIndex == -1 ||
-                                linkController.text.isEmpty) return;
-
-                            setModalState(() {
-
-                              portfolioLinks.add({
-                                "name": nameController.text,
-                                "url": linkController.text,
-                                "icon": Portfolioicons[selectedPortfolioIndex],
+                              setModalState(() {
+                                setState(() {
+                                  portfolioLinks.add({
+                                    "name": Portfoliolname[selectedPortfolioIndex],
+                                    "url": linkController.text.trim(),
+                                    "icon": Portfolioicons[selectedPortfolioIndex],
+                                  });
+                                });
+                                showForm = false;
+                                selectedPortfolioIndex = -1;
+                                nameController.clear();
+                                linkController.clear();
                               });
-
-                              nameController.clear();
-                              linkController.clear();
-                              selectedPortfolioIndex = -1;
-
-                            });
-
-                          },
-                          child: const Text(
-                            "Save",
-                            style: TextStyle(
-                              fontFamily: "Unbounded",
-                              fontSize: 14,
-                              color: ColorCode.kHeadingColor,
+                            },
+                            child: const Text(
+                              "Save Link",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
 
-                      const SizedBox(height: 20),
+                      /// ADD ANOTHER + FINAL SAVE
+                      if (!showForm) ...[
+                        const SizedBox(height: 10),
+
+                        InkWell(
+                          onTap: () {
+                            setModalState(() {
+                              showForm = true;
+                              selectedPortfolioIndex = -1;
+                              linkController.clear();
+                            });
+                          },
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 30,
+                                width: 30,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                ),
+                                child: const Icon(Icons.add,
+                                    color: Colors.black, size: 18),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                "Add another link",
+                                style: TextStyle(
+                                  color: ColorCode.kWhiteOpacity70,
+                                  fontSize: 14,
+                                  fontFamily: "Outfit",
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorCode.kButtonColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text(
+                              "Save",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 10),
                     ],
                   ),
-                ),
+                ),//
               ),
             );
           },
