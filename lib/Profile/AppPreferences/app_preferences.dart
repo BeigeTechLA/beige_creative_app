@@ -1,4 +1,6 @@
+import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../../utility/ColorCode.dart';
 import 'DeleteAccoun/delete_account.dart';
 
@@ -27,8 +29,8 @@ class _AppPreferencesState extends State<AppPreferences> {
               /// 🔙 BACK BUTTON
               InkWell(
                 onTap: () => Navigator.pop(context),
-                child: Image.asset(
-                  "assets/icons/back.png",
+                child: SvgPicture.asset(
+                  AppImages.back,
                   height: 24,
                   color: ColorCode.white,
                 ),
@@ -66,8 +68,15 @@ class _AppPreferencesState extends State<AppPreferences> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.dark_mode_outlined,
-                                color: ColorCode.white),
+                            SvgPicture.asset(
+                              AppImages.chando,
+                              height: 24,
+                              width: 24,
+                              colorFilter: ColorFilter.mode(
+                                ColorCode.white,
+                                BlendMode.srcIn,
+                              ),
+                            ),
                             const SizedBox(width: 10),
                             Text(
                               "Dark Mode",
@@ -111,8 +120,15 @@ class _AppPreferencesState extends State<AppPreferences> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.delete_outline,
-                                  color: Colors.redAccent),
+                              SvgPicture.asset(
+                                AppImages.delete,
+                                height: 24,
+                                width: 24,
+                                colorFilter: ColorFilter.mode(
+                                  ColorCode.white,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
                               const SizedBox(width: 10),
                               Text(
                                 "Delete Account",
@@ -123,8 +139,15 @@ class _AppPreferencesState extends State<AppPreferences> {
                               ),
                             ],
                           ),
-                          const Icon(Icons.arrow_forward_ios,
-                              size: 14, color: Colors.white54),
+                          SvgPicture.asset(
+                            AppImages.goto,
+                            height: 20,
+                            width: 20,
+                            colorFilter: ColorFilter.mode(
+                              ColorCode.white,
+                              BlendMode.srcIn,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -141,8 +164,15 @@ class _AppPreferencesState extends State<AppPreferences> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline,
-                            color: ColorCode.white),
+                        SvgPicture.asset(
+                          AppImages.appversion,
+                          height: 24,
+                          width: 24,
+                          colorFilter: ColorFilter.mode(
+                            ColorCode.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         const SizedBox(width: 10),
                         Text(
                           "App Version V1.0",

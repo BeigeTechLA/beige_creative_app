@@ -2927,22 +2927,6 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
     );
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   void _openAddTagSheet(StateSetter setFeaturedModalState) {
     TextEditingController tagController = TextEditingController();
     List<String> tempTags = List.from(selectedTags);

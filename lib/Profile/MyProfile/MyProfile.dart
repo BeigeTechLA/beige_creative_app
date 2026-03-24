@@ -101,7 +101,14 @@ class _MyprofileState extends State<Myprofile> {
                   left: 16,
                   child:  InkWell(
                     onTap: () => Navigator.pop(context),
-                    child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.kHeadingColor,),
+                    child: SvgPicture.asset(
+                      AppImages.back, // make sure it's .svg file
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        ColorCode.kHeadingColor,
+                        BlendMode.srcIn,
+                      ),
+                    ),
                   ),
                 ),
                 /// 🔹 TITLE (CENTERED)
@@ -667,12 +674,22 @@ class _MyprofileState extends State<Myprofile> {
                 ),
               ),
             ),
-            Image.asset(
-              "assets/profile/path9429.png",
-              height: 20,
-              width: 20,
-              color: ColorCode.white,
+            // Image.asset(
+            //   "assets/profile/path9429.png",
+            //   height: 20,
+            //   width: 20,
+            //   color: ColorCode.white,
+            // ),
+          SvgPicture.asset(
+            AppImages.back, // make sure it's .svg file
+            height: 20,
+            width: 20,
+            colorFilter: ColorFilter.mode(
+              ColorCode.white,
+              BlendMode.srcIn,
             ),
+          )
+
           ],
         ),
       ),

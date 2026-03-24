@@ -1,6 +1,8 @@
 import 'package:beige_creative_app/FileManager/post_pre_production_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart';
 import '../widgets/custom_text_field.dart';
 
 class FileManagerScreen extends StatefulWidget {
@@ -51,13 +53,14 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       onTap: () {
                         Scaffold.of(context).openDrawer();
                       },
-                      child: Image.asset(
-                        "assets/home/menu-02.png",
-                        width: 26,
-                        color: Colors.white,
+                   child: SvgPicture.asset(
+                      AppImages.menu,
+                      width: 26,
+                      height: 26,
+                      ),
                       ),
                     ),
-                  ),
+
 
                   const Spacer(),
 

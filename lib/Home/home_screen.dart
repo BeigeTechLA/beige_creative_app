@@ -1,5 +1,7 @@
 import 'package:beige_creative_app/ManageAvailability/AddAvailability/add_availability_screen.dart';
+import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../Profile/MyProfile/MyProfile.dart' show Myprofile;
@@ -66,10 +68,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               onTap: () {
                                 Scaffold.of(context).openDrawer();
                               },
-                              child: Image.asset(
-                                "assets/home/menu-02.png",
-                                width: 26,
-                                color: Colors.white,
+
+                              child: SvgPicture.asset(AppImages.menu,
+                              width: 26,
+                                colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
                               ),
                             ),
                           ),
@@ -91,10 +93,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(width: 15),
 
                           /// BELL
-                          Image.asset(
-                            "assets/home/notifiaction.png",
+                          SvgPicture.asset(
+                            AppImages.notificationbell, // make sure it's .svg
                             width: 22,
-                            color: Colors.white,
+                            colorFilter: const ColorFilter.mode(
+                              Colors.white,
+                              BlendMode.srcIn,
+                            ),
                           ),
                           SizedBox(width: 15),
                           InkWell(
@@ -268,11 +273,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               const SizedBox(width: 6),
-                              Image.asset(
-                                "assets/home/Filter.png",
-                                height: 18,
+                              // Image.asset(
+                              //   "assets/home/Filter.png",
+                              //   height: 18,
+                              //   width: 18,
+                              // ),
+                              SvgPicture.asset(AppImages.filter,
+                              height: 18,
                                 width: 18,
-                              ),
+
+                              )
                             ],
                           ),
                         ),
@@ -1266,352 +1276,320 @@ class _HomeScreenState extends State<HomeScreen> {
     bool isCategoryExpanded = false;
     bool isTypeExpanded = false;
 
+    final DraggableScrollableController sheetController = DraggableScrollableController();
+
     final List<String> dateOptions = [
-      "Today", "This Week", "This Month", "Custom Range"
+      "Today", "This Week", "Marketing Analytics", "This Month", "Custom Range"
     ];
 
     final List<String> statusOptions = [
       "Upcoming", "Active", "Completed", "Cancelled"
     ];
 
-    final List<String> categoryOptions = [
-      "Photography", "Videography", "Editing", "Marketing Analytics"
-    ];
+    final List<String> categoryOptions = [];
 
     final List<String> typeOptions = [
-      "All", "Shoots", "Events", "Projects"
+      "All", "Shoots", "Rental",
     ];
 
     showModalBottomSheet(
-        context: context,
-        builder: (_) {
-          return StatefulBuilder(
-              builder: (context, setState) {
-                return DraggableScrollableSheet(
-                  initialChildSize: 0.6,
-                  minChildSize: 0.4,
-                  maxChildSize: 0.95,
-                  expand: false,
-                    builder:(context, scrollController) {
+      isScrollControlled: true,
+      context: context,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return DraggableScrollableSheet(
+              controller: sheetController,
+              initialChildSize: 0.6,
+              minChildSize: 0.4,
+              maxChildSize: 0.95,
+              expand: false,
+              builder: (context, scrollController) {
+                return GestureDetector(
+                  onVerticalDragUpdate: (details) {
+                    final currentSize = sheetController.size;
+                    final newSize = currentSize - (details.delta.dy / MediaQuery.of(context).size.height);
 
-                    return Container(
-                       // padding: const EdgeInsets.all(20),
-                        decoration: const BoxDecoration(
-                          color: Color(0xff282828),
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(24),
+                    // 0.4 se 0.95 ke beech rakho
+                    sheetController.jumpTo(newSize.clamp(0.4, 0.95));
+                  },
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xff282828),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(24),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+
+                        /// DRAG HANDLE
+                        const SizedBox(height: 12),
+                        Container(
+                          height: 4,
+                          width: 40,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
                           ),
                         ),
-                      child: Column(
-                        children: [
-                          SizedBox(height: 12,),
-                          Container(
-                            height: 4,
-                            width: 40,
-                            margin: const EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20,right: 20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  "Filter",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontFamily: "Unbounded",
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () => Navigator.pop(context),
-                                  child: const Icon(Icons.close, color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
 
-                          const SizedBox(height: 16),
-
-                          Divider(
-                            thickness: 0.5,
-                            color: Colors.white.withOpacity(0.3),
+                        /// HEADER
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20, right: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Filter",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontFamily: "Unbounded",
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => Navigator.pop(context),
+                                child: const Icon(Icons.close, color: Colors.white),
+                              ),
+                            ],
                           ),
-                            Expanded(
-                                child: SingleChildScrollView(
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        Divider(
+                          thickness: 0.5,
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+
+                        /// SCROLLABLE CONTENT
+                        Expanded(
+                          child: NotificationListener<ScrollNotification>(
+                            onNotification: (notification) {
+                              if (notification is ScrollUpdateNotification &&
+                                  notification.scrollDelta != null &&
+                                  notification.scrollDelta! < 0) {
+                                if (sheetController.size < 0.95) {
+                                  sheetController.animateTo(
+                                    0.95,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                }
+                              }
+                              return false;
+                            },
+                            child: SingleChildScrollView(
+                             // physics: const ClampingScrollPhysics(), // 👈 add this
+
                               controller: scrollController,
-                                  child: Column(
+                              child: Column(
+                                children: [
+
+                                  /// FILTER BY DATE
+                                  _filterSection(
+                                    showDivider: true,
+                                    title: "Filter By Date",
+                                    isExpanded: isDateExpanded,
+                                    onTap: () => setState(() {
+                                      isDateExpanded = !isDateExpanded;
+                                      if (isDateExpanded) {
+                                        sheetController.animateTo(
+                                          0.95,
+                                          duration: const Duration(milliseconds: 300),
+                                          curve: Curves.easeInOut,
+                                        );
+                                      }
+                                    }),
+                                    children: isDateExpanded
+                                        ? dateOptions.map((label) => _radioOption(
+                                      label: label,
+                                      selected: selectedDate == label,
+                                      onTap: () => setState(() => selectedDate = label),
+                                    )).toList()
+                                        : [],
+                                  ),
+
+                                  /// FILTER BY STATUS
+                                  _filterSection(
+                                    showDivider: true,
+                                    title: "Filter By Status",
+                                    isExpanded: isStatusExpanded,
+                                    onTap: () => setState(() {
+                                      isStatusExpanded = !isStatusExpanded;
+                                      if (isStatusExpanded) {
+                                        sheetController.animateTo(
+                                          0.95,
+                                          duration: const Duration(milliseconds: 300),
+                                          curve: Curves.easeInOut,
+                                        );
+                                      }
+                                    }),
+                                    children: isStatusExpanded
+                                        ? statusOptions.map((label) => _radioOption(
+                                      label: label,
+                                      selected: selectedStatus == label,
+                                      onTap: () => setState(() => selectedStatus = label),
+                                    )).toList()
+                                        : [],
+                                  ),
+
+                                  /// FILTER BY CATEGORY
+                                  _filterSection(
+                                    showDivider: false,
+                                    title: "Filter By Category",
+                                    isExpanded: isCategoryExpanded,
+                                    onTap: () => setState(() {
+                                      isCategoryExpanded = !isCategoryExpanded;
+                                      if (isCategoryExpanded) {
+                                        sheetController.animateTo(
+                                          0.95,
+                                          duration: const Duration(milliseconds: 300),
+                                          curve: Curves.easeInOut,
+                                        );
+                                      }
+                                    }),
+                                    children: isCategoryExpanded
+                                        ? categoryOptions.map((label) => _radioOption(
+                                      label: label,
+                                      selected: selectedCategory == label,
+                                      onTap: () => setState(() => selectedCategory = label),
+                                    )).toList()
+                                        : [],
+                                  ),
+
+                                  /// FILTER BY TYPE
+                                  _filterSection(
+                                    showDivider: false,
+                                    title: "Filter By Type",
+                                    isExpanded: isTypeExpanded,
+                                    onTap: () => setState(() {
+                                      isTypeExpanded = !isTypeExpanded;
+                                      if (isTypeExpanded) {
+                                        sheetController.animateTo(
+                                          0.95,
+                                          duration: const Duration(milliseconds: 300),
+                                          curve: Curves.easeInOut,
+                                        );
+                                      }
+                                    }),
+                                    children: isTypeExpanded
+                                        ? typeOptions.map((label) => _radioOption(
+                                      label: label,
+                                      selected: selectedType == label,
+                                      onTap: () => setState(() => selectedType = label),
+                                    )).toList()
+                                        : [],
+                                  ),
+
+                                  const SizedBox(height: 13),
+
+                                  /// CLEAR ALL & APPLY BUTTONS
+                                  Row(
                                     children: [
-                                      _filterSection(
-                                        title: "Filter By Date",
-                                        isExpanded: isDateExpanded,
-                                        onTap: () => setState(() => isDateExpanded = !isDateExpanded),
-                                        children: isDateExpanded
-                                            ? dateOptions.map((label) => _radioOption(
-                                          label: label,
-                                          selected: selectedDate == label,
-                                          onTap: () => setState(() => selectedDate = label),
-                                        )).toList()
-                                            : [],
+
+                                      /// CLEAR ALL
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              selectedType = '';
+                                              selectedCategory = '';
+                                              selectedStatus = '';
+                                              selectedDate = '';
+                                              isDateExpanded = false;
+                                              isStatusExpanded = false;
+                                              isCategoryExpanded = false;
+                                              isTypeExpanded = false;
+                                            });
+                                          },
+                                          child: Container(
+                                            margin: const EdgeInsets.only(left: 12),
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(
+                                                width: 0.5,
+                                                color: Colors.white.withOpacity(0.6),
+                                              ),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                'Clear All',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontFamily: 'Unbounded',
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
 
-                                      const SizedBox(height: 8),
+                                      const SizedBox(width: 12),
+
+                                      /// APPLY
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () => Navigator.pop(context),
+                                          child: Container(
+                                            margin: const EdgeInsets.only(right: 12),
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xffE8D1AB),
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(
+                                                width: 0.5,
+                                                color: Colors.white.withOpacity(0.6),
+                                              ),
+                                            ),
+                                            child: const Center(
+                                              child: Text(
+                                                'Apply',
+                                                style: TextStyle(
+                                                  fontFamily: 'Unbounded',
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color(0xff1D1D1B),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
 
-                            ))
-                        ],
-                      ),
-                    );
+                                  const SizedBox(height: 20),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
 
-                    }, );
-              },);
-
-        },
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
     );
-
-
   }
-  // void _showFilterBottomSheet() {
-  //   String? selectedDate;
-  //   String? selectedStatus;
-  //   String? selectedCategory;
-  //   String? selectedType;
-  //
-  //   bool isDateExpanded = true;
-  //   bool isStatusExpanded = false;
-  //   bool isCategoryExpanded = false;
-  //   bool isTypeExpanded = false;
-  //
-  //   // ✅ YOUR CUSTOM OPTIONS
-  //   final List<String> dateOptions = [
-  //     "Today", "This Week", "This Month", "Custom Range"
-  //   ];
-  //
-  //   final List<String> statusOptions = [
-  //     "Upcoming", "Active", "Completed", "Cancelled"
-  //   ];
-  //
-  //   final List<String> categoryOptions = [
-  //     "Photography", "Videography", "Editing", "Marketing Analytics"
-  //   ];
-  //
-  //   final List<String> typeOptions = [
-  //     "All", "Shoots", "Events", "Projects"
-  //   ];
-  //   showModalBottomSheet(
-  //     context: context,
-  //     backgroundColor: Colors.transparent,
-  //     isScrollControlled: true,  // ✅ already have this
-  //     builder: (_) {
-  //       return StatefulBuilder(
-  //         builder: (context, setState) {
-  //           return DraggableScrollableSheet(   // ✅ ADD THIS
-  //             initialChildSize: 0.6,
-  //             minChildSize: 0.4,
-  //             maxChildSize: 0.95,
-  //             expand: false,
-  //             builder: (context, scrollController) {
-  //               return Container(
-  //                 padding: const EdgeInsets.all(20),
-  //                 decoration: const BoxDecoration(
-  //                   color: Color(0xFF1E1E1E),
-  //                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-  //                 ),
-  //                 child: Column(
-  //                   mainAxisSize: MainAxisSize.min,
-  //                   children: [
-  //
-  //                     /// DRAG INDICATOR
-  //                     Container(
-  //                       height: 4,
-  //                       width: 40,
-  //                       margin: const EdgeInsets.only(bottom: 16),
-  //                       decoration: BoxDecoration(
-  //                         color: Colors.white24,
-  //                         borderRadius: BorderRadius.circular(4),
-  //                       ),
-  //                     ),
-  //
-  //                     /// HEADER (fixed, not scrollable)
-  //                     Row(
-  //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                       children: [
-  //                         const Text(
-  //                           "Filter",
-  //                           style: TextStyle(
-  //                             color: Colors.white,
-  //                             fontSize: 18,
-  //                             fontFamily: "Unbounded",
-  //                             fontWeight: FontWeight.w600,
-  //                           ),
-  //                         ),
-  //                         GestureDetector(
-  //                           onTap: () => Navigator.pop(context),
-  //                           child: const Icon(Icons.close, color: Colors.white),
-  //                         ),
-  //                       ],
-  //                     ),
-  //
-  //                     const SizedBox(height: 16),
-  //
-  //                     /// ✅ SCROLLABLE CONTENT
-  //                     Expanded(
-  //                       child: SingleChildScrollView(
-  //                         controller: scrollController,
-  //                         child: Column(
-  //                           children: [
-  //
-  //                             /// FILTER BY DATE
-  //                             _filterSection(
-  //                               title: "Filter By Date",
-  //                               isExpanded: isDateExpanded,
-  //                               onTap: () => setState(() => isDateExpanded = !isDateExpanded),
-  //                               children: isDateExpanded
-  //                                   ? dateOptions.map((label) => _radioOption(
-  //                                 label: label,
-  //                                 selected: selectedDate == label,
-  //                                 onTap: () => setState(() => selectedDate = label),
-  //                               )).toList()
-  //                                   : [],
-  //                             ),
-  //
-  //                             const SizedBox(height: 8),
-  //
-  //                             /// FILTER BY STATUS
-  //                             _filterSection(
-  //                               title: "Filter By Status",
-  //                               isExpanded: isStatusExpanded,
-  //                               onTap: () => setState(() => isStatusExpanded = !isStatusExpanded),
-  //                               children: isStatusExpanded
-  //                                   ? statusOptions.map((label) => _radioOption(
-  //                                 label: label,
-  //                                 selected: selectedStatus == label,
-  //                                 onTap: () => setState(() => selectedStatus = label),
-  //                               )).toList()
-  //                                   : [],
-  //                             ),
-  //
-  //                             const SizedBox(height: 8),
-  //
-  //                             /// FILTER BY CATEGORY
-  //                             _filterSection(
-  //                               title: "Filter By Category",
-  //                               isExpanded: isCategoryExpanded,
-  //                               onTap: () => setState(() => isCategoryExpanded = !isCategoryExpanded),
-  //                               children: isCategoryExpanded
-  //                                   ? categoryOptions.map((label) => _radioOption(
-  //                                 label: label,
-  //                                 selected: selectedCategory == label,
-  //                                 onTap: () => setState(() => selectedCategory = label),
-  //                               )).toList()
-  //                                   : [],
-  //                             ),
-  //
-  //                             const SizedBox(height: 8),
-  //
-  //                             /// FILTER BY TYPE
-  //                             _filterSection(
-  //                               title: "Filter By Type",
-  //                               isExpanded: isTypeExpanded,
-  //                               onTap: () => setState(() => isTypeExpanded = !isTypeExpanded),
-  //                               children: isTypeExpanded
-  //                                   ? typeOptions.map((label) => _radioOption(
-  //                                 label: label,
-  //                                 selected: selectedType == label,
-  //                                 onTap: () => setState(() => selectedType = label),
-  //                               )).toList()
-  //                                   : [],
-  //                             ),
-  //
-  //                             const SizedBox(height: 20),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                     ),
-  //
-  //                     /// BUTTONS (fixed at bottom)
-  //                     Row(
-  //                       children: [
-  //                         Expanded(
-  //                           child: OutlinedButton(
-  //                             onPressed: () {
-  //                               setState(() {
-  //                                 selectedDate = null;
-  //                                 selectedStatus = null;
-  //                                 selectedCategory = null;
-  //                                 selectedType = null;
-  //                               });
-  //                             },
-  //                             style: OutlinedButton.styleFrom(
-  //                               side: const BorderSide(color: Colors.white38),
-  //                               padding: const EdgeInsets.symmetric(vertical: 14),
-  //                               shape: RoundedRectangleBorder(
-  //                                 borderRadius: BorderRadius.circular(14),
-  //                               ),
-  //                             ),
-  //                             child: const Text(
-  //                               "Clear All",
-  //                               style: TextStyle(
-  //                                 color: Colors.white,
-  //                                 fontFamily: "Unbounded",
-  //                                 fontWeight: FontWeight.w500,
-  //                               ),
-  //                             ),
-  //                           ),
-  //                         ),
-  //                         const SizedBox(width: 12),
-  //                         Expanded(
-  //                           child: ElevatedButton(
-  //                             onPressed: () {
-  //                               print("Date: $selectedDate");
-  //                               print("Status: $selectedStatus");
-  //                               print("Category: $selectedCategory");
-  //                               print("Type: $selectedType");
-  //                               Navigator.pop(context);
-  //                             },
-  //                             style: ElevatedButton.styleFrom(
-  //                               backgroundColor: const Color(0xFFE8D1AB),
-  //                               padding: const EdgeInsets.symmetric(vertical: 14),
-  //                               shape: RoundedRectangleBorder(
-  //                                 borderRadius: BorderRadius.circular(14),
-  //                               ),
-  //                             ),
-  //                             child: const Text(
-  //                               "Apply",
-  //                               style: TextStyle(
-  //                                 color: Colors.black,
-  //                                 fontFamily: "Unbounded",
-  //                                 fontWeight: FontWeight.w500,
-  //                               ),
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //
-  //                     const SizedBox(height: 10),
-  //                   ],
-  //                 ),
-  //               );
-  //             },
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
+
 
   Widget _filterSection({
     required String title,
     required bool isExpanded,
     required VoidCallback onTap,
     required List<Widget> children,
+    bool showDivider=false,
   }) {
     return Padding(
       padding: EdgeInsets.all(10),
@@ -1639,7 +1617,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Icon(
+                    Icon(size: 30,
                       isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                       color: Colors.white,
                     ),
@@ -1648,9 +1626,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-           isExpanded?
+           isExpanded && showDivider
 
-            Divider(
+            ?Divider(
               thickness: 0.5,
               color: Colors.white.withOpacity(0.3),
             ):SizedBox(),
@@ -1683,12 +1661,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Container(
-              width: 22,
-              height: 22,
+              width: 25,
+              height: 25,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected ? const Color(0xFFE8D1AB) : Colors.white38,
+                  color: selected ? const Color(0xffDDDDDD) : Colors.white38,
                   width: 2,
                 ),
               ),

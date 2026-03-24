@@ -462,6 +462,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                         height: 50,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
                             backgroundColor:
                             ColorCode.kButtonColor,
                             shape: RoundedRectangleBorder(

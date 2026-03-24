@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:flutter/material.dart';
 
+import '../../../auth/DelteAccountLottie/DeleteAccountLottieScreen.dart';
 import '../../../utility/ColorCode.dart';
 
 
@@ -214,7 +215,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
                 onPressed:() {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => Login()),
+                    MaterialPageRoute(builder: (_) => DeleteAccountLottieScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

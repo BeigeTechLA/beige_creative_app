@@ -12,7 +12,11 @@ class AppImages {
   static const String delete = "assets/svg/delete.svg";
   static const String profilepicture = "assets/home/profilepicture.png";
   static const String myprofileeditphoto = "assets/svg/myprofileeditphoto.svg";
-
+  static const String back = "assets/svg/back.svg";
+  static const String menu = "assets/svg/menu.svg";
+  static const String goto = "assets/svg/goto.svg";
+  static const String filter = "assets/svg/filter.svg";
+  static const String notificationbell = "assets/svg/notificationbell.svg";
   static const String doller = "assets/svg/doller.svg";
   static const String medal = "assets/svg/medal.svg";
   static const String map = "assets/svg/map.svg";
@@ -23,6 +27,11 @@ class AppImages {
   static const String resume = "assets/svg/resume.svg";
   static const String appperference= "assets/svg/appperference.svg";
   static const String notificationsetting= "assets/svg/notificationsetting.svg";
+  static const String clude = "assets/svg/clude.svg";
+  static const String appversion = "assets/svg/appversion.svg";
+  static const String chando = "assets/svg/chando.svg";
+
+
 
 
 
