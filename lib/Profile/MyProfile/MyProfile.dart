@@ -327,11 +327,11 @@ class _MyprofileState extends State<Myprofile> {
                             color: ColorCode.kButtonColor, // beige
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          child:  Image.asset(
-                            color: Color(0xff1D1D1B),
-                            "assets/profile/SquarePen.png",
-                            fit: BoxFit.cover,
-                          ),
+                          child: SvgPicture.asset(
+                            AppImages.myprofile_edit,
+                        /*    color: Color(0xff1D1D1B),
+                            fit: BoxFit.cover,*/
+                          )
 
                         ),
                       ),
@@ -340,6 +340,7 @@ class _MyprofileState extends State<Myprofile> {
                   const SizedBox(height: 20),
                   Row(
                     children: [
+
                       Text("Portfolio Link",style: TextStyle(
                           color: ColorCode.white,
                           fontFamily: "Unbounded",
@@ -400,11 +401,11 @@ class _MyprofileState extends State<Myprofile> {
                             color: ColorCode.kButtonColor, // beige
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          child:  Image.asset(
-                            color: Color(0xff1D1D1B),
-                            "assets/profile/SquarePen.png",
-                            fit: BoxFit.cover,
-                          ),
+                          child:  SvgPicture.asset(
+                            AppImages.myprofile_edit,
+                            /*    color: Color(0xff1D1D1B),
+                            fit: BoxFit.cover,*/
+                          )
                         ),
                       ),
                     ],

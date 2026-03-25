@@ -35,5 +35,6 @@ class AppImages {
   static const String location = "assets/svg/location.svg";
   static const String calender = "assets/svg/calender.svg";
   static const String avtarstack = "assets/images/avtarstack.png";
+  static const String myprofile_edit = "assets/svg/myprofile_edit.svg";
 
 }
