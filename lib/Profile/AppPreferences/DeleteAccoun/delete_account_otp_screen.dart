@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../../auth/DelteAccountLottie/DeleteAccountLottieScreen.dart';
 import '../../../utility/ColorCode.dart';
+import '../../../utility/imges_icons.dart';
 
 
 class DeleteAccountOtpScreen extends StatefulWidget {
@@ -76,10 +78,13 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
             /// 🔙 BACK BUTTON
             InkWell(
               onTap: () => Navigator.pop(context),
-              child: Image.asset(
-                "assets/icons/back.png",
+              child:SvgPicture.asset(
+                AppImages.back, // make sure it's .svg file
                 height: 24,
-                color: ColorCode.white,
+                colorFilter: ColorFilter.mode(
+                  ColorCode.white,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
 

@@ -16,12 +16,60 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  // final List<String> statusOptions = ["Upcoming", "Active", "Completed", "Cancelled"];
-  // final List<String> categoryOptions = ["Photography", "Videography", "Editing", "Marketing Analytics"];
-  // final List<String> typeOptions = ["All", "Shoots", "Events", "Projects"];
-  // final List<String> dateOptions = ["Today", "This Week", "This Month", "Custom Range"];
-  int selectedDashboardIndex = 0;
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin{
+  final List<Map<String, dynamic>> _cardDataList = [
+    {
+      'title': 'Wedding Event 2026',
+      'date': 'Jan 15, 2026',
+      'time': '12:00 PM - 4:00 PM',
+      'location': 'Los Angeles, CA',
+      'image': AppImages.weddingevent,
+    },
+    {
+      'title': 'Birthday Shoot 2026',
+      'date': 'Feb 20, 2026',
+      'time': '2:00 PM - 6:00 PM',
+      'location': 'New York, NY',
+      'image': AppImages.weddingevent, // apna image lagao
+    },
+    {
+      'title': 'Corporate Event 2026',
+      'date': 'Mar 10, 2026',
+      'time': '10:00 AM - 2:00 PM',
+      'location': 'Chicago, IL',
+      'image': AppImages.weddingevent, // apna image lagao
+    },
+  ];
+
+  @override
+  void dispose() {
+    _controller.dispose(); // ✅ Yeh add karo
+    super.dispose();
+  }
+  @override
+  void initState() {
+    super.initState();
+    _controller= AnimationController(vsync: this,
+      duration: Duration(milliseconds: 400),
+    );
+
+    _slideOut = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(0, 1.5),
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInBack));
+  }
+  void _onCardTap() async {
+    await _controller.forward();
+    setState(() {
+      _currentIndex = (_currentIndex + 1) % 3;
+    });
+    _controller.reset();
+  }
+late AnimationController _controller;
+late Animation<Offset> _slideOut;
+int _currentIndex = 0;
+
+int selectedDashboardIndex = 0;
   bool isExpanded = false;
   int currentIndex = 0;
   String selectedRange = "Month";
@@ -290,102 +338,195 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 55),
 
-                  /// EVENT CARD
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: ColorCode.k282828,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
+
+                  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// EVENT CARD
+                  GestureDetector(
+                    onTap: _onCardTap,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final double totalWidth = constraints.maxWidth;
+
+                        // ✅ Current aur next cards ka data
+                        final current = _cardDataList[_currentIndex];
+                        final next1   = _cardDataList[(_currentIndex + 1) % 3];
+                        final next2   = _cardDataList[(_currentIndex + 2) % 3];
+
+                        return Stack(
+                          clipBehavior: Clip.none,
                           children: [
 
-                            /// IMAGE
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: Image.asset(
-                                "assets/home/Mask_group.png", // add your image
-                                height: 169,
-                                width: 117,
-
-                                fit: BoxFit.cover,
+                            /// 3rd card — sabse peeche
+                            Positioned(
+                              top: -24,
+                              left: totalWidth * 0.07,
+                              right: totalWidth * 0.07,
+                              child: Container(
+                                height: 27,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF303030),
+                                  border: Border.all(color: Colors.white.withOpacity(0.08)),
+                                  borderRadius: BorderRadius.circular(40),
+                                ),
                               ),
                             ),
 
-                            const SizedBox(width: 14),
-
-                            /// DETAILS
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-
-                                  Text(
-                                    "Wedding Event 2024",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-
-                                  SizedBox(height: 6),
-
-                                  Text(
-                                    "Jan 15, 2024 • 10:00 PM",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-
-                                  SizedBox(height: 6),
-
-                                  Text(
-                                    "Los Angeles, CA",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white54,
-                                    ),
-                                  ),
-                                ],
+                            /// 2nd card — beech mein
+                            Positioned(
+                              top: -12,
+                              left: totalWidth * 0.035,
+                              right: totalWidth * 0.035,
+                              child: Container(
+                                height: 27,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2E2E2E),
+                                  border: Border.all(color: Colors.white.withOpacity(0.08)),
+                                  borderRadius: BorderRadius.circular(40),
+                                ),
                               ),
                             ),
 
+                            /// ✅ Main card — current data ke saath
+                            SlideTransition(
+                              position: _slideOut,
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: ColorCode.k282828,
+                                  border: Border.all(color: Colors.white.withOpacity(0.08)),
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+
+                                    /// IMAGE — current card ka
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(14),
+                                      child: Image.asset(
+                                        current['image'],   // ✅ dynamic
+                                        height: 169,
+                                        width: 117,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+
+                                    const SizedBox(width: 14),
+
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+
+                                          Text(
+                                            current['title'],  // ✅ dynamic
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+
+                                          Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                                          const SizedBox(height: 6),
+
+                                          Row(children: [
+                                            SvgPicture.asset(AppImages.calender, width: 14, height: 14),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              current['date'],  // ✅ dynamic
+                                              style: const TextStyle(fontSize: 12, color: Colors.white70),
+                                            ),
+                                          ]),
+
+                                          const SizedBox(height: 6),
+
+                                          Row(children: [
+                                            SvgPicture.asset(AppImages.time, width: 14, height: 14),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              current['time'],  // ✅ dynamic
+                                              style: const TextStyle(fontSize: 12, color: Colors.white54),
+                                            ),
+                                          ]),
+
+                                          const SizedBox(height: 6),
+
+                                          Row(children: [
+                                            SvgPicture.asset(AppImages.location, width: 14, height: 14),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              current['location'],  // ✅ dynamic
+                                              style: const TextStyle(fontSize: 12, color: Colors.white54),
+                                            ),
+                                          ]),
+
+                                          const SizedBox(height: 12),
+
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                    padding: EdgeInsets.zero,
+                                                    backgroundColor: ColorCode.kButtonColor,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(20),
+                                                    ),
+                                                  ),
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) => UpcomingShootViewDetils(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: const Text("View Details",
+                                                      style: TextStyle(color: Colors.black, fontSize: 11)),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              _buildAvatarStack(
+                                                images: [
+                                                  AppImages.avtarstack,
+                                                  AppImages.avtarstack,
+                                                  AppImages.avtarstack,
+                                                  AppImages.avtarstack,
+                                                ],
+                                                extraCount: 3,
+                                                avatarSize: 20,
+                                                overlap: 10,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
 
                           ],
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ColorCode.kButtonColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          onPressed: ()
-                           {
-            Navigator.push(
-            context,
-            MaterialPageRoute(
-            builder: (context) => UpcomingShootViewDetils(), // 👈 next screen
-            ),
-            );
-            },
-                          child: const Text(
-                            "View Details",
-                            style: TextStyle(color: Colors.black, fontSize: 11),
-                          ),
-                        )
-                      ],
+                        );
+                      },
                     ),
-
                   ),
 
-                  const SizedBox(height: 12),
+
+
+
+
+
+
+
+
+
+                  /////////////////////////////////////////////////////////////////////////////////////////////////////////
+                  const SizedBox(height: 17),
                   Divider(
                     color: ColorCode.kDividerWhite12,
                     thickness: 0.8,
@@ -1582,7 +1723,72 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+  Widget _buildAvatarStack({
+    required List<String> images,
+    int extraCount = 0,
+    double avatarSize = 20,
+    double overlap = 10,
+  }) {
+    final int totalItems = images.length + (extraCount > 0 ? 1 : 0);
 
+    // ✅ Width calculated dynamically based on count
+    final double totalWidth = avatarSize + (totalItems - 1) * overlap;
+
+    return SizedBox(
+      width: totalWidth,
+      height: avatarSize,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Avatars
+          ...List.generate(images.length, (index) {
+            return Positioned(
+              left: index * overlap,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 1),
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    images[index],
+                    width: avatarSize,
+                    height: avatarSize,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            );
+          }),
+
+          // +N Badge
+          if (extraCount > 0)
+            Positioned(
+              left: images.length * overlap,
+              child: Container(
+                width: avatarSize,
+                height: avatarSize,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade700,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 1),
+                ),
+                child: Center(
+                  child: Text(
+                    "+$extraCount",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: avatarSize * 0.35, // ✅ font scales with size
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 
   Widget _filterSection({
     required String title,

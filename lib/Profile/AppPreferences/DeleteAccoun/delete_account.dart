@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../../utility/ColorCode.dart';
+import '../../../utility/imges_icons.dart';
 import 'delete_account_otp_screen.dart';
 
 class DeleteAccount extends StatefulWidget {
@@ -37,12 +39,16 @@ class _DeleteAccountState extends State<DeleteAccount> {
               children: [
 
                 /// 🔙 BACK BUTTON
-                InkWell(
+                GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: Image.asset(
-                    "assets/icons/back.png",
+                  child: SvgPicture.asset(
+                    AppImages.back, // make sure it's .svg file
                     height: 24,
-                    color: ColorCode.white,
+                    colorFilter: ColorFilter.mode(
+                      //ColorCode.kHeadingColor,
+                      Colors.white,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
 

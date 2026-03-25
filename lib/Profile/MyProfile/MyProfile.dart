@@ -681,9 +681,9 @@ class _MyprofileState extends State<Myprofile> {
             //   color: ColorCode.white,
             // ),
           SvgPicture.asset(
-            AppImages.back, // make sure it's .svg file
-            height: 20,
-            width: 20,
+            AppImages.goto, // make sure it's .svg file
+            height: 17,
+            width: 17,
             colorFilter: ColorFilter.mode(
               ColorCode.white,
               BlendMode.srcIn,
