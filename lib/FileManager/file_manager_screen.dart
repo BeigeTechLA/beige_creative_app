@@ -19,7 +19,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
   final TextEditingController folderController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
 
-
+  bool loding = true;
   @override
   void dispose() {
     _tabController.dispose();
@@ -84,30 +84,66 @@ class _FileManagerScreenState extends State<FileManagerScreen>
             /// 🔍 SEARCH BAR
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                height: 45,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: ColorCode.k282828,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: const [
-                    Icon(Icons.search, color: Colors.white54),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        style: TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: "Search File, User...",
-                          hintStyle:
-                          TextStyle(color: Colors.white38),
-                          border: InputBorder.none,
-                        ),
+              child: Row(
+                children: [
+
+                  /// 🔍 Search Container (Full Width)
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: ColorCode.k282828,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Row(
+                        children: [
+
+                          SvgPicture.asset(
+                              "assets/svg/serch_image.svg",
+
+                          ),
+                          const SizedBox(width: 10),
+
+                          /// TextField should be Expanded
+                          const Expanded(
+                            child: TextField(
+                              style: TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                hintText: "Search File, User...",
+                                hintStyle: TextStyle(color: Colors.white38),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  /// 📱 Grid Button (Separate)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        loding = !loding;
+                      });
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white10,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        loding ? Icons.grid_view : Icons.view_list,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
 
@@ -379,6 +415,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
   }
   /// 📁 FILE CARD LIST
   Widget _fileList() {
+    if(loding){
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: 20,
@@ -419,8 +456,43 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       ),
                     ),
                     const Spacer(),
-                    Icon(Icons.more_vert,
-                        color: ColorCode.white),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, color: ColorCode.white),
+                      color: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      onSelected: (value) {
+                        if (value == "open") {
+                          print("Open");
+                        } else if (value == "view") {
+                          print("View Shoot Details");
+                        } else if (value == "rename") {
+                          print("Rename");
+                        } else if (value == "share") {
+                          print("Share");
+                        } else if (value == "download") {
+                          print("Download");
+                        } else if (value == "delete") {
+                          print("Delete");
+                        }
+                      },
+                      itemBuilder: (context) => [
+
+                        popupItem("open", Icons.folder_open, "Open"),
+                        popupItem("view", Icons.remove_red_eye, "View Shoot Details"),
+                        popupItem("rename", Icons.edit, "Rename"),
+
+                        const PopupMenuDivider(),
+
+                        popupItem("share", Icons.share, "Share"),
+                        popupItem("download", Icons.download, "Download"),
+
+                        const PopupMenuDivider(),
+
+                        popupItem("delete", Icons.delete, "Delete", isDelete: true),
+                      ],
+                    ),
                   ],
                 ),
 
@@ -491,6 +563,65 @@ class _FileManagerScreenState extends State<FileManagerScreen>
           ),
         );
       },
+    );
+  } else {
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: 20,
+        itemBuilder: (context, index) {
+          return InkWell(
+            onTap: () {},
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 14),
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: ColorCode.k282828,
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Row(
+                children: const [
+                  Icon(Icons.folder, color: ColorCode.kButtonColor),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      "Lana #123456",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Icon(Icons.more_vert, color: Colors.white),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+    }
+  }
+  PopupMenuItem<String> popupItem(
+      String value,
+      IconData icon,
+      String text, {
+        bool isDelete = false,
+      }) {
+    return PopupMenuItem<String>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: isDelete ? Colors.red : Colors.white,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            text,
+            style: TextStyle(
+              color: isDelete ? Colors.red : Colors.white,
+              fontFamily: "Outfit",
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
