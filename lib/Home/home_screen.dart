@@ -714,17 +714,6 @@ int selectedDashboardIndex = 0;
                       },
                     ),
                   ),
-
-
-
-
-
-
-
-
-
-
-
                   /////////////////////////////////////////////////////////////////////////////////////////////////////////
                   const SizedBox(height: 17),
                   Divider(
@@ -774,6 +763,8 @@ int selectedDashboardIndex = 0;
                     ],
                   ),
                   const SizedBox(height: 12),
+                  ///////////////////////////////////////////////////////////////////////////////////////////////////
+
                   Container(
 
                     decoration: BoxDecoration(
@@ -826,10 +817,11 @@ int selectedDashboardIndex = 0;
                               ),
 
                               /// DROPDOWN
-                              Container(margin: EdgeInsets.only(top: 6),
+                              Container(
+                                margin: EdgeInsets.all(6),
 
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 2,),
+                                    horizontal: 8, vertical: 2,),//
                                 decoration: BoxDecoration(
                                   color: ColorCode.white,
                                   borderRadius: BorderRadius.circular(12),
@@ -866,7 +858,7 @@ int selectedDashboardIndex = 0;
                             lastDay: DateTime(2050),
                             focusedDay: _focusedDay,
                             headerVisible: false,
-                            rowHeight: 80,
+                            rowHeight: 85,
 
                             /// PERFECT GRID
                             calendarStyle: CalendarStyle(
@@ -894,6 +886,10 @@ int selectedDashboardIndex = 0;
                       ),
                     ),
                   ),
+
+
+
+                  /////////////////////////////////////////////////////////////////////////////////////////////////////////
                   const SizedBox(height: 12),
                   Divider(
                     color: ColorCode.kDividerWhite12,
@@ -2368,66 +2364,4 @@ int selectedDashboardIndex = 0;
     );
   }
 }
-/*
-class MultiArcPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    double strokeWidth = 14.0;
-    double spacing = 18.0;
-    Offset center = Offset(size.width / 2, size.height); // Bottom center focus
 
-    // Colors mapping
-    List<Color> colors = [
-      const Color(0xFFA678F1), // Purple
-      const Color(0xFF5CC4FF), // Blue
-      const Color(0xFFFFC04F), // Yellow/Orange
-      const Color(0xFF2DC497), // Green
-    ];
-
-    // Values (Percentage of the half circle)
-    List<double> values = [1.0, 0.75, 0.5, 0.45];
-
-    for (int i = 0; i < 4; i++) {
-      double radius = size.width / 2 - (i * spacing);
-
-      // Background Arc (Dark grey)
-      Paint bgPaint = Paint()
-        ..color = Colors.white.withOpacity(0.05)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.butt;
-
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        3.14, // Start from left (180 deg)
-        3.14, // Sweep 180 deg
-        false,
-        bgPaint,
-      );
-
-      // Active Color Arc
-      Paint activePaint = Paint()
-        ..color = colors[i]
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.butt;
-
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        3.14 + (3.14 * (1 - values[i])), // Dynamic start based on value
-        3.14 * values[i],
-        false,
-        activePaint,
-      );
-    }
-
-    // Bottom Horizontal Line
-    Paint linePaint = Paint()
-      ..color = Colors.white24
-      ..strokeWidth = 1;
-    canvas.drawLine(Offset(0, size.height), Offset(size.width, size.height), linePaint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}*/
