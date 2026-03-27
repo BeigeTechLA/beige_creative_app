@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart';
 import '../widgets/common_calendar.dart';
 import 'AddAvailability/add_availability_screen.dart';
 import 'manage_asvailability_conttoller.dart';
@@ -11,17 +14,29 @@ class ManageAvailabilityScreen extends StatefulWidget {
   State<ManageAvailabilityScreen> createState() => _ManageAvailabilityScreenState();
 }
 
-class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen> {
+class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
+    with SingleTickerProviderStateMixin {
 
   final ManageAvailabilityController  nexwController = ManageAvailabilityController();
 
 
-  /// 🔥 Dummy Event Data (Later API se replace karna)
-  final Map<DateTime, String> _events = {
-    DateTime(2026, 1, 2): "Available",
-    DateTime(2026, 1, 6): "Shoot",
-    DateTime(2026, 1, 12): "Available",
-  };
+  late AnimationController _controller;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+  }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return  SafeArea(
@@ -515,93 +530,366 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen> {
               ],
             ),
       
-            const SizedBox(height: 18),
+            const SizedBox(height: 50),
       
             /// EVENT CARD
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: ColorCode.k282828,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Column(
-                children: [
-                  Row(
+            GestureDetector(
+              onTap: _onCardTap,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final double totalWidth = constraints.maxWidth;
+                  final list = nexwController.cardDataList;
+                  final current = list[_currentIndex];
+                  final next = list[(_currentIndex + 1) % list.length];
+                  final next2 = list[(_currentIndex + 2) % list.length];
+
+
+                  return Stack(
+                    clipBehavior: Clip.none,
                     children: [
-      
-                      /// IMAGE
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.asset(
-                          "assets/home/Mask_group.png", // add your image
-                          height: 169,
-                          width: 117,
-      
-                          fit: BoxFit.cover,
+                      // 3rd card (back most) - Full container with image and data
+                      AnimatedPositioned(
+                        duration: const Duration(milliseconds: 300),
+                        top: _controller.isAnimating ? -32 : -24,
+                        left: totalWidth * 0.07,
+                        right: totalWidth * 0.07,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 300),
+                          opacity: _controller.isAnimating ? 0.5 : 1,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF303030),
+                              border: Border.all(color: Colors.white.withOpacity(0.08)),
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: Image.asset(
+                                    next2['image'],
+                                    height: 169,
+                                    width: 117,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        next2['title'],
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                                      Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                                      const SizedBox(height: 6),
+                                      Row(children: [
+                                        SvgPicture.asset(AppImages.calender, width: 14, height: 14),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          next2['date'],
+                                          style: const TextStyle(fontSize: 12, color: Colors.white54),
+                                        ),
+                                      ]),
+                                      const SizedBox(height: 6),
+                                      Row(children: [
+                                        SvgPicture.asset(AppImages.time, width: 14, height: 14),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          next2['time'],
+                                          style: const TextStyle(fontSize: 12, color: Colors.white54),
+                                        ),
+                                      ]),
+                                      const SizedBox(height: 6),
+                                      Row(children: [
+                                        SvgPicture.asset(AppImages.location, width: 14, height: 14),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          next2['location'],
+                                          style: const TextStyle(fontSize: 12, color: Colors.white54),
+                                        ),
+                                      ]),
+                                      const SizedBox(height: 12),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                padding: EdgeInsets.zero,
+                                                backgroundColor: ColorCode.kButtonColor.withOpacity(0.7),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                ),
+                                              ),
+                                              onPressed: () {},
+                                              child: const Text("View Details",
+                                                  style: TextStyle(color: Colors.black, fontSize: 11)),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                      /*    _buildAvatarStack(
+                                            images: [
+                                              AppImages.avtarstack,
+                                              AppImages.avtarstack,
+                                              AppImages.avtarstack,
+                                              AppImages.avtarstack,
+                                            ],
+                                            extraCount: 3,
+                                            avatarSize: 20,
+                                            overlap: 10,
+                                          ),*/
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-      
-                      const SizedBox(width: 14),
-      
-                      /// DETAILS
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-      
-                            Text(
-                              "Wedding Event 2024",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
+
+                      // 2nd card (middle) - Full container with image and data
+                      AnimatedPositioned(
+                        duration: const Duration(milliseconds: 300),
+                        top: _controller.isAnimating ? -20 : -12,
+                        left: totalWidth * 0.035,
+                        right: totalWidth * 0.035,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 300),
+                          opacity: _controller.isAnimating ? 0.7 : 1,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2E2E2E),
+                              border: Border.all(color: Colors.white.withOpacity(0.08)),
+                              borderRadius: BorderRadius.circular(18),
                             ),
-      
-                            SizedBox(height: 6),
-      
-                            Text(
-                              "Jan 15, 2024 • 10:00 PM",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white70,
-                              ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: Image.asset(
+                                    next['image'],
+                                    height: 169,
+                                    width: 117,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        next['title'],
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                                      const SizedBox(height: 6),
+                                      Row(children: [
+                                        SvgPicture.asset(AppImages.calender, width: 14, height: 14),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          next['date'],
+                                          style: const TextStyle(fontSize: 12, color: Colors.white70),
+                                        ),
+                                      ]),
+                                      const SizedBox(height: 6),
+                                      Row(children: [
+                                        SvgPicture.asset(AppImages.time, width: 14, height: 14),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          next['time'],
+                                          style: const TextStyle(fontSize: 12, color: Colors.white70),
+                                        ),
+                                      ]),
+                                      const SizedBox(height: 6),
+                                      Row(children: [
+                                        SvgPicture.asset(AppImages.location, width: 14, height: 14),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          next['location'],
+                                          style: const TextStyle(fontSize: 12, color: Colors.white70),
+                                        ),
+                                      ]),
+                                      const SizedBox(height: 12),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                padding: EdgeInsets.zero,
+                                                backgroundColor: ColorCode.kButtonColor.withOpacity(0.8),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                ),
+                                              ),
+                                              onPressed: () {},
+                                              child: const Text("View Details",
+                                                  style: TextStyle(color: Colors.black, fontSize: 11)),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                         /* _buildAvatarStack(
+                                            images: [
+                                              AppImages.avtarstack,
+                                              AppImages.avtarstack,
+                                              AppImages.avtarstack,
+                                              AppImages.avtarstack,
+                                            ],
+                                            extraCount: 3,
+                                            avatarSize: 20,
+                                            overlap: 10,
+                                          ),*/
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-      
-                            SizedBox(height: 6),
-      
-                            Text(
-                              "Los Angeles, CA",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white54,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-      
-      
+
+                      // Main card with slide out animation
+                      AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _controller.value * 200),
+                            child: Opacity(
+                              opacity: 1 - _controller.value,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: ColorCode.k282828,
+                            border: Border.all(color: Colors.white.withOpacity(0.08)),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Image.asset(
+                                  current['image'],
+                                  height: 169,
+                                  width: 117,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      current['title'],
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                                    const SizedBox(height: 6),
+                                    Row(children: [
+                                      SvgPicture.asset(AppImages.calender, width: 14, height: 14),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        current['date'],
+                                        style: const TextStyle(fontSize: 12, color: Colors.white70),
+                                      ),
+                                    ]),
+                                    const SizedBox(height: 6),
+                                    Row(children: [
+                                      SvgPicture.asset(AppImages.time, width: 14, height: 14),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        current['time'],
+                                        style: const TextStyle(fontSize: 12, color: Colors.white54),
+                                      ),
+                                    ]),
+                                    const SizedBox(height: 6),
+                                    Row(children: [
+                                      SvgPicture.asset(AppImages.location, width: 14, height: 14),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        current['location'],
+                                        style: const TextStyle(fontSize: 12, color: Colors.white54),
+                                      ),
+                                    ]),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              padding: EdgeInsets.zero,
+                                              backgroundColor: ColorCode.kButtonColor,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(20),
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => UpcomingShootViewDetils(),
+                                                ),
+                                              );
+                                            },
+                                            child: const Text("View Details",
+                                                style: TextStyle(color: Colors.black, fontSize: 11)),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                     /*   _buildAvatarStack(
+                                          images: [
+                                            AppImages.avtarstack,
+                                            AppImages.avtarstack,
+                                            AppImages.avtarstack,
+                                            AppImages.avtarstack,
+                                          ],
+                                          extraCount: 3,
+                                          avatarSize: 20,
+                                          overlap: 10,
+                                        ),*/
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorCode.kButtonColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    onPressed: () {},
-                    child: const Text(
-                      "View Details",
-                      style: TextStyle(color: Colors.black, fontSize: 11),
-                    ),
-                  )
-                ],
+                  );
+                },
               ),
-      
             ),
-      
             const SizedBox(height: 12),
             Divider(
               color: ColorCode.kDividerWhite12,
@@ -657,7 +945,18 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen> {
       ),
     );
   }
+  void _onCardTap() async {
+    if (_controller.isAnimating) return;
 
+    await _controller.forward();
+
+    setState(() {
+      final listLength = nexwController.cardDataList.length;
+      _currentIndex = (_currentIndex + 1) % listLength;
+    });
+
+    _controller.reset();
+  }
   Widget _buildStatCard({
     required IconData icon,
     required String title,
@@ -714,6 +1013,15 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen> {
     );
   }
 }
+
+String _monthName(int month) {
+  const months = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+  return months[month - 1];
+}
+
 class _Legend extends StatelessWidget {
   final Color color;
   final String text;
@@ -735,8 +1043,14 @@ class _Legend extends StatelessWidget {
         ),
       ],
     );
+
   }
-}class _WeekText extends StatelessWidget {
+
+
+}
+
+
+class _WeekText extends StatelessWidget {
   final String text;
   const _WeekText(this.text);
 
@@ -750,12 +1064,4 @@ class _Legend extends StatelessWidget {
       ),
     );
   }
-}
-
-String _monthName(int month) {
-  const months = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December"
-  ];
-  return months[month - 1];
 }

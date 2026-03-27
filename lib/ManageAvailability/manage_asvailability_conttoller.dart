@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../utility/imges_icons.dart';
+
 class ManageAvailabilityController extends ChangeNotifier {
 
   DateTime focusedDay = DateTime.now();
   DateTime selectedDay = DateTime.now();
 
   String selectedFilter = "All Events";
+
+  List<Map<String, dynamic>> get cardDataList => _cardDataList;
 
   final List<String> filters = [
     "All Events",
@@ -35,18 +39,6 @@ class ManageAvailabilityController extends ChangeNotifier {
     return events[DateTime(day.year, day.month, day.day)];
   }
 
-  bool isToday(DateTime day) {
-    final now = DateTime.now();
-    return day.year == now.year &&
-        day.month == now.month &&
-        day.day == now.day;
-  }
-
-  bool isDisabled(DateTime day) {
-    final now = DateTime.now();
-    return day.isBefore(DateTime(now.year, now.month, now.day));
-  }
-
   Color getEventColor(String event) {
     switch (event) {
       case "Available":
@@ -59,4 +51,28 @@ class ManageAvailabilityController extends ChangeNotifier {
         return Colors.grey;
     }
   }
+
+  final List<Map<String, dynamic>> _cardDataList = [
+    {
+      'title': 'Wedding Event 2026',
+      'date': 'Jan 15, 2026',
+      'time': '12:00 PM - 4:00 PM',
+      'location': 'Los Angeles, CA',
+      'image': AppImages.weddingevent,
+    },
+    {
+      'title': 'Birthday Shoot 2026',
+      'date': 'Feb 20, 2026',
+      'time': '2:00 PM - 6:00 PM',
+      'location': 'New York, NY',
+      'image': "assets/home/img.png",
+    },
+    {
+      'title': 'Corporate Event 2026',
+      'date': 'Mar 10, 2026',
+      'time': '10:00 AM - 2:00 PM',
+      'location': 'Chicago, IL',
+      'image': "assets/images/video.png",
+    },
+  ];
 }

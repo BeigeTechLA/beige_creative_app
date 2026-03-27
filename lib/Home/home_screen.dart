@@ -355,8 +355,7 @@ int selectedDashboardIndex = 0;
                   const SizedBox(height: 55),
 
 
-                  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// EVENT CARD
-                  // Replace your entire GestureDetector section with this:
+
 
                   GestureDetector(
                     onTap: _onCardTap,
