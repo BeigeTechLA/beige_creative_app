@@ -1,10 +1,16 @@
-import 'package:beige_creative_app/auth/OTPCODE/otp_screen.dart';
-import 'package:flutter/material.dart';
 
+
+import 'package:beige_creative_app/auth/login/login.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+
+import '../../service/api_endpoints.dart';
+import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
-import '../../widgets/custom_text_field.dart';
-import '../New_Creative_sing_up_follow/new_build_your_creative_profile.dart';
-import '../login/login.dart';
+import '../../widgets/Topmessgae.dart';
+import '../../widgets/new_Textfield.dart';
+import '../OTPCODE/otp_screen.dart';
+
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -14,12 +20,170 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  @override
-bool isLoggingIn = false;
+  bool showConfirmPassword = false;
+  bool savePassword = false;
   final TextEditingController emailController = TextEditingController();
-  Widget build(BuildContext context) {
+  final TextEditingController passwordController = TextEditingController();
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    isLoading = false;
+  }
+
+  bool isLoading = false;
+
+  Future<void> _fetchForgotPassword()async{
+    if(emailController.text.trim().isEmpty){
+      TopMessage.show(context, "Please enter email");
+    }
+      if (!isValidEmail(emailController.text.trim())) {
+        print("❌ Invalid Email Format");
+        TopMessage.show(context, "Please enter a valid email address");
+        return;
+      }
+
+      setState(() {
+        isLoading=true;
+      });
+
+
+
+      try{
+        final response= await ApiService().postData(
+            ApiEndpoints.forgotpassword,
+             {
+               "email":emailController.text,
+             });
+
+        debugPrint("📩 Api response:: $response");
+
+            if (response == null) {
+              print("❌ Response NULL");
+              TopMessage.show(context, "Server error, please try again");
+              return;
+            }
+            if(response["error"]==false){
+              debugPrint("Otp send ::::::");
+
+              Navigator.push(context, MaterialPageRoute(builder:(context) {
+                return OtpScreen(email: emailController.text,);
+
+              },));
+            }else {
+                    print("❌ Backend Error => ${response['message']}");
+
+                    /// backend ka message show karega
+                    TopMessage.show(
+                      context,
+                      response['message'] ?? "Email not registered",
+                    );
+                  }
+
+      }catch(e){
+        debugPrint("error is::::::::::: $e");
+        TopMessage.show(context, "Something went wrong");
+      }finally{
+        setState(() => isLoading = false);
+      }
+
+  }
+
+
+
+
+  // Future<void> _fetchForgotPassword() async {
+  //
+  //   if (emailController.text.trim().isEmpty) {
+  //     print("❌ Email Empty");
+  //     TopMessage.show(context, "Please enter email");
+  //     return;
+  //   }
+  //
+  //   if (!isValidEmail(emailController.text.trim())) {
+  //     print("❌ Invalid Email Format");
+  //     TopMessage.show(context, "Please enter a valid email address");
+  //     return;
+  //   }
+  //
+  //   setState(() => isLoading = true);
+  //
+  //   try {
+  //     print("🚀 API CALL START");
+  //     print("📡 Endpoint => ${ApiEndpoints.forgotpassword}");
+  //
+  //     final response = await ApiService().postData(
+  //       ApiEndpoints.forgotpassword,
+  //       {
+  //         "email": emailController.text.trim(),
+  //       },
+  //     );
+  //
+  //     print("📩 API RESPONSE => $response");
+  //
+  //     if (response == null) {
+  //       print("❌ Response NULL");
+  //       TopMessage.show(context, "Server error, please try again");
+  //       return;
+  //     }
+  //
+  //     if (response['error'] == false) {
+  //       print("✅ OTP Sent Successfully");
+  //
+  //       if (!mounted) return;
+  //
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (_) => OtpScreen(
+  //           ),
+  //         ),
+  //       );
+  //
+  //     } else {
+  //       print("❌ Backend Error => ${response['message']}");
+  //
+  //       /// backend ka message show karega
+  //       TopMessage.show(
+  //         context,
+  //         response['message'] ?? "Email not registered",
+  //       );
+  //     }
+  //
+  //   } catch (e) {
+  //     print("🔥 Exception => $e");
+  //     TopMessage.show(context, "Something went wrong");
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() => isLoading = false);
+  //     }
+  //     print("🛑 API CALL END");
+  //   }
+  // }
+
+
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    return emailRegex.hasMatch(email);
+  }
+
+
+  bool get isFormValid {
+    return emailController.text.trim().isNotEmpty;
+  }
+
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
+      // backgroundColor: ColorCode.white,
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -31,7 +195,7 @@ bool isLoggingIn = false;
                   height: MediaQuery
                       .of(context)
                       .size
-                      .height * 0.28,
+                      .height * 0.32,
                   child: Stack(
                     children: [
 
@@ -43,30 +207,27 @@ bool isLoggingIn = false;
                         ),
                       ),
 
+                      /// 🌫️ DARK OVERLAY
+                      /*    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withOpacity(0.55),
+                      ),
+                    )*/
+
+                      /// 🔙 BACK BUTTON
+
                       /// 🔙 BACK BUTTON
                       Positioned(
-                        top: 50,
+                        top: 50, // 🔥 yaha value adjust kar sakte ho (30–50)
                         left: 16,
-                        right: 16,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-
-                            /// 🔙 BACK BUTTON
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Image.asset(
-                                "assets/icons/Reply.png",
-                                height: 24,
-                                color: Colors.white,
-                              ),
-                            ),
-
-                            /// 📄 STEP COUNT
-
-                          ],
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.pop(context); // 🔥 screen pop karega
+                          },
+                          child: SvgPicture.asset(
+                            "assets/svg/back.svg",
+                            height: 24,
+                          ),
                         ),
                       ),
 
@@ -75,51 +236,50 @@ bool isLoggingIn = false;
                         alignment: Alignment.center,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
+                          children:  [
 
                             Text(
-                              "Forgot Password",
-                              style: TextStyle(
-                                fontFamily: "Unbounded",
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: ColorCode.white,
-                              ),
-                            ),
-
-                            SizedBox(height: 10),
-
-                            Text(
-                              "Enter your registered email to receive a reset link.\n We’ll help you get back into your account quickly.",
-
+                              'Forgot Password',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontFamily: "Outfit",
-                                fontSize: 14,
-                                color: ColorCode.kWhiteOpacity70,
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontFamily: 'Unbounded',
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                            SizedBox(height: 10),
 
+                            SizedBox(height: 8),
+
+                            Text(
+                              'Enter your registered email to receive a reset link.\nWe’ll help you get back into your account quickly.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.60),
+                                fontSize: 14,
+                                fontFamily: 'Outfit',
+                                fontWeight: FontWeight.w400,
+                                height: 1.29,
+                              ),
+                            )
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
 
                 /// 📦 FORM CONTAINER (NICHE)
                 Transform.translate(
-                  offset: const Offset(0, -40),
+                  offset: const Offset(0, -70),
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
 
-                      /// 🧱 MAIN FORM CONTAINER
+
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(20, 36, 20, 20),
+                        padding: const EdgeInsets.fromLTRB(20, 13,20, 20),
                         // 👈 top extra
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
@@ -136,52 +296,47 @@ bool isLoggingIn = false;
                             const SizedBox(height: 12),
 
 
-                            CustomTextField(
-                              label: "Email ID*",
+                            CustomInputField(
+                              title: "Email ID*",
                               controller: emailController,
                               keyboardType: TextInputType.emailAddress,
+                              autofillHints: const [AutofillHints.email],
+                              onChanged: (value) {
+                                setState(() {});
+                              },
                             ),
 
-                            const SizedBox(height: 20),
-
-
-
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 23),
                             SizedBox(
                               width: double.infinity,
                               height: 50,
                               child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => OtpScreen(),
-                                    ),
-                                  );
+                                // onPressed: isLoading ? null : _fetchForgotPassword,
+
+                                onPressed: (!isFormValid || isLoading)
+                                    ? null
+                                    : () {
+
+                                  _fetchForgotPassword();
                                 },
 
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: ColorCode.kGoldGradientLight,
+                                  backgroundColor: isFormValid
+                                      ? ColorCode.kButtonColor
+                                      : ColorCode.kGoldGradientLight,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
-                                child: isLoggingIn
-                                    ? const SizedBox(
-                                  height: 22,
-                                  width: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.black,
-                                  ),
-                                )
-                                    : const Text(
+                                child:  Text(
                                   "Send OTP",
                                   style: TextStyle(
                                     fontFamily: "Unbounded",
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: ColorCode.kHeadingColor,
+                                    color: isFormValid
+                                        ? ColorCode.kHeadingColor
+                                        : ColorCode.k282828,
                                   ),
                                 ),
                               ),
@@ -191,57 +346,59 @@ bool isLoggingIn = false;
                           ],
                         ),
                       ),
+
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                /// 🏷️ FLOATING CHIP (BORDER PE STUCK)
 
 
+                const SizedBox(height: 30),
               ],
             ),
           ),
 
         ],
+
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        decoration: const BoxDecoration(
-          color: ColorCode.bcakgroundcolor,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Don’t have an account? ",
-              style: TextStyle(
-                color: ColorCode.kWhiteOpacity60,
-                fontSize: 14,
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => Login(),
-                  ),
-                );
-              },
-              child: const Text(
-                "Sign Up",
+
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "I Remember my Password. ",
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  decoration: TextDecoration.underline,
+                  color: ColorCode.kWhiteOpacity60,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-            ),
-          ],
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const Login(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "Login",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
 }

@@ -62,7 +62,7 @@ import 'config.dart';
         final prefs = await SharedPreferences.getInstance();
 
         final data = response['data'] ?? {};
-        final userData = data['userData'] ?? {};
+        final userData = data['user'] ?? {};
 
         // Extract values safely
         final String token = data['token'] ?? '';

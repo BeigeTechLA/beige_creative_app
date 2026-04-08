@@ -1,6 +1,10 @@
+import 'package:beige_creative_app/Home/home_screen.dart';
+import 'package:beige_creative_app/Shoots/shoot_cancelled_lotties_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../MainScreen.dart';
 import '../OnbodingScreen/onboding_screen.dart';
 import '../utility/ColorCode.dart';
 
@@ -22,13 +26,32 @@ class _SplashScreenState extends State<SplashScreen>
     _controller = AnimationController(vsync: this);
   }
 
-  void _goToNextScreen() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => OnboardingScreen(),
-      ),
-    );
+  void _goToNextScreen()async {
+
+    final prefs=await SharedPreferences.getInstance();
+
+    final isloggin= prefs.getBool('isLoggedIn')?? false;
+
+    if(isloggin){
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => Mainscreen(),
+        ),
+      );
+    }else{
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OnboardingScreen(),
+        ),
+      );
+    }
+
+
+
+
   }
 
   @override

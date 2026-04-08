@@ -51,9 +51,9 @@ class MyApp extends StatelessWidget {
       //     ?  Mainscreen()
       //     :  SplashScreen(),
 
-          home: isLoggedIn
-          ?  SplashScreen()
-          :  SplashScreen(),
+          home:
+            SplashScreen(),
+
     );
   }
 }

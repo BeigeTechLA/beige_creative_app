@@ -1,255 +1,428 @@
+import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../Profile/myprofile_youre_all_set_screen.dart';
+import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
-import '../../widgets/custom_text_field.dart';
-import '../you’re_all_set.dart';
-import 'new_password_controller.dart';
+import '../../widgets/Topmessgae.dart';
+import '../../widgets/new_Textfield.dart';
 
 class NewPasswordScreen extends StatefulWidget {
-  const NewPasswordScreen({super.key});
+  final String email;
+  final String otp;
+  const NewPasswordScreen({super.key, required this.email, required this.otp,});
 
   @override
   State<NewPasswordScreen> createState() => _NewPasswordScreenState();
 }
 
 class _NewPasswordScreenState extends State<NewPasswordScreen> {
+  bool showNewPassword = false;
+  bool showConfirmPassword = false;
+  bool isLoading = false;
+  final TextEditingController newPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
 
-  final NewPasswordController newController = NewPasswordController();
+  bool isPasswordFilled = false;
+  void _checkPassword() { setState(() { isPasswordFilled = newPasswordController.text.isNotEmpty && confirmPasswordController.text.isNotEmpty; }); }
+
+  Future<void> _newpasswrod() async {
+    print("📢 Reset Password Clicked");
+    print("📧 Email => ${widget.email}");
+
+    if (newPasswordController.text.trim().isEmpty ||
+        confirmPasswordController.text.trim().isEmpty) {
+      _showSnack("Please enter password");
+      return;
+    }
+
+    if (newPasswordController.text.trim().length < 6) {
+      _showSnack("Password must be at least 6 characters");
+      return;
+    }
+
+    if (newPasswordController.text.trim() !=
+        confirmPasswordController.text.trim()) {
+      _showSnack("Passwords do not match");
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final apiService = ApiService();
+
+      print("🚀 RESET PASSWORD API CALL START");
+      print("📡 Endpoint => ${ApiEndpoints.restartpassword}");
+
+      final response = await apiService.postData(
+        ApiEndpoints.restartpassword,
+        {
+          "otp": widget.otp, // 🔥 replace with actual OTP if needed
+          "email": widget.email,
+          "new_password": newPasswordController.text.trim(),
+          "confirm_password": confirmPasswordController.text.trim(),
+        },
+      );
+
+      print("📩 API RESPONSE => $response");
+
+      if (response == null) {
+        _showSnack("Server error");
+        return;
+      }
+
+      if (response['error'] == false) {
+        print("✅ Password Reset Success");
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const MyprofileYoureAllSetScreen(),
+          ),
+        );
+      } else {
+        print("❌ Reset Failed => ${response['message']}");
+        _showSnack(response['message'] ?? "Failed to reset password");
+      }
+    } catch (e) {
+      print("🔥 Exception => $e");
+      _showSnack("Something went wrong");
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+      print("🛑 RESET PASSWORD API CALL END");
+    }
+  }
+
+
+  void _showSnack(String message) {
+    TopMessage.show(context, message);
+
+  }
+
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
+      // backgroundColor: ColorCode.white,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
 
-                /// 🔝 TOP IMAGE + TITLE SECTION
-                SizedBox(
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.28,
-                  child: Stack(
-                    children: [
-
-                      /// 🖼️ BACKGROUND IMAGE
-                      Positioned.fill(
-                        child: Image.asset(
-                          "assets/images/Rectangle_574057023.png",
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-
-                      /// 🔙 BACK BUTTON
-                      Positioned(
-                        top: 50,
-                        left: 16,
-                        right: 16,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-
-                            /// 🔙 BACK BUTTON
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Image.asset(
-                                "assets/icons/Reply.png",
-                                height: 24,
-                                color: Colors.white,
-                              ),
-                            ),
-
-                            /// 📄 STEP COUNT
-
-                          ],
-                        ),
-                      ),
-
-                      /// 🏷️ TITLE + SUBTITLE (CENTER)
-                      Align(
-                        alignment: Alignment.center,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-
-                            Text(
-                              "Secure your Account",
-                              style: TextStyle(
-                                fontFamily: "Unbounded",
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: ColorCode.white,
-                              ),
-                            ),
-
-                            SizedBox(height: 10),
-
-                            Text(
-                              "You're almost done! Set a new password\n to secure your account.",
-
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: "Outfit",
-                                fontSize: 14,
-                                color: ColorCode.kWhiteOpacity70,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-
-                          ],
-                        ),
-                      ),
-                    ],
+            /// 🔝 TOP IMAGE + TITLE SECTION
+            SizedBox(
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.32,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Image.asset(
+                      "assets/images/Rectangle_574057023.png",
+                      fit: BoxFit.fill,
+                    ),
                   ),
-                ),
-                SizedBox(height: 10),
+                  /// 🖼️ BACKGROUND IMAGE
 
-                /// 📦 FORM CONTAINER (NICHE)
-                Transform.translate(
-                  offset: const Offset(0, -40),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
 
-                      /// 🧱 MAIN FORM CONTAINER
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(20, 36, 20, 20),
-                        // 👈 top extra
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: ColorCode.bcakgroundcolor,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.06),
-                            width: 1,
+                  /// 🌫️ DARK OVERLAY
+                  /*    Positioned.fill(
+                    child: Container(
+                      color: Colors.black.withOpacity(0.55),
+                    ),
+                  )*/
+
+                  /// 🔙 BACK BUTTON
+                  Positioned(
+                    top: 50, // 🔥 yaha value adjust kar sakte ho (30–50)
+                    left: 16,
+                    child: InkWell(//
+                      onTap: () {
+                        Navigator.pop(context); // 🔥 screen pop karega
+                      },
+                      child: SvgPicture.asset(
+                        "assets/svg/back.svg",
+                        height: 24,
+                        color: Colors.white, // agar white chahiye ho
+                      ),
+                    ),
+                  ),
+
+
+                  /// 🏷️ TITLE + SUBTITLE (CENTER)
+                  Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children:  [
+
+                        Text(
+                          'Secure your Account',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontFamily: 'Unbounded',
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        child: Column(
-                          children: [
 
-                            const SizedBox(height: 12),
+                        SizedBox(height: 8),
+
+                        Text(
+                          'You\'re almost done! Set a new password\nto secure your account.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.60),
+                            fontSize: 14,
+                            fontFamily: 'Outfit',
+                            fontWeight: FontWeight.w400,
+                            height: 1.29,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            /// 📦 FORM CONTAINER (NICHE)
+            Transform.translate(
+              offset: const Offset(0, -70),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
 
 
-                            CustomTextField(
-                              label: "New Password*",
-                              controller: newController.passwordController,
-                              isPassword: true,
-                              isVisible: newController.isPasswordVisible,
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    newController.isPasswordVisible = !newController.isPasswordVisible;
-                                  });
-                                },
-                                icon: SvgPicture.asset(
-                                  newController.isPasswordVisible
-                                      ? "assets/svg/eyes1.svg"
-                                      : "assets/svg/eyes2.svg",
-                                  height: 24,
-                                  width: 24,
-                                ),
-                              ),
-                              onToggle: () {
-                                setState(() {
-                                  newController.isPasswordVisible = !newController.isPasswordVisible;
-                                });
-                              },
-                            ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(20, 25 , 20, 20),
+                    // 👈 top extra
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: ColorCode.bcakgroundcolor,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.10),
+                        width: 0.50,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
 
-                            const SizedBox(height: 20),
+                        //   const SizedBox(height: 12),
 
-                            CustomTextField(
-                              label: "Confirm Password*",
-                              controller: newController.confirmPasswordController,
-                              isPassword: true,
-                              isVisible: newController.isConfirmPasswordVisible,
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    newController.isConfirmPasswordVisible = !newController.isConfirmPasswordVisible;
-                                  });
-                                },
-                                icon: SvgPicture.asset(
-                                  newController.isConfirmPasswordVisible
-                                      ? "assets/svg/eyes1.svg"
-                                      : "assets/svg/eyes2.svg",
-                                  height: 24,
-                                  width: 24,
-                                ),
-                              ),
-                              onToggle: () {
-                                setState(() {
-                                  newController.isConfirmPasswordVisible = !newController.isConfirmPasswordVisible;
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => youreall_set(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: ColorCode.kGoldGradientLight,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                ),
-                                child:  newController.isLoading
-                                    ? const SizedBox(
-                                  height: 22,
-                                  width: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.black,
-                                  ),
-                                )
-                                    : const Text(
-                                  "Save New Password",
-                                  style: TextStyle(
-                                    fontFamily: "Unbounded",
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: ColorCode.kHeadingColor,
-                                  ),
-                                ),
+
+                        /*  _buildField(
+                          "New Password*",
+                          newPasswordController,
+                          true,
+                          showNewPassword,
+                              () {
+                            setState(() {
+                              showNewPassword = !showNewPassword;
+                            });
+                          },
+                        ),
+
+                        _buildField(
+                          "Confirm Password*",
+                          confirmPasswordController,
+                          true,
+                          showConfirmPassword,
+                              () {
+                            setState(() {
+                              showConfirmPassword = !showConfirmPassword;
+                            });
+                          },
+                        ),*/
+
+                        CustomInputField(
+                          title: "New Password*",
+                          controller: newPasswordController,
+                          isPassword: true,
+                          isVisible: showNewPassword,
+                          onChanged: (value) {
+                            _checkPassword();
+                          },
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                showNewPassword = !showNewPassword;
+                              });
+                            },
+                            icon: SvgPicture.asset(
+                              showNewPassword
+                                  ? "assets/svg/eyes1.svg"
+                                  : "assets/svg/eyes2.svg",
+                              height: 22,
+                              colorFilter: const ColorFilter.mode(
+                                Colors.white,
+                                BlendMode.srcIn,
                               ),
                             ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 25),
+
+                        CustomInputField(
+                          title: "Confirm Password*",
+                          controller: confirmPasswordController,
+                          isPassword: true,
+                          isVisible: showConfirmPassword,
+                          onChanged: (value) {
+                            _checkPassword();
+                          },
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                showConfirmPassword = !showConfirmPassword;
+                              });
+                            },
+                            icon: SvgPicture.asset(
+                              showConfirmPassword
+                                  ? "assets/svg/eyes1.svg"
+                                  : "assets/svg/eyes2.svg",
+                              height: 22,
+                              colorFilter: const ColorFilter.mode(
+                                Colors.white,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                        ),
 
 
+
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: isPasswordFilled && !isLoading ? _newpasswrod : null,
+
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isPasswordFilled
+                                  ? ColorCode.kButtonColor
+                                  : ColorCode.kGoldGradientLight,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            child:  Text(
+                              "Save New Password",
+                              style: TextStyle(
+                                fontFamily: "Unbounded",
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: isPasswordFilled
+                                    ? ColorCode.kHeadingColor
+                                    : ColorCode.k282828,
+                              ),
+                            ),
+                          ),
+                        ),
+
+
+                      ],
+                    ),
+                  ),
+
+                  /// 🏷️ FLOATING CHIP (BORDER PE STUCK)
+                  /*          Positioned(
+                    top: -24,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: ColorCode.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.12),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.35),
+                              blurRadius: 16,
+                              offset: const Offset(0, 8),
+                            ),
                           ],
                         ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              height: 44,
+                              width: 44,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                      "assets/images/chooese_your_role2.png"),
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Text(
+                                  "Name : John Smith",
+                                  style: TextStyle(
+                                    fontFamily: "Outfit",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  "Email ID: johnsmith4545@gmail.com",
+                                  style: TextStyle(
+                                    fontFamily: "Outfit",
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+
+
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                /// 🏷️ FLOATING CHIP (BORDER PE STUCK)
-
-
-              ],
+                    ),
+                  ),*/
+                ],
+              ),
             ),
-          ),
 
 
-        ],
+            const SizedBox(height: 30),
+          ],
+        ),
       ),
+
+
     );
   }
-}
+
+
+}//

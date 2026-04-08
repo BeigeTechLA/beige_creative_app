@@ -1,9 +1,12 @@
 import 'package:beige_creative_app/ManageAvailability/AddAvailability/add_availability_screen.dart';
+import 'package:beige_creative_app/service/api_endpoints.dart';
+import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../Model_Class/Dashboardcountmodel.dart';
 import '../Profile/MyProfile/MyProfile.dart' show Myprofile;
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../utility/ColorCode.dart';
@@ -17,6 +20,31 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin{
+  int completedshoots=0;
+  int upcomingshoots=0;
+  int pendingrequests=0;
+
+  Future<void>fetchdashboardcount()async{
+try{
+  final response= Dashboardcountmodel.fromJson(await ApiService().fetchData(ApiEndpoints.dashboardcount));
+ if(response.error==false){
+
+   debugPrint('Response is::::::::::::::::: $response');
+
+   setState(() {
+     completedshoots=response.data.completedShoots;
+     upcomingshoots=response.data.upcomingShoots;
+     pendingrequests=response.data.pendingRequests;
+   });
+ }
+
+}catch(e){
+  debugPrint("error is::::$e");
+}
+
+  }
+
+
 
 
 
@@ -52,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
+    fetchdashboardcount();
     _controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
@@ -189,7 +218,7 @@ int selectedDashboardIndex = 0;
                 ),
               ),
             ),
-            
+
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -219,7 +248,7 @@ int selectedDashboardIndex = 0;
                         _dashboardCard(
                           index: 0,
                           title: "Completed Shoots",
-                          count: "24",
+                          count: completedshoots,
                           percent: "+3% from last month",
                           percentColor: Colors.green,
                           icon: Icons.videocam,
@@ -230,7 +259,7 @@ int selectedDashboardIndex = 0;
                         _dashboardCard(
                           index: 1,
                           title: "Upcoming Shoots",
-                          count: "08",
+                          count: upcomingshoots,
                           percent: "+3% from last month",
                           percentColor: Colors.green,
                           icon: Icons.calendar_month,
@@ -241,7 +270,7 @@ int selectedDashboardIndex = 0;
                         _dashboardCard(
                           index: 2,
                           title: "Pending Requests",
-                          count: "05",
+                          count: pendingrequests,
                           percent: "-2% from last month",
                           percentColor: Colors.red,
                           icon: Icons.hourglass_bottom,
@@ -2095,7 +2124,7 @@ int selectedDashboardIndex = 0;
   Widget _dashboardCard({
     required int index,
     required String title,
-    required String count,
+    required int count,
     required String percent,
     required Color percentColor,
     required IconData icon,
@@ -2136,7 +2165,7 @@ int selectedDashboardIndex = 0;
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  count,
+                  count.toString(),
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,

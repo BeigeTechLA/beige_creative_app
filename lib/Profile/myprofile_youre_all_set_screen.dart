@@ -1,3 +1,4 @@
+import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
@@ -21,7 +22,7 @@ class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen>
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => Myprofile()),
+          MaterialPageRoute(builder: (_) => Login()),
               (route) => false,
         );
       }

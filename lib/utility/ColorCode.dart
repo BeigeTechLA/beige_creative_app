@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ColorCode {
+  static const Color kWhiteOpacity70 = Color(0x4DFFFFFF);  /// ⭐ Gold Gradient Colors (From Design)
+  static const Color bcakgroundcolor = Color(0xFF1D1D1B);
+  static const Color kGoldBorder50 = Color(0x80E8D1AB);//#E8D1AB
+  static const Color kWhiteOpacity30 = Color(0x4DFFFFFF); // 30% white
 
   static const Color kButtonColor = Color(0xFFE8D1AB);
   static const Color kHeadingColor = Color(0xFF1D1D1B); // (dark)
@@ -14,7 +18,6 @@ class ColorCode {
   static const Color k282828 = Color(0xFF282828);
   static const Color kWhiteOpacity60 = Color(0x99FFFFFF); // #FFFFFF99 → 60% opacity
   static const Color k2A2A2A = Color(0xFF2A2A2A);
-  static const Color bcakgroundcolor = Color(0xFF1D1D1B);
   /// ⭐ Divider / Border Color (White 12% opacity)
     static const Color kDividerWhite12 = Color(0x1FFFFFFF);
 
@@ -35,7 +38,6 @@ class ColorCode {
   static const Color kBlackOpacity12 = Color(0x1F000000);
 
   /// ⭐ NEW COLOR ADDED (#FFFFFFB2 → 70% white)
-  static const Color kWhiteOpacity70 = Color(0xB2FFFFFF);
   /// ⭐ Gold Gradient Colors (From Design)
   static const Color kGoldGradientLight = Color(0xFFE8D1AB); // #E8D1AB
   static const Color kGoldGradientDark  = Color(0xFFD4A14D); // #D4A14D
