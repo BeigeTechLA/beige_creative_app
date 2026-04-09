@@ -1,4 +1,7 @@
+import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import '../../utility/ColorCode.dart';
 import '../../widgets/CustomDropdown.dart';
 import '../../widgets/Custom_dropdown_field.dart';
@@ -15,11 +18,12 @@ class AddAvailabilityScreen extends StatefulWidget {
 }
 
 class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
+  String repeatText = "";
   String ?selectedType;
   String ?selectedRecurrence;
 
-  final List abc=["Available", "Time Off", "Blocked"];
-  final List recurence=["Daily", "Weekly", "Monthly", "None"];
+  final List abc=["Available", "Not Available"];
+  final List recurence=["Daily", "Weekly", "Monthly", "Does Not Repeat"];
 
   bool repeatEveryDay = true;
   bool includeWeekends = false;
@@ -42,22 +46,27 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+     // backgroundColor: Colors.black,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18),
           child: Column(
             children: [
 
+              SizedBox(height: 20,),
+
               /// 🔙 Back + Title
               Row(
                 children: [
                   InkWell(
                     onTap: () => Navigator.pop(context),
-                    child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.white,),
+                 //   child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.white,),
+                    child: SvgPicture.asset(AppImages.back),
                   ),
                 ],
               ),
+              SizedBox(height: 10,),
+
 
               const Align(
                 alignment: Alignment.centerLeft,
@@ -74,12 +83,13 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 
               const SizedBox(height: 6),
 
-              const Align(
+               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Set your availability, time off, or block time for shoots.",
+
                   style: TextStyle(
-                    color: ColorCode.kWhiteOpacity70,
+                    color: ColorCode.white.withOpacity(0.6),
                     fontSize: 14,
                     fontFamily: "Outfit",
                     fontWeight: FontWeight.w400,
@@ -97,7 +107,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       /// Select Type
                       CustomDropdown(
 
-                        label: "Type",
+                        label: "Select Type*",
                         value: selectedType,
                         items:abc.map((e) => DropdownMenuItem(
                             value: e,
@@ -117,9 +127,13 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       CustomTextField(
                         label: "Add Date",
                         controller: controller.dateController,
-                        suffixIcon: const Icon(
-                          Icons.calendar_today_outlined,
-                          color: Colors.white70,
+                        // suffixIcon: const Icon(
+                        //   Icons.calendar_today_outlined,
+                        //   color: Colors.white70,
+                        // ),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: SvgPicture.asset('assets/svg/mycalender.svg',width: 13,height: 13,),
                         ),
                         readOnly: true,
                         onTap: () async {
@@ -274,10 +288,11 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                         const SizedBox(height: 12),
 
                         Row(
-                          children: const [
-                            Icon(Icons.repeat, color: Colors.orange, size: 16),
-                            SizedBox(width: 6),
-                            Text(
+                          children: [
+                           // Icon(Icons.repeat, color: Colors.orange, size: 16),
+                            SvgPicture.asset('assets/svg/Info.svg',color: Color(0xffFF9D25),),
+                            const SizedBox(width: 6),
+                            const Text(
                               "Repeat every day",
                               style: TextStyle(color: Colors.orange),
                             ),
@@ -289,6 +304,15 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                         Row(
                           children: [
                             Checkbox(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(5),
+                              ),
+
+                              side: BorderSide(
+                                color: Colors.white.withOpacity(0.6),
+                                width: 0.5,
+                              ),
+
                               value: includeWeekends,
                               activeColor: const Color(0xFFD6C19A),
                               onChanged: (val) {
@@ -307,6 +331,10 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                         const SizedBox(height: 12),
 
                         CustomTextField(
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: SvgPicture.asset('assets/svg/mycalender.svg',width: 13,height: 13,),
+                          ),
                           label: "Until Date",
                           controller:controller.untilDateController,
                           readOnly: true,
@@ -322,6 +350,9 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                               setState(() {
                                 controller.untilDateController.text =
                                 "${picked.day}/${picked.month}/${picked.year}";
+
+                                repeatText =
+                                "Will repeat every day until ${DateFormat("MMM dd, yyyy").format(picked)}.";
                               });
                             }
                           },
@@ -430,6 +461,18 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                           },
                         ),
                         const SizedBox(height: 12),
+                        if (repeatText.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              repeatText,
+                              style: TextStyle(
+
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
                       ],
                       /// Notes
                       CustomTextField(

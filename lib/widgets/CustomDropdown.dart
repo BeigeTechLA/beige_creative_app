@@ -30,13 +30,17 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
     return DropdownButtonFormField<T>(
       value: widget.value,
       dropdownColor: const Color(0xFF1C1C1C),
-      icon: widget.icon ??
-          Icon(
-            Icons.keyboard_arrow_down,
-            color: highlight
-                ? ColorCode.kButtonColor
-                : ColorCode.kWhiteOpacity70,
-          ),
+      icon: Padding(
+        padding: const EdgeInsets.only(right: 9),
+        child: widget.icon ??
+            Icon(
+              size: 29,
+              Icons.keyboard_arrow_down,
+              color: highlight
+                  ? ColorCode.kButtonColor
+                  : ColorCode.kWhiteOpacity70,
+            ),
+      ),
       style: const TextStyle(
         color: ColorCode.white,
         fontFamily: "Outfit",

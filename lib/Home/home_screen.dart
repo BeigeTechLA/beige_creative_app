@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:beige_creative_app/ManageAvailability/AddAvailability/add_availability_screen.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
@@ -5,8 +7,12 @@ import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../Model_Class/Creatordashboarddetailsmodel.dart';
 import '../Model_Class/Dashboardcountmodel.dart';
+import '../Model_Class/Shootstatusmodel.dart';
+import '../Model_Class/Upcomingshootsmodel.dart';
 import '../Profile/MyProfile/MyProfile.dart' show Myprofile;
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../utility/ColorCode.dart';
@@ -20,9 +26,155 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin{
+
+
+  int sucessfullshoots=0;
+  int pendingshoots=0;
+  int rejectedshoots=0;
+  int shootrequest=0;
+
+
+  Future<void>fetchmyshootstatus()async{
+    try{
+      final response=Shootstatusmodel.fromJson(await ApiService().fetchData(ApiEndpoints.shootstatus));
+      if(response.error==false){
+
+
+        debugPrint("my shoot categories is 👉 ⚠️ ${response.message}");
+        setState(() {
+          sucessfullshoots=response.data.completedShoots;
+          pendingshoots=response.data.pendingShoots;
+          rejectedshoots=response.data.rejectedShoots;
+          shootrequest=response.data.shootRequests;
+        });
+      }else{
+        debugPrint("API Error::: ${response.message}");
+      }
+
+
+    }catch(e){
+      debugPrint("Error is:::::$e");
+    }
+
+
+  }
+
+
+
+
+
+  final prefs=SharedPreferences.getInstance();
+String? name;
+
+Future<void>_loadname()async{
+  final prefs= await SharedPreferences.getInstance();
+  name=prefs.getString('name');
+
+}
+
+  Map<DateTime,String>events = {
+
+  };
+
+
+
   int completedshoots=0;
   int upcomingshoots=0;
   int pendingrequests=0;
+
+
+
+  void prepareAvailabilityEvents(Map<String, dynamic> availability) {
+    events.clear();
+
+    availability.forEach((dateString, value) {
+      final date = DateTime.parse(dateString);
+
+      final cleanDate = DateTime(date.year, date.month, date.day);
+
+      final isAvailable = value["available"] == true;
+      final isAssigned = value["projectAssigned"] == true;
+
+      if (isAssigned) {
+        events[cleanDate] = "Shoot";
+      } else if (isAvailable) {
+        events[cleanDate] = "Available";
+      }
+    });
+  }
+  Future<void> fetchavailability() async {
+    try {
+      final response = await ApiService().postData(
+        ApiEndpoints.createavailability,
+        {
+          "month": _focusedDay.month,
+          "year": _focusedDay.year
+        },
+      );
+
+      if (response["error"] == false) {
+
+        final availability = response["data"]["availability"];
+
+        prepareAvailabilityEvents(availability); // 👈 MAIN LINE
+
+        setState(() {}); // 👈 UI update
+      }
+
+    } catch (e) {
+      debugPrint("Error is: $e");
+    }
+  }
+
+
+  Future<void>fetchshootcategories()async{
+
+  }
+
+
+  List<PendingRequestCard> creatordashboarddetaillist=[];
+  Future<void>fetchcreatordashboarddetails()async{
+    try{
+      final response=Creatordashboarddetailsmodel.fromJson(await ApiService().fetchData(ApiEndpoints.creatordashboarddetails));
+      if(response.error==false){
+        setState(() {
+          creatordashboarddetaillist=response.data.pendingRequestCards;
+        });
+      }else{
+        debugPrint("API Error::: ${response.message}");
+      }
+      
+
+    }catch(e){
+      debugPrint("Error is:::::$e");
+    }
+
+
+  }
+
+
+
+
+  List<upcomingdatum> upcomingshootslist=[];
+ Future<void>fetchupcomingshoots()async{
+   
+   try{
+     final response= Upcomingshootsmodel.fromJson(await ApiService().fetchData(ApiEndpoints.upcomingshoots));
+
+     if(response.error==false){
+       setState(() {
+         upcomingshootslist=response.data;
+       });
+
+     }
+     
+   }catch(e){
+     debugPrint("Error is:::::$e");
+   }
+   
+ }
+ 
+  
 
   Future<void>fetchdashboardcount()async{
 try{
@@ -80,7 +232,12 @@ try{
   @override
   void initState() {
     super.initState();
+    fetchmyshootstatus();
+    _loadname();
+    fetchavailability();
+    fetchcreatordashboarddetails();
     fetchdashboardcount();
+    fetchupcomingshoots();
     _controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
@@ -170,10 +327,10 @@ int selectedDashboardIndex = 0;
                           const SizedBox(width: 12),
 
                           /// LOCATION
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              "Welcome Back, Priya",
-                              style: TextStyle(
+                              "Welcome Back, ${name?.split(' ').first}",
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white,
@@ -239,6 +396,10 @@ int selectedDashboardIndex = 0;
                   Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
+                      border: Border.all(
+                        color:Color(0xff014FFFFFF),
+                        width: 0.5,
+                      ),
                       color: ColorCode.k282828,
                       borderRadius: BorderRadius.circular(22),
                     ),
@@ -798,8 +959,11 @@ int selectedDashboardIndex = 0;
 
                     decoration: BoxDecoration(
                       color: ColorCode.k282828,
+
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white12),
+                      border: Border.all(
+                          width: 0.5  ,
+                          color: Color(0xff626262)),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20),
@@ -818,8 +982,10 @@ int selectedDashboardIndex = 0;
                                     icon: const Icon(Icons.chevron_left, color: Colors.white),
                                     onPressed: () {
                                       setState(() {
+
                                         _focusedDay =
                                             DateTime(_focusedDay.year, _focusedDay.month - 1);
+
                                       });
                                     },
                                   ),
@@ -883,6 +1049,56 @@ int selectedDashboardIndex = 0;
 
                           /// CALENDAR
                           TableCalendar(
+                            daysOfWeekHeight: 70,
+                            calendarBuilders: CalendarBuilders(
+                              dowBuilder: (context, day) {
+                                final text = DateFormat.E().format(day);
+
+                                return Container(
+                                  height: 45, // 👈 YE HEIGHT BADHAO (main fix)
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: ColorCode.kDividerWhite12,
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    text,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                );
+                              },
+
+                              defaultBuilder: (context, day, focusedDay) {
+                                final dateKey = DateTime(day.year, day.month, day.day);
+                                final event = events[dateKey];
+
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    /// 📅 DATE
+                                    Text(
+                                      "${day.day}",
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+
+                                    const SizedBox(height: 4),//
+
+                                    /// 🎯 EVENT LABEL
+                                         if (event != null)
+                                           eventLabel(event), // 👈 YAHI USE KARNA
+
+                                  ],
+                                );
+                              },
+                            ),
                             firstDay: DateTime(2020),
                             lastDay: DateTime(2050),
                             focusedDay: _focusedDay,
@@ -908,6 +1124,8 @@ int selectedDashboardIndex = 0;
                             onPageChanged: (focusedDay) {
                               setState(() {
                                 _focusedDay = focusedDay;
+                                fetchavailability(); // 👈 ADD THIS
+
                               });
                             },
                           ),
@@ -940,7 +1158,9 @@ int selectedDashboardIndex = 0;
 
                       /// + Add Button
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+
+                        },
                         child: const Icon(
                           Icons.arrow_forward_ios,
                           color: Colors.white70,
@@ -1445,10 +1665,10 @@ int selectedDashboardIndex = 0;
               const SizedBox(height: 35),
 
               /// STATUS ITEMS
-              _statusItem("987", "Successful Shoots", const Color(0xFFA678F1)),
-              _statusItem("1,674", "Pending Shoots", const Color(0xFF5CC4FF)),
-              _statusItem("1,073", "Rejected Shoots", const Color(0xFFFFC04F)),
-              _statusItem("921", "Shoot Requests", const Color(0xFF2DC497)),
+              _statusItem("${sucessfullshoots}", "Successful Shoots", const Color(0xFFA678F1)),
+              _statusItem("${pendingrequests}", "Pending Shoots", const Color(0xFF5CC4FF)),
+              _statusItem("${rejectedshoots}", "Rejected Shoots", const Color(0xFFFFC04F)),
+              _statusItem("${shootrequest}", "Shoot Requests", const Color(0xFF2DC497)),
             ],
           ),
         ),
@@ -1629,6 +1849,34 @@ int selectedDashboardIndex = 0;
         ),
         );
 
+  }
+  Widget eventLabel(String event) {
+    final isAvailable = event == "Available";
+
+    return Container(
+      width: double.infinity,
+   //   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      margin: EdgeInsetsGeometry.all(3),
+      padding:EdgeInsetsGeometry.all(3) ,
+      decoration: BoxDecoration(
+        color: isAvailable
+            ? const Color(0xFFD8FDE6) // green bg//
+            : const Color(0xFFE0E7F8), // blue bg
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Text(
+        textAlign: TextAlign.center,
+        event,
+        style: TextStyle(
+          color: isAvailable
+              ? const Color(0xFF1DAA23) // green text
+              : const Color(0xFF2D66D2), // blue text
+          fontSize: 7.79,
+          fontFamily: 'Outfit',
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    );
   }
 
   void _showFilterBottomSheet() {
