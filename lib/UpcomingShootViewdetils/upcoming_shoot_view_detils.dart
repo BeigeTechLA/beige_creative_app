@@ -1,15 +1,57 @@
+import 'package:beige_creative_app/service/api_endpoints.dart';
+import 'package:beige_creative_app/service/api_service.dart';
+import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../Model_Class/Upcomingshootviewmodel.dart';
 import '../utility/ColorCode.dart';
 
 class UpcomingShootViewDetils extends StatefulWidget {
-  const UpcomingShootViewDetils({super.key});
+  final int? projectid;
+  const UpcomingShootViewDetils({super.key,  this.projectid});
 
   @override
   State<UpcomingShootViewDetils> createState() => _UpcomingShootViewDetilsState();
 }
 
 class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
+  bool isloading=false;
+
+MyData? mydata;
+  Future<void>fetchupcomingshootview()async{
+    setState(() {
+      isloading=true;
+    });
+    final response= Upcomingshootviewmodel.fromJson(await ApiService().fetchData('creator/project-details/${widget.projectid}'));
+
+    if(response.error==false){
+
+
+      setState(() {
+        mydata=response.data;
+
+
+      });
+    }
+
+    
+    
+
+
+
+
+  }
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    fetchupcomingshootview();
+    debugPrint("🔥 Project ID received: ${widget.projectid}");
+
+  }
 
   String selectedReason = "";
   bool isOtherSelected = false;
@@ -31,7 +73,16 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                 Container(
                   height: 330,
                   width: double.infinity,
-                  decoration: const BoxDecoration(
+                  decoration:  BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                         Colors.red,
+                          Colors.black54,
+                        ],
+                      ),
+
                     image: DecorationImage(
                       image: AssetImage("assets/home/img.png"),
                       fit: BoxFit.cover,
@@ -40,19 +91,19 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                 ),
 
                 /// 🔥 DARK GRADIENT (Bottom Fade Effect)
-                /*        Container(
-                  height: 330,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.3),
-                        Colors.black.withOpacity(0.8),
-                      ],
+                  /*        Container(
+                    height: 330,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.3),
+                          Colors.black.withOpacity(0.8),
+                        ],
+                      ),
                     ),
-                  ),
-                ),*/
+                  ),*/
 
                 /// 🔥 TOP ICON ROW
                 Positioned(
@@ -66,7 +117,8 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                       /// 🔙 BACK BUTTON
                       InkWell(
                         onTap: () => Navigator.pop(context),
-                        child: Image.asset("assets/icons/Reply.png", height: 24,color: ColorCode.white,),
+                       // child: Image.asset("assets/icons/Reply.png", height: 24,color: ColorCode.white,),
+                        child: SvgPicture.asset(AppImages.back),
                       ),
 
                     ],
@@ -80,10 +132,10 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                   right: 16,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children:  [
                       Expanded(
                         child: Text(
-                          "Annual Tech Conference 2026",
+                          "${mydata?.clientContact.fullName}",
                           style: TextStyle(
                             fontFamily: "Unbounded",
                             color: ColorCode.white,
@@ -403,6 +455,10 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Divider(
+                  color: Colors.grey,
+                ),
+                SizedBox(height: 12,),
 
                 /// 🔹 TITLE
                 const Text(
