@@ -69,12 +69,15 @@ import 'config.dart';
         final int environmentId = userData['environment_id'] ?? -1;
         final String folder = userData['folder'] ?? '';
         final String name = userData['name'] ?? '';
+        final String email = userData['email'] ?? '';
+
         final String designation = userData['designation'] ?? '';
         final String department = userData['department'] ?? '';
         final String departmentId = userData['department_id'] ?? '';
 
         // Store in SharedPreferences
         await prefs.setString('token', token);
+        await prefs.setString('email', email);
         await prefs.setInt('environment_id', environmentId);
         await prefs.setString('folder', folder);
         await prefs.setString('name', name);

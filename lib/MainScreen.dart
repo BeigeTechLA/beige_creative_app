@@ -281,10 +281,13 @@
 // }
 
 
+import 'package:beige_creative_app/service/api_endpoints.dart';
+import 'package:beige_creative_app/service/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'Home/home_screen.dart';
+import 'Model_Class/myprofilemodel.dart';
 import 'Profile/MyProfile/MyProfile.dart';
 import 'Shoots/shoots_screen.dart';
 import 'FileManager/file_manager_screen.dart';
@@ -300,6 +303,42 @@ class Mainscreen extends StatefulWidget {
 }
 
 class _MainscreenState extends State<Mainscreen> {
+  @override
+  void initState() {
+    super.initState();
+    fetchdrawerprofile();
+  }
+
+
+
+  User? user;
+  Future<void>fetchdrawerprofile()async{
+
+
+
+
+    try{
+      final response=Myprofilemodel.fromJson(await ApiService().fetchData(ApiEndpoints.profiledetails));
+
+      debugPrint('API Response is :$response');
+
+      if(response.error==false){
+        setState(() {
+          user=response.data.user;
+        });
+      }else{
+
+        debugPrint('error is:${response.message}');
+      }
+
+
+    }catch(e){
+      debugPrint("Error is::$e");
+    }finally{
+
+    }
+  }
+
   int _selectedIndex = 0;
 
   /// 🔥 Bottom Navigation Pages
@@ -440,28 +479,28 @@ class _MainscreenState extends State<Mainscreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
-                        children: const [
-                          CircleAvatar(
+                        children: [
+                          const CircleAvatar(
                             radius: 25,
                             backgroundImage: AssetImage("assets/home/Vector.png"),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Priya Smith",
-                                  style: TextStyle(
+                                  "${user?.name}",
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                     fontFamily: "Outfit",
                                     color: ColorCode.black,
                                   ),
                                 ),
-                                SizedBox(height: 4),
-                                Text(
-                                  "priyasmith@gmail.com",
+                                const SizedBox(height: 4),
+                                 Text(
+                                  "${user?.email}",
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontFamily: "Outfit",
@@ -472,7 +511,7 @@ class _MainscreenState extends State<Mainscreen> {
                               ],
                             ),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward_ios,
                             size: 16,
                             color: ColorCode.black,
@@ -579,6 +618,7 @@ class _MainscreenState extends State<Mainscreen> {
       },
     );
   }
+
 
   /// 🔥 Drawer Push Screen
   Widget _drawerPushItem(String title, IconData icon, Widget screen) {

@@ -16,6 +16,9 @@ class ApiEndpoints {
   static const String createavailability = "creator/availability";
   static const String shootstatus= "creator/get-crew-stats";
   static const String add_availability= "/creator/add-availability";
+  static const String profiledetails= "auth/profile";
+
+
 
 
 

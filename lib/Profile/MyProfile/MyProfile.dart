@@ -1,7 +1,11 @@
+import 'package:beige_creative_app/Model_Class/myprofilemodel.dart';
 import 'package:beige_creative_app/auth/login/login.dart';
+import 'package:beige_creative_app/service/api_endpoints.dart';
+import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../auth/ProfileDetailsScreen .dart';
 import '../../service/shared_service.dart';
@@ -21,6 +25,65 @@ class Myprofile extends StatefulWidget {
 }
 
 class _MyprofileState extends State<Myprofile> {
+  List<Widget> _buildSkillChips(List<String> skills) {
+    List<Widget> chips = [];
+
+    // 👉 First 2 skills show
+    for (int i = 0; i < skills.length && i < 2; i++) {
+      chips.add(_skillChip("Skill ${i + 1}"));
+    }
+
+    // 👉 Remaining count
+    if (skills.length > 2) {
+      int remaining = skills.length - 2;
+
+      chips.add(_skillChip("+$remaining"));
+    }
+
+    return chips;
+  }
+  bool isloading=false;
+  
+User? user;
+Future<void>fetchprofiledata()async{
+    setState(() {
+      isloading=true;
+    });
+    
+    try{
+      final response=Myprofilemodel.fromJson(await ApiService().fetchData(ApiEndpoints.profiledetails));
+
+      debugPrint('API Response is :$response');
+
+      if(response.error==false){
+        setState(() {
+          user=response.data.user;
+        });
+      }else{
+
+        debugPrint('error is:${response.message}');
+      }
+
+      
+    }catch(e){
+      debugPrint("Error is::$e");
+    }finally{
+      setState(() {
+        isloading=false;
+      });
+    }
+  }
+
+
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    fetchprofiledata();
+  }
+
 
   TextEditingController nameController = TextEditingController();
   TextEditingController linkController = TextEditingController();
@@ -70,7 +133,12 @@ class _MyprofileState extends State<Myprofile> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: SingleChildScrollView(
+      body: isloading?
+          Center(
+            child: CircularProgressIndicator(),
+          )
+
+      :SingleChildScrollView(
         child: Column(
           children: [
 
@@ -187,7 +255,7 @@ class _MyprofileState extends State<Myprofile> {
 
             /// 🔹 USER INFO
             Text(
-             "Priya Smith",
+             "${user?.name}",
               style: TextStyle(
                 fontFamily: "Outfit",
                 color: Colors.white,
@@ -197,7 +265,7 @@ class _MyprofileState extends State<Myprofile> {
             ),
             const SizedBox(height: 4),
             Text(
-            "priyasmith4545@gmail.com | Los Angles, USA",
+            "${user?.email} | ${user?.location}",
               style: TextStyle(
                 color: ColorCode.kWhiteOpacity60,
                 fontFamily: "Outfit",
@@ -245,22 +313,63 @@ class _MyprofileState extends State<Myprofile> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       infoCard(
-                        value: "\$${49}",
-                        title: "Clients",
+                        value: "\$${double.tryParse(user?.hourlyRate ?? '0')?.toInt() ?? 0}",
+                        title: "Per Hour",
                         icon: AppImages.doller,
                       ),
                       infoCard(
                         icon: AppImages.medal,
-                        value: "02 yrs",
+                        value: "${user?.yearsOfExperience.toString().padLeft(2,'0')} yrs",
                         title: "Experience",
                       ),
                       infoCard(
                         icon: AppImages.map,
                         value: "05-10 Km",
-                        title: "Ratings",
+                        title: "Radius",
                       ),
                     ],
                   ),
+                  SizedBox(height: 12,),
+
+                  Wrap(
+                    spacing: 10,
+                    children: _buildSkillChips(user?.skills ?? []),
+
+                  ),
+                  Container(
+
+                    margin: EdgeInsetsGeometry.only(top: 17),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD8FDE6), // light green bg
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          alignment: Alignment.center,
+                          width: 12,
+                          height: 12,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF1DAA23),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.check,color: Colors.white,size: 6,),
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          "Available",
+                          style: TextStyle(
+                            color: Color(0xFF1DAA23),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   Padding(
                     padding:  EdgeInsets.all(12),
                     child: Divider(color: ColorCode.kDividerWhite12,),
@@ -452,6 +561,27 @@ class _MyprofileState extends State<Myprofile> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+  Widget _skillChip(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      decoration: BoxDecoration(
+        color: const Color(0xFF282828), // bg color
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2), // 20% opacity
+          width: 0.5,
+        ),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontFamily: 'Outfit',
+          color: Colors.white,
+          fontSize: 12,
         ),
       ),
     );

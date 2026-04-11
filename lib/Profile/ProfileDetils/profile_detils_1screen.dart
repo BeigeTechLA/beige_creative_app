@@ -59,9 +59,9 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
             /// 🔘 TAB BAR
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
+              margin: const EdgeInsets.symmetric(horizontal: 20,vertical: 4),
               padding: const EdgeInsets.all(5),
-              height: 48,
+              height: 53,
               decoration: BoxDecoration(
                 color: ColorCode.k282828,
                 borderRadius: BorderRadius.circular(14),
@@ -92,7 +92,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       alignment: Alignment.topCenter,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 50),
+          margin: const EdgeInsets.only(  top: 50,
+            left: 13,
+            right: 13,
+            bottom: 20,),
           padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
           width: double.infinity,
           decoration: BoxDecoration(
@@ -141,7 +144,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       alignment: Alignment.topCenter,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 50),
+          margin: const EdgeInsets.only(top: 50,left: 13,right: 13,bottom: 20),
           padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
           width: double.infinity,
           decoration: BoxDecoration(
@@ -286,6 +289,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           });
         },
         child: Container(
+
           decoration: BoxDecoration(
             color: isSelected
                 ? const Color(0xFFD6C3A1)
