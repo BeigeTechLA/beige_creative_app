@@ -78,9 +78,9 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 
     // ── Body ────────────────────────────────
     final Map<String, dynamic> body = {
-      "crew_member_id":    460, // 👈 apna actual user id daalo (SharedPrefs etc.)
+     // "crew_member_id":    460, // 👈 apna actual user id daalo (SharedPrefs etc.)
       "date":              formatDate(controller.dateController.text),
-      "availability_status": selectedType == "Available" ? 1 : 0,
+      "availability_status": selectedType == "Available" ? 1 : 2,
       "is_full_day":       isAllDay ? 1 : 0,
 
       // ✅ null jaega "" nahi — web payload se match
@@ -146,16 +146,46 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 
 
 
-
   Future<void> pickTime(TextEditingController controller) async {
     TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            dialogBackgroundColor: const Color(0xFF121212),
+
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFFD6C19A), // 🔥 main golden
+              onPrimary: Colors.white,
+              surface: Color(0xFF1E1E1E),
+              onSurface: Colors.white,
+            ),
+
+            timePickerTheme: const TimePickerThemeData(
+              backgroundColor: Color(0xFF121212),
+              dialBackgroundColor: Color(0xFF121212),
+
+              dialHandColor: Colors.white,
+              dialTextColor: Colors.grey,
+
+              hourMinuteColor: Color(0xFFD6C19A),
+              hourMinuteTextColor: Colors.black,
+
+              dayPeriodColor: Color(0xFFD6C19A),
+              dayPeriodTextColor: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
-    if (picked != null) {
+    if (picked != null) {//
       final now = DateTime.now();
       final dt = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+
       setState(() {
         controller.text = DateFormat("hh:mm a").format(dt);
       });
@@ -183,12 +213,48 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
   }
 
   /// 🔥 COMMON DATE PICKER
-  Future<void> pickDate(TextEditingController controller) async {
+   Future<void> pickDate(TextEditingController controller) async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
+
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      helpText: "",
+
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            useMaterial3: true,
+            dialogBackgroundColor: const Color(0xFF121212),
+
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFFD6C19A),
+              onPrimary: Colors.black,
+              surface: Color(0xFF121212),
+              onSurface: Colors.white,
+            ),
+
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: Color(0xFF121212),
+              dividerColor: Colors.white12,
+
+              headerBackgroundColor: Color(0xFF0E0E0E),
+
+              headerHeadlineStyle: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+
+              dayStyle: TextStyle(color: Colors.white),
+              weekdayStyle: TextStyle(color: Colors.white70),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (picked != null) {
@@ -197,7 +263,6 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       });
     }
   }
-
   /// 🔥 ORDINAL SUFFIX: 1 -> "1st", 28 -> "28th"
   String _ordinal(String dayStr) {
     final n = int.tryParse(dayStr);

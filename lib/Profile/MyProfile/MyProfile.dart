@@ -46,10 +46,7 @@ class _MyprofileState extends State<Myprofile> {
   
 User? user;
 Future<void>fetchprofiledata()async{
-    setState(() {
-      isloading=true;
-    });
-    
+
     try{
       final response=Myprofilemodel.fromJson(await ApiService().fetchData(ApiEndpoints.profiledetails));
 
@@ -68,9 +65,7 @@ Future<void>fetchprofiledata()async{
     }catch(e){
       debugPrint("Error is::$e");
     }finally{
-      setState(() {
-        isloading=false;
-      });
+    
     }
   }
 
@@ -324,17 +319,17 @@ Future<void>fetchprofiledata()async{
                       ),
                       infoCard(
                         icon: AppImages.map,
-                        value: "05-10 Km",
+                        value: "${user?.workingDistance}",
                         title: "Radius",
                       ),
                     ],
                   ),
                   SizedBox(height: 12,),
-
                   Wrap(
                     spacing: 10,
-                    children: _buildSkillChips(user?.skills ?? []),
-
+                    children: _buildSkillChips(
+                      (user?.skills ?? []).map((e) => e.name).toList(),
+                    ),
                   ),
                   Container(
 
@@ -359,9 +354,11 @@ Future<void>fetchprofiledata()async{
                         ),
                         SizedBox(width: 6),
                         Text(
-                          "Available",
+                          user?.isAvailable==1?
+                          "Available":'Unavailable',
                           style: TextStyle(
-                            color: Color(0xFF1DAA23),
+                            color:user?.isAvailable==1?
+                            Color(0xFF1DAA23):Colors.red,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),

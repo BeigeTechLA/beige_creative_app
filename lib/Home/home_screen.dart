@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../Model_Class/Creatordashboarddetailsmodel.dart';
+import '../Model_Class/Crewstatusmodel.dart';
 import '../Model_Class/Dashboardcountmodel.dart';
 import '../Model_Class/Shootstatusmodel.dart';
 import '../Model_Class/Upcomingshootsmodel.dart';
@@ -31,11 +32,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   int rejectedshoots = 0;
   int shootrequest = 0;
 
-  Future<void> fetchmyshootstatus() async {
+
+  Future<void> fetchCrewStats(String filter) async {
     try {
-      final response = Shootstatusmodel.fromJson(await ApiService().fetchData(ApiEndpoints.shootstatus));
+      final response = CrewStatsModel.fromJson(
+        await ApiService().fetchData(ApiEndpoints.crewStats(filter)),
+      );
+
       if (response.error == false) {
-        debugPrint("my shoot categories is 👉 ⚠️ ${response.message}");
+        debugPrint("Stats 👉 ${response.message}");
+
         setState(() {
           sucessfullshoots = response.data.completedShoots;
           pendingshoots = response.data.pendingShoots;
@@ -49,6 +55,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       debugPrint("Error is:::::$e");
     }
   }
+
+
+
 
   final prefs = SharedPreferences.getInstance();
   String? name;
@@ -161,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    fetchmyshootstatus();
+    fetchCrewStats("this_month"); // default
     _loadname();
     fetchavailability();
     fetchcreatordashboarddetails();
@@ -254,6 +263,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               children: [
                 Text(
                   data['title'],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -277,7 +288,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Row(children: [
                   SvgPicture.asset(AppImages.location, width: 14, height: 14),
                   const SizedBox(width: 5),
-                  Text(data['location'], style: TextStyle(fontSize: 12, color: dateColor)),
+                  Expanded(
+                    child: Text(
+                      data['location'],
+                      style: TextStyle(fontSize: 12, color: dateColor),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
                 ]),
                 const SizedBox(height: 12),
                 Row(
@@ -435,7 +453,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: Color(0xff014FFFFFF),
-                      width: 0.5,
+                      width: 0.5,//
                     ),
                     color: ColorCode.k282828,
                     borderRadius: BorderRadius.circular(22),
@@ -448,7 +466,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         count: completedshoots,
                         percent: "+3% from last month",
                         percentColor: Colors.green,
-                        icon: Icons.videocam,
+                        iconPath: "assets/images/svideo.png",
                       ),
                       const SizedBox(height: 18),
                       _dashboardCard(
@@ -457,7 +475,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         count: upcomingshoots,
                         percent: "+3% from last month",
                         percentColor: Colors.green,
-                        icon: Icons.calendar_month,
+                        iconPath: "assets/images/scalender.png",
                       ),
                       const SizedBox(height: 18),
                       _dashboardCard(
@@ -466,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         count: pendingrequests,
                         percent: "-2% from last month",
                         percentColor: Colors.red,
-                        icon: Icons.hourglass_bottom,
+                        iconPath: "assets/images/stime.png",
                       ),
                     ],
                   ),
@@ -1223,6 +1241,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   setState(() {
                                     selectedRange = val!;
                                   });
+
+                                  // 👇 yaha lagao
+                                  if (selectedRange == "Week") {
+                                    fetchCrewStats("this_week");
+                                  } else if (selectedRange == "Month") {
+                                    fetchCrewStats("this_month");
+                                  } else if (selectedRange == "Year") {
+                                    fetchCrewStats("this_year");
+                                  }
+
                                 },
                               ),
                             ),
@@ -1915,16 +1943,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     required int count,
     required String percent,
     required Color percentColor,
-    required IconData icon,
+    required String iconPath,
   }) {
     bool isSelected = selectedDashboardIndex == index;
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         setState(() {
           selectedDashboardIndex = index;
         });
       },
-      borderRadius: BorderRadius.circular(16),
+    //  borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.all(16),
@@ -1968,12 +1996,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
             CircleAvatar(
               radius: 18,
-              backgroundColor: isSelected ? Colors.black : const Color(0xFF2A2A2A),
-              child: Icon(
-                icon,
-                size: 16,
-                color: isSelected ? Colors.white : Colors.white70,
-              ),
+              backgroundColor: isSelected ? Colors.black : const Color(0xff171717),
+              child: Image.asset(iconPath,width: 18,height: 18,),
+              // child: SvgPicture.asset(
+              //   iconPath,
+              //   width: 16,
+              //   height: 16,
+              //   color: isSelected ? Colors.white : Colors.white70,
+              // ),
             )
           ],
         ),

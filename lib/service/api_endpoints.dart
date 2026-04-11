@@ -17,6 +17,28 @@ class ApiEndpoints {
   static const String shootstatus= "creator/get-crew-stats";
   static const String add_availability= "/creator/add-availability";
   static const String profiledetails= "auth/profile";
+  // static const String shootstatusmonth= "creator/get-crew-stats?date_filter=this_month";
+  // static const String shootstatusweek= "creator/get-crew-stats?date_filter=this_week";
+  // static const String shootstatusyear= "creator/get-crew-stats?date_filter=this_year";
+  static String crewStats(String filter) =>
+      "creator/get-crew-stats?date_filter=$filter";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
