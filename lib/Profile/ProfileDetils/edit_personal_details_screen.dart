@@ -1,5 +1,8 @@
+import 'package:beige_creative_app/service/api_endpoints.dart';
+import 'package:beige_creative_app/service/api_service.dart';
 import 'package:flutter/material.dart';
 
+import '../../Model_Class/EditProfileModel.dart';
 import '../../utility/ColorCode.dart';
 import '../../widgets/Custom_dropdown_field.dart';
 import '../../widgets/custom_text_field.dart';
@@ -14,11 +17,35 @@ class EditPersonalDetailsScreen extends StatefulWidget {
 
 class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
 
-  final TextEditingController experienceController =  TextEditingController();
+EditProfileModel?  mylist;
+  Future<void>editpersonaldetails()async{
+    try{
+      final response= EditProfileModel.fromJson(await ApiService().postData(ApiEndpoints.editprofile,{}));
+
+      setState(() {
+        mylist=response;
+      });
+
+    }catch(e){
+    }
+
+  }
+
+final TextEditingController firstnamecontroller =  TextEditingController();
+final TextEditingController lastnamecontroller =  TextEditingController();
+final TextEditingController emailcontroller =  TextEditingController();
+final TextEditingController phonecontroller =  TextEditingController();
+final TextEditingController locationcontroller =  TextEditingController();
+final TextEditingController changepasswordcontroller =  TextEditingController();
+
+
+
+
+final TextEditingController experienceController =  TextEditingController();
 
   final TextEditingController rateController =TextEditingController();
 
-  final TextEditingController bioController =  TextEditingController();
+  final TextEditingController bioController  =TextEditingController();
   String selectedSkill = "Livestream Audio";
   @override
   Widget build(BuildContext context) {
@@ -61,19 +88,19 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
               /// 📅 YEAR OF EXPERIENCE
               CustomTextField(
                 label: "First Name*",
-                controller: experienceController,
+                controller: firstnamecontroller,
               ),
 
-              SizedBox(height:12),
+              SizedBox(height:22),
 
               /// 💰 HOURLY RATE
               CustomTextField(
                 label: "Last Name*",
-                controller: rateController,
+                controller: lastnamecontroller,
                 keyboardType: TextInputType.number,
               ),
 
-              SizedBox(height:12),
+              SizedBox(height:22),
 
               /// 📝 BIO
               CustomTextField(
@@ -81,20 +108,20 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
                 controller: bioController,
 
               ),
-              SizedBox(height:12),
+              SizedBox(height:22),
               CustomTextField(
                 label: "Contact Number*",
                 controller: bioController,
 
               ),
-              SizedBox(height:12),
+              SizedBox(height:22),
               CustomTextField(
                 label: "Location*",
                 controller: bioController,
 
               ),
 
-              SizedBox(height:12),
+              SizedBox(height:22),
 
               /// 🎨 SKILLS
               CustomDropdownField(
@@ -108,7 +135,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
                 },
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               CustomTextField(
                 label: "Change Password*",
                 controller: bioController,
