@@ -1,28 +1,5 @@
 import 'dart:convert';
 
-SocialMediaLinks _parseSocialLinks(dynamic data) {
-  if (data == null) {
-    return SocialMediaLinks(instagram: "");
-  }
-
-  if (data is String) {
-    try {
-      final decoded = json.decode(data);
-      if (decoded is Map<String, dynamic>) {
-        return SocialMediaLinks.fromJson(decoded);
-      }
-    } catch (e) {
-      return SocialMediaLinks(instagram: "");
-    }
-  }
-
-  if (data is Map<String, dynamic>) {
-    return SocialMediaLinks.fromJson(data);
-  }
-
-  return SocialMediaLinks(instagram: "");
-}
-
 class Myprofilemodel {
   final bool error;
   final int code;
@@ -77,13 +54,16 @@ class User {
   final String bio;
   final String primaryRole;
 
-  /// 🔥 UPDATED
+  /// ✅ SKILLS
   final List<Skill> skills;
 
   final List<dynamic> equipmentOwnership;
   final String availability;
   final String certifications;
-  final SocialMediaLinks socialMediaLinks;
+
+  /// 🔥 IMPORTANT CHANGE (dynamic map)
+  final Map<String, dynamic> socialMediaLinks;
+
   final String profileImageUrl;
 
   User({
@@ -128,7 +108,7 @@ class User {
     bio: json["bio"]?.toString() ?? "",
     primaryRole: json["primary_role"]?.toString() ?? "",
 
-    /// 🔥 FIXED SKILLS
+    /// 🔥 SKILLS FIX
     skills: json["skills"] == null
         ? []
         : List<Skill>.from(
@@ -139,8 +119,10 @@ class User {
     availability: json["availability"]?.toString() ?? "",
     certifications: json["certifications"]?.toString() ?? "",
 
-    /// 🔥 SAFE PARSE
-    socialMediaLinks: _parseSocialLinks(json["social_media_links"]),
+    /// 🔥 MAIN FIX (dynamic social links)
+    socialMediaLinks: json["social_media_links"] != null
+        ? Map<String, dynamic>.from(json["social_media_links"])
+        : {},
 
     profileImageUrl: json["profile_image_url"]?.toString() ?? "",
   );
@@ -159,17 +141,4 @@ class Skill {
     id: json["id"] ?? 0,
     name: json["name"] ?? "",
   );
-}
-
-class SocialMediaLinks {
-  final String instagram;
-
-  SocialMediaLinks({
-    required this.instagram,
-  });
-
-  factory SocialMediaLinks.fromJson(Map<String, dynamic> json) =>
-      SocialMediaLinks(
-        instagram: json["instagram"] ?? "",
-      );
 }

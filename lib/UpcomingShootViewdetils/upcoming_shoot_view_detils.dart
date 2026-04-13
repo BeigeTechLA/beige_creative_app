@@ -3,6 +3,7 @@ import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 import '../Model_Class/Upcomingshootviewmodel.dart';
 import '../utility/ColorCode.dart';
@@ -16,6 +17,39 @@ class UpcomingShootViewDetils extends StatefulWidget {
 }
 
 class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
+  List<String> getProfileImageUrls() {
+    if (mydata?.teamMembers == null) return [];
+
+    return mydata!.teamMembers!
+        .map((e) => ApiService.imageURL + (e.profileImageUrl ?? ""))
+        .where((url) => !url.endsWith("/")) // empty remove
+        .toList();
+  }
+  String formatDateTime(String dateTime) {
+    try {
+      final parsedDate = DateTime.parse(dateTime).toLocal(); // 👈 important
+      return DateFormat("MMM d, yyyy h:mm a").format(parsedDate);
+    } catch (e) {
+      return dateTime;
+    }
+  }
+  String formatTime(String time) {
+    try {
+      final parsedTime = DateFormat("HH:mm:ss").parse(time);
+      return DateFormat("h:mm a").format(parsedTime);
+    } catch (e) {
+      return time; // fallback
+    }
+  }
+  String formatDate(String? rawDate) {
+    if (rawDate == null || rawDate.isEmpty) return '-';
+    try {
+      final dt = DateTime.parse(rawDate);
+      return DateFormat('MMM dd, yyyy').format(dt);
+    } catch (e) {
+      return rawDate;
+    }
+  }
   bool isloading=false;
 
 MyData? mydata;
@@ -146,7 +180,7 @@ MyData? mydata;
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "ID: #12456",
+                        "ID: ${mydata?.project.idLabel}",
                         style: TextStyle(
                           fontFamily: "Outfit",
                           color: ColorCode.kButtonColor,
@@ -193,16 +227,18 @@ MyData? mydata;
                 const SizedBox(height: 16),
 
                 /// 📅 DATE
-                _infoRow(Icons.calendar_today, "Jan 06, 2025",),
+                _infoRow(Icons.calendar_today, formatDate("${mydata?.project.eventDate}")),
                 const SizedBox(height: 10),
 
                 /// ⏰ TIME
-                _infoRow(Icons.access_time, "12:00 PM - 4:00 PM"),
-                const SizedBox(height: 10),
+                _infoRow(
+                  Icons.access_time,
+                  "${formatTime(mydata?.project.startTime ?? "")} - ${formatTime(mydata?.project.endTime ?? "")}",
+                ),                const SizedBox(height: 10),
 
                 /// 📍 LOCATION
                 _infoRow(Icons.location_on_outlined,
-                    "2458 Sunset Boulevard Los Angeles, CA 90026"),
+                    "${mydata?.project.eventLocation}"),
 
                 const SizedBox(height: 18),
                 Divider(
@@ -251,13 +287,13 @@ MyData? mydata;
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerLeft,
-                            child: _chip("Commercial"),
+                            child: _chip("${mydata?.project.shootType}"),
                           ),
                         ),
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerLeft,
-                            child: _chip("Edit & Shoot"),
+                            child: _chip("${mydata?.project.bookingType}"),
                           ),
                         ),
                       ],
@@ -286,11 +322,11 @@ MyData? mydata;
                     color: ColorCode.k1D1D1B_Opacity70,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      Text(
+                      const Text(
                         "Shoot Status",
                         style: TextStyle(
                           fontFamily: "Outfit",
@@ -299,14 +335,14 @@ MyData? mydata;
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      Divider(
+                      const Divider(
                         color: ColorCode.kDividerWhite12,
                         thickness: 0.8,
 
                       ),
-                      SizedBox(height: 14),
+                      const SizedBox(height: 14),
 
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -330,12 +366,12 @@ MyData? mydata;
                         ],
                       ),
 
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                           Text(
                             "Last Updated",
                             style: TextStyle(
                               fontFamily: "Outfit",
@@ -345,8 +381,8 @@ MyData? mydata;
                             ),
                           ),
                           Text(
-                            "Jan 20, 2024 2:30 PM",
-                            style: TextStyle(
+                            formatDateTime(mydata?.project.lastUpdated ?? ""),
+                            style: const TextStyle(
                               fontFamily: "Outfit",
                               fontSize: 12,
                               color: ColorCode.white,
@@ -372,33 +408,60 @@ MyData? mydata;
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("Team Members",style: TextStyle(color: ColorCode.white,fontFamily: "Unbounded",fontWeight: FontWeight.w500,fontSize: 14),),
-              Text("(04/04)",style: TextStyle(color: ColorCode.kButtonColor,fontFamily: "Unbounded",fontWeight: FontWeight.w300,fontSize: 14),)
-            ],
+              Text(
+                "(${(mydata?.teamSummary.assignedCount ?? 0).toString().padLeft(2, '0')}/04)",
+                style: TextStyle(
+                  color: ColorCode.kButtonColor,
+                  fontFamily: "Unbounded",
+                  fontWeight: FontWeight.w300,
+                  fontSize: 14,
+                ),
+              ),
+          ]
           ),
           SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildMember(
-                  name: "Emma Hale",
-                  role: "Project Manager",
-                  image: "assets/images/shoot1.png",
-                ),
-                _buildMember(
-                  name: "Adam Brooks",
-                  role: "Production Manager",
-                  image: "assets/images/shoot2.png",
-                ),
-                _buildMember(
-                  name: "Nora Blake",
-                  role: "Sales Representative",
-                  image: "assets/images/shoot3.png",
-                ),
-              ],
+          SizedBox(
+            height: 150, // 👈 important for horizontal list
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: mydata?.teamMembers.length ?? 0,
+              itemBuilder: (context, index) {
+                final member = mydata!.teamMembers[index];
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: _buildMember(
+                    name: member.name ?? "",
+                    role: member.roleName ?? "",
+                    image: member.profileImageUrl ?? "",
+                  ),
+                  );
+              },
             ),
           ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 16),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       _buildMember(
+          //         name: "Emma Hale",
+          //         role: "Project Manager",
+          //         image: "assets/images/shoot1.png",
+          //       ),
+          //       _buildMember(
+          //         name: "Adam Brooks",
+          //         role: "Production Manager",
+          //         image: "assets/images/shoot2.png",
+          //       ),
+          //       _buildMember(
+          //         name: "Nora Blake",
+          //         role: "Sales Representative",
+          //         image: "assets/images/shoot3.png",
+          //       ),
+          //     ],
+          //   ),
+          // ),
           Divider(
             color: ColorCode.kDividerWhite12,
             thickness: 0.8,
@@ -426,7 +489,7 @@ MyData? mydata;
                   child: _budgetCardItem(
                     icon: Icons.attach_money,
                     title: "Event Budget",
-                    value: "\$350",
+                    value: "\$${mydata?.project.budget}",
                   ),
                 ),
 
@@ -437,7 +500,8 @@ MyData? mydata;
                   child: _budgetCardItem(
                     icon: Icons.access_time,
                     title: "Total Time Duration",
-                    value: "08 Hours",
+                    value: "${(mydata?.project.totalTimeDurationHours ?? 0).toString().padLeft(2, '0')} hours",
+
                   ),
                 ),
               ],
@@ -476,7 +540,7 @@ MyData? mydata;
                 _contactItem(
                   icon: Icons.person_outline,
                   title: "Contact Name",
-                  value: "John Smith",
+                  value: "${mydata?.clientContact.fullName}",
                 ),
 
                 const SizedBox(height: 14),
@@ -484,15 +548,14 @@ MyData? mydata;
                 _contactItem(
                   icon: Icons.call_outlined,
                   title: "Contact Number",
-                  value: "+101 4564 5415",
-                ),
+                  value: mydata?.clientContact.phone ?? 'No number found',                ),
 
                 const SizedBox(height: 14),
 
                 _contactItem(
                   icon: Icons.mail_outline,
                   title: "Email ID",
-                  value: "johnsmith4545@gmail.com",
+                  value: "${mydata?.clientContact.email}",
                 ),
 
                 const SizedBox(height: 24),
@@ -707,16 +770,24 @@ MyData? mydata;
     required String role,
     required String image,
   }) {
-    return Expanded(
+    return SizedBox(
+      width: 90, // 👈 fixed width for horizontal scroll
       child: Column(
         children: [
           CircleAvatar(
             radius: 36,
-            backgroundImage: AssetImage(image),
+            backgroundImage: image.isNotEmpty
+                ? NetworkImage(ApiService.imageURL + image) // 👈 base url add kar
+                : null,
+            child: image.isEmpty
+                ? Icon(Icons.person, color: Colors.white)
+                : null,
           ),
           const SizedBox(height: 10),
           Text(
             name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontFamily: "Outfit",
               color: Colors.white,
@@ -728,6 +799,8 @@ MyData? mydata;
           const SizedBox(height: 4),
           Text(
             role,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontFamily: "Outfit",
               color: Colors.white54,

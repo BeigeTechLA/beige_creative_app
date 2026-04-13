@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../utility/ColorCode.dart';
 
 class CustomDropdownField extends StatelessWidget {
@@ -26,11 +27,19 @@ class CustomDropdownField extends StatelessWidget {
       isExpanded: true,
       dropdownColor: const Color(0xFF1E1E1E),
 
-      icon: const Icon(
-        Icons.keyboard_arrow_down,
-        color: ColorCode.kWhiteOpacity70,
-      ),
+      icon: Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: SvgPicture.asset(
+          "assets/svg/DROPdown.svg",
+          height: 25,
 
+          width: 20,
+          colorFilter: const ColorFilter.mode(
+            ColorCode.white,
+            BlendMode.srcIn,
+          ),
+        ),
+      ),
       style: const TextStyle(
         color: Colors.white,
         fontSize: 14,

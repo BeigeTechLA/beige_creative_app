@@ -80,9 +80,9 @@ class ClientContact {
   String toRawJson() => json.encode(toJson());
 
   factory ClientContact.fromJson(Map<String, dynamic> json) => ClientContact(
-    fullName: json["full_name"],
-    email: json["email"],
-    phone: json["phone"],
+    fullName: json["full_name"]?? 'No name found',
+    email: json["email"]?? 'No email found',
+    phone: json["phone"]?? 'No phone number found',
   );
 
   Map<String, dynamic> toJson() => {

@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../auth/ProfileDetailsScreen .dart';
 import '../../service/shared_service.dart';
 import '../../utility/ColorCode.dart';
+import '../../widgets/Topmessgae.dart';
 import '../../widgets/custom_text_field.dart';
 import '../AppPreferences/app_preferences.dart';
 import '../Certificates/Certificates.dart';
@@ -25,6 +26,149 @@ class Myprofile extends StatefulWidget {
 }
 
 class _MyprofileState extends State<Myprofile> {
+  //
+  bool isEditing = false;
+  //
+  int editingIndex = -1;
+  String getPlatformKey(String name) {
+    switch (name.toLowerCase()) {
+      case "facebook":
+        return "facebook";
+      case "instagram":
+        return "instagram";
+      case "tiktok":
+        return "tiktok";
+      case "behance":
+        return "behance";
+      default:
+        return name.toLowerCase();
+    }
+  }
+
+
+
+  Future<void> deleteSocialLink(int index) async {
+
+    // STEP 1: remove from list
+    setState(() {
+      socialLinks.removeAt(index);
+    });
+
+    // STEP 2: API ko updated list bhej
+    final formattedLinks = socialLinks.map((e) {
+      return {
+        "platform": getPlatformKey(e["name"]!), // 🔥 yaha use karna hai
+        "url": e["url"],
+      };
+    }).toList();
+
+    await ApiService().postData(
+      ApiEndpoints.editprofile,
+      {
+        "social_media_links": formattedLinks,
+      },
+    );
+
+    // STEP 3: refresh
+    await fetchprofiledata();
+  }
+  void setSocialLinksFromApi(User userData) {
+    final links = userData.socialMediaLinks;
+    if (links.isEmpty) {
+      setState(() {
+        socialLinks = [];
+      });
+      return;
+    }
+
+    List<Map<String, String>> tempList = [];
+
+    links.forEach((key, value) {
+      tempList.add({
+        "name": key[0].toUpperCase() + key.substring(1),
+        "url": value.toString(),
+        "icon": getIcon(key),
+      });
+    });
+
+    setState(() {
+      socialLinks = tempList;
+    });
+  }
+  String formatName(String key) {
+    switch (key.toLowerCase()) {
+      case "facebook":
+        return "Facebook";
+      case "instagram":
+        return "Instagram";
+      case "tiktok":
+        return "TikTok";
+      case "behance":
+        return "Behance";
+      default:
+        return key;
+    }
+  }
+
+  String getIcon(String key) {
+    switch (key.toLowerCase()) {
+      case "facebook":
+        return AppImages.facebook;
+      case "instagram":
+        return AppImages.insta;
+      case "tiktok":
+        return AppImages.tiktok;
+      case "behance":
+        return AppImages.be;
+      default:
+        return "assets/svg/Ball.svg";
+    }
+  }
+  Future<void> saveSocialLinksToApi() async {
+    if (socialLinks.isEmpty) {
+      TopMessage.show(context, "Add at least one link");
+      return;
+    }
+
+    setState(() => isloading = true);
+
+    try {
+      final List<Map<String, String>> formattedLinks =
+      socialLinks.map((e) {
+        return {
+          "platform": e["name"] ?? "",
+          "url": e["url"] ?? "",
+        };
+      }).toList();
+
+      final response = await ApiService().postData(
+        ApiEndpoints.editprofile, // 👈 same endpoint
+        {
+          "social_media_links": formattedLinks,
+        },
+      );
+      await fetchprofiledata();
+      if (response == null) {
+        TopMessage.show(context, "Server Error");
+        return;
+      }
+
+      if (response["error"] == false) {
+        TopMessage.show(context, "Social links updated");
+        Navigator.pop(context); // close bottom sheet
+      } else {
+        TopMessage.show(
+            context, response["message"] ?? "Failed to update");
+      }
+    } catch (e) {
+      TopMessage.show(context, "Something went wrong");
+    } finally {
+      setState(() => isloading = false);
+    }
+  }
+
+
+
   List<Widget> _buildSkillChips(List<String> skills) {
     List<Widget> chips = [];
 
@@ -51,6 +195,8 @@ Future<void>fetchprofiledata()async{
       final response=Myprofilemodel.fromJson(await ApiService().fetchData(ApiEndpoints.profiledetails));
 
       debugPrint('API Response is :$response');
+      setSocialLinksFromApi(response.data.user); // 🔥 IMPORTANT
+
 
       if(response.error==false){
         setState(() {
@@ -382,6 +528,81 @@ Future<void>fetchprofiledata()async{
                     ],
                   ),
                   const SizedBox(height: 14),
+                  socialLinks.isEmpty
+                      ? const Text(
+                    "No social links added",
+                    style: TextStyle(color: Colors.white54),
+                  )
+                      : Column(
+                    children: socialLinks.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final item = entry.value;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white24),
+                          color: const Color(0xFF2A2A2A),
+                        ),
+                        child: Row(
+                          children: [
+
+                            /// ICON
+                            SvgPicture.asset(
+                              item["icon"]!,
+                              height: 20,
+                              width: 20,
+                              color: Colors.white,
+                            ),
+
+                            const SizedBox(width: 10),
+
+                            /// NAME + URL
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item["name"]!,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    item["url"]!,
+                                    style: const TextStyle(color: Colors.white54),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            /// ✏️ EDIT BUTTON
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.white, size: 18),
+                              onPressed: () {
+                                nameController.text = item["name"]!;
+                                linkController.text = item["url"]!;
+                                selectedSocialIndex = socialNames.indexOf(item["name"]!);
+                                editingIndex = index;
+                                isEditing = true;
+                                openSocialDialog(startInEditMode: true);
+                              },
+                            ),
+
+                            /// 🗑 DELETE BUTTON
+                            IconButton(
+                              icon: const Icon(Icons.delete,
+                                  color: Colors.red, size: 18),
+                                onPressed: () async {
+                                  await deleteSocialLink(index); // 🔥 bas ye hi
+                                },
+
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -922,8 +1143,9 @@ Future<void>fetchprofiledata()async{
     );
   }
 
-  void openSocialDialog() {
-    bool showForm = socialLinks.isEmpty;
+  void openSocialDialog({bool startInEditMode = false}) {
+    bool showForm = socialLinks.isEmpty || startInEditMode;
+
 
     showModalBottomSheet(
       context: context,
@@ -1002,12 +1224,14 @@ Future<void>fetchprofiledata()async{
                           socialIcons.length,
                               (index) => InkWell(
                             borderRadius: BorderRadius.circular(16),
-                            onTap: () {
-                              setInnerState(() {
-                                selectedSocialIndex = index;
-                                nameController.text = socialNames[index];
-                              });
-                            },
+                                onTap: () {
+
+
+                                  setInnerState(() {
+                                    selectedSocialIndex = index;
+                                    nameController.text = socialNames[index];
+                                  });
+                                },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               height: 52,
@@ -1055,7 +1279,7 @@ Future<void>fetchprofiledata()async{
                       const SizedBox(height: 20),
 
                       /// SAVED LINKS LIST
-                      if (socialLinks.isNotEmpty) ...[
+                      if (!isEditing && socialLinks.isNotEmpty) ...[
                         Text(
                           "${socialLinks.length}/6",
                           style: const TextStyle(
@@ -1201,36 +1425,54 @@ Future<void>fetchprofiledata()async{
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            onPressed: () {
-                              if (selectedSocialIndex == -1 ||
-                                  linkController.text.trim().isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Please select platform and enter link"),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                                return;
-                              }
+            onPressed: () {
+            if (selectedSocialIndex == -1 ||
+            linkController.text.trim().isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+            content: Text("Please select platform and enter link"),
+            backgroundColor: Colors.red,
+            ),
+            );
+            return;
+            }
 
-                              final name = socialNames[selectedSocialIndex];
-                              final icon = socialIcons[selectedSocialIndex];
-                              final url = linkController.text.trim();
+            final name = socialNames[selectedSocialIndex];
+            final icon = socialIcons[selectedSocialIndex];
+            final url = linkController.text.trim();
 
-                              setInnerState(() {
-                                setState(() {
-                                  socialLinks.add({
-                                    "name": name,
-                                    "url": url,
-                                    "icon": icon,
-                                  });
-                                });
-                                showForm = false;
-                                selectedSocialIndex = -1;
-                                nameController.clear();
-                                linkController.clear();
-                              });
-                            },
+            setInnerState(() {
+            setState(() {
+
+            /// 🔥 EDIT OR ADD LOGIC
+            if (editingIndex != -1) {
+            // ✅ EDIT
+            socialLinks[editingIndex] = {
+            "name": name,
+            "url": url,
+            "icon": icon,
+            };
+            } else {
+            // ✅ ADD
+            socialLinks.add({
+            "name": name,
+            "url": url,
+            "icon": icon,
+            });
+            }
+
+            });
+
+            /// 🔥 RESET STATE (VERY IMPORTANT)
+            showForm = false;
+            selectedSocialIndex = -1;
+            isEditing = false;
+            editingIndex = -1;
+
+            nameController.clear();
+            linkController.clear();
+            });
+            },
                             child: const Text(
                               "Save Link",
                               style: TextStyle(
@@ -1290,7 +1532,7 @@ Future<void>fetchprofiledata()async{
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: saveSocialLinksToApi,
                             child: const Text(
                               "Save",
                               style: TextStyle(
