@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 
 class AppUtils {
+
   /// ===============================
   /// ✅ SHOW SNACKBAR
   /// ===============================
@@ -38,9 +40,9 @@ class AppUtils {
   }
 
   /// ===============================
-  /// ✅ IMAGE PICKER (Gallery)
+  /// ✅ IMAGE PICKER (ONLY GALLERY)
   /// ===============================
-  static Future<File?> pickImageFromGallery() async {
+  static Future<File?> pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image =
     await picker.pickImage(source: ImageSource.gallery);
@@ -52,17 +54,54 @@ class AppUtils {
   }
 
   /// ===============================
-  /// ✅ IMAGE PICKER (Camera)
+  /// ✅ FILE PICKER (ALL FILES)
   /// ===============================
-  static Future<File?> pickImageFromCamera() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image =
-    await picker.pickImage(source: ImageSource.camera);
+  static Future<File?> pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+    );
 
-    if (image != null) {
-      return File(image.path);
+    if (result != null && result.files.single.path != null) {
+      return File(result.files.single.path!);
     }
     return null;
+  }
+
+  /// ===============================
+  /// ✅ IMAGE + FILE OPTION (BOTTOM SHEET)
+  /// ===============================
+  static Future<File?> showPicker(BuildContext context) async {
+    File? selectedFile;
+
+    await showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(Icons.image),
+                title: Text("Gallery Image"),
+                onTap: () async {
+                  selectedFile = await pickImage();
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.attach_file),
+                title: Text("Choose File"),
+                onTap: () async {
+                  selectedFile = await pickFile();
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    return selectedFile;
   }
 
   /// ===============================

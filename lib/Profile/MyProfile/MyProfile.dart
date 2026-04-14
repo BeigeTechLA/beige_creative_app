@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:beige_creative_app/Model_Class/myprofilemodel.dart';
 import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
@@ -10,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../auth/ProfileDetailsScreen .dart';
 import '../../service/shared_service.dart';
 import '../../utility/ColorCode.dart';
+import '../../utility/app_utils.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/custom_text_field.dart';
 import '../AppPreferences/app_preferences.dart';
@@ -28,8 +31,20 @@ class Myprofile extends StatefulWidget {
 class _MyprofileState extends State<Myprofile> {
   //
   bool isEditing = false;
-  //
+  File? _image;
   int editingIndex = -1;
+
+  Future<void> _pickProfileImage() async {
+    debugPrint("IMAGE PICKER CLICKED");
+    final File? file = await AppUtils.showPicker(context);
+
+    if (!mounted || file == null) return;
+
+    setState(() {
+      _image = file;
+    });
+  }
+
   String getPlatformKey(String name) {
     switch (name.toLowerCase()) {
       case "facebook":
@@ -356,31 +371,50 @@ Future<void>fetchprofiledata()async{
                             radius: 48,
                             backgroundColor: Colors.grey.shade200,
                             child: ClipOval(
-                              child: Image.asset(
-                                AppImages.profilepicture,
-                                width: 96,
-                                height: 96,
-                                fit: BoxFit.cover,
-                              ),
+                              child: _image != null
+                                  ? Image.file(
+                                      _image!,
+                                      width: 96,
+                                      height: 96,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      AppImages.profilepicture,
+                                      width: 96,
+                                      height: 96,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           ),
 
 
                         ),
                         Positioned(
-                          bottom: 2,
+                          bottom: 8,
                           right: 2,
-                          child: Container(
-                            padding: const EdgeInsets.all(9),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.white,
-                              ),
-                              color: ColorCode.kGoldGradientLight,
-                              shape: BoxShape.circle,
-                            ),
+                          child: Material(
+                            color: Colors.transparent,
+                            shape: const CircleBorder(),
+                            child: InkWell(
+                              onTap: _pickProfileImage,
+                              customBorder: const CircleBorder(),
+                              child: Container(
+                                padding: const EdgeInsets.all(9),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.white,
+                                  ),
+                                  color: ColorCode.kGoldGradientLight,
+                                  shape: BoxShape.circle,
+                                ),
 
-                            child: SvgPicture.asset(AppImages.myprofileeditphoto,height: 16,width: 16,),
+                                child: SvgPicture.asset(
+                                  AppImages.myprofileeditphoto,
+                                  height: 16,
+                                  width: 16,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ],

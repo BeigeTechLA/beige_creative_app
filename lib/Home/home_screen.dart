@@ -393,9 +393,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           child: Text(
                             "Welcome Back, ${name?.split(' ').first ?? 'User'}",
                             style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: "Outfit",
+                              fontWeight: FontWeight.w400,
+                              color: ColorCode.white,
                             ),
                           ),
                         ),
