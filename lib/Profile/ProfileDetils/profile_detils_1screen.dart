@@ -35,7 +35,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
   Future<void>fetchprofiledata()async{
 
     try{
-      final response=Myprofilemodel.fromJson(await ApiService().fetchData(ApiEndpoints.profiledetails));
+      final response=Myprofilemodel.fromJson(await ApiService().postData(ApiEndpoints.profiledetails,{}));
 
       debugPrint('API Response is :$response');
 

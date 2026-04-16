@@ -1,16 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:beige_creative_app/utility/ColorCode.dart';
 
+import '../service/api_endpoints.dart';
+import '../service/api_service.dart';
 import 'shoot_cancelled_lotties_screen.dart';
 
 class CancelScreen extends StatefulWidget {
-  const CancelScreen({super.key});
+  final int? projectId;
+  const CancelScreen({super.key, this.projectId});
 
   @override
   State<CancelScreen> createState() => _CancelScreenState();
 }
 
 class _CancelScreenState extends State<CancelScreen> {
+  Future<void> declineProject() async {
+    final response = await ApiService().postData(
+      ApiEndpoints.acceptdeclineproject,
+      {
+        "project_id": widget.projectId,
+        "crew_accept": 2, // ✅ decline
+      },
+    );
+
+    if (response["error"] == false) {
+      debugPrint("Declined successfully ✅");
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ShootCancelledLottiesScreen(),
+        ),
+      );
+    } else {
+      debugPrint("Error ❌: ${response["message"]}");
+    }
+  }
   String selectedReason = "";
   bool isOtherSelected = false;
 
@@ -273,16 +298,13 @@ class _CancelScreenState extends State<CancelScreen> {
                               BorderRadius.circular(16),
                             ),
                           ),
-                          onPressed: selectedReason.isEmpty
-                              ? null
-                              : () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => ShootCancelledLottiesScreen()),
+                            onPressed: selectedReason.isEmpty
+                                ? null
+                                : () {
+                              declineProject(); // ✅ API call
+                            },
 
-                              );
 
-                          },
                           child: const Text(
                             "Decline",
                             style: TextStyle(

@@ -318,7 +318,7 @@ class _MainscreenState extends State<Mainscreen> {
 
 
     try{
-      final response=Myprofilemodel.fromJson(await ApiService().fetchData(ApiEndpoints.profiledetails));
+      final response=Myprofilemodel.fromJson(await ApiService().postData(ApiEndpoints.profiledetails,{}));
 
       debugPrint('API Response is :$response');
 

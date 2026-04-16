@@ -16,10 +16,15 @@ class ApiEndpoints {
   static const String createavailability = "creator/availability";
   static const String shootstatus= "creator/get-crew-stats";
   static const String add_availability= "/creator/add-availability";
-  static const String profiledetails= "auth/profile";
+  static const String profiledetails= "creator/get-profile-detail";
   static String crewStats(String filter) =>   "creator/get-crew-stats?date_filter=$filter";
 
   static const String editprofile= "creator/edit-profile";
+  static const String acceptdeclineproject= "creator/accept-project";
+  static const String addportfoliolink= "creator/profile/add-portfolio-links";
+
+
+
 
 
 

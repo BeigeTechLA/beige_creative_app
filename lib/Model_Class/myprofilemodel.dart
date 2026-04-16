@@ -1,5 +1,24 @@
 import 'dart:convert';
 
+class CrewFile {
+  final int crewFilesId; // 🔥 ADD THIS
+  final String fileType;
+  final String filePath;
+  final String tag;
+
+  CrewFile({
+    required this.fileType,
+    required this.filePath,
+    required this.tag, required this.crewFilesId,
+  });
+
+  factory CrewFile.fromJson(Map<String, dynamic> json) => CrewFile(
+    crewFilesId: json["crew_files_id"] ?? 0, // 🔥 ADD THIS
+    fileType: json["file_type"] ?? "",
+    filePath: json["file_path"] ?? "",
+    tag: json["tag"] ?? "",
+  );
+}
 class Myprofilemodel {
   final bool error;
   final int code;
@@ -26,13 +45,67 @@ class Myprofilemodel {
 }
 
 class Data {
-  final User user;
+  final int crewMemberId;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String phoneNumber;
+  final String location;
+  final String workingDistance;
+  final int yearsOfExperience;
+  final String hourlyRate;
+  final int isAvailable;
+
+  final List<Skill> skills;
+  final Map<String, dynamic> socialMediaLinks;
+  final List<CrewFile> crewMemberFiles;
+
+  final User user; // nested
 
   Data({
+    required this.crewMemberId,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    required this.phoneNumber,
+    required this.location,
+    required this.workingDistance,
+    required this.yearsOfExperience,
+    required this.hourlyRate,
+    required this.isAvailable,
+    required this.skills,
+    required this.socialMediaLinks,
     required this.user,
+    required this.crewMemberFiles,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
+    crewMemberFiles: json["crew_member_files"] == null
+        ? []
+        : List<CrewFile>.from(
+      json["crew_member_files"].map((x) => CrewFile.fromJson(x)),
+    ),
+    crewMemberId: json["crew_member_id"] ?? 0,
+    firstName: json["first_name"] ?? "",
+    lastName: json["last_name"] ?? "",
+    email: json["email"] ?? "",
+    phoneNumber: json["phone_number"] ?? "",
+    location: json["location"] ?? "",
+    workingDistance: json["working_distance"] ?? "",
+    yearsOfExperience: json["years_of_experience"] ?? 0,
+    hourlyRate: json["hourly_rate"]?.toString() ?? "",
+    isAvailable: json["is_available"] ?? 0,
+
+    skills: json["skills"] == null
+        ? []
+        : List<Skill>.from(
+      json["skills"].map((x) => Skill.fromJson(x)),
+    ),
+
+    socialMediaLinks: json["social_media_links"] != null
+        ? Map<String, dynamic>.from(json["social_media_links"])
+        : {},
+
     user: User.fromJson(json["user"] ?? {}),
   );
 }

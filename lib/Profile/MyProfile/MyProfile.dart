@@ -29,6 +29,96 @@ class Myprofile extends StatefulWidget {
 }
 
 class _MyprofileState extends State<Myprofile> {
+  Future<void> editPortfolioLink() async {
+    final item = portfolioLinks[editingIndex];
+    final id = item["id"];
+    final url = item["url"];                    // ✅ take from list, not controller
+    final platform = getPortfolioKey(item["name"]!);
+
+    try {
+      final response = await ApiService().postData(
+        "creator/profile/edit-portfolio-link/$id",
+        {
+          "url": url,
+          "platform": platform,
+          "title": item["name"],
+        },
+      );
+
+      if (response["error"] == false) {
+        editingIndex = -1;                      // ✅ reset
+        await fetchprofiledata();
+        if (mounted) Navigator.pop(context);
+      }
+    } catch (e) {
+      debugPrint("Edit error: $e");
+    }
+  }
+  String getPortfolioIcon(String key) {
+    switch (key.toLowerCase()) {
+      case "youtube":
+        return AppImages.youtube;
+      case "vimeo":
+        return AppImages.v;
+      case "google_drive":
+        return AppImages.googledrive;
+      default:
+        return "assets/svg/Ball.svg";
+    }
+  }
+  Future<void> savePortfolioLinksToApi() async {
+    if (portfolioLinks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Add at least one portfolio link")),
+      );
+      return;
+    }
+
+    setState(() => isloading = true);
+
+    try {
+      final formattedLinks = portfolioLinks.map((e) {
+        return {
+          "platform": getPortfolioKey(e["name"]!),
+          "url": e["url"],
+        };
+      }).toList();
+
+      final response = await ApiService().postData(
+        "creator/profile/add-portfolio-links",
+        {
+          "portfolio_links": formattedLinks,
+        },
+      );
+
+      if (response["error"] == false) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Portfolio links added ✅")),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response["message"] ?? "Error")),
+        );
+      }
+    } catch (e) {
+      debugPrint("Portfolio API error: $e");
+    } finally {
+      setState(() => isloading = false);
+    }
+  }
+  String getPortfolioKey(String name) {
+    switch (name.toLowerCase()) {
+      case "vimeo":
+        return "vimeo";
+      case "youtube":
+        return "youtube";
+      case "google drive":
+        return "google_drive";
+      default:
+        return name.toLowerCase();
+    }
+  }
   //
   bool isEditing = false;
   File? _image;
@@ -87,8 +177,8 @@ class _MyprofileState extends State<Myprofile> {
     // STEP 3: refresh
     await fetchprofiledata();
   }
-  void setSocialLinksFromApi(User userData) {
-    final links = userData.socialMediaLinks;
+  void setSocialLinksFromApi(Map<String, dynamic> links) {
+    //final links = userData.socialMediaLinks;
     if (links.isEmpty) {
       setState(() {
         socialLinks = [];
@@ -203,19 +293,38 @@ class _MyprofileState extends State<Myprofile> {
   }
   bool isloading=false;
   
-User? user;
+Data? user;
 Future<void>fetchprofiledata()async{
 
     try{
-      final response=Myprofilemodel.fromJson(await ApiService().fetchData(ApiEndpoints.profiledetails));
+      final response=Myprofilemodel.fromJson(await ApiService().postData(ApiEndpoints.profiledetails,{}));
 
       debugPrint('API Response is :$response');
-      setSocialLinksFromApi(response.data.user); // 🔥 IMPORTANT
+      setSocialLinksFromApi(response.data.socialMediaLinks); // 🔥 IMPORTANT
+      /// 🔥 PORTFOLIO FROM API
+      final portfolio = response.data.crewMemberFiles
+          .where((e) => e.fileType == "link")
+          .toList();
+
+      /// 👉 convert to UI list
+      List<Map<String, String>> tempPortfolio = portfolio.map((item) {
+        return {
+          "id":item.crewFilesId.toString(),
+          "name": item.tag,
+          "url": item.filePath,
+          "icon": getPortfolioIcon(item.tag),
+        };
+      }).toList();
+
+      setState(() {
+        portfolioLinks = tempPortfolio; // 🔥 IMPORTANT
+      });
+
 
 
       if(response.error==false){
         setState(() {
-          user=response.data.user;
+          user=response.data;
         });
       }else{
 
@@ -430,7 +539,7 @@ Future<void>fetchprofiledata()async{
 
             /// 🔹 USER INFO
             Text(
-             "${user?.name}",
+             "${user?.firstName} ${user?.lastName}",
               style: TextStyle(
                 fontFamily: "Outfit",
                 color: Colors.white,
@@ -710,6 +819,79 @@ Future<void>fetchprofiledata()async{
                       ),)
                     ],
                   ),
+                  portfolioLinks.isEmpty
+                      ? const Text(
+                    "No portfolio links added",
+                    style: TextStyle(color: Colors.white54),
+                  )
+                      : Column(
+                    children: portfolioLinks.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final item = entry.value;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white24),
+                          color: const Color(0xFF2A2A2A),
+                        ),
+                        child: Row(
+                          children: [
+
+                            /// ICON
+                            SvgPicture.asset(
+                              item["icon"]!,
+                              height: 20,
+                              width: 20,
+                              color: const Color(0xffE8D1AB),
+                            ),
+
+                            const SizedBox(width: 10),
+
+                            /// NAME + URL
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item["name"]!,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    item["url"]!,
+                                    style: const TextStyle(color: Colors.white54),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            /// EDIT
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.white, size: 18),
+                              onPressed: () {
+                                editingIndex = index;           // 🔥 ADD THIS
+                                linkController.text = item["url"]!;
+                                selectedPortfolioIndex = Portfoliolname.indexOf(item["name"]!);
+                                openPortfolioDialog(startInEditMode: true);
+                              },
+                            ),
+
+                            /// DELETE
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red, size: 18),
+                              onPressed: () {
+                                setState(() {
+                                  portfolioLinks.removeAt(index);
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
                   const SizedBox(height: 14),
 
                   Row(
@@ -751,6 +933,7 @@ Future<void>fetchprofiledata()async{
                       /// 🔹 EDIT BUTTON (Right Side)
                       InkWell(
                         onTap: () {
+
                           openPortfolioDialog();
                         },
 
@@ -1589,9 +1772,9 @@ Future<void>fetchprofiledata()async{
       },
     );
   }
-
-  void openPortfolioDialog() {
-    bool showForm = portfolioLinks.isEmpty;
+  void openPortfolioDialog({bool startInEditMode = false}) {
+    bool showForm = portfolioLinks.isEmpty || startInEditMode;
+    bool isUpdating = false; // local loading state inside the modal
 
     showModalBottomSheet(
       context: context,
@@ -1616,7 +1799,6 @@ Future<void>fetchprofiledata()async{
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       /// DRAG INDICATOR
                       Center(
                         child: Container(
@@ -1649,9 +1831,7 @@ Future<void>fetchprofiledata()async{
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 6),
-
                       const Text(
                         "Add YouTube, Vimeo, or Google Drive links to showcase your portfolio.",
                         style: TextStyle(
@@ -1659,7 +1839,6 @@ Future<void>fetchprofiledata()async{
                           fontSize: 13,
                         ),
                       ),
-
                       const SizedBox(height: 20),
 
                       /// PORTFOLIO ICONS ROW
@@ -1690,7 +1869,7 @@ Future<void>fetchprofiledata()async{
                                     : Colors.transparent,
                               ),
                               child: Center(
-                              child:   SvgPicture.asset(
+                                child: SvgPicture.asset(
                                   Portfolioicons[index],
                                   height: 22,
                                   width: 22,
@@ -1706,11 +1885,10 @@ Future<void>fetchprofiledata()async{
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 20),
 
-                      /// SAVED PORTFOLIO LINKS LIST
-                      if (portfolioLinks.isNotEmpty) ...[
+                      /// ✅ SAVED PORTFOLIO LINKS LIST – only show when NOT editing (like social links)
+                      if (editingIndex == -1 && portfolioLinks.isNotEmpty) ...[
                         Text(
                           "${portfolioLinks.length}/3",
                           style: const TextStyle(
@@ -1720,11 +1898,9 @@ Future<void>fetchprofiledata()async{
                           ),
                         ),
                         const SizedBox(height: 10),
-
                         ...portfolioLinks.asMap().entries.map((entry) {
                           final index = entry.key;
                           final item = entry.value;
-
                           return Container(
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.symmetric(
@@ -1736,8 +1912,6 @@ Future<void>fetchprofiledata()async{
                             ),
                             child: Row(
                               children: [
-
-                                /// DRAG BOX
                                 Container(
                                   width: 35,
                                   height: 35,
@@ -1754,21 +1928,14 @@ Future<void>fetchprofiledata()async{
                                     ),
                                   ),
                                 ),
-
                                 const SizedBox(width: 8),
-
-                                /// PLATFORM ICON
-                                // Image.asset(
-                                //   item["icon"]!,
-                                //   height: 20,
-                                //   width: 20,
-                                //   color: const Color(0xffE8D1AB),
-                                // ),
-
-                                SvgPicture.asset(item["icon"]!,height: 20,width: 20,color: const Color(0xffE8D1AB),),
+                                SvgPicture.asset(
+                                  item["icon"]!,
+                                  height: 20,
+                                  width: 20,
+                                  color: const Color(0xffE8D1AB),
+                                ),
                                 const SizedBox(width: 10),
-
-                                /// NAME
                                 Expanded(
                                   child: Text(
                                     item["name"]!,
@@ -1779,8 +1946,6 @@ Future<void>fetchprofiledata()async{
                                     ),
                                   ),
                                 ),
-
-                                /// EDIT BUTTON
                                 Container(
                                   width: 35,
                                   height: 35,
@@ -1795,18 +1960,20 @@ Future<void>fetchprofiledata()async{
                                     onPressed: () {
                                       setModalState(() {
                                         showForm = true;
-                                        selectedPortfolioIndex =
-                                            Portfoliolname.indexOf(item["name"]!);
+                                        // Case‑insensitive search for platform name
+                                        selectedPortfolioIndex = Portfoliolname.indexWhere(
+                                              (e) => e.toLowerCase() == item["name"]!.toLowerCase(),
+                                        );
+                                        if (selectedPortfolioIndex == -1)
+                                          selectedPortfolioIndex = 0;
                                         nameController.text = item["name"]!;
                                         linkController.text = item["url"]!;
+                                        editingIndex = index;
                                       });
                                     },
                                   ),
                                 ),
-
                                 const SizedBox(width: 7),
-
-                                /// DELETE BUTTON
                                 Container(
                                   width: 35,
                                   height: 35,
@@ -1831,18 +1998,16 @@ Future<void>fetchprofiledata()async{
                             ),
                           );
                         }).toList(),
-
                         const SizedBox(height: 10),
                       ],
 
-                      /// FORM FIELDS
+                      /// FORM FIELDS (for both add and edit)
                       if (showForm) ...[
                         CustomTextField(
                           label: "Link URL",
                           controller: linkController,
                         ),
                         const SizedBox(height: 24),
-
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -1853,7 +2018,9 @@ Future<void>fetchprofiledata()async{
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            onPressed: () {
+                            onPressed: isUpdating
+                                ? null
+                                : () async {
                               if (selectedPortfolioIndex == -1 ||
                                   linkController.text.trim().isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1865,9 +2032,61 @@ Future<void>fetchprofiledata()async{
                                 return;
                               }
 
+                              // ✅ EDIT MODE: call API directly
+                              if (editingIndex != -1) {
+                                final id = portfolioLinks[editingIndex]["id"]?.toString();
+                                if (id == null || id.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Invalid link ID"),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                final platform = getPortfolioKey(Portfoliolname[selectedPortfolioIndex]);
+                                final url = linkController.text.trim();
+
+                                setModalState(() => isUpdating = true);
+
+                                try {
+                                  final response = await ApiService().postData(
+                                    "creator/profile/edit-portfolio-link/$id",
+                                    {
+                                      "url": url,
+                                      "platform": platform,
+                                      "title": Portfoliolname[selectedPortfolioIndex],
+                                    },
+                                  );
+
+                                  if (response["error"] == false) {
+                                    await fetchprofiledata();
+                                    if (mounted) Navigator.pop(context);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(response["message"] ?? "Edit failed")),
+                                    );
+                                  }
+                                } catch (e) {
+                                  debugPrint("Edit error: $e");
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Network error. Please try again."),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                } finally {
+                                  if (mounted) setModalState(() => isUpdating = false);
+                                }
+                                return;
+                              }
+
+                              // ✅ ADD MODE: local update (show final "Save" button later)
                               setModalState(() {
                                 setState(() {
                                   portfolioLinks.add({
+                                    "id": "",
                                     "name": Portfoliolname[selectedPortfolioIndex],
                                     "url": linkController.text.trim(),
                                     "icon": Portfolioicons[selectedPortfolioIndex],
@@ -1879,21 +2098,23 @@ Future<void>fetchprofiledata()async{
                                 linkController.clear();
                               });
                             },
-                            child: const Text(
+                            child: isUpdating
+                                ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                            )
+                                : const Text(
                               "Save Link",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),
                       ],
 
-                      /// ADD ANOTHER + FINAL SAVE
+                      /// ADD ANOTHER + FINAL SAVE (only for add mode)
                       if (!showForm) ...[
                         const SizedBox(height: 10),
-
                         InkWell(
                           onTap: () {
                             setModalState(() {
@@ -1911,8 +2132,7 @@ Future<void>fetchprofiledata()async{
                                   shape: BoxShape.circle,
                                   color: Colors.white,
                                 ),
-                                child: const Icon(Icons.add,
-                                    color: Colors.black, size: 18),
+                                child: const Icon(Icons.add, color: Colors.black, size: 18),
                               ),
                               const SizedBox(width: 12),
                               const Text(
@@ -1926,35 +2146,32 @@ Future<void>fetchprofiledata()async{
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 16),
 
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorCode.kButtonColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                        /// ✅ Final "Save" button only for adding new links (not for edit)
+                        if (editingIndex == -1)
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: ColorCode.kButtonColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
                               ),
-                            ),
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              "Save",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
+                              onPressed: savePortfolioLinksToApi,
+                              child: const Text(
+                                "Save",
+                                style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
                               ),
                             ),
                           ),
-                        ),
                       ],
-
                       const SizedBox(height: 10),
                     ],
                   ),
-                ),//
+                ),
               ),
             );
           },

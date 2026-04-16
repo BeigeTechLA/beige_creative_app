@@ -1,15 +1,92 @@
 import 'package:beige_creative_app/Shoots/shoot_detils_screen.dart';
+import 'package:beige_creative_app/service/api_endpoints.dart';
+import 'package:beige_creative_app/service/api_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
+import '../Model_Class/Dashboardcountmodel.dart';
+import '../Model_Class/ShootsModel.dart';
+import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../utility/ColorCode.dart';
 import '../utility/imges_icons.dart';
 import 'shoot_cancelled_screen.dart';
 
-class ShootsScreen extends StatelessWidget {
+class ShootsScreen extends StatefulWidget {
   const ShootsScreen({super.key});
 
   @override
+  State<ShootsScreen> createState() => _ShootsScreenState();
+}
+
+class _ShootsScreenState extends State<ShootsScreen> {
+
+  Future<void>fetchacceptdecline(int projectid,int crewid)async{
+    final response= await ApiService().postData(
+        ApiEndpoints.acceptdeclineproject,
+        {
+          "project_id": projectid,
+          "crew_accept": crewid
+        }
+        );
+
+    if(response["error"]==false){
+      debugPrint('Sucessfully hiT Accept& Decline API');
+    }
+
+
+  }
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    fetchdashboardcount();
+    fetchshootmodel();
+  }
+
+  int completedshoots = 0;
+  int upcomingshoots = 0;
+  int pendingrequests = 0;
+  Future<void> fetchdashboardcount() async {
+    try {
+      final response = Dashboardcountmodel.fromJson(await ApiService().fetchData(ApiEndpoints.dashboardcount));
+      if (response.error == false) {
+        debugPrint('Response is::::::::::::::::: $response');
+        setState(() {
+          completedshoots = response.data.completedShoots;
+          upcomingshoots = response.data.upcomingShoots;
+          pendingrequests = response.data.pendingRequests;
+        });
+      }
+    } catch (e) {
+      debugPrint("error is::::$e");
+    }
+  }
+
+  ShootsModel? model;
+
+  List<AllShoot>mylist=[];
+
+  Future<void>fetchshootmodel()async{
+    final response=ShootsModel.fromJson(await ApiService().fetchData(ApiEndpoints.creatordashboarddetails));
+
+    if(response.error==false){
+      setState(() {
+        mylist=response.data.allShoots;
+      });
+
+    }
+
+
+  }
+
+
+  @override
   Widget build(BuildContext context) {
+
+
     return SafeArea(
       child: Column(
         children: [
@@ -61,9 +138,10 @@ class ShootsScreen extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                _countCard("24", "Pending Shoots"),
+                _countCard("$pendingrequests", "Pending Shoots"),
                 _countCard("05", "Confirmed Shoots"),
-                _countCard("02", "Completed"),
+                _countCard("$completedshoots", "Completed"),
+                _countCard("00", "Declined"),
               ],
             ),
           ),
@@ -107,9 +185,10 @@ class ShootsScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: 3,
+              itemCount:mylist.length,
               itemBuilder: (context, index) {
-                return _shootCard(context);
+                final shoot=mylist[index];
+                return _shootCard(context,shoot);
               },
             ),
           )
@@ -156,11 +235,35 @@ class ShootsScreen extends StatelessWidget {
   }
 
   /// 🔥 SHOOT CARD
-  Widget _shootCard(BuildContext context) {
+  Widget _shootCard(BuildContext context, AllShoot shoot) {
+    final project = shoot.project;
+
+    String formattedDate = "No Date";
+    String formattedTime = "";
+
+    try {
+      /// ✅ DATE FIX (NO PARSE)
+      if (project?.eventDate != null) {
+        formattedDate =
+            DateFormat('MMM dd, yyyy').format(project!.eventDate);
+      }
+
+      /// ✅ TIME FIX (same rahega)
+      if (project?.startTime != null && project?.endTime != null) {
+        final start = DateFormat("HH:mm:ss").parse(project!.startTime!);
+        final end = DateFormat("HH:mm:ss").parse(project.endTime!);
+
+        formattedTime =
+        "${DateFormat('hh:mm a').format(start)} - ${DateFormat('hh:mm a').format(end)}";
+      }
+    } catch (e) {
+      debugPrint("Date format error: $e");
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color:ColorCode.k282828,
+        color: ColorCode.k282828,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -173,7 +276,7 @@ class ShootsScreen extends StatelessWidget {
               top: Radius.circular(20),
             ),
             child: Image.asset(
-              "assets/home/img.png", // add your image
+              "assets/home/img.png",
               height: 180,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -185,44 +288,45 @@ class ShootsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
+                /// ID + DETAILS
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                     Text(
-                      "ID: #12456",
+                    Text(
+                      "ID: ${shoot.id}",
                       style: TextStyle(
                         color: ColorCode.kButtonColor,
                         fontSize: 12,
-                        fontFamily: "Outfit",
                         fontWeight: FontWeight.w600,
-                      ),),
-                       InkWell(
-                         onTap: () {
-                           Navigator.push(
-                             context,
-                             MaterialPageRoute(
-                               builder: (context) => ShootDetilsScreen(),
-                             ),
-                           );
-                         },
-                         child: Text(
-                           "View Details",
-                           style: TextStyle(
-                             color: ColorCode.kButtonColor,
-                             fontSize: 12,
-                             fontFamily: "Outfit",
-                             fontWeight: FontWeight.w600,
-                             decoration: TextDecoration.underline,
-                             decorationColor: ColorCode.kButtonColor,
-                             decorationThickness: 1.5,
-                           ),
-                         ),
-                       ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UpcomingShootViewDetils(projectid:shoot.projectId,),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "View Details",
+                        style: TextStyle(
+                          color: ColorCode.kButtonColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-                const Text(
-                  "Annual Tech Conference 2026",
-                  style: TextStyle(
+
+                /// TITLE
+                Text(
+                  project?.projectName ?? "No Title",
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -230,36 +334,35 @@ class ShootsScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 8),
-                Divider(
-                  color: ColorCode.kDividerWhite12,
-                  thickness: 0.8,
-                ),
+                Divider(color: ColorCode.kDividerWhite12),
+
+                /// ✅ DATE + TIME + LOCATION (FIXED)
                 Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 14, color: Colors.white54),
+                    SvgPicture.asset(AppImages.calender, width: 14, height: 14),
                     const SizedBox(width: 6),
-                    const Text(
-                      "Jan 06, 2026",
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    Text(
+                      formattedDate, // ✅ FIX
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
 
                     const SizedBox(width: 14),
 
-                    Icon(Icons.access_time, size: 14, color: Colors.white54),
+                    SvgPicture.asset(AppImages.time, width: 14, height: 14),
                     const SizedBox(width: 6),
-                    const Text(
-                      "12:00 PM - 4:00 PM",
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    Text(
+                      formattedTime, // ✅ FIX
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
 
                     const SizedBox(width: 14),
 
-                    Icon(Icons.location_on_outlined, size: 14, color: Colors.white54),
+                    SvgPicture.asset(AppImages.location, width: 14, height: 14),
                     const SizedBox(width: 6),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        "Los Angeles, CA",
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                        project?.eventLocation ?? "No Location",
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -268,60 +371,62 @@ class ShootsScreen extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
+                /// BUTTONS
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kSoftMint,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: const Text("Accept" ,style: TextStyle(
-    color: ColorCode.green,
-    fontSize: 12,
-    fontFamily: "Outfit",
-    fontWeight: FontWeight.w600,
-    ),)
+
+                    /// ✅ LEFT SIDE (Avatar Stack)
+                    _buildAvatarStack(
+                      images: [
+                        AppImages.avtarstack,
+                        AppImages.avtarstack,
+                        AppImages.avtarstack,
+                        AppImages.avtarstack,
+                      ],
+                      extraCount: 3,
+                      avatarSize: 20,
+                      overlap: 10,
                     ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kSoftPeach,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration: const Duration(milliseconds: 400),
-                            pageBuilder: (_, __, ___) => const CancelScreen(),
-                            transitionsBuilder: (_, animation, __, child) {
-                              return SlideTransition(
-                                position: Tween(
-                                  begin: const Offset(0, 1), // 👈 bottom se start
-                                  end: Offset.zero,
-                                ).animate(CurvedAnimation(
-                                  parent: animation,
-                                  curve: Curves.easeOut,
-                                )),
-                                child: child,
-                              );
-                            },
+
+                    /// ✅ RIGHT SIDE (Your SAME Buttons - untouched)
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xffD8FDE6),
                           ),
-                        );
-                      },
-                      child: const Text("Decline",
-                        style: TextStyle(
-                          color: ColorCode.red,
-                          fontSize: 12,
-                          fontFamily: "Outfit",
-                          fontWeight: FontWeight.w600,
-                        ),)
+                          onPressed: () {
+                            fetchacceptdecline(shoot.projectId, 1);
+                          },
+                          child: const Text(
+                            "Accept",
+                            style: TextStyle(
+                              color: Color(0xff1DAA23),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xffEECCC9),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>  CancelScreen(projectId:shoot.projectId,),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "Decline",
+                            style: TextStyle(
+                              color: Color(0xffD33732),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 )
@@ -332,6 +437,7 @@ class ShootsScreen extends StatelessWidget {
       ),
     );
   }
+
   void _showFilterBottomSheet( BuildContext context) {
     String? selectedDate;
     String? selectedStatus;
@@ -633,6 +739,70 @@ class ShootsScreen extends StatelessWidget {
           },
         );
       },
+    );
+  }
+
+  Widget _buildAvatarStack({
+    required List<String> images,
+    int extraCount = 0,
+    double avatarSize = 20,
+    double overlap = 10,
+  }) {
+    final int totalItems = images.length + (extraCount > 0 ? 1 : 0);
+    final double totalWidth = avatarSize + (totalItems - 1) * overlap;
+
+    return SizedBox(
+      width: totalWidth,
+      height: avatarSize,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          ...List.generate(images.length, (index) {
+            return Positioned(
+              left: index * overlap,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 1),
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    images[index],
+                    width: avatarSize,
+                    height: avatarSize,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            );
+          }),
+
+          /// +3 circle
+          if (extraCount > 0)
+            Positioned(
+              left: images.length * overlap,
+              child: Container(
+                width: avatarSize,
+                height: avatarSize,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade700,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 1),
+                ),
+                child: Center(
+                  child: Text(
+                    "+$extraCount",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: avatarSize * 0.35,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
   Widget _filterSection({

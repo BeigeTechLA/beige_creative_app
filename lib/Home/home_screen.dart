@@ -27,6 +27,51 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+
+  Future<void> fetchShootCategories(String tab) async {
+    try {
+      final response = await ApiService().fetchData(
+        "creator/shoot-categories?tab=$tab",
+      );
+
+      if (response["error"] == false) {
+        final data = response["data"];
+
+        /// 🔥 tabs data (IMPORTANT)
+        final tabs = data["tabs"];
+
+        setState(() {
+          /// ✅ Tab-wise total (correct use)
+          photographyShoots = tabs["photo"]["total"] ?? 0;
+          videographyShoots = tabs["video"]["total"] ?? 0;
+
+          /// ✅ Other stats (optional but useful)
+          rejectedshoots = data["rejectedShoots"] ?? 0;
+          shootrequest = data["shootRequests"] ?? 0;
+        });
+
+        /// 🔥 DEBUG (optional)
+        debugPrint("Photo Total: ${tabs["photo"]["total"]}");
+        debugPrint("Video Total: ${tabs["video"]["total"]}");
+      } else {
+        debugPrint("API Error: ${response["message"]}");
+      }
+    } catch (e) {
+      debugPrint("Error: $e");
+    }
+  }
+
+  int photographyShoots = 0;
+  int videographyShoots = 0;
+  String getFilterValue() {
+    if (selectedRange == "Week") {
+      return "this_week";
+    } else if (selectedRange == "Month") {
+      return "this_month";
+    } else {
+      return "this_year";
+    }
+  }
   int sucessfullshoots = 0;
   int pendingshoots = 0;
   int rejectedshoots = 0;
@@ -47,6 +92,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           pendingshoots = response.data.pendingShoots;
           rejectedshoots = response.data.rejectedShoots;
           shootrequest = response.data.shootRequests;
+
+          photographyShoots = response.data.photographyShoots;
+          videographyShoots = response.data.videographyShoots;
         });
       } else {
         debugPrint("API Error::: ${response.message}");
@@ -171,6 +219,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     fetchCrewStats("this_month"); // default
+    fetchShootCategories("photo"); // default tab
     _loadname();
     fetchavailability();
     fetchcreatordashboarddetails();
@@ -1244,13 +1293,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   });
 
                                   // 👇 yaha lagao
-                                  if (selectedRange == "Week") {
-                                    fetchCrewStats("this_week");
-                                  } else if (selectedRange == "Month") {
-                                    fetchCrewStats("this_month");
-                                  } else if (selectedRange == "Year") {
-                                    fetchCrewStats("this_year");
-                                  }
+                                  fetchCrewStats(getFilterValue());
 
                                 },
                               ),
@@ -1334,11 +1377,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedTab = 0;
-                              });
-                            },
+           onTap: () {
+             setState(() {
+               selectedTab = 0;
+
+                });
+             fetchShootCategories("photo"); // 🔥 ADD
+           },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 250),
                               padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -1367,6 +1412,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               setState(() {
                                 selectedTab = 1;
                               });
+                              fetchShootCategories("video"); // 🔥 ADD
                             },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 250),
@@ -1446,8 +1492,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                       ),
                       const SizedBox(height: 35),
-                      _statusItem("987", "Successful Shoots", const Color(0xFFA678F1)),
-                      _statusItem("1,674", "Pending Shoots", const Color(0xFF5CC4FF)),
+                      selectedTab == 0
+                          ? _statusItem("$photographyShoots", "Photography Shoots", const Color(0xFFA678F1))
+                          : _statusItem("$videographyShoots", "Videography Shoots", const Color(0xFF5CC4FF)),
                       _statusItem("1,073", "Rejected Shoots", const Color(0xFFFFC04F)),
                       _statusItem("921", "Shoot Requests", const Color(0xFF2DC497)),
                     ],

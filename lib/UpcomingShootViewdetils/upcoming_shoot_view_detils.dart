@@ -17,6 +17,7 @@ class UpcomingShootViewDetils extends StatefulWidget {
 }
 
 class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
+
   List<String> getProfileImageUrls() {
     if (mydata?.teamMembers == null) return [];
 
