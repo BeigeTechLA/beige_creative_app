@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../utility/imges_icons.dart';
 
 class ManageAvailabilityController extends ChangeNotifier {
+  Map<DateTime, String> eventss = {};
 
   DateTime focusedDay = DateTime.now();
   DateTime selectedDay = DateTime.now();
@@ -18,11 +19,6 @@ class ManageAvailabilityController extends ChangeNotifier {
     "Conflict",
   ];
 
-  final Map<DateTime, String> events = {
-    DateTime(2026, 1, 2): "Available",
-    DateTime(2026, 1, 6): "Shoot",
-    DateTime(2026, 1, 12): "Conflict",
-  };
 
   void onDaySelected(DateTime selected, DateTime focused) {
     selectedDay = selected;
@@ -36,7 +32,30 @@ class ManageAvailabilityController extends ChangeNotifier {
   }
 
   String? getEvent(DateTime day) {
-    return events[DateTime(day.year, day.month, day.day)];
+    return eventss[DateTime(day.year, day.month, day.day)];
+  }
+  void setAvailability(Map<String, dynamic> availability) {
+    eventss.clear();
+
+    availability.forEach((dateString, value) {
+      final date = DateTime.parse(dateString);
+      final cleanDate = DateTime(date.year, date.month, date.day);
+
+      final isAvailable = value["available"] == true;
+      final isAssigned = value["projectAssigned"] == true;
+
+      if (isAssigned) {
+        eventss[cleanDate] = "Shoot";
+      } else if (isAvailable) {
+        eventss[cleanDate] = "Available";
+      }
+    });
+
+    notifyListeners(); // 🔥 VERY IMPORTANT
+  }
+  bool shouldShowEvent(String event) {
+    if (selectedFilter == "All Events") return true;
+    return selectedFilter == event;
   }
 
   Color getEventColor(String event) {

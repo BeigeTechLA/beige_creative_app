@@ -342,12 +342,12 @@ class _MainscreenState extends State<Mainscreen> {
   int _selectedIndex = 0;
 
   /// 🔥 Bottom Navigation Pages
-  final List<Widget> _pages = const [
-    HomeScreen(),
-    ShootsScreen(),
-    FileManagerScreen(),
-    MessagesScreen(),
-    ManageAvailabilityScreen(),
+  late final List<Widget> _pages = [
+    HomeScreen(onTabChange: _onItemTapped), // 👈 yaha change
+    const ShootsScreen(),
+    const FileManagerScreen(),
+    const MessagesScreen(),
+    const ManageAvailabilityScreen(),
   ];
 
   void _onItemTapped(int index) {

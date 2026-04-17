@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../Model_Class/EditProfileModel.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
+import '../../utility/ColorCode.dart';
+import '../../utility/imges_icons.dart';
 import '../../widgets/Custom_dropdown_field.dart';
 import '../../widgets/custom_text_field.dart';
 
@@ -93,8 +96,14 @@ class _EnterProfileDetailsScreenState
                 children: [
                   InkWell(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back,
-                        color: Colors.white),
+                        child: SvgPicture.asset(
+        AppImages.back, // make sure it's .svg file
+        height: 24,
+        colorFilter: ColorFilter.mode(
+          ColorCode.white,
+          BlendMode.srcIn,
+        ),
+      ),
                   ),
                 ],
               ),

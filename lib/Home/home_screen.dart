@@ -20,13 +20,65 @@ import '../utility/ColorCode.dart';
 import '../widgets/multi_arc_painter.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final Function(int)? onTabChange;
+
+  const HomeScreen({super.key, this.onTabChange});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  int rejectedPhoto = 0;
+  int rejectedVideo = 0;
+  int requestPhoto = 0;
+  int requestVideo = 0;
+  Future<void> fetchacceptdecline(int projectid, int crewid) async {
+    final response = await ApiService().postData(
+      ApiEndpoints.acceptdeclineproject,
+      {
+        "project_id": projectid,
+        "crew_accept": crewid
+      },
+    );
+
+    if (response["error"] == false) {
+      debugPrint("Accept/Decline Success");
+
+      /// 🔥 UI refresh (important)
+      fetchcreatordashboarddetails();
+    }
+  }
+
+  String formatTimeRange(String? start, String? end) {
+    if (start == null || end == null || start.isEmpty || end.isEmpty) return "";
+
+    DateTime startTime;
+    DateTime endTime;
+
+    try {
+      startTime = DateFormat("HH:mm:ss").parse(start);
+    } catch (e) {
+      startTime = DateFormat("HH:mm").parse(start);
+    }
+
+    try {
+      endTime = DateFormat("HH:mm:ss").parse(end);
+    } catch (e) {
+      endTime = DateFormat("HH:mm").parse(end);
+    }
+
+    final formatter = DateFormat("hh:mm a");
+
+    return "${formatter.format(startTime)} - ${formatter.format(endTime)}";
+  }
+  String formatDate(String? date) {
+    if (date == null || date.isEmpty) return "";
+
+    DateTime parsedDate = DateTime.parse(date);
+
+    return DateFormat("MMM dd, yyyy").format(parsedDate);
+  }
 
   Future<void> fetchShootCategories(String tab) async {
     try {
@@ -41,13 +93,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         final tabs = data["tabs"];
 
         setState(() {
-          /// ✅ Tab-wise total (correct use)
           photographyShoots = tabs["photo"]["total"] ?? 0;
           videographyShoots = tabs["video"]["total"] ?? 0;
 
-          /// ✅ Other stats (optional but useful)
-          rejectedshoots = data["rejectedShoots"] ?? 0;
-          shootrequest = data["shootRequests"] ?? 0;
+          rejectedPhoto = tabs["photo"]["rejectedShoots"] ?? 0;
+          rejectedVideo = tabs["video"]["rejectedShoots"] ?? 0;
+
+          // ❌ OLD (गलत)
+          // requestPhoto = tabs["photo"]["requests"] ?? 0;
+
+          // ✅ NEW (सही)
+          requestPhoto = tabs["photo"]["shootRequests"] ?? 0;
+          requestVideo = tabs["video"]["shootRequests"] ?? 0;
         });
 
         /// 🔥 DEBUG (optional)
@@ -63,6 +120,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   int photographyShoots = 0;
   int videographyShoots = 0;
+
+
   String getFilterValue() {
     if (selectedRange == "Week") {
       return "this_week";
@@ -159,13 +218,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   List<PendingRequestCard> creatordashboarddetaillist = [];
   Future<void> fetchcreatordashboarddetails() async {
     try {
-      final response = Creatordashboarddetailsmodel.fromJson(await ApiService().fetchData(ApiEndpoints.creatordashboarddetails));
+      final response = Creatordashboarddetailsmodel.fromJson(
+        await ApiService().fetchData(ApiEndpoints.creatordashboarddetails),
+      );
+
       if (response.error == false) {
+        debugPrint("DATA LENGTH 👉 ${response.data.pendingRequestCards.length}");
+
         setState(() {
           creatordashboarddetaillist = response.data.pendingRequestCards;
         });
-      } else {
-        debugPrint("API Error::: ${response.message}");
       }
     } catch (e) {
       debugPrint("Error is:::::$e");
@@ -403,6 +465,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final data = creatordashboarddetaillist.isNotEmpty
+        ? creatordashboarddetaillist.first
+        : null;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -852,13 +917,21 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             defaultBuilder: (context, day, focusedDay) {
                               final dateKey = DateTime(day.year, day.month, day.day);
                               final event = events[dateKey];
+                              bool showEvent = false;
+                              if (selectedEvent == "All Events") {
+                                showEvent = true;
+                              } else if (selectedEvent == "Available" && event == "Available") {
+                                showEvent = true;
+                              } else if (selectedEvent == "Shoot" && event == "Shoot") {
+                                showEvent = true;
+                              }
                               return Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text("${day.day}", style: const TextStyle(color: Colors.white)),
                                   const SizedBox(height: 4),
-                                  if (event != null) eventLabel(event),
-                                ],
+                                  if (event != null && showEvent) eventLabel(event),
+                             ],
                               );
                             },
                           ),
@@ -907,7 +980,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        widget.onTabChange?.call(1); // 👈 Shoots tab
+                      },
                       child: const Icon(
                         Icons.arrow_forward_ios,
                         color: Colors.white70,
@@ -1000,11 +1075,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Row(
-                                children: const [
+                                children:  [
                                   Icon(Icons.check_circle, size: 14, color: Colors.green),
                                   SizedBox(width: 6),
                                   Text(
-                                    "Confirmed",
+                                    data?.status ?? "",
                                     style: TextStyle(
                                       color: Colors.green,
                                       fontSize: 12,
@@ -1027,24 +1102,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               children: [
                                 Expanded(
                                   child: Text(
-                                    "Annual Tech Conference 2026",
+                                    data?.projectName ?? "",
                                     style: TextStyle(
                                       fontFamily: "Outfit",
-                                      color: ColorCode.white,
+                                      color: ColorCode.white,//
                                       fontSize: 15,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ),
                                 SizedBox(width: 8),
-                                Text(
-                                  "View Details",
-                                  style: TextStyle(
-                                    fontFamily: "Outfit",
-                                    fontWeight: FontWeight.w600,
-                                    color: ColorCode.kButtonColor,
-                                    fontSize: 12,
-                                    decoration: TextDecoration.underline,
+                                GestureDetector(
+                                  onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => UpcomingShootViewDetils())),
+                                  child: Text(
+                                    "View Details",
+                                    style: TextStyle(
+                                      fontFamily: "Outfit",
+                                      fontWeight: FontWeight.w600,
+                                      color: ColorCode.kButtonColor,
+                                      fontSize: 12,
+                                      decoration: TextDecoration.underline,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -1054,14 +1132,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             Wrap(
                               spacing: 14,
                               runSpacing: 8,
-                              children: const [
+                              children:  [
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(Icons.calendar_today, size: 14, color: Colors.white70),
                                     SizedBox(width: 6),
                                     Text(
-                                      "Jan 06, 2026",
+                                      formatDate(data?.eventDate.toString()),
                                       style: TextStyle(
                                           fontWeight: FontWeight.w400,
                                           fontFamily: "Outfit",
@@ -1076,7 +1154,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     Icon(Icons.access_time, size: 14, color: Colors.white70),
                                     SizedBox(width: 6),
                                     Text(
-                                      "12:00 PM - 4:00 PM",
+                                        formatTimeRange(
+                                          data?.startTime,
+                                          data?.endTime,
+                                        ),
                                       style: TextStyle(
                                           fontWeight: FontWeight.w400,
                                           fontFamily: "Outfit",
@@ -1091,57 +1172,75 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     Icon(Icons.location_on, size: 14, color: Colors.white70),
                                     SizedBox(width: 6),
                                     Text(
-                                      "Los Angeles, CA",
+                                      data?.eventLocation ?? "",
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: "Outfit",
-                                          color: ColorCode.kWhiteOpacity70,
-                                          fontSize: 10),
-                                    ),
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: "Outfit",
+                                        color: ColorCode.kWhiteOpacity70,
+                                        fontSize: 10,
+                                      ),
+                                    )
                                   ],
                                 ),
                               ],
                             ),
                             const SizedBox(height: 18),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xffC8F5D3),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text(
-                                    "Accept",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: "Outfit",
-                                        color: ColorCode.green,
-                                        fontSize: 12),
-                                  ),
+
+                                /// ✅ LEFT SIDE (Avatar Stack)
+                                _buildAvatarStack(
+                                  images: [
+                                    AppImages.avtarstack,
+                                    AppImages.avtarstack,
+                                    AppImages.avtarstack,
+                                    AppImages.avtarstack,
+                                  ],
+                                  extraCount: 3,
+                                  avatarSize: 20,
+                                  overlap: 10,
                                 ),
-                                SizedBox(width: 10),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xffF5C8C8),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
+
+                                /// ✅ RIGHT SIDE (Your SAME Buttons - untouched)
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xffD8FDE6),
+                                      ),
+                                      onPressed: () {
+                                        if (data != null) {
+                                          fetchacceptdecline(data!.projectId, 1);
+                                        }
+                                      },
+                                      child: const Text(
+                                        "Accept",
+                                        style: TextStyle(
+                                          color: Color(0xff1DAA23),
+                                        ),
+                                      ),
                                     ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text(
-                                    "Decline",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: "Outfit",
-                                        color: ColorCode.red,
-                                        fontSize: 12),
-                                  ),
+                                    const SizedBox(width: 10),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xffEECCC9),
+                                      ),
+                                      onPressed: () {
+                                        if (data != null) {
+                                          fetchacceptdecline(data!.projectId, 2);
+                                        }
+                                      },
+                                      child: const Text(
+                                        "Decline",
+                                        style: TextStyle(
+                                          color: Color(0xffD33732),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -1495,8 +1594,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       selectedTab == 0
                           ? _statusItem("$photographyShoots", "Photography Shoots", const Color(0xFFA678F1))
                           : _statusItem("$videographyShoots", "Videography Shoots", const Color(0xFF5CC4FF)),
-                      _statusItem("1,073", "Rejected Shoots", const Color(0xFFFFC04F)),
-                      _statusItem("921", "Shoot Requests", const Color(0xFF2DC497)),
+                      _statusItem(
+                        selectedTab == 0
+                            ? "$rejectedPhoto"
+                            : "$rejectedVideo",
+                        "Rejected Shoots",
+                        const Color(0xFFFFC04F),
+                      ),
+
+                      _statusItem(
+                        selectedTab == 0
+                            ? "$requestPhoto"
+                            : "$requestVideo",
+                        "Shoot Requests",
+                        const Color(0xFF2DC497),
+                      ),
+
                     ],
                   ),
                 ),

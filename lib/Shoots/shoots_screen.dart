@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import '../Model_Class/Dashboardcountmodel.dart';
+import '../Model_Class/Shootcountmodel.dart';
 import '../Model_Class/ShootsModel.dart';
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../utility/ColorCode.dart';
@@ -42,27 +43,53 @@ class _ShootsScreenState extends State<ShootsScreen> {
   @override
   void initState() {
     super.initState();
-    fetchdashboardcount();
     fetchshootmodel();
+    fetchshootcount();
   }
 
-  int completedshoots = 0;
-  int upcomingshoots = 0;
-  int pendingrequests = 0;
-  Future<void> fetchdashboardcount() async {
+  // int completedshoots = 0;
+  // int upcomingshoots = 0;
+  // int pendingrequests = 0;
+  // Future<void> fetchdashboardcount() async {
+  //   try {
+  //     final response = Dashboardcountmodel.fromJson(await ApiService().fetchData(ApiEndpoints.dashboardcount));
+  //     if (response.error == false) {
+  //       debugPrint('Response is::::::::::::::::: $response');
+  //       setState(() {
+  //         completedshoots = response.data.completedShoots;
+  //         upcomingshoots = response.data.upcomingShoots;
+  //         pendingrequests = response.data.pendingRequests;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     debugPrint("error is::::$e");
+  //   }
+  // }
+   int mycompletedShoots=0;
+   int mypendingRequests=0;
+   int myconfirmedRequests=0;
+   int myrejectedRequests=0;
+  Future<void>fetchshootcount()async{
+ 
     try {
-      final response = Dashboardcountmodel.fromJson(await ApiService().fetchData(ApiEndpoints.dashboardcount));
-      if (response.error == false) {
-        debugPrint('Response is::::::::::::::::: $response');
+      final response= Shootcountmodel.fromJson(await ApiService().fetchData(ApiEndpoints.myshootcount));
+
+      if(response.error==false){
         setState(() {
-          completedshoots = response.data.completedShoots;
-          upcomingshoots = response.data.upcomingShoots;
-          pendingrequests = response.data.pendingRequests;
+          mycompletedShoots=response.data.completedShoots;
+          mypendingRequests=response.data.pendingRequests;
+          myconfirmedRequests=response.data.confirmedRequests;
+          myrejectedRequests=response.data.rejectedRequests;
+
+
         });
+
       }
-    } catch (e) {
-      debugPrint("error is::::$e");
+    } on Exception catch (e) {
+
     }
+
+
   }
 
   ShootsModel? model;
@@ -138,10 +165,10 @@ class _ShootsScreenState extends State<ShootsScreen> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                _countCard("$pendingrequests", "Pending Shoots"),
-                _countCard("05", "Confirmed Shoots"),
-                _countCard("$completedshoots", "Completed"),
-                _countCard("00", "Declined"),
+                _countCard("$mypendingRequests", "Pending Shoots"),
+                _countCard("$myconfirmedRequests", "Confirmed Shoots"),
+                _countCard("$mycompletedShoots", "Completed"),
+                _countCard("$myrejectedRequests", "Declined"),
               ],
             ),
           ),

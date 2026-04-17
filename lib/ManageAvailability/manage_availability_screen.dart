@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
+import '../service/api_endpoints.dart';
+import '../service/api_service.dart';
 import '../utility/ColorCode.dart';
 import '../utility/imges_icons.dart';
 import '../widgets/common_calendar.dart';
@@ -16,6 +18,27 @@ class ManageAvailabilityScreen extends StatefulWidget {
 
 class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
     with SingleTickerProviderStateMixin {
+  Future<void> fetchAvailability() async {
+    try {
+      final response = await ApiService().postData(
+        ApiEndpoints.createavailability,
+        {
+          "month": nexwController.focusedDay.month,
+          "year": nexwController.focusedDay.year
+        },
+      );
+
+      if (response["error"] == false) {
+        final availability = response["data"]["availability"];
+
+        nexwController.setAvailability(availability); // 🔥 MAIN
+      }
+    } catch (e) {
+      debugPrint("Error: $e");
+    }
+  }
+  String selectedEvent = "All Events"; // 👈 top pe define kar
+
 
   final ManageAvailabilityController  nexwController = ManageAvailabilityController();
 
@@ -26,6 +49,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
   @override
   void initState() {
     super.initState();
+    fetchAvailability();
 
     _controller = AnimationController(
       vsync: this,
@@ -55,10 +79,9 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     onTap: () {
                       Scaffold.of(context).openDrawer();
                     },
-                    child: Image.asset(
-                      "assets/home/menu-02.png",
+                    child: SvgPicture.asset(
+                      AppImages.menu,
                       width: 26,
-                      color: Colors.white,
                     ),
                   ),
       
@@ -80,30 +103,30 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
             ),
       
             /// 🔵 Auto Block Info
-            /*     Container(
+                Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.only(left: 12,top: 12,bottom: 12,right: 20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2C2C2E),
+                  color: const Color(0xffEFF6FF),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Row(
+                child:  Row(
                   children: [
-                    Icon(Icons.info_outline,
-                        color: Colors.lightBlueAccent, size: 18),
+                   SvgPicture.asset('assets/svg/infosvg.svg'),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         "Your availability is automatically blocked for confirmed shoots",
                         style: TextStyle(
-                          color: Colors.white70,
+                          fontFamily: 'outfit',
+                          color: Color(0xff3B82F6),
                           fontSize: 12,
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),*/
+              ),
       
             const SizedBox(height: 20),
       
@@ -134,11 +157,14 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                               IconButton(
                                 icon: const Icon(Icons.chevron_left,
                                     color: Colors.white),
-                                onPressed: () {
-                                  nexwController.focusedDay =
-                                      DateTime(focused.year, focused.month - 1);
-                                  nexwController.notifyListeners();
-                                },
+                                  onPressed: () {
+                                    nexwController.focusedDay =
+                                        DateTime(focused.year, focused.month - 1);
+
+                                    nexwController.notifyListeners();
+
+                                    fetchAvailability(); // 🔥 ADD THIS
+                                  }
                               ),
       
                               Text(
@@ -153,34 +179,53 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                               IconButton(
                                 icon: const Icon(Icons.chevron_right,
                                     color: Colors.white),
-                                onPressed: () {
-                                  nexwController.focusedDay =
-                                      DateTime(focused.year, focused.month + 1);
-                                  nexwController.notifyListeners();
-                                },
+                                  onPressed: () {
+                                    nexwController.focusedDay =
+                                        DateTime(focused.year, focused.month + 1);
+
+                                    nexwController.notifyListeners();
+
+                                    fetchAvailability(); // 🔥 ADD THIS
+                                  }
                               ),
                             ],
                           ),
-      
-                          /// Dropdown Look Button
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color:ColorCode.white,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Row(
-                              children: [
-                                Text("All Events",
-                                    style: TextStyle(
-                                        color: Colors.black, fontSize: 12)),
-                                SizedBox(width: 4),
-                                Icon(Icons.keyboard_arrow_down,
-                                    color: Colors.black, size: 18),
-                              ],
-                            ),
-                          ),
+
+
+                Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                decoration: BoxDecoration(
+                color: ColorCode.white,
+                borderRadius: BorderRadius.circular(10),
+                ),
+                child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                value: selectedEvent,
+                icon: const Icon(
+                Icons.keyboard_arrow_down,
+                color: Color(0xff2A2622),
+                size: 18,
+                ),
+                dropdownColor: Colors.white,
+                style: const TextStyle(
+                fontFamily: 'Outfit',
+                color: Color(0xff2A2622),
+                fontSize: 12,
+                ),
+                items: ["All Events", "Shoot", "Available"]
+                    .map((value) => DropdownMenuItem(
+                value: value,
+                child: Text(value),
+                ))
+                    .toList(),
+                onChanged: (value) {
+                setState(() {
+                  nexwController.changeFilter(value!);
+                });//
+                },
+                ),
+                ),
+                )
                         ],
                       ),
       
@@ -251,7 +296,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                                 ),
       
                                 /// Event Tag
-                                if (event != null)
+                                if (event != null && nexwController.shouldShowEvent(event))
                                   Positioned(
                                     bottom: 6,
                                     left: 6,

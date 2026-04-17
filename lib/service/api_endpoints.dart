@@ -22,6 +22,10 @@ class ApiEndpoints {
   static const String editprofile= "creator/edit-profile";
   static const String acceptdeclineproject= "creator/accept-project";
   static const String addportfoliolink= "creator/profile/add-portfolio-links";
+  static const String myshootcount= "creator/shoot-count";
+
+
+
 
 
 
