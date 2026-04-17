@@ -374,7 +374,8 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   _buildStatCard(
                     icon: Icons.calendar_today_outlined,
                     title: "Available Days",
-                    value: "18",
+                    value: "${nexwController.availableCount}",
+
                   ),
       
                   const SizedBox(height: 12),
@@ -382,7 +383,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   _buildStatCard(
                     icon: Icons.videocam_outlined,
                     title: "Book Shoots",
-                    value: "07",
+                    value: "${nexwController.shootCount}",
                   ),
       
                   const SizedBox(height: 12),

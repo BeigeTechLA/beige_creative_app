@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../utility/imges_icons.dart';
 
 class ManageAvailabilityController extends ChangeNotifier {
+  int availableCount = 0;
+  int shootCount = 0;
   Map<DateTime, String> eventss = {};
 
   DateTime focusedDay = DateTime.now();
@@ -36,6 +38,8 @@ class ManageAvailabilityController extends ChangeNotifier {
   }
   void setAvailability(Map<String, dynamic> availability) {
     eventss.clear();
+    availableCount = 0;
+    shootCount = 0;
 
     availability.forEach((dateString, value) {
       final date = DateTime.parse(dateString);
@@ -46,8 +50,10 @@ class ManageAvailabilityController extends ChangeNotifier {
 
       if (isAssigned) {
         eventss[cleanDate] = "Shoot";
+        shootCount++;
       } else if (isAvailable) {
         eventss[cleanDate] = "Available";
+        availableCount++;
       }
     });
 

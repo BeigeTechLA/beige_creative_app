@@ -99,6 +99,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           rejectedPhoto = tabs["photo"]["rejectedShoots"] ?? 0;
           rejectedVideo = tabs["video"]["rejectedShoots"] ?? 0;
 
+           acceptphotographyShoots=tabs["photo"]["acceptedShoots"]??0;
+          acceptvideographyShoots=tabs["video"]["acceptedShoots"]??0;
+
+
           // ❌ OLD (गलत)
           // requestPhoto = tabs["photo"]["requests"] ?? 0;
 
@@ -120,6 +124,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   int photographyShoots = 0;
   int videographyShoots = 0;
+
+  int acceptphotographyShoots = 0;
+  int acceptvideographyShoots = 0;
 
 
   String getFilterValue() {
@@ -1422,17 +1429,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               ),
                               Column(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
+                                children: [
                                   Text(
-                                    "4,289",
-                                    style: TextStyle(
+                                    "${sucessfullshoots+pendingshoots+rejectedshoots+shootrequest}",
+                                    style: const TextStyle(
                                       color: Color(0xFFE8D7B9),
                                       fontSize: 26,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: "Outfit",
                                     ),
                                   ),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                 ],
                               ),
                             ],
@@ -1441,7 +1448,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                       const SizedBox(height: 35),
                       _statusItem("${sucessfullshoots}", "Successful Shoots", const Color(0xFFA678F1)),
-                      _statusItem("${pendingrequests}", "Pending Shoots", const Color(0xFF5CC4FF)),
+                      _statusItem("${pendingshoots}", "Pending Shoots", const Color(0xFF5CC4FF)),
                       _statusItem("${rejectedshoots}", "Rejected Shoots", const Color(0xFFFFC04F)),
                       _statusItem("${shootrequest}", "Shoot Requests", const Color(0xFF2DC497)),
                     ],
@@ -1573,17 +1580,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               ),
                               Column(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
+                                children: [
                                   Text(
-                                    "4,289",
-                                    style: TextStyle(
+                                    selectedTab == 0?
+                                    photographyShoots.toString()
+                                    :videographyShoots.toString(),
+                                    //      Text(
+                                    //                                     selectedTab == 0?
+                                    //                                     acceptphotographyShoots.toString()
+                                    //                                     :.toString(),
+
+                                    style: const TextStyle(
                                       color: Color(0xFFE8D7B9),
                                       fontSize: 26,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: "Outfit",
                                     ),
                                   ),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                 ],
                               ),
                             ],
@@ -1592,8 +1606,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                       const SizedBox(height: 35),
                       selectedTab == 0
-                          ? _statusItem("$photographyShoots", "Photography Shoots", const Color(0xFFA678F1))
-                          : _statusItem("$videographyShoots", "Videography Shoots", const Color(0xFF5CC4FF)),
+                          ? _statusItem("$acceptphotographyShoots", "Photography Shoots", const Color(0xFFA678F1))
+                          : _statusItem("$acceptvideographyShoots", "Videography Shoots", const Color(0xFF5CC4FF)),
+
                       _statusItem(
                         selectedTab == 0
                             ? "$rejectedPhoto"
