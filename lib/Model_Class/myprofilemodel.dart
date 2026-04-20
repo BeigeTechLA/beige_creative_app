@@ -80,11 +80,11 @@ class Data {
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    crewMemberFiles: json["crew_member_files"] == null
-        ? []
-        : List<CrewFile>.from(
+    crewMemberFiles: json["crew_member_files"] is List
+        ? List<CrewFile>.from(
       json["crew_member_files"].map((x) => CrewFile.fromJson(x)),
-    ),
+    )
+        : [],
     crewMemberId: json["crew_member_id"] ?? 0,
     firstName: json["first_name"] ?? "",
     lastName: json["last_name"] ?? "",
@@ -102,10 +102,9 @@ class Data {
       json["skills"].map((x) => Skill.fromJson(x)),
     ),
 
-    socialMediaLinks: json["social_media_links"] != null
+    socialMediaLinks: json["social_media_links"] is Map
         ? Map<String, dynamic>.from(json["social_media_links"])
         : {},
-
     user: User.fromJson(json["user"] ?? {}),
   );
 }
@@ -182,15 +181,17 @@ class User {
     primaryRole: json["primary_role"]?.toString() ?? "",
 
     /// 🔥 SKILLS FIX
-    skills: json["skills"] == null
-        ? []
-        : List<Skill>.from(
+    skills: json["skills"] is List
+        ? List<Skill>.from(
       json["skills"].map((x) => Skill.fromJson(x)),
-    ),
+    )
+        : [],
 
     equipmentOwnership: json["equipment_ownership"] ?? [],
     availability: json["availability"]?.toString() ?? "",
-    certifications: json["certifications"]?.toString() ?? "",
+    certifications: json["certifications"] is List
+        ? (json["certifications"] as List).join(", ")
+        : json["certifications"]?.toString() ?? "",
 
     /// 🔥 MAIN FIX (dynamic social links)
     socialMediaLinks: json["social_media_links"] != null

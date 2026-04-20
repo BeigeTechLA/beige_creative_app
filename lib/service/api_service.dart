@@ -23,7 +23,7 @@ class ApiService {
     final token = prefs.getString('token');
 
     if (token != null && token.isNotEmpty) {
-      print('🔐 Sending token: $token');
+      // print('🔐 Sending token: $token');
       return {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

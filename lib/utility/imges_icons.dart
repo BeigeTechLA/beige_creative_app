@@ -37,4 +37,8 @@ class AppImages {
   static const String avtarstack = "assets/images/avtarstack.png";
   static const String myprofile_edit = "assets/svg/myprofile_edit.svg";
 
+  ///
+
+  static const String User_Circle = "assets/svg/User_Circle.svg";
+
 }

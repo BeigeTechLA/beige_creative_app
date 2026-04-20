@@ -1,14 +1,20 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:beige_creative_app/Model_Class/myprofilemodel.dart';
 import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Model_Class/myprofilemodel.dart';
+import '../../auth/New_Creative_sing_up_follow/new_build_your_creative_profile.dart';
 import '../../auth/ProfileDetailsScreen .dart';
 import '../../service/shared_service.dart';
 import '../../utility/ColorCode.dart';
@@ -119,21 +125,355 @@ class _MyprofileState extends State<Myprofile> {
         return name.toLowerCase();
     }
   }
-  //
+  bool isSaving = false;
+
   bool isEditing = false;
+  bool isUploadingImage = false;
   File? _image;
   int editingIndex = -1;
+  Offset offset = Offset.zero;
+  Offset startOffset = Offset.zero;
+  double scale = 1.0;
+  double startScale = 1.0;
+  final ImagePicker _picker = ImagePicker();
+  File? _profileImage;
 
-  Future<void> _pickProfileImage() async {
-    debugPrint("IMAGE PICKER CLICKED");
-    final File? file = await AppUtils.showPicker(context);
 
-    if (!mounted || file == null) return;
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 100,
+    );
 
-    setState(() {
-      _image = file;
-    });
+    if (pickedFile != null) {
+      File file = File(pickedFile.path);
+
+      debugPrint("🟢 IMAGE PICKED: ${pickedFile.path}");
+
+      /// 🔥 OPEN CROP SHEET
+      openCustomCropSheet(file);
+    }
   }
+
+  void openCustomCropSheet(File imageFile) {
+    Offset offset = Offset.zero;
+    double scale = 1.0;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              decoration: const BoxDecoration(
+                color: Color(0xFF1C1C1C),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+
+
+                  Center(
+                    child: Container(
+                      width: 35,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color:ColorCode.kWhiteOpacity70,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Crop your Profile",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontFamily: "Outfit",
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+
+                      InkWell(
+                        onTap: () => Navigator.pop(context), // ❌ close bottom sheet
+                        borderRadius: BorderRadius.circular(20),
+                        child:  Padding(
+                          padding: EdgeInsets.all(6),
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+
+                  SizedBox(height: 20),
+
+                  Divider(color: ColorCode.kDividerWhite12,),
+
+                  /// 🔥 CIRCULAR PREVIEW AREA
+                  Expanded(
+                    child: Center(
+                      child:GestureDetector(
+                        onScaleStart: (details) {
+                          startScale = scale;
+                          startOffset = offset;
+                        },
+                        onScaleUpdate: (details) {
+                          setSheetState(() {
+                            scale = (startScale * details.scale).clamp(1.0, 4.0);
+                            // offset = startOffset + details.focalPointDelta;
+                            offset += details.focalPointDelta;
+                          });
+                        },
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+
+                            /// IMAGE (NOW CLIPPED)
+                            ClipRect(
+                              child: SizedBox(
+                                width: 320,
+                                height: 320,
+                                child: ClipRect(
+                                  child: Transform(
+                                    alignment: Alignment.center,
+                                    transform: Matrix4.identity()
+                                      ..translate(offset.dx, offset.dy)
+                                      ..scale(scale),
+                                    child: Image.file(
+                                      imageFile,
+                                      width: 340,
+                                      height: 340,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            /// CIRCLE OVERLAY
+                            IgnorePointer(
+                              child: CustomPaint(
+                                size: const Size(320, 320),
+                                painter: CircleHolePainter(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+
+                    ),
+                  ),
+
+
+
+
+
+
+                  const SizedBox(height: 16),
+
+                  /// 🔥 ZOOM SLIDER
+                  Padding(
+                    padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Row(
+                      children: [
+                        /// 🔹 LEFT IMAGE ICON
+                        SvgPicture.asset(
+                          "assets/svg/crop_image.svg", // 👈 your image
+
+                          height: 20,
+                          width: 20,
+                          /*  color: Colors.white.withOpacity(0.7), */// optional
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        /// 🔹 SLIDER
+                        Expanded(
+                          child: SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              trackHeight: 6,
+                              thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 10,
+                              ),
+                              overlayShape: const RoundSliderOverlayShape(
+                                overlayRadius: 14,
+                              ),
+                              activeTrackColor: ColorCode.kButtonColor,
+                              inactiveTrackColor: Colors.white.withOpacity(0.3),
+                              thumbColor: ColorCode.kButtonColor,
+                            ),
+                            child: Slider(
+                              min: 1,
+                              max: 5,
+                              value: scale,
+                              onChanged: (v) {
+                                setSheetState(() => scale = v);
+                              },
+                            ),
+                          ),
+
+                        ),
+
+                        const SizedBox(width: 10),
+
+
+                        /// 🔹 LEFT IMAGE ICON
+                        SvgPicture.asset(
+                          "assets/svg/crop_image.svg", // 👈 your image
+
+                          height: 26,
+                          width: 26,
+                          /*  color: Colors.white.withOpacity(0.7), */// optional
+                        ),
+                      ],
+                    ),
+                  ),
+
+
+                  const SizedBox(height: 10),
+
+                  /// 🔥 SAVE BUTTON
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorCode.kButtonColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () async {
+                        setSheetState(() {
+                          isSaving = true;
+                        });
+
+                        final cropped = await _cropImage(
+                          imageFile,
+                          scale,
+                          offset,
+                        );
+
+                        if (cropped != null) {
+                          setState(() {
+                            _profileImage = cropped;
+                          });
+
+                          debugPrint("✅ CROPPED IMAGE PATH: ${cropped.path}");
+
+                         await _uploadImage();
+                        }
+
+                        setSheetState(() {
+                          isSaving = false;
+                        });
+
+                        Navigator.pop(context);
+                      },
+                      child:  Text(
+                        "Save",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontFamily: "Unbounded",
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+  Future<File?> _cropImage(
+      File imageFile,
+      double scale,
+      Offset offset,
+      ) async {
+    try {
+      final bytes = await imageFile.readAsBytes();
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      final ui.Image image = frame.image;
+
+      // UI size (crop widget size)
+      const double uiSize = 360;
+      const double cropUI = 260; // jitna UI me crop box hai
+
+      final imgW = image.width.toDouble();
+      final imgH = image.height.toDouble();
+
+      // Ratio (safe for portrait + landscape)
+      final ratioX = imgW / uiSize;
+      final ratioY = imgH / uiSize;
+      final ratio = ratioX < ratioY ? ratioX : ratioY;
+
+      // Real image crop size
+      final cropSize = (cropUI * ratio) / scale;
+
+      // Center based crop
+      double dx = (imgW / 2) - (cropSize / 2) - (offset.dx * ratio);
+      double dy = (imgH / 2) - (cropSize / 2) - (offset.dy * ratio);
+
+      // Prevent overflow
+      dx = dx.clamp(0.0, imgW - cropSize);
+      dy = dy.clamp(0.0, imgH - cropSize);
+
+      // Canvas
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      final paint = Paint()
+        ..isAntiAlias = true
+        ..filterQuality = FilterQuality.high;
+
+      // ✅ NO CLIP — PURE RECTANGLE IMAGE
+      canvas.drawImageRect(
+        image,
+        Rect.fromLTWH(dx, dy, cropSize, cropSize),
+        Rect.fromLTWH(0, 0, cropSize, cropSize),
+        paint,
+      );
+
+      final pic = recorder.endRecording();
+      final cropped =
+      await pic.toImage(cropSize.toInt(), cropSize.toInt());
+
+      final data =
+      await cropped.toByteData(format: ui.ImageByteFormat.png);
+
+      final dir = await getTemporaryDirectory();
+      final file = File(
+        "${dir.path}/crop_${DateTime.now().millisecondsSinceEpoch}.png",
+      );
+
+      await file.writeAsBytes(data!.buffer.asUint8List());
+      return file;
+    } catch (e) {
+      debugPrint("❌ Crop failed: $e");
+      return null;
+    }
+  }
+
+
 
   String getPlatformKey(String name) {
     switch (name.toLowerCase()) {
@@ -147,6 +487,71 @@ class _MyprofileState extends State<Myprofile> {
         return "behance";
       default:
         return name.toLowerCase();
+    }
+  }
+  Future<void> _uploadImage() async {
+    if (_profileImage == null) {
+      debugPrint("❌ No image selected");
+      return;
+    }
+
+    try {
+      setState(() {
+        isUploadingImage = true;
+      });
+
+      final filePath = _profileImage!.path;
+      final fileName = filePath.split('/').last;
+
+      debugPrint("📤 Uploading Image...");
+      debugPrint("📁 Path: $filePath");
+      debugPrint("📄 FileName: $fileName");
+
+      FormData formData = FormData.fromMap({
+        "crew_member_id": Myprofile_user?.crewMemberId, //
+        "profile_photo": await MultipartFile.fromFile(
+
+          filePath,
+          filename: fileName,
+        ),
+      });
+
+      final dio = Dio();
+      final headers = await ApiService().createAuthorizationHeader();
+
+      final url =
+          "${ApiService().baseUrl}creator/profile/upload-profile-photo";
+
+      debugPrint("🌐 API URL: $url");
+      debugPrint("🔑 Headers: $headers");
+
+      final response = await dio.post(
+        url,
+        data: formData,
+        options: Options(
+          headers: {
+            ...headers,
+            "Accept": "application/json",
+            "Content-Type": "multipart/form-data",
+          },
+        ),
+      );
+
+      debugPrint("✅ RESPONSE STATUS: ${response.statusCode}");
+      debugPrint("📦 RESPONSE DATA: ${response.data}");
+
+      if (response.statusCode == 200) {
+        debugPrint("🎉 IMAGE UPLOAD SUCCESS");
+        await fetchprofiledata();
+      } else {
+        debugPrint("❌ Upload failed with status: ${response.statusCode}");
+      }
+    } catch (e) {
+      debugPrint("❌ Upload error: $e");
+    } finally {
+      setState(() {
+        isUploadingImage = false;
+      });
     }
   }
 
@@ -292,53 +697,54 @@ class _MyprofileState extends State<Myprofile> {
     return chips;
   }
   bool isloading=false;
-  
-Data? user;
-Future<void>fetchprofiledata()async{
 
-    try{
-      final response=Myprofilemodel.fromJson(await ApiService().postData(ApiEndpoints.profiledetails,{}));
 
-      debugPrint('API Response is :$response');
-      setSocialLinksFromApi(response.data.socialMediaLinks); // 🔥 IMPORTANT
-      /// 🔥 PORTFOLIO FROM API
-      final portfolio = response.data.crewMemberFiles
-          .where((e) => e.fileType == "link")
-          .toList();
+Data? Myprofile_user;
 
-      /// 👉 convert to UI list
-      List<Map<String, String>> tempPortfolio = portfolio.map((item) {
-        return {
-          "id":item.crewFilesId.toString(),
-          "name": item.tag,
-          "url": item.filePath,
-          "icon": getPortfolioIcon(item.tag),
-        };
-      }).toList();
-
+  Future<void> fetchprofiledata() async {
+    try {
       setState(() {
-        portfolioLinks = tempPortfolio; // 🔥 IMPORTANT
+        isloading = true;
       });
 
+      final rawResponse =
+      await ApiService().postData(ApiEndpoints.profiledetails, {});
 
+      debugPrint("📦 RAW API RESPONSE: $rawResponse");
 
-      if(response.error==false){
+      final response = Myprofilemodel.fromJson(rawResponse);
+
+      debugPrint("✅ PARSED RESPONSE: ${response.data}");
+
+      if (response.error == false) {
+
+        /// ✅ SOCIAL LINKS
+        setSocialLinksFromApi(response.data.socialMediaLinks);
+
+        /// ✅ PORTFOLIO LINKS
+        final portfolio = response.data.crewMemberFiles
+            .where((e) => e.fileType == "link")
+            .toList();
+
+        debugPrint("🎯 Portfolio Count: ${portfolio.length}");
+
+        /// ✅ IMPORTANT CHANGE (USE NESTED USER)
         setState(() {
-          user=response.data;
+
+          Myprofile_user = response.data;
         });
-      }else{
 
-        debugPrint('error is:${response.message}');
+      } else {
+        debugPrint("❌ API ERROR: ${response.message}");
       }
-
-      
-    }catch(e){
-      debugPrint("Error is::$e");
-    }finally{
-    
+    } catch (e) {
+      debugPrint("❌ EXCEPTION: $e");
+    } finally {
+      setState(() {
+        isloading = false;
+      });
     }
   }
-
 
 
 
@@ -464,7 +870,7 @@ Future<void>fetchprofiledata()async{
 
                 /// 🔹 PROFILE IMAGE (CUT INTO CURVE)
                 Positioned(
-                  bottom: -48,
+                  bottom: -20,
                   left: 0,
                   right: 0,
                   child: Center(
@@ -480,47 +886,57 @@ Future<void>fetchprofiledata()async{
                             radius: 48,
                             backgroundColor: Colors.grey.shade200,
                             child: ClipOval(
-                              child: _image != null
+                              child: _profileImage != null
                                   ? Image.file(
-                                      _image!,
-                                      width: 96,
-                                      height: 96,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.asset(
-                                      AppImages.profilepicture,
-                                      width: 96,
-                                      height: 96,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
+                                _profileImage!,
+                                width: 96,
+                                height: 96,
+                                fit: BoxFit.cover,
+                              )
+                                  : (Myprofile_user?.user.profileImageUrl != null &&
+                                  Myprofile_user!.user.profileImageUrl.isNotEmpty)
+                                  ? Image.network(
+                                Myprofile_user!.user.profileImageUrl,
+                                width: 96,
+                                height: 96,
+                                fit: BoxFit.cover,
+
+                              )
+                                  : SvgPicture.asset(
+                                AppImages.User_Circle,
+                                width: 96,
+                                height: 96,
+                                fit: BoxFit.cover,
+                              ),
+                            )
                           ),
 
 
                         ),
                         Positioned(
-                          bottom: 8,
+                          bottom: 0,
                           right: 2,
                           child: Material(
                             color: Colors.transparent,
-                            shape: const CircleBorder(),
-                            child: InkWell(
-                              onTap: _pickProfileImage,
-                              customBorder: const CircleBorder(),
+                            child: GestureDetector(
+                              // borderRadius: BorderRadius.circular(30),
+                              onTap: () {
+                                debugPrint("🔥 EDIT CLICKED");
+                                _pickImage();
+                              },
                               child: Container(
-                                padding: const EdgeInsets.all(9),
+                                width: 45,
+                                height: 35,
+                                alignment: Alignment.center,
                                 decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.white,
-                                  ),
+                                  border: Border.all(color: Colors.white),
                                   color: ColorCode.kGoldGradientLight,
                                   shape: BoxShape.circle,
                                 ),
-
                                 child: SvgPicture.asset(
                                   AppImages.myprofileeditphoto,
-                                  height: 16,
-                                  width: 16,
+                                  height: 18,
+                                  width: 18,
                                 ),
                               ),
                             ),
@@ -539,7 +955,7 @@ Future<void>fetchprofiledata()async{
 
             /// 🔹 USER INFO
             Text(
-             "${user?.firstName} ${user?.lastName}",
+              "${Myprofile_user?.firstName ?? ''} ${Myprofile_user?.lastName ?? ''}",
               style: TextStyle(
                 fontFamily: "Outfit",
                 color: Colors.white,
@@ -549,7 +965,7 @@ Future<void>fetchprofiledata()async{
             ),
             const SizedBox(height: 4),
             Text(
-            "${user?.email} | ${user?.location}",
+              "${Myprofile_user?.email ?? ''} | ${Myprofile_user?.location ?? ''}",
               style: TextStyle(
                 color: ColorCode.kWhiteOpacity60,
                 fontFamily: "Outfit",
@@ -597,18 +1013,22 @@ Future<void>fetchprofiledata()async{
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       infoCard(
-                        value: "\$${double.tryParse(user?.hourlyRate ?? '0')?.toInt() ?? 0}",
+                        value:
+                        "\$${double.tryParse(Myprofile_user?.hourlyRate ?? '0')?.toInt() ?? 0}",
                         title: "Per Hour",
                         icon: AppImages.doller,
                       ),
+
                       infoCard(
                         icon: AppImages.medal,
-                        value: "${user?.yearsOfExperience.toString().padLeft(2,'0')} yrs",
+                        value:
+                        "${(Myprofile_user?.yearsOfExperience ?? 0).toString().padLeft(2, '0')} yrs",
                         title: "Experience",
                       ),
+
                       infoCard(
                         icon: AppImages.map,
-                        value: "${user?.workingDistance}",
+                        value: "${Myprofile_user?.workingDistance ?? ''}",
                         title: "Radius",
                       ),
                     ],
@@ -617,7 +1037,9 @@ Future<void>fetchprofiledata()async{
                   Wrap(
                     spacing: 10,
                     children: _buildSkillChips(
-                      (user?.skills ?? []).map((e) => e.name).toList(),
+                      (Myprofile_user?.skills ?? [])
+                          .map((e) => e.name)
+                          .toList(),
                     ),
                   ),
                   Container(
@@ -643,11 +1065,11 @@ Future<void>fetchprofiledata()async{
                         ),
                         SizedBox(width: 6),
                         Text(
-                          user?.isAvailable==1?
-                          "Available":'Unavailable',
+                          Myprofile_user?.isAvailable == 1 ? "Available" : "Unavailable",
                           style: TextStyle(
-                            color:user?.isAvailable==1?
-                            Color(0xFF1DAA23):Colors.red,
+                            color: Myprofile_user?.isAvailable == 1
+                                ? Color(0xFF1DAA23)
+                                : Colors.red,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),

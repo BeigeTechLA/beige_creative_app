@@ -24,6 +24,10 @@ class ApiEndpoints {
   static const String addportfoliolink= "creator/profile/add-portfolio-links";
   static const String myshootcount= "creator/shoot-count";
 
+  ///My profile
+
+  static const String upload_photo = "creator/profile/upload-profile-photot";
+
 
 
 

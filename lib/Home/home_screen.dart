@@ -14,15 +14,19 @@ import '../Model_Class/Crewstatusmodel.dart';
 import '../Model_Class/Dashboardcountmodel.dart';
 import '../Model_Class/Shootstatusmodel.dart';
 import '../Model_Class/Upcomingshootsmodel.dart';
-import '../Profile/MyProfile/MyProfile.dart' show Myprofile;
+import '../Model_Class/Creatordashboarddetailsmodel.dart' as dashboard;
+import '../Model_Class/myprofilemodel.dart' as profile;
+
+import '../Model_Class/myprofilemodel.dart';
+import '../Profile/MyProfile/MyProfile.dart';
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../utility/ColorCode.dart';
 import '../widgets/multi_arc_painter.dart';
 
 class HomeScreen extends StatefulWidget {
-  final Function(int)? onTabChange;
+  // final Function(int)? onTabChange;
 
-  const HomeScreen({super.key, this.onTabChange});
+  const HomeScreen({super.key, });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -33,6 +37,61 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   int rejectedVideo = 0;
   int requestPhoto = 0;
   int requestVideo = 0;
+
+  bool isloading =true;
+
+  String name = "";
+  String email = "";
+  String image = "";
+  profile.Data? Myprofile_user;
+
+
+/*  Data? Myprofile_user;*/
+
+
+  Future<void> fetchprofiledata() async {
+    try {
+      setState(() {
+        isloading = true;
+      });
+
+      final rawResponse =
+      await ApiService().postData(ApiEndpoints.profiledetails, {});
+
+      debugPrint("📦 RAW API RESPONSE: $rawResponse");
+
+      final response = Myprofilemodel.fromJson(rawResponse);
+
+      debugPrint("✅ PARSED RESPONSE: ${response.data}");
+
+      if (response.error == false) {
+
+        /// ✅ SOCIAL LINKS
+
+        /// ✅ PORTFOLIO LINKS
+        final portfolio = response.data.crewMemberFiles
+            .where((e) => e.fileType == "link")
+            .toList();
+
+        debugPrint("🎯 Portfolio Count: ${portfolio.length}");
+
+        /// ✅ IMPORTANT CHANGE (USE NESTED USER)
+        setState(() {
+          Myprofile_user = response.data;
+        });
+
+      } else {
+        debugPrint("❌ API ERROR: ${response.message}");
+      }
+    } catch (e) {
+      debugPrint("❌ EXCEPTION: $e");
+    } finally {
+      setState(() {
+        isloading = false;
+      });
+    }
+  }
+
   Future<void> fetchacceptdecline(int projectid, int crewid) async {
     final response = await ApiService().postData(
       ApiEndpoints.acceptdeclineproject,
@@ -173,14 +232,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
 
 
-  final prefs = SharedPreferences.getInstance();
-  String? name;
-
-  Future<void> _loadname() async {
+  void getData() async {
     final prefs = await SharedPreferences.getInstance();
-    name = prefs.getString('name');
-    setState(() {});
+
+    setState(() {
+      name = prefs.getString('name') ?? '';
+      email = prefs.getString('email') ?? '';
+      image = prefs.getString('profile_image_url') ?? '';
+    });
   }
+
 
   Map<DateTime, String> events = {};
 
@@ -289,11 +350,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     super.initState();
     fetchCrewStats("this_month"); // default
     fetchShootCategories("photo"); // default tab
-    _loadname();
+    getData();
     fetchavailability();
     fetchcreatordashboarddetails();
     fetchdashboardcount();
     fetchupcomingshoots();
+    fetchprofiledata();
     _controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
@@ -512,7 +574,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            "Welcome Back, ${name?.split(' ').first ?? 'User'}",
+                            "Welcome Back, ${Myprofile_user?.firstName?? 'User..'}",
                             style: const TextStyle(
                               fontSize: 16,
                               fontFamily: "Outfit",
@@ -540,10 +602,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               ),
                             );
                           },
-                          child: CircleAvatar(
+                          child:CircleAvatar(
                             radius: 20,
-                            backgroundImage: AssetImage("assets/home/Vector.png"),
-                          ),
+                            backgroundImage: (Myprofile_user?.user.profileImageUrl ?? "").isNotEmpty
+                                ? NetworkImage(
+                              "${ApiService.imageURL}${Myprofile_user!.user.profileImageUrl}",
+                            )
+                                : null, // 🔥 important
+
+                            child: (Myprofile_user?.user.profileImageUrl ?? "").isEmpty
+                                ? SvgPicture.asset(
+                              AppImages.User_Circle,
+                              width: 20,
+                              height: 20,
+                            )
+                                : null,
+                          )
                         ),
                       ],
                     ),
@@ -586,7 +660,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         index: 0,
                         title: "Completed Shoots",
                         count: completedshoots,
-                        percent: "+3% from last month",
+                        // percent: "+3% from last month",
                         percentColor: Colors.green,
                         iconPath: "assets/images/svideo.png",
                       ),
@@ -595,7 +669,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         index: 1,
                         title: "Upcoming Shoots",
                         count: upcomingshoots,
-                        percent: "+3% from last month",
+                        // percent: "+3% from last month",
                         percentColor: Colors.green,
                         iconPath: "assets/images/scalender.png",
                       ),
@@ -604,7 +678,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         index: 2,
                         title: "Pending Requests",
                         count: pendingrequests,
-                        percent: "-2% from last month",
+                        // percent: "-2% from last month",
                         percentColor: Colors.red,
                         iconPath: "assets/images/stime.png",
                       ),
@@ -987,9 +1061,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                     ),
                     InkWell(
-                      onTap: () {
+                   /*   onTap: () {
                         widget.onTabChange?.call(1); // 👈 Shoots tab
-                      },
+                      },*/
                       child: const Icon(
                         Icons.arrow_forward_ios,
                         color: Colors.white70,
@@ -2117,7 +2191,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     required int index,
     required String title,
     required int count,
-    required String percent,
+    // required String percent,
     required Color percentColor,
     required String iconPath,
   }) {
@@ -2161,13 +2235,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
+           /*     Text(
                   percent,
                   style: TextStyle(
                     fontSize: 11,
                     color: isSelected ? Colors.green : percentColor,
                   ),
-                ),
+                ),*/
               ],
             ),
             CircleAvatar(

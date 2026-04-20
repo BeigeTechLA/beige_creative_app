@@ -283,8 +283,11 @@
 
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
+import 'package:beige_creative_app/service/shared_service.dart';
+import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Home/home_screen.dart';
 import 'Model_Class/myprofilemodel.dart';
@@ -303,47 +306,34 @@ class Mainscreen extends StatefulWidget {
 }
 
 class _MainscreenState extends State<Mainscreen> {
+
+  String name = "";
+  String email = "";
+  String image = "";
+
   @override
   void initState() {
     super.initState();
-    fetchdrawerprofile();
+    getData();
   }
 
+  void getData() async {
+    final prefs = await SharedPreferences.getInstance();
 
-
-  User? user;
-  Future<void>fetchdrawerprofile()async{
-
-
-
-
-    try{
-      final response=Myprofilemodel.fromJson(await ApiService().postData(ApiEndpoints.profiledetails,{}));
-
-      debugPrint('API Response is :$response');
-
-      if(response.error==false){
-        setState(() {
-          user=response.data.user;
-        });
-      }else{
-
-        debugPrint('error is:${response.message}');
-      }
-
-
-    }catch(e){
-      debugPrint("Error is::$e");
-    }finally{
-
-    }
+    setState(() {
+      name = prefs.getString('name') ?? '';
+      email = prefs.getString('email') ?? '';
+      image = prefs.getString('profile_image_url') ?? '';
+    });
   }
+
 
   int _selectedIndex = 0;
 
   /// 🔥 Bottom Navigation Pages
   late final List<Widget> _pages = [
-    HomeScreen(onTabChange: _onItemTapped), // 👈 yaha change
+    // HomeScreen(onTabChange: _onItemTapped), //
+    const HomeScreen(),
     const ShootsScreen(),
     const FileManagerScreen(),
     const MessagesScreen(),
@@ -363,11 +353,12 @@ class _MainscreenState extends State<Mainscreen> {
       drawer: _buildDrawer(),
 
       /// 🔥 IndexedStack = state safe
-      body: IndexedStack(
+  /*    body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
       ),
-
+*/
+      body: _pages[_selectedIndex],
       bottomNavigationBar: _buildBottomBar(),
     );
   }
@@ -480,9 +471,19 @@ class _MainscreenState extends State<Mainscreen> {
                       ),
                       child: Row(
                         children: [
-                          const CircleAvatar(
+                          CircleAvatar(
                             radius: 25,
-                            backgroundImage: AssetImage("assets/home/Vector.png"),
+                            // backgroundColor: Colors.grey.shade200,
+                            backgroundImage: image.isNotEmpty
+                                ? NetworkImage("${ApiService.imageURL}$image")
+                                : null,
+                            child: image.isEmpty
+                                ? SvgPicture.asset(
+                              AppImages.User_Circle,
+                              width: 25,
+                              height: 25,
+                            )
+                                : null,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -490,7 +491,7 @@ class _MainscreenState extends State<Mainscreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "${user?.name}",
+                              name,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -500,7 +501,7 @@ class _MainscreenState extends State<Mainscreen> {
                                 ),
                                 const SizedBox(height: 4),
                                  Text(
-                                  "${user?.email}",
+                                   email,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontFamily: "Outfit",
@@ -619,24 +620,4 @@ class _MainscreenState extends State<Mainscreen> {
     );
   }
 
-
-  /// 🔥 Drawer Push Screen
-  Widget _drawerPushItem(String title, IconData icon, Widget screen) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white70),
-      title: Text(
-        title,
-        style: const TextStyle(color: Colors.white),
-      ),
-      onTap: () {
-        Navigator.pop(context);
-        Future.delayed(const Duration(milliseconds: 200), () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => screen),
-          );
-        });
-      },
-    );
-  }
 }

@@ -610,7 +610,9 @@ class PendingRequest {
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
     crewAccept: json["crew_accept"],
-    respondedAt: json["responded_at"],
+    respondedAt: json["responded_at"] == null
+        ? null
+        : DateTime.parse(json["responded_at"]),
     roleId: json["role_id"],
     eventDate: DateTime.parse(json["event_date"]),
     startTime: json["start_time"],
