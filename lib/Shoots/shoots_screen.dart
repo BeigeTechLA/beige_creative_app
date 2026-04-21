@@ -402,19 +402,19 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-
+                   SizedBox(),
                     /// ✅ LEFT SIDE (Avatar Stack)
-                    _buildAvatarStack(
-                      images: [
-                        AppImages.avtarstack,
-                        AppImages.avtarstack,
-                        AppImages.avtarstack,
-                        AppImages.avtarstack,
-                      ],
-                      extraCount: 3,
-                      avatarSize: 20,
-                      overlap: 10,
-                    ),
+                    // _buildAvatarStack(
+                    //   images: [
+                    //     AppImages.avtarstack,
+                    //     AppImages.avtarstack,
+                    //     AppImages.avtarstack,
+                    //     AppImages.avtarstack,
+                    //   ],
+                    //   extraCount: 3,
+                    //   avatarSize: 20,
+                    //   overlap: 10,
+                    // ),
 
                     /// ✅ RIGHT SIDE (Your SAME Buttons - untouched)
                     Row(
