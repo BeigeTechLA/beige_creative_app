@@ -965,11 +965,13 @@ Data? Myprofile_user;
             ),
             const SizedBox(height: 4),
             Text(
+              maxLines: 2,
               "${Myprofile_user?.email ?? ''} | ${Myprofile_user?.location ?? ''}",
               style: TextStyle(
                 color: ColorCode.kWhiteOpacity60,
                 fontFamily: "Outfit",
                 fontSize: 14,
+                overflow: TextOverflow.ellipsis,
                 fontWeight: FontWeight.w400,
               ),
             ),

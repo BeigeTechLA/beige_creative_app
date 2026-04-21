@@ -15,13 +15,13 @@ class ProfileDetils1screen extends StatefulWidget {
 }
 
 class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
-  String getPrimaryRole(String? role) {
-    switch (role) {
-      case "1": return "Videographer";
-      case "2": return "Photographer";
-      default: return "-";
-    }
-  }
+  // String getPrimaryRole(String? role) {
+  //   switch (role) {
+  //     case "1": return "Videographer";
+  //     case "2": return "Photographer";
+  //     default: return "-";
+  //   }
+  // }
 
 
   @override
@@ -29,9 +29,18 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
     super.initState();
     fetchprofiledata();
   }
+  String getPrimaryRole(String? role) {
+    if (role == null || role.isEmpty) return "-";
+
+    if (role.contains("1")) return "Videographer";
+    if (role.contains("2")) return "Photographer";
+
+    return "-";
+  }
 
 
   User? user;
+  Data? profileData;
   Future<void>fetchprofiledata()async{
 
     try{
@@ -42,6 +51,8 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       if(response.error==false){
         setState(() {
           user=response.data.user;
+          profileData = response.data; // ✅ ADD THIS
+
         });
       }else{
 
@@ -149,8 +160,8 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const Text(
-                  "Priya Smith",
+                 Text(
+                  "$firstName $lastName",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -171,7 +182,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                 _buildInfoRow("Email", user?.email ?? "No Email Found"),
                 _buildInfoRow("Contact Number", user?.phoneNumber ?? "No mobile number found"),
                 _buildInfoRow("Location", user?.location ?? "No location Found"),
-                _buildInfoRow("Working Distance", user?.workingDistance ?? "No found"),
+                _buildInfoRow(
+                  "Working Distance",
+                  profileData?.workingDistance ?? "No found",
+                )
               ],
             ),
           ),
@@ -188,9 +202,19 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
               width: 3,
             ),
           ),
-          child: const CircleAvatar(
-            radius: 50,
-            backgroundImage: AssetImage("assets/home/Vector.png"),
+          child: ClipOval(
+            child: Image.network(
+              ApiService().getImageURL(user?.profileImageUrl ?? ""),
+              fit: BoxFit.cover,
+
+              /// ❌ error → fallback
+              errorBuilder: (_, __, ___) {
+                return Image.asset(
+                  "assets/home/Vector.png",
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -198,17 +222,20 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
   }
 
   Widget _buildProfessionalCard() {
+    final nameParts = (user?.name ?? "").trim().split(" ");
+    final firstName = nameParts.isNotEmpty && nameParts.first.isNotEmpty ? nameParts.first : "No name";
+    final lastName = nameParts.length > 1 && nameParts.last.isNotEmpty ? nameParts.last : "No Name";
     return Stack(
       alignment: Alignment.topCenter,
       children: [
         Container(
-          margin: const EdgeInsets.only(
+          margin:  EdgeInsets.only(
             top: 50,
             left: 13,
             right: 13,
             bottom: 20,
           ),
-          padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
+          padding:  EdgeInsets.fromLTRB(20, 70, 20, 20),
           width: double.infinity,
           decoration: BoxDecoration(
             color: ColorCode.k282828,
@@ -218,9 +245,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Center(
+
+                 Center(
                   child: Text(
-                    "Priya Smith",
+                    "$firstName $lastName",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -230,14 +258,33 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                 ),
 
                 const SizedBox(height: 15),
-
                 Center(child: _editButton()),
 
                 const SizedBox(height: 25),
                 const Divider(color: Colors.white24),
                 const SizedBox(height: 20),
-                _buildInfoRow("Primary Role", getPrimaryRole(user?.primaryRole)),
-                _buildInfoRow("Years of Experience", user?.yearsOfExperience != null ? user!.yearsOfExperience.toString().padLeft(2, '0') : "-"),                _buildInfoRow("Hourly Rate (\$)", user?.hourlyRate != null ? "\$${user!.hourlyRate}" : "No Rate Found"),
+
+                /// 🔥 FIXED (NO getPrimaryRole)
+                _buildInfoRow(
+                  "Primary Role",
+                  getPrimaryRole(profileData?.primaryRole),
+                ),
+
+                /// 🔥 FIXED (use profileData)
+                _buildInfoRow(
+                  "Years of Experience",
+                  profileData != null
+                      ? "${profileData!.yearsOfExperience} Years"
+                      : "-",
+                ),
+
+                /// 🔥 FIXED (use profileData)
+                _buildInfoRow(
+                  "Hourly Rate (\$)",
+                  profileData != null && profileData!.hourlyRate.isNotEmpty
+                      ? "\$${profileData!.hourlyRate}"
+                      : "No Rate Found",
+                ),
 
                 const SizedBox(height: 15),
 
@@ -248,22 +295,31 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                     fontSize: 13,
                   ),
                 ),
+
                 const SizedBox(height: 8),
 
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.black26,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    "Livestream Audio",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                  ),
+                /// 🔥 FIXED (dynamic skills)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: profileData?.skills.map((skill) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        skill.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  }).toList() ??
+                      [],
                 ),
 
                 const SizedBox(height: 20),
@@ -278,9 +334,12 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
                 const SizedBox(height: 8),
 
-                const Text(
-                  "A creative photographer with experience in events, lifestyle, and commercial shoots. Passionate about storytelling through visuals and committed to delivering.",
-                  style: TextStyle(
+                /// 🔥 FIXED (dynamic bio)
+                Text(
+                  profileData?.bio.isNotEmpty == true
+                      ? profileData!.bio
+                      : "-",
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
                   ),
@@ -290,7 +349,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           ),
         ),
 
-        // ✅ Avatar with golden border
+        /// AVATAR
         Container(
           width: 104,
           height: 104,
@@ -301,9 +360,19 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
               width: 3,
             ),
           ),
-          child: const CircleAvatar(
-            radius: 50,
-            backgroundImage: AssetImage("assets/home/Vector.png"),
+          child: ClipOval(
+            child: Image.network(
+              ApiService().getImageURL(user?.profileImageUrl ?? ""),
+              fit: BoxFit.cover,
+
+              /// ❌ error → fallback
+              errorBuilder: (_, __, ___) {
+                return Image.asset(
+                  "assets/home/Vector.png",
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
           ),
         ),
       ],

@@ -49,6 +49,8 @@ class Data {
 }
 
 class PendingRequestCard {
+  final String shootType;
+  final String shootTypeImageUrl;
   final int id;
   final int projectId;
   final int crewMemberId;
@@ -81,6 +83,8 @@ class PendingRequestCard {
     required this.status,
     required this.crewAccept,
     required this.cta,
+    required this.shootType,
+    required this.shootTypeImageUrl,
   });
 
   factory PendingRequestCard.fromRawJson(String str) => PendingRequestCard.fromJson(json.decode(str));
@@ -88,6 +92,8 @@ class PendingRequestCard {
   String toRawJson() => json.encode(toJson());
 
   factory PendingRequestCard.fromJson(Map<String, dynamic> json) => PendingRequestCard(
+    shootType: json["shoot_type"] ?? "",
+    shootTypeImageUrl: json["shoot_type_image_url"] ?? "",
     id: json["id"],
     projectId: json["project_id"],
     crewMemberId: json["crew_member_id"],
@@ -106,6 +112,8 @@ class PendingRequestCard {
   );
 
   Map<String, dynamic> toJson() => {
+    "shoot_type": shootType,
+    "shoot_type_image_url": shootTypeImageUrl,
     "id": id,
     "project_id": projectId,
     "crew_member_id": crewMemberId,

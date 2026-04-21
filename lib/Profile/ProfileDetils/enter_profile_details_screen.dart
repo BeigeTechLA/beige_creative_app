@@ -127,7 +127,7 @@ class _EnterProfileDetailsScreenState
 
               /// ROLE
               CustomDropdownField(
-                label: "Primary Role",
+                label: "Primary Role ",
                 value: selectedRole,
                 items: const [
                   "Photographer",
@@ -207,7 +207,7 @@ class _EnterProfileDetailsScreenState
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFD6C3A3),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14),//
               ),
             ),
             onPressed:() {

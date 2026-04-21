@@ -94,7 +94,40 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
       }
     });
   }
+  Future<void> updateProfile() async {
+    try {
+      Map<String, dynamic> body = {
+        "first_name": firstnamecontroller.text,
+        "last_name": lastnamecontroller.text,
+        "email": emailcontroller.text,
+        "phone_number": phonecontroller.text,
+        "location": searchController.text,
+        "working_distance": selectedSkill,
+        "years_of_experience": experienceController.text,
+        "hourly_rate": rateController.text,
+        "bio": bioController.text,
+      };
 
+      final response = await ApiService().postData(
+        ApiEndpoints.editprofile, // 👈 endpoint check kar lena
+        body,
+      );
+
+      if (response["error"] == false) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Profile Updated Successfully")),
+        );
+
+        Navigator.pop(context); // 👈 back jaa
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response["message"])),
+        );
+      }
+    } catch (e) {
+      print("UPDATE ERROR: $e");
+    }
+  }
 
   EditProfileModel?  mylist;
   Future<void> editpersonaldetails() async {
@@ -456,10 +489,12 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFD6C3A3),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14),//
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              updateProfile();
+            },
             child: const Text(
               "Save",
               style: TextStyle(

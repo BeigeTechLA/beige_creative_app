@@ -29,6 +29,8 @@ class Upcomingshootsmodel {
 }
 
 class upcomingdatum {
+  final String shootType;
+  final String shootTypeImageUrl;
   final int projectId;
   final String projectName;
   final DateTime eventDate;
@@ -39,6 +41,8 @@ class upcomingdatum {
   final bool isCompleted;
 
   upcomingdatum({
+    required this.shootType,
+    required this.shootTypeImageUrl,
     required this.projectId,
     required this.projectName,
     required this.eventDate,
@@ -54,6 +58,8 @@ class upcomingdatum {
   String toRawJson() => json.encode(toJson());
 
   factory upcomingdatum.fromJson(Map<String, dynamic> json) => upcomingdatum(
+    shootType: json["shoot_type"] ?? "",
+    shootTypeImageUrl: json["shoot_type_image_url"] ?? "",
     projectId: json["project_id"],
     projectName: json["project_name"],
     eventDate: DateTime.parse(json["event_date"]),
@@ -65,6 +71,8 @@ class upcomingdatum {
   );
 
   Map<String, dynamic> toJson() => {
+    "shoot_type": shootType,
+    "shoot_type_image_url": shootTypeImageUrl,
     "project_id": projectId,
     "project_name": projectName,
     "event_date": "${eventDate.year.toString().padLeft(4, '0')}-${eventDate.month.toString().padLeft(2, '0')}-${eventDate.day.toString().padLeft(2, '0')}",
