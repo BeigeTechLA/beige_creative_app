@@ -45,6 +45,10 @@ class Myprofilemodel {
 }
 
 class Data {
+  final Map<String, dynamic> stats;
+  final List<dynamic> equipmentOwnership;
+  final String bio;
+  final String primaryRole;
   final int crewMemberId;
   final String firstName;
   final String lastName;
@@ -55,6 +59,7 @@ class Data {
   final int yearsOfExperience;
   final String hourlyRate;
   final int isAvailable;
+  final dynamic availability;
 
   final List<Skill> skills;
   final Map<String, dynamic> socialMediaLinks;
@@ -77,9 +82,19 @@ class Data {
     required this.socialMediaLinks,
     required this.user,
     required this.crewMemberFiles,
+    required this.primaryRole,
+    required this.bio,
+    required this.equipmentOwnership,
+    required this.availability,
+    required this.stats,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
+    stats: json["stats"] ?? {},
+    availability: json["availability"],
+    equipmentOwnership: json["equipment_ownership"] ?? [],
+    bio: json["bio"] ?? "",
+    primaryRole: json["primary_role"]?.toString() ?? "",
     crewMemberFiles: json["crew_member_files"] is List
         ? List<CrewFile>.from(
       json["crew_member_files"].map((x) => CrewFile.fromJson(x)),
@@ -178,7 +193,10 @@ class User {
     hourlyRate: json["hourly_rate"]?.toString() ?? "",
     yearsOfExperience: json["years_of_experience"] ?? 0,
     bio: json["bio"]?.toString() ?? "",
-    primaryRole: json["primary_role"]?.toString() ?? "",
+    primaryRole: json["primary_role"] != null
+        ? (jsonDecode(json["primary_role"]) as List).join(", ")
+        : "",
+
 
     /// 🔥 SKILLS FIX
     skills: json["skills"] is List

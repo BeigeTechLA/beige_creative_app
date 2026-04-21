@@ -40,6 +40,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   bool isloading =true;
 
+  String name = "";
+  String email = "";
+  String image = "";
   profile.Data? Myprofile_user;
 
   int photographyShoots = 0;
@@ -180,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           rejectedPhoto = tabs["photo"]["rejectedShoots"] ?? 0;
           rejectedVideo = tabs["video"]["rejectedShoots"] ?? 0;
 
-           acceptphotographyShoots=tabs["photo"]["acceptedShoots"]??0;
+          acceptphotographyShoots=tabs["photo"]["acceptedShoots"]??0;
           acceptvideographyShoots=tabs["video"]["acceptedShoots"]??0;
 
 
@@ -296,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
       if (response.error == false) {
 
-        debugPrint('OKok :: ${response}');
+        debugPrint('Responsecheck  :: ${response}');
         setState(() {
           upcomingshootslist = response.data;
           // Reset current index if needed
@@ -380,13 +383,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   // Helper to convert upcomingdatum to a map for card display
   Map<String, dynamic> _cardFromDatum(upcomingdatum datum) {
     return {
+      'image':datum.shootTypeImageUrl,
       'projectId': datum.projectId, // 👈 ye add karo
 
       'title': datum.projectName,
       'date': DateFormat('MMM dd, yyyy').format(datum.eventDate),
       'time': '${datum.startTime} - ${datum.endTime}',
       'location': datum.eventLocation,
-      'image': 'assets/home/img.png', // placeholder image
+      //  'image': 'assets/home/img.png', // placeholder image
     };
   }
 
@@ -414,13 +418,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Image.asset(
-              data['image'],
-              height: 169,
-              width: 117,
-              fit: BoxFit.cover,
-            ),
+              borderRadius: BorderRadius.circular(14),
+              child:Image.network(
+                ApiService().getImageURL(data['image'] ?? ""),
+                height: 169,
+                width: 117,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  print("IMAGE ERROR: ${data['image']}");
+                  return Image.asset(
+                    "assets/home/Mask_group.png",
+                    height: 169,
+                    width: 117,
+                    fit: BoxFit.cover,
+                  );
+                },
+              )
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -486,22 +499,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                           );
                         },
-                        child: const Text("View Detxxxxxxxxxxxails",
+                        child: const Text("View Details",
                             style: TextStyle(color: Colors.black, fontSize: 11)),
                       ),
                     ),
                     const SizedBox(width: 6),
-                    _buildAvatarStack(
-                      images: [
-                        AppImages.avtarstack,
-                        AppImages.avtarstack,
-                        AppImages.avtarstack,
-                        AppImages.avtarstack,
-                      ],
-                      extraCount: 3,
-                      avatarSize: 20,
-                      overlap: 10,
-                    ),
+
                   ],
                 ),
               ],
@@ -580,29 +583,30 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                         SizedBox(width: 15),
                         InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => Myprofile(),
-                              ),
-                            );
-                          },
-                          child:CircleAvatar(
-                            radius: 20,
-                            backgroundImage: (Myprofile_user?.user.profileImageUrl ?? "").isNotEmpty
-                                ? NetworkImage(
-                              "${ApiService.imageURL}${Myprofile_user!.user.profileImageUrl}",
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => Myprofile(),
+                                ),
+                              );
+                            },
+                            child:CircleAvatar(
+                              radius: 20,
+                              backgroundImage: (Myprofile_user?.user.profileImageUrl ?? "").isNotEmpty
+                                  ? NetworkImage(
+                                "${ApiService.imageURL}${Myprofile_user!.user.profileImageUrl}",
+                              )
+                                  : null, // 🔥 important
 
+                              child: (Myprofile_user?.user.profileImageUrl ?? "").isEmpty
+                                  ? SvgPicture.asset(
+                                AppImages.User_Circle,
+                                width: 20,
+                                height: 20,
+                              )
+                                  : null,
                             )
-                                : null,
-
-                            child: (Myprofile_user?.user.profileImageUrl ?? "").isEmpty
-                                ? const Icon(Icons.person, color: Colors.white)
-                                : null,
-
-                          ),
-
                         ),
                       ],
                     ),
@@ -675,7 +679,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 SizedBox(height: 10),
                 Row(
                   children: [
-                    Text("Upcoming Shoots",
+                    Text("Upcoming Shoots ",
 
                       style: TextStyle(
                         fontSize: 14,
@@ -997,7 +1001,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   Text("${day.day}", style: const TextStyle(color: Colors.white)),
                                   const SizedBox(height: 4),
                                   if (event != null && showEvent) eventLabel(event),
-                             ],
+                                ],
                               );
                             },
                           ),
@@ -1046,7 +1050,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                     ),
                     InkWell(
-                   /*   onTap: () {
+                      /*   onTap: () {
                         widget.onTabChange?.call(1); // 👈 Shoots tab
                       },*/
                       child: const Icon(
@@ -1069,15 +1073,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       Stack(
                         children: [
                           ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(22),
-                            ),
-                            child: Image.asset(
-                              "assets/home/img.png",
-                              height: 220,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(22),
+                              ),
+                              child:Image.network(
+                                ApiService().getImageURL(data?.shootTypeImageUrl ?? ""),
+                                height: 220,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+
+
+
+                                /// error fallback
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    "assets/home/img.png",
+                                    height: 220,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              )
                           ),
                           Positioned.fill(
                             child: Container(
@@ -1222,10 +1238,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     Icon(Icons.access_time, size: 14, color: Colors.white70),
                                     SizedBox(width: 6),
                                     Text(
-                                        formatTimeRange(
-                                          data?.startTime,
-                                          data?.endTime,
-                                        ),
+                                      formatTimeRange(
+                                        data?.startTime,
+                                        data?.endTime,
+                                      ),
                                       style: TextStyle(
                                           fontWeight: FontWeight.w400,
                                           fontFamily: "Outfit",
@@ -1260,17 +1276,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               children: [
 
                                 /// ✅ LEFT SIDE (Avatar Stack)
-                                _buildAvatarStack(
-                                  images: [
-                                    AppImages.avtarstack,
-                                    AppImages.avtarstack,
-                                    AppImages.avtarstack,
-                                    AppImages.avtarstack,
-                                  ],
-                                  extraCount: 3,
-                                  avatarSize: 20,
-                                  overlap: 10,
-                                ),
+                                // _buildAvatarStack(
+                                // images: [
+                                // AppImages.avtarstack,
+                                // AppImages.avtarstack,
+                                // AppImages.avtarstack,
+                                // AppImages.avtarstack,
+                                // ],
+                                // extraCount: 3,
+                                // avatarSize: 20,
+                                // overlap: 10,
+                                // ),
+                                SizedBox(),
 
                                 /// ✅ RIGHT SIDE (Your SAME Buttons - untouched)
                                 Row(
@@ -1544,13 +1561,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           GestureDetector(
-           onTap: () {
-             setState(() {
-               selectedTab = 0;
+                            onTap: () {
+                              setState(() {
+                                selectedTab = 0;
 
-                });
-             fetchShootCategories("photo"); // 🔥 ADD
-           },
+                              });
+                              fetchShootCategories("photo"); // 🔥 ADD
+                            },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 250),
                               padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -1645,7 +1662,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   Text(
                                     selectedTab == 0?
                                     photographyShoots.toString()
-                                    :videographyShoots.toString(),
+                                        :videographyShoots.toString(),
                                     //      Text(
                                     //                                     selectedTab == 0?
                                     //                                     acceptphotographyShoots.toString()
@@ -2189,7 +2206,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           selectedDashboardIndex = index;
         });
       },
-    //  borderRadius: BorderRadius.circular(16),
+      //  borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.all(16),
@@ -2222,7 +2239,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ),
                 ),
                 const SizedBox(height: 4),
-           /*     Text(
+                /*     Text(
                   percent,
                   style: TextStyle(
                     fontSize: 11,

@@ -53,7 +53,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
   }
   bool isloading=false;
 
-MyData? mydata;
+MyData? mydata;//
   Future<void>fetchupcomingshootview()async{
     setState(() {
       isloading=true;
@@ -105,22 +105,22 @@ MyData? mydata;
             Stack(
               children: [
                 /// 🔥 IMAGE
-                Container(
+                SizedBox(
                   height: 330,
                   width: double.infinity,
-                  decoration:  BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                         Colors.red,
-                          Colors.black54,
-                        ],
-                      ),
-
-                    image: DecorationImage(
-                      image: AssetImage("assets/home/img.png"),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(0), // optional
+                    child: Image.network(
+                      ApiService().getImageURL(mydata?.project.imageUrl ?? ""),
                       fit: BoxFit.cover,
+
+                      /// ❌ error → fallback
+                      errorBuilder: (_, __, ___) {
+                        return Image.asset(
+                          "assets/home/img.png",
+                          fit: BoxFit.cover,
+                        );
+                      },
                     ),
                   ),
                 ),
