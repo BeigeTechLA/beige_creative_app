@@ -893,14 +893,15 @@ Data? Myprofile_user;
                                 height: 96,
                                 fit: BoxFit.cover,
                               )
-                                  : (Myprofile_user?.user.profileImageUrl != null &&
-                                  Myprofile_user!.user.profileImageUrl.isNotEmpty)
+                                  : (Myprofile_user?.user.profileImageUrl.isNotEmpty ?? false)
                                   ? Image.network(
-                                Myprofile_user!.user.profileImageUrl,
+                                "${ApiService.imageURL}${Myprofile_user!.user.profileImageUrl}",
                                 width: 96,
                                 height: 96,
                                 fit: BoxFit.cover,
-
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(Icons.person, size: 50);
+                                },
                               )
                                   : SvgPicture.asset(
                                 AppImages.User_Circle,

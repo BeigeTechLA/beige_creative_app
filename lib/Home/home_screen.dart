@@ -40,15 +40,37 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   bool isloading =true;
 
-  String name = "";
-  String email = "";
-  String image = "";
   profile.Data? Myprofile_user;
 
+  int photographyShoots = 0;
+  int videographyShoots = 0;
+
+  int acceptphotographyShoots = 0;
+  int acceptvideographyShoots = 0;
+
+
+  String getFilterValue() {
+    if (selectedRange == "Week") {
+      return "this_week";
+    } else if (selectedRange == "Month") {
+      return "this_month";
+    } else {
+      return "this_year";
+    }
+  }
+  int sucessfullshoots = 0;
+  int pendingshoots = 0;
+  int rejectedshoots = 0;
+  int shootrequest = 0;
+
+  int completedshoots = 0;
+  int upcomingshoots = 0;
+  int pendingrequests = 0;
 
 /*  Data? Myprofile_user;*/
-
-
+  List<upcomingdatum> upcomingshootslist = [];
+  List<PendingRequestCard> creatordashboarddetaillist = [];
+  Map<DateTime, String> events = {};
   Future<void> fetchprofiledata() async {
     try {
       setState(() {
@@ -181,27 +203,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
-  int photographyShoots = 0;
-  int videographyShoots = 0;
-
-  int acceptphotographyShoots = 0;
-  int acceptvideographyShoots = 0;
-
-
-  String getFilterValue() {
-    if (selectedRange == "Week") {
-      return "this_week";
-    } else if (selectedRange == "Month") {
-      return "this_month";
-    } else {
-      return "this_year";
-    }
-  }
-  int sucessfullshoots = 0;
-  int pendingshoots = 0;
-  int rejectedshoots = 0;
-  int shootrequest = 0;
-
 
   Future<void> fetchCrewStats(String filter) async {
     try {
@@ -232,22 +233,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
 
 
-  void getData() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      name = prefs.getString('name') ?? '';
-      email = prefs.getString('email') ?? '';
-      image = prefs.getString('profile_image_url') ?? '';
-    });
-  }
 
 
-  Map<DateTime, String> events = {};
-
-  int completedshoots = 0;
-  int upcomingshoots = 0;
-  int pendingrequests = 0;
 
   void prepareAvailabilityEvents(Map<String, dynamic> availability) {
     events.clear();
@@ -283,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
-  List<PendingRequestCard> creatordashboarddetaillist = [];
+
   Future<void> fetchcreatordashboarddetails() async {
     try {
       final response = Creatordashboarddetailsmodel.fromJson(
@@ -302,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
-  List<upcomingdatum> upcomingshootslist = [];
+
   Future<void> fetchupcomingshoots() async {
     try {
       final response = Upcomingshootsmodel.fromJson(await ApiService().fetchData(ApiEndpoints.upcomingshoots));
@@ -350,7 +337,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     super.initState();
     fetchCrewStats("this_month"); // default
     fetchShootCategories("photo"); // default tab
-    getData();
     fetchavailability();
     fetchcreatordashboarddetails();
     fetchdashboardcount();
@@ -500,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                           );
                         },
-                        child: const Text("View Details",
+                        child: const Text("View Detxxxxxxxxxxxails",
                             style: TextStyle(color: Colors.black, fontSize: 11)),
                       ),
                     ),
@@ -578,7 +564,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             style: const TextStyle(
                               fontSize: 16,
                               fontFamily: "Outfit",
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.w500,
                               color: ColorCode.white,
                             ),
                           ),
@@ -607,17 +593,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             backgroundImage: (Myprofile_user?.user.profileImageUrl ?? "").isNotEmpty
                                 ? NetworkImage(
                               "${ApiService.imageURL}${Myprofile_user!.user.profileImageUrl}",
-                            )
-                                : null, // 🔥 important
 
-                            child: (Myprofile_user?.user.profileImageUrl ?? "").isEmpty
-                                ? SvgPicture.asset(
-                              AppImages.User_Circle,
-                              width: 20,
-                              height: 20,
                             )
                                 : null,
-                          )
+
+                            child: (Myprofile_user?.user.profileImageUrl ?? "").isEmpty
+                                ? const Icon(Icons.person, color: Colors.white)
+                                : null,
+
+                          ),
+
                         ),
                       ],
                     ),
@@ -1194,7 +1179,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 ),
                                 SizedBox(width: 8),
                                 GestureDetector(
-                                  onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => UpcomingShootViewDetils())),
+                                  onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => UpcomingShootViewDetils(
+                                    projectid: data?.projectId ?? 0,
+                                  ))),
                                   child: Text(
                                     "View Details",
                                     style: TextStyle(

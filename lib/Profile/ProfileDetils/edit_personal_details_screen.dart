@@ -97,6 +97,9 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
 
 
   EditProfileModel?  mylist;
+
+
+
   Future<void> editpersonaldetails() async {
     try {
       final apiResponse =

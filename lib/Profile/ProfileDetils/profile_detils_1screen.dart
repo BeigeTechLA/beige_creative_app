@@ -32,6 +32,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
 
   User? user;
+
   Future<void>fetchprofiledata()async{
 
     try{

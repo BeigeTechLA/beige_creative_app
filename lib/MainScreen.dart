@@ -290,6 +290,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Home/home_screen.dart';
+import 'Model_Class/Creatordashboarddetailsmodel.dart' as profile;
 import 'Model_Class/myprofilemodel.dart';
 import 'Profile/MyProfile/MyProfile.dart';
 import 'Shoots/shoots_screen.dart';
@@ -307,25 +308,59 @@ class Mainscreen extends StatefulWidget {
 
 class _MainscreenState extends State<Mainscreen> {
 
-  String name = "";
-  String email = "";
-  String image = "";
+bool isloading = true;
 
-  @override
+Data? Myprofile_user;
+
+@override
   void initState() {
     super.initState();
-    getData();
+    fetchprofiledata();
   }
 
-  void getData() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> fetchprofiledata() async {
+    try {
+      setState(() {
+        isloading = true;
+      });
 
-    setState(() {
-      name = prefs.getString('name') ?? '';
-      email = prefs.getString('email') ?? '';
-      image = prefs.getString('profile_image_url') ?? '';
-    });
+      final rawResponse =
+      await ApiService().postData(ApiEndpoints.profiledetails, {});
+
+      debugPrint("📦 RAW API RESPONSE: $rawResponse");
+
+      final response = Myprofilemodel.fromJson(rawResponse);
+
+      debugPrint("✅ PARSED RESPONSE: ${response.data}");
+
+      if (response.error == false) {
+
+        /// ✅ SOCIAL LINKS
+
+        /// ✅ PORTFOLIO LINKS
+        final portfolio = response.data.crewMemberFiles
+            .where((e) => e.fileType == "link")
+            .toList();
+
+        debugPrint("🎯 Portfolio Count: ${portfolio.length}");
+
+        /// ✅ IMPORTANT CHANGE (USE NESTED USER)
+        setState(() {
+          Myprofile_user = response.data;
+        });
+
+      } else {
+        debugPrint("❌ API ERROR: ${response.message}");
+      }
+    } catch (e) {
+      debugPrint("❌ EXCEPTION: $e");
+    } finally {
+      setState(() {
+        isloading = false;
+      });
+    }
   }
+
 
 
   int _selectedIndex = 0;
@@ -473,16 +508,13 @@ class _MainscreenState extends State<Mainscreen> {
                         children: [
                           CircleAvatar(
                             radius: 25,
-                            // backgroundColor: Colors.grey.shade200,
-                            backgroundImage: image.isNotEmpty
-                                ? NetworkImage("${ApiService.imageURL}$image")
-                                : null,
-                            child: image.isEmpty
-                                ? SvgPicture.asset(
-                              AppImages.User_Circle,
-                              width: 25,
-                              height: 25,
+                            backgroundImage: (Myprofile_user?.user.profileImageUrl ?? "").isNotEmpty
+                                ? NetworkImage(
+                              "${ApiService.imageURL}${Myprofile_user!.user.profileImageUrl}",
                             )
+                                : null,
+                            child: (Myprofile_user?.user.profileImageUrl ?? "").isEmpty
+                                ? SvgPicture.asset(AppImages.User_Circle)
                                 : null,
                           ),
                           const SizedBox(width: 12),
@@ -491,7 +523,8 @@ class _MainscreenState extends State<Mainscreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                              name,
+                                  Myprofile_user?.user.name ?? "User...",
+
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -501,7 +534,7 @@ class _MainscreenState extends State<Mainscreen> {
                                 ),
                                 const SizedBox(height: 4),
                                  Text(
-                                   email,
+                                   Myprofile_user?.user.email ?? "email...",
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontFamily: "Outfit",
