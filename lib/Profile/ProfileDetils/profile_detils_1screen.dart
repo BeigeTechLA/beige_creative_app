@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../Model_Class/myprofilemodel.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
+import '../../utility/imges_icons.dart';
 import 'edit_personal_details_screen.dart';
 import 'enter_profile_details_screen.dart';
 
@@ -166,6 +168,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
+                    fontFamily: "Unbounded"
                   ),
                 ),
 
@@ -182,10 +185,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                 _buildInfoRow("Email", user?.email ?? "No Email Found"),
                 _buildInfoRow("Contact Number", user?.phoneNumber ?? "No mobile number found"),
                 _buildInfoRow("Location", user?.location ?? "No location Found"),
-                _buildInfoRow(
+               /* _buildInfoRow(
                   "Working Distance",
                   profileData?.workingDistance ?? "No found",
-                )
+                )*/
               ],
             ),
           ),
@@ -207,15 +210,17 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
               ApiService().getImageURL(user?.profileImageUrl ?? ""),
               fit: BoxFit.cover,
 
-              /// ❌ error → fallback
+
+              /// ❌ ERROR → SVG SHOW
               errorBuilder: (_, __, ___) {
-                return Image.asset(
-                  "assets/home/Vector.png",
+                return SvgPicture.asset(
+                  AppImages.User_Circle, // ✅ SVG fallback
+
                   fit: BoxFit.cover,
                 );
               },
             ),
-          ),
+          )
         ),
       ],
     );
@@ -252,6 +257,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
+                      fontFamily: "Unbounded",
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -363,23 +369,25 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           child: ClipOval(
             child: Image.network(
               ApiService().getImageURL(user?.profileImageUrl ?? ""),
+
               fit: BoxFit.cover,
 
-              /// ❌ error → fallback
+
+              /// ❌ ERROR → SVG SHOW
               errorBuilder: (_, __, ___) {
-                return Image.asset(
-                  "assets/home/Vector.png",
+                return SvgPicture.asset(
+                  AppImages.User_Circle, //
                   fit: BoxFit.cover,
                 );
               },
             ),
-          ),
+          )
         ),
       ],
     );
   }
 
-  Widget _editButton() {
+/*  Widget _editButton() {
     return InkWell(
       onTap: () {
         if (selectedTab == 0) {
@@ -396,6 +404,42 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
               builder: (_) => const EnterProfileDetailsScreen(),
             ),
           );
+
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+        decoration: BoxDecoration(
+          color: ColorCode.kButtonColor,
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: const Text(
+          "Edit Profile Details",
+          style: TextStyle(
+            fontSize: 14,
+            fontFamily: "Outfit",
+            color: ColorCode.k282828,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }*/
+  Widget _editButton() {
+    return InkWell(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => selectedTab == 0
+                ? const EditPersonalDetailsScreen()
+                : const EnterProfileDetailsScreen(),
+          ),
+        );
+
+        // 🔥 BACK AANE KE BAAD REFRESH
+        if (result == true) {
+          fetchprofiledata(); // 👈 tera GET API
         }
       },
       child: Container(
@@ -416,7 +460,6 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       ),
     );
   }
-
   Widget _buildTab(String title, int index) {
     bool isSelected = selectedTab == index;
 

@@ -6,12 +6,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 
 import '../../Model_Class/EditProfileModel.dart';
 import '../../service/google_config.dart';
 import '../../utility/ColorCode.dart';
+import '../../utility/location_service.dart';
 import '../../widgets/Custom_dropdown_field.dart';
 import '../../widgets/custom_text_field.dart';
 import '../ChangePassword/change_password_screen.dart';
@@ -27,6 +29,93 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
   bool _isPlusCode(String value) {
     return RegExp(r'^[A-Z0-9]{4,}\+[A-Z0-9]{2,}$').hasMatch(value);
   }
+
+
+
+
+  Future<void> searchLocation(String query) async {
+    try {
+      List<Location> locations = await locationFromAddress(query);
+
+      if (locations.isNotEmpty) {
+        final loc = locations.first;
+
+        final latLng = LatLng(loc.latitude, loc.longitude);
+
+        setState(() {
+          currentLatLng = latLng;
+        });
+
+        mapController?.animateCamera(
+          CameraUpdate.newLatLngZoom(latLng, 15),
+        );
+
+        await getAddressFromLatLng(latLng);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Location not found")),
+      );
+    }
+  }
+
+  Future<void> getAddressFromLatLng(LatLng latLng) async {
+    try {
+      List<Placemark> placemarks =
+      await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+
+      if (placemarks.isNotEmpty) {
+        final place = placemarks.first;
+
+        final address =
+            "${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.postalCode}";
+
+        setState(() {
+          selectedAddress = address;
+
+          /// 🔥 IMPORTANT: TextField ko bhi update karo
+          searchController.text = address;
+        });
+      }
+    } catch (e) {
+      debugPrint("Reverse geocode error: $e");
+    }
+  }
+
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Location permission permanently denied. Enable from settings."),
+        ),
+      );
+      await Geolocator.openAppSettings(); // 👈 Open app settings
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    setState(() {
+      currentLatLng = LatLng(position.latitude, position.longitude);
+    });
+  }
+
 
   Future<void> _updateLocationFromLatLng(LatLng latLng) async {
     setState(() {
@@ -67,6 +156,10 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
   }
 
 
+
+
+
+
   final FocusNode _locationFocus = FocusNode();
   GoogleMapController? mapController;
   LatLng? currentLatLng;
@@ -81,7 +174,20 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
     "Upto 20 Miles",
   ];
 
+  final TextEditingController firstnamecontroller =  TextEditingController();
+  final TextEditingController lastnamecontroller =  TextEditingController();
+  final TextEditingController emailcontroller =  TextEditingController();
+  final TextEditingController phonecontroller =  TextEditingController();
+  TextEditingController searchController = TextEditingController();
+  final TextEditingController changepasswordcontroller =  TextEditingController(text: '123456');
 
+
+  final TextEditingController experienceController =  TextEditingController();
+
+  final TextEditingController rateController =TextEditingController();
+
+  final TextEditingController bioController  =TextEditingController();
+  String selectedSkill = "";
   @override
   void initState() {
     super.initState();
@@ -93,32 +199,53 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
         });
       }
     });
+
+    _getCurrentLocation();
   }
+
+
+
+
   Future<void> updateProfile() async {
     try {
+      // ✅ BASIC VALIDATION (optional but recommended)
+      if (firstnamecontroller.text.trim().isEmpty ||
+          lastnamecontroller.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Enter full name")),
+        );
+        return;
+      }
+
       Map<String, dynamic> body = {
-        "first_name": firstnamecontroller.text,
-        "last_name": lastnamecontroller.text,
-        "email": emailcontroller.text,
-        "phone_number": phonecontroller.text,
-        "location": searchController.text,
-        "working_distance": selectedSkill,
-        "years_of_experience": experienceController.text,
-        "hourly_rate": rateController.text,
-        "bio": bioController.text,
+        "first_name": firstnamecontroller.text.trim(),
+        "last_name": lastnamecontroller.text.trim(),
+        "email": emailcontroller.text.trim(),
+        "phone_number": phonecontroller.text.trim(),
+        "location": searchController.text.trim(),
+        "working_distance": selectedSkill ?? "",
+        "years_of_experience": experienceController.text.trim(),
+        "hourly_rate": rateController.text.trim(),
+        "bio": bioController.text.trim(),
       };
 
+      print("📤 BODY: $body");
+
       final response = await ApiService().postData(
-        ApiEndpoints.editprofile, // 👈 endpoint check kar lena
+        ApiEndpoints.editprofile,
         body,
       );
+
+      print("📥 RESPONSE: $response");
 
       if (response["error"] == false) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Profile Updated Successfully")),
         );
 
-        Navigator.pop(context); // 👈 back jaa
+        // 🔥 MOST IMPORTANT CHANGE
+        Navigator.pop(context, true); // ✅ RESULT RETURN
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response["message"])),
@@ -162,22 +289,10 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
       print("ERROR: $e");
     }
   }
-  final TextEditingController firstnamecontroller =  TextEditingController();
-  final TextEditingController lastnamecontroller =  TextEditingController();
-  final TextEditingController emailcontroller =  TextEditingController();
-  final TextEditingController phonecontroller =  TextEditingController();
-  TextEditingController searchController = TextEditingController();
-  final TextEditingController changepasswordcontroller =  TextEditingController(text: '123456');
 
 
 
 
-  final TextEditingController experienceController =  TextEditingController();
-
-  final TextEditingController rateController =TextEditingController();
-
-  final TextEditingController bioController  =TextEditingController();
-  String selectedSkill = "";
   @override
   Widget build(BuildContext context) {
     String _darkMapStyle = '''
@@ -237,7 +352,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
               Row(
                 children: [
                   InkWell(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Navigator.pop(context,true),
                     child: SvgPicture.asset(
                       AppImages.back,
                       height: 24,
@@ -276,7 +391,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
               CustomTextField(
                 label: "Last Name*",
                 controller: lastnamecontroller,
-                keyboardType: TextInputType.number,
+                // keyboardType: TextInputType.number,
               ),
 
               SizedBox(height:22),

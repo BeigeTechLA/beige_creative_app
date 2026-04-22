@@ -8,9 +8,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
 
     <application
-        android:label="beige_creative_app"
+        android:label="BEIGECP"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/cp_app_icon"
         android:usesCleartextTraffic="true">
 
         <!-- ✅ Notice: NO closing > until the last attribute -->

@@ -923,11 +923,15 @@ Data? Myprofile_user;
                               // borderRadius: BorderRadius.circular(30),
                               onTap: () {
                                 debugPrint("🔥 EDIT CLICKED");
+
+
+
+
                                 _pickImage();
                               },
                               child: Container(
-                                width: 45,
-                                height: 35,
+                                width: 35,
+                                height: 40,
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.white),

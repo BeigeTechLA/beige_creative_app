@@ -782,31 +782,6 @@ class _ProfessionalDetailsSingUpState
 
   }
 
-  /// 🔽 DROPDOWN FIELD
-  Widget _dropdownField(
-      String title,
-      String? value,
-      List<String> items,
-      Function(String?) onChanged,
-      ) {
-    return DropdownButtonFormField<String>(
-      value: items.contains(value) ? value : null, // 🔥 FIX
-      dropdownColor: const Color(0xFF1C1C1C),
-      icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
-      style: const TextStyle(color: Colors.white),
-      decoration: _inputDecoration(title),
-      items: items
-          .map(
-            (e) => DropdownMenuItem(
-          value: e,
-          child: Text(e),
-        ),
-      )
-          .toList(),
-      onChanged: onChanged,
-    );
-  }
-
   void _openSkillsBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -914,36 +889,6 @@ class _ProfessionalDetailsSingUpState
     );
   }
 
-  Widget _textField({
-    required String title,
-    required TextEditingController controller,
-    int maxLines = 1,
-    bool isNumber = false,
-    bool isMultiline = false,
-  }) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      minLines: isMultiline ? 4 : 1,
-
-      keyboardType: isMultiline
-          ? TextInputType.multiline
-          : isNumber
-          ? const TextInputType.numberWithOptions(decimal: false)
-          : TextInputType.text,
-
-      textInputAction:
-      isMultiline ? TextInputAction.newline : TextInputAction.done,
-
-      inputFormatters: isNumber
-          ? [FilteringTextInputFormatter.digitsOnly]
-          : [],
-
-      style: const TextStyle(color: Colors.white),
-
-      decoration: _inputDecoration(title),
-    );
-  }
 
 
   InputDecoration _inputDecoration(String title) {
@@ -965,6 +910,8 @@ class _ProfessionalDetailsSingUpState
       ),
     );
   }
+
+
   Widget _userPreviewCard() {
     final firstName = widget.firstName?.trim() ?? "";
     final lastName  = widget.lastName?.trim() ?? "";
@@ -1119,98 +1066,3 @@ class _ProfessionalDetailsSingUpState
 
 }
 
-
-class _MyTextField extends StatefulWidget {
-  final String title;
-  final TextEditingController controller;
-  final int maxLines;
-  final bool isNumber;
-  final bool isMultiline;
-
-  const _MyTextField({
-    required this.title,
-    required this.controller,
-    this.maxLines = 1,
-    this.isNumber = false,
-    this.isMultiline = false,
-  });
-
-  @override
-  State<_MyTextField> createState() => _MyTextFieldState();
-}
-
-class _MyTextFieldState extends State<_MyTextField> {
-  final FocusNode _focusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode.addListener(() {
-      if (mounted) setState(() {});
-    });
-    widget.controller.addListener(() {
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    bool highlight = _focusNode.hasFocus || widget.controller.text.isNotEmpty;
-
-    return TextField(
-      controller: widget.controller,
-      focusNode: _focusNode,
-      maxLines: widget.isMultiline ? widget.maxLines : 1,
-      minLines: widget.isMultiline ? widget.maxLines : 1,
-      keyboardType: widget.isMultiline
-          ? TextInputType.multiline
-          : widget.isNumber
-          ? const TextInputType.numberWithOptions(decimal: false)
-          : TextInputType.text,
-      textInputAction: widget.isMultiline
-          ? TextInputAction.newline
-          : TextInputAction.done,
-      inputFormatters: widget.isNumber
-          ? [FilteringTextInputFormatter.digitsOnly]
-          : [],
-      onChanged: (_) => setState(() {}),
-      style: const TextStyle(
-        color: Colors.white,
-        fontFamily: "Outfit",
-        fontSize: 15,
-      ),
-      decoration: InputDecoration(
-        labelText: widget.title,
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        labelStyle: TextStyle(
-          fontSize: 14,
-          fontFamily: "Outfit",
-          color: highlight ? ColorCode.kButtonColor : ColorCode.kWhiteOpacity70,
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: highlight
-                ? ColorCode.textfieldbordercollor
-                : ColorCode.kWhiteOpacity70,
-            width: 0.5,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: ColorCode.kButtonColor,
-            width: 0.5,
-          ),
-        ),
-      ),
-    );
-  }
-}
