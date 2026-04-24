@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../Model_Class/Creatordashboarddetailsmodel.dart';
+import '../../Model_Class/myprofilemodel.dart';
+import '../../service/api_endpoints.dart';
+import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
 
 class Certificates extends StatefulWidget {
@@ -41,6 +45,51 @@ class _CertificatesState extends State<Certificates> {
       "size": "1MB"
     },
   ];
+   bool isloading =true;
+  // Data? Myprofile_user;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchprofiledata();
+  }
+  Future<void> fetchprofiledata() async {
+    try {
+      setState(() {
+        isloading = true;
+      });
+
+      final rawResponse =
+      await ApiService().postData(ApiEndpoints.profiledetails, {});
+
+      debugPrint("📦 RAW API RESPONSE: $rawResponse");
+
+      final response = Myprofilemodel.fromJson(rawResponse);
+
+      debugPrint("✅ PARSED RESPONSE: ${response.data}");
+
+      if (response.error == false) {
+
+        /// ✅ SOCIAL LINKS
+
+    /*    /// ✅ IMPORTANT CHANGE (USE NESTED USER)
+        setState(() {
+
+
+          Myprofile_user = response.data;
+        });*/
+
+      } else {
+        debugPrint("❌ API ERROR: ${response.message}");
+      }
+    } catch (e) {
+      debugPrint("❌ EXCEPTION: $e");
+    } finally {
+      setState(() {
+        isloading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

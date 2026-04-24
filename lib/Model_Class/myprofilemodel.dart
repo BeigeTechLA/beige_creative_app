@@ -60,7 +60,7 @@ class Data {
   final String hourlyRate;
   final int isAvailable;
   final dynamic availability;
-
+  final List<CrewFile> featuredWorkFiles;
   final List<Skill> skills;
   final Map<String, dynamic> socialMediaLinks;
   final List<CrewFile> crewMemberFiles;
@@ -86,6 +86,7 @@ class Data {
     required this.bio,
     required this.equipmentOwnership,
     required this.availability,
+    required this.featuredWorkFiles,
     required this.stats,
   });
 
@@ -111,6 +112,13 @@ class Data {
     hourlyRate: json["hourly_rate"]?.toString() ?? "",
     isAvailable: json["is_available"] ?? 0,
 
+
+    // 🔥 ADD THIS
+    featuredWorkFiles: json["featured_work_files"] is List
+        ? List<CrewFile>.from(
+      json["featured_work_files"].map((x) => CrewFile.fromJson(x)),
+    )
+        : [],
     skills: json["skills"] == null
         ? []
         : List<Skill>.from(

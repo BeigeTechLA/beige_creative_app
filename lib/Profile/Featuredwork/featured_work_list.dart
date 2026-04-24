@@ -3,9 +3,14 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../Model_Class/myprofilemodel.dart';
+import '../../service/api_endpoints.dart';
+import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
+import '../../utility/imges_icons.dart';
 import '../../widgets/custom_text_field.dart';
 
 class FeaturedWorkList extends StatefulWidget {
@@ -20,7 +25,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
   List<String> selectedTags = [];
   List<File> featuredImages = [];
 
-
+bool isloading =true;
   final enter_work_titleController=TextEditingController();
   List<Map<String, dynamic>> featuredWorks = [];
   File? selectedImage;
@@ -29,6 +34,53 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
   List<Map<String, String>> socialLinks = [];
   List<File> selectedImages = [];
   List<String> tags = [];
+
+
+
+  Data? Myprofile_user;
+  @override
+  void initState() {
+    super.initState();
+    fetchprofiledata();
+  }
+  Future<void> fetchprofiledata() async {
+    try {
+      setState(() {
+        isloading = true;
+      });
+
+      final rawResponse =
+      await ApiService().postData(ApiEndpoints.profiledetails, {});
+
+      debugPrint("📦 RAW API RESPONSE: $rawResponse");
+
+      final response = Myprofilemodel.fromJson(rawResponse);
+
+      debugPrint("✅ PARSED RESPONSE: ${response.data}");
+
+      if (response.error == false) {
+
+        /// ✅ SOCIAL LINKS
+
+        /// ✅ IMPORTANT CHANGE (USE NESTED USER)
+        setState(() {
+
+
+          Myprofile_user = response.data;
+        });
+
+      } else {
+        debugPrint("❌ API ERROR: ${response.message}");
+      }
+    } catch (e) {
+      debugPrint("❌ EXCEPTION: $e");
+    } finally {
+      setState(() {
+        isloading = false;
+      });
+    }
+  }
+
 
   List<Map<String, String>> works = [
     {
@@ -133,102 +185,129 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ListView.builder(
-                    itemCount: 20,
+                    itemCount: Myprofile_user?.featuredWorkFiles.length ?? 0,
+
                     itemBuilder: (context, index) {
-                      final item = works[0];
+                      final featuredWorkdata = Myprofile_user!.featuredWorkFiles[index];
                       return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        height: 250,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
 
-                       margin: const EdgeInsets.only(bottom: 16),
-                       height: 250,
-                       decoration: BoxDecoration(
-                         borderRadius: BorderRadius.circular(18),
-                         image: DecorationImage(
-                           image: AssetImage(item["image"]!),
-                           fit: BoxFit.cover,
-                         ),
-                       ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: Stack(
+                            children: [
 
-                       child: Stack(
-                         children: [
+                              /// ✅ IMAGE OR PLACEHOLDER
+                              Positioned.fill(
+                                child: (featuredWorkdata.filePath.isNotEmpty)
+                                    ? Image.network(
+                                  "${ApiService.imageURL}${featuredWorkdata.filePath}",
+                                  fit: BoxFit.cover,
 
-                           /// EDIT + DELETE
-                           Positioned(
-                             top: 10,
-                             right: 10,
-                             child: Row(
-                               children: [
+                                  /// 🔥 ERROR → SVG
+                             /*     errorBuilder: (context, error, stackTrace) {
+                                    return Center(
+                                      child: SvgPicture.asset(
+                                        AppImages.image_holder,
+                                      ),
+                                    );
+                                  },*/
+                                )
+                                    : Center(
+                                  child: SvgPicture.asset(
+                                    AppImages.image_holder,
+                                  ),
+                                ),
+                              ),
 
-                                 Container(
-                                     padding:  EdgeInsets.all(12),
-                                   decoration: const BoxDecoration(
-                                     color: ColorCode.grey,
-                                     shape: BoxShape.circle,
-                                   ),
-                                   child:
-                                   Image(image: AssetImage("assets/icons/edit.png",),color: ColorCode.white,)
-                                 ),
+                              Stack(
+                                children: [
 
-                                 const SizedBox(width: 8),
+                                  Positioned(
+                                    top: 10,
+                                    right: 10,
+                                    child: Row(
+                                      children: [
 
-                                 Container(
-                                     padding:  EdgeInsets.all(12),
-                                   decoration: const BoxDecoration(
-                                     color: ColorCode.grey,
-                                     shape: BoxShape.circle,
-                                   ),
-                                     child:
-                                     Image(image: AssetImage("assets/icons/delete.png"))
-                                 ),
+                                        Container(
+                                          padding: EdgeInsets.all(12),
+                                          decoration: const BoxDecoration(
+                                            color: ColorCode.grey,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Image(
+                                            image: AssetImage("assets/icons/edit.png"),
+                                            color: ColorCode.white,
+                                          ),
+                                        ),
 
-                               ],
-                             ),
-                           ),
+                                        const SizedBox(width: 8),
 
-                           /// TITLE + TAG
-                           Positioned(
-                             bottom: 15,
-                             left: 15,
-                             right: 15,
-                             child: Column(
-                               crossAxisAlignment: CrossAxisAlignment.start,
-                               children: [
+                                        Container(
+                                          padding: EdgeInsets.all(12),
+                                          decoration: const BoxDecoration(
+                                            color: ColorCode.grey,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Image(
+                                            image: AssetImage("assets/icons/delete.png"),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
 
-                                 Text(
-                                   item["title"]!,
-                                   style: const TextStyle(
-                                     fontFamily: "Outfit",
-                                     color: ColorCode.white,
-                                     fontSize: 14,
-                                     fontWeight: FontWeight.w500,
-                                   ),
-                                 ),
+                                  Positioned(
+                                    bottom: 15,
+                                    left: 15,
+                                    right: 15,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
 
-                                 const SizedBox(height: 6),
+                                        Text(
+                                          featuredWorkdata.fileType,
+                                          style: const TextStyle(
+                                            fontFamily: "Outfit",
+                                            color: ColorCode.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
 
-                                 Container(
-                                   padding: const EdgeInsets.symmetric(
-                                       horizontal: 10, vertical: 4),
-                                   decoration: BoxDecoration(
-                                     color: ColorCode.white,
-                                     borderRadius: BorderRadius.circular(20),
-                                   ),
-                                   child: Text(
-                                     item["tag"]!,
-                                     style:  TextStyle(
-                                       fontSize: 12,
-                                       fontFamily: "Outfit",
-                                       color: ColorCode.black,
-                                     ),
-                                   ),
-                                 ),
+                                        const SizedBox(height: 6),
 
-                               ],
-                             ),
-                           )
-
-                         ],
-                       ),
-                     );
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: ColorCode.white,
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            featuredWorkdata.tag.isNotEmpty
+                                                ? featuredWorkdata.tag
+                                                : "No Tag",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontFamily: "Outfit",
+                                              color: ColorCode.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      );
                   },),
                 ),
               ),

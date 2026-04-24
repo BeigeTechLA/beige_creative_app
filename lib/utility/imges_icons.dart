@@ -41,4 +41,7 @@ class AppImages {
 
   static const String User_Circle = "assets/svg/User_Circle.svg";
 
+  static const String image_holder = "assets/svg/image_holder.svg";
+
+
 }

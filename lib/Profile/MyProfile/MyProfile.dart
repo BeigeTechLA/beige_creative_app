@@ -700,7 +700,11 @@ class _MyprofileState extends State<Myprofile> {
 
 
 Data? Myprofile_user;
-
+  @override
+  void initState() {
+    super.initState();
+    fetchprofiledata();
+  }
   Future<void> fetchprofiledata() async {
     try {
       setState(() {
@@ -749,11 +753,7 @@ Data? Myprofile_user;
 
 
 
-  @override
-  void initState() {
-    super.initState();
-    fetchprofiledata();
-  }
+
 
 
   TextEditingController nameController = TextEditingController();

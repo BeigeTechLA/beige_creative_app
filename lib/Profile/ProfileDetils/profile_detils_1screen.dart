@@ -183,7 +183,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                   _buildInfoRow("First Name", firstName),
                   _buildInfoRow("Last Name", lastName),
                 _buildInfoRow("Email", user?.email ?? "No Email Found"),
-                _buildInfoRow("Contact Number", user?.phoneNumber ?? "No mobile number found"),
+                // _buildInfoRow("Contact Number", user?.phoneNumber ?? "No mobile number found"),
                 _buildInfoRow("Location", user?.location ?? "No location Found"),
                /* _buildInfoRow(
                   "Working Distance",
