@@ -23,7 +23,6 @@ class AppImages {
   static const String map = "assets/svg/map.svg";
   static const String SQAREPEN = "assets/svg/SQAREPEN.svg";
   static const String userid = "assets/svg/userid.svg";
-  static const String gallery = "assets/svg/gallery.svg";
   static const String certificates = "assets/svg/certificates.svg";
   static const String resume = "assets/svg/resume.svg";
   static const String appperference= "assets/svg/appperference.svg";
@@ -42,6 +41,10 @@ class AppImages {
   static const String User_Circle = "assets/svg/User_Circle.svg";
 
   static const String image_holder = "assets/svg/image_holder.svg";
+/// my profile uplod svg image
 
+  static const String scanner = "assets/svg/scanner.svg";
+  static const String document = "assets/svg/document_attachment.svg";
+  static const String gallery = "assets/svg/gallery.svg";
 
 }

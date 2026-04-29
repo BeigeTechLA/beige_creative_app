@@ -7,15 +7,22 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart' as _dio;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'config.dart';
+import '../config/env.dart';
+
  // Make sure AppConfig.apiUrl is correctly set
 
 class ApiService {
+/*
   final String _baseUrl = AppConfig.apiUrl;
   String get baseUrl => _baseUrl;
 
   static String imageURL = AppConfig.imageUrl; // Using image URL from AppConfig
+*/
 
+  final String _baseUrl = Env.apiUrl;
+  String get baseUrl => _baseUrl;
+
+  static String imageURL = Env.imageUrl;
 
 
   Future<Map<String, String>> createAuthorizationHeader() async {
@@ -114,20 +121,7 @@ class ApiService {
     return prefs.getString('folder');  // folder stored while login
   }
 
- /* static Future<String> getImageURL(String image) async {
-    String folder = await getFolder() ?? ''; // Now calling the static getFolder
-    return imageURL + folder + image; // Combine URL with folder and image
-  }
-*/
 
- /* static Future<String> getImageURL(String image) async {
-    String folder = await getFolder() ?? '';
-    return imageURL + folder + image;
-  }
-
-  static String getImageURLSync(String folder, String image) {
-    return imageURL + folder + image;
-  }*/
 
   Future<dynamic> postMultipartData(
       String url,
@@ -139,40 +133,44 @@ class ApiService {
 
       var request = http.MultipartRequest('POST', uri);
 
-      /// Add fields
+      /// ✅ GET TOKEN PROPERLY
+      final headers = await createAuthorizationHeader();
+
+      /// ❌ REMOVE JSON CONTENT TYPE
+      headers.remove('Content-Type');
+
+      request.headers.addAll(headers);
+
+      /// ✅ ADD FIELDS
       request.fields.addAll(fields);
 
-      print("📦 FIELDS => ${request.fields}");
-
-      /// Add file
+      /// ✅ ADD FILE (MAIN FIX)
       if (file != null) {
-        print("📦 FILE PATH => ${file.path}");
-        print("📦 FILE SIZE => ${await file.length()} bytes");
-
         request.files.add(
           await http.MultipartFile.fromPath(
-            'file', // ⚠️ MUST MATCH BACKEND
+            'files[]', // 🔥 IMPORTANT (API expects this)
             file.path,
+            filename: file.path.split('/').last,
           ),
         );
+
+        debugPrint("📁 FILE => ${file.path}");
       }
 
+      /// 🔥 SEND REQUEST
       var response = await request.send();
-
-      print("🟠 STATUS CODE => ${response.statusCode}");
 
       var responseBody = await response.stream.bytesToString();
 
-      print("🟢 RESPONSE BODY => $responseBody");
+      debugPrint("📥 RESPONSE => $responseBody");
 
       return jsonDecode(responseBody);
 
     } catch (e) {
-      print("🔥 MULTIPART ERROR => $e");
+      debugPrint("🔥 MULTIPART ERROR => $e");
       return null;
     }
   }
-
 
   Future<dynamic> postMultipartStep3(
       String url, {

@@ -208,14 +208,23 @@ bool isloading =true;
                                   "${ApiService.imageURL}${featuredWorkdata.filePath}",
                                   fit: BoxFit.cover,
 
-                                  /// 🔥 ERROR → SVG
-                             /*     errorBuilder: (context, error, stackTrace) {
+                                  /// 🔥 LOADING
+                                  loadingBuilder: (context, child, progress) {
+                                    if (progress == null) return child;
+                                    return const Center(child: CircularProgressIndicator());
+                                  },
+
+                                  /// 🔥 ERROR HANDLE (IMPORTANT)
+                                  errorBuilder: (context, error, stackTrace) {
+                                    print("❌ IMAGE LOAD ERROR 👉 $error");
+                                    print("❌ URL 👉 ${ApiService.imageURL}${featuredWorkdata.filePath}");
+
                                     return Center(
                                       child: SvgPicture.asset(
                                         AppImages.image_holder,
                                       ),
                                     );
-                                  },*/
+                                  },
                                 )
                                     : Center(
                                   child: SvgPicture.asset(

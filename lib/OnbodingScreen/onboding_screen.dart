@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 
@@ -19,17 +18,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
 
   final List<Map<String, String>> pages = [
-    {
+/*    {
       "image": "assets/Onboding/Frame 2087328917.png",
       "title": "Book Your Dream\nShoot",
       "description":
       "Instantly book creatives for any shoot\nanywhere. 🎥✨",
-    },
+    },*/
+    // {
+    //   "image": "assets/Onboding/Group 2087329238.png",
+    //   "title": "Find Video & Photo\nWork",
+    //   "description":
+    //   "Find local photo, video, and editing work.\nBook. Shoot. Earn. 📍⚡",
+    // },
     {
-      "image": "assets/Onboding/Group 2087329238.png",
-      "title": "Find Video & Photo\nWork",
+      "image": "assets/Onboding/onboding_new_image.png",
+      "title": "Find Your Next\nCreative Gig",
       "description":
-      "Find local photo, video, and editing work.\nBook. Shoot. Earn. 📍⚡",
+      "Access shoots, collaborate with brands, and\nmanage your work — all in one place. Shoot. Edit. Earn.📍⚡",
     },
   ];
 
@@ -55,7 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: Image.asset(
                             pages[index]['image']!,
                             width: double.infinity,
-                            fit: BoxFit.none,
+                            fit: BoxFit.cover,
                           ),
                         ),
 
@@ -95,23 +100,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               const SizedBox(height: 30),
 
               /// ---------------- DOT INDICATOR ----------------
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  pages.length,
-                      (index) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: _currentPage == index
-                          ? ColorCode.white
-                          : ColorCode.kWhiteOpacity60,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: List.generate(
+              //     pages.length,
+              //         (index) => Container(
+              //       margin: const EdgeInsets.symmetric(horizontal: 4),
+              //       width: 40,
+              //       height: 4,
+              //       decoration: BoxDecoration(
+              //         color: _currentPage == index
+              //             ? ColorCode.white
+              //             : ColorCode.kWhiteOpacity60,
+              //         borderRadius: BorderRadius.circular(4),
+              //       ),
+              //     ),
+              //   ),
+              // ),
 
               const SizedBox(height: 30),
 
@@ -189,20 +194,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
 
           /// ---------------- SKIP BUTTON ----------------
-          SafeArea(
+        /*  SafeArea(
             child: Align(
               alignment: Alignment.topRight,
               child: Padding(
                 padding: const EdgeInsets.only(top: 20, right: 20),
                 child: GestureDetector(
-               /*   onTap: () {
+                  *//*   onTap: () {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (_) => const NewLoginScreen(),
                       ),
                     );
-                  },*/
+                  },*//*
                   child: const Text(
                     "Skip",
                     style: TextStyle(
@@ -214,7 +219,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
             ),
-          ),
+          ),*/
         ],
       ),
     );

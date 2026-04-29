@@ -82,9 +82,15 @@ import 'shoot_cancelled_screen.dart';
     Future<void> fetchshootmodel() async {
       setState(() => isLoading = true);
 
-      final response = ShootsModel.fromJson(
-        await ApiService().fetchData(ApiEndpoints.creatordashboarddetails),
-      );
+      /// 🔥 STEP 1: RAW API CALL
+      final rawResponse =
+      await ApiService().fetchData(ApiEndpoints.creatordashboarddetails);
+
+      /// 🔥 ONLY RESPONSE PRINT (JSON)
+      print("🔥 API RESPONSE 👉 $rawResponse");
+
+      /// STEP 2: Convert to Model
+      final response = ShootsModel.fromJson(rawResponse);
 
       if (response.error == false) {
         setState(() {
@@ -92,9 +98,7 @@ import 'shoot_cancelled_screen.dart';
           isLoading = false;
         });
       } else {
-        setState((
-
-            ) => isLoading = false);
+        setState(() => isLoading = false);
       }
     }
 
@@ -151,15 +155,15 @@ import 'shoot_cancelled_screen.dart';
           
               /// 🔥 COUNT CARDS
               SizedBox(
-                height: 80,
+                height: 70, // 👈 compact height
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
-                    _countCard("$mypendingRequests", "Pending Shoots"),
-                    _countCard("$myconfirmedRequests", "Confirmed Shoots"),
-                    _countCard("$mycompletedShoots", "Completed"),
-                    _countCard("$myrejectedRequests", "Declined"),
+                    _countCard("$mypendingRequests", "Pending Shoots", Icons.access_time),
+                    _countCard("$myconfirmedRequests", "Confirmed Shoots", Icons.camera_alt),
+                    _countCard("$mycompletedShoots", "Completed", Icons.check_circle),
+                    _countCard("$myrejectedRequests", "Declined", Icons.block),
                   ],
                 ),
               ),
@@ -217,35 +221,63 @@ import 'shoot_cancelled_screen.dart';
     }
 
     /// 🔥 COUNT CARD
-    Widget _countCard(String number, String title) {
+    Widget _countCard(String number, String title, IconData icon) {
       return Container(
-        width: 150,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.all(14),
+        width: 150, // 👈 exact figma width
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF2A2A2A), Color(0xFF1E1E1E)],
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFF2A2A2A),
+              const Color(0xFF1E1E1E),
+            ],
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white10),
+
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              number,
-              style: const TextStyle(
-                color: Color(0xFFD6B98C),
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            /// LEFT TEXT
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  number,
+                  style: const TextStyle(
+                    color: Color(0xFFD6B98C),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
+
+            /// RIGHT ICON
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD6B98C).withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 16,
+                color: const Color(0xFFD6B98C),
               ),
             ),
           ],

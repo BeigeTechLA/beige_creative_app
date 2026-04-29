@@ -3,11 +3,8 @@
 
     import 'package:shared_preferences/shared_preferences.dart';
 
-import 'config.dart';
 
     class SharedService {
-      static String imageURL = AppConfig.imageUrl; // Using image URL from AppConfig
-
 
       /// Save user login details from API response
       static Future<void> setLoginDetails(Map<String, dynamic> response) async {
