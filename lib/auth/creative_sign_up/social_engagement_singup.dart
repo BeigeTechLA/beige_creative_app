@@ -12,6 +12,7 @@ import 'package:open_file/open_file.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
+import '../../widgets/commonFileViewer.dart';
 import '../../widgets/custom_text_field.dart';
 import '../ProfileDetailsScreen .dart';
 import '../login/login.dart';
@@ -926,7 +927,13 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                                                       /// VIEW
                                                       IconButton(
                                                         icon: const Icon(Icons.remove_red_eye, color: Colors.white),
-                                                        onPressed: () => viewFile(file),
+                                                        onPressed: () {
+                                                          CommonFileViewer.open(
+                                                            context: context,
+                                                            filePath: file.path,
+                                                            isNetwork: false,
+                                                          );
+                                                        },
                                                       ),
 
 
@@ -1283,7 +1290,13 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
           /// VIEW
           IconButton(
             icon: const Icon(Icons.remove_red_eye, color: Colors.white),
-            onPressed: () => viewFile(file),
+            onPressed: () {
+              CommonFileViewer.open(
+                context: context,
+                filePath: file.path,
+                isNetwork: false,
+              );
+            },
           ),
 
 

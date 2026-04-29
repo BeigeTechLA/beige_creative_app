@@ -1,3 +1,4 @@
+import 'package:auto_skeleton/auto_skeleton.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
@@ -26,6 +27,8 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
         .where((url) => !url.endsWith("/")) // empty remove
         .toList();
   }
+  bool isloading=false;
+
   String formatDateTime(String dateTime) {
     try {
       final parsedDate = DateTime.parse(dateTime).toLocal(); // 👈 important
@@ -51,7 +54,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
       return rawDate;
     }
   }
-  bool isloading=false;
+
 
 MyData? mydata;//
   Future<void>fetchupcomingshootview()async{
@@ -65,7 +68,7 @@ MyData? mydata;//
 
       setState(() {
         mydata=response.data;
-  
+        isloading = false;
 
       });
     }
@@ -96,110 +99,114 @@ MyData? mydata;//
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: AutoSkeleton(
+        enabled: isloading,
 
-            /// 🔥 TOP IMAGE SECTION
-            Stack(
-              children: [
-                /// 🔥 IMAGE
-                SizedBox(
-                  height: 330,
-                  width: double.infinity,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(0), // optional
-                    child: Image.network(
-                      ApiService().getImageURL(mydata?.project.imageUrl ?? ""),
-                      fit: BoxFit.cover,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
 
-                      /// ❌ error → fallback
-                      errorBuilder: (_, __, ___) {
-                        return Image.asset(
-                          "assets/home/img.png",
-                          fit: BoxFit.cover,
-                        );
-                      },
-                    ),
-                  ),
-                ),
-
-                /// 🔥 DARK GRADIENT (Bottom Fade Effect)
-                  /*        Container(
+              /// 🔥 TOP IMAGE SECTION
+              Stack(
+                children: [
+                  /// 🔥 IMAGE
+                  SizedBox(
                     height: 330,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.3),
-                          Colors.black.withOpacity(0.8),
-                        ],
+                    width: double.infinity,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(0), // optional
+                      child: Image.network(
+                        ApiService().getImageURL(mydata?.project.imageUrl ?? ""),
+                        fit: BoxFit.cover,
+
+                        /// ❌ error → fallback
+                        errorBuilder: (_, __, ___) {
+                          return SvgPicture.asset(
+                            "assets/svg/image_holder.svg",
+                            fit: BoxFit.cover,
+                          );
+                        },
                       ),
                     ),
-                  ),*/
-
-                /// 🔥 TOP ICON ROW
-                Positioned(
-                  top: 50,
-                  left: 16,
-                  right: 16,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-
-                      /// 🔙 BACK BUTTON
-                      InkWell(
-                        onTap: () => Navigator.pop(context),
-                       // child: Image.asset("assets/icons/Reply.png", height: 24,color: ColorCode.white,),
-                        child: SvgPicture.asset(AppImages.back),
-                      ),
-
-                    ],
                   ),
-                ),
 
-                /// 🔥 TITLE + ID
-                Positioned(
-                  bottom: 20,
-                  left: 16,
-                  right: 16,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children:  [
-                      Expanded(
-                        child: Text(
-                          "${mydata?.clientContact.fullName}",
+                  /// 🔥 DARK GRADIENT (Bottom Fade Effect)
+                    /*        Container(
+                      height: 330,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.3),
+                            Colors.black.withOpacity(0.8),
+                          ],
+                        ),
+                      ),
+                    ),*/
+
+                  /// 🔥 TOP ICON ROW
+                  Positioned(
+                    top: 50,
+                    left: 16,
+                    right: 16,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        /// 🔙 BACK BUTTON
+                        InkWell(
+                          onTap: () => Navigator.pop(context),
+                         // child: Image.asset("assets/icons/Reply.png", height: 24,color: ColorCode.white,),
+                          child: SvgPicture.asset(AppImages.back),
+                        ),
+
+                      ],
+                    ),
+                  ),
+
+                  /// 🔥 TITLE + ID
+                  Positioned(
+                    bottom: 20,
+                    left: 16,
+                    right: 16,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children:  [
+                        Expanded(
+                          child: Text(
+                            "${mydata?.clientContact.fullName}",
+                            style: TextStyle(
+                              fontFamily: "Unbounded",
+                              color: ColorCode.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "ID: ${mydata?.project.idLabel}",
                           style: TextStyle(
-                            fontFamily: "Unbounded",
-                            color: ColorCode.white,
-                            fontSize: 16,
+                            fontFamily: "Outfit",
+                            color: ColorCode.kButtonColor,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "ID: ${mydata?.project.idLabel}",
-                        style: TextStyle(
-                          fontFamily: "Outfit",
-                          color: ColorCode.kButtonColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
 
-            _buildInfoCard(),
-
+              _buildInfoCard(),
 
 
-          ],
+
+            ],
+          ),
         ),
       ),
     );

@@ -11,41 +11,28 @@ class Creatordashboarddetailsmodel {
     required this.data,
   });
 
-  factory Creatordashboarddetailsmodel.fromRawJson(String str) => Creatordashboarddetailsmodel.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory Creatordashboarddetailsmodel.fromJson(Map<String, dynamic> json) => Creatordashboarddetailsmodel(
-    error: json["error"],
-    message: json["message"],
-    data: Data.fromJson(json["data"]),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "error": error,
-    "message": message,
-    "data": data.toJson(),
-  };
+  factory Creatordashboarddetailsmodel.fromJson(Map<String, dynamic> json) =>
+      Creatordashboarddetailsmodel(
+        error: json["error"],
+        message: json["message"],
+        data: Data.fromJson(json["data"]),
+      );
 }
 
 class Data {
-  final List<PendingRequestCard> pendingRequestCards;
+  final List<PendingRequestCard> shoots;
 
   Data({
-    required this.pendingRequestCards,
+    required this.shoots,
   });
 
-  factory Data.fromRawJson(String str) => Data.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    pendingRequestCards: List<PendingRequestCard>.from(json["pendingRequestCards"].map((x) => PendingRequestCard.fromJson(x))),
+    shoots: json["shoots"] != null
+        ? List<PendingRequestCard>.from(
+      json["shoots"].map((x) => PendingRequestCard.fromJson(x)),
+    )
+        : [],
   );
-
-  Map<String, dynamic> toJson() => {
-    "pendingRequestCards": List<dynamic>.from(pendingRequestCards.map((x) => x.toJson())),
-  };
 }
 
 class PendingRequestCard {
@@ -65,7 +52,7 @@ class PendingRequestCard {
   final dynamic budget;
   final String status;
   final int crewAccept;
-  final Cta cta;
+  final Cta? cta; // ✅ NULL SAFE
 
   PendingRequestCard({
     required this.id,
@@ -82,54 +69,33 @@ class PendingRequestCard {
     required this.budget,
     required this.status,
     required this.crewAccept,
-    required this.cta,
     required this.shootType,
     required this.shootTypeImageUrl,
+    this.cta,
   });
 
-  factory PendingRequestCard.fromRawJson(String str) => PendingRequestCard.fromJson(json.decode(str));
+  factory PendingRequestCard.fromJson(Map<String, dynamic> json) =>
+      PendingRequestCard(
+        shootType: json["shoot_type"] ?? "",
+        shootTypeImageUrl: json["shoot_type_image_url"] ?? "",
+        id: json["id"] ?? 0,
+        projectId: json["project_id"] ?? 0,
+        crewMemberId: json["crew_member_id"] ?? 0,
+        projectName: json["project_name"] ?? "",
+        eventDate: DateTime.parse(json["event_date"]),
+        startTime: json["start_time"] ?? "",
+        endTime: json["end_time"] ?? "",
+        eventLocation: json["event_location"] ?? "",
+        contentType: json["content_type"] ?? "",
+        shootTypeId: json["shoot_type_id"],
+        totalAmount: json["total_amount"] ?? "0",
+        budget: json["budget"],
+        status: json["status"] ?? "",
+        crewAccept: json["crew_accept"] ?? 0,
 
-  String toRawJson() => json.encode(toJson());
-
-  factory PendingRequestCard.fromJson(Map<String, dynamic> json) => PendingRequestCard(
-    shootType: json["shoot_type"] ?? "",
-    shootTypeImageUrl: json["shoot_type_image_url"] ?? "",
-    id: json["id"],
-    projectId: json["project_id"],
-    crewMemberId: json["crew_member_id"],
-    projectName: json["project_name"],
-    eventDate: DateTime.parse(json["event_date"]),
-    startTime: json["start_time"],
-    endTime: json["end_time"],
-    eventLocation: json["event_location"],
-    contentType: json["content_type"],
-    shootTypeId: json["shoot_type_id"],
-    totalAmount: json["total_amount"],
-    budget: json["budget"],
-    status: json["status"],
-    crewAccept: json["crew_accept"],
-    cta: Cta.fromJson(json["cta"]),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "shoot_type": shootType,
-    "shoot_type_image_url": shootTypeImageUrl,
-    "id": id,
-    "project_id": projectId,
-    "crew_member_id": crewMemberId,
-    "project_name": projectName,
-    "event_date": "${eventDate.year.toString().padLeft(4, '0')}-${eventDate.month.toString().padLeft(2, '0')}-${eventDate.day.toString().padLeft(2, '0')}",
-    "start_time": startTime,
-    "end_time": endTime,
-    "event_location": eventLocation,
-    "content_type": contentType,
-    "shoot_type_id": shootTypeId,
-    "total_amount": totalAmount,
-    "budget": budget,
-    "status": status,
-    "crew_accept": crewAccept,
-    "cta": cta.toJson(),
-  };
+        /// ✅ SAFE CTA
+        cta: json["cta"] != null ? Cta.fromJson(json["cta"]) : null,
+      );
 }
 
 class Cta {
@@ -141,17 +107,8 @@ class Cta {
     required this.secondary,
   });
 
-  factory Cta.fromRawJson(String str) => Cta.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory Cta.fromJson(Map<String, dynamic> json) => Cta(
-    primary: json["primary"],
-    secondary: json["secondary"],
+    primary: json["primary"] ?? "",
+    secondary: json["secondary"] ?? "",
   );
-
-  Map<String, dynamic> toJson() => {
-    "primary": primary,
-    "secondary": secondary,
-  };
 }

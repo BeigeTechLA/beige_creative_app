@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
-import '../../Model_Class/Creatordashboarddetailsmodel.dart';
+import '../../Model_Class/Creatordashboarddetailsmodel.dart' hide Data;
 import '../../Model_Class/myprofilemodel.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
+import '../../widgets/commonFileViewer.dart';
 
 class Certificates extends StatefulWidget {
   const Certificates({super.key});
@@ -48,12 +50,15 @@ class _CertificatesState extends State<Certificates> {
    bool isloading =true;
   // Data? Myprofile_user;
 
+
+   Data? Myprofile_user;
+
   @override
   void initState() {
     super.initState();
-    fetchprofiledata();
+    fetchcertificates();
   }
-  Future<void> fetchprofiledata() async {
+  Future<void> fetchcertificates() async {
     try {
       setState(() {
         isloading = true;
@@ -72,12 +77,12 @@ class _CertificatesState extends State<Certificates> {
 
         /// ✅ SOCIAL LINKS
 
-    /*    /// ✅ IMPORTANT CHANGE (USE NESTED USER)
+        /// ✅ IMPORTANT CHANGE (USE NESTED USER)
         setState(() {
 
 
           Myprofile_user = response.data;
-        });*/
+        });
 
       } else {
         debugPrint("❌ API ERROR: ${response.message}");
@@ -153,9 +158,11 @@ class _CertificatesState extends State<Certificates> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: certificates.length,
+                  itemCount: Myprofile_user?.certificateFiles.length ?? 0,
+
                   itemBuilder: (context, index) {
-                    final cert = certificates[index];
+
+                    final cert = Myprofile_user!.certificateFiles[index];
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -168,17 +175,30 @@ class _CertificatesState extends State<Certificates> {
                         children: [
 
                           /// FILE IMAGE
-                          Container(
-                            height: 55,
-                            width: 45,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Icon(Icons.description,
-                                color: Colors.black54),
-                          ),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: SizedBox(
+                              height: 55,
+                              width: 55,
+                              child: Image.network(
+                                "${ApiService.imageURL}${cert.filePath}",
+                                fit: BoxFit.cover,
 
+                                /// ✅ ERROR → SVG PLACEHOLDER
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: SvgPicture.asset(
+                                      "assets/svg/image_holder.svg",
+                                      fit: BoxFit.contain,
+                                    ),
+                                  );
+                                },
+
+
+                              ),
+                            ),
+                          ),
                           const SizedBox(width: 10),
 
                           /// DETAILS
@@ -188,14 +208,15 @@ class _CertificatesState extends State<Certificates> {
                               CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  cert["title"]!,
+                                  cert.filePath.split('/').last,
                                   style: const TextStyle(
+                                    fontFamily: "Outfit",
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500),
                                 ),
 
                                 const SizedBox(height: 4),
-
+/*
                                 Text(
                                   "${cert["date"]} • ${cert["type"]}",
                                   style: const TextStyle(
@@ -210,7 +231,7 @@ class _CertificatesState extends State<Certificates> {
                                   style: const TextStyle(
                                       color: Colors.white54,
                                       fontSize: 11),
-                                ),
+                                ),*/
                               ],
                             ),
                           ),
@@ -218,17 +239,21 @@ class _CertificatesState extends State<Certificates> {
                           /// SIZE + MENU
                           Column(
                             children: [
-                              const Icon(Icons.more_vert,
-                                  color: Colors.white54),
+                               GestureDetector(
+                                onTap: () {
+                                  _openOptions(cert);
+                                },
+                                child: const Icon(Icons.more_vert, color: Colors.white54),
+                              ),
 
                               const SizedBox(height: 15),
-
+/*
                               Text(
                                 cert["size"]!,
                                 style: const TextStyle(
                                     color: Colors.white54,
                                     fontSize: 11),
-                              )
+                              )*/
                             ],
                           )
                         ],
@@ -356,6 +381,73 @@ class _CertificatesState extends State<Certificates> {
           ],
         ),
       ),
+    );
+  }
+  void _openOptions(CrewFile cert) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            color: Color(0xFF1F1F1F),
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              /// VIEW DETAILS
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+
+                  CommonFileViewer.open(
+                    context: context,
+                    filePath: "${ApiService.imageURL}${cert.filePath}",
+                    isNetwork: true,
+                  );
+                },
+                child: Row(
+                  children: const [
+                    Icon(Icons.visibility, color: Colors.white),
+                    SizedBox(width: 12),
+                    Text(
+                      "View Details",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              /// DELETE
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+
+                },
+                child: Row(
+                  children: const [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 12),
+                    Text(
+                      "Delete",
+                      style: TextStyle(color: Colors.red, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -27,6 +27,7 @@ class ApiEndpoints {
   ///My profile
 
   static const String upload_photo = "creator/profile/upload-profile-photot";
+  static const String upload_Featured_Works = "creator/profile/files/recent_work";
 
 
 

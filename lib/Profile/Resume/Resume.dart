@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../Model_Class/myprofilemodel.dart';
+import '../../service/api_endpoints.dart';
+import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
 
 class Resume extends StatefulWidget {
@@ -10,37 +13,53 @@ class Resume extends StatefulWidget {
 }
 
 class _ResumeState extends State<Resume> {
+bool isloading =true;
 
-  List<Map<String, String>> Resume = [
-    {
-      "title": "Certified Photographer.pdf",
-      "date": "03 Dec 2024",
-      "type": "PDF File",
-      "count": "1 Page",
-      "size": "1MB"
-    },
-    {
-      "title": "Photography Excellence Award",
-      "date": "03 Dec 2024",
-      "type": "Docx File",
-      "count": "2 Pages",
-      "size": "1MB"
-    },
-    {
-      "title": "Skill Development Certificate",
-      "date": "03 Dec 2024",
-      "type": "PDF File",
-      "count": "3 Pages",
-      "size": "1MB"
-    },
-    {
-      "title": "Certified Visual Creator",
-      "date": "03 Dec 2024",
-      "type": "Image File",
-      "count": "1 Images",
-      "size": "1MB"
-    },
-  ];
+Data? Myprofile_user;
+  @override
+  void initState() {
+    super.initState();
+    fetchresumedata();
+  }
+  Future<void> fetchresumedata() async {
+    try {
+      setState(() {
+        isloading = true;
+      });
+
+      final rawResponse =
+      await ApiService().postData(ApiEndpoints.profiledetails, {});
+
+      debugPrint("📦 RAW API RESPONSE: $rawResponse");
+
+      final response = Myprofilemodel.fromJson(rawResponse);
+
+      debugPrint("✅ PARSED RESPONSE: ${response.data}");
+
+      if (response.error == false) {
+
+        /// ✅ SOCIAL LINKS
+
+        /// ✅ IMPORTANT CHANGE (USE NESTED USER)
+        setState(() {
+
+
+          Myprofile_user = response.data;
+        });
+
+      } else {
+        debugPrint("❌ API ERROR: ${response.message}");
+      }
+    } catch (e) {
+      debugPrint("❌ EXCEPTION: $e");
+    } finally {
+      setState(() {
+        isloading = false;
+      });
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,9 +122,9 @@ class _ResumeState extends State<Resume> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: Resume.length,
+                  itemCount: Myprofile_user?.resumeFiles.length ?? 0,
                   itemBuilder: (context, index) {
-                    final cert = Resume[index];
+                    final cert = Myprofile_user!.resumeFiles[index];
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -138,7 +157,8 @@ class _ResumeState extends State<Resume> {
                               CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  cert["title"]!,
+                                  cert.filePath.split('/').last, // file name
+
                                   style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500),
@@ -146,21 +166,21 @@ class _ResumeState extends State<Resume> {
 
                                 const SizedBox(height: 4),
 
-                                Text(
+                              /*  Text(
                                   "${cert["date"]} • ${cert["type"]}",
                                   style: const TextStyle(
                                       color: Colors.white54,
                                       fontSize: 11),
                                 ),
-
+*/
                                 const SizedBox(height: 6),
-
+/*
                                 Text(
                                   cert["count"]!,
                                   style: const TextStyle(
                                       color: Colors.white54,
                                       fontSize: 11),
-                                ),
+                                ),*/
                               ],
                             ),
                           ),
@@ -173,12 +193,12 @@ class _ResumeState extends State<Resume> {
 
                               const SizedBox(height: 15),
 
-                              Text(
+                             /* Text(
                                 cert["size"]!,
                                 style: const TextStyle(
                                     color: Colors.white54,
                                     fontSize: 11),
-                              )
+                              )*/
                             ],
                           )
                         ],

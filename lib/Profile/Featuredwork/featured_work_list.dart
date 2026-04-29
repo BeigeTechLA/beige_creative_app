@@ -11,6 +11,7 @@ import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
 import '../../utility/imges_icons.dart';
+import '../../widgets/commonImagePicker.dart';
 import '../../widgets/custom_text_field.dart';
 
 class FeaturedWorkList extends StatefulWidget {
@@ -29,7 +30,7 @@ bool isloading =true;
   final enter_work_titleController=TextEditingController();
   List<Map<String, dynamic>> featuredWorks = [];
   File? selectedImage;
-  final ImagePicker picker = ImagePicker();
+
 
   List<Map<String, String>> socialLinks = [];
   List<File> selectedImages = [];
@@ -108,16 +109,15 @@ bool isloading =true;
   TextEditingController tagController = TextEditingController();
   TextEditingController EnterWorkTitleController = TextEditingController();
 // ✅ FIXED: Accept setModalState so modal UI updates properly
-  Future<void> pickImage(StateSetter setModalState) async {
-    final List<XFile>? images = await picker.pickMultiImage(
-      imageQuality: 80,
-    );
+  void pickImage(StateSetter setModalState) async {
+    final images = await CommonImagePicker.pickMultiImage();
 
-    if (images != null) {
+    if (images.isNotEmpty) {
       setModalState(() {
-        selectedImages = images.map((e) => File(e.path)).toList();
+        selectedImages = images;
       });
-      setState(() {}); // sync parent state too if needed
+
+      setState(() {});
     }
   }
   @override
@@ -1150,7 +1150,6 @@ bool isloading =true;
       },
     );
   }
-
   void _openAddTagSheet(StateSetter setFeaturedModalState) {
     TextEditingController tagController = TextEditingController();
     List<String> tempTags = List.from(selectedTags);

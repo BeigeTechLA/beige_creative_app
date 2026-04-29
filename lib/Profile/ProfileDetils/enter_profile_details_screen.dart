@@ -8,7 +8,7 @@ import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
 import '../../utility/imges_icons.dart';
 import '../../widgets/CustomDropdown.dart';
-import '../../widgets/Custom_dropdown_field.dart';
+import '../../widgets/custom_dropdown_field.dart';
 import '../../widgets/custom_text_field.dart';
 
 class EnterProfileDetailsScreen extends StatefulWidget {

@@ -21,6 +21,8 @@ import '../Model_Class/myprofilemodel.dart';
 import '../Profile/MyProfile/MyProfile.dart';
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../utility/ColorCode.dart';
+import '../widgets/common_calendar.dart';
+import '../widgets/date_time.dart';
 import '../widgets/multi_arc_painter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -52,15 +54,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   int acceptvideographyShoots = 0;
 
 
-  String getFilterValue() {
-    if (selectedRange == "Week") {
-      return "this_week";
-    } else if (selectedRange == "Month") {
-      return "this_month";
-    } else {
-      return "this_year";
-    }
-  }
+
   int sucessfullshoots = 0;
   int pendingshoots = 0;
   int rejectedshoots = 0;
@@ -70,6 +64,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   int upcomingshoots = 0;
   int pendingrequests = 0;
 
+  String getFilterValue() {
+    if (selectedRange == "Week") {
+      return "this_week";
+    } else if (selectedRange == "Month") {
+      return "this_month";
+    } else {
+      return "this_year";
+    }
+  }
 /*  Data? Myprofile_user;*/
   List<upcomingdatum> upcomingshootslist = [];
   List<PendingRequestCard> creatordashboarddetaillist = [];
@@ -236,24 +239,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
 
 
-
-
-
-  void prepareAvailabilityEvents(Map<String, dynamic> availability) {
-    events.clear();
-    availability.forEach((dateString, value) {
-      final date = DateTime.parse(dateString);
-      final cleanDate = DateTime(date.year, date.month, date.day);
-      final isAvailable = value["available"] == true;
-      final isAssigned = value["projectAssigned"] == true;
-      if (isAssigned) {
-        events[cleanDate] = "Shoot";
-      } else if (isAvailable) {
-        events[cleanDate] = "Available";
-      }
-    });
-  }
-
   Future<void> fetchavailability() async {
     try {
       final response = await ApiService().postData(
@@ -281,10 +266,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       );
 
       if (response.error == false) {
-        debugPrint("DATA LENGTH 👉 ${response.data.pendingRequestCards.length}");
+        debugPrint("DATA LENGTH 👉 ${response.data.shoots.length}");
 
         setState(() {
-          creatordashboarddetaillist = response.data.pendingRequestCards;
+          creatordashboarddetaillist = response.data.shoots;
         });
       }
     } catch (e) {
@@ -328,6 +313,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       debugPrint("error is::::$e");
     }
   }
+
+
+  void prepareAvailabilityEvents(Map<String, dynamic> availability) {
+    events.clear();
+    availability.forEach((dateString, value) {
+      final date = DateTime.parse(dateString);
+      final cleanDate = DateTime(date.year, date.month, date.day);
+      final isAvailable = value["available"] == true;
+      final isAssigned = value["projectAssigned"] == true;
+      if (isAssigned) {
+        events[cleanDate] = "Shoot";
+      } else if (isAvailable) {
+        events[cleanDate] = "Available";
+      }
+    });
+  }
+
+
 
   @override
   void dispose() {
@@ -862,7 +865,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ColorCode.kButtonColor,
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -929,11 +932,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               ],
                             ),
                             Container(
-                              margin: EdgeInsets.all(6),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              margin: EdgeInsets.all(7),
+                              padding: const EdgeInsets.symmetric(horizontal: 19,),
                               decoration: BoxDecoration(
                                 color: ColorCode.white,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(6),
                               ),
                               child: DropdownButtonHideUnderline(
                                 child: DropdownButton<String>(
@@ -958,7 +961,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ],
                         ),
                         const SizedBox(height: 10),
-                        TableCalendar(
+                   /*     TableCalendar(
                           daysOfWeekHeight: 70,
                           calendarBuilders: CalendarBuilders(
                             dowBuilder: (context, day) {
@@ -1030,6 +1033,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             });
                           },
                         ),
+*/
+                        CommonCalendar(
+                          focusedDay: _focusedDay,
+                          events: events,
+                          selectedEvent: selectedEvent,
+                          onPageChanged: (day) {
+                            setState(() {
+                              _focusedDay = day;
+                              fetchavailability();
+                            });
+                          },
+                        )
                       ],
                     ),
                   ),
@@ -1073,27 +1088,40 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       Stack(
                         children: [
                           ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(22),
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(22),
+                            ),
+                            child: data?.shootTypeImageUrl != null &&
+                                data!.shootTypeImageUrl.isNotEmpty
+                                ? Image.network(
+                              ApiService().getImageURL(data.shootTypeImageUrl),
+                              height: 220,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: SvgPicture.asset(
+                                    "assets/svg/image_holder.svg", // 👈 your svg path
+                                    height: 80,
+                                    colorFilter: const ColorFilter.mode(
+                                      Colors.white54,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                                : Center(
+                              child: SvgPicture.asset(
+                                "assets/svg/image_holder.svg",
+                                height: 80,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white54,
+                                  BlendMode.srcIn,
+                                ),
                               ),
-                              child:Image.network(
-                                ApiService().getImageURL(data?.shootTypeImageUrl ?? ""),
-                                height: 220,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-
-
-
-                                /// error fallback
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    "assets/home/img.png",
-                                    height: 220,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  );
-                                },
-                              )
+                            ),
                           ),
                           Positioned.fill(
                             child: Container(
@@ -1158,7 +1186,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               ),
                               child: Row(
                                 children:  [
-                                  Icon(Icons.check_circle, size: 14, color: Colors.green),
+                                  // Icon(Icons.check_circle, size: 14, color: Colors.green),
                                   SizedBox(width: 6),
                                   Text(
                                     data?.status ?? "",
@@ -1223,7 +1251,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     Icon(Icons.calendar_today, size: 14, color: Colors.white70),
                                     SizedBox(width: 6),
                                     Text(
-                                      formatDate(data?.eventDate.toString()),
+                                        DateTimeUtils.formatDate(
+                                          data?.eventDate.toIso8601String(),
+                                        ),
                                       style: TextStyle(
                                           fontWeight: FontWeight.w400,
                                           fontFamily: "Outfit",
@@ -1238,10 +1268,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     Icon(Icons.access_time, size: 14, color: Colors.white70),
                                     SizedBox(width: 6),
                                     Text(
-                                      formatTimeRange(
-                                        data?.startTime,
-                                        data?.endTime,
-                                      ),
+                                        "${DateTimeUtils.formatTime(data?.startTime)} - ${DateTimeUtils.formatTime(data?.endTime)}",
                                       style: TextStyle(
                                           fontWeight: FontWeight.w400,
                                           fontFamily: "Outfit",
@@ -1290,43 +1317,44 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 SizedBox(),
 
                                 /// ✅ RIGHT SIDE (Your SAME Buttons - untouched)
-                                Row(
-                                  children: [
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color(0xffD8FDE6),
-                                      ),
-                                      onPressed: () {
-                                        if (data != null) {
-                                          fetchacceptdecline(data!.projectId, 1);
-                                        }
-                                      },
-                                      child: const Text(
-                                        "Accept",
-                                        style: TextStyle(
-                                          color: Color(0xff1DAA23),
+                                if (data?.status?.toLowerCase() == "pending")
+                                  Row(
+                                    children: [
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xffD8FDE6),
+                                        ),
+                                        onPressed: () {
+                                          if (data != null) {
+                                            fetchacceptdecline(data!.projectId, 1);
+                                          }
+                                        },
+                                        child: const Text(
+                                          "Accept",
+                                          style: TextStyle(
+                                            color: Color(0xff1DAA23),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color(0xffEECCC9),
-                                      ),
-                                      onPressed: () {
-                                        if (data != null) {
-                                          fetchacceptdecline(data!.projectId, 2);
-                                        }
-                                      },
-                                      child: const Text(
-                                        "Decline",
-                                        style: TextStyle(
-                                          color: Color(0xffD33732),
+                                      const SizedBox(width: 10),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xffEECCC9),
+                                        ),
+                                        onPressed: () {
+                                          if (data != null) {
+                                            fetchacceptdecline(data!.projectId, 2);
+                                          }
+                                        },
+                                        child: const Text(
+                                          "Decline",
+                                          style: TextStyle(
+                                            color: Color(0xffD33732),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                    ],
+                                  )
                               ],
                             ),
                           ],
@@ -2026,66 +2054,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildAvatarStack({
-    required List<String> images,
-    int extraCount = 0,
-    double avatarSize = 20,
-    double overlap = 10,
-  }) {
-    final int totalItems = images.length + (extraCount > 0 ? 1 : 0);
-    final double totalWidth = avatarSize + (totalItems - 1) * overlap;
-    return SizedBox(
-      width: totalWidth,
-      height: avatarSize,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          ...List.generate(images.length, (index) {
-            return Positioned(
-              left: index * overlap,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 1),
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    images[index],
-                    width: avatarSize,
-                    height: avatarSize,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            );
-          }),
-          if (extraCount > 0)
-            Positioned(
-              left: images.length * overlap,
-              child: Container(
-                width: avatarSize,
-                height: avatarSize,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade700,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.black, width: 1),
-                ),
-                child: Center(
-                  child: Text(
-                    "+$extraCount",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: avatarSize * 0.35,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _filterSection({
     required String title,

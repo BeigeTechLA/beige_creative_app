@@ -64,7 +64,8 @@ class Data {
   final List<Skill> skills;
   final Map<String, dynamic> socialMediaLinks;
   final List<CrewFile> crewMemberFiles;
-
+  final List<CrewFile> certificateFiles;
+  final List<CrewFile> resumeFiles;
   final User user; // nested
 
   Data({
@@ -88,6 +89,8 @@ class Data {
     required this.availability,
     required this.featuredWorkFiles,
     required this.stats,
+    required this.certificateFiles,
+    required this.resumeFiles,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
@@ -117,6 +120,16 @@ class Data {
     featuredWorkFiles: json["featured_work_files"] is List
         ? List<CrewFile>.from(
       json["featured_work_files"].map((x) => CrewFile.fromJson(x)),
+    )
+        : [],
+    certificateFiles: json["certificate_files"] is List
+        ? List<CrewFile>.from(
+      json["certificate_files"].map((x) => CrewFile.fromJson(x)),
+    )
+        : [],
+    resumeFiles: json["resume_files"] is List
+        ? List<CrewFile>.from(
+      json["resume_files"].map((x) => CrewFile.fromJson(x)),
     )
         : [],
     skills: json["skills"] == null
