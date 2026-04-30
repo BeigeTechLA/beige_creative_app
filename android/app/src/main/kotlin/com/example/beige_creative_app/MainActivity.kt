@@ -1,4 +1,4 @@
-package com.example.beige_creative_app
+package com.beige_creative_app
 
 import io.flutter.embedding.android.FlutterActivity
 

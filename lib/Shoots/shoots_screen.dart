@@ -37,7 +37,8 @@ import 'shoot_cancelled_screen.dart';
     ShootsModel? shoots;
 
     List<Shoot> mylist = [];
-
+    TextEditingController searchController = TextEditingController();
+    List<Shoot> filteredList = [];
     Future<void>fetchacceptdecline(int projectid,int crewid)async{
       final response= await ApiService().postData(
           ApiEndpoints.acceptdeclineproject,
@@ -96,12 +97,26 @@ import 'shoot_cancelled_screen.dart';
         setState(() {
           mylist = response.data.shoots;
           isLoading = false;
+
         });
       } else {
         setState(() => isLoading = false);
       }
     }
 
+    void searchShoots(String query) {
+      final lowerQuery = query.toLowerCase();
+
+      setState(() {
+        mylist = mylist.where((shoot) {
+          final projectName = (shoot.projectName ?? "").toLowerCase();
+          final contentType = (shoot.contentType ?? "").toLowerCase();
+
+          return projectName.contains(lowerQuery) ||
+              contentType.contains(lowerQuery);
+        }).toList();
+      });
+    }
     @override
     Widget build(BuildContext context) {
 
@@ -180,6 +195,8 @@ import 'shoot_cancelled_screen.dart';
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: TextField(
+                    controller: searchController,
+                    onChanged: searchShoots,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -189,6 +206,7 @@ import 'shoot_cancelled_screen.dart';
                       hintText: "Search events or crew...",
                       hintStyle: const TextStyle(
                         color: Colors.white38,
+                        fontFamily: "Outfit"
                       ),
                       prefixIcon: const Icon(
                         Icons.search,
@@ -346,8 +364,10 @@ import 'shoot_cancelled_screen.dart';
 
                     /// ✅ Network image
                     if (shoot.shootTypeImageUrl.isNotEmpty)
+
                       Image.network(
                         ApiService().getImageURL(shoot.shootTypeImageUrl),
+
                         height: 180,
                         width: double.infinity,
                         fit: BoxFit.cover,

@@ -318,51 +318,44 @@ Data? Myprofile_user;
     fetchprofiledata();
   }
 
-  Future<void> fetchprofiledata() async {
-    try {
+Future<void> fetchprofiledata() async {
+  try {
+    debugPrint("🚀 API CALL STARTED");
+
+    setState(() {
+      isloading = true;
+    });
+
+    final rawResponse =
+    await ApiService().postData(ApiEndpoints.profiledetails, {});
+
+    debugPrint("📦 RAW RESPONSE 👉 $rawResponse");
+
+    final response = Myprofilemodel.fromJson(rawResponse);
+
+    if (response.error == false) {
+      debugPrint("✅ API SUCCESS");
+
+      debugPrint("👤 NAME 👉 ${response.data.user.name}");
+      debugPrint("📧 EMAIL 👉 ${response.data.user.email}");
+      debugPrint("🖼 IMAGE 👉 ${response.data.user.profileImageUrl}");
+
       setState(() {
-        isloading = true;
+        Myprofile_user = response.data;
       });
-
-      final rawResponse =
-      await ApiService().postData(ApiEndpoints.profiledetails, {});
-
-      debugPrint("📦 RAW API RESPONSE: $rawResponse");
-
-      final response = Myprofilemodel.fromJson(rawResponse);
-
-      debugPrint("✅ PARSED RESPONSE: ${response.data}");
-
-      if (response.error == false) {
-
-        /// ✅ SOCIAL LINKS
-
-        /// ✅ PORTFOLIO LINKS
-        final portfolio = response.data.crewMemberFiles
-            .where((e) => e.fileType == "link")
-            .toList();
-
-        debugPrint("🎯 Portfolio Count: ${portfolio.length}");
-
-        /// ✅ IMPORTANT CHANGE (USE NESTED USER)
-        setState(() {
-          Myprofile_user = response.data;
-        });
-
-      } else {
-        debugPrint("❌ API ERROR: ${response.message}");
-      }
-    } catch (e) {
-      debugPrint("❌ EXCEPTION: $e");
-    } finally {
-      setState(() {
-        isloading = false;
-      });
+    } else {
+      debugPrint("❌ API ERROR 👉 ${response.message}");
     }
+  } catch (e) {
+    debugPrint("❌ EXCEPTION 👉 $e");
+  } finally {
+    setState(() {
+      isloading = false;
+    });
+
+    debugPrint("🏁 API CALL END");
   }
-
-
-
+}
   int _selectedIndex = 0;
 
   /// 🔥 Bottom Navigation Pages
@@ -386,6 +379,8 @@ Data? Myprofile_user;
     return Scaffold(
       backgroundColor: ColorCode.bcakgroundcolor,
       drawer: _buildDrawer(),
+      drawerEnableOpenDragGesture: true,
+      drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
 
       /// 🔥 IndexedStack = state safe
   /*    body: IndexedStack(
@@ -497,6 +492,8 @@ Data? Myprofile_user;
                           builder: (context) =>  Myprofile(),
                         ),
                       );
+                      /// 🔥 BACK AATE HI API CALL
+                      fetchprofiledata();
                     },
                     child: Container(
                       padding: const EdgeInsets.all(12),
