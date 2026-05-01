@@ -91,31 +91,30 @@ class _CustomTextFieldState extends State<CustomTextField> {
       ),
       decoration: InputDecoration(
         labelText: widget.label,
+
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelStyle: TextStyle(
           fontSize: 14,
           color: highlight
               ? ColorCode.kButtonColor
-              : ColorCode.kWhiteOpacity70,
+              : ColorCode.kWhiteOpacity_60,
           fontFamily: "Outfit",
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 18,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(
-            color: highlight
-                ? ColorCode.textfieldbordercollor
-                : ColorCode.kWhiteOpacity70,
-            width: 0.5,//
+        contentPadding:
+        const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: highlight
+                  ? ColorCode.kGoldBorder50
+                  : ColorCode.kWhiteOpacity30,
+              width: 0.5,
+            ),
           ),
-        ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(
-            color:ColorCode.textfieldbordercollor,
+            color:ColorCode.kGoldBorder50,
             width: 0.5,
           ),
         ),
