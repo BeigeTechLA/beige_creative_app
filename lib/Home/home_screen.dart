@@ -20,6 +20,7 @@ import '../Model_Class/myprofilemodel.dart' as profile;
 
 import '../Model_Class/myprofilemodel.dart';
 import '../Profile/MyProfile/MyProfile.dart';
+import '../Shoots/shoot_cancelled_screen.dart';
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../utility/ColorCode.dart';
 import '../widgets/common_calendar.dart';
@@ -454,12 +455,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   print("IMAGE ERROR: ${data['image']}");
-                  return Image.asset(
-                    "assets/home/Mask_group.png",
-                    height: 169,
-                    width: 117,
-                    fit: BoxFit.cover,
-                  );
+                  return
+                    SvgPicture.asset(
+                      "assets/svg/image_holder.svg", // 👈 your svg path
+                      height: 169,
+                      width: 117,
+                      fit: BoxFit.cover,
+                    );
                 },
               )
           ),
@@ -808,7 +810,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     ),
                     const SizedBox(height: 55),
 
-                    // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
+                  /*  // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
                     if (upcomingshootslist.isEmpty)
                       Container(
                         padding: const EdgeInsets.all(20),
@@ -903,7 +905,123 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                       ),
                     // ========================================================================
+*/// ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
+            if (upcomingshootslist.isEmpty)
+           Container(
+           padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+    color: ColorCode.k282828,
+    borderRadius: BorderRadius.circular(18),
+    ),
+    child: const Center(
+    child: Text(
+    "No upcoming shoots",
+    style: TextStyle(color: Colors.white70),
+    ),
+    ),
+    )
+            else
+         Builder(
+    builder: (context) {
+    final n = upcomingshootslist.length;
 
+    // ✅ 👉 ONLY 1 DATA → NO SWIPE, NO STACK
+    if (n == 1) {
+    final current = _cardFromDatum(upcomingshootslist[0]);
+    return _buildCard(current, isMain: true);
+    }
+
+    // ✅ 👉 MULTIPLE DATA → SWIPE + STACK
+    return GestureDetector(
+    onTap: _onCardTap,
+    onHorizontalDragEnd: (details) {
+    if (details.primaryVelocity == null) return;
+
+    if (details.primaryVelocity! > 0) {
+    _goToPrevious();
+    } else if (details.primaryVelocity! < 0) {
+    _goToNext();
+    }
+    },
+    child: LayoutBuilder(
+    builder: (context, constraints) {
+    final totalWidth = constraints.maxWidth;
+
+    final currentDatum =
+    upcomingshootslist[_currentIndex % n];
+    final nextDatum =
+    upcomingshootslist[(_currentIndex + 1) % n];
+    final next2Datum = n > 2
+    ? upcomingshootslist[(_currentIndex + 2) % n]
+        : null;
+
+    final current = _cardFromDatum(currentDatum);
+    final next = _cardFromDatum(nextDatum);
+    final next2 = next2Datum != null
+    ? _cardFromDatum(next2Datum)
+        : null;
+
+    return Stack(
+    clipBehavior: Clip.none,
+    children: [
+    // 👉 3rd card
+    if (next2 != null)
+    AnimatedPositioned(
+    duration: const Duration(milliseconds: 300),
+    top: _controller.isAnimating ? -32 : -24,
+    left: totalWidth * 0.07,
+    right: totalWidth * 0.07,
+    child: AnimatedOpacity(
+    duration: const Duration(milliseconds: 300),
+    opacity:
+    _controller.isAnimating ? 0.5 : 1,
+    child: _buildCard(next2, isBack: true),
+    ),
+    ),
+
+    // 👉 2nd card
+    if (n >= 2)
+    AnimatedPositioned(
+    duration: const Duration(milliseconds: 300),
+    top: _controller.isAnimating ? -20 : -12,
+    left: totalWidth * 0.035,
+    right: totalWidth * 0.035,
+    child: AnimatedOpacity(
+    duration: const Duration(milliseconds: 300),
+    opacity:
+    _controller.isAnimating ? 0.7 : 1,
+    child: _buildCard(
+    next,
+    isBack: true,
+    isMiddle: true,
+    ),
+    ),
+    ),
+
+    // 👉 MAIN CARD
+    AnimatedBuilder(
+    animation: _controller,
+    builder: (context, child) {
+    return Transform.translate(
+    offset:
+    Offset(0, _controller.value * 200),
+    child: Opacity(
+    opacity: 1 - _controller.value,
+    child: child,
+    ),
+    );
+    },
+    child: _buildCard(current, isMain: true),
+    ),
+    ],
+    );
+    },
+    ),
+    );
+    },
+    ),
+
+// ========================================================================
                     const SizedBox(height: 17),
                     Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
                     const SizedBox(height: 12),
@@ -1354,7 +1472,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Shootsdddddd",
+                          "Shoots",
                           style: TextStyle(
                             fontSize: 16,
                             fontFamily: "Unbounded",
@@ -1626,7 +1744,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                             child: const Text(
                                               "Accept",
                                               style: TextStyle(
-                                                color: Color(0xff1DAA23),
+                                                  color:ColorCode.green,
+                                                  fontFamily: "Outfit",
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 12
                                               ),
                                             ),
                                           ),
@@ -1635,15 +1756,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: Color(0xffEECCC9),
                                             ),
-                                            onPressed: () {
+                                          /*  onPressed: () {
                                               if (data != null) {
                                                 fetchacceptdecline(data!.projectId, 2);
+                                              }
+                                            }*/
+                                            onPressed: () async {
+                                              final result = await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CancelScreen(projectId: data?.projectId),
+                                                ),
+                                              );
+
+                                              // 👇 BACK aane ke baad refresh
+                                              if (result == true) {
+                                                fetchcreatordashboarddetails();
                                               }
                                             },
                                             child: const Text(
                                               "Decline",
                                               style: TextStyle(
-                                                color: Color(0xffD33732),
+                                                color:ColorCode.red,
+                                                fontFamily: "Outfit",
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 12
                                               ),
                                             ),
                                           ),

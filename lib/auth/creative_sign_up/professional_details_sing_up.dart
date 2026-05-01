@@ -6,14 +6,18 @@ import 'package:beige_creative_app/widgets/CustomDropdown.dart';
 import 'package:beige_creative_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
+import '../../widgets/custom_dropdown_field.dart';
+import '../../widgets/custom_multi_selectfield.dart';
 import '../ProfileDetailsScreen .dart';
+import '../login/login.dart';
 import 'build_your_creative_profile_sign_up.dart';
 
-class ProfessionalDetailsSingUp extends StatefulWidget {
+class ProfessionalDetailsSingUp extends StatefulWidget{
   final int ?crewMemberId;
   final File? profileImage;
   final String? email;
@@ -39,7 +43,6 @@ class ProfessionalDetailsSingUp extends StatefulWidget {
 
 class _ProfessionalDetailsSingUpState
     extends State<ProfessionalDetailsSingUp> {
-  String? primaryRole;
   String? experience;
   String? hourlyRate;
   String? skills;
@@ -64,12 +67,11 @@ class _ProfessionalDetailsSingUpState
   Map<String, int> roleMap = {};
   Map<String, int> skillMap = {};
   Map<String, int> equipmentMap = {};
-
+  List<String> selectedRoles = [];
   int _calculateStep2Progress() {
     int totalFields = 6;
     int filled = 0;
-
-    if (primaryRole != null && primaryRole!.isNotEmpty) filled++;
+    if (selectedRoles.isNotEmpty) filled++;
     if (YearofExperienceController.text.trim().isNotEmpty) filled++;
     if (HourlyRateController.text.trim().isNotEmpty) filled++;
     if (bioController.text.trim().isNotEmpty) filled++;
@@ -121,7 +123,6 @@ class _ProfessionalDetailsSingUpState
         setState(() {
           roleList = roleSet.toList();
           roleMap = tempRoleMap;
-          primaryRole = null;
           loading = false;
         });
       }
@@ -130,18 +131,60 @@ class _ProfessionalDetailsSingUpState
       setState(() => loading = false);
     }
   }
+  void _openRolesBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1C1C1C),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return ListView(
+              children: roleList.map((role) {
+                final isSelected = selectedRoles.contains(role);
 
+                return CheckboxListTile(
+                  value: isSelected,
+                  title: Text(
+                    role,
+                    style: const TextStyle(color: Colors.white,fontSize: 14,fontWeight: FontWeight.w500,fontFamily: "Outfit",),
+                  ),
 
-  String _skillsDisplayText() {
-    if (selectedSkills.isEmpty) {
-      return "Select skills";
-    }
+                  // ✅ Selected checkbox fill color
+                  activeColor: ColorCode.kButtonColor,
 
-    if (selectedSkills.length == 1) {
-      return selectedSkills.first;
-    }
+                  // ✅ Tick color
+                  checkColor: Colors.black,
 
-    return "${selectedSkills.first} +${selectedSkills.length - 1}";
+                  // ✅ Border color when unchecked
+                  side: BorderSide(
+                    color: isSelected
+                        ? ColorCode.kButtonColor
+                        : Colors.grey,
+                    width: 1.5,
+                  ),
+
+                  // Optional: control shape
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+
+                  onChanged: (val) {
+                    setModalState(() {
+                      if (val == true) {
+                        selectedRoles.add(role);
+                      } else {
+                        selectedRoles.remove(role);
+                      }
+                    });
+                    setState(() {});
+                  },
+                );
+              }).toList(),
+            );
+          },
+        );
+      },
+    );
   }
 
 
@@ -242,16 +285,27 @@ class _ProfessionalDetailsSingUpState
           int.tryParse(HourlyRateController.text.trim()) ?? 0;
 
       /// 🎯 PREPARED PAYLOAD
-      final Map<String, dynamic> payload = {
+      final payload = {
         "crew_member_id": widget.crewMemberId,
-        "primary_role": roleMap[primaryRole],
-        "years_of_experience": yearsOfExp,
-        "hourly_rate": hourlyRate,
+
+        "primary_role": selectedRoles
+            .map((e) => roleMap[e])
+            .whereType<int>()
+            .toList(),
+
+        "years_of_experience":
+        int.tryParse(YearofExperienceController.text.trim()) ?? 0,
+
+        "hourly_rate":
+        int.tryParse(HourlyRateController.text.trim()) ?? 0,
+
         "bio": bioController.text.trim(),
+
         "skills": selectedSkills
             .map((e) => skillMap[e])
             .whereType<int>()
             .toList(),
+
         "equipment_ownership": selectedEquipments
             .map((e) => equipmentMap[e])
             .whereType<int>()
@@ -264,6 +318,7 @@ class _ProfessionalDetailsSingUpState
       });
 
       debugPrint("===================================");
+
 
       /// 🌐 API CALL
       final response = await ApiService()
@@ -287,7 +342,7 @@ class _ProfessionalDetailsSingUpState
               lastName: widget.lastName,
               location: widget.location,
               workingDistance: widget.workingDistance,
-              primaryRole: primaryRole ?? "",
+              primaryRole: selectedRoles.join(", "),
               experience: YearofExperienceController.text.trim(),
               hourlyRate: HourlyRateController.text.trim(),
               bio: bioController.text.trim(),
@@ -317,216 +372,237 @@ class _ProfessionalDetailsSingUpState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorCode.bcakgroundcolor,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
+        body: Stack(
+            children: [
+              SingleChildScrollView(
+                  child: Column(
+                      children: [
 
-                /// 🔝 TOP IMAGE + TITLE SECTION
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.28,
-                  child: Stack(
-                    children: [
+                        /// 🔝 TOP IMAGE + TITLE SECTION
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.28,
+                          child: Stack(
+                            children: [
 
-                      /// 🖼️ BACKGROUND IMAGE
-                      Positioned.fill(
-                        child: Image.asset(
-                          "assets/images/Rectangle_574057023.png",
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-
-                      /// 🔙 BACK BUTTON
-                      Positioned(
-                        top: 50,
-                        left: 16,
-                        right: 16,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-
-                            /// 🔙 BACK BUTTON
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Image.asset(
-                                "assets/icons/Reply.png",
-                                height: 24,
-                                color: Colors.white,
-                              ),
-                            ),
-
-                            /// 📄 STEP COUNT
-                            const Text(
-                              "2/3",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontFamily: "Outfit",
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      /// 🏷️ TITLE + SUBTITLE (CENTER)
-                      Align(
-                        alignment: Alignment.center,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children:  [
-
-                            Text(
-                              "Professional Details",
-                              style: TextStyle(
-                                fontFamily: "Unbounded",
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: ColorCode.white,
-                              ),
-                            ),
-
-                            SizedBox(height: 10),
-
-                            Text(
-                              "Create your profile to get discovered by \nproduction teams.",
-
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: "Outfit",
-                                fontSize: 14,
-                                color: ColorCode.kWhiteOpacity70,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(
-                                3,
-                                    (index) => Container(
-                                  width: 40,
-                                  height: 5,
-                                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                                  decoration: BoxDecoration(
-                                    color: index <= 1
-                                        ? ColorCode.kButtonColor
-                                        : ColorCode.kSubtextColor,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
+                              /// 🖼️ BACKGROUND IMAGE
+                              Positioned.fill(
+                                child: Image.asset(
+                                  "assets/images/Rectangle_574057023.png",
+                                  fit: BoxFit.fill,
                                 ),
                               ),
-                            ),
 
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20),
+                              /// 🔙 BACK BUTTON
+                              Positioned(
+                                top: 50,
+                                left: 16,
+                                right: 16,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
 
-                /// 📦 FORM CONTAINER (NICHE)
-                Transform.translate(
-                  offset: const Offset(0, -30),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
+                                    /// 🔙 BACK BUTTON
+                                    InkWell(
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: SvgPicture.asset(
+                                        "assets/svg/back.svg",
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
 
-                      /// 🧱 MAIN FORM CONTAINER
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: ColorCode.bcakgroundcolor,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.06),
-                            width: 1,
+                                    /// 📄 STEP COUNT
+                                    const Text(
+                                      "2/3",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontFamily: "Outfit",
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              /// 🏷️ TITLE + SUBTITLE (CENTER)
+                              Align(
+                                alignment: Alignment.center,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children:  [
+
+                                    Text(
+                                      "Professional Details",
+                                      style: TextStyle(
+                                        fontFamily: "Unbounded",
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: ColorCode.white,
+                                      ),
+                                    ),
+
+                                    SizedBox(height: 10),
+
+                                    Text(
+                                      "Create your profile to get discovered by \nproduction teams.",
+
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontFamily: "Outfit",
+                                        fontSize: 14,
+                                        color: ColorCode.kWhiteOpacity70,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: List.generate(
+                                        3,
+                                            (index) => Container(
+                                          width: 40,
+                                          height: 5,
+                                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                                          decoration: BoxDecoration(
+                                            color: index <= 1
+                                                ? ColorCode.kButtonColor
+                                                : ColorCode.kSubtextColor,
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 20),//
-                  //           _dropdownField(
-                  //   "Primary Role*",
-                  //   primaryRole,
-                  //   roleList,
-                  //       (v) {
-                  //     setState(() => primaryRole = v);
-                  //   },
-                  // ),
+                        SizedBox(height: 20),
 
-                            CustomDropdown(
-                              value: primaryRole,
-                                label:'Primary Role*',
-                              items: roleList
-                                  .map((e) => DropdownMenuItem<String>(
-                                value: e,
-                                child: Text(e,
-                                    style: const TextStyle(color: Colors.white)),
-                              ))
-                                  .toList(),
-                              onChanged: (v) {
-                                setState(() => primaryRole = v);
-                              },
-                            ),
+                        /// 📦 FORM CONTAINER (NICHE)
+                        Transform.translate(
+                          offset: const Offset(0, -30),
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
 
-                  const SizedBox(height: 20),
+                              /// 🧱 MAIN FORM CONTAINER
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
+                                margin: const EdgeInsets.symmetric(horizontal: 16),
+                                decoration: BoxDecoration(
+                                  color: ColorCode.bcakgroundcolor,
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.06),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: 50),
+                                    //
 
-                  // _textField(
-                  //   title: "Year sssssof Experience*",
-                  //   controller: YearofExperienceController,
-                  //   isNumber: true, // 🔥 numeric keyboard
-                  // ),
+                                    //           _dropdownField(
+                                    //   "Primary Role*",
+                                    //   primaryRole,
+                                    //   roleList,
+                                    //       (v) {
+                                    //     setState(() => primaryRole = v);
+                                    //   },
+                                    // ),
 
-                      CustomTextField(label:"Year of Experience*",
-                          controller: YearofExperienceController,
-                         keyboardType: TextInputType.number,
-                      ),
+                                    // CustomDropdown(
+                                    //   value: primaryRole,
+                                    //     label:'Primary Role*',
+                                    //   items: roleList
+                                    //       .map((e) => DropdownMenuItem<String>(
+                                    //     value: e,
+                                    //     child: Text(e,
+                                    //         style: const TextStyle(color: Colors.white)),
+                                    //   ))
+                                    //       .toList(),
+                                    //   onChanged: (v) {
+                                    //     setState(() => primaryRole = v);
+                                    //   },
+                                    // ),
+                                    // GestureDetector(
+                                    //   onTap: _openRolesBottomSheet,
+                                    //   child: AbsorbPointer(
+                                    //     child: TextField(
+                                    //       decoration: _inputDecoration("Primary Role*").copyWith(
+                                    //         hintText: selectedRoles.isEmpty
+                                    //             ? "Select roles"
+                                    //             : "${selectedRoles.first} +${selectedRoles.length - 1}",
+                                    //         suffixIcon: Icon(Icons.keyboard_arrow_down),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
 
-                  const SizedBox(height: 20),
+                                    CustomMultiSelectField(
+                                      label: "Primary Role*",
+                                      value: selectedRoles.join(", "),
+                                      hasValue: selectedRoles.isNotEmpty,
+                                      onTap: () async {
+                                        _openRolesBottomSheet(); // ✅ must return Future
+                                      },
+                                    ),
+                                    const SizedBox(height: 20),
 
-                  // _textField(
-                  //   title: "Hourly Rate*",
-                  //   controller: HourlyRateController,
-                  //   isNumber: true, // 🔥 numeric keyboard
-                  // ),
+                                    // _textField(
+                                    //   title: "Year sssssof Experience*",
+                                    //   controller: YearofExperienceController,
+                                    //   isNumber: true, // 🔥 numeric keyboard
+                                    // ),
 
-                            CustomTextField(label:"Hourly Rate*",
-                              controller: HourlyRateController,
-                              keyboardType: TextInputType.number,
-                            ),
+                                    CustomTextField(label:"Year of Experience*",
+                                      controller: YearofExperienceController,
+                                      keyboardType: TextInputType.number,
+                                    ),
 
-                  const SizedBox(height: 20),
+                                    const SizedBox(height: 20),
 
-                  // BIO FIELD
-                  // _textField(
-                  //   title: "Bio / About",
-                  //
-                  //   controller: bioController,
-                  //   isMultiline: true, // 👈 NEW
-                  //
-                  //   maxLines: 4,
-                  // ),
-                            CustomTextField(label:"Bio / About",
-                              controller: bioController,
-                              maxLines:4,
-                              keyboardType: TextInputType.multiline,//
-                            ),
-                  SizedBox(height: 5,),
-                  Row(
-                    children: [
-                      Text("  Highlight your creative focus.",style: TextStyle(color: ColorCode.k737373,fontFamily: "Outfit",fontSize: 12),)
-                    ],
-                  ),
+                                    // _textField(
+                                    //   title: "Hourly Rate*",
+                                    //   controller: HourlyRateController,
+                                    //   isNumber: true, // 🔥 numeric keyboard
+                                    // ),
 
-                  SizedBox(height: 20),
-                  /*     Column(
+                                    CustomTextField(label:"Hourly Rate*",
+                                      controller: HourlyRateController,
+                                      keyboardType: TextInputType.number,
+                                    ),
+
+                                    const SizedBox(height: 20),
+
+                                    // BIO FIELD
+                                    // _textField(
+                                    //   title: "Bio / About",
+                                    //
+                                    //   controller: bioController,
+                                    //   isMultiline: true, // 👈 NEW
+                                    //
+                                    //   maxLines: 4,
+                                    // ),
+                                    CustomTextField(label:"Bio / About",
+                                      controller: bioController,
+                                      maxLines:4,
+                                      keyboardType: TextInputType.multiline,//
+                                    ),
+                                    SizedBox(height: 5,),
+                                    Row(
+                                      children: [
+                                        Text("  Highlight your creative focus.",style: TextStyle(color: ColorCode.k737373,fontFamily: "Outfit",fontSize: 12),)
+                                      ],
+                                    ),
+
+                                    SizedBox(height: 20),
+                                    /*     Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     /// 🔽 SKILLS DROPDOWN
@@ -581,203 +657,225 @@ class _ProfessionalDetailsSingUpState
                 ),*/
 
 
-                  GestureDetector(
-                    onTap: _openSkillsBottomSheet,
-                    child: AbsorbPointer(
-                      child: TextField(
-                        style: const TextStyle(color: Colors.white),
-                        decoration: _inputDecoration("Add Skills").copyWith(
-                          hintText: _skillsDisplayText(),
-                          hintStyle: const TextStyle(color: Colors.white),
-                          suffixIcon: const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                                    // GestureDetector(
+                                    //   onTap: _openSkillsBottomSheet,
+                                    //   child: AbsorbPointer(
+                                    //     child: TextField(
+                                    //       style: const TextStyle(color: Colors.white),
+                                    //       decoration: _inputDecoration("Add Skills").copyWith(
+                                    //         hintText: _skillsDisplayText(),
+                                    //         hintStyle: const TextStyle(color: Colors.white),
+                                    //         suffixIcon: const Icon(
+                                    //           Icons.keyboard_arrow_down,
+                                    //           color: Colors.white,
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    CustomMultiSelectField(
+                                      label: "Add Skills",
+                                      value: selectedSkills.join(", "),
+                                      hasValue: selectedSkills.isNotEmpty,
+                                      onTap: () async {
+                                        _openSkillsBottomSheet(); // ✅ important
+                                      },
+                                    ),
 
 
 
-                  const SizedBox(height: 20),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                                    const SizedBox(height: 20),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
 
-                      /// 🔍 EQUIPMENT TEXT FIELD (TOP)
-                      CustomTextField(
-                        controller: equipmentController,
-                        label: 'Add Equipment',
-                        onChanged: (value) {
-                          _fetchhome_equipment(value);
-                        },
-                      ),
-
-
-                      /// ⏳ LOADING
-                      if (equipmentLoading)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 12),
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: ColorCode.kButtonColor,
-                            ),
-                          ),
-                        ),
+                                        /// 🔍 EQUIPMENT TEXT FIELD (TOP)
+                                        CustomTextField(
+                                          controller: equipmentController,
+                                          label: 'Add Equipment',
+                                          onChanged: (value) {
+                                            _fetchhome_equipment(value);
+                                          },
+                                        ),
 
 
-                      /// 📜 AUTOCOMPLETE LIST
-                      if (filteredEquipments.isNotEmpty)
-                        Container(
-                          margin: const EdgeInsets.only(top: 6),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1C1C1C),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white24),
-                          ),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: filteredEquipments.length,
-                            itemBuilder: (context, index) {
-                              final item = filteredEquipments[index];
-                              return ListTile(
-                                title: Text(
-                                  item,
-                                  style: const TextStyle(color: Colors.white),
+                                        /// ⏳ LOADING
+                                        if (equipmentLoading)
+                                          const Padding(
+                                            padding: EdgeInsets.only(top: 12),
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: ColorCode.kButtonColor,
+                                              ),
+                                            ),
+                                          ),
+
+
+                                        /// 📜 AUTOCOMPLETE LIST
+                                        if (filteredEquipments.isNotEmpty)
+                                          Container(
+                                            margin: const EdgeInsets.only(top: 6),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF1C1C1C),
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(color: Colors.white24),
+                                            ),
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              physics: const NeverScrollableScrollPhysics(),
+                                              itemCount: filteredEquipments.length,
+                                              itemBuilder: (context, index) {
+                                                final item = filteredEquipments[index];
+                                                return ListTile(
+                                                  title: Text(
+                                                    item,
+                                                    style: const TextStyle(color: Colors.white),
+                                                  ),
+                                                  onTap: () {
+                                                    setState(() {
+                                                      if (!selectedEquipments.contains(item)) {
+                                                        selectedEquipments.add(item);
+                                                      }
+                                                      equipmentController.clear();
+                                                      filteredEquipments.clear();
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ),
+
+                                        /// 🧩 SELECTED EQUIPMENT CHIPS (NICHE)
+                                        if (selectedEquipments.isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 12),
+                                            child: Wrap(
+                                              spacing: 8,
+                                              runSpacing: 8,
+                                              children: selectedEquipments.map((item) {
+                                                return Chip(
+                                                  label: Text(
+                                                    item,
+                                                    style: const TextStyle(color: Colors.white),
+                                                  ),
+                                                  backgroundColor:
+                                                  ColorCode.kHeadingColor.withOpacity(0.9),
+                                                  deleteIconColor: Colors.white,
+                                                  onDeleted: () {
+                                                    setState(() {
+                                                      selectedEquipments.remove(item);
+                                                    });
+                                                  },
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+
+
+
+
+                                    const SizedBox(height: 30),
+
+                                    /// NEXT BUTTON
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 55,
+                                      child: ElevatedButton(
+                                        onPressed:_fetch_step2,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: ColorCode.kButtonColor,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(14),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Next",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: ColorCode.kHeadingColor,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 20),
+
+                                    /// LOGIN TEXT
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Text(
+                                          "Already have an account? ",
+                                          style: TextStyle(
+                                            color: ColorCode.kWhiteOpacity60,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) =>  Login(),
+                                              ),
+                                            );
+                                          },
+                                          child: const Text(
+                                            "Login",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                              decoration: TextDecoration.underline,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                                onTap: () {
-                                  setState(() {
-                                    if (!selectedEquipments.contains(item)) {
-                                      selectedEquipments.add(item);
-                                    }
-                                    equipmentController.clear();
-                                    filteredEquipments.clear();
-                                  });
-                                },
-                              );
-                            },
+                              ),
+
+                              const SizedBox(height: 20),
+                              /// 🏷️ FLOATING CHIP (BORDER PE STUCK)
+
+                              Positioned(
+                                top: -40,
+                                left: 20,
+                                right: 20,
+                                child: _userPreviewCard(),
+                              ),
+
+                            ],
                           ),
-                        ),
-
-                      /// 🧩 SELECTED EQUIPMENT CHIPS (NICHE)
-                      if (selectedEquipments.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: selectedEquipments.map((item) {
-                              return Chip(
-                                label: Text(
-                                  item,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                                backgroundColor:
-                                ColorCode.kHeadingColor.withOpacity(0.9),
-                                deleteIconColor: Colors.white,
-                                onDeleted: () {
-                                  setState(() {
-                                    selectedEquipments.remove(item);
-                                  });
-                                },
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                    ],
-                  ),
-
-
-
-
-                  const SizedBox(height: 30),
-
-                  /// NEXT BUTTON
-                  SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: ElevatedButton(
-                      onPressed:_fetch_step2,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kButtonColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        "Next",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: ColorCode.kHeadingColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// LOGIN TEXT
-                  Center(
-                    child: Text.rich(
-                      TextSpan(
-                        text: "Already have an account? ",
-                        style: const TextStyle(
-                          color: ColorCode.kWhiteOpacity70,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: "Login",
-                            style: TextStyle(
-                              color: ColorCode.kButtonColor,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                        )]
                   )
-                ],
               ),
-            ),
+              if (loading)
+                Container(
+                  color: Colors.black.withOpacity(0.7),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Lottie.asset(
+                          "assets/lottie/Untitled_file.json",
+                          height: 120,
+                          repeat: true,
+                        ),
+                        const SizedBox(height: 16),
 
-                      const SizedBox(height: 20),
-                      /// 🏷️ FLOATING CHIP (BORDER PE STUCK)
-
-                      Positioned(
-                        top: -40,
-                        left: 20,
-                        right: 20,
-                        child: _userPreviewCard(),
-                      ),
-
-                    ],
-                  ),
-    )]
-    )
-    ),
-          if (loading)
-            Container(
-              color: Colors.black.withOpacity(0.7),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Lottie.asset(
-                      "assets/lottie/Untitled_file.json",
-                      height: 120,
-                      repeat: true,
+                      ],
                     ),
-                    const SizedBox(height: 16),
-
-                  ],
+                  ),
                 ),
-              ),
-            ),
-    ]
-    )
+            ]
+        )
     );
 
   }
@@ -810,7 +908,7 @@ class _ProfessionalDetailsSingUpState
                   ),
 
                   /// TITLE
-                   Text(
+                  Text(
                     "Select Skills",
                     style: TextStyle(
                       color: Colors.white,
@@ -876,6 +974,7 @@ class _ProfessionalDetailsSingUpState
                         style: TextStyle(
                           color: ColorCode.kHeadingColor,
                           fontSize: 15,
+                          fontFamily: "Outfit"
                         ),
                       ),
                     ),
@@ -926,7 +1025,8 @@ class _ProfessionalDetailsSingUpState
     }
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      //padding: const EdgeInsets.all(14),
+      margin: EdgeInsets.symmetric(horizontal: 23),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -942,122 +1042,137 @@ class _ProfessionalDetailsSingUpState
         children: [
 
           /// 🔹 TOP ROW (IMAGE + NAME + EMAIL)
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: Colors.grey.shade200,
-                backgroundImage:
-                image != null ? FileImage(image) : null,
-                child: image == null
-                    ? const Icon(Icons.person,
-                    size: 26, color: Colors.grey)
-                    : null,
-              ),
-
-              const SizedBox(width: 14),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "$firstName $lastName",
-                      style: const TextStyle(
-                        fontFamily: "Outfit",
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      email.isEmpty ? "Your Email" : email,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontFamily: "Outfit",
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Colors.grey.shade200,
+                  backgroundImage:
+                  image != null ? FileImage(image) : null,
+                  child: image == null
+                      ? const Icon(Icons.person,
+                      size: 26, color: Colors.grey)
+                      : null,
                 ),
-              ),
-            ],
+
+                const SizedBox(width: 14),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "$firstName $lastName",
+                        style: const TextStyle(
+                          fontFamily: "Outfit",
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        email.isEmpty ? "Your Email" : email,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: "Outfit",
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+
+
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
 
-          const SizedBox(height: 14),
+          Divider(
+            color: Color(0xff0000004D).withOpacity(0.30),
+
+          ),
 
           /// 🔹 BOTTOM ROW (BUTTON + %)
-          Row(
-            children: [
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
 
-              Expanded(
-                child: SizedBox(
-                  height: 38,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (_) => ProfileDetailsScreen(
-                          firstName: widget.firstName ?? "",
-                          lastName: widget.lastName ?? "",
-                          email: widget.email ?? "",
-                          profileImage: widget.profileImage,
-                          location: widget.location ?? "",                 // ✅ FIXED
-                          workingDistance: widget.workingDistance ?? "",
-                          primaryRole: primaryRole ?? "",
-                          experience: YearofExperienceController.text.trim(),
-                          hourlyRate: HourlyRateController.text.trim(),
-                          bio: bioController.text.trim(),
-                          skills: selectedSkills.join(", "),
-                          equipments: selectedEquipments.join(", "),
+                Expanded(
+                  child: SizedBox(
+                    height: 38,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => ProfileDetailsScreen(
+                            firstName: widget.firstName ?? "",
+                            lastName: widget.lastName ?? "",
+                            email: widget.email ?? "",
+                            profileImage: widget.profileImage,
+                            location: widget.location ?? "",                 // ✅ FIXED
+                            workingDistance: widget.workingDistance ?? "",
+                            primaryRole: selectedRoles.join(", "),
+                            experience: YearofExperienceController.text.trim(),
+                            hourlyRate: HourlyRateController.text.trim(),
+                            bio: bioController.text.trim(),
+                            skills: selectedSkills.join(", "),
+                            equipments: selectedEquipments.join(", "),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        elevation: 0,
                       ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      "View Details",
-                      style: TextStyle(
-                        fontFamily: "Outfit",
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: ColorCode.kButtonColor,
+                      child: const Text(
+                        "View Details",
+                        style: TextStyle(
+                          fontFamily: "Outfit",
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: ColorCode.kButtonColor,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(width: 10),
+                const SizedBox(width: 10),
 
-              Container(
-                height: 38,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                alignment: Alignment.center,
-                child:  Text(
-                  "${_calculateStep2Progress()}% Completed",
-                  style: TextStyle(
-                    fontFamily: "Outfit",
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
+                Container(
+                  height: 38,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width:0.5,
+                      color: Color(0xff000000).withOpacity(0.30),
+                    ),
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  alignment: Alignment.center,
+                  child:  Text(
+                    "${_calculateStep2Progress()}% Completed",
+                    style: TextStyle(
+                      fontFamily: "Outfit",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xffB88633),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -1065,4 +1180,3 @@ class _ProfessionalDetailsSingUpState
   }
 
 }
-

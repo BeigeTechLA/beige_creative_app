@@ -839,7 +839,7 @@ Data? Myprofile_user;
                     top: 90,
                     left: 16,
                     child:  InkWell(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () => Navigator.pop(context,true),
                       child: SvgPicture.asset(
                         AppImages.back, // make sure it's .svg file
                         height: 24,

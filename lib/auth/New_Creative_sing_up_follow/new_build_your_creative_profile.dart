@@ -362,7 +362,7 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
 
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
-  TextEditingController searchController = TextEditingController();
+ final  TextEditingController searchController = TextEditingController();
 
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController  = TextEditingController();
@@ -370,8 +370,7 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
 
 
 
-  final FocusNode _passwordFocus = FocusNode();
-  final FocusNode _confirmPasswordFocus = FocusNode();
+
 
   Future<void> searchLocation(String query) async {
     try {
@@ -750,27 +749,16 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
 
                         /// 🔙 BACK BUTTON
                         Positioned(
-                          top: 50,
+                          top: 30,
                           left: 16,
                           right: 16,
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
 
-                              /// 🔙 BACK BUTTON
-                              InkWell(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Image.asset(
-                                  "assets/icons/Reply.png",
-                                  height: 24,
-                                  color: Colors.white,
-                                ),
-                              ),
 
                               /// 📄 STEP COUNT
-                              const Text(
+                              Text(
                                 "1/3",
                                 style: TextStyle(
                                   color: Colors.white,
@@ -836,7 +824,7 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
                       ],
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 25),
 
                   /// 📦 FORM CONTAINER (NICHE)
                   Transform.translate(
@@ -1640,8 +1628,9 @@ class _New_build_your_creativeScreenState extends State<New_build_your_creativeS
         Container(
 
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          margin: EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: ColorCode.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(

@@ -712,15 +712,7 @@ class _BuildYourCreativeProfileSignUpState extends State<BuildYourCreativeProfil
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-             /*             InkWell  (
-                    onTap: () {
-              Navigator.pop(context);
-              },
-                          child: Image.asset(
 
-                            height: 24,
-                          )
-                        ),*/
                         SizedBox(height: 30),
                         Padding(
                           padding: EdgeInsets.only(right: 16),

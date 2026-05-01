@@ -40,29 +40,29 @@ class ProfileDetailsScreen extends StatelessWidget {
       height: MediaQuery.of(context).size.height * 0.90,
       decoration: const BoxDecoration(
         color: Color(0xFF1C1C1C),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
+      child: Column(
+        children: [
 
-            /// 🔹 DRAG HANDLE
-            Center(
-              child: Container(
-                width: 40,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+          /// 🔹 DRAG HANDLE
+          Center(
+            child: Container(
+              width: 40,
+              height: 5,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
+          ),
 
-            const SizedBox(height: 20),
+          const SizedBox(height: 20),
 
-            /// 🔹 HEADER
-            Row(
+          /// 🔹 HEADER
+          Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
@@ -79,14 +79,17 @@ class ProfileDetailsScreen extends StatelessWidget {
                 ),
               ],
             ),
+          ),
 
-            const SizedBox(height: 15),
-            Divider(color: ColorCode.kDividerWhite12),
-            const SizedBox(height: 20),
+          const SizedBox(height: 15),
+          Divider(color: ColorCode.kDividerWhite12),
+          const SizedBox(height: 20),
 
-            /// 🔥 SCROLLABLE CONTENT
-            Expanded(
-              child: SingleChildScrollView(
+          /// 🔥 SCROLLABLE CONTENT
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(18.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -95,7 +98,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2A2A2A),
+                        color:ColorCode.k282828,
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(color: Colors.white.withOpacity(0.05)),
                       ),
@@ -226,8 +229,8 @@ class ProfileDetailsScreen extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

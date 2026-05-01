@@ -489,11 +489,12 @@ Future<void> fetchprofiledata() async {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>  Myprofile(),
+                          builder: (context) => Myprofile(),
                         ),
-                      );
-                      /// 🔥 BACK AATE HI API CALL
-                      fetchprofiledata();
+                      ).then((value) {
+                        /// 🔥 BACK AATE HI API CALL
+                        fetchprofiledata();
+                      });
                     },
                     child: Container(
                       padding: const EdgeInsets.all(12),

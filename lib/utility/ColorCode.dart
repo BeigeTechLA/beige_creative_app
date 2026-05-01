@@ -5,6 +5,7 @@ class ColorCode {
   static const Color bcakgroundcolor = Color(0xFF1D1D1B);
   static const Color kGoldBorder50 = Color(0x80E8D1AB);//#E8D1AB
   static const Color kWhiteOpacity30 = Color(0x4DFFFFFF); // 30% white
+  static const Color kWhiteOpacity_60 = Color(0x99FFFFFF); // 60% white
 
   static const Color kButtonColor = Color(0xFFE8D1AB);
   static const Color kHeadingColor = Color(0xFF1D1D1B); // (dark)
