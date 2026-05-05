@@ -214,7 +214,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
         decoration: const BoxDecoration(
-          color: ColorCode.bcakgroundcolor,
+          color: ColorCode.backgroundColor,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

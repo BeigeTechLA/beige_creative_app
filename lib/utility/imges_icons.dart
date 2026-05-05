@@ -7,7 +7,7 @@ class AppImages {
   static const String insta = "assets/svg/insta.svg";
   static const String be = "assets/svg/Social Media Icon (5).svg";
   static const String v = "assets/svg/v.svg";
-  static const String youtube = "assets/svg/youtube.svg";
+  static const String youtube = "assets/svg/you_tube.svg";
   static const String googledrive = "assets/svg/googledrive.svg";
   static const String Pencil = "assets/svg/Pencil.svg";
   static const String delete = "assets/svg/delete.svg";
@@ -37,6 +37,7 @@ class AppImages {
   static const String myprofile_edit = "assets/svg/myprofile_edit.svg";
 
   ///
+  static const String dropdown = "assets/svg/dropdown.svg";
 
   static const String User_Circle = "assets/svg/User_Circle.svg";
 
@@ -46,5 +47,10 @@ class AppImages {
   static const String scanner = "assets/svg/scanner.svg";
   static const String document = "assets/svg/document_attachment.svg";
   static const String gallery = "assets/svg/gallery.svg";
+
+  /// Search Icons
+///
+  static const String search_icon = "assets/svg/search_icon.svg";
+
 
 }

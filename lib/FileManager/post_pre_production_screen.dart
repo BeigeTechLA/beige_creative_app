@@ -15,7 +15,7 @@ class _PostPreProductionScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorCode.bcakgroundcolor,
+      backgroundColor: ColorCode.backgroundColor,
       body: SafeArea(
         child: Column(
           children: [

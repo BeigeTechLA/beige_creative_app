@@ -9,6 +9,7 @@ import '../../utility/ColorCode.dart';
 import '../../utility/imges_icons.dart';
 import '../../widgets/CustomDropdown.dart';
 import '../../widgets/custom_dropdown_field.dart';
+import '../../widgets/custom_multi_selectfield.dart' show CustomMultiSelectField;
 import '../../widgets/custom_text_field.dart';
 
 class EnterProfileDetailsScreen extends StatefulWidget {
@@ -21,15 +22,14 @@ class EnterProfileDetailsScreen extends StatefulWidget {
 
 class _EnterProfileDetailsScreenState
     extends State<EnterProfileDetailsScreen> {
+  List<String> selectedRoles = [];
 
   EditProfileModel? mylist;
   List<String> selectedSkills = [];
-  final TextEditingController experienceController =
-  TextEditingController();
-  final TextEditingController rateController =
-  TextEditingController();
-  final TextEditingController bioController =
-  TextEditingController();
+  final TextEditingController experienceController = TextEditingController();
+  final TextEditingController rateController =TextEditingController();
+  final TextEditingController bioController =TextEditingController();
+
   String? primaryRole;
   String? experience;
   String? hourlyRate;
@@ -70,41 +70,63 @@ class _EnterProfileDetailsScreenState
   // 🔥 GET DATA
   Future<void> editpersonaldetails() async {
     try {
-      final Response =
+      print("🚀 API CALL START");
+
+      final rawResponse =
       await ApiService().postData(ApiEndpoints.editprofile, {});
 
-      final response = EditProfileResponse.fromJson(Response);
+      print("📦 RAW RESPONSE 👉 $rawResponse");
+
+      final response = EditProfileResponse.fromJson(rawResponse);
+
+      print("✅ PARSED RESPONSE 👉 ${response.data}");
+
       final data = response.data;
 
       setState(() {
         mylist = data;
 
+        /// ✅ TEXT FIELDS
         experienceController.text =
-            data.yearsOfExperience.toString();
+            data.yearsOfExperience?.toString() ?? "";
         rateController.text =
-            data.hourlyRate.toString();
-        bioController.text = data.bio;
+            data.hourlyRate?.toString() ?? "";
+        bioController.text = data.bio ?? "";
 
-        // ✅ Role mapping
-        primaryRole = data.primaryRole == "1"
-            ? "Videographer"
-            : data.primaryRole == "2"
-            ? "Photographer"
-            : "Editor";
+        /// ✅ 🔥 ROLE FIX (MAIN LOGIC)
+        if (data.primaryRole != null &&
+            data.primaryRole is List &&
+            data.primaryRole.isNotEmpty) {
 
-        // ✅ Dynamic skills
-        skillList = data.skills.map((e) => e.name).toList();
-        selectedSkills =
-            data.skills.map((e) => e.name).toList();
-       /* selectedSkill =
-        skillList.isNotEmpty ? skillList.first : null;*/
+          int roleId = int.tryParse(data.primaryRole ?? "") ?? 0;
+
+          print("🎯 ROLE ID 👉 $roleId");
+          print("🗺 ROLE MAP 👉 $roleMap");
+
+          // 🔥 map roleId → role name
+          primaryRole = roleMap.entries
+              .firstWhere(
+                (element) => element.value == roleId,
+            orElse: () => const MapEntry("", 0),
+          )
+              .key;
+
+          if (primaryRole != null && primaryRole!.isNotEmpty) {
+            selectedRoles = [primaryRole!];
+          }
+        }
+
+        /// ✅ SKILLS
+        if (data.skills != null && data.skills.isNotEmpty) {
+          skillList = data.skills.map((e) => e.name).toList();
+          selectedSkills = List.from(skillList);
+        }
       });
+
     } catch (e) {
-      print("ERROR: $e");
+      print("❌ ERROR: $e");
     }
   }
-
-
   Future<void> fetchRoles() async {
     try {
       loading = true;
@@ -293,18 +315,12 @@ class _EnterProfileDetailsScreenState
               const SizedBox(height: 30),
 
               /// ROLE
-              CustomDropdown(
-                value: primaryRole,
-                label:'Primary Role*',
-                items: roleList
-                    .map((e) => DropdownMenuItem<String>(
-                  value: e,
-                  child: Text(e,
-                      style: const TextStyle(color: Colors.white)),
-                ))
-                    .toList(),
-                onChanged: (v) {
-                  setState(() => primaryRole = v);
+              CustomMultiSelectField(
+                label: "Primary Role*",
+                value: selectedRoles.join(", "),
+                hasValue: selectedRoles.isNotEmpty,
+                onTap: () async {
+                  _openRolesBottomSheet(); // ✅ must return Future
                 },
               ),
 
@@ -347,10 +363,7 @@ class _EnterProfileDetailsScreenState
 
               const SizedBox(height: 12),
 
-              GestureDetector(
-
-
-
+     /*         GestureDetector(
 
                 onTap: _openSkillsBottomSheet,
                 child: AbsorbPointer(
@@ -367,6 +380,15 @@ class _EnterProfileDetailsScreenState
                     ),
                   ),
                 ),
+              ),*/
+
+              CustomMultiSelectField(
+                label: "Edit Skills",
+                value: selectedSkills.join(", "),
+                hasValue: selectedSkills.isNotEmpty,
+                onTap: () async {
+                  _openSkillsBottomSheet(); // ✅ important
+                },
               ),
         /*      /// SKILLS (dynamic)
               CustomDropdownField(
@@ -411,6 +433,129 @@ class _EnterProfileDetailsScreenState
           ),
         ),
       ),
+    );
+  }
+  void _openRolesBottomSheet() {
+    FocusScope.of(context).unfocus();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1C1C1C),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+
+                  /// 🔼 DRAG HANDLE
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+
+                  /// TITLE
+                  const Text(
+                    "Select Roles",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  /// 📜 ROLE LIST
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: roleList.map((role) {
+                        final isSelected = selectedRoles.contains(role);
+
+                        return CheckboxListTile(
+                          value: isSelected,
+                          title: Text(
+                            role,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: "Outfit",
+                            ),
+                          ),
+
+                          activeColor: ColorCode.kButtonColor,
+                          checkColor: Colors.black,
+
+                          side: BorderSide(
+                            color: isSelected
+                                ? ColorCode.kButtonColor
+                                : Colors.grey,
+                            width: 1.5,
+                          ),
+
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+
+                          onChanged: (val) {
+                            setModalState(() {
+                              if (val == true) {
+                                selectedRoles.add(role);
+                              } else {
+                                selectedRoles.remove(role);
+                              }
+                            });
+
+                            setState(() {});
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  /// ✅ DONE BUTTON
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorCode.kButtonColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Done",
+                        style: TextStyle(
+                          color: ColorCode.kHeadingColor,
+                          fontSize: 15,
+                          fontFamily: "Outfit",
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
   void _openSkillsBottomSheet() {

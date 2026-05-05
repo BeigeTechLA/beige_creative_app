@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:beige_creative_app/auth/creative_sign_up/social_engagement_singup.dart';
 import 'package:beige_creative_app/widgets/CustomDropdown.dart';
+import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:beige_creative_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +16,6 @@ import '../../widgets/custom_dropdown_field.dart';
 import '../../widgets/custom_multi_selectfield.dart';
 import '../ProfileDetailsScreen .dart';
 import '../login/login.dart';
-import 'build_your_creative_profile_sign_up.dart';
 
 class ProfessionalDetailsSingUp extends StatefulWidget{
   final int ?crewMemberId;
@@ -132,54 +132,122 @@ class _ProfessionalDetailsSingUpState
     }
   }
   void _openRolesBottomSheet() {
+    FocusScope.of(context).unfocus();
+
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1C1C1C),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return ListView(
-              children: roleList.map((role) {
-                final isSelected = selectedRoles.contains(role);
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
 
-                return CheckboxListTile(
-                  value: isSelected,
-                  title: Text(
-                    role,
-                    style: const TextStyle(color: Colors.white,fontSize: 14,fontWeight: FontWeight.w500,fontFamily: "Outfit",),
+                  /// 🔼 DRAG HANDLE
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
 
-                  // ✅ Selected checkbox fill color
-                  activeColor: ColorCode.kButtonColor,
-
-                  // ✅ Tick color
-                  checkColor: Colors.black,
-
-                  // ✅ Border color when unchecked
-                  side: BorderSide(
-                    color: isSelected
-                        ? ColorCode.kButtonColor
-                        : Colors.grey,
-                    width: 1.5,
+                  /// TITLE
+                  const Text(
+                    "Select Roles",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
 
-                  // Optional: control shape
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
+                  const SizedBox(height: 12),
+
+                  /// 📜 ROLE LIST
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: roleList.map((role) {
+                        final isSelected = selectedRoles.contains(role);
+
+                        return CheckboxListTile(
+                          value: isSelected,
+                          title: Text(
+                            role,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: "Outfit",
+                            ),
+                          ),
+
+                          activeColor: ColorCode.kButtonColor,
+                          checkColor: Colors.black,
+
+                          side: BorderSide(
+                            color: isSelected
+                                ? ColorCode.kButtonColor
+                                : Colors.grey,
+                            width: 1.5,
+                          ),
+
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+
+                          onChanged: (val) {
+                            setModalState(() {
+                              if (val == true) {
+                                selectedRoles.add(role);
+                              } else {
+                                selectedRoles.remove(role);
+                              }
+                            });
+
+                            setState(() {});
+                          },
+                        );
+                      }).toList(),
+                    ),
                   ),
 
-                  onChanged: (val) {
-                    setModalState(() {
-                      if (val == true) {
-                        selectedRoles.add(role);
-                      } else {
-                        selectedRoles.remove(role);
-                      }
-                    });
-                    setState(() {});
-                  },
-                );
-              }).toList(),
+                  const SizedBox(height: 10),
+
+                  /// ✅ DONE BUTTON
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorCode.kButtonColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Done",
+                        style: TextStyle(
+                          color: ColorCode.kHeadingColor,
+                          fontSize: 15,
+                          fontFamily: "Outfit",
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -495,7 +563,7 @@ class _ProfessionalDetailsSingUpState
                                 padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
                                 margin: const EdgeInsets.symmetric(horizontal: 16),
                                 decoration: BoxDecoration(
-                                  color: ColorCode.bcakgroundcolor,
+                                  color: ColorCode.backgroundColor,
                                   borderRadius: BorderRadius.circular(24),
                                   border: Border.all(
                                     color: Colors.white.withOpacity(0.06),
@@ -857,23 +925,7 @@ class _ProfessionalDetailsSingUpState
                   )
               ),
               if (loading)
-                Container(
-                  color: Colors.black.withOpacity(0.7),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Lottie.asset(
-                          "assets/lottie/Untitled_file.json",
-                          height: 120,
-                          repeat: true,
-                        ),
-                        const SizedBox(height: 16),
-
-                      ],
-                    ),
-                  ),
-                ),
+                AppLoader()
             ]
         )
     );
@@ -913,6 +965,7 @@ class _ProfessionalDetailsSingUpState
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
+                      fontFamily: "Unbounded",
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -936,7 +989,8 @@ class _ProfessionalDetailsSingUpState
                           title: Text(
                             skill,
                             style:
-                            const TextStyle(color: Colors.white),
+                            const TextStyle(color: Colors.white,fontSize: 14,fontFamily: "Outfit"),
+
                           ),
                           onChanged: (checked) {
                             setModalState(() {
@@ -1026,7 +1080,9 @@ class _ProfessionalDetailsSingUpState
 
     return Container(
       //padding: const EdgeInsets.all(14),
-      margin: EdgeInsets.symmetric(horizontal: 23),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      margin: EdgeInsets.all(10),
+
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1091,88 +1147,81 @@ class _ProfessionalDetailsSingUpState
             ),
           ),
 
-          Divider(
-            color: Color(0xff0000004D).withOpacity(0.30),
-
-          ),
 
           /// 🔹 BOTTOM ROW (BUTTON + %)
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              children: [
+          Row(
+            children: [
 
-                Expanded(
-                  child: SizedBox(
-                    height: 38,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (_) => ProfileDetailsScreen(
-                            firstName: widget.firstName ?? "",
-                            lastName: widget.lastName ?? "",
-                            email: widget.email ?? "",
-                            profileImage: widget.profileImage,
-                            location: widget.location ?? "",                 // ✅ FIXED
-                            workingDistance: widget.workingDistance ?? "",
-                            primaryRole: selectedRoles.join(", "),
-                            experience: YearofExperienceController.text.trim(),
-                            hourlyRate: HourlyRateController.text.trim(),
-                            bio: bioController.text.trim(),
-                            skills: selectedSkills.join(", "),
-                            equipments: selectedEquipments.join(", "),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        "View Details",
-                        style: TextStyle(
-                          fontFamily: "Outfit",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: ColorCode.kButtonColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                Container(
+              Expanded(
+                child: SizedBox(
                   height: 38,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      width:0.5,
-                      color: Color(0xff000000).withOpacity(0.30),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => ProfileDetailsScreen(
+                          firstName: widget.firstName ?? "",
+                          lastName: widget.lastName ?? "",
+                          email: widget.email ?? "",
+                          profileImage: widget.profileImage,
+                          location: widget.location ?? "",                 // ✅ FIXED
+                          workingDistance: widget.workingDistance ?? "",
+                          primaryRole: selectedRoles.join(", "),
+                          experience: YearofExperienceController.text.trim(),
+                          hourlyRate: HourlyRateController.text.trim(),
+                          bio: bioController.text.trim(),
+                          skills: selectedSkills.join(", "),
+                          equipments: selectedEquipments.join(", "),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 0,
                     ),
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  alignment: Alignment.center,
-                  child:  Text(
-                    "${_calculateStep2Progress()}% Completed",
-                    style: TextStyle(
-                      fontFamily: "Outfit",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xffB88633),
+                    child: const Text(
+                      "View Details",
+                      style: TextStyle(
+                        fontFamily: "Outfit",
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: ColorCode.kButtonColor,
+                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(width: 10),
+
+              Container(
+                height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width:0.5,
+                    color: Colors.grey.shade200,
+                  ),
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                alignment: Alignment.center,
+                child:  Text(
+                  "${_calculateStep2Progress()}% Completed",
+                  style: TextStyle(
+                    fontFamily: "Outfit",
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: ColorCode.black
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

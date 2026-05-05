@@ -194,17 +194,16 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 
   String? selectedType;
   String? selectedRecurrence;
-
-  final List abc = ["Available", "Not Available"];
-  final List recurence = ["Daily", "Weekly", "Monthly", "Does Not Repeat"];
-
   bool includeWeekends = false;
   bool isAllDay = false;
 
   final AddAvailabilityContoller controller = AddAvailabilityContoller();
-
   List<String> weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   List<String> selectedWeekDays = [];
+  final List abc = ["Available", "Not Available"];
+  final List recurence = ["Daily", "Weekly", "Monthly", "Does Not Repeat"];
+
+
 
   @override
   void dispose() {

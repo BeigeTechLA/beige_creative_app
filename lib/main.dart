@@ -50,13 +50,13 @@ class MyApp extends StatelessWidget {
       title: 'BEIGE',
       theme: ThemeData(
 
-        scaffoldBackgroundColor: ColorCode.bcakgroundcolor,
+        scaffoldBackgroundColor: ColorCode.backgroundColor,
         appBarTheme:  AppBarTheme(
-          backgroundColor: ColorCode.bcakgroundcolor,
+          backgroundColor: ColorCode.backgroundColor,
           iconTheme: IconThemeData(color: Colors.white),
         ),
         colorScheme: ColorScheme.dark(
-          background: ColorCode.bcakgroundcolor,
+          background: ColorCode.backgroundColor,
           primary: Colors.white,
         ),
       ),

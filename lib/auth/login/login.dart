@@ -11,7 +11,7 @@ import '../../utility/ColorCode.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';
 import '../ForgotPassword/forgot_password_screen.dart';
-import '../New_Creative_sing_up_follow/new_build_your_creative_profile.dart';
+import '../creative_sign_up/new_build_your_creative_profile.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -43,72 +43,105 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future<void>_fetchLogin()async{
-    final email=emailController.text.trim();
-    final password=passwordController.text.trim();
+  Future<void> _fetchLogin() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
-    if(email.isEmpty){
-      TopMessage.show(context,'Please enter your email address');
+    /// ✅ VALIDATION
+    if (email.isEmpty) {
+      TopMessage.show(context, 'Please enter your email address');
       return;
     }
-    if(!isValidEmail(email)){
-      TopMessage.show(context,'Please enter a valid email address');
-    }
-    if(password.isEmpty){
-      TopMessage.show(context, "Please enter your password");
+
+    if (!isValidEmail(email)) {
+      TopMessage.show(context, 'Please enter a valid email address');
+      return;
     }
 
-    setState(() {
-      isLoggingIn=true;
-    });
-    try{
-      final response= await ApiService().postData(ApiEndpoints.login,
-          {
-            "email": email,
-            "password": password,
-          },
+    if (password.isEmpty) {
+      TopMessage.show(context, "Please enter your password");
+      return;
+    }
+
+    setState(() => isLoggingIn = true);
+
+    try {
+      final response = await ApiService().postData(
+        ApiEndpoints.login,
+        {
+          "email": email,
+          "password": password,
+        },
       );
 
-         debugPrint("Response:::::::::::::::::::::$response");
-      if(response==null){
+      debugPrint("Response ::::: $response");
+
+      /// ✅ NULL RESPONSE
+      if (response == null) {
         TopMessage.show(context, "Server error, please try again");
-      }
-      if(response["error"]==true){
-        TopMessage.show(context,  response["message"] ?? "Login failed");
+        return;
       }
 
-    // 🔴 USER DATA ERROR
-          if (response["data"] == null || response["data"]["user"] == null) {
-            TopMessage.show(context, "User data not found");
-            return;
-          }
+      /// ✅ ERROR FROM API
+      if (response["error"] == true) {
+        TopMessage.show(
+          context,
+          response["message"]?.toString() ?? "Login failed",
+        );
+        return;
+      }
 
-          await SharedService.setLoginDetails(response);
-          /// ✅ SAVE PASSWORD IF CHECKED
-          final prefs = await SharedPreferences.getInstance();
+      /// ✅ USER DATA CHECK
+      if (response["data"] == null || response["data"]["user"] == null) {
+        TopMessage.show(context, "User data not found");
+        return;
+      }
 
+      /// ✅ SAVE LOGIN DATA
+      await SharedService.setLoginDetails(response);
+
+      final prefs = await SharedPreferences.getInstance();
 
       if (savePassword) {
-            await prefs.setString("email", email);
-            await prefs.setString("password", password);
-          }
+        await prefs.setString("email", email);
+        await prefs.setString("password", password);
+      }
 
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => Mainscreen()),
-                (route) => false,
-          );
+      /// ✅ SUCCESS NAVIGATION
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => Mainscreen()),
+            (route) => false,
+      );
 
+    }  catch (e) {
+  debugPrint("Login Error: $e");
 
-    }catch(e){
-      TopMessage.show(context, "Something went wrong");
-    }finally{
+  String errorMessage = "Invalid email or password";
 
-          if (mounted) {
-            setState(() => isLoggingIn = false);
-          }
+  /// ✅ Case 1: Agar Map throw hua hai (best case)
+  if (e is Map<String, dynamic>) {
+  errorMessage = e["message"] ?? errorMessage;
+  }
+
+  /// ✅ Case 2: Agar string me JSON aa raha hai
+  else if (e.toString().contains("{") && e.toString().contains("message")) {
+  try {
+  final data = e.toString();
+
+  final match = RegExp(r'"message":"(.*?)"').firstMatch(data);
+  if (match != null) {
+  errorMessage = match.group(1) ?? errorMessage;
+  }
+  } catch (_) {}
+  }
+
+  TopMessage.show(context, errorMessage);
+  } finally {
+      if (mounted) {
+        setState(() => isLoggingIn = false);
+      }
     }
-
   }
 
   bool isValidEmail(String email) {
@@ -248,7 +281,7 @@ class _LoginState extends State<Login> {
                     padding: const EdgeInsets.fromLTRB(20, 32,20, 20),
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: ColorCode.bcakgroundcolor,
+                      color: ColorCode.backgroundColor,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: Colors.white.withOpacity(0.06),

@@ -66,6 +66,7 @@ class Data {
   final List<CrewFile> crewMemberFiles;
   final List<CrewFile> certificateFiles;
   final List<CrewFile> resumeFiles;
+  final String profileImageUrl;
   final User user; // nested
 
   Data({
@@ -91,6 +92,7 @@ class Data {
     required this.stats,
     required this.certificateFiles,
     required this.resumeFiles,
+    required this.profileImageUrl,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
@@ -142,6 +144,7 @@ class Data {
         ? Map<String, dynamic>.from(json["social_media_links"])
         : {},
     user: User.fromJson(json["user"] ?? {}),
+    profileImageUrl: json["profile_image_url"]?.toString() ?? "",
   );
 }
 
@@ -171,7 +174,6 @@ class User {
 
   /// 🔥 IMPORTANT CHANGE (dynamic map)
   final Map<String, dynamic> socialMediaLinks;
-
   final String profileImageUrl;
 
   User({

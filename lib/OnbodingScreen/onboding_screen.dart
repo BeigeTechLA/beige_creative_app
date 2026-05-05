@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 
-import '../auth/New_Creative_sing_up_follow/new_build_your_creative_profile.dart';
-import '../auth/creative_sign_up/build_your_creative_profile_sign_up.dart';
+import '../auth/creative_sign_up/new_build_your_creative_profile.dart';
 import '../auth/login/login.dart';
 import '../utility/ColorCode.dart';
 

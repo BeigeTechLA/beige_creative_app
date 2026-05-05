@@ -36,7 +36,7 @@
 //   Widget build(BuildContext context) {
 //     return Scaffold(
 //       key: _scaffoldKey,
-//       backgroundColor: ColorCode.bcakgroundcolor,
+//       backgroundColor: ColorCode.backgroundColor,
 //       drawer: _buildDrawer(),
 //
 //       body: _pages[_selectedIndex],
@@ -50,7 +50,7 @@
 //     return BottomNavigationBar(
 //       currentIndex: _selectedIndex,
 //       // currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
-//       backgroundColor: ColorCode.bcakgroundcolor,
+//       backgroundColor: ColorCode.backgroundColor,
 //       type: BottomNavigationBarType.fixed,
 //       selectedItemColor: Colors.white,
 //       unselectedItemColor: ColorCode.kWhiteOpacity70,
@@ -309,13 +309,17 @@ class Mainscreen extends StatefulWidget {
 class _MainscreenState extends State<Mainscreen> {
 
 bool isloading = true;
+int _selectedIndex = 0;
 
 Data? Myprofile_user;
-
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 @override
   void initState() {
     super.initState();
     fetchprofiledata();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scaffoldKey.currentState?.openDrawer();
+    });
   }
 
 Future<void> fetchprofiledata() async {
@@ -356,7 +360,7 @@ Future<void> fetchprofiledata() async {
     debugPrint("🏁 API CALL END");
   }
 }
-  int _selectedIndex = 0;
+
 
   /// 🔥 Bottom Navigation Pages
   late final List<Widget> _pages = [
@@ -377,7 +381,8 @@ Future<void> fetchprofiledata() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorCode.bcakgroundcolor,
+      key: _scaffoldKey,
+      backgroundColor: ColorCode.backgroundColor,
       drawer: _buildDrawer(),
       drawerEnableOpenDragGesture: true,
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
@@ -401,7 +406,7 @@ Future<void> fetchprofiledata() async {
     return BottomNavigationBar(
       // currentIndex: _selectedIndex,
       currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
-      backgroundColor: ColorCode.bcakgroundcolor,
+      backgroundColor: ColorCode.backgroundColor,
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.white,
       unselectedItemColor: ColorCode.kWhiteOpacity70,
@@ -486,6 +491,7 @@ Future<void> fetchprofiledata() async {
 
                   InkWell(
                     onTap: () {
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -506,12 +512,12 @@ Future<void> fetchprofiledata() async {
                         children: [
                           CircleAvatar(
                             radius: 25,
-                            backgroundImage: (Myprofile_user?.user.profileImageUrl ?? "").isNotEmpty
+                            backgroundImage: (Myprofile_user?.profileImageUrl ?? "").isNotEmpty
                                 ? NetworkImage(
-                              "${ApiService.imageURL}${Myprofile_user!.user.profileImageUrl}",
+                              "${ApiService.imageURL}${Myprofile_user!.profileImageUrl}",
                             )
                                 : null,
-                            child: (Myprofile_user?.user.profileImageUrl ?? "").isEmpty
+                            child: (Myprofile_user?.profileImageUrl ?? "").isEmpty
                                 ? SvgPicture.asset(AppImages.User_Circle)
                                 : null,
                           ),

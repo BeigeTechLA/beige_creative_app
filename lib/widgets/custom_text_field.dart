@@ -55,16 +55,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
   @override
   void didUpdateWidget(CustomTextField oldWidget) {
+
+
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isVisible != widget.isVisible) {
       setState(() {});
     }
   }
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    super.dispose();
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +82,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
       onChanged: widget.onChanged,
       maxLines: widget.maxLines,
       inputFormatters: widget.inputFormatters,
+      enableSuggestions: false,   // ✅ ADD THIS
+      autocorrect: false,
       style: const TextStyle(
         color: ColorCode.white,
         fontFamily: "Outfit",

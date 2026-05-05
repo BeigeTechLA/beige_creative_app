@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,9 @@ import 'package:open_file/open_file.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
+import '../../widgets/Topmessgae.dart';
 import '../../widgets/commonFileViewer.dart';
+import '../../widgets/common_uploader.dart';
 import '../../widgets/custom_text_field.dart';
 import '../ProfileDetailsScreen .dart';
 import '../login/login.dart';
@@ -61,7 +64,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
   final TextEditingController linkController = TextEditingController();
 
   final TextEditingController enter_work_titleController = TextEditingController();
-
+  int? editingProjectIndex;
   int selectedPortfolioIndex = -1;
   int? editingPortfolioIndex;
 
@@ -75,7 +78,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
   int? editingIndex;
 
   List<String> selectedTags = [];
-
+  List<String> featuredProjectsTitles = [];
   String? fileType; // image / video
 
   File? featuredFile;
@@ -97,8 +100,9 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
   List<bool> featuredIsVideo = [];
   List<File> featuredImages = [];
   bool isSubmitting = false;
+  // List<File> tempFeaturedImages = [];
+  List<List<File>> featuredProjects = []; // 🔥 each project = list of images
   List<File> tempFeaturedImages = [];
-
   bool isPicking = false;
   List<File> certificateFiles = [];
 
@@ -202,10 +206,14 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
         ),
 
         "featured_work": jsonEncode(
-          featuredImages.map((e) => {
-            "work_title": enter_work_titleController.text.trim(),
-            "tags": selectedTags,
-          }).toList(),
+          List.generate(featuredProjects.length, (index) {
+            return {
+              "work_title": (index < featuredProjectsTitles.length)
+                  ? featuredProjectsTitles[index]
+                  : "",
+              "tags": selectedTags,
+            };
+          }),
         ),
       };
 
@@ -260,15 +268,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
       setState(() => isLoggingIn = false);
     }
   }
-  Map<String, List<String>> _buildRecentWorkIndexes() {
-    final Map<String, List<String>> map = {};
 
-    for (int i = 0; i < featuredImages.length; i++) {
-      map.putIfAbsent("recent_work_media_index", () => []);
-      map["recent_work_media_index"]!.add(i.toString());
-    }
-    return map;
-  }
 
 
 
@@ -285,10 +285,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
   }
 
 
-  bool isImageFile(File file) {
-    final ext = file.path.split('.').last.toLowerCase();
-    return ['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(ext);
-  }
+
 
   String normalizeUrl(String url) {
     final trimmed = url.trim();
@@ -301,36 +298,10 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
 
 
   void _showSnack(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
+    TopMessage.show(context, message);
   }
 
-  void viewFile(File file) {
 
-    final ext = file.path.split('.').last.toLowerCase();
-
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(ext)) {
-      // 🔥 IMAGE VIEWER
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => Scaffold(
-            backgroundColor: Colors.black,
-            appBar: AppBar(backgroundColor: Colors.black),
-            body: Center(
-              child: InteractiveViewer(
-                child: Image.file(file),
-              ),
-            ),
-          ),
-        ),
-      );
-    } else {
-      // 🔥 PDF / DOC / ANY FILE
-      OpenFile.open(file.path);
-    }
-  }
   int _calculateStep3Progress() {
     int totalFields = 5;
     int filled = 0;
@@ -349,7 +320,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: ColorCode.bcakgroundcolor,
+        backgroundColor: ColorCode.backgroundColor,
         body: Stack(
             children: [
               SingleChildScrollView(
@@ -476,7 +447,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                                 padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
                                 margin: const EdgeInsets.symmetric(horizontal: 16),
                                 decoration: BoxDecoration(
-                                  color: ColorCode.bcakgroundcolor,
+                                  color: ColorCode.backgroundColor,
                                   borderRadius: BorderRadius.circular(24),
                                   border: Border.all(
                                     color: Colors.white.withOpacity(0.06),
@@ -682,13 +653,15 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                                       onTap: _openPortfoliole,
                                     ),
                                     const SizedBox(height: 20),
+
+
                                     Container(
                                       constraints: const BoxConstraints(
                                         minHeight: 220,
                                       ),
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color: ColorCode.bcakgroundcolor,
+                                        color: ColorCode.backgroundColor,
                                         borderRadius: BorderRadius.circular(16),
                                         border: Border.all(color: Colors.white24),
                                       ),
@@ -703,48 +676,58 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                                               const Text(
                                                 "Featured Work",
                                                 style: TextStyle(
-                                                  color: Colors.white,
+                                                  color: ColorCode.white,
                                                   fontSize: 14,
+                                                  fontFamily: "Outfit",
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
 
-                                              InkWell(
-                                                onTap: _featuredSheet,
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      height: 28,
-                                                      width: 28,
-                                                      decoration: const BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color: Color(0xFFF4E1C1),
+                                              if (featuredProjects.isNotEmpty)
+                                                InkWell(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      editingProjectIndex = null; // 🔥 new mode
+                                                      tempFeaturedImages.clear(); // 🔥 empty images
+                                                      enter_work_titleController.clear(); // 🔥 empty title
+                                                    });
+
+                                                    _featuredSheet();
+                                                  },
+                                                  child: Row(
+                                                    children: [
+                                                      Container(
+                                                        height: 28,
+                                                        width: 28,
+                                                        decoration: const BoxDecoration(
+                                                          shape: BoxShape.circle,
+                                                          color: Color(0xFFF4E1C1),
+                                                        ),
+                                                        child: const Icon(
+                                                          Icons.add,
+                                                          size: 16,
+                                                          color: Colors.black,
+                                                        ),
                                                       ),
-                                                      child: const Icon(
-                                                        Icons.add,
-                                                        size: 16,
-                                                        color: Colors.black,
+                                                      const SizedBox(width: 6),
+                                                      const Text(
+                                                        "Add another",
+                                                        style: TextStyle(
+                                                          color: ColorCode.kWhiteOpacity70,
+                                                          fontSize: 13,
+                                                          fontFamily: "Outfit",
+                                                        ),
                                                       ),
-                                                    ),
-                                                    const SizedBox(width: 6),
-                                                    const Text(
-                                                      "Add another",
-                                                      style: TextStyle(
-                                                        color: ColorCode.kWhiteOpacity70,
-                                                        fontSize: 13,
-                                                        fontFamily: "Outfit",
-                                                      ),
-                                                    ),
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
                                             ],
                                           ),
 
                                           const SizedBox(height: 14),
 
-                                          /// 🔹 EMPTY STATE
-                                          if (featuredImages.isEmpty)
+                                            /// 🔹 EMPTY STATE
+                                          if (featuredProjects.isEmpty)
                                             GestureDetector(
                                               onTap: _featuredSheet,
                                               child: Container(
@@ -755,18 +738,144 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                                                   border: Border.all(color: Colors.white38),
                                                 ),
                                                 child: const Center(
-                                                  child: Text(
-                                                    "Add",
-                                                    style: TextStyle(color: Colors.white),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(Icons.add, color: ColorCode.white), // 👈 icon
+                                                      SizedBox(width: 8),
+                                                      Text(
+                                                        "Add",
+                                                        style: TextStyle(color: Colors.white),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               ),
                                             ),
 
+                                          /// 🔹 PROJECT LIST (MULTIPLE BLOCKS)
+                                          if (featuredProjects.isNotEmpty)
+                                            Column(
+                                              children: featuredProjects.asMap().entries.map((entry) {
+                                                int projectIndex = entry.key;
+                                                List<File> images = entry.value;
+
+                                                return Container(
+                                                  margin: const EdgeInsets.only(bottom: 16),
+                                                  height: 190,
+                                                  child: Stack(
+                                                    children: [
+
+                                                      /// 🔥 HORIZONTAL SCROLL IMAGES
+                                                      ListView.builder(
+                                                        scrollDirection: Axis.horizontal,
+                                                        physics: const BouncingScrollPhysics(),
+                                                        itemCount: images.length,
+                                                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                                                        itemBuilder: (context, index) {
+                                                          return Container(
+                                                            width: MediaQuery.of(context).size.width * 0.75,
+                                                            margin: const EdgeInsets.only(right: 12),
+                                                            child: ClipRRect(
+                                                              borderRadius: BorderRadius.circular(16),
+                                                              child: Image.file(
+                                                                images[index],
+                                                                fit: BoxFit.cover,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+
+                                                      /// ✏️ EDIT + DELETE BUTTONS (DIRECT)
+                                                      Positioned(
+                                                        top: 8,
+                                                        right: 10,
+                                                        child: Row(
+                                                          children: [
+
+                                                            /// EDIT
+                                                            GestureDetector(
+                                                            onTap: () {
+                                                      setState(() {
+                                                      tempFeaturedImages = List.from(images);
+                                                      editingProjectIndex = projectIndex;
+
+                                                      enter_work_titleController.text =
+                                                      (projectIndex < featuredProjectsTitles.length)
+                                                      ? featuredProjectsTitles[projectIndex]
+                                                          : "";
+                                                      });
+
+                                                      _featuredSheet();
+                                                      },
+                                                              child: Container(
+                                                                height: 30,
+                                                                width: 30,
+                                                                margin: const EdgeInsets.only(right: 6),
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.black.withOpacity(0.8),
+                                                                  shape: BoxShape.circle,
+                                                                ),
+                                                                child: const Icon(
+                                                                  Icons.edit,
+                                                                  size: 16,
+                                                                  color: Colors.white,
+                                                                ),
+                                                              ),
+                                                            ),
+
+                                                            /// DELETE
+                                                            GestureDetector(
+                                                              onTap: () {
+                                                                setState(() {
+                                                                  featuredProjects.removeAt(projectIndex);
+                                                                  if (projectIndex < featuredProjectsTitles.length) {
+                                                                    featuredProjectsTitles.removeAt(projectIndex);
+                                                                  }
+                                                                });
+                                                              },
+                                                              child: Container(
+                                                                height: 30,
+                                                                width: 30,
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.red.withOpacity(0.8),
+                                                                  shape: BoxShape.circle,
+                                                                ),
+                                                                child: const Icon(
+                                                                  Icons.delete,
+                                                                  size: 16,
+                                                                  color: Colors.white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding: const EdgeInsets.only(left: 12, top: 8),
+                                                        child: Text(
+                                                          (projectIndex < featuredProjectsTitles.length)
+                                                              ? featuredProjectsTitles[projectIndex]
+                                                              : "",
+                                                          textAlign: TextAlign.left,
+                                                          style: const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 14,
+                                                            fontWeight: FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
                                           /// 🔹 IMAGE LIST
                                           if (featuredImages.isNotEmpty)
                                             SizedBox(
-                                              height: 150,
+                                              height: 180,
+                                              width: 900,
                                               child: ListView.builder(
                                                 scrollDirection: Axis.horizontal,
                                                 itemCount: featuredImages.length,
@@ -828,7 +937,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                                     Container(
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color: ColorCode.bcakgroundcolor,
+                                        color: ColorCode.backgroundColor,
                                         borderRadius: BorderRadius.circular(16),
                                         border: Border.all(color: Colors.white24),
                                       ),
@@ -966,7 +1075,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                                         Container(
                                           padding: const EdgeInsets.all(16),
                                           decoration: BoxDecoration(
-                                            color: ColorCode.bcakgroundcolor,
+                                            color: ColorCode.backgroundColor,
                                             borderRadius: BorderRadius.circular(16),
                                             border: Border.all(color: Colors.white24),
                                           ),
@@ -1161,23 +1270,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                   )
               ),
               if (isLoggingIn)
-                Container(
-                  color: Colors.black.withOpacity(0.7),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Lottie.asset(
-                          "assets/lottie/Untitled_file.json",
-                          height: 120,
-                          repeat: true,
-                        ),
-                        const SizedBox(height: 16),
-
-                      ],
-                    ),
-                  ),
-                ),
+            AppLoader()
             ]
         )
     );
@@ -1334,7 +1427,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
   //                   Container(
   //                     padding: const EdgeInsets.all(20),
   //                     decoration: const BoxDecoration(
-  //                       color: ColorCode.bcakgroundcolor,
+  //                       color: ColorCode.backgroundColor,
   //                       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
   //                     ),
   //                     child: Column(
@@ -1504,7 +1597,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: const BoxDecoration(
-                    color: ColorCode.bcakgroundcolor,
+                    color: ColorCode.backgroundColor,
                     borderRadius:
                     BorderRadius.vertical(top: Radius.circular(24)),
                   ),
@@ -1546,10 +1639,10 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                       ),
 
                       const Text(
-                        "Add links that showcase your work, recognition,\npersonality and more!",
+                        "Add links that showcase your work, recognition,personality and more!",
                         style: TextStyle(
                           color: ColorCode.kWhiteOpacity70,
-                          fontSize: 14,
+                          fontSize: 12,
                           fontFamily: "Outfit",
                           fontWeight: FontWeight.w400,
                         ),
@@ -2594,7 +2687,7 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
             return Container(
               padding: const EdgeInsets.all(20),
               decoration:  BoxDecoration(
-                color: ColorCode.bcakgroundcolor,
+                color: ColorCode.backgroundColor,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SingleChildScrollView(
@@ -2657,83 +2750,31 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                     ),
                     SizedBox(height: 16),
 
-                    /*    GestureDetector(
-                      onTap: () => _pickFeaturedMedia(setModalState),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white24),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: featuredFile == null
-                            ? Column(
-                          children: const [
-                            Icon(Icons.upload, color: Colors.white, size: 28),
-                            SizedBox(height: 10),
-                            Text(
-                              "Upload new image, video, or browse",
-                              style: TextStyle(
-                                fontFamily: "Outfit",
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            Text(
-                              "Choose a file in a 4:3, 5:4, 9:16, or 16:9\n"
-                                  "aspect ratio. Max 10MB (images)\n500MB (videos).",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: ColorCode.kWhiteOpacity70,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        )
-                            : Column(
-                          children: [
-                            if (!isVideo)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: AspectRatio(
-                                  aspectRatio: 16 / 9, // 🔥 change if needed
-                                  child: Image.file(
-                                    featuredFile!,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover, // full container fill
-                                  ),
-                                ),
-                              ),
 
-                            if (isVideo)
-                              Container(
-                                height: 180,
-                                alignment: Alignment.center,
-                                child: const Icon(
-                                  Icons.videocam,
-                                  color: Colors.white,
-                                  size: 48,
-                                ),
-                              ),
-
-                             SizedBox(height: 10),
-
-                            const Text(
-                              "Tap to change media",
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),*/
 
                     GestureDetector(
-                      onTap: () => pickFeaturedImages(setModalState),
+                    /*  onTap: () async {
+                        if (tempFeaturedImages.length >= 5) {
+                          _showSnack("Maximum 5 images allowed");
+                          return;
+                        }
+                        final file = await CommonUploader.pickFromGallery();
+
+                        if (file != null) {
+                          setModalState(() {
+                            tempFeaturedImages.add(file);
+                          });
+                        }
+                      },*/
+                      onTap: () async {
+                        final file = await CommonUploader.pickFromGallery();
+
+                        if (file != null) {
+                          setModalState(() {
+                            tempFeaturedImages.add(file);
+                          });
+                        }
+                      },
                       child: DottedBorder(
                         options: RoundedRectDottedBorderOptions(
                           radius: const Radius.circular(16),
@@ -2765,76 +2806,113 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              SizedBox(height: 6),
-                              Text(
-                                "Choose 4:3, 5:4, 9:16, or 16:9.\nMax 10MB images, 500MB videos.",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: "Outfit",
-                                  color: Colors.white70,
-                                  fontSize: 11,
-                                  height: 1.3,
-                                ),
-                              ),
                             ],
                           )
-                              : ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: tempFeaturedImages.length,
-                            itemBuilder: (_, index) {
-                              return Stack(
-                                children: [
-                                  Container(
-                                    width: 130,
-                                    margin: const EdgeInsets.only(right: 10),
-                                    child: ClipRRect(
+                              : SizedBox(
+                            height: 300, // ✅ 🔥 height increase after image add
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: tempFeaturedImages.length + 1,
+                              gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                                childAspectRatio: 1,
+                              ),
+                              itemBuilder: (context, index) {
+                                /// ➕ ADD BUTTON (always last)
+                                if (index == tempFeaturedImages.length) {
+                                  return GestureDetector(
+
+                                  /*  onTap: () async {
+                                      if (tempFeaturedImages.length >= 5) {
+                                        _showSnack("Maximum 5 images allowed");
+                                        return;
+                                      }
+                                      final file =
+                                      await CommonUploader.pickFromGallery();
+
+                                      if (file != null) {
+                                        setModalState(() {
+                                          tempFeaturedImages.add(file);
+                                        });
+                                      }
+                                    },*/
+                                    onTap: () async {
+                                      final file = await CommonUploader.pickFromGallery();
+
+                                      if (file != null) {
+                                        setModalState(() {
+                                          tempFeaturedImages.add(file);
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: Colors.white24),
+                                      ),
+                                      child: const Center(
+                                        child: Icon(Icons.add,
+                                            color: Colors.white, size: 28),
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                /// 🖼 IMAGE (NO REMOVE ICON)
+                                return Stack(
+                                  children: [
+                                    /// 🖼 IMAGE
+                                    ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
                                       child: Image.file(
                                         tempFeaturedImages[index],
-                                        fit: BoxFit.cover,//
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
                                       ),
                                     ),
-                                  ),
-                                  Positioned(
-                                    top: 6,
-                                    right: 16,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setModalState(() {
-                                          tempFeaturedImages.removeAt(index);
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 22,
-                                        width: 22,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.black.withOpacity(0.7),
-                                        ),
-                                        child: const Icon(
-                                          Icons.close,
-                                          size: 14,
-                                          color: Colors.white,
+
+                                    /// ❌ REMOVE ICON (BACK AGAIN)
+                                    Positioned(
+                                      top: 6,
+                                      right: 6,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setModalState(() {
+                                            tempFeaturedImages.removeAt(index);
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 24,
+                                          width: 24,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(0.7),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.close,
+                                            size: 14,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              );
-                            },
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
                     ),
 
-
-
-
-
                     SizedBox(height: 16),
 
-                    /// 🏷️ ADD TAGS
-                    /// 🏷️ TAG SECTION
+                /*    /// 🏷️ TAG SECTION
                     Row(
                       children: [
                         Expanded(                        // ✅ ADD Expanded
@@ -2891,41 +2969,71 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
                           ),
                         ),  // ✅ close Expanded
                       ],
-                    ),
+                    ),*/
 
 
                     SizedBox(height: 24),
 
-                    /// 💾 SAVE BUTTON
+                    /// 💾 SAVE BUTTON (ONLY ENABLE WHEN EXACTLY 5 IMAGES)
                     SizedBox(
                       width: double.infinity,
                       height: 48,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorCode.kButtonColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        // Save button in _featuredSheet
-                        // REPLACE WITH:
-                        onPressed: () {
-                          final imagesToAdd = List<File>.from(tempFeaturedImages); // ✅ copy first
-                          setModalState(() {
-                            tempFeaturedImages.clear();//
-                          });
-                          setState(() {
-                            featuredImages.addAll(imagesToAdd); // ✅ use copy
-                          });
-                          Navigator.pop(context);
+                      child: Builder(
+                        builder: (context) {
+                          bool isValid = enter_work_titleController.text.trim().isNotEmpty &&
+                              tempFeaturedImages.length >= 5;
+
+                          return ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                              isValid ? ColorCode.kButtonColor : Colors.grey,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+
+                            onPressed: () {
+                              if (!isValid) {
+                                _showSnack("Minimum 5 images required");
+                                return;
+                              }
+
+                              setState(() {
+                                if (editingProjectIndex != null) {
+                                  /// 🔥 EDIT MODE
+                                  featuredProjects[editingProjectIndex!] =
+                                      List.from(tempFeaturedImages);
+
+                                  // title bhi update karo
+                                  if (editingProjectIndex! < featuredProjectsTitles.length) {
+                                    featuredProjectsTitles[editingProjectIndex!] =
+                                        enter_work_titleController.text.trim();
+                                  }
+                                } else {
+                                  /// ➕ ADD MODE
+                                  featuredProjects.add(List.from(tempFeaturedImages));
+                                  featuredProjectsTitles.add(
+                                      enter_work_titleController.text.trim());
+                                }
+
+                                /// 🔁 RESET
+                                tempFeaturedImages.clear();
+                                enter_work_titleController.clear();
+                                editingProjectIndex = null;
+                              });
+
+                              Navigator.pop(context);
+                            },
+
+                            child: const Text(
+                              "Save",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          );
                         },
-                        child: const Text(
-                          "Save",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                       ),
                     ),
 
@@ -3189,7 +3297,8 @@ class _SocialEngagementSingupState extends State<SocialEngagementSingup> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      margin: EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),

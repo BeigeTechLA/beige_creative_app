@@ -80,7 +80,7 @@ Future<void> fetchresumedata() async {
   try {
     final response = await ApiService().postMultipartData(
       ApiEndpoints.upload_resume,
-      {}, // agar koi extra field nahi hai
+      {},
       selectedFile,
     );
 
@@ -118,200 +118,200 @@ Future<void> deleteData(int id) async {
 
     return Scaffold(
       body:  SafeArea(
-        child: AutoSkeleton(
-          enabled: isloading,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.white,),
+                      ),
+                    ],
+                  ),
 
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    InkWell(
-                      onTap: () => Navigator.pop(context),
-                      child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.white,),
-                    ),
-                  ],
-                ),
+                  Row(
+                    children: [
+                      Text("Resume",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
+                    ],
+                  ),
+                  SizedBox(height: 20,),
+                  Row(
+                    children: [
 
-                Row(
-                  children: [
-                    Text("Resume",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
-                  ],
-                ),
-                SizedBox(height: 20,),
-                Row(
-                  children: [
+                      Expanded(
+                        child: Container(
+                          height: 45,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2A2A2A),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
 
-                    Expanded(
-                      child: Container(
+                          child: TextField(
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: "Search",
+                              hintStyle: const TextStyle(color: Colors.white54),
+                              prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      /// FILTER BUTTON
+                      Container(
                         height: 45,
+                        width: 45,
                         decoration: BoxDecoration(
                           color: const Color(0xFF2A2A2A),
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        child: const Icon(Icons.tune, color: Colors.white),
+                      )
+                    ],
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: Myprofile_user?.resumeFiles.length ?? 0,
+                      itemBuilder: (context, index) {
+                        final cert = Myprofile_user!.resumeFiles[index];
 
-                        child: TextField(
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            hintText: "Search",
-                            hintStyle: const TextStyle(color: Colors.white54),
-                            prefixIcon: const Icon(Icons.search, color: Colors.white54),
-                            border: InputBorder.none,
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1F1F1F),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ),
-                      ),
-                    ),
+                          child: Row(
+                            children: [
 
-                    const SizedBox(width: 10),
-
-                    /// FILTER BUTTON
-                    Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2A2A2A),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.tune, color: Colors.white),
-                    )
-                  ],
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: Myprofile_user?.resumeFiles.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final cert = Myprofile_user!.resumeFiles[index];
-
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1F1F1F),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-
-                            /// FILE IMAGE
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6),
-                              child: SizedBox(
-                                height: 55,
-                                width: 55,
-                                child: cert.filePath.endsWith(".pdf")
-                                    ? const Icon(
-                                      Icons.picture_as_pdf,
-                                      color: Colors.red,
-                                      size: 30,
-                                    )
-                                    : Image.network(
-                                  "${ApiService.imageURL}${cert.filePath}",
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: SvgPicture.asset(
-                                        "assets/svg/image_holder.svg",
-                                        fit: BoxFit.contain,
-                                      ),
-                                    );
-                                  },
+                              /// FILE IMAGE
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: SizedBox(
+                                  height: 55,
+                                  width: 55,
+                                  child: cert.filePath.endsWith(".pdf")
+                                      ? const Icon(
+                                    Icons.picture_as_pdf,
+                                    color: Colors.red,
+                                    size: 30,
+                                  )
+                                      : Image.network(
+                                    "${ApiService.imageURL}${cert.filePath}",
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SvgPicture.asset(
+                                          "assets/svg/image_holder.svg",
+                                          fit: BoxFit.contain,
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
+                              const SizedBox(width: 10),
 
-                            /// DETAILS
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    cert.filePath.split('/').last, // file name
+                              /// DETAILS
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      cert.filePath.split('/').last, // file name
 
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500),
-                                  ),
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500),
+                                    ),
 
-                                  const SizedBox(height: 4),
+                                    const SizedBox(height: 4),
 
-                                /*  Text(
+                                    /*  Text(
                                     "${cert["date"]} • ${cert["type"]}",
                                     style: const TextStyle(
                                         color: Colors.white54,
                                         fontSize: 11),
                                   ),
           */
-                                  const SizedBox(height: 6),
-          /*
+                                    const SizedBox(height: 6),
+                                    /*
                                   Text(
                                     cert["count"]!,
                                     style: const TextStyle(
                                         color: Colors.white54,
                                         fontSize: 11),
                                   ),*/
-                                ],
-                              ),
-                            ),
-
-                            /// SIZE + MENU
-                            Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    _openOptions(cert);
-                                  },
-                                  child: const Icon(Icons.more_vert,
-                                      color: ColorCode.white),
+                                  ],
                                 ),
+                              ),
 
-                                const SizedBox(height: 15),
+                              /// SIZE + MENU
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      _openOptions(cert);
+                                    },
+                                    child: const Icon(Icons.more_vert,
+                                        color: ColorCode.white),
+                                  ),
 
-                               /* Text(
+                                  const SizedBox(height: 15),
+
+                                  /* Text(
                                   cert["size"]!,
                                   style: const TextStyle(
                                       color: Colors.white54,
                                       fontSize: 11),
                                 )*/
-                              ],
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                if (resumeList.isEmpty)
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kButtonColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      onPressed: () {
-                        openUploadDialog();
+                                ],
+                              )
+                            ],
+                          ),
+                        );
                       },
-                      child: const Text(
-                        "Add Resume",
-                        style: TextStyle(
-                          fontFamily: "Unbounded",
-                          fontWeight: FontWeight.w500,
-                          color: ColorCode.black,
+                    ),
+                  ),
+
+                  if (resumeList.isEmpty)
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorCode.kButtonColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: () {
+                          openUploadDialog();
+                        },
+                        child: const Text(
+                          "Add Resume",
+                          style: TextStyle(
+                            fontFamily: "Unbounded",
+                            fontWeight: FontWeight.w500,
+                            color: ColorCode.black,
+                          ),
                         ),
                       ),
-                    ),
-                  )
-              ],
+                    )
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

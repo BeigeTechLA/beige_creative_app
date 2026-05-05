@@ -120,125 +120,125 @@ class _CertificatesState extends State<Certificates> {
   Widget build(BuildContext context) {
     return Scaffold(
       body:  SafeArea(
-        child: AutoSkeleton(
-          enabled: isloading,
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    InkWell(
-                      onTap: () => Navigator.pop(context),
-                      child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.white,),
-                    ),
-                  ],
-                ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.white,),
+                      ),
+                    ],
+                  ),
 
-                Row(
-                  children: [
-                    Text("Certificates",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
-                  ],
-                ),
-                SizedBox(height: 20,),
-                Row(
-                  children: [
+                  Row(
+                    children: [
+                      Text("Certificates",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
+                    ],
+                  ),
+                  SizedBox(height: 20,),
+                  Row(
+                    children: [
 
-                    Expanded(
-                      child: Container(
+                      Expanded(
+                        child: Container(
+                          height: 45,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2A2A2A),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+
+                          child: TextField(
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: "Search",
+                              hintStyle: const TextStyle(color: Colors.white54),
+                              prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      /// FILTER BUTTON
+                      Container(
                         height: 45,
+                        width: 45,
                         decoration: BoxDecoration(
                           color: const Color(0xFF2A2A2A),
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        child: const Icon(Icons.tune, color: Colors.white),
+                      )
+                    ],
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: Myprofile_user?.certificateFiles.length ?? 0,
 
-                        child: TextField(
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            hintText: "Search",
-                            hintStyle: const TextStyle(color: Colors.white54),
-                            prefixIcon: const Icon(Icons.search, color: Colors.white54),
-                            border: InputBorder.none,
+                      itemBuilder: (context, index) {
+
+                        final cert = Myprofile_user!.certificateFiles[index];
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1F1F1F),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ),
-                      ),
-                    ),
+                          child: Row(
+                            children: [
 
-                    const SizedBox(width: 10),
+                              /// FILE IMAGE
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: SizedBox(
+                                  height: 55,
+                                  width: 55,
+                                  child: Image.network(
+                                    "${ApiService.imageURL}${cert.filePath}",
+                                    fit: BoxFit.cover,
 
-                    /// FILTER BUTTON
-                    Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2A2A2A),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.tune, color: Colors.white),
-                    )
-                  ],
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: Myprofile_user?.certificateFiles.length ?? 0,
-
-                    itemBuilder: (context, index) {
-
-                      final cert = Myprofile_user!.certificateFiles[index];
-
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1F1F1F),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-
-                            /// FILE IMAGE
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6),
-                              child: SizedBox(
-                                height: 55,
-                                width: 55,
-                                child: Image.network(
-                                  "${ApiService.imageURL}${cert.filePath}",
-                                  fit: BoxFit.cover,
-
-                                  /// ✅ ERROR → SVG PLACEHOLDER
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: SvgPicture.asset(
-                                        "assets/svg/image_holder.svg",
-                                        fit: BoxFit.contain,
-                                      ),
-                                    );
-                                  },
+                                    /// ✅ ERROR → SVG PLACEHOLDER
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SvgPicture.asset(
+                                          "assets/svg/image_holder.svg",
+                                          fit: BoxFit.contain,
+                                        ),
+                                      );
+                                    },
 
 
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
+                              const SizedBox(width: 10),
 
-                            /// DETAILS
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    cert.filePath.split('/').last,
-                                    style: const TextStyle(
-                                      fontFamily: "Outfit",
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500),
-                                  ),
+                              /// DETAILS
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      cert.filePath.split('/').last,
+                                      style: const TextStyle(
+                                          fontFamily: "Outfit",
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500),
+                                    ),
 
-                                  const SizedBox(height: 4),
-          /*
+                                    const SizedBox(height: 4),
+                                    /*
                                   Text(
                                     "${cert["date"]} • ${cert["type"]}",
                                     style: const TextStyle(
@@ -254,66 +254,68 @@ class _CertificatesState extends State<Certificates> {
                                         color: Colors.white54,
                                         fontSize: 11),
                                   ),*/
-                                ],
-                              ),
-                            ),
-
-                            /// SIZE + MENU
-                            Column(
-                              children: [
-                                 GestureDetector(
-                                  onTap: () {
-                                    _openOptions(cert);
-                                  },
-                                  child: const Icon(Icons.more_vert, color: Colors.white54),
+                                  ],
                                 ),
+                              ),
 
-                                const SizedBox(height: 15),
-          /*
+                              /// SIZE + MENU
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      _openOptions(cert);
+                                    },
+                                    child: const Icon(Icons.more_vert, color: Colors.white54),
+                                  ),
+
+                                  const SizedBox(height: 15),
+                                  /*
                                 Text(
                                   cert["size"]!,
                                   style: const TextStyle(
                                       color: Colors.white54,
                                       fontSize: 11),
                                 )*/
-                              ],
-                            )
-                          ],
+                                ],
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorCode.kButtonColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorCode.kButtonColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
                       ),
-                    ),
 
-                    onPressed: () {
-                      openUploadDialog();
+                      onPressed: () {
+                        openUploadDialog();
 
-                    },
+                      },
 
-                    child: const Text(
-                      "Add New Certificate",
-                      style: TextStyle(
-                        fontFamily: "Unbounded",
-                        fontWeight: FontWeight.w500,
-                        color: ColorCode.black,
+                      child: const Text(
+                        "Add New Certificate",
+                        style: TextStyle(
+                          fontFamily: "Unbounded",
+                          fontWeight: FontWeight.w500,
+                          color: ColorCode.black,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
+
         ),
       ),
     );

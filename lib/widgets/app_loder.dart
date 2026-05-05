@@ -10,7 +10,7 @@ class AppLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned.fill( // 🔥 full screen cover
       child: Container(
-        color: ColorCode.bcakgroundcolor,
+        color: ColorCode.backgroundColor,
         child: Center(
           child: Lottie.asset(
             'assets/lottie/loader.json',

@@ -21,6 +21,7 @@ import '../Model_Class/myprofilemodel.dart' as profile;
 import '../Model_Class/myprofilemodel.dart';
 import '../Profile/MyProfile/MyProfile.dart';
 import '../Shoots/shoot_cancelled_screen.dart';
+import '../Shoots/shoots_screen.dart';
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../utility/ColorCode.dart';
 import '../widgets/common_calendar.dart';
@@ -632,23 +633,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                             SizedBox(width: 15),
                             InkWell(
-                                onTap: () {
-                                  Navigator.push(
+                                onTap: () async {
+                                  final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => Myprofile(),
                                     ),
                                   );
+
+                                  if (result == true) {
+                                    fetchprofiledata(); // 🔥 API call again
+                                  }
                                 },
                                 child:CircleAvatar(
                                   radius: 20,
-                                  backgroundImage: (Myprofile_user?.user.profileImageUrl ?? "").isNotEmpty
+                                  backgroundImage: (Myprofile_user?.profileImageUrl ?? "").isNotEmpty
                                       ? NetworkImage(
-                                    "${ApiService.imageURL}${Myprofile_user!.user.profileImageUrl}",
+                                    "${ApiService.imageURL}${Myprofile_user!.profileImageUrl}",
                                   )
-                                      : null, // 🔥 important
+                                      : null,
 
-                                  child: (Myprofile_user?.user.profileImageUrl ?? "").isEmpty
+                                  child: (Myprofile_user?.profileImageUrl ?? "").isEmpty
                                       ? SvgPicture.asset(
                                     AppImages.User_Circle,
                                     width: 20,
@@ -666,7 +671,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(19.0),
                 child: Column(
                   children: [
                     Row(
@@ -726,6 +731,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     SizedBox(height: 10),
                     Divider(color: ColorCode.kDividerWhite12),
                     SizedBox(height: 10),
+            if (upcomingshootslist.isNotEmpty) ...[
+           const SizedBox(),
+
                     Row(
                       children: [
                         Text("Upcoming Shoots ",
@@ -753,22 +761,30 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 width: 1,
                               ),
                             ),
-                            child: const TextField(
+                            child: TextField(
                               style: TextStyle(color: Colors.white),
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsetsGeometry.symmetric(vertical: 12, horizontal: 0),
-                                prefixIcon: Icon(
-                                  Icons.search,
-                                  color: Colors.white54,
+                                prefixIcon: Padding(
+                                  padding: const EdgeInsets.all(10), // control spacing
+                                  child: SvgPicture.asset(
+                                    AppImages.search_icon,
+                                    height: 20,   // now this will work
+                                    width: 20,
+                                  ),
+                                ),
+                                prefixIconConstraints: const BoxConstraints(
+                                  minWidth: 30,
+                                  minHeight: 30,
                                 ),
                                 hintText: "Search events or crew...",
                                 hintStyle: TextStyle(
-                                  color: Colors.white54,
-                                  fontSize: 14,
+                                  fontFamily: "Outfit",
+                                  color: ColorCode.kWhiteOpacity70,
+                                  fontSize: 12,
                                 ),
                                 border: InputBorder.none,
                               ),
-                            ),
+                            )
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -906,21 +922,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                     // ========================================================================
 */// ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
-            if (upcomingshootslist.isEmpty)
-           Container(
-           padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-    color: ColorCode.k282828,
-    borderRadius: BorderRadius.circular(18),
-    ),
-    child: const Center(
-    child: Text(
-    "No upcoming shoots",
-    style: TextStyle(color: Colors.white70),
-    ),
-    ),
-    )
-            else
+
+
+
          Builder(
     builder: (context) {
     final n = upcomingshootslist.length;
@@ -1020,10 +1024,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
     },
     ),
-
+              const SizedBox(height: 17),
+              Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+],
 // ========================================================================
-                    const SizedBox(height: 17),
-                    Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1480,16 +1485,30 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             color: ColorCode.white,
                           ),
                         ),
-                        InkWell(
-                          /*   onTap: () {
-                            widget.onTabChange?.call(1); // 👈 Shoots tab
-                          },*/
+                     /*  GestureDetector(
+    onTap:
+    () {
+
+    Navigator.push(
+    context,MaterialPageRoute(builder: (context) => ShootsScreen(),),
+    );
+    },
+
+                       *//* InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ShootsScreen(), // 👈 next screen
+                              ),
+                            );
+                          },*//*
                           child: const Icon(
                             Icons.arrow_forward_ios,
                             color: Colors.white70,
                             size: 16,
                           ),
-                        ),
+                        ),*/
                       ],
                     ),
                     const SizedBox(height: 14),
@@ -1660,7 +1679,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.calendar_today, size: 14, color: Colors.white70),
+                                        SvgPicture.asset(AppImages.calender, width: 14, height: 14),
                                         SizedBox(width: 6),
                                         Text(
                                             DateTimeUtils.formatDate(
@@ -1669,7 +1688,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                           style: TextStyle(
                                               fontWeight: FontWeight.w400,
                                               fontFamily: "Outfit",
-                                              color: ColorCode.kWhiteOpacity70,
+                                              color: ColorCode.white,
                                               fontSize: 10),
                                         ),
                                       ],
@@ -1677,14 +1696,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.access_time, size: 14, color: Colors.white70),
+                                        SvgPicture.asset(AppImages.time, width: 14, height: 14),
                                         SizedBox(width: 6),
                                         Text(
                                             "${DateTimeUtils.formatTime(data?.startTime)} - ${DateTimeUtils.formatTime(data?.endTime)}",
                                           style: TextStyle(
                                               fontWeight: FontWeight.w400,
                                               fontFamily: "Outfit",
-                                              color: ColorCode.kWhiteOpacity70,
+                                              color: ColorCode.white,
                                               fontSize: 10),
                                         ),
                                       ],
@@ -1692,7 +1711,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.location_on, size: 14, color: Colors.white70),
+                                        SvgPicture.asset(AppImages.location, width: 14, height: 14),
                                         SizedBox(width: 6),
                                         Text(
                                           data?.eventLocation ?? "",
@@ -1701,7 +1720,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                           style: TextStyle(
                                             fontWeight: FontWeight.w400,
                                             fontFamily: "Outfit",
-                                            color: ColorCode.kWhiteOpacity70,
+                                            color: ColorCode.white,
                                             fontSize: 10,
                                           ),
                                         )

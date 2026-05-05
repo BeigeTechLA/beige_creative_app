@@ -7,6 +7,7 @@ import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,7 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Model_Class/myprofilemodel.dart';
-import '../../auth/New_Creative_sing_up_follow/new_build_your_creative_profile.dart';
+import '../../auth/creative_sign_up/new_build_your_creative_profile.dart';
 import '../../auth/ProfileDetailsScreen .dart';
 import '../../service/shared_service.dart';
 import '../../utility/ColorCode.dart';
@@ -665,7 +666,7 @@ class _MyprofileState extends State<Myprofile> {
       }
 
       if (response["error"] == false) {
-        TopMessage.show(context, "Social links updated");
+
         Navigator.pop(context); // close bottom sheet
       } else {
         TopMessage.show(
@@ -807,184 +808,219 @@ Data? Myprofile_user;
 
       body:
 
-      AutoSkeleton(
-        enabled: isloading,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-        
-              ///  HEADER SECTION
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-        
-                  /// 🔹 BACKGROUND HEADER
-                  SizedBox(
-                    width: double.infinity,
-                    height: 200,
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(28),
-                        bottomRight: Radius.circular(28),
-                      ),
-                      child: Image.asset(
-                        "assets/profile/Rectangle_49.png",
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                  ),
-        
-                  /// 🔹 BACK BUTTON
-                  Positioned(
-                    top: 90,
-                    left: 16,
-                    child:  InkWell(
-                      onTap: () => Navigator.pop(context,true),
-                      child: SvgPicture.asset(
-                        AppImages.back, // make sure it's .svg file
-                        height: 24,
-                        colorFilter: ColorFilter.mode(
-                          ColorCode.kHeadingColor,
-                          BlendMode.srcIn,
+      Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+
+                ///  HEADER SECTION
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+
+                    /// 🔹 BACKGROUND HEADER
+                    SizedBox(
+                      width: double.infinity,
+                      height: 200,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(28),
+                          bottomRight: Radius.circular(28),
+                        ),
+                        child: Image.asset(
+                          "assets/profile/Rectangle_49.png",
+                          fit: BoxFit.fill,
                         ),
                       ),
                     ),
-                  ),
-                  /// 🔹 TITLE (CENTERED)
-                  const Positioned(
-                    top:90 ,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Text(
-                        "My Profile",
-                        style: TextStyle(
-                          color: ColorCode.kHeadingColor,
-                          fontSize: 16,
-                          fontFamily: "Unbounded",
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-        
-                  /// 🔹 PROFILE IMAGE (CUT INTO CURVE)
-                  Positioned(
-                    bottom: -20,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Stack(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: CircleAvatar(
-                              radius: 48,
-                              backgroundColor: Colors.grey.shade200,
-                              child: ClipOval(
-                                child: _profileImage != null
-                                    ? Image.file(
-                                  _profileImage!,
-                                  width: 96,
-                                  height: 96,
-                                  fit: BoxFit.cover,
-                                )
-                                    : (Myprofile_user?.user.profileImageUrl.isNotEmpty ?? false)
-                                    ? Image.network(
-                                  "${ApiService.imageURL}${Myprofile_user!.user.profileImageUrl}",
-                                  width: 96,
-                                  height: 96,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Icon(Icons.person, size: 50);
-                                  },
-                                )
-                                    : SvgPicture.asset(
-                                  AppImages.User_Circle,
-                                  width: 96,
-                                  height: 96,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            ),
-        
-        
+
+                    /// 🔹 BACK BUTTON
+                    Positioned(
+                      top: 90,
+                      left: 16,
+                      child:  InkWell(
+                        onTap: () => Navigator.pop(context,true),
+                        child: SvgPicture.asset(
+                          AppImages.back, // make sure it's .svg file
+                          height: 24,
+                          colorFilter: ColorFilter.mode(
+                            ColorCode.kHeadingColor,
+                            BlendMode.srcIn,
                           ),
-                          Positioned(
-                            bottom: 0,
-                            right: 2,
-                            child: Material(
-                              color: Colors.transparent,
-                              child: GestureDetector(
-                                // borderRadius: BorderRadius.circular(30),
-                                onTap: () {
-                                  debugPrint("🔥 EDIT CLICKED");
-        
-        
-        
-        
-                                  _pickImage();
-                                },
-                                child: Container(
-                                  width: 35,
-                                  height: 40,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white),
-                                    color: ColorCode.kGoldGradientLight,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: SvgPicture.asset(
-                                    AppImages.myprofileeditphoto,
-                                    height: 18,
-                                    width: 18,
+                        ),
+                      ),
+                    ),
+                    /// 🔹 TITLE (CENTERED)
+                    const Positioned(
+                      top:90 ,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Text(
+                          "My Profile",
+                          style: TextStyle(
+                            color: ColorCode.kHeadingColor,
+                            fontSize: 16,
+                            fontFamily: "Unbounded",
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    /// 🔹 PROFILE IMAGE (CUT INTO CURVE)
+                    Positioned(
+                      bottom: -20,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Stack(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: CircleAvatar(
+                                  radius: 48,
+                                  backgroundColor: Colors.grey.shade200,
+                                  child: ClipOval(
+                                      child: _profileImage != null
+                                          ? Image.file(
+                                        _profileImage!,
+                                        width: 96,
+                                        height: 96,
+                                        fit: BoxFit.cover,
+                                      )
+                                          :(Myprofile_user?.profileImageUrl.isNotEmpty ?? false)
+                                          ? Image.network(
+                                        "${ApiService.imageURL}${Myprofile_user!.profileImageUrl}",
+                                        width: 96,
+                                        height: 96,
+                                        fit: BoxFit.cover,
+                                      )
+                                          : SvgPicture.asset(
+                                        AppImages.User_Circle,
+                                        width: 96,
+                                        height: 96,
+                                      )
+                                  )
+                              ),
+
+
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 2,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: GestureDetector(
+                                  // borderRadius: BorderRadius.circular(30),
+                                  onTap: () {
+                                    debugPrint("🔥 EDIT CLICKED");
+
+
+
+
+                                    _pickImage();
+                                  },
+                                  child: Container(
+                                    width: 35,
+                                    height: 40,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.white),
+                                      color: ColorCode.kGoldGradientLight,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: SvgPicture.asset(
+                                      AppImages.myprofileeditphoto,
+                                      height: 18,
+                                      width: 18,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
+                  ],
+                ),
+
+
+
+                const SizedBox(height: 60),
+
+                /// 🔹 USER INFO
+                Text(
+                  "${Myprofile_user?.firstName ?? ''} ${Myprofile_user?.lastName ?? ''}",
+                  style: TextStyle(
+                    fontFamily: "Outfit",
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
-        
-        
-        
-              const SizedBox(height: 60),
-        
-              /// 🔹 USER INFO
-              Text(
-                "${Myprofile_user?.firstName ?? ''} ${Myprofile_user?.lastName ?? ''}",
-                style: TextStyle(
-                  fontFamily: "Outfit",
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                maxLines: 2,
-                "${Myprofile_user?.email ?? ''} | ${Myprofile_user?.location ?? ''}",
-                style: TextStyle(
-                  color: ColorCode.kWhiteOpacity60,
-                  fontFamily: "Outfit",
-                  fontSize: 14,
-                  overflow: TextOverflow.ellipsis,
-                  fontWeight: FontWeight.w400,
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+
+                      /// EMAIL
+                      Flexible(
+                        child: Text(
+                          Myprofile_user?.email ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: ColorCode.kWhiteOpacity60,
+                            fontFamily: "Outfit",
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+
+                      /// |
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Text(
+                          "|",
+                          style: TextStyle(
+                            color: ColorCode.kWhiteOpacity60,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+
+                      /// LOCATION
+                      Flexible(
+                        child: Text(
+                          Myprofile_user?.location ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: ColorCode.kWhiteOpacity60,
+                            fontFamily: "Outfit",
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-        
-              const SizedBox(height: 14),
-        
-              /// 🔹 EDIT BUTTON
-              /*InkWell(
+
+                const SizedBox(height: 14),
+
+                /// 🔹 EDIT BUTTON
+                /*InkWell(
                 onTap: () {
                 *//*  Navigator.push(
                     context,
@@ -1010,47 +1046,47 @@ Data? Myprofile_user;
                   ),
                 ),
               ),*/
-              const SizedBox(height: 20),
-        
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child:  Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        infoCard(
-                          value:
-                          "\$${double.tryParse(Myprofile_user?.hourlyRate ?? '0')?.toInt() ?? 0}",
-                          title: "Per Hour",
-                          icon: AppImages.doller,
-                        ),
-        
-                        infoCard(
-                          icon: AppImages.medal,
-                          value:
-                          "${(Myprofile_user?.yearsOfExperience ?? 0).toString().padLeft(2, '0')} yrs",
-                          title: "Experience",
-                        ),
-        
-                        infoCard(
-                          icon: AppImages.map,
-                          value: "${Myprofile_user?.workingDistance ?? ''}",
-                          title: "Radius",
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12,),
-                    Wrap(
-                      spacing: 10,
-                      children: _buildSkillChips(
-                        (Myprofile_user?.skills ?? [])
-                            .map((e) => e.name)
-                            .toList(),
+                const SizedBox(height: 20),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child:  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          infoCard(
+                            value:
+                            "\$${double.tryParse(Myprofile_user?.hourlyRate ?? '0')?.toInt() ?? 0}",
+                            title: "Per Hour",
+                            icon: AppImages.doller,
+                          ),
+
+                          infoCard(
+                            icon: AppImages.medal,
+                            value:
+                            "${(Myprofile_user?.yearsOfExperience ?? 0).toString().padLeft(2, '0')} yrs",
+                            title: "Experience",
+                          ),
+
+                          infoCard(
+                            icon: AppImages.map,
+                            value: "${Myprofile_user?.workingDistance ?? ''}",
+                            title: "Radius",
+                          ),
+                        ],
                       ),
-                    ),
-                    Container(
-        
+                      SizedBox(height: 12,),
+                      Wrap(
+                        spacing: 10,
+                        children: _buildSkillChips(
+                          (Myprofile_user?.skills ?? [])
+                              .map((e) => e.name)
+                              .toList(),
+                        ),
+                      ),
+                      /*        Container(
+
                       margin: EdgeInsetsGeometry.only(top: 17),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
@@ -1083,105 +1119,105 @@ Data? Myprofile_user;
                           ),
                         ],
                       ),
-                    ),
-        
-                    Padding(
-                      padding:  EdgeInsets.all(12),
-                      child: Divider(color: ColorCode.kDividerWhite12,),
-                    ),
-                    Row(
-                      children: [
-                        Text("Social Link",style: TextStyle(
-                            color: ColorCode.white,
-                            fontFamily: "Unbounded",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500
-                        ),)
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    socialLinks.isEmpty
-                        ? const Text(
-                      "No social links added",
-                      style: TextStyle(color: Colors.white54),
-                    )
-                        : Column(
-                      children: socialLinks.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final item = entry.value;
-        
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white24),
-                            color: const Color(0xFF2A2A2A),
-                          ),
-                          child: Row(
-                            children: [
-        
-                              /// ICON
-                              SvgPicture.asset(
-                                item["icon"]!,
-                                height: 20,
-                                width: 20,
-                                color: Colors.white,
-                              ),
-        
-                              const SizedBox(width: 10),
-        
-                              /// NAME + URL
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item["name"]!,
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                    Text(
-                                      item["url"]!,
-                                      style: const TextStyle(color: Colors.white54),
-                                    ),
-                                  ],
+                    ),*/
+
+                      Padding(
+                        padding:  EdgeInsets.all(12),
+                        child: Divider(color: ColorCode.kDividerWhite12,),
+                      ),
+                      Row(
+                        children: [
+                          Text("Social Link",style: TextStyle(
+                              color: ColorCode.white,
+                              fontFamily: "Unbounded",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500
+                          ),)
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      socialLinks.isEmpty
+                          ? const Text(
+                        "No social links added",
+                        style: TextStyle(color: Colors.white54),
+                      )
+                          : Column(
+                        children: socialLinks.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final item = entry.value;
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white24),
+                              color: const Color(0xFF2A2A2A),
+                            ),
+                            child: Row(
+                              children: [
+
+                                /// ICON
+                                SvgPicture.asset(
+                                  item["icon"]!,
+                                  height: 20,
+                                  width: 20,
+                                  color: Colors.white,
                                 ),
-                              ),
-        
-                              /// ✏️ EDIT BUTTON
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.white, size: 18),
-                                onPressed: () {
-                                  nameController.text = item["name"]!;
-                                  linkController.text = item["url"]!;
-                                  selectedSocialIndex = socialNames.indexOf(item["name"]!);
-                                  editingIndex = index;
-                                  isEditing = true;
-                                  openSocialDialog(startInEditMode: true);
-                                },
-                              ),
-        
-                              /// 🗑 DELETE BUTTON
-                              IconButton(
-                                icon: const Icon(Icons.delete,
-                                    color: Colors.red, size: 18),
+
+                                const SizedBox(width: 10),
+
+                                /// NAME + URL
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item["name"]!,
+                                        style: const TextStyle(color: Colors.white),
+                                      ),
+                                      Text(
+                                        item["url"]!,
+                                        style: const TextStyle(color: Colors.white54),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                /// ✏️ EDIT BUTTON
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.white, size: 18),
+                                  onPressed: () {
+                                    nameController.text = item["name"]!;
+                                    linkController.text = item["url"]!;
+                                    selectedSocialIndex = socialNames.indexOf(item["name"]!);
+                                    editingIndex = index;
+                                    isEditing = true;
+                                    openSocialDialog(startInEditMode: true);
+                                  },
+                                ),
+
+                                /// 🗑 DELETE BUTTON
+                                IconButton(
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red, size: 18),
                                   onPressed: () async {
                                     await deleteSocialLink(index); // 🔥 bas ye hi
                                   },
-        
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-        
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-        
-                        /// 🔹 BEHANCE BUTTON
-                        Container(
+
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+
+                          /// 🔹 BEHANCE BUTTON
+                          /* Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
                             color: const Color(0xFF2A2A2A),
@@ -1210,125 +1246,126 @@ Data? Myprofile_user;
                               ),
                             ],
                           ),
-                        ),
-        
-                        /// 🔹 EDIT BUTTON (Right Side)
-                        InkWell(
-                          onTap: () {
-                            openSocialDialog();
-                          },
-        
+                        ),*/
+
+                          /// 🔹 EDIT BUTTON (Right Side)
+                          InkWell(
+                            onTap: () {
+                              openSocialDialog();
+                            },
+
                             borderRadius: BorderRadius.circular(12),
-                          child: Container(
-        
-                           padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: ColorCode.kButtonColor, // beige
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: SvgPicture.asset(
-                              AppImages.myprofile_edit,
-                          /*    color: Color(0xff1D1D1B),
-                              fit: BoxFit.cover,*/
-                            )
-        
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-        
-                        Text("Portfolio Link",style: TextStyle(
-                            color: ColorCode.white,
-                            fontFamily: "Unbounded",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500
-                        ),)
-                      ],
-                    ),
-                    portfolioLinks.isEmpty
-                        ? const Text(
-                      "No portfolio links added",
-                      style: TextStyle(color: Colors.white54),
-                    )
-                        : Column(
-                      children: portfolioLinks.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final item = entry.value;
-        
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white24),
-                            color: const Color(0xFF2A2A2A),
-                          ),
-                          child: Row(
-                            children: [
-        
-                              /// ICON
-                              SvgPicture.asset(
-                                item["icon"]!,
-                                height: 20,
-                                width: 20,
-                                color: const Color(0xffE8D1AB),
-                              ),
-        
-                              const SizedBox(width: 10),
-        
-                              /// NAME + URL
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item["name"]!,
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                    Text(
-                                      item["url"]!,
-                                      style: const TextStyle(color: Colors.white54),
-                                    ),
-                                  ],
+                            child: Container(
+
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: ColorCode.kButtonColor, // beige
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
-                              ),
-        
-                              /// EDIT
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.white, size: 18),
-                                onPressed: () {
-                                  editingIndex = index;           // 🔥 ADD THIS
-                                  linkController.text = item["url"]!;
-                                  selectedPortfolioIndex = Portfoliolname.indexOf(item["name"]!);
-                                  openPortfolioDialog(startInEditMode: true);
-                                },
-                              ),
-        
-                              /// DELETE
-                              IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red, size: 18),
-                                onPressed: () {
-                                  setState(() {
-                                    portfolioLinks.removeAt(index);
-                                  });
-                                },
-                              ),
-                            ],
+                                child: SvgPicture.asset(
+                                  AppImages.myprofile_edit,
+                                  /*    color: Color(0xff1D1D1B),
+                              fit: BoxFit.cover,*/
+                                )
+
+                            ),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 14),
-        
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-        
-                        /// 🔹 BEHANCE BUTTON
-                        Container(
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+
+                          Text("Portfolio Link",style: TextStyle(
+                              color: ColorCode.white,
+                              fontFamily: "Unbounded",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500
+                          ),)
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      portfolioLinks.isEmpty
+                          ? const Text(
+                        "No portfolio links added",
+                        style: TextStyle(color: Colors.white54),
+                      )
+                          : Column(
+                        children: portfolioLinks.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final item = entry.value;
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white24),
+                              color: const Color(0xFF2A2A2A),
+                            ),
+                            child: Row(
+                              children: [
+
+                                /// ICON
+                                SvgPicture.asset(
+                                  item["icon"]!,
+                                  height: 20,
+                                  width: 20,
+                                  color: const Color(0xffE8D1AB),
+                                ),
+
+                                const SizedBox(width: 10),
+
+                                /// NAME + URL
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item["name"]!,
+                                        style: const TextStyle(color: Colors.white),
+                                      ),
+                                      Text(
+                                        item["url"]!,
+                                        style: const TextStyle(color: Colors.white54),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                /// EDIT
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.white, size: 18),
+                                  onPressed: () {
+                                    editingIndex = index;           // 🔥 ADD THIS
+                                    linkController.text = item["url"]!;
+                                    selectedPortfolioIndex = Portfoliolname.indexOf(item["name"]!);
+                                    openPortfolioDialog(startInEditMode: true);
+                                  },
+                                ),
+
+                                /// DELETE
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red, size: 18),
+                                  onPressed: () {
+                                    setState(() {
+                                      portfolioLinks.removeAt(index);
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 20),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+
+                          /// 🔹 BEHANCE BUTTON
+                          /*   Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
                             color: const Color(0xFF2A2A2A),
@@ -1357,54 +1394,59 @@ Data? Myprofile_user;
                               ),
                             ],
                           ),
-                        ),
-        
-                        /// 🔹 EDIT BUTTON (Right Side)
-                        InkWell(
-                          onTap: () {
-        
-                            openPortfolioDialog();
-                          },
-        
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-        
-                            padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: ColorCode.kButtonColor, // beige
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child:  SvgPicture.asset(
-                              AppImages.myprofile_edit,
-                              /*    color: Color(0xff1D1D1B),
+                        ),*/
+
+                          /// 🔹 EDIT BUTTON (Right Side)
+                          InkWell(
+                            onTap: () {
+
+                              openPortfolioDialog();
+                            },
+
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: ColorCode.kButtonColor, // beige
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child:  SvgPicture.asset(
+                                  AppImages.myprofile_edit,
+                                  /*    color: Color(0xff1D1D1B),
                               fit: BoxFit.cover,*/
-                            )
+                                )
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
+
                 ),
-        
-              ),
-        
-        
-        
-        
-        
-        
-              _profileMenuCard(),
-        
-        
-              const SizedBox(height: 30),
-            ],
+
+
+
+
+
+
+                _profileMenuCard(),
+
+
+                const SizedBox(height: 30),
+              ],
+            ),
+
           ),
-        
-        ),
+          if (isloading)
+            AppLoader()
+
+        ],
+
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
-        color: ColorCode.bcakgroundcolor,
+        color: ColorCode.backgroundColor,
         child: InkWell(
           onTap: _showLogoutBottomSheet,
           borderRadius: BorderRadius.circular(16),
@@ -1810,7 +1852,7 @@ Data? Myprofile_user;
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: const BoxDecoration(
-                    color: ColorCode.bcakgroundcolor,
+                    color: ColorCode.backgroundColor,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                   ),
                   child: Column(
@@ -2222,7 +2264,7 @@ Data? Myprofile_user;
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: const BoxDecoration(
-                    color: ColorCode.bcakgroundcolor,
+                    color: ColorCode.backgroundColor,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
                   ),
                   child: Column(

@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +13,9 @@ import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
 import '../../utility/imges_icons.dart';
+import '../../widgets/Topmessgae.dart';
 import '../../widgets/commonImagePicker.dart';
+import '../../widgets/common_uploader.dart';
 import '../../widgets/custom_text_field.dart';
 
 class FeaturedWorkList extends StatefulWidget {
@@ -35,8 +39,11 @@ bool isloading =true;
   List<Map<String, String>> socialLinks = [];
   List<File> selectedImages = [];
   List<String> tags = [];
-
-
+  List<List<File>> featuredProjects = []; // 🔥 each project = list of images
+  List<String> featuredProjectsTitles = [];
+  int? editingProjectIndex;
+  int selectedPortfolioIndex = -1;
+  int? editingPortfolioIndex;
 
   Data? Myprofile_user;
   @override
@@ -53,28 +60,36 @@ bool isloading =true;
       final rawResponse =
       await ApiService().postData(ApiEndpoints.profiledetails, {});
 
+      // ✅ FULL RAW RESPONSE
       debugPrint("📦 RAW API RESPONSE: $rawResponse");
+      debugPrint("📦 RAW TYPE: ${rawResponse.runtimeType}");
 
       final response = Myprofilemodel.fromJson(rawResponse);
 
-      debugPrint("✅ PARSED RESPONSE: ${response.data}");
+      debugPrint("✅ PARSED ERROR FLAG: ${response.error}");
+      debugPrint("✅ PARSED MESSAGE: ${response.message}");
+      debugPrint("✅ PARSED DATA: ${response.data}");
 
       if (response.error == false) {
 
-        /// ✅ SOCIAL LINKS
-
-        /// ✅ IMPORTANT CHANGE (USE NESTED USER)
         setState(() {
-
-
           Myprofile_user = response.data;
         });
+
+        // ✅ FEATURED WORK FILES COUNT + DATA
+        debugPrint("🖼 FEATURED WORK COUNT: ${response.data?.featuredWorkFiles.length}");
+
+        for (int i = 0; i < (response.data?.featuredWorkFiles.length ?? 0); i++) {
+          final item = response.data!.featuredWorkFiles[i];
+          debugPrint("🖼 ITEM[$i] => filePath: ${item.filePath} | fileType: ${item.fileType} | tag: ${item.tag}");
+        }
 
       } else {
         debugPrint("❌ API ERROR: ${response.message}");
       }
-    } catch (e) {
+    } catch (e, stack) {
       debugPrint("❌ EXCEPTION: $e");
+      debugPrint("❌ STACK: $stack");
     } finally {
       setState(() {
         isloading = false;
@@ -82,30 +97,63 @@ bool isloading =true;
     }
   }
 
+  Future<void> _addrecentwork() async {
+    print("🚀 API FUNCTION START");
 
-  List<Map<String, String>> works = [
-    {
-      "image": "assets/home/img.png",
-      "title": "New Year Concert 2025",
-      "tag": "Live Events"
+    if (enter_work_titleController.text.trim().isEmpty) {
+      _showSnack("Please enter title");
+      return;
     }
-  ];
-  Future<void> pickFeaturedImages(Function setModalState) async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: true,
-      compressionQuality: 0,  // ✅ THIS stops the crash — disables compression
-    );
 
-    if (result != null) {
-      setModalState(() {
-        tempFeaturedImages = result.paths
-            .where((e) => e != null)
-            .map((e) => File(e!))
-            .toList();
-      });
+    if (featuredImages.isEmpty) {
+      _showSnack("Please select at least 1 image");
+      return;
+    }
+
+    setState(() => isloading = true);
+
+    try {
+      final response = await ApiService().postMultipartData(
+        ApiEndpoints.upload_recent_work,
+        {
+          "title": enter_work_titleController.text.trim(),
+          "tag": jsonEncode(selectedTags),
+        },
+        featuredImages.first, // ✅ pehle file pass karo
+      );
+
+      debugPrint("📥 RESPONSE => $response");
+
+      if (response != null && response['error'] == false) {
+        print("✅ Upload Success");
+        _showSnack("Upload Success");
+
+        featuredImages.clear();
+        tempFeaturedImages.clear();
+        selectedTags.clear();
+        enter_work_titleController.clear();
+
+        fetchprofiledata();
+        Navigator.pop(context);
+
+      } else {
+        print("❌ Upload Failed");
+        _showSnack(response?['message'] ?? "Upload Failed");
+      }
+
+    } catch (e) {
+      print("🔥 ERROR => $e");
+      _showSnack("Something went wrong");
+    } finally {
+      setState(() => isloading = false);
     }
   }
+
+  void _showSnack(String message) {
+    TopMessage.show(context, message);
+  }
+
+
   TextEditingController tagController = TextEditingController();
   TextEditingController EnterWorkTitleController = TextEditingController();
 // ✅ FIXED: Accept setModalState so modal UI updates properly
@@ -353,7 +401,7 @@ bool isloading =true;
       ),
     );
   }
-  void openFeaturedWork() {
+/*  void openFeaturedWork() {
 
     showModalBottomSheet(
       context: context,
@@ -372,7 +420,7 @@ bool isloading =true;
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: const BoxDecoration(
-                  color: ColorCode.bcakgroundcolor,
+                  color: ColorCode.backgroundColor,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
 
@@ -651,8 +699,8 @@ bool isloading =true;
         );
       },
     );
-  }
-  void openAddTagDialog() {
+  }*/
+ /* void openAddTagDialog() {
 
     showModalBottomSheet(
       context: context,
@@ -666,7 +714,7 @@ bool isloading =true;
             return Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                color: ColorCode.bcakgroundcolor,
+                color: ColorCode.backgroundColor,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
 
@@ -802,7 +850,7 @@ bool isloading =true;
         );
       },
     );
-  }
+  }*/
   void _featuredSheet() {
     showModalBottomSheet(
       context: context,
@@ -814,7 +862,7 @@ bool isloading =true;
             return Container(
               padding: const EdgeInsets.all(20),
               decoration:  BoxDecoration(
-                color: ColorCode.bcakgroundcolor,
+                color: ColorCode.backgroundColor,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SingleChildScrollView(
@@ -877,83 +925,31 @@ bool isloading =true;
                     ),
                     SizedBox(height: 16),
 
-                    /*    GestureDetector(
-                      onTap: () => _pickFeaturedMedia(setModalState),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white24),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: featuredFile == null
-                            ? Column(
-                          children: const [
-                            Icon(Icons.upload, color: Colors.white, size: 28),
-                            SizedBox(height: 10),
-                            Text(
-                              "Upload new image, video, or browse",
-                              style: TextStyle(
-                                fontFamily: "Outfit",
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            Text(
-                              "Choose a file in a 4:3, 5:4, 9:16, or 16:9\n"
-                                  "aspect ratio. Max 10MB (images)\n500MB (videos).",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: ColorCode.kWhiteOpacity70,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        )
-                            : Column(
-                          children: [
-                            if (!isVideo)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: AspectRatio(
-                                  aspectRatio: 16 / 9, // 🔥 change if needed
-                                  child: Image.file(
-                                    featuredFile!,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover, // full container fill
-                                  ),
-                                ),
-                              ),
 
-                            if (isVideo)
-                              Container(
-                                height: 180,
-                                alignment: Alignment.center,
-                                child: const Icon(
-                                  Icons.videocam,
-                                  color: Colors.white,
-                                  size: 48,
-                                ),
-                              ),
-
-                             SizedBox(height: 10),
-
-                            const Text(
-                              "Tap to change media",
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),*/
 
                     GestureDetector(
-                      onTap: () => pickFeaturedImages(setModalState),
+                      /*  onTap: () async {
+                        if (tempFeaturedImages.length >= 5) {
+                          _showSnack("Maximum 5 images allowed");
+                          return;
+                        }
+                        final file = await CommonUploader.pickFromGallery();
+
+                        if (file != null) {
+                          setModalState(() {
+                            tempFeaturedImages.add(file);
+                          });
+                        }
+                      },*/
+                      onTap: () async {
+                        final file = await CommonUploader.pickFromGallery();
+
+                        if (file != null) {
+                          setModalState(() {
+                            tempFeaturedImages.add(file);
+                          });
+                        }
+                      },
                       child: DottedBorder(
                         options: RoundedRectDottedBorderOptions(
                           radius: const Radius.circular(16),
@@ -985,76 +981,113 @@ bool isloading =true;
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              SizedBox(height: 6),
-                              Text(
-                                "Choose 4:3, 5:4, 9:16, or 16:9.\nMax 10MB images, 500MB videos.",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: "Outfit",
-                                  color: Colors.white70,
-                                  fontSize: 11,
-                                  height: 1.3,
-                                ),
-                              ),
                             ],
                           )
-                              : ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: tempFeaturedImages.length,
-                            itemBuilder: (_, index) {
-                              return Stack(
-                                children: [
-                                  Container(
-                                    width: 130,
-                                    margin: const EdgeInsets.only(right: 10),
-                                    child: ClipRRect(
+                              : SizedBox(
+                            height: 300, // ✅ 🔥 height increase after image add
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: tempFeaturedImages.length + 1,
+                              gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                                childAspectRatio: 1,
+                              ),
+                              itemBuilder: (context, index) {
+                                /// ➕ ADD BUTTON (always last)
+                                if (index == tempFeaturedImages.length) {
+                                  return GestureDetector(
+
+                                    /*  onTap: () async {
+                                      if (tempFeaturedImages.length >= 5) {
+                                        _showSnack("Maximum 5 images allowed");
+                                        return;
+                                      }
+                                      final file =
+                                      await CommonUploader.pickFromGallery();
+
+                                      if (file != null) {
+                                        setModalState(() {
+                                          tempFeaturedImages.add(file);
+                                        });
+                                      }
+                                    },*/
+                                    onTap: () async {
+                                      final file = await CommonUploader.pickFromGallery();
+
+                                      if (file != null) {
+                                        setModalState(() {
+                                          tempFeaturedImages.add(file);
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: Colors.white24),
+                                      ),
+                                      child: const Center(
+                                        child: Icon(Icons.add,
+                                            color: Colors.white, size: 28),
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                /// 🖼 IMAGE (NO REMOVE ICON)
+                                return Stack(
+                                  children: [
+                                    /// 🖼 IMAGE
+                                    ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
                                       child: Image.file(
                                         tempFeaturedImages[index],
-                                        fit: BoxFit.cover,//
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
                                       ),
                                     ),
-                                  ),
-                                  Positioned(
-                                    top: 6,
-                                    right: 16,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setModalState(() {
-                                          tempFeaturedImages.removeAt(index);
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 22,
-                                        width: 22,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.black.withOpacity(0.7),
-                                        ),
-                                        child: const Icon(
-                                          Icons.close,
-                                          size: 14,
-                                          color: Colors.white,
+
+                                    /// ❌ REMOVE ICON (BACK AGAIN)
+                                    Positioned(
+                                      top: 6,
+                                      right: 6,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setModalState(() {
+                                            tempFeaturedImages.removeAt(index);
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 24,
+                                          width: 24,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(0.7),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.close,
+                                            size: 14,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              );
-                            },
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
                     ),
 
-
-
-
-
                     SizedBox(height: 16),
 
-                    /// 🏷️ ADD TAGS
-                    /// 🏷️ TAG SECTION
+                    /*    /// 🏷️ TAG SECTION
                     Row(
                       children: [
                         Expanded(                        // ✅ ADD Expanded
@@ -1111,41 +1144,95 @@ bool isloading =true;
                           ),
                         ),  // ✅ close Expanded
                       ],
-                    ),
+                    ),*/
 
 
                     SizedBox(height: 24),
 
-                    /// 💾 SAVE BUTTON
+                    /// 💾 SAVE BUTTON (ONLY ENABLE WHEN EXACTLY 5 IMAGES)
                     SizedBox(
                       width: double.infinity,
                       height: 48,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorCode.kButtonColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        // Save button in _featuredSheet
-                        // REPLACE WITH:
-                        onPressed: () {
-                          final imagesToAdd = List<File>.from(tempFeaturedImages); // ✅ copy first
-                          setModalState(() {
-                            tempFeaturedImages.clear();//
-                          });
-                          setState(() {
-                            featuredImages.addAll(imagesToAdd); // ✅ use copy
-                          });
-                          Navigator.pop(context);
+                      child: Builder(
+                        builder: (context) {
+                          bool isValid = enter_work_titleController.text.trim().isNotEmpty &&
+                              tempFeaturedImages.length >= 5;
+
+                          return ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                              tempFeaturedImages.length >= 5
+                                  ? ColorCode.kButtonColor
+                                  : Colors.grey,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+
+                           /* onPressed: () {
+                              if (!isValid) {
+                                _showSnack("Minimum 5 images required");
+                                return;
+                              }
+
+                              setState(() {
+                                if (editingProjectIndex != null) {
+                                  /// 🔥 EDIT MODE
+                                  featuredProjects[editingProjectIndex!] =
+                                      List.from(tempFeaturedImages);
+
+                                  // title bhi update karo
+                                  if (editingProjectIndex! < featuredProjectsTitles.length) {
+                                    featuredProjectsTitles[editingProjectIndex!] =
+                                        enter_work_titleController.text.trim();
+                                  }
+                                } else {
+                                  /// ➕ ADD MODE
+                                  featuredProjects.add(List.from(tempFeaturedImages));
+                                  featuredProjectsTitles.add(
+                                      enter_work_titleController.text.trim());
+                                }
+
+                                /// 🔁 RESET
+                                tempFeaturedImages.clear();
+                                enter_work_titleController.clear();
+                                editingProjectIndex = null;
+                              });
+
+                              Navigator.pop(context);
+                            },*/
+                            onPressed: () async {
+                              print("🔥 SAVE CLICKED");
+
+                              /// ❌ TITLE CHECK
+                              if (enter_work_titleController.text.trim().isEmpty) {
+                                _showSnack("Please enter title");
+                                return;
+                              }
+
+                              /// ❌ MIN 5 IMAGES CHECK
+                              if (tempFeaturedImages.length < 5) {
+                                _showSnack("Minimum 5 images required");
+                                return;
+                              }
+
+                              /// ✅ DATA SET
+                              featuredImages = List.from(tempFeaturedImages);
+
+                              print("📸 Images Count => ${featuredImages.length}");
+
+                              /// ✅ API CALL
+                              await _addrecentwork();
+                            },
+                            child: const Text(
+                              "Save",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          );
                         },
-                        child: const Text(
-                          "Save",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                       ),
                     ),
 

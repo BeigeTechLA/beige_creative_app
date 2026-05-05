@@ -122,7 +122,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorCode.bcakgroundcolor,
+      backgroundColor: ColorCode.backgroundColor,
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsetsGeometry.symmetric(horizontal: 20),

@@ -363,7 +363,7 @@ try{
                         // 👈 top extra
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
-                          color: ColorCode.bcakgroundcolor,
+                          color: ColorCode.backgroundColor,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                             color: Colors.white.withOpacity(0.06),

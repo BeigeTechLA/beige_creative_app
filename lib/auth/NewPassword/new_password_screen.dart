@@ -209,7 +209,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                     // 👈 top extra
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: ColorCode.bcakgroundcolor,
+                      color: ColorCode.backgroundColor,
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.10),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart' show SvgPicture;
 import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart' show AppImages;
 
 class CustomMultiSelectField extends StatefulWidget {
   final String label;
@@ -70,7 +72,7 @@ class _CustomMultiSelectFieldState
               fontFamily: "Outfit",
               color: highlight
                   ? ColorCode.kButtonColor
-                  : ColorCode.kWhiteOpacity70,
+                  : ColorCode.kWhiteOpacity_60,
             ),
 
             hintText:
@@ -79,7 +81,7 @@ class _CustomMultiSelectFieldState
             hintStyle: TextStyle(
               color: widget.hasValue
                   ? ColorCode.white
-                  : ColorCode.kWhiteOpacity70,
+                  : ColorCode.kWhiteOpacity_60,
             ),
 
             contentPadding:
@@ -104,11 +106,14 @@ class _CustomMultiSelectFieldState
               ),
             ),
 
-            suffixIcon: Icon(
-              Icons.keyboard_arrow_down,
-              color: highlight
-                  ? ColorCode.kButtonColor
-                  : ColorCode.kWhiteOpacity70,
+            suffixIcon: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: SvgPicture.asset(
+                AppImages.dropdown, //  your svg path
+               color: ColorCode.white,
+                width: 24,
+                height: 24,
+              ),
             ),
           ),
         ),

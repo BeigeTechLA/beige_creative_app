@@ -1,3 +1,4 @@
+import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -25,7 +26,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
   //   }
   // }
 
-
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -43,29 +44,28 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
   User? user;
   Data? profileData;
-  Future<void>fetchprofiledata()async{
+  Future<void> fetchprofiledata() async {
+    try {
+      setState(() {
+        isLoading = true; // 🔥 START LOADER
+      });
 
-    try{
-      final response=Myprofilemodel.fromJson(await ApiService().postData(ApiEndpoints.profiledetails,{}));
+      final response = Myprofilemodel.fromJson(
+        await ApiService().postData(ApiEndpoints.profiledetails, {}),
+      );
 
-      debugPrint('API Response is :$response');
-
-      if(response.error==false){
+      if (response.error == false) {
         setState(() {
-          user=response.data.user;
-          profileData = response.data; // ✅ ADD THIS
-
+          user = response.data.user;
+          profileData = response.data;
         });
-      }else{
-
-        debugPrint('error is:${response.message}');
       }
-
-
-    }catch(e){
+    } catch (e) {
       debugPrint("Error is::$e");
-    }finally{
-
+    } finally {
+      setState(() {
+        isLoading = false; // 🔥 STOP LOADER
+      });
     }
   }
 
@@ -75,66 +75,73 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            /// 🔝 TOP BAR
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                children: [
-                  InkWell(
-                    onTap: () => Navigator.pop(context),
-                    child: Image.asset("assets/icons/back.png", height: 24),
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        "Profile Details",
-                        style: TextStyle(
-                          fontFamily: "Unbounded",
-                          color: ColorCode.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                /// 🔝 TOP BAR
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: Image.asset("assets/icons/back.png", height: 24),
+                      ),
+                      const Expanded(
+                        child: Center(
+                          child: Text(
+                            "Profile Details",
+                            style: TextStyle(
+                              fontFamily: "Unbounded",
+                              color: ColorCode.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 24),
+                    ],
                   ),
-                  const SizedBox(width: 24),
-                ],
-              ),
+                ),
+
+                const SizedBox(height: 10),
+
+                /// 🔘 TAB BAR
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                  padding: const EdgeInsets.all(5),
+                  height: 53,
+                  decoration: BoxDecoration(
+                    color: ColorCode.k282828,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      _buildTab("Personal", 0),
+                      _buildTab("Professional", 1),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                /// 👤 PROFILE CARD
+                Expanded(
+                  child: selectedTab == 0
+                      ? _buildPersonalCard()
+                      : _buildProfessionalCard(),
+                ),
+              ],
             ),
+          ),
+          if(isLoading)
+            AppLoader()
+        ],
 
-            const SizedBox(height: 10),
-
-            /// 🔘 TAB BAR
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-              padding: const EdgeInsets.all(5),
-              height: 53,
-              decoration: BoxDecoration(
-                color: ColorCode.k282828,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Row(
-                children: [
-                  _buildTab("Personal", 0),
-                  _buildTab("Professional", 1),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            /// 👤 PROFILE CARD
-            Expanded(
-              child: selectedTab == 0
-                  ? _buildPersonalCard()
-                  : _buildProfessionalCard(),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -177,7 +184,24 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                 _editButton(),
 
                 const SizedBox(height: 25),
-                const Divider(color: Colors.white24),
+                Container(
+                  height: 1,
+                  width: double.infinity,
+
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Color(0x00FFFFFF), // transparent
+                        Color(0x1AFFFFFF), // 10% white
+                        Color(0x33FFFFFF), // 20% white (center highlight)
+                        Color(0x1AFFFFFF),
+                        Color(0x00FFFFFF),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 15),
 
                   _buildInfoRow("First Name", firstName),
@@ -207,19 +231,17 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           ),
           child: ClipOval(
             child: Image.network(
-              ApiService().getImageURL(user?.profileImageUrl ?? ""),
+              (profileData?.profileImageUrl ?? "").isNotEmpty
+                  ? "${ApiService.imageURL}${profileData!.profileImageUrl}"
+                  : "",
               fit: BoxFit.cover,
-
-
-              /// ❌ ERROR → SVG SHOW
               errorBuilder: (_, __, ___) {
                 return SvgPicture.asset(
-                  AppImages.User_Circle, // ✅ SVG fallback
-
+                  AppImages.User_Circle,
                   fit: BoxFit.cover,
                 );
               },
-            ),
+            )
           )
         ),
       ],
@@ -267,7 +289,24 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                 Center(child: _editButton()),
 
                 const SizedBox(height: 25),
-                const Divider(color: Colors.white24),
+                Container(
+                  height: 1,
+                  width: double.infinity,
+
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Color(0x00FFFFFF), // transparent
+                        Color(0x1AFFFFFF), // 10% white
+                        Color(0x33FFFFFF), // 20% white (center highlight)
+                        Color(0x1AFFFFFF),
+                        Color(0x00FFFFFF),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
 
                 /// 🔥 FIXED (NO getPrimaryRole)
@@ -297,8 +336,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                 const Text(
                   "Skills",
                   style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 13,
+                      color: ColorCode.white,
+                      fontFamily: "Outfit",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400
                   ),
                 ),
 
@@ -306,35 +347,73 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
                 /// 🔥 FIXED (dynamic skills)
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  alignment: WrapAlignment.end,   // 🔥 ye add kar
+
+                  spacing: 10,
+                  runSpacing: 10,
                   children: profileData?.skills.map((skill) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.black26,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(6),
+
+                        /// 🔥 GRADIENT BORDER EFFECT
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.08),
+                          width: 1,
+                        ),
+
+                        /// 🔥 GLASS BACKGROUND
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white.withOpacity(0.08),
+                            Colors.white.withOpacity(0.02),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                       ),
+
                       child: Text(
                         skill.name,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
+                          fontSize: 13,
+                          fontFamily: "Outfit",
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     );
-                  }).toList() ??
-                      [],
+                  }).toList() ?? [],
                 ),
 
                 const SizedBox(height: 20),
+                Container(
+                  height: 1,
+                  width: double.infinity,
 
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Color(0x00FFFFFF), // transparent
+                        Color(0x1AFFFFFF), // 10% white
+                        Color(0x33FFFFFF), // 20% white (center highlight)
+                        Color(0x1AFFFFFF),
+                        Color(0x00FFFFFF),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 const Text(
                   "Bio / About",
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 13,
+                  style:TextStyle(
+                      color: ColorCode.white,
+                      fontFamily: "Outfit",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400
                   ),
                 ),
 
@@ -368,19 +447,17 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           ),
           child: ClipOval(
             child: Image.network(
-              ApiService().getImageURL(user?.profileImageUrl ?? ""),
-
+              (profileData?.profileImageUrl ?? "").isNotEmpty
+                  ? "${ApiService.imageURL}${profileData!.profileImageUrl}"
+                  : "",
               fit: BoxFit.cover,
-
-
-              /// ❌ ERROR → SVG SHOW
               errorBuilder: (_, __, ___) {
                 return SvgPicture.asset(
-                  AppImages.User_Circle, //
+                  AppImages.User_Circle,
                   fit: BoxFit.cover,
                 );
               },
-            ),
+            )
           )
         ),
       ],
@@ -503,8 +580,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           Text(
             title,
             style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 13,
+              color: ColorCode.white,
+              fontFamily: "Outfit",
+              fontSize: 14,
+              fontWeight: FontWeight.w400
             ),
           ),
           Flexible(
@@ -512,8 +591,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
               value,
               textAlign: TextAlign.end,
               style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
+                color: ColorCode.kWhiteOpacity60,
+                  fontFamily: "Outfit",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400
               ),
             ),
           ),

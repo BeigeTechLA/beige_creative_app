@@ -31,6 +31,7 @@ class ApiEndpoints {
   static const String upload_certifications = "creator/profile/files/certifications";
   static const String delete_certifications = "creator/profile-file";
   static const String upload_resume = "creator/profile/files/resume";
+  static const String upload_recent_work = "creator/profile/files/recent_work";
 
 
 

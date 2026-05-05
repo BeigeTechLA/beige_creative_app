@@ -32,6 +32,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
 
 
 
+/*
 
   Future<void> searchLocation(String query) async {
     try {
@@ -155,8 +156,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
     }
   }
 
-
-
+*/
 
 
 
@@ -167,11 +167,11 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
   String selectedAddress = "Search or select location";
   bool isMapOpen = false;          // 👈 map show / hide
 
-
   List<String> distanceList = [
     "Upto 5 Miles",
     "Upto 10 Miles",
     "Upto 20 Miles",
+    "20-50 Miles", // 👈 ADD THIS
   ];
 
   final TextEditingController firstnamecontroller =  TextEditingController();
@@ -179,19 +179,18 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
   final TextEditingController emailcontroller =  TextEditingController();
   final TextEditingController phonecontroller =  TextEditingController();
   TextEditingController searchController = TextEditingController();
-  final TextEditingController changepasswordcontroller =  TextEditingController(text: '123456');
-
-
+  final TextEditingController changepasswordcontroller =  TextEditingController();
   final TextEditingController experienceController =  TextEditingController();
-
   final TextEditingController rateController =TextEditingController();
-
   final TextEditingController bioController  =TextEditingController();
   String selectedSkill = "";
+  EditProfileModel?  mylist;
+
   @override
   void initState() {
     super.initState();
     editpersonaldetails();
+
     _locationFocus.addListener(() {
       if (_locationFocus.hasFocus) {
         setState(() {
@@ -200,65 +199,19 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
       }
     });
 
-    _getCurrentLocation();
+    loadCurrentLocation(); //
   }
 
+  Future<void> loadCurrentLocation() async {
+    final latLng = await LocationService.getCurrentLocation(context);
 
-
-
-  Future<void> updateProfile() async {
-    try {
-      // ✅ BASIC VALIDATION (optional but recommended)
-      if (firstnamecontroller.text.trim().isEmpty ||
-          lastnamecontroller.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Enter full name")),
-        );
-        return;
-      }
-
-      Map<String, dynamic> body = {
-        "first_name": firstnamecontroller.text.trim(),
-        "last_name": lastnamecontroller.text.trim(),
-        "email": emailcontroller.text.trim(),
-        "phone_number": phonecontroller.text.trim(),
-        "location": searchController.text.trim(),
-        "working_distance": selectedSkill ?? "",
-        "years_of_experience": experienceController.text.trim(),
-        "hourly_rate": rateController.text.trim(),
-        "bio": bioController.text.trim(),
-      };
-
-      print("📤 BODY: $body");
-
-      final response = await ApiService().postData(
-        ApiEndpoints.editprofile,
-        body,
-      );
-
-      print("📥 RESPONSE: $response");
-
-      if (response["error"] == false) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Profile Updated Successfully")),
-        );
-
-        // 🔥 MOST IMPORTANT CHANGE
-        Navigator.pop(context, true); // ✅ RESULT RETURN
-
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response["message"])),
-        );
-      }
-    } catch (e) {
-      print("UPDATE ERROR: $e");
+    if (latLng != null) {
+      setState(() {
+        currentLatLng = latLng;
+        showMap = true;
+      });
     }
   }
-
-  EditProfileModel?  mylist;
-
-
 
   Future<void> editpersonaldetails() async {
     try {
@@ -290,7 +243,88 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
     }
   }
 
+  Future<void> updateProfile() async {
+    try {
+      print("🚀 updateProfile START");
 
+      /// ✅ VALIDATION
+      if (firstnamecontroller.text.trim().isEmpty ||
+          lastnamecontroller.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Enter full name")),
+        );
+        return;
+      }
+
+      if (emailcontroller.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Enter email")),
+        );
+        return;
+      }
+
+      if (searchController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Select location")),
+        );
+        return;
+      }
+
+      /// ✅ LOADING (optional but recommended)
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+
+      /// ✅ BODY
+      final body = {
+        "first_name": firstnamecontroller.text.trim(),
+        "last_name": lastnamecontroller.text.trim(),
+        "email": emailcontroller.text.trim(),
+        "phone_number": phonecontroller.text.trim(),
+        "location": searchController.text.trim(),
+        "working_distance": selectedSkill.isEmpty ? "" : selectedSkill,
+        "years_of_experience": experienceController.text.trim(),
+        "hourly_rate": rateController.text.trim(),
+        "bio": bioController.text.trim(),
+      };
+
+      print("📤 BODY: $body");
+
+      /// ✅ API CALL
+      final response = await ApiService().postData(
+        ApiEndpoints.editprofile,
+        body,
+      );
+
+      print("📥 RESPONSE: $response");
+
+      /// ✅ LOADING CLOSE
+      Navigator.pop(context);
+
+      /// ✅ RESPONSE HANDLE
+      if (response != null && response["error"] == false) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Profile Updated Successfully")),
+        );
+
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response?["message"] ?? "Something went wrong")),
+        );
+      }
+    } catch (e) {
+      Navigator.pop(context); // 🔥 IMPORTANT (loader close)
+
+      print("❌ UPDATE ERROR: $e");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
 
 
   @override
@@ -341,263 +375,283 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
 ]
 ''';
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
+      body: Stack(
+        children: [
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
 
-            children: [
-
-              /// 🔙 BACK + TITLE
-              Row(
                 children: [
-                  InkWell(
-                    onTap: () => Navigator.pop(context,true),
-                    child: SvgPicture.asset(
-                      AppImages.back,
-                      height: 24,
-                    ),
+
+                  /// 🔙 BACK + TITLE
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context,true),
+                        child: SvgPicture.asset(
+                          AppImages.back,
+                          height: 24,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              SizedBox(height:12),
-              Row(
-                children: [
-                  Text(
-                    "Edit Personal Details",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-
-
-              const SizedBox(height: 30),
-
-
-              SizedBox(height:12),
-              /// 📅 YEAR OF EXPERIENCE
-              CustomTextField(
-                label: "First Name*",
-                controller: firstnamecontroller,
-              ),
-
-              SizedBox(height:22),
-
-              /// 💰 HOURLY RATE
-              CustomTextField(
-                label: "Last Name*",
-                controller: lastnamecontroller,
-                // keyboardType: TextInputType.number,
-              ),
-
-              SizedBox(height:22),
-
-              /// 📝 BIO
-              CustomTextField(
-                label: "Email Address*",
-                controller: emailcontroller,
-
-              ),
-              SizedBox(height:22),
-              CustomTextField(
-                label: "Contact Number*",
-                controller:phonecontroller,
-
-              ),
-              SizedBox(height:22),
-              // CustomTextField(
-              //   label: "Location*",
-              //   controller: locationcontroller,
-              //
-              // ),
-
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: ColorCode.kWhiteOpacity70,
-                    width: 0.8,
-                  ),
-                ),
-                child: GooglePlaceAutoCompleteTextField(
-                  textEditingController: searchController,
-                  focusNode: _locationFocus, // ✅ ADD THIS
-
-                  googleAPIKey: GoogleConfig.placesApiKey,
-                  debounceTime: 600,
-
-                  isLatLngRequired: true,
-
-
-                  textStyle: const TextStyle(
-                    color: ColorCode.white,
-                    fontFamily: "Outfit",
-                    fontSize: 14,
+                  SizedBox(height:12),
+                  Row(
+                    children: [
+                      Text(
+                        "Edit Personal Details",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
 
-                  inputDecoration: const InputDecoration(
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    hintText: "Search or select location",
-                    hintStyle: TextStyle(
-                      color: ColorCode.kWhiteOpacity70,
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    suffixIcon: Padding(
-                      padding: EdgeInsets.only(right: 8),
-                      child: Icon(
-                        Icons.location_on_outlined,
+
+                  const SizedBox(height: 30),
+
+
+                  SizedBox(height:12),
+                  /// 📅 YEAR OF EXPERIENCE
+                  CustomTextField(
+                    label: "First Name*",
+                    controller: firstnamecontroller,
+                  ),
+
+                  SizedBox(height:22),
+
+                  /// 💰 HOURLY RATE
+                  CustomTextField(
+                    label: "Last Name*",
+                    controller: lastnamecontroller,
+                    // keyboardType: TextInputType.number,
+                  ),
+
+                  SizedBox(height:22),
+
+                  /// 📝 BIO
+                  CustomTextField(
+                    label: "Email Address*",
+                    controller: emailcontroller,
+
+                  ),
+                  SizedBox(height:22),
+                  CustomTextField(
+                    label: "Contact Number*",
+                    controller:phonecontroller,
+
+                  ),
+                  SizedBox(height:22),
+                  // CustomTextField(
+                  //   label: "Location*",
+                  //   controller: locationcontroller,
+                  //
+                  // ),
+
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
                         color: ColorCode.kWhiteOpacity70,
+                        width: 0.8,
                       ),
                     ),
-                  ),
-                  getPlaceDetailWithLatLng: (prediction) async {
-                    final latLng = LatLng(
-                      double.parse(prediction.lat!),
-                      double.parse(prediction.lng!),
-                    );
+                    child: GooglePlaceAutoCompleteTextField(
+                      textEditingController: searchController,
+                      focusNode: _locationFocus, // ✅ ADD THIS
 
-                    _locationFocus.unfocus();
+                      googleAPIKey: GoogleConfig.placesApiKey,
+                      debounceTime: 600,
 
-                    await _updateLocationFromLatLng(latLng);
-
-                    setState(() {
-                      currentLatLng = latLng;
-                      selectedAddress = prediction.description ?? "";
-                      showMap = true;
-                    });
-
-                    searchController.text = selectedAddress;
-                    searchController.selection = TextSelection.fromPosition(
-                      TextPosition(offset: searchController.text.length),
-                    );
-
-                    mapController?.animateCamera(
-                      CameraUpdate.newLatLngZoom(latLng, 14),
-                    );
-                  },
+                      isLatLngRequired: true,
 
 
-                  itemClick: (prediction) {
-                    searchController.text = prediction.description ?? "";
-                    searchController.selection = TextSelection.fromPosition(
-                      TextPosition(offset: searchController.text.length),
-                    );
-                  },
+                      textStyle: const TextStyle(
+                        color: ColorCode.white,
+                        fontFamily: "Outfit",
+                        fontSize: 14,
+                      ),
 
-                  isCrossBtnShown: true,
-                ),
-              ),
-
-
-
-
-              SizedBox(height: 20),
-
-              /// 🗺️ MAP WITH FIXED HEIGHT
-              if (showMap)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: SizedBox(
-                    height: 280,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: currentLatLng == null
-                          ? const Center(child: CircularProgressIndicator())
-                          :GoogleMap(
-                        initialCameraPosition: CameraPosition(
-                          target: currentLatLng!,
-                          zoom: 14,
+                      inputDecoration: const InputDecoration(
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        hintText: "Search or select location",
+                        hintStyle: TextStyle(
+                          color: ColorCode.kWhiteOpacity70,
                         ),
-
-                        myLocationEnabled: true,
-                        myLocationButtonEnabled: true,
-                        zoomControlsEnabled: true,
-                        compassEnabled: false,
-
-                        // 🔥 IMPORTANT FIX (touch enable)
-                        gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-                          Factory<OneSequenceGestureRecognizer>(
-                                () => EagerGestureRecognizer(),
-                          ),
-                        },
-
-                        onMapCreated: (controller) {
-                          mapController = controller;
-                          controller.setMapStyle(_darkMapStyle);
-                        },
-
-                        markers: {
-                          Marker(
-                            markerId: const MarkerId("selected"),
-                            position: currentLatLng!,
-                          ),
-                        },
-
-                        onTap: (latLng) async {
-                          await _updateLocationFromLatLng(latLng);
-                        },
-                      ),
-
-                    ),
-                  ),
-                ),
-
-              SizedBox(height:22),
-
-              /// 🎨 SKILLS
-              CustomDropdownField(
-                label: "Working Distance",
-                value: selectedSkill.isEmpty ? null : selectedSkill,
-                items: distanceList,
-                onChanged: (val) {
-                  setState(() {
-                    selectedSkill = val!;
-                  });
-                },
-              ),
-
-              const SizedBox(height: 22),
-              CustomTextField(
-                isPassword: true,
-                label: "Change Password*",
-                controller: changepasswordcontroller,
-                  suffixIcon: GestureDetector(
-                        onTap: () {
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>ChangePasswordScreen(),
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SvgPicture.asset(
-                            "assets/svg/newnew.svg",
-
-                            colorFilter: const ColorFilter.mode(
-                              ColorCode.kWhiteOpacity70,
-                              BlendMode.srcIn,
-                            ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        suffixIcon: Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Icon(
+                            Icons.location_on_outlined,
+                            color: ColorCode.kWhiteOpacity70,
                           ),
                         ),
                       ),
-              ),
+                      getPlaceDetailWithLatLng: (prediction) async {
+                        final latLng = LatLng(
+                          double.parse(prediction.lat!),
+                          double.parse(prediction.lng!),
+                        );
 
-            ],
+                        _locationFocus.unfocus();
+
+                        final result = await LocationService.updateLocation(latLng);
+
+                        setState(() {
+                          currentLatLng = result["latLng"];
+                          selectedAddress = prediction.description ?? "";
+                          showMap = true;
+                        });
+
+                        searchController.text = result["address"];
+
+                        setState(() {
+                          currentLatLng = latLng;
+                          selectedAddress = prediction.description ?? "";
+                          showMap = true;
+                        });
+
+                        searchController.text = selectedAddress;
+                        searchController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: searchController.text.length),
+                        );
+
+                        mapController?.animateCamera(
+                          CameraUpdate.newLatLngZoom(latLng, 14),
+                        );
+                      },
+
+
+                      itemClick: (prediction) {
+                        searchController.text = prediction.description ?? "";
+                        searchController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: searchController.text.length),
+                        );
+                      },
+
+                      isCrossBtnShown: true,
+                    ),
+                  ),
+
+
+
+
+                  SizedBox(height: 20),
+
+                  /// 🗺️ MAP WITH FIXED HEIGHT
+                  if (showMap)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: SizedBox(
+                        height: 280,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: currentLatLng == null
+                              ? const Center(child: CircularProgressIndicator())
+                              :GoogleMap(
+                            initialCameraPosition: CameraPosition(
+                              target: currentLatLng!,
+                              zoom: 14,
+                            ),
+
+                            myLocationEnabled: true,
+                            myLocationButtonEnabled: true,
+                            zoomControlsEnabled: true,
+                            compassEnabled: false,
+
+                            // 🔥 IMPORTANT FIX (touch enable)
+                            gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+                              Factory<OneSequenceGestureRecognizer>(
+                                    () => EagerGestureRecognizer(),
+                              ),
+                            },
+
+                            onMapCreated: (controller) {
+                              mapController = controller;
+                              controller.setMapStyle(_darkMapStyle);
+                            },
+
+                            markers: {
+                              Marker(
+                                markerId: const MarkerId("selected"),
+                                position: currentLatLng!,
+                              ),
+                            },
+
+                              onTap: (latLng) async {
+                                final result = await LocationService.updateLocation(latLng);
+
+                                setState(() {
+                                  currentLatLng = result["latLng"];
+                                  searchController.text = result["address"];
+                                });
+
+                            },
+                          ),
+
+                        ),
+                      ),
+                    ),
+
+                  SizedBox(height:22),
+
+                  /// 🎨 SKILLS
+                  CustomDropdownField(
+                    label: "Working Distance",
+                    value: distanceList.contains(selectedSkill) ? selectedSkill : null,
+                    items: distanceList,
+                    onChanged: (val) {
+                      setState(() {
+                        selectedSkill = val!;
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 22),
+                  CustomTextField(
+                    isPassword: true,
+                    label: "Change Password*",
+                    controller: changepasswordcontroller,
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>ChangePasswordScreen(),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SvgPicture.asset(
+                          "assets/svg/newnew.svg",
+
+                          colorFilter: const ColorFilter.mode(
+                            ColorCode.kWhiteOpacity70,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
           ),
-        ),
+
+        ],
+
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(20),
@@ -611,6 +665,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
               ),
             ),
             onPressed: () {
+              print("🔥 SAVE CLICKED");
               updateProfile();
             },
             child: const Text(
