@@ -5,11 +5,14 @@ class CrewFile {
   final String fileType;
   final String filePath;
   final String tag;
+  final String title;
+
 
   CrewFile({
     required this.fileType,
     required this.filePath,
     required this.tag, required this.crewFilesId,
+    required this.title,
   });
 
   factory CrewFile.fromJson(Map<String, dynamic> json) => CrewFile(
@@ -17,6 +20,7 @@ class CrewFile {
     fileType: json["file_type"] ?? "",
     filePath: json["file_path"] ?? "",
     tag: json["tag"] ?? "",
+    title: json["title"] ?? "",
   );
 }
 class Myprofilemodel {

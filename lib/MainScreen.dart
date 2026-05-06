@@ -1,285 +1,6 @@
-//
-// import 'package:flutter/material.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
-// import 'FileManager/file_manager_screen.dart';
-// import 'ManageAvailability/manage_availability_screen.dart';
-// import 'Messages/messages_screen.dart';
-// import 'Shoots/shoots_screen.dart';
-// import 'utility/ColorCode.dart';
-// import 'Home/home_screen.dart';
-//
-// class Mainscreen extends StatefulWidget {
-//   const Mainscreen({super.key});
-//
-//   @override
-//   State<Mainscreen> createState() => _MainscreenState();
-// }
-//
-// class _MainscreenState extends State<Mainscreen> {
-//   int _selectedIndex = 0;
-//   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-//
-//   final List<Widget> _pages = const [
-//     HomeScreen(),          // 0
-//     ShootsScreen(),        // 1
-//     FileManagerScreen(),   // 2
-//     MessagesScreen(),                   // 3
-//     // ManageAvailabilityScreen(),
-//   ];
-//   void _onItemTapped(int index) {
-//     setState(() {
-//       _selectedIndex = index;
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       key: _scaffoldKey,
-//       backgroundColor: ColorCode.backgroundColor,
-//       drawer: _buildDrawer(),
-//
-//       body: _pages[_selectedIndex],
-//
-//
-//       bottomNavigationBar: _buildBottomBar(),
-//     );
-//   }
-//
-//   Widget _buildBottomBar() {
-//     return BottomNavigationBar(
-//       currentIndex: _selectedIndex,
-//       // currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
-//       backgroundColor: ColorCode.backgroundColor,
-//       type: BottomNavigationBarType.fixed,
-//       selectedItemColor: Colors.white,
-//       unselectedItemColor: ColorCode.kWhiteOpacity70,
-//       onTap: _onItemTapped,
-//       items: [
-//         BottomNavigationBarItem(
-//           icon: SvgPicture.asset(
-//             _selectedIndex == 0
-//                 ? "assets/Active/Dashboard.svg"
-//                 : "assets/NonActive/dashboard-square-02.svg",
-//             height: 26,
-//             colorFilter: ColorFilter.mode(
-//               _selectedIndex == 0
-//                   ? Colors.white
-//                   : ColorCode.kWhiteOpacity70,
-//               BlendMode.srcIn,
-//             ),
-//           ),
-//           label: "Dashboard",
-//         ),
-//
-//         BottomNavigationBarItem(
-//           icon: SvgPicture.asset(
-//             _selectedIndex == 1
-//                 ? "assets/Active/Shoots.svg"
-//                 : "assets/NonActive/Shoots(1).svg",
-//             height: 26,
-//             colorFilter: ColorFilter.mode(
-//               _selectedIndex == 1
-//                   ? Colors.white
-//                   : ColorCode.kWhiteOpacity70,
-//               BlendMode.srcIn,
-//             ),
-//           ),
-//           label: "Shoots",
-//         ),
-//
-//         BottomNavigationBarItem(
-//           icon: SvgPicture.asset(
-//             _selectedIndex == 2
-//                 ? "assets/Active/FileManager.svg"
-//                 : "assets/NonActive/FileManager(1).svg",
-//             height: 26,
-//             colorFilter: ColorFilter.mode(
-//               _selectedIndex == 2  // ✅ FIXED
-//               ? Colors.white
-//                 : ColorCode.kWhiteOpacity70,
-//             BlendMode.srcIn,
-//             ),
-//           ),
-//           label: "File Manager",
-//         ),
-//
-//         BottomNavigationBarItem(
-//           icon: SvgPicture.asset(
-//             _selectedIndex == 3
-//                 ? "assets/Active/Messages.svg"
-//                 : "assets/NonActive/Messages (1).svg",
-//             height: 28,
-//           ),
-//           label: "Messages",
-//         ),
-//       ],
-//     );
-//   }
-//   Widget _buildDrawer() {
-//     return Drawer(
-//       backgroundColor: const Color(0xFF111111),
-//       child: SafeArea(
-//         child: Column(
-//           children: [
-//
-//             /// TOP SECTION
-//             Padding(
-//               padding: const EdgeInsets.all(20),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//
-//                   /// LOGO + CLOSE
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     children: [
-//                       /// BELL
-//                       Image.asset(
-//                         "assets/home/Group.png",
-//
-//                       ),
-//                       IconButton(
-//                         icon: const Icon(Icons.close, color: Colors.white),
-//                         onPressed: () {
-//                           Navigator.pop(context);
-//                         },
-//                       )
-//                     ],
-//                   ),
-//
-//                   const SizedBox(height: 20),
-//
-//                   /// PROFILE CARD
-//                   Container(
-//                     padding: const EdgeInsets.all(12),
-//                     decoration: BoxDecoration(
-//                       color: const Color(0xFFD6B98C),
-//                       borderRadius: BorderRadius.circular(16),
-//                     ),
-//                     child: Row(
-//                       children: [
-//
-//                         const CircleAvatar(
-//                           radius: 25,
-//                           backgroundImage:
-//                           AssetImage("assets/home/Vector.png"), // add image
-//                         ),
-//
-//                         const SizedBox(width: 12),
-//
-//                         Expanded(
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: const [
-//                               Text(
-//                                 "Priya Smith",
-//                                 style: TextStyle(
-//                                     fontWeight: FontWeight.bold,
-//                                     fontSize: 16,
-//                                     fontFamily: "Outfit",
-//                                     color: ColorCode.black
-//                                 ),
-//                               ),
-//                               SizedBox(height: 4),
-//                               Text(
-//                                 "priyasmith@gmail.com",
-//                                 style: TextStyle(fontSize: 12,
-//                                     fontFamily: "Outfit",
-//                                     fontWeight: FontWeight.w500,
-//                                     color: ColorCode.black
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//
-//                         const Icon(Icons.arrow_forward_ios, size: 16)
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//
-//             const Divider(color: Colors.grey),
-//
-//             /// MENU ITEMS
-//             Expanded(
-//               child: ListView(
-//                 children: [
-//                   _drawerBottomNavItem("Dashboard", Icons.dashboard, 0),
-//                   _drawerBottomNavItem("Shoots", Icons.camera_alt, 1),
-//                   _drawerBottomNavItem("File Manager", Icons.folder, 2),
-//                   _drawerBottomNavItem("Messages", Icons.message, 3),
-//
-//               /*    _drawerBottomNavItem(
-//                     "Manage Availability",
-//                     Icons.calendar_month,
-//                     4,
-//                   ),*/
-//
-//                   _drawerPushItem(
-//                     "Manage Availability",
-//                     Icons.calendar_month,
-//                     const ManageAvailabilityScreen(),
-//                   ),
-//
-//
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-//
-//   /// 🔥 Drawer Item Method
-//   /// 🔥 Bottom Nav Type Item
-//   Widget _drawerBottomNavItem(String title, IconData icon, int index) {
-//     return ListTile(
-//       leading: Icon(icon, color: Colors.white70, size: 20),
-//       title: Text(
-//         title,
-//         style: const TextStyle(
-//           color: Colors.white,
-//           fontFamily: "Outfit",
-//           fontWeight: FontWeight.w500,
-//         ),
-//       ),
-//       onTap: () {
-//         setState(() {
-//           _selectedIndex = index;
-//         });
-//         Navigator.pop(context);
-//       },
-//     );
-//   }
-//
-//   /// 🔥 Push New Screen Item
-//   Widget _drawerPushItem(String title, IconData icon, Widget screen) {
-//     return ListTile(
-//       leading: Icon(icon, color: Colors.white70, size: 20),
-//       title: Text(
-//         title,
-//         style: const TextStyle(
-//           color: Colors.white,
-//           fontFamily: "Outfit",
-//           fontWeight: FontWeight.w500,
-//         ),
-//       ),
-//       onTap: () {
-//         Navigator.pop(context);
-//         Navigator.push(
-//           context,
-//           MaterialPageRoute(builder: (_) => screen),
-//         );
-//       },
-//     );
-//   }
-// }
 
+
+import 'dart:ui';
 
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
@@ -312,14 +33,14 @@ bool isloading = true;
 int _selectedIndex = 0;
 
 Data? Myprofile_user;
-final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+// final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 @override
   void initState() {
     super.initState();
     fetchprofiledata();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+   /* WidgetsBinding.instance.addPostFrameCallback((_) {
       _scaffoldKey.currentState?.openDrawer();
-    });
+    });*/
   }
 
 Future<void> fetchprofiledata() async {
@@ -381,10 +102,9 @@ Future<void> fetchprofiledata() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: ColorCode.backgroundColor,
       drawer: _buildDrawer(),
-      drawerEnableOpenDragGesture: true,
+      // drawerEnableOpenDragGesture: true,
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
 
       /// 🔥 IndexedStack = state safe
@@ -398,65 +118,75 @@ Future<void> fetchprofiledata() async {
     );
   }
 
-  // ================================
-  // 🔥 Bottom Navigation
-  // ================================
+  // ================================ Bottom Navigation ================================
+
+  //
 
   Widget _buildBottomBar() {
-    return BottomNavigationBar(
-      // currentIndex: _selectedIndex,
-      currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
-      backgroundColor: ColorCode.backgroundColor,
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.white,
-      unselectedItemColor: ColorCode.kWhiteOpacity70,
-      onTap: _onItemTapped,
-      items: [
-        BottomNavigationBarItem(
-          icon: _navIcon(
-            "assets/Active/Dashboard.svg",
-            "assets/NonActive/dashboard-square-02.svg",
-            0,
-          ),
-          label: "Dashboard",
+    return ClipRect(
+
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 80, sigmaY: 70),
+        child: BottomNavigationBar(
+          // currentIndex: _selectedIndex,
+          currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
+
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: ColorCode.white,
+          unselectedItemColor: ColorCode.kWhiteOpacity70,
+
+          onTap: _onItemTapped,
+          items: [
+            BottomNavigationBarItem(
+              icon: _navIcon(
+                "assets/Active/Dashboard.svg",
+                "assets/NonActive/dashboard-square-02.svg",
+                0,
+              ),
+              label: "Dashboard",
+            ),
+            BottomNavigationBarItem(
+              icon: _navIcon(
+                "assets/Active/Shoots.svg",
+                "assets/NonActive/Shoots(1).svg",
+                1,
+              ),
+              label: "Shoots",
+            ),
+            BottomNavigationBarItem(
+              icon: _navIcon(
+                "assets/Active/FileManager.svg",
+                "assets/NonActive/FileManager(1).svg",
+                2,
+              ),
+              label: "File Manager",
+            ),
+            BottomNavigationBarItem(
+              icon: _navIcon(
+                "assets/Active/Messages.svg",
+                "assets/NonActive/Messages (1).svg",
+                3,
+              ),
+              label: "Messages",
+            ),
+          ],
         ),
-        BottomNavigationBarItem(
-          icon: _navIcon(
-            "assets/Active/Shoots.svg",
-            "assets/NonActive/Shoots(1).svg",
-            1,
-          ),
-          label: "Shoots",
-        ),
-        BottomNavigationBarItem(
-          icon: _navIcon(
-            "assets/Active/FileManager.svg",
-            "assets/NonActive/FileManager(1).svg",
-            2,
-          ),
-          label: "File Manager",
-        ),
-        BottomNavigationBarItem(
-          icon: _navIcon(
-            "assets/Active/Messages.svg",
-            "assets/NonActive/Messages (1).svg",
-            3,
-          ),
-          label: "Messages",
-        ),
-      ],
+      ),
     );
   }
 
   Widget _navIcon(String active, String inactive, int index) {
     return SvgPicture.asset(
       _selectedIndex == index ? active : inactive,
-      height: 26,
+      height: 24,
+      width: 24,
+      fit: BoxFit.contain,
       colorFilter: ColorFilter.mode(
         _selectedIndex == index
-            ? Colors.white
+            ? ColorCode.white
             : ColorCode.kWhiteOpacity70,
         BlendMode.srcIn,
+
       ),
     );
   }
@@ -633,7 +363,9 @@ Future<void> fetchprofiledata() async {
     return ListTile(
       leading: SvgPicture.asset(
         _selectedIndex == index ? activeIcon : inactiveIcon,
-        height: 22,
+        height: 24,
+        width: 24,
+        fit: BoxFit.contain,
         colorFilter: ColorFilter.mode(
           _selectedIndex == index
               ? Colors.white

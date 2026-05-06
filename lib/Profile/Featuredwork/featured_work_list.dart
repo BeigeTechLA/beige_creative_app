@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:dio/dio.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
@@ -29,8 +30,9 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
   List<File> tempFeaturedImages = [];
   List<String> selectedTags = [];
   List<File> featuredImages = [];
-
-bool isloading =true;
+  List<dynamic> editingImages = [];
+  bool isEditMode = false;
+  bool isloading =true;
   final enter_work_titleController=TextEditingController();
   List<Map<String, dynamic>> featuredWorks = [];
   File? selectedImage;
@@ -110,23 +112,32 @@ bool isloading =true;
       return;
     }
 
+    // ✅ PAYLOAD DEBUG
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    print("📦 PAYLOAD:");
+    print("   🔹 title   => ${enter_work_titleController.text.trim()}");
+    print("   🔹 tag     => ${jsonEncode(selectedTags)}");
+    print("   🔹 files[] => ${featuredImages.length} image(s) — but passing only 1 (featuredImages.first)");
+    print("   🔹 file[0] => ${featuredImages.first.path.split('/').last}");
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
     setState(() => isloading = true);
 
     try {
-      final response = await ApiService().postMultipartData(
+      final response = await ApiService().postMultipartDataMultiple(
         ApiEndpoints.upload_recent_work,
         {
           "title": enter_work_titleController.text.trim(),
           "tag": jsonEncode(selectedTags),
         },
-        featuredImages.first, // ✅ pehle file pass karo
+        featuredImages,
       );
 
       debugPrint("📥 RESPONSE => $response");
 
       if (response != null && response['error'] == false) {
         print("✅ Upload Success");
-        _showSnack("Upload Success");
+        // _showSnack("Upload Success");
 
         featuredImages.clear();
         tempFeaturedImages.clear();
@@ -146,6 +157,45 @@ bool isloading =true;
       _showSnack("Something went wrong");
     } finally {
       setState(() => isloading = false);
+    }
+  }
+  Future<void> deleteData(int id) async {
+    try {
+      setState(() {
+        isloading = true;
+      });
+
+      print("🗑 DELETE ID => $id");
+
+      final response = await ApiService().deleteData(
+        "${ApiEndpoints.delete_allfiles}/$id",
+      );
+
+      print("📥 DELETE RESPONSE => $response");
+
+      if (response != null && response["error"] == false) {
+
+        // _showSnack(response["message"] ?? "Deleted Successfully");
+
+        /// refresh api
+        await fetchprofiledata();
+
+      } else {
+
+        _showSnack(response["message"] ?? "Delete Failed");
+      }
+
+    } catch (e) {
+
+      print("❌ DELETE ERROR => $e");
+
+      _showSnack("Something went wrong");
+
+    } finally {
+
+      setState(() {
+        isloading = false;
+      });
     }
   }
 
@@ -171,231 +221,333 @@ bool isloading =true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            children: [
-          Row(
-            children: [
-              InkWell(
-          onTap: () => Navigator.pop(context),
-          child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.white,),
-              ),
-            ],
-          ),
-              SizedBox(height: 10,),
-              Row(
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
                 children: [
-                 Text("Featured work",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
-                ],
-              ),
-              SizedBox(height: 10,),
-              Row(
-                children: [
-
-                  Expanded(
-                    child: Container(
-                      height: 45,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2A2A2A),
-                        borderRadius: BorderRadius.circular(12),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.white,),
                       ),
-
-                      child: TextField(
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: "Search",
-                          hintStyle: const TextStyle(color: Colors.white54),
-                          prefixIcon: const Icon(Icons.search, color: Colors.white54),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
+                    ],
                   ),
+                  SizedBox(height: 10,),
+                  Row(
+                    children: [
+                      Text("Featured work",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
+                    ],
+                  ),
+                  SizedBox(height: 10,),
+              /*    Row(
+                    children: [
 
-                  const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          height: 45,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2A2A2A),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
 
-                  /// FILTER BUTTON
-                  Container(
-                    height: 45,
-                    width: 45,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2A2A2A),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.tune, color: Colors.white),
-                  )
-                ],
-              ),
-              SizedBox(height: 10,),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListView.builder(
-                    itemCount: Myprofile_user?.featuredWorkFiles.length ?? 0,
-
-                    itemBuilder: (context, index) {
-                      final featuredWorkdata = Myprofile_user!.featuredWorkFiles[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        height: 250,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: Stack(
-                            children: [
-
-                              /// ✅ IMAGE OR PLACEHOLDER
-                              Positioned.fill(
-                                child: (featuredWorkdata.filePath.isNotEmpty)
-                                    ? Image.network(
-                                  "${ApiService.imageURL}${featuredWorkdata.filePath}",
-                                  fit: BoxFit.cover,
-
-                                  /// 🔥 LOADING
-                                  loadingBuilder: (context, child, progress) {
-                                    if (progress == null) return child;
-                                    return const Center(child: CircularProgressIndicator());
-                                  },
-
-                                  /// 🔥 ERROR HANDLE (IMPORTANT)
-                                  errorBuilder: (context, error, stackTrace) {
-                                    print("❌ IMAGE LOAD ERROR 👉 $error");
-                                    print("❌ URL 👉 ${ApiService.imageURL}${featuredWorkdata.filePath}");
-
-                                    return Center(
-                                      child: SvgPicture.asset(
-                                        AppImages.image_holder,
-                                      ),
-                                    );
-                                  },
-                                )
-                                    : Center(
-                                  child: SvgPicture.asset(
-                                    AppImages.image_holder,
-                                  ),
-                                ),
-                              ),
-
-                              Stack(
-                                children: [
-
-                                  Positioned(
-                                    top: 10,
-                                    right: 10,
-                                    child: Row(
-                                      children: [
-
-                                        Container(
-                                          padding: EdgeInsets.all(12),
-                                          decoration: const BoxDecoration(
-                                            color: ColorCode.grey,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Image(
-                                            image: AssetImage("assets/icons/edit.png"),
-                                            color: ColorCode.white,
-                                          ),
-                                        ),
-
-                                        const SizedBox(width: 8),
-
-                                        Container(
-                                          padding: EdgeInsets.all(12),
-                                          decoration: const BoxDecoration(
-                                            color: ColorCode.grey,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Image(
-                                            image: AssetImage("assets/icons/delete.png"),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  Positioned(
-                                    bottom: 15,
-                                    left: 15,
-                                    right: 15,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-
-                                        Text(
-                                          featuredWorkdata.fileType,
-                                          style: const TextStyle(
-                                            fontFamily: "Outfit",
-                                            color: ColorCode.white,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-
-                                        const SizedBox(height: 6),
-
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: ColorCode.white,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            featuredWorkdata.tag.isNotEmpty
-                                                ? featuredWorkdata.tag
-                                                : "No Tag",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: "Outfit",
-                                              color: ColorCode.black,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              )
-                            ],
+                          child: TextField(
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: "Search",
+                              hintStyle: const TextStyle(color: Colors.white54),
+                              prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                              border: InputBorder.none,
+                            ),
                           ),
                         ),
-                      );
-                  },),
-                ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
+                      ),
 
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorCode.kButtonColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      const SizedBox(width: 10),
+
+                      /// FILTER BUTTON
+                      Container(
+                        height: 45,
+                        width: 45,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2A2A2A),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.tune, color: Colors.white),
+                      )
+                    ],
+                  ),*/
+                  SizedBox(height: 10,),
+                  Expanded(
+                    child: Builder(
+                      builder: (context) {
+
+                        if (Myprofile_user == null ||
+                            Myprofile_user!.featuredWorkFiles.isEmpty) {
+
+                          return const Center(
+                            child: Text(
+                              "No Featured Work",
+                              style: TextStyle(
+                                color: Colors.white54,
+                              ),
+                            ),
+                          );
+                        }
+
+                        /// ✅ GROUP BY TITLE
+                        Map<String, List<dynamic>> groupedData = {};
+
+                        for (var item in Myprofile_user!.featuredWorkFiles) {
+
+                          String title = item.title ?? "Untitled";
+
+                          if (!groupedData.containsKey(title)) {
+                            groupedData[title] = [];
+                          }
+
+                          groupedData[title]!.add(item);
+                        }
+
+                        return SingleChildScrollView(
+                          child: Column(
+                            children: groupedData.entries.map((entry) {
+
+                              String title = entry.key;
+                              List<dynamic> images = entry.value;
+
+                              return Container(
+                                // margin: const EdgeInsets.only(bottom: 25),
+
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+
+
+                                    /// ✅ HORIZONTAL IMAGE ROW
+                                    Container(
+                                      height: 250,
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.all(12),
+
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF1F1F1F),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+
+                                      child: Stack(
+                                        children: [
+
+                                          /// HORIZONTAL IMAGE SCROLL
+                                          ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: images.length,
+
+                                            itemBuilder: (context, index) {
+
+                                              final imageData = images[index];
+
+                                              return Container(
+                                                width: 320,
+                                                margin: const EdgeInsets.only(right: 12),
+
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(18),
+
+                                                  child: Image.network(
+                                                    "${ApiService.imageURL}${imageData.filePath}",
+                                                    fit: BoxFit.cover,
+
+                                                    errorBuilder: (context, error, stackTrace) {
+                                                      return Container(
+                                                        color: Colors.grey.shade300,
+                                                        child: const Icon(Icons.image),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+
+                                          /// TOP RIGHT ICONS
+                                          Positioned(
+                                            top: 10,
+                                            right: 10,
+
+                                            child: Row(
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () {
+
+                                                    setState(() {
+
+                                                      isEditMode = true;
+
+                                                      /// ✅ TITLE
+                                                      enter_work_titleController.text =
+                                                          title;
+
+                                                      /// ✅ OLD NETWORK IMAGES
+                                                      editingImages =
+                                                          List.from(images);
+
+                                                      /// ✅ CLEAR NEW IMAGES
+                                                      tempFeaturedImages.clear();
+                                                    });
+
+                                                    _featuredSheet();
+                                                  },
+
+                                                  child: Container(
+                                                    padding: const EdgeInsets.all(8),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black.withOpacity(0.5),
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.edit,
+                                                      color: Colors.white,
+                                                      size: 18,
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                const SizedBox(width: 8),
+
+                                                Container(
+                                                  padding: const EdgeInsets.all(8),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black.withOpacity(0.5),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: GestureDetector(
+                                                    onTap: () async {
+                                                      /// FIRST IMAGE ID
+                                                      final imageData = images.first;
+
+                                                      await deleteData(imageData.crewFilesId);
+
+                                                    },
+                                                    child: const Icon(
+                                                      Icons.delete,
+                                                      color: Colors.white,
+                                                      size: 18,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+
+                                          /// BOTTOM TITLE
+                                          Positioned(
+                                            left: 15,
+                                            bottom: 15,
+
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+
+                                                Text(
+                                                  title,
+                                                  style: const TextStyle(
+                                                    color: ColorCode.white,
+                                                    fontSize: 18,
+                                                    fontFamily: "Outfit",
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+
+                                                const SizedBox(height: 8),
+
+
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      },
                     ),
                   ),
+                 /* SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
 
-                  onPressed: () {
-                    _featuredSheet();
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorCode.kButtonColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
 
-                  },
+                      onPressed: () {
+                        _featuredSheet();
 
-                  child: const Text(
-                    "Add Featured Works",
-                    style: TextStyle(
-                      fontFamily: "Unbounded",
-                      fontWeight: FontWeight.w500,
-                      color: ColorCode.black,
+                      },
+
+                      child: const Text(
+                        "Add Featured Works",
+                        style: TextStyle(
+                          fontFamily: "Unbounded",
+                          fontWeight: FontWeight.w500,
+                          color: ColorCode.black,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                  ),*/
+                ],
               ),
-            ],
+            ),
+          ),
+
+
+          if(isloading)
+            AppLoader()
+        ],
+
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(15),
+
+        child: SizedBox(
+          width: double.infinity,
+          height: 50,
+
+          child: ElevatedButton(
+
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorCode.kButtonColor,
+
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+
+            onPressed: () {
+
+              _featuredSheet();
+            },
+
+            child: const Text(
+              "Add Featured Works",
+              style: TextStyle(
+                fontFamily: "Unbounded",
+                fontWeight: FontWeight.w500,
+                color: ColorCode.black,
+              ),
+            ),
           ),
         ),
       ),
@@ -859,215 +1011,288 @@ bool isloading =true;
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+
+            /// ✅ TOTAL IMAGE COUNT
+            int totalImages =
+                editingImages.length + tempFeaturedImages.length;
+
             return Container(
               padding: const EdgeInsets.all(20),
-              decoration:  BoxDecoration(
+              decoration: BoxDecoration(
                 color: ColorCode.backgroundColor,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius:
+                const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
               ),
+
               child: SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
                   children: [
 
-                    /// 🔘 TOP DRAG INDICATOR
+                    /// 🔘 TOP BAR
                     Center(
                       child: Container(
                         height: 4,
                         width: 40,
-                        margin:  EdgeInsets.only(bottom: 12),
+                        margin:
+                        const EdgeInsets.only(
+                            bottom: 12),
                         decoration: BoxDecoration(
                           color: Colors.white24,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius:
+                          BorderRadius.circular(4),
                         ),
                       ),
                     ),
 
                     /// 🟢 HEADER
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+
+                        const Text(
                           "Featured Work",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                            fontFamily: "Unbounded ",
+                            fontFamily: "Unbounded",
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+
                         IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon:  Icon(Icons.close, color: Colors.white),
-                        )
+                          onPressed: () {
+
+                            Navigator.pop(context);
+                          },
+
+                          icon: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                          ),
+                        ),
                       ],
                     ),
 
-                    Text(
-                      "For best results, use a PNG, JPG, Video or\nGIF image etc.",
+                    const Text(
+                      "For best results, use PNG, JPG or GIF.",
                       style: TextStyle(
-                          color: ColorCode.kWhiteOpacity70,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Outfit"
-
+                        color: ColorCode.kWhiteOpacity70,
+                        fontSize: 14,
+                        fontFamily: "Outfit",
                       ),
                     ),
 
-                    SizedBox(height: 16),
-                    Divider(color: ColorCode.kDividerWhite12),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
-                    /// ✏️ WORK TITLE
+                    Divider(
+                      color: ColorCode.kDividerWhite12,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// ✏️ TITLE
                     CustomTextField(
                       label: "Enter Work Title*",
-                      controller: enter_work_titleController,
+                      controller:
+                      enter_work_titleController,
                     ),
-                    SizedBox(height: 16),
 
+                    const SizedBox(height: 16),
 
+                    /// ✅ IMAGE SECTION
+                    DottedBorder(
+                      options:
+                      RoundedRectDottedBorderOptions(
+                        radius:
+                        const Radius.circular(16),
+                        color: Colors.white24,
+                        strokeWidth: 1,
+                        dashPattern: [4, 4],
+                      ),
 
-                    GestureDetector(
-                      /*  onTap: () async {
-                        if (tempFeaturedImages.length >= 5) {
-                          _showSnack("Maximum 5 images allowed");
-                          return;
-                        }
-                        final file = await CommonUploader.pickFromGallery();
+                      child: Container(
+                        width: double.infinity,
+                        padding:
+                        const EdgeInsets.all(16),
 
-                        if (file != null) {
-                          setModalState(() {
-                            tempFeaturedImages.add(file);
-                          });
-                        }
-                      },*/
-                      onTap: () async {
-                        final file = await CommonUploader.pickFromGallery();
-
-                        if (file != null) {
-                          setModalState(() {
-                            tempFeaturedImages.add(file);
-                          });
-                        }
-                      },
-                      child: DottedBorder(
-                        options: RoundedRectDottedBorderOptions(
-                          radius: const Radius.circular(16),
-                          color: Colors.white24,
-                          strokeWidth: 1,
-                          dashPattern: [4, 4],
+                        decoration: BoxDecoration(
+                          borderRadius:
+                          BorderRadius.circular(16),
                         ),
-                        child: Container(
-                          height: 190,
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            //    color: const Color(0xFF1E1E1E),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: tempFeaturedImages.isEmpty
-                              ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.upload, color: Colors.white, size: 28),
-                              SizedBox(height: 10),
-                              Text(
-                                "Upload new image, video, or browse",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: "Outfit",
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                        child: totalImages == 0
+                            ? GestureDetector(
+                          onTap: () async {
+
+                            final file =
+                            await CommonUploader.pickFromGallery();
+
+                            if (file != null) {
+
+                              setModalState(() {
+
+                                tempFeaturedImages.add(file);
+                              });
+                            }
+                          },
+
+                          child: SizedBox(
+                            height: 220,
+                            width: double.infinity,
+
+                            child: Column(
+                              mainAxisAlignment:
+                              MainAxisAlignment.center,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.center,
+                              children: [
+
+                                SvgPicture.asset(
+                                  AppImages.Upload, //  your svg path
+                                  color: ColorCode.white,
+                                  width: 24,
+                                  height: 24,
                                 ),
-                              ),
-                            ],
-                          )
-                              : SizedBox(
-                            height: 300, // ✅ 🔥 height increase after image add
-                            child: GridView.builder(
-                              shrinkWrap: true,
-                              physics: const BouncingScrollPhysics(),
-                              itemCount: tempFeaturedImages.length + 1,
-                              gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 10,
-                                childAspectRatio: 1,
-                              ),
-                              itemBuilder: (context, index) {
-                                /// ➕ ADD BUTTON (always last)
-                                if (index == tempFeaturedImages.length) {
-                                  return GestureDetector(
 
-                                    /*  onTap: () async {
-                                      if (tempFeaturedImages.length >= 5) {
-                                        _showSnack("Maximum 5 images allowed");
-                                        return;
-                                      }
-                                      final file =
-                                      await CommonUploader.pickFromGallery();
+                                const SizedBox(height: 18),
 
-                                      if (file != null) {
-                                        setModalState(() {
-                                          tempFeaturedImages.add(file);
-                                        });
-                                      }
-                                    },*/
-                                    onTap: () async {
-                                      final file = await CommonUploader.pickFromGallery();
+                                const Text(
+                                  "Upload New Image, Video,Or Browse",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: "Outfit",
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
 
-                                      if (file != null) {
-                                        setModalState(() {
-                                          tempFeaturedImages.add(file);
-                                        });
-                                      }
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: Colors.white24),
-                                      ),
-                                      child: const Center(
-                                        child: Icon(Icons.add,
-                                            color: Colors.white, size: 28),
+                                const SizedBox(height: 10),
+
+                                const Text(
+                                  "Choose a file in a 4:3, 5:4, 9:16,\nor 16:9 aspect ratio.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: "Outfit",
+                                    color: Colors.white70,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+
+                        /// ✅ GRID
+                            : SizedBox(
+                          height: 320,
+
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics: const BouncingScrollPhysics(),
+
+                            /// ✅ UNLIMITED IMAGES
+                            itemCount: totalImages + 1,
+
+                            gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 1,
+                            ),
+
+                            itemBuilder: (context, index) {
+
+                              /// ➕ ADD BUTTON
+                              if (index == totalImages) {
+
+                                return GestureDetector(
+                                  onTap: () async {
+
+                                    final file =
+                                    await CommonUploader
+                                        .pickFromGallery();
+
+                                    if (file != null) {
+
+                                      setModalState(() {
+
+                                        /// ✅ ADD IMAGE
+                                        tempFeaturedImages.add(file);
+                                      });
+                                    }
+                                  },
+
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                      BorderRadius.circular(12),
+
+                                      border: Border.all(
+                                        color: Colors.white24,
                                       ),
                                     ),
-                                  );
-                                }
 
-                                /// 🖼 IMAGE (NO REMOVE ICON)
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 28,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              /// ✅ NETWORK IMAGE
+                              if (index < editingImages.length) {
+
+                                final image =
+                                editingImages[index];
+
                                 return Stack(
                                   children: [
-                                    /// 🖼 IMAGE
+
                                     ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.file(
-                                        tempFeaturedImages[index],
+                                      borderRadius:
+                                      BorderRadius.circular(12),
+
+                                      child: Image.network(
+                                        "${ApiService.imageURL}${image.filePath}",
                                         fit: BoxFit.cover,
                                         width: double.infinity,
                                         height: double.infinity,
                                       ),
                                     ),
 
-                                    /// ❌ REMOVE ICON (BACK AGAIN)
                                     Positioned(
                                       top: 6,
                                       right: 6,
+
                                       child: GestureDetector(
                                         onTap: () {
+
                                           setModalState(() {
-                                            tempFeaturedImages.removeAt(index);
+
+                                            editingImages.removeAt(index);
                                           });
                                         },
+
                                         child: Container(
                                           height: 24,
                                           width: 24,
+
                                           decoration: BoxDecoration(
                                             color: Colors.black.withOpacity(0.7),
                                             shape: BoxShape.circle,
                                           ),
+
                                           child: const Icon(
                                             Icons.close,
                                             size: 14,
@@ -1078,165 +1303,157 @@ bool isloading =true;
                                     ),
                                   ],
                                 );
-                              },
-                            ),
+                              }
+
+                              /// ✅ LOCAL IMAGE
+                              final localIndex =
+                                  index - editingImages.length;
+
+                              return Stack(
+                                children: [
+
+                                  ClipRRect(
+                                    borderRadius:
+                                    BorderRadius.circular(12),
+
+                                    child: Image.file(
+                                      tempFeaturedImages[localIndex],
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                    ),
+                                  ),
+
+                                  Positioned(
+                                    top: 6,
+                                    right: 6,
+
+                                    child: GestureDetector(
+                                      onTap: () {
+
+                                        setModalState(() {
+
+                                          tempFeaturedImages
+                                              .removeAt(localIndex);
+                                        });
+                                      },
+
+                                      child: Container(
+                                        height: 24,
+                                        width: 24,
+
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.7),
+                                          shape: BoxShape.circle,
+                                        ),
+
+                                        child: const Icon(
+                                          Icons.close,
+                                          size: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ),
                       ),
                     ),
 
-                    SizedBox(height: 16),
+                    const SizedBox(height: 24),
 
-                    /*    /// 🏷️ TAG SECTION
-                    Row(
-                      children: [
-                        Expanded(                        // ✅ ADD Expanded
-                          child: GestureDetector(
-                            onTap: () => _openAddTagSheet(setModalState),
-                            child: Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                ...selectedTags.map((tag) {
-                                  return Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black,
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: Colors.white24),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(tag, style: const TextStyle(color: Colors.white, fontSize: 12)),
-                                        const SizedBox(width: 6),
-                                        GestureDetector(
-                                          onTap: () {
-                                            setModalState(() { selectedTags.remove(tag); });
-                                            setState(() { selectedTags.remove(tag); });
-                                          },
-                                          child: const Icon(Icons.close, size: 14, color: Colors.white70),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black26,
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: Colors.white24),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: const [
-                                      Icon(Icons.local_offer_outlined, size: 16, color: Colors.white),
-                                      SizedBox(width: 6),
-                                      Text("# Add Tags", style: TextStyle(color: Colors.white, fontSize: 13)),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),  // ✅ close Expanded
-                      ],
-                    ),*/
-
-
-                    SizedBox(height: 24),
-
-                    /// 💾 SAVE BUTTON (ONLY ENABLE WHEN EXACTLY 5 IMAGES)
+                    /// 💾 SAVE BUTTON
                     SizedBox(
                       width: double.infinity,
                       height: 48,
-                      child: Builder(
-                        builder: (context) {
-                          bool isValid = enter_work_titleController.text.trim().isNotEmpty &&
-                              tempFeaturedImages.length >= 5;
 
-                          return ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                              tempFeaturedImages.length >= 5
-                                  ? ColorCode.kButtonColor
-                                  : Colors.grey,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
+                      child: ElevatedButton(
 
-                           /* onPressed: () {
-                              if (!isValid) {
-                                _showSnack("Minimum 5 images required");
-                                return;
-                              }
+                        style:
+                        ElevatedButton.styleFrom(
+                          backgroundColor:
+                          totalImages >= 5
+                              ? ColorCode
+                              .kButtonColor
+                              : Colors.grey,
 
-                              setState(() {
-                                if (editingProjectIndex != null) {
-                                  /// 🔥 EDIT MODE
-                                  featuredProjects[editingProjectIndex!] =
-                                      List.from(tempFeaturedImages);
+                          shape:
+                          RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(
+                                14),
+                          ),
+                        ),
 
-                                  // title bhi update karo
-                                  if (editingProjectIndex! < featuredProjectsTitles.length) {
-                                    featuredProjectsTitles[editingProjectIndex!] =
-                                        enter_work_titleController.text.trim();
-                                  }
-                                } else {
-                                  /// ➕ ADD MODE
-                                  featuredProjects.add(List.from(tempFeaturedImages));
-                                  featuredProjectsTitles.add(
-                                      enter_work_titleController.text.trim());
-                                }
+                        onPressed: () async {
 
-                                /// 🔁 RESET
-                                tempFeaturedImages.clear();
-                                enter_work_titleController.clear();
-                                editingProjectIndex = null;
-                              });
+                          /// TITLE CHECK
+                          if (enter_work_titleController.text
+                              .trim()
+                              .isEmpty) {
 
-                              Navigator.pop(context);
-                            },*/
-                            onPressed: () async {
-                              print("🔥 SAVE CLICKED");
+                            _showSnack("Please enter title");
+                            return;
+                          }
 
-                              /// ❌ TITLE CHECK
-                              if (enter_work_titleController.text.trim().isEmpty) {
-                                _showSnack("Please enter title");
-                                return;
-                              }
+                          /// TOTAL IMAGES
+                          List<File> allImages =
+                          List.from(tempFeaturedImages);
 
-                              /// ❌ MIN 5 IMAGES CHECK
-                              if (tempFeaturedImages.length < 5) {
-                                _showSnack("Minimum 5 images required");
-                                return;
-                              }
+                          int totalImages =
+                              editingImages.length +
+                                  tempFeaturedImages.length;
 
-                              /// ✅ DATA SET
-                              featuredImages = List.from(tempFeaturedImages);
+                          if (totalImages < 5) {
 
-                              print("📸 Images Count => ${featuredImages.length}");
+                            _showSnack(
+                                "Minimum 5 images required");
 
-                              /// ✅ API CALL
-                              await _addrecentwork();
-                            },
-                            child: const Text(
-                              "Save",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          );
+                            return;
+                          }
+
+                          /// ✅ ONLY NEW IMAGES API
+                          featuredImages = allImages;
+
+                          /// ✅ API CALL
+                          if (featuredImages.isNotEmpty) {
+                            await _addrecentwork();
+                          }
+
+                          /// ✅ RESET
+                          setState(() {
+
+                            tempFeaturedImages.clear();
+
+                            editingImages.clear();
+
+                            isEditMode = false;
+
+                            /// ❌ TITLE CLEAR REMOVE
+                            // enter_work_titleController.clear();
+                          });
+
+                          Navigator.pop(context);
+
+                          /// ✅ REFRESH
+                          fetchprofiledata();
                         },
+
+                        child: const Text(
+                          "Save",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight:
+                            FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
 
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -1245,8 +1462,7 @@ bool isloading =true;
         );
       },
     );
-  }
-  void _openAddTagSheet(StateSetter setFeaturedModalState) {
+  }  void _openAddTagSheet(StateSetter setFeaturedModalState) {
     TextEditingController tagController = TextEditingController();
     List<String> tempTags = List.from(selectedTags);
 

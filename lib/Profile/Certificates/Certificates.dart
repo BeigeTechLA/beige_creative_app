@@ -105,7 +105,7 @@ class _CertificatesState extends State<Certificates> {
 
    Future<void> deleteData(int id) async {
      final response = await ApiService().deleteData(
-       "${ApiEndpoints.delete_certifications}/$id",
+       "${ApiEndpoints.delete_allfiles}/$id",
      );
 
      if (response["error"] == false) {

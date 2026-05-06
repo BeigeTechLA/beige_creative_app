@@ -15,7 +15,7 @@ class AddAvailabilityScreen extends StatefulWidget {
   @override
   State<AddAvailabilityScreen> createState() =>
       _AddAvailabilityScreenState();
-}
+} 
 
 class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 

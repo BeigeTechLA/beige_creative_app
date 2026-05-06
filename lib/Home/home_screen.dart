@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   int requestPhoto = 0;
   int requestVideo = 0;
 
-  bool isloading =true;
+
 
   String name = "";
   String email = "";
@@ -76,6 +76,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       return "this_year";
     }
   }
+  bool isloading =true;
 /*  Data? Myprofile_user;*/
   List<upcomingdatum> upcomingshootslist = [];
   List<PendingRequestCard> creatordashboarddetaillist = [];
@@ -140,36 +141,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
-  String formatTimeRange(String? start, String? end) {
-    if (start == null || end == null || start.isEmpty || end.isEmpty) return "";
-
-    DateTime startTime;
-    DateTime endTime;
-
-    try {
-      startTime = DateFormat("HH:mm:ss").parse(start);
-    } catch (e) {
-      startTime = DateFormat("HH:mm").parse(start);
-    }
-
-    try {
-      endTime = DateFormat("HH:mm:ss").parse(end);
-    } catch (e) {
-      endTime = DateFormat("HH:mm").parse(end);
-    }
-
-    final formatter = DateFormat("hh:mm a");
-
-    return "${formatter.format(startTime)} - ${formatter.format(endTime)}";
-  }
-  String formatDate(String? date) {
-    if (date == null || date.isEmpty) return "";
-
-    DateTime parsedDate = DateTime.parse(date);
-
-    return DateFormat("MMM dd, yyyy").format(parsedDate);
-  }
-
   Future<void> fetchShootCategories(String tab) async {
     try {
       final response = await ApiService().fetchData(
@@ -211,8 +182,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       debugPrint("Error: $e");
     }
   }
-
-
   Future<void> fetchCrewStats(String filter) async {
     try {
       final response = CrewStatsModel.fromJson(
@@ -239,9 +208,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
-
-
-
   Future<void> fetchavailability() async {
     try {
       final response = await ApiService().postData(
@@ -261,26 +227,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
-
-/*
-  Future<void> fetchcreatordashboarddetails() async {
-    try {
-      final response = Creatordashboarddetailsmodel.fromJson(
-        await ApiService().fetchData(ApiEndpoints.creatordashboarddetails),
-      );
-
-      if (response.error == false) {
-        debugPrint("DATA LENGTH 👉 ${response.data.shoots.length}");
-
-        setState(() {
-          creatordashboarddetaillist = response.data.shoots;
-        });
-      }
-    } catch (e) {
-      debugPrint("Error is:::::$e");
-    }
-  }
-*/
   Future<void> fetchcreatordashboarddetails() async {
     try {
       final response = Creatordashboarddetailsmodel.fromJson(
@@ -568,1632 +514,1690 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final int totalShoots =
+        sucessfullshoots +
+            pendingshoots +
+            rejectedshoots +
+            shootrequest;
+
+    final int categoryAccepted =
+    selectedTab == 0
+        ? acceptphotographyShoots
+        : acceptvideographyShoots;
+
+    final int categoryRejected =
+    selectedTab == 0
+        ? rejectedPhoto
+        : rejectedVideo;
+
+    final int categoryRequest =
+    selectedTab == 0
+        ? requestPhoto
+        : requestVideo;
+
+    final int categoryMaxValue = [
+      categoryAccepted,
+      categoryRejected,
+      categoryRequest,
+    ].reduce((a, b) => a > b ? a : b);
+
+
     final data = creatordashboarddetaillist.isNotEmpty
         ? creatordashboarddetaillist.first
         : null;
     return
-       AutoSkeleton(
-        enabled: isloading,
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(), // 🔥 smooth scroll
+       SingleChildScrollView(
+         physics: const BouncingScrollPhysics(), //
 
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: ColorCode.k282828,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                ),
-                child: SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Builder(
-                              builder: (context) => InkWell(
-                                onTap: () {
-                                  Scaffold.of(context).openDrawer();
-                                },
-                                child: SvgPicture.asset(AppImages.menu,
-                                  width: 26,
-                                  colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                "Welcome Back, ${Myprofile_user?.firstName?? 'User..'}",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: "Outfit",
-                                  fontWeight: FontWeight.w500,
-                                  color: ColorCode.white,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 15),
-                            SvgPicture.asset(
-                              AppImages.notificationbell,
-                              width: 22,
-                              colorFilter: const ColorFilter.mode(
-                                Colors.white,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            SizedBox(width: 15),
-                            InkWell(
-                                onTap: () async {
-                                  final result = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => Myprofile(),
-                                    ),
-                                  );
+         child: Column(
+           children: [
+             Container(
+               width: double.infinity,
+               decoration: const BoxDecoration(
+                 color: ColorCode.k282828,
+                 borderRadius: BorderRadius.only(
+                   bottomLeft: Radius.circular(40),
+                   bottomRight: Radius.circular(40),
+                 ),
+               ),
+               child: SafeArea(
+                 bottom: false,
+                 child: Padding(
+                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                   child: Column(
+                     mainAxisSize: MainAxisSize.min,
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Row(
+                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                         children: [
+                           Builder(
+                             builder: (context) => InkWell(
+                               onTap: () {
+                                 Scaffold.of(context).openDrawer();
+                               },
+                               child: SvgPicture.asset(AppImages.menu,
+                                 width: 26,
+                                 colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                               ),
+                             ),
+                           ),
+                           const SizedBox(width: 12),
+                           Expanded(
+                             child: Text(
+                               "Welcome Back, ${Myprofile_user?.firstName?? 'User..'}",
+                               style: const TextStyle(
+                                 fontSize: 16,
+                                 fontFamily: "Outfit",
+                                 fontWeight: FontWeight.w500,
+                                 color: ColorCode.white,
+                               ),
+                             ),
+                           ),
+                           const SizedBox(width: 15),
+                           SvgPicture.asset(
+                             AppImages.notificationbell,
+                             width: 22,
+                             colorFilter: const ColorFilter.mode(
+                               Colors.white,
+                               BlendMode.srcIn,
+                             ),
+                           ),
+                           SizedBox(width: 15),
+                           InkWell(
+                               onTap: () async {
+                                 final result = await Navigator.push(
+                                   context,
+                                   MaterialPageRoute(
+                                     builder: (_) => Myprofile(),
+                                   ),
+                                 );
 
-                                  if (result == true) {
-                                    fetchprofiledata(); // 🔥 API call again
-                                  }
-                                },
-                                child:CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage: (Myprofile_user?.profileImageUrl ?? "").isNotEmpty
-                                      ? NetworkImage(
-                                    "${ApiService.imageURL}${Myprofile_user!.profileImageUrl}",
-                                  )
-                                      : null,
+                                 if (result == true) {
+                                   fetchprofiledata(); // 🔥 API call again
+                                 }
+                               },
+                               child:CircleAvatar(
+                                 radius: 20,
+                                 backgroundImage: (Myprofile_user?.profileImageUrl ?? "").isNotEmpty
+                                     ? NetworkImage(
+                                   "${ApiService.imageURL}${Myprofile_user!.profileImageUrl}",
+                                 )
+                                     : null,
 
-                                  child: (Myprofile_user?.profileImageUrl ?? "").isEmpty
-                                      ? SvgPicture.asset(
-                                    AppImages.User_Circle,
-                                    width: 20,
-                                    height: 20,
-                                  )
-                                      : null,
-                                )
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(19.0),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Text("Your Dashboard",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w500,
-                            color: ColorCode.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color(0xff014FFFFFF),
-                          width: 0.5,//
-                        ),
-                        color: ColorCode.k282828,
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: Column(
-                        children: [
-                          _dashboardCard(
-                            index: 0,
-                            title: "Completed Shoots",
-                            count: completedshoots,
-                            // percent: "+3% from last month",
-                            percentColor: Colors.green,
-                            iconPath: "assets/images/svideo.png",
-                          ),
-                          const SizedBox(height: 18),
-                          _dashboardCard(
-                            index: 1,
-                            title: "Upcoming Shoots",
-                            count: upcomingshoots,
-                            // percent: "+3% from last month",
-                            percentColor: Colors.green,
-                            iconPath: "assets/images/scalender.png",
-                          ),
-                          const SizedBox(height: 18),
-                          _dashboardCard(
-                            index: 2,
-                            title: "Pending Requests",
-                            count: pendingrequests,
-                            // percent: "-2% from last month",
-                            percentColor: Colors.red,
-                            iconPath: "assets/images/stime.png",
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Divider(color: ColorCode.kDividerWhite12),
-                    SizedBox(height: 10),
-            if (upcomingshootslist.isNotEmpty) ...[
-           const SizedBox(),
+                                 child: (Myprofile_user?.profileImageUrl ?? "").isEmpty
+                                     ? SvgPicture.asset(
+                                   AppImages.User_Circle,
+                                   width: 20,
+                                   height: 20,
+                                 )
+                                     : null,
+                               )
+                           ),
+                         ],
+                       ),
+                       const SizedBox(height: 20),
+                     ],
+                   ),
+                 ),
+               ),
+             ),
+             Padding(
+               padding: const EdgeInsets.all(19.0),
+               child: Column(
+                 children: [
+                   Row(
+                     children: [
+                       Text("Your Dashboard",
+                         style: TextStyle(
+                           fontSize: 14,
+                           fontFamily: "Unbounded",
+                           fontWeight: FontWeight.w500,
+                           color: ColorCode.white,
+                         ),
+                       ),
+                     ],
+                   ),
+                   const SizedBox(height: 12),
+                   Container(
+                     padding: const EdgeInsets.all(18),
+                     decoration: BoxDecoration(
+                       border: Border.all(
+                         color: Color(0xff014FFFFFF),
+                         width: 0.5,//
+                       ),
+                       color: ColorCode.k282828,
+                       borderRadius: BorderRadius.circular(22),
+                     ),
+                     child: Column(
+                       children: [
+                         _dashboardCard(
+                           index: 0,
+                           title: "Completed Shoots",
+                           count: completedshoots,
+                           // percent: "+3% from last month",
+                           percentColor: Colors.green,
+                           iconPath: "assets/images/svideo.png",
+                         ),
+                         const SizedBox(height: 18),
+                         _dashboardCard(
+                           index: 1,
+                           title: "Upcoming Shoots",
+                           count: upcomingshoots,
+                           // percent: "+3% from last month",
+                           percentColor: Colors.green,
+                           iconPath: "assets/images/scalender.png",
+                         ),
+                         const SizedBox(height: 18),
+                         _dashboardCard(
+                           index: 2,
+                           title: "Pending Requests",
+                           count: pendingrequests,
+                           // percent: "-2% from last month",
+                           percentColor: Colors.red,
+                           iconPath: "assets/images/stime.png",
+                         ),
+                       ],
+                     ),
+                   ),
+                   SizedBox(height: 10),
+                   Divider(color: ColorCode.kDividerWhite12),
+                   SizedBox(height: 10),
+           if (upcomingshootslist.isNotEmpty) ...[
+          const SizedBox(),
 
-                    Row(
-                      children: [
-                        Text("Upcoming Shoots ",
+                   Row(
+                     children: [
+                       Text("Upcoming Shoots ",
 
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w500,
-                            color: ColorCode.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: ColorCode.kWhiteOpacity70,
-                                width: 1,
-                              ),
-                            ),
-                            child: TextField(
-                              style: TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                prefixIcon: Padding(
-                                  padding: const EdgeInsets.all(10), // control spacing
-                                  child: SvgPicture.asset(
-                                    AppImages.search_icon,
-                                    height: 20,   // now this will work
-                                    width: 20,
-                                  ),
-                                ),
-                                prefixIconConstraints: const BoxConstraints(
-                                  minWidth: 30,
-                                  minHeight: 30,
-                                ),
-                                hintText: "Search events or crew...",
-                                hintStyle: TextStyle(
-                                  fontFamily: "Outfit",
-                                  color: ColorCode.kWhiteOpacity70,
-                                  fontSize: 12,
-                                ),
-                                border: InputBorder.none,
-                              ),
-                            )
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        InkWell(
-                          onTap: () {
-                            _showFilterBottomSheet();
-                          },
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            height: 52,
-                            padding: const EdgeInsets.symmetric(horizontal: 18),
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.white24,
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Text(
-                                  "Filter",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                SvgPicture.asset(AppImages.filter,
-                                  height: 18,
-                                  width: 18,
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 55),
+                         style: TextStyle(
+                           fontSize: 14,
+                           fontFamily: "Unbounded",
+                           fontWeight: FontWeight.w500,
+                           color: ColorCode.white,
+                         ),
+                       ),
+                     ],
+                   ),
+                   const SizedBox(height: 14),
+                   Row(
+                     children: [
+                       Expanded(
+                         child: Container(
+                           padding: const EdgeInsets.symmetric(horizontal: 10),
+                           decoration: BoxDecoration(
+                             color: Colors.transparent,
+                             borderRadius: BorderRadius.circular(12),
+                             border: Border.all(
+                               color: ColorCode.kWhiteOpacity70,
+                               width: 1,
+                             ),
+                           ),
+                           child: TextField(
+                             style: TextStyle(color: Colors.white),
+                             decoration: InputDecoration(
+                               prefixIcon: Padding(
+                                 padding: const EdgeInsets.all(10), // control spacing
+                                 child: SvgPicture.asset(
+                                   AppImages.search_icon,
+                                   height: 20,   // now this will work
+                                   width: 20,
+                                 ),
+                               ),
+                               prefixIconConstraints: const BoxConstraints(
+                                 minWidth: 30,
+                                 minHeight: 30,
+                               ),
+                               hintText: "Search events or crew...",
+                               hintStyle: TextStyle(
+                                 fontFamily: "Outfit",
+                                 color: ColorCode.kWhiteOpacity70,
+                                 fontSize: 12,
+                               ),
+                               border: InputBorder.none,
+                             ),
+                           )
+                         ),
+                       ),
+                       const SizedBox(width: 12),
+                       InkWell(
+                         onTap: () {
+                           _showFilterBottomSheet();
+                         },
+                         borderRadius: BorderRadius.circular(12),
+                         child: Container(
+                           height: 52,
+                           padding: const EdgeInsets.symmetric(horizontal: 18),
+                           decoration: BoxDecoration(
+                             color: Colors.transparent,
+                             borderRadius: BorderRadius.circular(12),
+                             border: Border.all(
+                               color: Colors.white24,
+                               width: 1,
+                             ),
+                           ),
+                           child: Row(
+                             children: [
+                               const Text(
+                                 "Filter",
+                                 style: TextStyle(
+                                   color: Colors.white,
+                                   fontSize: 14,
+                                 ),
+                               ),
+                               const SizedBox(width: 6),
+                               SvgPicture.asset(AppImages.filter,
+                                 height: 18,
+                                 width: 18,
+                               )
+                             ],
+                           ),
+                         ),
+                       ),
+                     ],
+                   ),
+                   const SizedBox(height: 55),
 
-                  /*  // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
-                    if (upcomingshootslist.isEmpty)
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: ColorCode.k282828,
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            "No upcoming shoots",
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                        ),
-                      )
-                    else
-                      GestureDetector(
-                        onTap: _onCardTap,
-                        onHorizontalDragEnd: (details) {
-                          if (details.primaryVelocity == null) return;
+                 /*  // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
+                   if (upcomingshootslist.isEmpty)
+                     Container(
+                       padding: const EdgeInsets.all(20),
+                       decoration: BoxDecoration(
+                         color: ColorCode.k282828,
+                         borderRadius: BorderRadius.circular(18),
+                       ),
+                       child: const Center(
+                         child: Text(
+                           "No upcoming shoots",
+                           style: TextStyle(color: Colors.white70),
+                         ),
+                       ),
+                     )
+                   else
+                     GestureDetector(
+                       onTap: _onCardTap,
+                       onHorizontalDragEnd: (details) {
+                         if (details.primaryVelocity == null) return;
 
-                          // 👉 Swipe Right (previous)
-                          if (details.primaryVelocity! > 0) {
-                            _goToPrevious();
-                          }
+                         // 👉 Swipe Right (previous)
+                         if (details.primaryVelocity! > 0) {
+                           _goToPrevious();
+                         }
 
-                          // 👉 Swipe Left (next)
-                          else if (details.primaryVelocity! < 0) {
-                            _goToNext();
-                          }
-                        },
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final n = upcomingshootslist.length;
-                            final totalWidth = constraints.maxWidth;
+                         // 👉 Swipe Left (next)
+                         else if (details.primaryVelocity! < 0) {
+                           _goToNext();
+                         }
+                       },
+                       child: LayoutBuilder(
+                         builder: (context, constraints) {
+                           final n = upcomingshootslist.length;
+                           final totalWidth = constraints.maxWidth;
 
-                            final currentDatum = upcomingshootslist[_currentIndex % n];
-                            final nextDatum = upcomingshootslist[(_currentIndex + 1) % n];
-                            final next2Datum = n > 2 ? upcomingshootslist[(_currentIndex + 2) % n] : null;
+                           final currentDatum = upcomingshootslist[_currentIndex % n];
+                           final nextDatum = upcomingshootslist[(_currentIndex + 1) % n];
+                           final next2Datum = n > 2 ? upcomingshootslist[(_currentIndex + 2) % n] : null;
 
-                            final current = _cardFromDatum(currentDatum);
-                            final next = _cardFromDatum(nextDatum);
-                            final next2 = next2Datum != null ? _cardFromDatum(next2Datum) : null;
+                           final current = _cardFromDatum(currentDatum);
+                           final next = _cardFromDatum(nextDatum);
+                           final next2 = next2Datum != null ? _cardFromDatum(next2Datum) : null;
 
-                            return Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                // Third card (back most) – only if n >= 3
-                                if (next2 != null)
-                                  AnimatedPositioned(
-                                    duration: const Duration(milliseconds: 300),
-                                    top: _controller.isAnimating ? -32 : -24,
-                                    left: totalWidth * 0.07,
-                                    right: totalWidth * 0.07,
-                                    child: AnimatedOpacity(
-                                      duration: const Duration(milliseconds: 300),
-                                      opacity: _controller.isAnimating ? 0.5 : 1,
-                                      child: _buildCard(next2, isBack: true),
-                                    ),
-                                  ),
+                           return Stack(
+                             clipBehavior: Clip.none,
+                             children: [
+                               // Third card (back most) – only if n >= 3
+                               if (next2 != null)
+                                 AnimatedPositioned(
+                                   duration: const Duration(milliseconds: 300),
+                                   top: _controller.isAnimating ? -32 : -24,
+                                   left: totalWidth * 0.07,
+                                   right: totalWidth * 0.07,
+                                   child: AnimatedOpacity(
+                                     duration: const Duration(milliseconds: 300),
+                                     opacity: _controller.isAnimating ? 0.5 : 1,
+                                     child: _buildCard(next2, isBack: true),
+                                   ),
+                                 ),
 
-                                // Second card (middle) – only if n >= 2
-                                if (n >= 2)
-                                  AnimatedPositioned(
-                                    duration: const Duration(milliseconds: 300),
-                                    top: _controller.isAnimating ? -20 : -12,
-                                    left: totalWidth * 0.035,
-                                    right: totalWidth * 0.035,
-                                    child: AnimatedOpacity(
-                                      duration: const Duration(milliseconds: 300),
-                                      opacity: _controller.isAnimating ? 0.7 : 1,
-                                      child: _buildCard(next, isBack: true, isMiddle: true),
-                                    ),
-                                  ),
+                               // Second card (middle) – only if n >= 2
+                               if (n >= 2)
+                                 AnimatedPositioned(
+                                   duration: const Duration(milliseconds: 300),
+                                   top: _controller.isAnimating ? -20 : -12,
+                                   left: totalWidth * 0.035,
+                                   right: totalWidth * 0.035,
+                                   child: AnimatedOpacity(
+                                     duration: const Duration(milliseconds: 300),
+                                     opacity: _controller.isAnimating ? 0.7 : 1,
+                                     child: _buildCard(next, isBack: true, isMiddle: true),
+                                   ),
+                                 ),
 
-                                // Main card
-                                AnimatedBuilder(
-                                  animation: _controller,
-                                  builder: (context, child) {
-                                    return Transform.translate(
-                                      offset: Offset(0, _controller.value * 200),
-                                      child: Opacity(
-                                        opacity: 1 - _controller.value,
-                                        child: child,
-                                      ),
-                                    );
-                                  },
-                                  child: _buildCard(current, isMain: true),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    // ========================================================================
-*/// ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
+                               // Main card
+                               AnimatedBuilder(
+                                 animation: _controller,
+                                 builder: (context, child) {
+                                   return Transform.translate(
+                                     offset: Offset(0, _controller.value * 200),
+                                     child: Opacity(
+                                       opacity: 1 - _controller.value,
+                                       child: child,
+                                     ),
+                                   );
+                                 },
+                                 child: _buildCard(current, isMain: true),
+                               ),
+                             ],
+                           );
+                         },
+                       ),
+                     ),
+                   // ========================================================================
+       */// ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
 
 
 
-         Builder(
-    builder: (context) {
-    final n = upcomingshootslist.length;
+        Builder(
+           builder: (context) {
+           final n = upcomingshootslist.length;
 
-    // ✅ 👉 ONLY 1 DATA → NO SWIPE, NO STACK
-    if (n == 1) {
-    final current = _cardFromDatum(upcomingshootslist[0]);
-    return _buildCard(current, isMain: true);
-    }
+           // ✅ 👉 ONLY 1 DATA → NO SWIPE, NO STACK
+           if (n == 1) {
+           final current = _cardFromDatum(upcomingshootslist[0]);
+           return _buildCard(current, isMain: true);
+           }
 
-    // ✅ 👉 MULTIPLE DATA → SWIPE + STACK
-    return GestureDetector(
-    onTap: _onCardTap,
-    onHorizontalDragEnd: (details) {
-    if (details.primaryVelocity == null) return;
+           // ✅ 👉 MULTIPLE DATA → SWIPE + STACK
+           return GestureDetector(
+           onTap: _onCardTap,
+           onHorizontalDragEnd: (details) {
+           if (details.primaryVelocity == null) return;
 
-    if (details.primaryVelocity! > 0) {
-    _goToPrevious();
-    } else if (details.primaryVelocity! < 0) {
-    _goToNext();
-    }
-    },
-    child: LayoutBuilder(
-    builder: (context, constraints) {
-    final totalWidth = constraints.maxWidth;
+           if (details.primaryVelocity! > 0) {
+           _goToPrevious();
+           } else if (details.primaryVelocity! < 0) {
+           _goToNext();
+           }
+           },
+           child: LayoutBuilder(
+           builder: (context, constraints) {
+           final totalWidth = constraints.maxWidth;
 
-    final currentDatum =
-    upcomingshootslist[_currentIndex % n];
-    final nextDatum =
-    upcomingshootslist[(_currentIndex + 1) % n];
-    final next2Datum = n > 2
-    ? upcomingshootslist[(_currentIndex + 2) % n]
-        : null;
+           final currentDatum =
+           upcomingshootslist[_currentIndex % n];
+           final nextDatum =
+           upcomingshootslist[(_currentIndex + 1) % n];
+           final next2Datum = n > 2
+           ? upcomingshootslist[(_currentIndex + 2) % n]
+       : null;
 
-    final current = _cardFromDatum(currentDatum);
-    final next = _cardFromDatum(nextDatum);
-    final next2 = next2Datum != null
-    ? _cardFromDatum(next2Datum)
-        : null;
+           final current = _cardFromDatum(currentDatum);
+           final next = _cardFromDatum(nextDatum);
+           final next2 = next2Datum != null
+           ? _cardFromDatum(next2Datum)
+       : null;
 
-    return Stack(
-    clipBehavior: Clip.none,
-    children: [
-    // 👉 3rd card
-    if (next2 != null)
-    AnimatedPositioned(
-    duration: const Duration(milliseconds: 300),
-    top: _controller.isAnimating ? -32 : -24,
-    left: totalWidth * 0.07,
-    right: totalWidth * 0.07,
-    child: AnimatedOpacity(
-    duration: const Duration(milliseconds: 300),
-    opacity:
-    _controller.isAnimating ? 0.5 : 1,
-    child: _buildCard(next2, isBack: true),
-    ),
-    ),
+           return Stack(
+           clipBehavior: Clip.none,
+           children: [
+           // 👉 3rd card
+           if (next2 != null)
+           AnimatedPositioned(
+           duration: const Duration(milliseconds: 300),
+           top: _controller.isAnimating ? -32 : -24,
+           left: totalWidth * 0.07,
+           right: totalWidth * 0.07,
+           child: AnimatedOpacity(
+           duration: const Duration(milliseconds: 300),
+           opacity:
+           _controller.isAnimating ? 0.5 : 1,
+           child: _buildCard(next2, isBack: true),
+           ),
+           ),
 
-    // 👉 2nd card
-    if (n >= 2)
-    AnimatedPositioned(
-    duration: const Duration(milliseconds: 300),
-    top: _controller.isAnimating ? -20 : -12,
-    left: totalWidth * 0.035,
-    right: totalWidth * 0.035,
-    child: AnimatedOpacity(
-    duration: const Duration(milliseconds: 300),
-    opacity:
-    _controller.isAnimating ? 0.7 : 1,
-    child: _buildCard(
-    next,
-    isBack: true,
-    isMiddle: true,
-    ),
-    ),
-    ),
+           // 👉 2nd card
+           if (n >= 2)
+           AnimatedPositioned(
+           duration: const Duration(milliseconds: 300),
+           top: _controller.isAnimating ? -20 : -12,
+           left: totalWidth * 0.035,
+           right: totalWidth * 0.035,
+           child: AnimatedOpacity(
+           duration: const Duration(milliseconds: 300),
+           opacity:
+           _controller.isAnimating ? 0.7 : 1,
+           child: _buildCard(
+           next,
+           isBack: true,
+           isMiddle: true,
+           ),
+           ),
+           ),
 
-    // 👉 MAIN CARD
-    AnimatedBuilder(
-    animation: _controller,
-    builder: (context, child) {
-    return Transform.translate(
-    offset:
-    Offset(0, _controller.value * 200),
-    child: Opacity(
-    opacity: 1 - _controller.value,
-    child: child,
-    ),
-    );
-    },
-    child: _buildCard(current, isMain: true),
-    ),
-    ],
-    );
-    },
-    ),
-    );
-    },
-    ),
-              const SizedBox(height: 17),
-              Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-],
-// ========================================================================
+           // 👉 MAIN CARD
+           AnimatedBuilder(
+           animation: _controller,
+           builder: (context, child) {
+           return Transform.translate(
+           offset:
+           Offset(0, _controller.value * 200),
+           child: Opacity(
+           opacity: 1 - _controller.value,
+           child: child,
+           ),
+           );
+           },
+           child: _buildCard(current, isMain: true),
+           ),
+           ],
+           );
+           },
+           ),
+           );
+           },
+           ),
+             const SizedBox(height: 17),
+             Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+       ],
+       // ========================================================================
 
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Availability",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w500,
-                            color: ColorCode.white,
-                          ),
-                        ),
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ColorCode.kButtonColor,
-                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: () async {
-                            final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => AddAvailabilityScreen()));
-                            if (result == true) {
-                              fetchavailability();
-                            }
-                          },
-                          icon: const Icon(Icons.add, size: 18, color: ColorCode.black),
-                          label: const Text(
-                            "Add",
-                            style: TextStyle(
-                              fontFamily: "Outfit",
-                              color: ColorCode.black,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    /*Container(
-                      decoration: BoxDecoration(
-                        color: ColorCode.k282828,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(width: 0.5, color: Color(0xff626262)),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.chevron_left, color: Colors.white),
-                                      onPressed: () {
-                                        setState(() {
-                                          _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
-                                        });
-                                      },
-                                    ),
-                                    Text(
-                                      getMonthYear(_focusedDay),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.chevron_right, color: Colors.white),
-                                      onPressed: () {
-                                        setState(() {
-                                          _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  margin: EdgeInsets.all(7),
-                                  padding: const EdgeInsets.symmetric(horizontal: 19,),
-                                  decoration: BoxDecoration(
-                                    color: ColorCode.white,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      value: selectedEvent,
-                                      icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
-                                      dropdownColor: Colors.white,
-                                      style: const TextStyle(color: Colors.black, fontSize: 12),
-                                      items: eventList.map((String value) {
-                                        return DropdownMenuItem(
-                                          value: value,
-                                          child: Text(value),
-                                        );
-                                      }).toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedEvent = value!;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                       *//*     TableCalendar(
-                              daysOfWeekHeight: 70,
-                              calendarBuilders: CalendarBuilders(
-                                dowBuilder: (context, day) {
-                                  final text = DateFormat.E().format(day);
-                                  return Container(
-                                    height: 45,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: ColorCode.kDividerWhite12,
-                                          width: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      text,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                defaultBuilder: (context, day, focusedDay) {
-                                  final dateKey = DateTime(day.year, day.month, day.day);
-                                  final event = events[dateKey];
-                                  bool showEvent = false;
-                                  if (selectedEvent == "All Events") {
-                                    showEvent = true;
-                                  } else if (selectedEvent == "Available" && event == "Available") {
-                                    showEvent = true;
-                                  } else if (selectedEvent == "Shoot" && event == "Shoot") {
-                                    showEvent = true;
-                                  }
-                                  return Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text("${day.day}", style: const TextStyle(color: Colors.white)),
-                                      const SizedBox(height: 4),
-                                      if (event != null && showEvent) eventLabel(event),
-                                    ],
-                                  );
-                                },
-                              ),
-                              firstDay: DateTime(2020),
-                              lastDay: DateTime(2050),
-                              focusedDay: _focusedDay,
-                              headerVisible: false,
-                              rowHeight: 85,
-                              calendarStyle: CalendarStyle(
-                                tableBorder: TableBorder.all(
-                                  color: ColorCode.kDividerWhite12,
-                                  width: 1,
-                                ),
-                                defaultTextStyle: const TextStyle(color: Colors.white),
-                                weekendTextStyle: const TextStyle(color: Colors.white),
-                                outsideTextStyle: const TextStyle(color: Colors.white38),
-                              ),
-                              daysOfWeekStyle: const DaysOfWeekStyle(
-                                weekdayStyle: TextStyle(color: Colors.white70),
-                                weekendStyle: TextStyle(color: Colors.white70),
-                              ),
-                              onPageChanged: (focusedDay) {
-                                setState(() {
-                                  _focusedDay = focusedDay;
-                                  fetchavailability();
-                                });
-                              },
-                            ),
-        *//*
-                            CommonCalendar(
-                              focusedDay: _focusedDay,
-                              events: events,
-                              selectedEvent: selectedEvent,
-                              onPageChanged: (day) {
-                                setState(() {
-                                  _focusedDay = day;
-                                  fetchavailability();
-                                });
-                              },
-                            )
-                          ],
-                        ),
-                      ),
-                    ),*/
-                    Container(
-                      decoration: BoxDecoration(
+                   const SizedBox(height: 12),
+                   Row(
+                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                     children: [
+                       Text(
+                         "Availability",
+                         style: TextStyle(
+                           fontSize: 16,
+                           fontFamily: "Unbounded",
+                           fontWeight: FontWeight.w500,
+                           color: ColorCode.white,
+                         ),
+                       ),
+                       ElevatedButton.icon(
+                         style: ElevatedButton.styleFrom(
+                           backgroundColor: ColorCode.kButtonColor,
+                           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                           shape: RoundedRectangleBorder(
+                             borderRadius: BorderRadius.circular(30),
+                           ),
+                         ),
+                         onPressed: () async {
+                           final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => AddAvailabilityScreen()));
+                           if (result == true) {
+                             fetchavailability();
+                           }
+                         },
+                         icon: const Icon(Icons.add, size: 18, color: ColorCode.black),
+                         label: const Text(
+                           "Add",
+                           style: TextStyle(
+                             fontFamily: "Outfit",
+                             color: ColorCode.black,
+                             fontSize: 12,
+                             fontWeight: FontWeight.bold,
+                           ),
+                         ),
+                       ),
+                     ],
+                   ),
+                   const SizedBox(height: 12),
+                   /*Container(
+                     decoration: BoxDecoration(
+                       color: ColorCode.k282828,
+                       borderRadius: BorderRadius.circular(20),
+                       border: Border.all(width: 0.5, color: Color(0xff626262)),
+                     ),
+                     child: ClipRRect(
+                       borderRadius: BorderRadius.circular(20),
+                       child: Column(
+                         children: [
+                           Row(
+                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                             children: [
+                               Row(
+                                 children: [
+                                   IconButton(
+                                     icon: const Icon(Icons.chevron_left, color: Colors.white),
+                                     onPressed: () {
+                                       setState(() {
+                                         _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
+                                       });
+                                     },
+                                   ),
+                                   Text(
+                                     getMonthYear(_focusedDay),
+                                     style: const TextStyle(
+                                       color: Colors.white,
+                                       fontSize: 18,
+                                       fontWeight: FontWeight.w600,
+                                     ),
+                                   ),
+                                   IconButton(
+                                     icon: const Icon(Icons.chevron_right, color: Colors.white),
+                                     onPressed: () {
+                                       setState(() {
+                                         _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
+                                       });
+                                     },
+                                   ),
+                                 ],
+                               ),
+                               Container(
+                                 margin: EdgeInsets.all(7),
+                                 padding: const EdgeInsets.symmetric(horizontal: 19,),
+                                 decoration: BoxDecoration(
+                                   color: ColorCode.white,
+                                   borderRadius: BorderRadius.circular(6),
+                                 ),
+                                 child: DropdownButtonHideUnderline(
+                                   child: DropdownButton<String>(
+                                     value: selectedEvent,
+                                     icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
+                                     dropdownColor: Colors.white,
+                                     style: const TextStyle(color: Colors.black, fontSize: 12),
+                                     items: eventList.map((String value) {
+                                       return DropdownMenuItem(
+                                         value: value,
+                                         child: Text(value),
+                                       );
+                                     }).toList(),
+                                     onChanged: (value) {
+                                       setState(() {
+                                         selectedEvent = value!;
+                                       });
+                                     },
+                                   ),
+                                 ),
+                               )
+                             ],
+                           ),
+                           const SizedBox(height: 10),
+                      *//*     TableCalendar(
+                             daysOfWeekHeight: 70,
+                             calendarBuilders: CalendarBuilders(
+                               dowBuilder: (context, day) {
+                                 final text = DateFormat.E().format(day);
+                                 return Container(
+                                   height: 45,
+                                   alignment: Alignment.center,
+                                   decoration: BoxDecoration(
+                                     border: Border(
+                                       bottom: BorderSide(
+                                         color: ColorCode.kDividerWhite12,
+                                         width: 1,
+                                       ),
+                                     ),
+                                   ),
+                                   child: Text(
+                                     text,
+                                     style: const TextStyle(
+                                       color: Colors.white,
+                                       fontSize: 14,
+                                       fontWeight: FontWeight.w500,
+                                     ),
+                                   ),
+                                 );
+                               },
+                               defaultBuilder: (context, day, focusedDay) {
+                                 final dateKey = DateTime(day.year, day.month, day.day);
+                                 final event = events[dateKey];
+                                 bool showEvent = false;
+                                 if (selectedEvent == "All Events") {
+                                   showEvent = true;
+                                 } else if (selectedEvent == "Available" && event == "Available") {
+                                   showEvent = true;
+                                 } else if (selectedEvent == "Shoot" && event == "Shoot") {
+                                   showEvent = true;
+                                 }
+                                 return Column(
+                                   mainAxisAlignment: MainAxisAlignment.center,
+                                   children: [
+                                     Text("${day.day}", style: const TextStyle(color: Colors.white)),
+                                     const SizedBox(height: 4),
+                                     if (event != null && showEvent) eventLabel(event),
+                                   ],
+                                 );
+                               },
+                             ),
+                             firstDay: DateTime(2020),
+                             lastDay: DateTime(2050),
+                             focusedDay: _focusedDay,
+                             headerVisible: false,
+                             rowHeight: 85,
+                             calendarStyle: CalendarStyle(
+                               tableBorder: TableBorder.all(
+                                 color: ColorCode.kDividerWhite12,
+                                 width: 1,
+                               ),
+                               defaultTextStyle: const TextStyle(color: Colors.white),
+                               weekendTextStyle: const TextStyle(color: Colors.white),
+                               outsideTextStyle: const TextStyle(color: Colors.white38),
+                             ),
+                             daysOfWeekStyle: const DaysOfWeekStyle(
+                               weekdayStyle: TextStyle(color: Colors.white70),
+                               weekendStyle: TextStyle(color: Colors.white70),
+                             ),
+                             onPageChanged: (focusedDay) {
+                               setState(() {
+                                 _focusedDay = focusedDay;
+                                 fetchavailability();
+                               });
+                             },
+                           ),
+       *//*
+                           CommonCalendar(
+                             focusedDay: _focusedDay,
+                             events: events,
+                             selectedEvent: selectedEvent,
+                             onPageChanged: (day) {
+                               setState(() {
+                                 _focusedDay = day;
+                                 fetchavailability();
+                               });
+                             },
+                           )
+                         ],
+                       ),
+                     ),
+                   ),*/
+                   Container(
+                     decoration: BoxDecoration(
 
-                        color:ColorCode.k282828,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(width: 0.5, color: Color(0xff626262)),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                // LEFT SIDE (month + arrows)
-                                Expanded(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.chevron_left, color: Colors.white),
-                                        onPressed: () {
-                                          setState(() {
-                                            _focusedDay =
-                                                DateTime(_focusedDay.year, _focusedDay.month - 1);
-                                          });
-                                        },
-                                      ),
+                       color:ColorCode.k282828,
+                       borderRadius: BorderRadius.circular(20),
+                       border: Border.all(width: 0.5, color: Color(0xff626262)),
+                     ),
+                     child: ClipRRect(
+                       borderRadius: BorderRadius.circular(20),
+                       child: Column(
+                         mainAxisSize: MainAxisSize.min,
+                         children: [
+                           Row(
+                             children: [
+                               // LEFT SIDE (month + arrows)
+                               Expanded(
+                                 child: Row(
+                                   mainAxisAlignment: MainAxisAlignment.start,
+                                   children: [
+                                     IconButton(
+                                       icon: const Icon(Icons.chevron_left, color: Colors.white),
+                                       onPressed: () {
+                                         setState(() {
+                                           _focusedDay =
+                                               DateTime(_focusedDay.year, _focusedDay.month - 1);
+                                         });
+                                       },
+                                     ),
 
-                                      // ✅ CENTER FEEL TEXT
-                                      Expanded(
-                                        child: Center(
-                                          child: FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: Text(
-                                              getMonthYear(_focusedDay),
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                     // ✅ CENTER FEEL TEXT
+                                     Expanded(
+                                       child: Center(
+                                         child: FittedBox(
+                                           fit: BoxFit.scaleDown,
+                                           child: Text(
+                                             getMonthYear(_focusedDay),
+                                             style: const TextStyle(
+                                               color: Colors.white,
+                                               fontSize: 18,
+                                               fontWeight: FontWeight.w500,
+                                             ),
+                                           ),
+                                         ),
+                                       ),
+                                     ),
 
-                                      IconButton(
-                                        icon: const Icon(Icons.chevron_right, color: Colors.white),
-                                        onPressed: () {
-                                          setState(() {
-                                            _focusedDay =
-                                                DateTime(_focusedDay.year, _focusedDay.month + 1);
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                     IconButton(
+                                       icon: const Icon(Icons.chevron_right, color: Colors.white),
+                                       onPressed: () {
+                                         setState(() {
+                                           _focusedDay =
+                                               DateTime(_focusedDay.year, _focusedDay.month + 1);
+                                         });
+                                       },
+                                     ),
+                                   ],
+                                 ),
+                               ),
 
-                                // RIGHT SIDE (dropdown)
-                                Container(
-                                  margin: const EdgeInsets.only(right: 8),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      value: selectedEvent,
-                                      isDense: true,
-                                      icon: const Icon(Icons.keyboard_arrow_down,
-                                          color: Colors.black, size: 18),
-                                      dropdownColor: Colors.white,
-                                      style: const TextStyle(color: Colors.black, fontSize: 13),
-                                      items: eventList.map((String value) {
-                                        return DropdownMenuItem(
-                                          value: value,
-                                          child: Text(value),
-                                        );
-                                      }).toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedEvent = value!;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //   children: [
-                            //     Row(
-                            //       children: [
-                            //         IconButton(
-                            //           icon: const Icon(Icons.chevron_left, color: Colors.white),
-                            //           onPressed: () {
-                            //             setState(() {
-                            //               _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
-                            //             });
-                            //           },
-                            //         ),
-                            //         Text(
-                            //           getMonthYear(_focusedDay),
-                            //           style: const TextStyle(
-                            //             color: Colors.white,
-                            //             fontSize: 18,
-                            //             fontWeight: FontWeight.w600,
-                            //           ),
-                            //         ),
-                            //         IconButton(
-                            //           icon: const Icon(Icons.chevron_right, color: Colors.white),
-                            //           onPressed: () {
-                            //             setState(() {
-                            //               _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
-                            //             });
-                            //           },
-                            //         ),
-                            //       ],
-                            //     ),
-                            //     Container(
-                            //       margin: EdgeInsets.all(7),
-                            //       padding: const EdgeInsets.symmetric(horizontal: 19,),
-                            //       decoration: BoxDecoration(
-                            //         color: ColorCode.white,
-                            //         borderRadius: BorderRadius.circular(6),
-                            //       ),
-                            //       child: DropdownButtonHideUnderline(
-                            //         child: DropdownButton<String>(
-                            //           value: selectedEvent,
-                            //           icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
-                            //           dropdownColor: Colors.white,
-                            //           style: const TextStyle(color: Colors.black, fontSize: 12),
-                            //           items: eventList.map((String value) {
-                            //             return DropdownMenuItem(
-                            //               value: value,
-                            //               child: Text(value),
-                            //             );
-                            //           }).toList(),
-                            //           onChanged: (value) {
-                            //             setState(() {
-                            //               selectedEvent = value!;
-                            //             });
-                            //           },
-                            //         ),
-                            //       ),
-                            //     )
-                            //   ],
-                            // ),
-                            const SizedBox(height: 10),
-                            /*     TableCalendar(
-                              daysOfWeekHeight: 70,
-                              calendarBuilders: CalendarBuilders(
-                                dowBuilder: (context, day) {
-                                  final text = DateFormat.E().format(day);
-                                  return Container(
-                                    height: 45,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: ColorCode.kDividerWhite12,
-                                          width: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      text,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                defaultBuilder: (context, day, focusedDay) {
-                                  final dateKey = DateTime(day.year, day.month, day.day);
-                                  final event = events[dateKey];
-                                  bool showEvent = false;
-                                  if (selectedEvent == "All Events") {
-                                    showEvent = true;
-                                  } else if (selectedEvent == "Available" && event == "Available") {
-                                    showEvent = true;
-                                  } else if (selectedEvent == "Shoot" && event == "Shoot") {
-                                    showEvent = true;
-                                  }
-                                  return Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text("${day.day}", style: const TextStyle(color: Colors.white)),
-                                      const SizedBox(height: 4),
-                                      if (event != null && showEvent) eventLabel(event),
-                                    ],
-                                  );
-                                },
-                              ),
-                              firstDay: DateTime(2020),
-                              lastDay: DateTime(2050),
-                              focusedDay: _focusedDay,
-                              headerVisible: false,
-                              rowHeight: 85,
-                              calendarStyle: CalendarStyle(
-                                tableBorder: TableBorder.all(
-                                  color: ColorCode.kDividerWhite12,
-                                  width: 1,
-                                ),
-                                defaultTextStyle: const TextStyle(color: Colors.white),
-                                weekendTextStyle: const TextStyle(color: Colors.white),
-                                outsideTextStyle: const TextStyle(color: Colors.white38),
-                              ),
-                              daysOfWeekStyle: const DaysOfWeekStyle(
-                                weekdayStyle: TextStyle(color: Colors.white70),
-                                weekendStyle: TextStyle(color: Colors.white70),
-                              ),
-                              onPageChanged: (focusedDay) {
-                                setState(() {
-                                  _focusedDay = focusedDay;
-                                  fetchavailability();
-                                });
-                              },
-                            ),
-        */
-                            CommonCalendar(
-                              focusedDay: _focusedDay,
-                              events: events,
-                              selectedEvent: selectedEvent,
-                              onPageChanged: (day) {
-                                setState(() {
-                                  _focusedDay = day;
-                                  fetchavailability();
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-                    const SizedBox(height: 12),
-    if (creatordashboarddetaillist.isNotEmpty) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Shoots",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w500,
-                            color: ColorCode.white,
-                          ),
-                        ),
-                     /*  GestureDetector(
-    onTap:
-    () {
+                               // RIGHT SIDE (dropdown)
+                               Container(
+                                 margin: const EdgeInsets.only(right: 8),
+                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                 decoration: BoxDecoration(
+                                   color: Colors.white,
+                                   borderRadius: BorderRadius.circular(10),
+                                 ),
+                                 child: DropdownButtonHideUnderline(
+                                   child: DropdownButton<String>(
+                                     value: selectedEvent,
+                                     isDense: true,
+                                     icon: const Icon(Icons.keyboard_arrow_down,
+                                         color: Colors.black, size: 18),
+                                     dropdownColor: Colors.white,
+                                     style: const TextStyle(color: Colors.black, fontSize: 13),
+                                     items: eventList.map((String value) {
+                                       return DropdownMenuItem(
+                                         value: value,
+                                         child: Text(value),
+                                       );
+                                     }).toList(),
+                                     onChanged: (value) {
+                                       setState(() {
+                                         selectedEvent = value!;
+                                       });
+                                     },
+                                   ),
+                                 ),
+                               ),
+                             ],
+                           ),
+                           // Row(
+                           //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                           //   children: [
+                           //     Row(
+                           //       children: [
+                           //         IconButton(
+                           //           icon: const Icon(Icons.chevron_left, color: Colors.white),
+                           //           onPressed: () {
+                           //             setState(() {
+                           //               _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
+                           //             });
+                           //           },
+                           //         ),
+                           //         Text(
+                           //           getMonthYear(_focusedDay),
+                           //           style: const TextStyle(
+                           //             color: Colors.white,
+                           //             fontSize: 18,
+                           //             fontWeight: FontWeight.w600,
+                           //           ),
+                           //         ),
+                           //         IconButton(
+                           //           icon: const Icon(Icons.chevron_right, color: Colors.white),
+                           //           onPressed: () {
+                           //             setState(() {
+                           //               _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
+                           //             });
+                           //           },
+                           //         ),
+                           //       ],
+                           //     ),
+                           //     Container(
+                           //       margin: EdgeInsets.all(7),
+                           //       padding: const EdgeInsets.symmetric(horizontal: 19,),
+                           //       decoration: BoxDecoration(
+                           //         color: ColorCode.white,
+                           //         borderRadius: BorderRadius.circular(6),
+                           //       ),
+                           //       child: DropdownButtonHideUnderline(
+                           //         child: DropdownButton<String>(
+                           //           value: selectedEvent,
+                           //           icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
+                           //           dropdownColor: Colors.white,
+                           //           style: const TextStyle(color: Colors.black, fontSize: 12),
+                           //           items: eventList.map((String value) {
+                           //             return DropdownMenuItem(
+                           //               value: value,
+                           //               child: Text(value),
+                           //             );
+                           //           }).toList(),
+                           //           onChanged: (value) {
+                           //             setState(() {
+                           //               selectedEvent = value!;
+                           //             });
+                           //           },
+                           //         ),
+                           //       ),
+                           //     )
+                           //   ],
+                           // ),
+                           const SizedBox(height: 10),
+                           /*     TableCalendar(
+                             daysOfWeekHeight: 70,
+                             calendarBuilders: CalendarBuilders(
+                               dowBuilder: (context, day) {
+                                 final text = DateFormat.E().format(day);
+                                 return Container(
+                                   height: 45,
+                                   alignment: Alignment.center,
+                                   decoration: BoxDecoration(
+                                     border: Border(
+                                       bottom: BorderSide(
+                                         color: ColorCode.kDividerWhite12,
+                                         width: 1,
+                                       ),
+                                     ),
+                                   ),
+                                   child: Text(
+                                     text,
+                                     style: const TextStyle(
+                                       color: Colors.white,
+                                       fontSize: 14,
+                                       fontWeight: FontWeight.w500,
+                                     ),
+                                   ),
+                                 );
+                               },
+                               defaultBuilder: (context, day, focusedDay) {
+                                 final dateKey = DateTime(day.year, day.month, day.day);
+                                 final event = events[dateKey];
+                                 bool showEvent = false;
+                                 if (selectedEvent == "All Events") {
+                                   showEvent = true;
+                                 } else if (selectedEvent == "Available" && event == "Available") {
+                                   showEvent = true;
+                                 } else if (selectedEvent == "Shoot" && event == "Shoot") {
+                                   showEvent = true;
+                                 }
+                                 return Column(
+                                   mainAxisAlignment: MainAxisAlignment.center,
+                                   children: [
+                                     Text("${day.day}", style: const TextStyle(color: Colors.white)),
+                                     const SizedBox(height: 4),
+                                     if (event != null && showEvent) eventLabel(event),
+                                   ],
+                                 );
+                               },
+                             ),
+                             firstDay: DateTime(2020),
+                             lastDay: DateTime(2050),
+                             focusedDay: _focusedDay,
+                             headerVisible: false,
+                             rowHeight: 85,
+                             calendarStyle: CalendarStyle(
+                               tableBorder: TableBorder.all(
+                                 color: ColorCode.kDividerWhite12,
+                                 width: 1,
+                               ),
+                               defaultTextStyle: const TextStyle(color: Colors.white),
+                               weekendTextStyle: const TextStyle(color: Colors.white),
+                               outsideTextStyle: const TextStyle(color: Colors.white38),
+                             ),
+                             daysOfWeekStyle: const DaysOfWeekStyle(
+                               weekdayStyle: TextStyle(color: Colors.white70),
+                               weekendStyle: TextStyle(color: Colors.white70),
+                             ),
+                             onPageChanged: (focusedDay) {
+                               setState(() {
+                                 _focusedDay = focusedDay;
+                                 fetchavailability();
+                               });
+                             },
+                           ),
+       */
+                           CommonCalendar(
+                             focusedDay: _focusedDay,
+                             events: events,
+                             selectedEvent: selectedEvent,
+                             onPageChanged: (day) {
+                               setState(() {
+                                 _focusedDay = day;
+                                 fetchavailability();
+                               });
+                             },
+                           ),
+                         ],
+                       ),
+                     ),
+                   ),
+                   const SizedBox(height: 12),
+                   Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                   const SizedBox(height: 12),
+           if (creatordashboarddetaillist.isNotEmpty) ...[
+                   Row(
+                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                     children: [
+                       Text(
+                         "Shoots",
+                         style: TextStyle(
+                           fontSize: 16,
+                           fontFamily: "Unbounded",
+                           fontWeight: FontWeight.w500,
+                           color: ColorCode.white,
+                         ),
+                       ),
+                    /*  GestureDetector(
+           onTap:
+           () {
 
-    Navigator.push(
-    context,MaterialPageRoute(builder: (context) => ShootsScreen(),),
-    );
-    },
+           Navigator.push(
+           context,MaterialPageRoute(builder: (context) => ShootsScreen(),),
+           );
+           },
 
-                       *//* InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ShootsScreen(), // 👈 next screen
-                              ),
-                            );
-                          },*//*
-                          child: const Icon(
-                            Icons.arrow_forward_ios,
-                            color: Colors.white70,
-                            size: 16,
-                          ),
-                        ),*/
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: ColorCode.k282828,
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(22),
-                                ),
-                                child: data?.shootTypeImageUrl != null &&
-                                    data!.shootTypeImageUrl.isNotEmpty
-                                    ? Image.network(
-                                  ApiService().getImageURL(data.shootTypeImageUrl),
-                                  height: 220,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
+                      *//* InkWell(
+                         onTap: () {
+                           Navigator.push(
+                             context,
+                             MaterialPageRoute(
+                               builder: (context) => ShootsScreen(), // 👈 next screen
+                             ),
+                           );
+                         },*//*
+                         child: const Icon(
+                           Icons.arrow_forward_ios,
+                           color: Colors.white70,
+                           size: 16,
+                         ),
+                       ),*/
+                     ],
+                   ),
+                   const SizedBox(height: 14),
+                   Container(
+                     decoration: BoxDecoration(
+                       color: ColorCode.k282828,
+                       borderRadius: BorderRadius.circular(22),
+                     ),
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Stack(
+                           children: [
+                             ClipRRect(
+                               borderRadius: const BorderRadius.vertical(
+                                 top: Radius.circular(22),
+                               ),
+                               child: data?.shootTypeImageUrl != null &&
+                                   data!.shootTypeImageUrl.isNotEmpty
+                                   ? Image.network(
+                                 ApiService().getImageURL(data.shootTypeImageUrl),
+                                 height: 220,
+                                 width: double.infinity,
+                                 fit: BoxFit.cover,
 
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Center(
-                                      child: SvgPicture.asset(
-                                        "assets/svg/image_holder.svg", // 👈 your svg path
-                                        height: 220,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    );
-                                  },
-                                )
-                                    : Center(
-                                  child: SvgPicture.asset(
-                                    "assets/svg/image_holder.svg",
-                                    height: 220,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Positioned.fill(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(22),
-                                    ),
-                                    gradient: LinearGradient(
-                                      begin: Alignment.bottomCenter,
-                                      end: Alignment.topCenter,
-                                      colors: [
-                                        Colors.black.withOpacity(0.6),
-                                        Colors.transparent,
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            /*  Positioned(
-                                top: 14,
-                                left: 14,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.6),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Text(
-                                    "10 mins Ago",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 14,
-                                right: 14,
-                                child: Container(
-                                  height: 38,
-                                  width: 38,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.arrow_forward,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                                ),
-                              ),*/
-                               /* Positioned(
-                                  bottom: 14,
-                                  left: 14,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xffC8F5D3),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Row(
-                                      children:  [
-                                        // Icon(Icons.check_circle, size: 14, color: Colors.green),
-                                        SizedBox(width: 6),
-                                        Text(
-                                          data?.status ?? "",
-                                          style: TextStyle(
-                                            color: Colors.green,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),*/
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        data?.projectName ?? "",
-                                        style: TextStyle(
-                                          fontFamily: "Outfit",
-                                          color: ColorCode.white,//
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: 8),
-                                    GestureDetector(
-                                      onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => UpcomingShootViewDetils(
-                                        projectid: data?.projectId ?? 0,
-                                      ))),
-                                      child: Text(
-                                        "View Details",
-                                        style: TextStyle(
-                                          fontFamily: "Outfit",
-                                          fontWeight: FontWeight.w600,
-                                          color: ColorCode.kButtonColor,
-                                          fontSize: 12,
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-                                const SizedBox(height: 12),
-                                Wrap(
-                                  spacing: 14,
-                                  runSpacing: 8,
-                                  children:  [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SvgPicture.asset(AppImages.calender, width: 14, height: 14),
-                                        SizedBox(width: 6),
-                                        Text(
-                                            DateTimeUtils.formatDate(
-                                              data?.eventDate.toIso8601String(),
-                                            ),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              fontFamily: "Outfit",
-                                              color: ColorCode.white,
-                                              fontSize: 10),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SvgPicture.asset(AppImages.time, width: 14, height: 14),
-                                        SizedBox(width: 6),
-                                        Text(
-                                            "${DateTimeUtils.formatTime(data?.startTime)} - ${DateTimeUtils.formatTime(data?.endTime)}",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              fontFamily: "Outfit",
-                                              color: ColorCode.white,
-                                              fontSize: 10),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SvgPicture.asset(AppImages.location, width: 14, height: 14),
-                                        SizedBox(width: 6),
-                                        Text(
-                                          data?.eventLocation ?? "",
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w400,
-                                            fontFamily: "Outfit",
-                                            color: ColorCode.white,
-                                            fontSize: 10,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 18),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
+                                 errorBuilder: (context, error, stackTrace) {
+                                   return Center(
+                                     child: SvgPicture.asset(
+                                       "assets/svg/image_holder.svg", // 👈 your svg path
+                                       height: 220,
+                                       width: double.infinity,
+                                       fit: BoxFit.cover,
+                                     ),
+                                   );
+                                 },
+                               )
+                                   : Center(
+                                 child: SvgPicture.asset(
+                                   "assets/svg/image_holder.svg",
+                                   height: 220,
+                                   width: double.infinity,
+                                   fit: BoxFit.cover,
+                                 ),
+                               ),
+                             ),
+                             Positioned.fill(
+                               child: Container(
+                                 decoration: BoxDecoration(
+                                   borderRadius: const BorderRadius.vertical(
+                                     top: Radius.circular(22),
+                                   ),
+                                   gradient: LinearGradient(
+                                     begin: Alignment.bottomCenter,
+                                     end: Alignment.topCenter,
+                                     colors: [
+                                       Colors.black.withOpacity(0.6),
+                                       Colors.transparent,
+                                     ],
+                                   ),
+                                 ),
+                               ),
+                             ),
+                           /*  Positioned(
+                               top: 14,
+                               left: 14,
+                               child: Container(
+                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                 decoration: BoxDecoration(
+                                   color: Colors.black.withOpacity(0.6),
+                                   borderRadius: BorderRadius.circular(20),
+                                 ),
+                                 child: const Text(
+                                   "10 mins Ago",
+                                   style: TextStyle(
+                                     color: Colors.white,
+                                     fontSize: 11,
+                                   ),
+                                 ),
+                               ),
+                             ),
+                             Positioned(
+                               bottom: 14,
+                               right: 14,
+                               child: Container(
+                                 height: 38,
+                                 width: 38,
+                                 decoration: BoxDecoration(
+                                   color: Colors.white.withOpacity(0.2),
+                                   shape: BoxShape.circle,
+                                 ),
+                                 child: const Icon(
+                                   Icons.arrow_forward,
+                                   color: Colors.white,
+                                   size: 18,
+                                 ),
+                               ),
+                             ),*/
+                              /* Positioned(
+                                 bottom: 14,
+                                 left: 14,
+                                 child: Container(
+                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                   decoration: BoxDecoration(
+                                     color: const Color(0xffC8F5D3),
+                                     borderRadius: BorderRadius.circular(20),
+                                   ),
+                                   child: Row(
+                                     children:  [
+                                       // Icon(Icons.check_circle, size: 14, color: Colors.green),
+                                       SizedBox(width: 6),
+                                       Text(
+                                         data?.status ?? "",
+                                         style: TextStyle(
+                                           color: Colors.green,
+                                           fontSize: 12,
+                                           fontWeight: FontWeight.w600,
+                                         ),
+                                       ),
+                                     ],
+                                   ),
+                                 ),
+                               ),*/
+                           ],
+                         ),
+                         Padding(
+                           padding: const EdgeInsets.all(16),
+                           child: Column(
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                             children: [
+                               Row(
+                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                 children: [
+                                   Expanded(
+                                     child: Text(
+                                       data?.projectName ?? "",
+                                       style: TextStyle(
+                                         fontFamily: "Outfit",
+                                         color: ColorCode.white,//
+                                         fontSize: 15,
+                                         fontWeight: FontWeight.w500,
+                                       ),
+                                     ),
+                                   ),
+                                   SizedBox(width: 8),
+                                   GestureDetector(
+                                     onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => UpcomingShootViewDetils(
+                                       projectid: data?.projectId ?? 0,
+                                     ))),
+                                     child: Text(
+                                       "View Details",
+                                       style: TextStyle(
+                                         fontFamily: "Outfit",
+                                         fontWeight: FontWeight.w600,
+                                         color: ColorCode.kButtonColor,
+                                         fontSize: 12,
+                                         decoration: TextDecoration.underline,
+                                       ),
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                               Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                               const SizedBox(height: 12),
+                               Wrap(
+                                 spacing: 14,
+                                 runSpacing: 8,
+                                 children:  [
+                                   Row(
+                                     mainAxisSize: MainAxisSize.min,
+                                     children: [
+                                       SvgPicture.asset(AppImages.calender, width: 14, height: 14),
+                                       SizedBox(width: 6),
+                                       Text(
+                                           DateTimeUtils.formatDate(
+                                             data?.eventDate.toIso8601String(),
+                                           ),
+                                         style: TextStyle(
+                                             fontWeight: FontWeight.w400,
+                                             fontFamily: "Outfit",
+                                             color: ColorCode.white,
+                                             fontSize: 10),
+                                       ),
+                                     ],
+                                   ),
+                                   Row(
+                                     mainAxisSize: MainAxisSize.min,
+                                     children: [
+                                       SvgPicture.asset(AppImages.time, width: 14, height: 14),
+                                       SizedBox(width: 6),
+                                       Text(
+                                           "${DateTimeUtils.formatTime(data?.startTime)} - ${DateTimeUtils.formatTime(data?.endTime)}",
+                                         style: TextStyle(
+                                             fontWeight: FontWeight.w400,
+                                             fontFamily: "Outfit",
+                                             color: ColorCode.white,
+                                             fontSize: 10),
+                                       ),
+                                     ],
+                                   ),
+                                   Row(
+                                     mainAxisSize: MainAxisSize.min,
+                                     children: [
+                                       SvgPicture.asset(AppImages.location, width: 14, height: 14),
+                                       SizedBox(width: 6),
+                                       Text(
+                                         data?.eventLocation ?? "",
+                                         maxLines: 1,
+                                         overflow: TextOverflow.ellipsis,
+                                         style: TextStyle(
+                                           fontWeight: FontWeight.w400,
+                                           fontFamily: "Outfit",
+                                           color: ColorCode.white,
+                                           fontSize: 10,
+                                         ),
+                                       )
+                                     ],
+                                   ),
+                                 ],
+                               ),
+                               const SizedBox(height: 18),
+                               Row(
+                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                 children: [
 
-                                    /// ✅ LEFT SIDE (Avatar Stack)
-                                    // _buildAvatarStack(
-                                    // images: [
-                                    // AppImages.avtarstack,
-                                    // AppImages.avtarstack,
-                                    // AppImages.avtarstack,
-                                    // AppImages.avtarstack,
-                                    // ],
-                                    // extraCount: 3,
-                                    // avatarSize: 20,
-                                    // overlap: 10,
-                                    // ),
-                                    SizedBox(),
+                                   /// ✅ LEFT SIDE (Avatar Stack)
+                                   // _buildAvatarStack(
+                                   // images: [
+                                   // AppImages.avtarstack,
+                                   // AppImages.avtarstack,
+                                   // AppImages.avtarstack,
+                                   // AppImages.avtarstack,
+                                   // ],
+                                   // extraCount: 3,
+                                   // avatarSize: 20,
+                                   // overlap: 10,
+                                   // ),
+                                   SizedBox(),
 
-                                    /// ✅ RIGHT SIDE (Your SAME Buttons - untouched)
-                                    ///
-                                      Row(
-                                        children: [
-                                          ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color(0xffD8FDE6),
-                                            ),
-                                            onPressed: () {
-                                              if (data != null) {
-                                                fetchacceptdecline(data!.projectId, 1);
-                                              }
-                                            },
-                                            child: const Text(
-                                              "Accept",
-                                              style: TextStyle(
-                                                  color:ColorCode.green,
-                                                  fontFamily: "Outfit",
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 12
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color(0xffEECCC9),
-                                            ),
-                                          /*  onPressed: () {
-                                              if (data != null) {
-                                                fetchacceptdecline(data!.projectId, 2);
-                                              }
-                                            }*/
-                                            onPressed: () async {
-                                              final result = await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      CancelScreen(projectId: data?.projectId),
-                                                ),
-                                              );
+                                   /// ✅ RIGHT SIDE (Your SAME Buttons - untouched)
+                                   ///
+                                     Row(
+                                       children: [
+                                         ElevatedButton(
+                                           style: ElevatedButton.styleFrom(
+                                             backgroundColor: Color(0xffD8FDE6),
+                                           ),
+                                           onPressed: () {
+                                             if (data != null) {
+                                               fetchacceptdecline(data!.projectId, 1);
+                                             }
+                                           },
+                                           child: const Text(
+                                             "Accept",
+                                             style: TextStyle(
+                                                 color:ColorCode.green,
+                                                 fontFamily: "Outfit",
+                                                 fontWeight: FontWeight.w600,
+                                                 fontSize: 12
+                                             ),
+                                           ),
+                                         ),
+                                         const SizedBox(width: 10),
+                                         ElevatedButton(
+                                           style: ElevatedButton.styleFrom(
+                                             backgroundColor: Color(0xffEECCC9),
+                                           ),
+                                         /*  onPressed: () {
+                                             if (data != null) {
+                                               fetchacceptdecline(data!.projectId, 2);
+                                             }
+                                           }*/
+                                           onPressed: () async {
+                                             final result = await Navigator.push(
+                                               context,
+                                               MaterialPageRoute(
+                                                 builder: (context) =>
+                                                     CancelScreen(projectId: data?.projectId),
+                                               ),
+                                             );
 
-                                              // 👇 BACK aane ke baad refresh
-                                              if (result == true) {
-                                                fetchcreatordashboarddetails();
-                                              }
-                                            },
-                                            child: const Text(
-                                              "Decline",
-                                              style: TextStyle(
-                                                color:ColorCode.red,
-                                                fontFamily: "Outfit",
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 12
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Divider(color: ColorCode.kDividerWhite12,
-                    thickness: 0.8),
-                    ],
-                    SizedBox(height: 12),
-                /*    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Upcoming Meetings",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w500,
-                            color: ColorCode.white,
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {},
-                          child: const Icon(
-                            Icons.arrow_forward_ios,
-                            color: Colors.white70,
-                            size: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    SizedBox(
-                      height: 330,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          AnimatedPositioned(
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeInOut,
-                            top: currentIndex == 0 ? 50 : 20,
-                            child: AnimatedScale(
-                              duration: const Duration(milliseconds: 500),
-                              scale: currentIndex == 0 ? 0.85 : 0.95,
-                              child: _meetingCard(
-                                opacity: 0.3,
-                                backgroundColor: Colors.white.withOpacity(0.03),
-                              ),
-                            ),
-                          ),
-                          AnimatedPositioned(
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeInOut,
-                            top: currentIndex == 0 ? 25 : 50,
-                            child: AnimatedScale(
-                              duration: const Duration(milliseconds: 500),
-                              scale: currentIndex == 0 ? 0.92 : 0.85,
-                              child: _meetingCard(
-                                opacity: 0.6,
-                                backgroundColor: Colors.white.withOpacity(0.05),
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                currentIndex = currentIndex == 0 ? 1 : 0;
-                              });
-                            },
-                            child: AnimatedSlide(
-                              duration: const Duration(milliseconds: 500),
-                              offset: currentIndex == 0
-                                  ? const Offset(0, 0)
-                                  : const Offset(0, -0.05),
-                              curve: Curves.easeInOut,
-                              child: _meetingCard(
-                                opacity: 1,
-                                backgroundColor: ColorCode.k282828,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 14),*/
-                    // Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-                    const SizedBox(height: 14),
-                    Container(
-                      padding: const EdgeInsets.all(22),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF161616),
-                        borderRadius: BorderRadius.circular(28),
-                        border: Border.all(color: Colors.white10),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                "Shoot Status",
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontFamily: "Outfit",
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Container(
-                                height: 38,
-                                padding: const EdgeInsets.symmetric(horizontal: 14),
-                                decoration: BoxDecoration(
-                                  color: ColorCode.k282828,
-                                  borderRadius: BorderRadius.circular(30),
-                                  border: Border.all(
-                                    color: ColorCode.kWhiteOpacity70,
-                                  ),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: selectedRange,
-                                    dropdownColor: const Color(0xFF1E1E1E),
-                                    icon: const Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Colors.white70,
-                                      size: 20,
-                                    ),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: "Outfit",
-                                    ),
-                                    items: ["Week", "Month", "Year"]
-                                        .map(
-                                          (e) => DropdownMenuItem<String>(
-                                        value: e,
-                                        child: Text(e),
-                                      ),
-                                    )
-                                        .toList(),
-                                    onChanged: (val) {
-                                      setState(() {
-                                        selectedRange = val!;
-                                      });
+                                             // 👇 BACK aane ke baad refresh
+                                             if (result == true) {
+                                               fetchcreatordashboarddetails();
+                                             }
+                                           },
+                                           child: const Text(
+                                             "Decline",
+                                             style: TextStyle(
+                                               color:ColorCode.red,
+                                               fontFamily: "Outfit",
+                                               fontWeight: FontWeight.w600,
+                                               fontSize: 12
+                                             ),
+                                           ),
+                                         ),
+                                       ],
+                                     )
+                                 ],
+                               ),
+                             ],
+                           ),
+                         ),
+                       ],
+                     ),
+                   ),
+                   const SizedBox(height: 12),
+                   Divider(color: ColorCode.kDividerWhite12,
+                   thickness: 0.8),
+                   ],
+                   SizedBox(height: 12),
+               /*    Row(
+                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                     children: [
+                       Text(
+                         "Upcoming Meetings",
+                         style: TextStyle(
+                           fontSize: 16,
+                           fontFamily: "Unbounded",
+                           fontWeight: FontWeight.w500,
+                           color: ColorCode.white,
+                         ),
+                       ),
+                       InkWell(
+                         onTap: () {},
+                         child: const Icon(
+                           Icons.arrow_forward_ios,
+                           color: Colors.white70,
+                           size: 16,
+                         ),
+                       ),
+                     ],
+                   ),
+                   const SizedBox(height: 14),
+                   SizedBox(
+                     height: 330,
+                     child: Stack(
+                       alignment: Alignment.center,
+                       children: [
+                         AnimatedPositioned(
+                           duration: const Duration(milliseconds: 500),
+                           curve: Curves.easeInOut,
+                           top: currentIndex == 0 ? 50 : 20,
+                           child: AnimatedScale(
+                             duration: const Duration(milliseconds: 500),
+                             scale: currentIndex == 0 ? 0.85 : 0.95,
+                             child: _meetingCard(
+                               opacity: 0.3,
+                               backgroundColor: Colors.white.withOpacity(0.03),
+                             ),
+                           ),
+                         ),
+                         AnimatedPositioned(
+                           duration: const Duration(milliseconds: 500),
+                           curve: Curves.easeInOut,
+                           top: currentIndex == 0 ? 25 : 50,
+                           child: AnimatedScale(
+                             duration: const Duration(milliseconds: 500),
+                             scale: currentIndex == 0 ? 0.92 : 0.85,
+                             child: _meetingCard(
+                               opacity: 0.6,
+                               backgroundColor: Colors.white.withOpacity(0.05),
+                             ),
+                           ),
+                         ),
+                         GestureDetector(
+                           onTap: () {
+                             setState(() {
+                               currentIndex = currentIndex == 0 ? 1 : 0;
+                             });
+                           },
+                           child: AnimatedSlide(
+                             duration: const Duration(milliseconds: 500),
+                             offset: currentIndex == 0
+                                 ? const Offset(0, 0)
+                                 : const Offset(0, -0.05),
+                             curve: Curves.easeInOut,
+                             child: _meetingCard(
+                               opacity: 1,
+                               backgroundColor: ColorCode.k282828,
+                             ),
+                           ),
+                         ),
+                       ],
+                     ),
+                   ),
+                   const SizedBox(height: 14),*/
+                   // Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                   const SizedBox(height: 14),
+                   Row(
+                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                     children: [
+                       const Text(
+                         "Shoot Status",
+                         style: TextStyle(
+                           fontSize: 17,
+                           fontFamily: "Outfit",
+                           color: Colors.white,
+                           fontWeight: FontWeight.w600,
+                         ),
+                       ),
+                       Container(
+                         height: 38,
+                         padding: const EdgeInsets.symmetric(horizontal: 14),
+                         decoration: BoxDecoration(
+                           color: ColorCode.k282828,
+                           borderRadius: BorderRadius.circular(30),
+                           border: Border.all(
+                             color: ColorCode.kWhiteOpacity70,
+                           ),
+                         ),
+                         child: DropdownButtonHideUnderline(
+                           child: DropdownButton<String>(
+                             value: selectedRange,
+                             dropdownColor: const Color(0xFF1E1E1E),
+                             icon: const Icon(
+                               Icons.keyboard_arrow_down,
+                               color: Colors.white70,
+                               size: 20,
+                             ),
+                             style: const TextStyle(
+                               color: Colors.white,
+                               fontSize: 14,
+                               fontWeight: FontWeight.w500,
+                               fontFamily: "Outfit",
+                             ),
+                             items: ["Week", "Month", "Year"]
+                                 .map(
+                                   (e) => DropdownMenuItem<String>(
+                                 value: e,
+                                 child: Text(e),
+                               ),
+                             )
+                                 .toList(),
+                             onChanged: (val) {
+                               setState(() {
+                                 selectedRange = val!;
+                               });
 
-                                      // 👇 yaha lagao
-                                      fetchCrewStats(getFilterValue());
+                               // 👇 yaha lagao
+                               fetchCrewStats(getFilterValue());
 
-                                    },
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                          const SizedBox(height: 35),
-                          Center(
-                            child: SizedBox(
-                              height: 160,
-                              width: 300,
-                              child: Stack(
-                                alignment: Alignment.bottomCenter,
-                                children: [
-                                  CustomPaint(
-                                    size: const Size(500, 150),
-                                    painter: MultiArcPainter(
-                                      values: const [0.80, 0.70, 0.5, 0.60],
-                                      colors: const [
-                                        Color(0xFFA678F1),
-                                        Color(0xFF5CC4FF),
-                                        Color(0xFFFFC04F),
-                                        Color(0xFF2DC497),
-                                      ],
-                                    ),
-                                  ),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        "${sucessfullshoots+pendingshoots+rejectedshoots+shootrequest}",
-                                        style: const TextStyle(
-                                          color: Color(0xFFE8D7B9),
-                                          fontSize: 26,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: "Outfit",
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 35),
-                          _statusItem("${sucessfullshoots}", "Successful Shoots", const Color(0xFFA678F1)),
-                          _statusItem("${pendingshoots}", "Pending Shoots", const Color(0xFF5CC4FF)),
-                          _statusItem("${rejectedshoots}", "Rejected Shoots", const Color(0xFFFFC04F)),
-                          _statusItem("${shootrequest}", "Shoot Requests", const Color(0xFF2DC497)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-                    const SizedBox(height: 14),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Shoot Categories",
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontFamily: "Outfit",
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Container(
-                          height: 38,
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1C1C1C),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: Colors.white24,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    selectedTab = 0;
+                             },
+                           ),
+                         ),
+                       )
+                     ],
+                   ),
+                   const SizedBox(height: 20),
+                   Container(
+                     padding: const EdgeInsets.all(22),
+                     decoration: BoxDecoration(
+                       color: const Color(0xFF161616),
+                       borderRadius: BorderRadius.circular(28),
+                       border: Border.all(color: Colors.white10),
+                     ),
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
 
-                                  });
-                                  fetchShootCategories("photo"); // 🔥 ADD
-                                },
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 250),
-                                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                                  decoration: BoxDecoration(
-                                    color: selectedTab == 0
-                                        ? const Color(0xFFE8D7B9)
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "Photo",
-                                    style: TextStyle(
-                                      color: selectedTab == 0
-                                          ? Colors.black
-                                          : Colors.white70,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: "Outfit",
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    selectedTab = 1;
-                                  });
-                                  fetchShootCategories("video"); // 🔥 ADD
-                                },
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 250),
-                                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                                  decoration: BoxDecoration(
-                                    color: selectedTab == 1
-                                        ? const Color(0xFFE8D7B9)
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "Video",
-                                    style: TextStyle(
-                                      color: selectedTab == 1
-                                          ? Colors.black
-                                          : Colors.white70,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: "Outfit",
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Container(
-                      padding: const EdgeInsets.all(22),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF161616),
-                        borderRadius: BorderRadius.circular(28),
-                        border: Border.all(color: Colors.white10),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: SizedBox(
-                              height: 160,
-                              width: 300,
-                              child: Stack(
-                                alignment: Alignment.bottomCenter,
-                                children: [
-                                  CustomPaint(
-                                    size: const Size(500, 150),
-                                    painter: MultiArcPainter(
-                                      values: const [0.80, 0.70, 0.5, 0.60],
-                                      colors: const [
-                                        Color(0xFFA678F1),
-                                        Color(0xFF5CC4FF),
-                                        Color(0xFFFFC04F),
-                                        Color(0xFF2DC497),
-                                      ],
-                                    ),
-                                  ),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        selectedTab == 0?
-                                        photographyShoots.toString()
-                                            :videographyShoots.toString(),
-                                        //      Text(
-                                        //                                     selectedTab == 0?
-                                        //                                     acceptphotographyShoots.toString()
-                                        //                                     :.toString(),
+                         Center(
+                           child: SizedBox(
+                             height: 160,
+                             width: 300,
+                             child: Stack(
+                               alignment: Alignment.bottomCenter,
+                               children: [
+                                 CustomPaint(
+                                   size: const Size(700, 150),
+                                   painter: MultiArcPainter(
+                                     values: [
+                                       sucessfullshoots == 0
+                                           ? 0.05
+                                           : (sucessfullshoots / 10).clamp(0.1, 1.0),
 
-                                        style: const TextStyle(
-                                          color: Color(0xFFE8D7B9),
-                                          fontSize: 26,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: "Outfit",
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 35),
-                          selectedTab == 0
-                              ? _statusItem("$acceptphotographyShoots", "Photography Shoots", const Color(0xFFA678F1))
-                              : _statusItem("$acceptvideographyShoots", "Videography Shoots", const Color(0xFF5CC4FF)),
+                                       pendingshoots == 0
+                                           ? 0.05
+                                           : (pendingshoots / 10).clamp(0.1, 1.0),
 
-                          _statusItem(
-                            selectedTab == 0
-                                ? "$rejectedPhoto"
-                                : "$rejectedVideo",
-                            "Rejected Shoots",
-                            const Color(0xFFFFC04F),
-                          ),
+                                       rejectedshoots == 0
+                                           ? 0.05
+                                           : (rejectedshoots / 10).clamp(0.1, 1.0),
 
-                          _statusItem(
-                            selectedTab == 0
-                                ? "$requestPhoto"
-                                : "$requestVideo",
-                            "Shoot Requests",
-                            const Color(0xFF2DC497),
-                          ),
+                                       shootrequest == 0
+                                           ? 0.05
+                                           : (shootrequest / 10).clamp(0.1, 1.0),
+                                     ],
+                                     colors: const [
+                                       Color(0xFFA678F1),
+                                       Color(0xFF5CC4FF),
+                                       Color(0xFFFFC04F),
+                                       Color(0xFF2DC497),
+                                     ],
+                                   ),
+                                 ),
+                                 Column(
+                                   mainAxisSize: MainAxisSize.min,
+                                   children: [
+                                     Text(
+                                       "${sucessfullshoots+pendingshoots+rejectedshoots+shootrequest}",
+                                       style: const TextStyle(
+                                         color: Color(0xFFE8D7B9),
+                                         fontSize: 26,
+                                         fontWeight: FontWeight.bold,
+                                         fontFamily: "Outfit",
+                                       ),
+                                     ),
+                                     const SizedBox(height: 4),
+                                   ],
+                                 ),
+                               ],
+                             ),
+                           ),
+                         ),
+                         const SizedBox(height: 35),
+                         _statusItem("${sucessfullshoots}", "Successful Shoots", const Color(0xFFA678F1)),
+                         _statusItem("${pendingshoots}", "Pending Shoots", const Color(0xFF5CC4FF)),
+                         _statusItem("${rejectedshoots}", "Rejected Shoots", const Color(0xFFFFC04F)),
+                         _statusItem("${shootrequest}", "Shoot Requests", const Color(0xFF2DC497)),
+                       ],
+                     ),
+                   ),
+                   const SizedBox(height: 14),
+                   Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                   const SizedBox(height: 14),
+                   Row(
+                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                     children: [
+                       const Text(
+                         "Shoot Categories",
+                         style: TextStyle(
+                           fontSize: 17,
+                           fontFamily: "Outfit",
+                           color: Colors.white,
+                           fontWeight: FontWeight.w600,
+                         ),
+                       ),
+                       Container(
+                         height: 38,
+                         padding: const EdgeInsets.all(4),
+                         decoration: BoxDecoration(
+                           color: const Color(0xFF1C1C1C),
+                           borderRadius: BorderRadius.circular(30),
+                           border: Border.all(
+                             color: Colors.white24,
+                           ),
+                         ),
+                         child: Row(
+                           mainAxisSize: MainAxisSize.min,
+                           children: [
+                             GestureDetector(
+                               onTap: () {
+                                 setState(() {
+                                   selectedTab = 0;
 
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
-      );
+                                 });
+                                 fetchShootCategories("photo"); // 🔥 ADD
+                               },
+                               child: AnimatedContainer(
+                                 duration: const Duration(milliseconds: 250),
+                                 padding: const EdgeInsets.symmetric(horizontal: 18),
+                                 decoration: BoxDecoration(
+                                   color: selectedTab == 0
+                                       ? const Color(0xFFE8D7B9)
+                                       : Colors.transparent,
+                                   borderRadius: BorderRadius.circular(25),
+                                 ),
+                                 alignment: Alignment.center,
+                                 child: Text(
+                                   "Photo",
+                                   style: TextStyle(
+                                     color: selectedTab == 0
+                                         ? Colors.black
+                                         : Colors.white70,
+                                     fontSize: 13,
+                                     fontWeight: FontWeight.w500,
+                                     fontFamily: "Outfit",
+                                   ),
+                                 ),
+                               ),
+                             ),
+                             GestureDetector(
+                               onTap: () {
+                                 setState(() {
+                                   selectedTab = 1;
+                                 });
+                                 fetchShootCategories("video"); // 🔥 ADD
+                               },
+                               child: AnimatedContainer(
+                                 duration: const Duration(milliseconds: 250),
+                                 padding: const EdgeInsets.symmetric(horizontal: 18),
+                                 decoration: BoxDecoration(
+                                   color: selectedTab == 1
+                                       ? const Color(0xFFE8D7B9)
+                                       : Colors.transparent,
+                                   borderRadius: BorderRadius.circular(25),
+                                 ),
+                                 alignment: Alignment.center,
+                                 child: Text(
+                                   "Video",
+                                   style: TextStyle(
+                                     color: selectedTab == 1
+                                         ? Colors.black
+                                         : Colors.white70,
+                                     fontSize: 13,
+                                     fontWeight: FontWeight.w500,
+                                     fontFamily: "Outfit",
+                                   ),
+                                 ),
+                               ),
+                             ),
+                           ],
+                         ),
+                       )
+                     ],
+                   ),
+                   const SizedBox(height: 14),
+                   Container(
+                     padding: const EdgeInsets.all(22),
+                     decoration: BoxDecoration(
+                       color: const Color(0xFF161616),
+                       borderRadius: BorderRadius.circular(28),
+                       border: Border.all(color: Colors.white10),
+                     ),
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Center(
+                           child: SizedBox(
+                             height: 160,
+                             width: 300,
+                             child: Stack(
+                               alignment: Alignment.bottomCenter,
+                               children: [
+                                 CustomPaint(
+                                   size: const Size(700, 150),
+                                   painter: MultiArcPainter(
+                                     values: [
+                                       categoryAccepted == 0
+                                           ? 0
+                                           : categoryAccepted / categoryMaxValue,
+
+                                       selectedTab == 0
+                                           ? 0
+                                           : categoryAccepted / categoryMaxValue,
+
+                                       categoryRejected == 0
+                                           ? 0
+                                           : categoryRejected / categoryMaxValue,
+
+                                       categoryRequest == 0
+                                           ? 0
+                                           : categoryRequest / categoryMaxValue,
+                                     ],
+                                     colors: const [
+                                       Color(0xFFA678F1),
+                                       Color(0xFF5CC4FF),
+                                       Color(0xFFFFC04F),
+                                       Color(0xFF2DC497),
+                                     ],
+                                   ),
+                                 ),
+                                 Column(
+                                   mainAxisSize: MainAxisSize.min,
+                                   children: [
+                                     Text(
+                                       selectedTab == 0?
+                                       photographyShoots.toString()
+                                           :videographyShoots.toString(),
+                                       //      Text(
+                                       //                                     selectedTab == 0?
+                                       //                                     acceptphotographyShoots.toString()
+                                       //                                     :.toString(),
+
+                                       style: const TextStyle(
+                                         color: Color(0xFFE8D7B9),
+                                         fontSize: 26,
+                                         fontWeight: FontWeight.bold,
+                                         fontFamily: "Outfit",
+                                       ),
+                                     ),
+                                     const SizedBox(height: 4),
+                                   ],
+                                 ),
+                               ],
+                             ),
+                           ),
+                         ),
+                         const SizedBox(height: 35),
+                         selectedTab == 0
+                             ? _statusItem("$acceptphotographyShoots", "Photography Shoots", const Color(0xFFA678F1))
+                             : _statusItem("$acceptvideographyShoots", "Videography Shoots", const Color(0xFF5CC4FF)),
+
+                         _statusItem(
+                           selectedTab == 0
+                               ? "$rejectedPhoto"
+                               : "$rejectedVideo",
+                           "Rejected Shoots",
+                           const Color(0xFFFFC04F),
+                         ),
+
+                         _statusItem(
+                           selectedTab == 0
+                               ? "$requestPhoto"
+                               : "$requestVideo",
+                           "Shoot Requests",
+                           const Color(0xFF2DC497),
+                         ),
+
+                       ],
+                     ),
+                   ),
+                 ],
+               ),
+             )
+           ],
+         ),
+       );
 
   }
 

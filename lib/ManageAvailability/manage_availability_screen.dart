@@ -299,7 +299,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   const SizedBox(height: 16),
 
                   _buildStatCard(
-                    icon: Icons.calendar_today_outlined,
+                    svgIcon: AppImages.calender,
                     title: "Available Days",
                     value: "${_getAvailableDaysCount()}",
                   ),
@@ -307,7 +307,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   const SizedBox(height: 12),
 
                   _buildStatCard(
-                    icon: Icons.videocam_outlined,
+                    svgIcon: AppImages.book_video,
                     title: "Book Shoots",
                     value: "${_getShootCount()}",
                   ),
@@ -315,7 +315,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   const SizedBox(height: 12),
 
                   _buildStatCard(
-                    icon: Icons.hourglass_empty,
+                    svgIcon: AppImages.HourglasTime,
                     title: "Time Off",
                     value: "${_getTimeOffCount()}",
                   ),
@@ -326,7 +326,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
             const SizedBox(height: 20),
 
             // Share Availability Section
-            Container(
+          /*  Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
@@ -392,7 +392,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
             ),
 
             const Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-            const SizedBox(height: 12),
+            const SizedBox(height: 12),*/
 
             // Upcoming Shoots Section
             const Padding(
@@ -749,9 +749,9 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
   }
 
   Widget _buildStatCard({
-    required IconData icon,
+
     required String title,
-    required String value,
+    required String value,   required String svgIcon,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -767,8 +767,16 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               color: const Color(0xFF4A4A4C),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: Colors.white70, size: 20),
-          ),
+            // child: Icon(icon, color: Colors.white70, size: 20),
+
+      child: SvgPicture.asset(
+        svgIcon,
+        height: 20,
+        width: 20,
+        color: Colors.white70,
+      ),
+    ),
+
           const SizedBox(width: 14),
           Expanded(
             child: Text(

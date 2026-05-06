@@ -171,7 +171,43 @@ class ApiService {
       return null;
     }
   }
+  Future<dynamic> postMultipartDataMultiple(
+      String url,
+      Map<String, String> fields,
+      List<File> files,
+      ) async {
+    try {
+      var uri = Uri.parse(baseUrl + url);
+      var request = http.MultipartRequest('POST', uri);
 
+      final headers = await createAuthorizationHeader();
+      headers.remove('Content-Type');
+      request.headers.addAll(headers);
+
+      request.fields.addAll(fields);
+
+      // ✅ LOOP — saari images pass hongi
+      for (int i = 0; i < files.length; i++) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'files[]',
+            files[i].path,
+            filename: files[i].path.split('/').last,
+          ),
+        );
+        debugPrint("📁 FILE[$i] => ${files[i].path.split('/').last}");
+      }
+
+      var response = await request.send();
+      var responseBody = await response.stream.bytesToString();
+      debugPrint("📥 RESPONSE => $responseBody");
+
+      return jsonDecode(responseBody);
+    } catch (e) {
+      debugPrint("🔥 MULTIPART ERROR => $e");
+      return null;
+    }
+  }
   Future<dynamic> postMultipartStep3(
       String url, {
         required Map<String, String> fields,
