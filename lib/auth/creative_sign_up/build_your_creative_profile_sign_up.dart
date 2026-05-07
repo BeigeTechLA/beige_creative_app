@@ -698,7 +698,7 @@ class _BuildYourCreativeProfileSignUpState extends State<BuildYourCreativeProfil
 ''';
 
     return Scaffold(
-      backgroundColor: ColorCode.bcakgroundcolor,
+      backgroundColor: ColorCode.backgroundColor,
 
       body: Stack(
         children: [

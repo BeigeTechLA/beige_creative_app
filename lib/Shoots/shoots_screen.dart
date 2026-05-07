@@ -1,6 +1,7 @@
   import 'package:auto_skeleton/auto_skeleton.dart';
   import 'package:beige_creative_app/service/api_endpoints.dart';
   import 'package:beige_creative_app/service/api_service.dart';
+import 'package:beige_creative_app/widgets/app_loder.dart';
   import 'package:flutter/foundation.dart';
   import 'package:flutter/material.dart';
   import 'package:flutter_svg/svg.dart';
@@ -35,8 +36,9 @@ import 'shoot_cancelled_screen.dart';
     int myrejectedRequests=0;
 
     ShootsModel? shoots;
-
     List<Shoot> mylist = [];
+    List<Shoot> allShoots = [];
+
     TextEditingController searchController = TextEditingController();
     List<Shoot> filteredList = [];
     Future<void>fetchacceptdecline(int projectid,int crewid)async{
@@ -96,6 +98,7 @@ import 'shoot_cancelled_screen.dart';
       if (response.error == false) {
         setState(() {
           mylist = response.data.shoots;
+          allShoots = response.data.shoots;
           isLoading = false;
 
         });
@@ -105,35 +108,49 @@ import 'shoot_cancelled_screen.dart';
     }
 
     void searchShoots(String query) {
+
+      /// ✅ agar search empty ho
+      if (query.trim().isEmpty) {
+        setState(() {
+          mylist = List.from(allShoots);
+        });
+        return;
+      }
+
       final lowerQuery = query.toLowerCase();
 
-      setState(() {
-        mylist = mylist.where((shoot) {
-          final projectName = (shoot.projectName ?? "").toLowerCase();
-          final contentType = (shoot.contentType ?? "").toLowerCase();
+      final filtered = allShoots.where((shoot) {
 
-          return projectName.contains(lowerQuery) ||
-              contentType.contains(lowerQuery);
-        }).toList();
+        final projectName =
+        (shoot.projectName ?? "").toLowerCase();
+
+        final contentType =
+        (shoot.contentType ?? "").toLowerCase();
+
+        return projectName.contains(lowerQuery) ||
+            contentType.contains(lowerQuery);
+
+      }).toList();
+
+      setState(() {
+        mylist = filtered;
       });
     }
     @override
     Widget build(BuildContext context) {
 
 
-      return SafeArea(
-        
-        child: AutoSkeleton(
-          enabled: isLoading,
-          child: Column(
+      return Stack(
+        children: [
+          Column(
             children: [
-          
+
               /// 🔥 TOP BAR
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
-          
+
                     /// MENU
                     Builder(
                       builder: (context) => InkWell(
@@ -141,12 +158,12 @@ import 'shoot_cancelled_screen.dart';
                           Scaffold.of(context).openDrawer();
                         },
                         child: SvgPicture.asset(AppImages.menu,height: 26,),
-          
+
                       ),
                     ),
-          
+
                     const Spacer(),
-          
+
                     /// TITLE
                     const Text(
                       "Shoots",
@@ -157,17 +174,17 @@ import 'shoot_cancelled_screen.dart';
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-          
+
                     const Spacer(),
-          
+
                     /// FILTER
                     GestureDetector(
                         onTap: () => _showFilterBottomSheet(context),
-                    child: SvgPicture.asset(AppImages.filter,width: 26,height: 26,)),
+                        child: SvgPicture.asset(AppImages.filter,width: 26,height: 26,)),
                   ],
                 ),
               ),
-          
+
               /// 🔥 COUNT CARDS
               SizedBox(
                 height: 70, // 👈 compact height
@@ -182,9 +199,9 @@ import 'shoot_cancelled_screen.dart';
                   ],
                 ),
               ),
-          
+
               const SizedBox(height: 15),
-          
+
               /// 🔥 SEARCH BAR
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -205,8 +222,8 @@ import 'shoot_cancelled_screen.dart';
                     decoration: InputDecoration(
                       hintText: "Search events or crew...",
                       hintStyle: const TextStyle(
-                        color: Colors.white38,
-                        fontFamily: "Outfit"
+                          color: Colors.white38,
+                          fontFamily: "Outfit"
                       ),
                       prefixIcon: const Icon(
                         Icons.search,
@@ -218,9 +235,9 @@ import 'shoot_cancelled_screen.dart';
                   ),
                 ),
               ),
-          
+
               const SizedBox(height: 20),
-          
+
               /// 🔥 LIST SECTION
               Expanded(
                 child: ListView.builder(
@@ -234,7 +251,10 @@ import 'shoot_cancelled_screen.dart';
               )
             ],
           ),
-        ),
+          if(isLoading)
+            AppLoader()
+        ],
+
       );
     }
 

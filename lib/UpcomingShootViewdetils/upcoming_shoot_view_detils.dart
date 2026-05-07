@@ -2,6 +2,7 @@ import 'package:auto_skeleton/auto_skeleton.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -57,30 +58,49 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
 
 
 MyData? mydata;//
-  Future<void>fetchupcomingshootview()async{
+
+  Future<void> fetchupcomingshootview() async {
+
     setState(() {
-      isloading=true;
+      isloading = true;
     });
-    final response= Upcomingshootviewmodel.fromJson(await ApiService().fetchData('creator/project-details/${widget.projectid}'));
 
-    if(response.error==false){
+    /// 🔥 URL PRINT
+    final url = 'creator/project-details/${widget.projectid}';
 
+    debugPrint("🔥 API URL => $url");
+
+    /// 🔥 API CALL
+    final rawResponse =
+    await ApiService().fetchData(url);
+
+    /// 🔥 FULL RESPONSE PRINT
+    debugPrint("🔥 API RESPONSE => $rawResponse");
+
+    final response =
+    Upcomingshootviewmodel.fromJson(rawResponse);
+
+    if (response.error == false) {
+
+      /// 🔥 IMAGE URL PRINT
+      final imageUrl = ApiService().getImageURL(
+        response.data.project.imageUrl ?? "",
+      );
+
+      debugPrint("🔥 IMAGE URL => $imageUrl");
 
       setState(() {
-        mydata=response.data;
+        mydata = response.data;
         isloading = false;
+      });
 
+    } else {
+
+      setState(() {
+        isloading = false;
       });
     }
-
-    
-    
-
-
-
-
   }
-
 
 
   @override
@@ -99,39 +119,38 @@ MyData? mydata;//
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: AutoSkeleton(
-        enabled: isloading,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
 
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+                /// 🔥 TOP IMAGE SECTION
+                Stack(
+                  children: [
+                    /// 🔥 IMAGE
+                    SizedBox(
+                      height: 330,
+                      width: double.infinity,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(0), // optional
+                        child: Image.network(
+                          ApiService().getImageURL(mydata?.project.imageUrl ?? ""),
+                          fit: BoxFit.cover,
 
-              /// 🔥 TOP IMAGE SECTION
-              Stack(
-                children: [
-                  /// 🔥 IMAGE
-                  SizedBox(
-                    height: 330,
-                    width: double.infinity,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(0), // optional
-                      child: Image.network(
-                        ApiService().getImageURL(mydata?.project.imageUrl ?? ""),
-                        fit: BoxFit.cover,
-
-                        /// ❌ error → fallback
-                        errorBuilder: (_, __, ___) {
-                          return SvgPicture.asset(
-                            "assets/svg/image_holder.svg",
-                            fit: BoxFit.cover,
-                          );
-                        },
+                          /// ❌ error → fallback
+                          errorBuilder: (_, __, ___) {
+                            return SvgPicture.asset(
+                              "assets/svg/image_holder.svg",
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
 
-                  /// 🔥 DARK GRADIENT (Bottom Fade Effect)
+                    /// 🔥 DARK GRADIENT (Bottom Fade Effect)
                     /*        Container(
                       height: 330,
                       decoration: BoxDecoration(
@@ -146,68 +165,71 @@ MyData? mydata;//
                       ),
                     ),*/
 
-                  /// 🔥 TOP ICON ROW
-                  Positioned(
-                    top: 50,
-                    left: 16,
-                    right: 16,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                    /// 🔥 TOP ICON ROW
+                    Positioned(
+                      top: 50,
+                      left: 16,
+                      right: 16,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
 
-                        /// 🔙 BACK BUTTON
-                        InkWell(
-                          onTap: () => Navigator.pop(context),
-                         // child: Image.asset("assets/icons/Reply.png", height: 24,color: ColorCode.white,),
-                          child: SvgPicture.asset(AppImages.back),
-                        ),
+                          /// 🔙 BACK BUTTON
+                          InkWell(
+                            onTap: () => Navigator.pop(context),
+                            // child: Image.asset("assets/icons/Reply.png", height: 24,color: ColorCode.white,),
+                            child: SvgPicture.asset(AppImages.back),
+                          ),
 
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
-                  /// 🔥 TITLE + ID
-                  Positioned(
-                    bottom: 20,
-                    left: 16,
-                    right: 16,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children:  [
-                        Expanded(
-                          child: Text(
-                            "${mydata?.clientContact.fullName}",
+                    /// 🔥 TITLE + ID
+                    Positioned(
+                      bottom: 20,
+                      left: 16,
+                      right: 16,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children:  [
+                          Expanded(
+                            child: Text(
+                              "${mydata?.clientContact.fullName}",
+                              style: TextStyle(
+                                fontFamily: "Unbounded",
+                                color: ColorCode.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            "ID: ${mydata?.project.idLabel}",
                             style: TextStyle(
-                              fontFamily: "Unbounded",
-                              color: ColorCode.white,
-                              fontSize: 16,
+                              fontFamily: "Outfit",
+                              color: ColorCode.kButtonColor,
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          "ID: ${mydata?.project.idLabel}",
-                          style: TextStyle(
-                            fontFamily: "Outfit",
-                            color: ColorCode.kButtonColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              _buildInfoCard(),
-
+                _buildInfoCard(),
 
 
-            ],
+
+              ],
+            ),
           ),
-        ),
+          if(isloading)
+            AppLoader()
+        ],
       ),
     );
   }
@@ -412,7 +434,7 @@ MyData? mydata;//
             thickness: 0.8,
           ),
 
-          Row(
+     /*     Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("Team Members",style: TextStyle(color: ColorCode.white,fontFamily: "Unbounded",fontWeight: FontWeight.w500,fontSize: 14),),
@@ -473,7 +495,7 @@ MyData? mydata;//
           Divider(
             color: ColorCode.kDividerWhite12,
             thickness: 0.8,
-          ),
+          ),*/
           SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -515,7 +537,7 @@ MyData? mydata;//
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 10),
 
           /// 🔥 CLIENT CONTACT SECTION
           Container(
@@ -528,7 +550,8 @@ MyData? mydata;//
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Divider(
-                  color: Colors.grey,
+                  color: ColorCode.kDividerWhite12,
+                  thickness: 0.8,
                 ),
                 SizedBox(height: 12,),
 
@@ -546,7 +569,10 @@ MyData? mydata;//
                 const SizedBox(height: 18),
 
                 _contactItem(
-                  icon: Icons.person_outline,
+                  icon: SvgPicture.asset(
+                    AppImages.person_icons,
+
+                  ),
                   title: "Contact Name",
                   value: "${mydata?.clientContact.fullName}",
                 ),
@@ -554,14 +580,20 @@ MyData? mydata;//
                 const SizedBox(height: 14),
 
                 _contactItem(
-                  icon: Icons.call_outlined,
+                  icon: SvgPicture.asset(
+                    AppImages.Phone_Calling,
+
+                  ),
                   title: "Contact Number",
                   value: mydata?.clientContact.phone ?? 'No number found',                ),
 
                 const SizedBox(height: 14),
 
                 _contactItem(
-                  icon: Icons.mail_outline,
+                  icon: SvgPicture.asset(
+                    AppImages.mail_icon,
+
+                  ),
                   title: "Email ID",
                   value: "${mydata?.clientContact.email}",
                 ),
@@ -822,7 +854,8 @@ MyData? mydata;//
   }
 
   Widget _contactItem({
-    required IconData icon,
+    required Widget icon,
+
     required String title,
     required String value,
   }) {
@@ -839,11 +872,7 @@ MyData? mydata;//
             borderRadius: BorderRadius.circular(16),
           ),
           child: Center(
-            child: Icon(
-              icon,
-              color: ColorCode.kButtonColor,
-              size: 24,
-            ),
+            child: icon,
           ),
         ),
 

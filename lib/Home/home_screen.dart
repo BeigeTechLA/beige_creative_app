@@ -514,32 +514,51 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    final int totalShoots =
-        sucessfullshoots +
-            pendingshoots +
-            rejectedshoots +
-            shootrequest;
+    final stats = [
+      sucessfullshoots,
+      pendingshoots,
+      rejectedshoots,
+      shootrequest,
+    ];
 
-    final int categoryAccepted =
-    selectedTab == 0
-        ? acceptphotographyShoots
-        : acceptvideographyShoots;
+    final total = stats.fold(0, (sum, item) => sum + item);
 
-    final int categoryRejected =
-    selectedTab == 0
-        ? rejectedPhoto
-        : rejectedVideo;
+    final arcValues = stats.map((e) {
+      if (e == 0 || total == 0) {
+        return 0.0;
+      }
 
-    final int categoryRequest =
-    selectedTab == 0
-        ? requestPhoto
-        : requestVideo;
+      return (e / total).clamp(0.0, 1.0);
+    }).toList();
 
-    final int categoryMaxValue = [
-      categoryAccepted,
-      categoryRejected,
-      categoryRequest,
-    ].reduce((a, b) => a > b ? a : b);
+    final categoryStats = [
+      selectedTab == 0
+          ? acceptphotographyShoots
+          : acceptvideographyShoots,
+
+      selectedTab == 0
+          ? 0
+          : acceptvideographyShoots,
+
+      selectedTab == 0
+          ? rejectedPhoto
+          : rejectedVideo,
+
+      selectedTab == 0
+          ? requestPhoto
+          : requestVideo,
+    ];
+
+    final categoryTotal =
+    categoryStats.fold(0, (sum, item) => sum + item);
+
+    final categoryArcValues = categoryStats.map((e) {
+      if (e == 0 || categoryTotal == 0) {
+        return 0.0;
+      }
+
+      return (e / categoryTotal).clamp(0.0, 1.0);
+    }).toList();
 
 
     final data = creatordashboarddetaillist.isNotEmpty
@@ -1950,23 +1969,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                  CustomPaint(
                                    size: const Size(700, 150),
                                    painter: MultiArcPainter(
-                                     values: [
-                                       sucessfullshoots == 0
-                                           ? 0.05
-                                           : (sucessfullshoots / 10).clamp(0.1, 1.0),
-
-                                       pendingshoots == 0
-                                           ? 0.05
-                                           : (pendingshoots / 10).clamp(0.1, 1.0),
-
-                                       rejectedshoots == 0
-                                           ? 0.05
-                                           : (rejectedshoots / 10).clamp(0.1, 1.0),
-
-                                       shootrequest == 0
-                                           ? 0.05
-                                           : (shootrequest / 10).clamp(0.1, 1.0),
-                                     ],
+                                     values: arcValues,
                                      colors: const [
                                        Color(0xFFA678F1),
                                        Color(0xFF5CC4FF),
@@ -2117,23 +2120,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                  CustomPaint(
                                    size: const Size(700, 150),
                                    painter: MultiArcPainter(
-                                     values: [
-                                       categoryAccepted == 0
-                                           ? 0
-                                           : categoryAccepted / categoryMaxValue,
-
-                                       selectedTab == 0
-                                           ? 0
-                                           : categoryAccepted / categoryMaxValue,
-
-                                       categoryRejected == 0
-                                           ? 0
-                                           : categoryRejected / categoryMaxValue,
-
-                                       categoryRequest == 0
-                                           ? 0
-                                           : categoryRequest / categoryMaxValue,
-                                     ],
+                                     values: categoryArcValues,
                                      colors: const [
                                        Color(0xFFA678F1),
                                        Color(0xFF5CC4FF),
@@ -2169,9 +2156,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                            ),
                          ),
                          const SizedBox(height: 35),
-                         selectedTab == 0
-                             ? _statusItem("$acceptphotographyShoots", "Photography Shoots", const Color(0xFFA678F1))
-                             : _statusItem("$acceptvideographyShoots", "Videography Shoots", const Color(0xFF5CC4FF)),
+                         _statusItem(
+                           "$acceptphotographyShoots",
+                           "Photography Shoots",
+                           const Color(0xFFA678F1),
+                         ),
+
+                         _statusItem(
+                           "$acceptvideographyShoots",
+                           "Videography Shoots",
+                           const Color(0xFF5CC4FF),
+                         ),
 
                          _statusItem(
                            selectedTab == 0

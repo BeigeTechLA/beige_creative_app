@@ -45,6 +45,10 @@ class AppImages {
   static const String User_Circle = "assets/svg/User_Circle.svg";
 
   static const String image_holder = "assets/svg/image_holder.svg";
+  static const String person_icons = "assets/svg/person_icons.svg";
+  static const String Phone_Calling = "assets/svg/Phone_Calling.svg";
+  static const String mail_icon = "assets/svg/mail_icon.svg";
+
 /// my profile uplod svg image
 
   static const String scanner = "assets/svg/scanner.svg";

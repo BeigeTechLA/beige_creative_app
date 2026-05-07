@@ -101,488 +101,484 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            // HEADER
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Scaffold.of(context).openDrawer();
-                    },
-                    child: SvgPicture.asset(
-                      AppImages.menu,
-                      width: 26,
-                    ),
-                  ),
-                  const Spacer(),
-                  const Text(
-                    "Manage Availability",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontFamily: "Unbounded",
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const Spacer(),
-                ],
-              ),
-            ),
-
-            // Auto Block Info
-       /*     Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12, right: 20),
-              decoration: BoxDecoration(
-                color: const Color(0xffEFF6FF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  SvgPicture.asset('assets/svg/infosvg.svg'),
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      "Your availability is automatically blocked for confirmed shoots",
-                      style: TextStyle(
-                        fontFamily: 'outfit',
-                        color: Color(0xff3B82F6),
-                        fontSize: 12,
+      child: Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              // HEADER
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                      child: SvgPicture.asset(
+                        AppImages.menu,
+                        width: 26,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),*/
-
-            const SizedBox(height: 20),
-
-            // CALENDAR SECTION - Using CommonCalendar
-            /// 📅 Calendar Section - Replace purane GridView ke saath
-            // CALENDAR SECTION - Exactly like HomeScreen
-            // CALENDAR SECTION - Exactly like HomeScreen (no extra padding)
-            Container(
-              margin: EdgeInsetsGeometry.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Color(0xff282828),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(width: 0.5, color: Color(0xff626262)),
-              ),
-              child: ClipRRect(
-                borderRadius:BorderRadius.circular(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Header Row - BILKUL WAISA HI JAISE HOMESCREEN MEIN THA
-                    Row(
-                      children: [
-                        // LEFT SIDE (month + arrows)
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.chevron_left, color: Colors.white),
-                                onPressed: () {
-                                  setState(() {
-                                    _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
-                                  });
-                                  fetchAvailability();
-                                },
-                              ),
-                              Expanded(
-                                child: Center(
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      _getMonthYear(_focusedDay),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.chevron_right, color: Colors.white),
-                                onPressed: () {
-                                  setState(() {
-                                    _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
-                                  });
-                                  fetchAvailability();
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // RIGHT SIDE dropdown
-                        Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _selectedEventFilter,
-                              isDense: true,
-                              icon: const Icon(Icons.keyboard_arrow_down,
-                                  color: Colors.black, size: 18),
-                              dropdownColor: Colors.white,
-                              style: const TextStyle(color: Colors.black, fontSize: 13),
-                              items: _eventFilterList.map((String value) {
-                                return DropdownMenuItem(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedEventFilter = value!;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
+                    const Spacer(),
+                    const Text(
+                      "Manage Availability",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontFamily: "Unbounded",
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-
-                    const SizedBox(height: 10),  // 👈 HomeScreen mein bhi yahi height hai
-
-                    // CommonCalendar - BINA KISI EXTRA PADDING/MARGIN KE
-                    CommonCalendar(
-                      focusedDay: _focusedDay,
-                      events: _events,
-                      selectedEvent: _selectedEventFilter,
-                      onPageChanged: (day) {
-                        setState(() {
-                          _focusedDay = day;
-                        });
-                        fetchAvailability();
-                      },
+                    const Spacer(),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Auto Block Info
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                // padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12, right: 20),
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xffEFF6FF),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(width: 0.5)
+                ),
+                child: Row(
+                  children: [
+                    SvgPicture.asset('assets/svg/infosvg.svg'),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        "Your availability is automatically blocked for confirmed shoots",
+                        style: TextStyle(
+                          fontFamily: 'outfit',
+                          color: Color(0xff3B82F6),
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // This Month Stats Section
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2C2C2E),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "This Month",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: "Outfit",
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  _buildStatCard(
-                    svgIcon: AppImages.calender,
-                    title: "Available Days",
-                    value: "${_getAvailableDaysCount()}",
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  _buildStatCard(
-                    svgIcon: AppImages.book_video,
-                    title: "Book Shoots",
-                    value: "${_getShootCount()}",
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  _buildStatCard(
-                    svgIcon: AppImages.HourglasTime,
-                    title: "Time Off",
-                    value: "${_getTimeOffCount()}",
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Share Availability Section
-          /*  Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2C2C2E),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Share Availability",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: "Outfit",
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Share your availability link with production teams",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      fontFamily: "Outfit",
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: () {
-                      // Copy logic here
-                    },
-                    child: Container(
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: ColorCode.kButtonColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+        
+              const SizedBox(height: 20),
+              Container(
+                margin: EdgeInsetsGeometry.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Color(0xff282828),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(width: 0.5, color: Color(0xff626262)),
+                ),
+                child: ClipRRect(
+                  borderRadius:BorderRadius.circular(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header Row - BILKUL WAISA HI JAISE HOMESCREEN MEIN THA
+                      Row(
                         children: [
-                          Icon(
-                            Icons.copy_rounded,
-                            color: ColorCode.kCircleGradientTop,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            "Copy Link",
-                            style: TextStyle(
-                              color: ColorCode.kCircleGradientTop,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: "Outfit",
+                          // LEFT SIDE (month + arrows)
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.chevron_left, color: Colors.white),
+                                  onPressed: () {
+                                    setState(() {
+                                      _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
+                                    });
+                                    fetchAvailability();
+                                  },
+                                ),
+                                Expanded(
+                                  child: Center(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        _getMonthYear(_focusedDay),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.chevron_right, color: Colors.white),
+                                  onPressed: () {
+                                    setState(() {
+                                      _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
+                                    });
+                                    fetchAvailability();
+                                  },
+                                ),
+                              ],
                             ),
                           ),
+        
+                          // RIGHT SIDE dropdown
+                          Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _selectedEventFilter,
+                                isDense: true,
+                                icon: const Icon(Icons.keyboard_arrow_down,
+                                    color: Colors.black, size: 18),
+                                dropdownColor: Colors.white,
+                                style: const TextStyle(color: Colors.black, fontSize: 13),
+                                items: _eventFilterList.map((String value) {
+                                  return DropdownMenuItem(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedEventFilter = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+        
+                      const SizedBox(height: 10),  //
+        
+                      // CommonCalendar - BINA KISI EXTRA PADDING/MARGIN KE
+                      CommonCalendar(
+                        focusedDay: _focusedDay,
+                        events: _events,
+                        selectedEvent: _selectedEventFilter,
+                        onPageChanged: (day) {
+                          setState(() {
+                            _focusedDay = day;
+                          });
+                          fetchAvailability();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+        
+              const SizedBox(height: 20),
+        
+              // This Month Stats Section
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2C2C2E),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "This Month",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: "Outfit",
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+        
+                    _buildStatCard(
+                      svgIcon: AppImages.calender,
+                      title: "Available Days",
+                      value: "${_getAvailableDaysCount()}",
+                    ),
+        
+                    const SizedBox(height: 12),
+        
+                    _buildStatCard(
+                      svgIcon: AppImages.book_video,
+                      title: "Book Shoots",
+                      value: "${_getShootCount()}",
+                    ),
+        
+                    const SizedBox(height: 12),
+        
+                    _buildStatCard(
+                      svgIcon: AppImages.HourglasTime,
+                      title: "Time Off",
+                      value: "${_getTimeOffCount()}",
+                    ),
+                  ],
+                ),
+              ),
+        
+              const SizedBox(height: 20),
+        
+              // Share Availability Section
+            /*  Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2C2C2E),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Share Availability",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: "Outfit",
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Share your availability link with production teams",
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        fontFamily: "Outfit",
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {
+                        // Copy logic here
+                      },
+                      child: Container(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: ColorCode.kButtonColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.copy_rounded,
+                              color: ColorCode.kCircleGradientTop,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Copy Link",
+                              style: TextStyle(
+                                color: ColorCode.kCircleGradientTop,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: "Outfit",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+        
+              const Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+              const SizedBox(height: 12),*/
+        
+              // Upcoming Shoots Section
+             /* const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Text(
+                      "Upcoming Shoots",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: "Unbounded",
+                        fontWeight: FontWeight.w500,
+                        color: ColorCode.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),*/
+        
+              const SizedBox(height: 14),
+        /*
+              // Search and Filter Row
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 52,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: ColorCode.kWhiteOpacity70,
+                          width: 1,
+                        ),
+                      ),
+                      child: const TextField(
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Colors.white54,
+                          ),
+                          hintText: "Search events or crew...",
+                          hintStyle: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 14,
+                          ),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  InkWell(
+                    onTap: () {},
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      height: 52,
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white24,
+                          width: 1,
+                        ),
+                      ),
+                      child: const Row(
+                        children: [
+                          Text(
+                            "Filter",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Icon(Icons.filter_list, color: Colors.white54, size: 18),
                         ],
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
-
-            const Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-            const SizedBox(height: 12),*/
-
-            // Upcoming Shoots Section
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Text(
-                    "Upcoming Shoots",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: "Unbounded",
-                      fontWeight: FontWeight.w500,
-                      color: ColorCode.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            // Search and Filter Row
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 52,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: ColorCode.kWhiteOpacity70,
-                        width: 1,
-                      ),
-                    ),
-                    child: const TextField(
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Colors.white54,
-                        ),
-                        hintText: "Search events or crew...",
-                        hintStyle: TextStyle(
-                          color: Colors.white54,
-                          fontSize: 14,
-                        ),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                InkWell(
-                  onTap: () {},
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    height: 52,
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.white24,
-                        width: 1,
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Text(
-                          "Filter",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                        ),
-                        SizedBox(width: 6),
-                        Icon(Icons.filter_list, color: Colors.white54, size: 18),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 50),
-
-            // Upcoming Shoots Cards - Dynamic
-            if (nexwController.cardDataList.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: ColorCode.k282828,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: const Center(
-                  child: Text(
-                    "No upcoming shoots",
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                ),
-              )
-            else
-              GestureDetector(
-                onTap: _onCardTap,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final totalWidth = constraints.maxWidth;
-                    final list = nexwController.cardDataList;
-                    final current = list[_currentIndex % list.length];
-                    final next = list[(_currentIndex + 1) % list.length];
-                    final next2 = list[(_currentIndex + 2) % list.length];
-
-                    return Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        // 3rd card (back most)
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 300),
-                          top: _controller.isAnimating ? -32 : -24,
-                          left: totalWidth * 0.07,
-                          right: totalWidth * 0.07,
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 300),
-                            opacity: _controller.isAnimating ? 0.5 : 1,
-                            child: _buildShootCard(next2, isMain: false, isBack: true),
-                          ),
-                        ),
-                        // 2nd card (middle)
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 300),
-                          top: _controller.isAnimating ? -20 : -12,
-                          left: totalWidth * 0.035,
-                          right: totalWidth * 0.035,
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 300),
-                            opacity: _controller.isAnimating ? 0.7 : 1,
-                            child: _buildShootCard(next, isMain: false, isMiddle: true),
-                          ),
-                        ),
-                        // Main card
-                        AnimatedBuilder(
-                          animation: _controller,
-                          builder: (context, child) {
-                            return Transform.translate(
-                              offset: Offset(0, _controller.value * 200),
-                              child: Opacity(
-                                opacity: 1 - _controller.value,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: _buildShootCard(current, isMain: true),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-
-            const SizedBox(height: 12),
-            const Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-            const SizedBox(height: 25),
-
-            // Add Availability Button
-            InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddAvailabilityScreen(),
-                  ),
-                ).then((_) {
-                  fetchAvailability(); // Refresh on return
-                });
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: 56,
+        
+              const SizedBox(height: 50),
+        
+              // Upcoming Shoots Cards - Dynamic
+              if (nexwController.cardDataList.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: ColorCode.kButtonColor,
-                    borderRadius: BorderRadius.circular(12),
+                    color: ColorCode.k282828,
+                    borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
+                  child: const Center(
+                    child: Text(
+                      "No upcoming shoots",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                )
+              else
+                GestureDetector(
+                  onTap: _onCardTap,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final totalWidth = constraints.maxWidth;
+                      final list = nexwController.cardDataList;
+                      final current = list[_currentIndex % list.length];
+                      final next = list[(_currentIndex + 1) % list.length];
+                      final next2 = list[(_currentIndex + 2) % list.length];
+        
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          // 3rd card (back most)
+                          AnimatedPositioned(
+                            duration: const Duration(milliseconds: 300),
+                            top: _controller.isAnimating ? -32 : -24,
+                            left: totalWidth * 0.07,
+                            right: totalWidth * 0.07,
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 300),
+                              opacity: _controller.isAnimating ? 0.5 : 1,
+                              child: _buildShootCard(next2, isMain: false, isBack: true),
+                            ),
+                          ),
+                          // 2nd card (middle)
+                          AnimatedPositioned(
+                            duration: const Duration(milliseconds: 300),
+                            top: _controller.isAnimating ? -20 : -12,
+                            left: totalWidth * 0.035,
+                            right: totalWidth * 0.035,
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 300),
+                              opacity: _controller.isAnimating ? 0.7 : 1,
+                              child: _buildShootCard(next, isMain: false, isMiddle: true),
+                            ),
+                          ),
+                          // Main card
+                          AnimatedBuilder(
+                            animation: _controller,
+                            builder: (context, child) {
+                              return Transform.translate(
+                                offset: Offset(0, _controller.value * 200),
+                                child: Opacity(
+                                  opacity: 1 - _controller.value,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: _buildShootCard(current, isMain: true),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+        
+              const SizedBox(height: 12),
+              const Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+              const SizedBox(height: 25),*/
+        
+              // Add Availability Button
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AddAvailabilityScreen(),
+                      ),
+                    ).then((_) {
+                      fetchAvailability();
+                    });
+                  },
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: ColorCode.kButtonColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Center(
+                      child: Text(
                         "Add Availability",
                         style: TextStyle(
                           color: ColorCode.kCircleGradientTop,
@@ -591,16 +587,16 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                           fontFamily: "Unbounded",
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 30),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      ));
+
+
   }
 
   int _getAvailableDaysCount() {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart';
 
 class CustomDropdown<T> extends StatefulWidget {
   final String label;
@@ -33,12 +35,11 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
       icon: Padding(
         padding: const EdgeInsets.only(right: 9),
         child: widget.icon ??
-            Icon(
-              size: 29,
-              Icons.keyboard_arrow_down,
-              color: highlight
-                  ? ColorCode.kButtonColor
-                  : ColorCode.kWhiteOpacity70,
+            SvgPicture.asset(
+              AppImages.dropdown, //  your svg path
+              color: ColorCode.white,
+              width: 24,
+              height: 24,
             ),
       ),
       style: const TextStyle(
@@ -54,7 +55,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
           fontFamily: "Outfit",
           color: highlight
               ? ColorCode.kButtonColor
-              : ColorCode.kWhiteOpacity70,
+              : ColorCode.kWhiteOpacity60,
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
@@ -65,7 +66,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
           borderSide: BorderSide(
             color: highlight
                 ? ColorCode.textfieldbordercollor
-                : ColorCode.kWhiteOpacity70,
+                : ColorCode.kWhiteOpacity_60,
             width: 0.5,
           ),
         ),

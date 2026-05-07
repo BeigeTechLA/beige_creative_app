@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:auto_skeleton/auto_skeleton.dart';
 import 'package:beige_creative_app/Model_Class/myprofilemodel.dart';
 import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
