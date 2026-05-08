@@ -137,9 +137,8 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                         color: Colors.white10,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(
-                        loding ? Icons.grid_view : Icons.view_list,
-                        color: Colors.white70,
+                      child: SvgPicture.asset(
+                        loding ? AppImages.grid : AppImages.list,
                       ),
                     ),
                   )

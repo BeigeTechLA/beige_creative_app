@@ -725,7 +725,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
            if (upcomingshootslist.isNotEmpty) ...[
           const SizedBox(),
 
-                   Row(
+                 /*  Row(
                      children: [
                        Text("Upcoming Shoots ",
 
@@ -815,7 +815,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                        ),
                      ],
                    ),
-                   const SizedBox(height: 55),
+                   const SizedBox(height: 55),*/
 
                  /*  // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
                    if (upcomingshootslist.isEmpty)

@@ -14,7 +14,8 @@ import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'shoot_cancelled_screen.dart';
 
   class ShootsScreen extends StatefulWidget {
-    const ShootsScreen({super.key});
+    const
+    ShootsScreen({super.key});
 
     @override
     State<ShootsScreen> createState() => _ShootsScreenState();
@@ -140,144 +141,165 @@ import 'shoot_cancelled_screen.dart';
     Widget build(BuildContext context) {
 
 
-      return Stack(
-        children: [
-          Column(
-            children: [
-
-              /// 🔥 TOP BAR
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-
-                    /// MENU
-                    Builder(
-                      builder: (context) => InkWell(
-                        onTap: () {
-                          Scaffold.of(context).openDrawer();
-                        },
-                        child: SvgPicture.asset(AppImages.menu,height: 26,),
-
+      return SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+        
+                /// 🔥 TOP BAR
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+        
+                      /// MENU
+                      Builder(
+                        builder: (context) => InkWell(
+                          onTap: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                          child: SvgPicture.asset(AppImages.menu,height: 26,),
+        
+                        ),
                       ),
-                    ),
-
-                    const Spacer(),
-
-                    /// TITLE
-                    const Text(
-                      "Shoots",
-                      style: TextStyle(
-                        color: ColorCode.white,
-                        fontSize: 16,
-                        fontFamily: "Unbounded",
-                        fontWeight: FontWeight.w500,
+        
+                      const Spacer(),
+        
+                      /// TITLE
+                      const Text(
+                        "Shoots",
+                        style: TextStyle(
+                          color: ColorCode.white,
+                          fontSize: 16,
+                          fontFamily: "Unbounded",
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-
-                    const Spacer(),
-
-                    /// FILTER
-                    GestureDetector(
-                        onTap: () => _showFilterBottomSheet(context),
-                        child: SvgPicture.asset(AppImages.filter,width: 26,height: 26,)),
-                  ],
-                ),
-              ),
-
-              /// 🔥 COUNT CARDS
-              SizedBox(
-                height: 70, // 👈 compact height
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    _countCard("$mypendingRequests", "Pending Shoots", Icons.access_time),
-                    _countCard("$myconfirmedRequests", "Confirmed Shoots", Icons.camera_alt),
-                    _countCard("$mycompletedShoots", "Completed", Icons.check_circle),
-                    _countCard("$myrejectedRequests", "Declined", Icons.block),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
-              /// 🔥 SEARCH BAR
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: ColorCode.k282828,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: TextField(
-                    controller: searchController,
-                    onChanged: searchShoots,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                    cursorColor: Colors.white,
-                    decoration: InputDecoration(
-                      hintText: "Search events or crew...",
-                      hintStyle: const TextStyle(
-                          color: Colors.white38,
-                          fontFamily: "Outfit"
-                      ),
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: Colors.white54,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
+        
+                      const Spacer(),
+        
+                      /// FILTER
+                    /*  GestureDetector(
+                          onTap: () => _showFilterBottomSheet(context),
+                          child: SvgPicture.asset(AppImages.filter,width: 26,height: 26,)),*/
+                    ],
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 20),
-
-              /// 🔥 LIST SECTION
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount:mylist.length,
-                  itemBuilder: (context, index) {
-                    final shoot=mylist[index];
-                    return _shootCard(context, shoot);
-                  },
+        
+                /// 🔥 COUNT CARDS
+                SizedBox(
+                  height: 70, // 👈 compact height
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      _countCard(
+                        "$mypendingRequests",
+                        "Pending Shoots",
+                        AppImages.clock_icon,
+                      ),
+        
+                      _countCard(
+                        "$myconfirmedRequests",
+                        "Confirmed Shoots",
+                        AppImages.video_icon,
+                      ),
+        
+                      _countCard(
+                        "$mycompletedShoots",
+                        "Completed",
+                        AppImages.photo_icon,
+                      ),
+        
+                      _countCard(
+                        "$myrejectedRequests",
+                        "Declined",
+                        AppImages.declined_icon,
+                      ),
+                    ],
+                  ),
                 ),
-              )
-            ],
-          ),
-          if(isLoading)
-            AppLoader()
-        ],
-
+        
+                const SizedBox(height: 15),
+        
+                /// 🔥 SEARCH BAR
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: ColorCode.k282828,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: searchShoots,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                      cursorColor: Colors.white,
+                      decoration: InputDecoration(
+                        hintText: "Search events or crew...",
+                        hintStyle: const TextStyle(
+                            color: Colors.white38,
+                            fontFamily: "Outfit"
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Colors.white54,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
+                  ),
+                ),
+        
+                const SizedBox(height: 20),
+        
+                /// 🔥 LIST SECTION
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount:mylist.length,
+                    itemBuilder: (context, index) {
+                      final shoot=mylist[index];
+                      return _shootCard(context, shoot);
+                    },
+                  ),
+                )
+              ],
+            ),
+            if(isLoading)
+              AppLoader()
+          ],
+        
+        ),
       );
     }
 
-    /// 🔥 COUNT CARD
-    Widget _countCard(String number, String title, IconData icon) {
+
+    Widget _countCard(String number, String title, String iconPath) {
       return Container(
-        width: 150, // 👈 exact figma width
+        width: 150,
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [
-              const Color(0xFF2A2A2A),
-              const Color(0xFF1E1E1E),
+              Color(0xFF2A2A2A),
+              Color(0xFF1E1E1E),
             ],
           ),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.white10),
-
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+
             /// LEFT TEXT
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +314,9 @@ import 'shoot_cancelled_screen.dart';
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
                 const SizedBox(height: 2),
+
                 Text(
                   title,
                   maxLines: 1,
@@ -305,18 +329,10 @@ import 'shoot_cancelled_screen.dart';
               ],
             ),
 
-            /// RIGHT ICON
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFD6B98C).withOpacity(0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 16,
-                color: const Color(0xFFD6B98C),
-              ),
+            /// RIGHT SVG ICON
+            SvgPicture.asset(
+              iconPath,
+
             ),
           ],
         ),
@@ -368,34 +384,29 @@ import 'shoot_cancelled_screen.dart';
               child: SizedBox(
                 height: 180,
                 width: double.infinity,
-                child: Stack(
+                child: shoot.shootTypeImageUrl.isNotEmpty
+                    ? Image.network(
+                  ApiService().getImageURL(
+                    shoot.shootTypeImageUrl,
+                  ),
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+
+                )
+
+                /// IMAGE EMPTY
+                    : Container(
+                  color: const Color(0xFF1E1E1E),
                   alignment: Alignment.center,
-                  children: [
-
-                    /// ✅ SVG placeholder (always visible base)
-                    SvgPicture.asset(
-                      "assets/svg/image_holder.svg",
-                      height: 60,
-                      colorFilter: const ColorFilter.mode(
-                        Colors.white24,
-                        BlendMode.srcIn,
-                      ),
+                  child: SvgPicture.asset(
+                    AppImages.image_holder,
+                    height: 60,
+                    colorFilter: const ColorFilter.mode(
+                      Colors.white24,
+                      BlendMode.srcIn,
                     ),
-
-                    /// ✅ Network image
-                    if (shoot.shootTypeImageUrl.isNotEmpty)
-
-                      Image.network(
-                        ApiService().getImageURL(shoot.shootTypeImageUrl),
-
-                        height: 180,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-
-                        /// ❌ no duplicate placeholder
-                        errorBuilder: (_, __, ___) => const SizedBox(),
-                      ),
-                  ],
+                  ),
                 ),
               ),
             ),

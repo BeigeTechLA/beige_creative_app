@@ -95,6 +95,7 @@ flutter:
     - assets/home/
     - assets/profile/
     - assets/svg/
+    - assets/svg/Shoot/
 
   #   - images/a_dot_ham.jpeg
 

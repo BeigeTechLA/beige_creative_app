@@ -45,6 +45,7 @@ class AppImages {
   static const String User_Circle = "assets/svg/User_Circle.svg";
 
   static const String image_holder = "assets/svg/image_holder.svg";
+
   static const String person_icons = "assets/svg/person_icons.svg";
   static const String Phone_Calling = "assets/svg/Phone_Calling.svg";
   static const String mail_icon = "assets/svg/mail_icon.svg";
@@ -59,5 +60,15 @@ class AppImages {
 ///
   static const String search_icon = "assets/svg/search_icon.svg";
 
+/// Shoots
+  static const String clock_icon = "assets/svg/Shoot/clock_icon.svg";
+  static const String declined_icon = "assets/svg/Shoot/declined_icon.svg";
+  static const String photo_icon = "assets/svg/Shoot/photo_icon.svg";
+  static const String video_icon = "assets/svg/Shoot/video_icon.svg";
+
+  ///
+
+  static const String list = "assets/svg/list.svg";
+  static const String grid = "assets/svg/grid.svg";
 
 }
