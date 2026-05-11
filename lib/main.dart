@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'SplashScreen/splash_screen.dart';
 import 'config/env.dart';
+import 'splash/splash_screen.dart';
 import 'utility/ColorCode.dart';
 
 /*
@@ -98,7 +98,7 @@ class MyApp extends StatelessWidget {
       // ✅ Correct navigation logic
       // home: isLoggedIn
       //     ?  Mainscreen()
-      //     :  SplashScreen(),
+      //     :  splash(),
 
           home:
             SplashScreen(),

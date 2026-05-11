@@ -1,23 +1,23 @@
 import 'package:beige_creative_app/auth/login/login.dart';
+import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-import '../utility/ColorCode.dart';
-import 'MyProfile/myprofile.dart';
+import '../../utility/ColorCode.dart';
 
-class MyprofileYoureAllSetScreen extends StatefulWidget {
-  const MyprofileYoureAllSetScreen({super.key});
+
+class DeleteAccountLottieScreen extends StatefulWidget {
+  const DeleteAccountLottieScreen({super.key});
 
   @override
-  State<MyprofileYoureAllSetScreen> createState() => _MyprofileYoureAllSetScreenState();
+  State<DeleteAccountLottieScreen> createState() => _DeleteAccountLottieScreenState();
 }
 
-class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen> {
+class _DeleteAccountLottieScreenState extends State<DeleteAccountLottieScreen> {
   @override
   void initState() {
     super.initState();
 
-    /// ⏳ 5 second delay then go to MainScreen
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         Navigator.pushAndRemoveUntil(
@@ -32,15 +32,13 @@ class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1C),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
-            /// ✅ SUCCESS LOTTIE
             Lottie.asset(
-              "assets/lottie/Untitled file.json",
+             AppImages.lottie1,
               height: 180,
               repeat: false,
             ),
@@ -48,7 +46,7 @@ class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen>
             const SizedBox(height: 24),
 
             const Text(
-              "You're All Set",
+              "Account Deleted",
               style: TextStyle(
                 color: ColorCode.kButtonColor,
                 fontSize: 18,
@@ -60,7 +58,16 @@ class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen>
             const SizedBox(height: 8),
 
             const Text(
-              "Congratulations! Your password has been\nchanged successfully",
+              "Your account has been successfully.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: ColorCode.kWhiteOpacity70,
+                fontSize: 14,
+                fontFamily: "Outfit",
+              ),
+            ),
+            const Text(
+              "deleted.",
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: ColorCode.kWhiteOpacity70,

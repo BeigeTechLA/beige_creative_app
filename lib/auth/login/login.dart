@@ -8,10 +8,12 @@ import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../service/shared_service.dart';
 import '../../utility/ColorCode.dart';
+import '../../utility/imges_icons.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';
 import '../ForgotPassword/forgot_password_screen.dart';
-import '../creative_sign_up/new_build_your_creative_profile.dart';
+import '../sign_up/signup1_screen.dart';
+// import '../creative_sign_up/signup1_screen.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -38,7 +40,7 @@ class _LoginState extends State<Login> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: ColorCode.red,
       ),
     );
   }
@@ -223,7 +225,7 @@ class _LoginState extends State<Login> {
                   /// 🖼️ BACKGROUND IMAGE
                   Positioned.fill(
                     child: Image.asset(
-                      "assets/images/Rectangle_574057023.png",
+                      AppImages.rectangle,
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -254,7 +256,7 @@ class _LoginState extends State<Login> {
                           'Enter your details to access your account. Continue\nmanaging your bookings and profile.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.60),
+                            color: ColorCode.white.withValues(alpha: 0.60),
                             fontSize: 14,
                             fontFamily: 'Outfit',
                             fontWeight: FontWeight.w400,
@@ -284,7 +286,7 @@ class _LoginState extends State<Login> {
                       color: ColorCode.backgroundColor,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.06),
+                        color: ColorCode.white24,
                         width: 1,
                       ),
                     ),
@@ -328,11 +330,11 @@ class _LoginState extends State<Login> {
                               },
                               icon: SvgPicture.asset(
                                 showConfirmPassword
-                                    ? "assets/svg/eyes1.svg"
-                                    : "assets/svg/eyes2.svg",
+                                    ? AppImages.eyeOpen
+                                    : AppImages.eyeClose,
                                 height: 22,
                                 colorFilter: const ColorFilter.mode(
-                                  Colors.white,
+                                  ColorCode.white,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -434,14 +436,14 @@ class _LoginState extends State<Login> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const New_build_your_creativeScreen(),
+                    builder: (_) => const SignUp1Screen(),
                   ),
                 );
               },
               child: const Text(
                 "Sign Up",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: ColorCode.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   decoration: TextDecoration.underline,

@@ -35,12 +35,17 @@ class AppImages {
   static const String calender = "assets/svg/calender.svg";
   static const String avtarstack = "assets/images/avtarstack.png";
   static const String myprofile_edit = "assets/svg/myprofile_edit.svg";
+  static const String Image_zoom = "assets/svg/Image_zoom.svg";
+  static const String rectangle = "assets/images/rectangle.png";
 
   ///icons
   static const String dropdown = "assets/svg/dropdown.svg";
   static const String Upload = "assets/svg/Upload.svg";
   static const String book_video = "assets/svg/book_video.svg";
   static const String HourglasTime = "assets/svg/HourglasTime.svg";
+  /// Password Eye Icons
+  static const String eyeOpen = "assets/svg/eyes1.svg";
+  static const String eyeClose = "assets/svg/eyes2.svg";
 
   static const String User_Circle = "assets/svg/User_Circle.svg";
 
@@ -60,15 +65,21 @@ class AppImages {
 ///
   static const String search_icon = "assets/svg/search_icon.svg";
 
-/// Shoots
+/// shoots
   static const String clock_icon = "assets/svg/Shoot/clock_icon.svg";
   static const String declined_icon = "assets/svg/Shoot/declined_icon.svg";
   static const String photo_icon = "assets/svg/Shoot/photo_icon.svg";
   static const String video_icon = "assets/svg/Shoot/video_icon.svg";
+  static const String calendar_icon = "assets/svg/Shoot/calendar.svg";
 
   ///
 
   static const String list = "assets/svg/list.svg";
   static const String grid = "assets/svg/grid.svg";
 
+///onboding
+  static const String onboding1 = "assets/Onboding/onboding_new_image.png";
+/// lottie
+
+  static const String lottie1 =   "assets/lottie/Untitled file.json";
 }

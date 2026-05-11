@@ -2,7 +2,7 @@ import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../utility/ColorCode.dart';
-import 'DeleteAccoun/delete_account.dart';
+import '../deleteaccount/delete_account.dart';
 
 
 class AppPreferences extends StatefulWidget {
@@ -89,7 +89,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                         ),
                         Switch(
                           value: isDarkMode,
-                          activeColor: Colors.amber,
+                          activeColor: ColorCode.arcYellow,
                           onChanged: (value) {
                             setState(() {
                               isDarkMode = value;
@@ -177,7 +177,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                         Text(
                           "App Version V1.0",
                           style: TextStyle(
-                            color: Colors.white70,
+                            color: ColorCode.white24,
                             fontSize: 13,
                           ),
                         ),

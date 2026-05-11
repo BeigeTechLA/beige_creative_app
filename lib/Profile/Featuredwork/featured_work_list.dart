@@ -232,7 +232,11 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                     children: [
                       InkWell(
                         onTap: () => Navigator.pop(context),
-                        child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.white,),
+                        child:
+                        Image.asset(
+                          AppImages.back,
+                          // "assets/icons/back.png",
+                          height: 24,color: ColorCode.white,),
                       ),
                     ],
                   ),
@@ -255,11 +259,11 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           ),
 
                           child: TextField(
-                            style: const TextStyle(color: Colors.white),
+                            style: const TextStyle(color: ColorCode.white),
                             decoration: InputDecoration(
                               hintText: "Search",
-                              hintStyle: const TextStyle(color: Colors.white54),
-                              prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                              hintStyle: const TextStyle(color: ColorCode.white54),
+                              prefixIcon: const Icon(Icons.search, color: ColorCode.white54),
                               border: InputBorder.none,
                             ),
                           ),
@@ -276,7 +280,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           color: const Color(0xFF2A2A2A),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.tune, color: Colors.white),
+                        child: const Icon(Icons.tune, color: ColorCode.white),
                       )
                     ],
                   ),*/
@@ -292,7 +296,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                             child: Text(
                               "No Featured Work",
                               style: TextStyle(
-                                color: Colors.white54,
+                                color: ColorCode.white24,
                               ),
                             ),
                           );
@@ -363,7 +367,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                                                     errorBuilder: (context, error, stackTrace) {
                                                       return Container(
-                                                        color: Colors.grey.shade300,
+                                                        color: ColorCode.lightGrey,
                                                         child: const Icon(Icons.image),
                                                       );
                                                     },
@@ -405,12 +409,12 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                                   child: Container(
                                                     padding: const EdgeInsets.all(8),
                                                     decoration: BoxDecoration(
-                                                      color: Colors.black.withOpacity(0.5),
+                                                      color: ColorCode.black.withOpacity(0.5),
                                                       shape: BoxShape.circle,
                                                     ),
                                                     child: const Icon(
                                                       Icons.edit,
-                                                      color: Colors.white,
+                                                      color: ColorCode.white,
                                                       size: 18,
                                                     ),
                                                   ),
@@ -421,7 +425,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                                 Container(
                                                   padding: const EdgeInsets.all(8),
                                                   decoration: BoxDecoration(
-                                                    color: Colors.black.withOpacity(0.5),
+                                                    color: ColorCode.black.withOpacity(0.5),
                                                     shape: BoxShape.circle,
                                                   ),
                                                   child: GestureDetector(
@@ -434,7 +438,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                                     },
                                                     child: const Icon(
                                                       Icons.delete,
-                                                      color: Colors.white,
+                                                      color: ColorCode.white,
                                                       size: 18,
                                                     ),
                                                   ),
@@ -557,7 +561,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: ColorCode.transparent,
       isScrollControlled: true,
       builder: (_) {
 
@@ -588,7 +592,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           width: 40,
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
-                            color: Colors.white24,
+                            color: ColorCode.white24,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -601,7 +605,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           const Text(
                             "Featured Work",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: ColorCode.white,
                               fontSize: 16,
                               fontFamily: "Unbounded",
                               fontWeight: FontWeight.w500,
@@ -609,7 +613,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           ),
                           IconButton(
                             onPressed: () => Navigator.pop(context),
-                            icon: const Icon(Icons.close, color: Colors.white),
+                            icon: const Icon(Icons.close, color: ColorCode.white),
                           )
                         ],
                       ),
@@ -646,14 +650,14 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white24),
+                            border: Border.all(color: ColorCode.white24),
                           ),
 
                           child: selectedImages.isEmpty
                               ? Column(
                             children: const [
 
-                              Icon(Icons.upload, color: Colors.white, size: 30),
+                              Icon(Icons.upload, color: ColorCode.white, size: 30),
 
                               SizedBox(height: 10),
 
@@ -661,7 +665,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                 "Upload New Image, Video, Or Browse",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: ColorCode.white,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w500,
                                   fontFamily: "Outfit",
@@ -714,9 +718,9 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                       },
                                       child: const CircleAvatar(
                                         radius: 10,
-                                        backgroundColor: Colors.red,
+                                        backgroundColor: ColorCode.red,
                                         child: Icon(Icons.close,
-                                            color: Colors.white, size: 12),
+                                            color: ColorCode.white, size: 12),
                                       ),
                                     ),
                                   )
@@ -743,7 +747,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                   decoration: BoxDecoration(
                                     color: ColorCode.k282828,
                                     borderRadius: BorderRadius.circular(30),
-                                    border: Border.all(color: Colors.white24),
+                                    border: Border.all(color: ColorCode.white24),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -752,7 +756,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                       Text(
                                         tag,
                                         style: const TextStyle(
-                                          color: Colors.white,
+                                          color: ColorCode.white,
                                           fontSize: 13,
                                         ),
                                       ),
@@ -768,7 +772,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                         child: const Icon(
                                           Icons.close,
                                           size: 14,
-                                          color: Colors.white,
+                                          color: ColorCode.white,
                                         ),
                                       )
                                     ],
@@ -789,20 +793,20 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(30),
-                                border: Border.all(color: Colors.white24),
-                                color: Colors.transparent,
+                                border: Border.all(color: ColorCode.white24),
+                                color: ColorCode.transparent,
                               ),
                               child: const Row(
                                 children: [
 
-                                  Icon(Icons.local_offer, size: 14, color: Colors.white),
+                                  Icon(Icons.local_offer, size: 14, color: ColorCode.white),
 
                                   SizedBox(width: 6),
 
                                   Text(
                                     "# Add Tags",
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: ColorCode.white,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -856,7 +860,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: ColorCode.transparent,
       isScrollControlled: true,
       builder: (_) {
 
@@ -882,7 +886,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       width: 40,
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white24,
+                        color: ColorCode.white24,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -899,7 +903,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           Text(
                             "Add Tag",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: ColorCode.white,
                               fontSize: 16,
                               fontFamily: "Unbounded",
                             ),
@@ -908,7 +912,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           Text(
                             "Help people find your work",
                             style: TextStyle(
-                              color: Colors.white54,
+                              color: ColorCode.white54,
                               fontSize: 13,
                             ),
                           ),
@@ -916,7 +920,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       ),
 
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
+                        icon: const Icon(Icons.close, color: ColorCode.white),
                         onPressed: () => Navigator.pop(context),
                       )
                     ],
@@ -927,10 +931,10 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                   /// TEXTFIELD
                   TextField(
                     controller: tagController,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: ColorCode.white),
                     decoration: InputDecoration(
                       hintText: "Type Tag and Press Enter",
-                      hintStyle: const TextStyle(color: Colors.white54),
+                      hintStyle: const TextStyle(color: ColorCode.white54),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -955,8 +959,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                       return Chip(
                         label: Text(tag),
-                        backgroundColor: Colors.black,
-                        labelStyle: const TextStyle(color: Colors.white),
+                        backgroundColor: ColorCode.black,
+                        labelStyle: const TextStyle(color: ColorCode.white),
                         deleteIcon: const Icon(Icons.close, size: 16),
                         onDeleted: () {
                           setModalState(() {
@@ -988,7 +992,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         "Save",
                         style: TextStyle(
                           fontFamily: "Unbounded",
-                          color: Colors.black,
+                          color: ColorCode.black,
                         ),
                       ),
                     ),
@@ -1006,7 +1010,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
   void _featuredSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: ColorCode.transparent,
       isScrollControlled: true,
       builder: (_) {
         return StatefulBuilder(
@@ -1041,7 +1045,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         const EdgeInsets.only(
                             bottom: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white24,
+                          color: ColorCode.white24,
                           borderRadius:
                           BorderRadius.circular(4),
                         ),
@@ -1057,7 +1061,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         const Text(
                           "Featured Work",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: ColorCode.white,
                             fontSize: 16,
                             fontFamily: "Unbounded",
                             fontWeight: FontWeight.w500,
@@ -1072,7 +1076,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                           icon: const Icon(
                             Icons.close,
-                            color: Colors.white,
+                            color: ColorCode.white,
                           ),
                         ),
                       ],
@@ -1110,7 +1114,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       RoundedRectDottedBorderOptions(
                         radius:
                         const Radius.circular(16),
-                        color: Colors.white24,
+                        color: ColorCode.white24,
                         strokeWidth: 1,
                         dashPattern: [4, 4],
                       ),
@@ -1165,7 +1169,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontFamily: "Outfit",
-                                    color: Colors.white,
+                                    color: ColorCode.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -1178,7 +1182,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontFamily: "Outfit",
-                                    color: Colors.white70,
+                                    color: ColorCode.kWhiteOpacity70,
                                     fontSize: 13,
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -1235,14 +1239,14 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                       BorderRadius.circular(12),
 
                                       border: Border.all(
-                                        color: Colors.white24,
+                                        color: ColorCode.white24,
                                       ),
                                     ),
 
                                     child: const Center(
                                       child: Icon(
                                         Icons.add,
-                                        color: Colors.white,
+                                        color: ColorCode.white,
                                         size: 28,
                                       ),
                                     ),
@@ -1289,14 +1293,14 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                           width: 24,
 
                                           decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(0.7),
+                                            color: ColorCode.black.withOpacity(0.7),
                                             shape: BoxShape.circle,
                                           ),
 
                                           child: const Icon(
                                             Icons.close,
                                             size: 14,
-                                            color: Colors.white,
+                                            color: ColorCode.white,
                                           ),
                                         ),
                                       ),
@@ -1343,14 +1347,14 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                         width: 24,
 
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.7),
+                                          color: ColorCode.black.withOpacity(0.7),
                                           shape: BoxShape.circle,
                                         ),
 
                                         child: const Icon(
                                           Icons.close,
                                           size: 14,
-                                          color: Colors.white,
+                                          color: ColorCode.white,
                                         ),
                                       ),
                                     ),
@@ -1378,7 +1382,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           totalImages >= 5
                               ? ColorCode
                               .kButtonColor
-                              : Colors.grey,
+                              : ColorCode.grey,
 
                           shape:
                           RoundedRectangleBorder(
@@ -1445,7 +1449,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         child: const Text(
                           "Save",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: ColorCode.black,
                             fontWeight:
                             FontWeight.w600,
                           ),
@@ -1469,7 +1473,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: ColorCode.transparent,
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -1496,7 +1500,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         width: 40,
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white24,
+                          color: ColorCode.white24,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -1510,7 +1514,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         const Text(
                           "Add Tag",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: ColorCode.white,
                             fontSize: 16,
                             fontFamily: "Unbounded",
                             fontWeight: FontWeight.w600,
@@ -1519,7 +1523,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         IconButton(
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(Icons.close,
-                              color: Colors.white),
+                              color: ColorCode.white),
                         )
                       ],
                     ),
@@ -1529,7 +1533,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                     const Text(
                       "Help people find your work",
                       style: TextStyle(
-                        color: Colors.white70,
+                        color: ColorCode.white24,
                         fontSize: 13,
                       ),
                     ),
@@ -1542,18 +1546,18 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         Expanded(
                           child: TextField(
                             controller: tagController,
-                            style: const TextStyle(color: Colors.white),
+                            style: const TextStyle(color: ColorCode.white),
                             decoration: const InputDecoration(
                               hintText: "Type tag and press + or Enter",
-                              hintStyle: TextStyle(color: Colors.white54),
+                              hintStyle: TextStyle(color: ColorCode.white24),
                               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.all(Radius.circular(12)),
-                                borderSide: BorderSide(color: Colors.white24),
+                                borderSide: BorderSide(color: ColorCode.white24),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.all(Radius.circular(12)),
-                                borderSide: BorderSide(color: Colors.white),
+                                borderSide: BorderSide(color: ColorCode.white),
                               ),
                             ),
                             onSubmitted: (value) {
@@ -1586,7 +1590,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         //       color: const Color(0xFFEAD3A1),
                         //       borderRadius: BorderRadius.circular(12),
                         //     ),
-                        //     child: const Icon(Icons.add, color: Colors.black),
+                        //     child: const Icon(Icons.add, color: ColorCode.black),
                         //   ),
                         // ),
                       ],
@@ -1606,11 +1610,11 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                 horizontal: 12,
                                 vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.black,
+                              color: ColorCode.black,
                               borderRadius:
                               BorderRadius.circular(20),
                               border: Border.all(
-                                  color: Colors.white24),
+                                  color: ColorCode.white24),
                             ),
                             child: Row(
                               mainAxisSize:
@@ -1619,7 +1623,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                 Text(
                                   tag,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: ColorCode.white,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -1633,7 +1637,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                   child: const Icon(
                                     Icons.close,
                                     size: 14,
-                                    color: Colors.white70,
+                                    color: ColorCode.white24,
                                   ),
                                 ),
                               ],
@@ -1651,7 +1655,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                           const Color(0xFFEAD3A1),
-                          foregroundColor: Colors.black,
+                          foregroundColor: ColorCode.black,
                           padding:
                           const EdgeInsets.symmetric(
                               vertical: 14),

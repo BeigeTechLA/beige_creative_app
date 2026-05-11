@@ -13,11 +13,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'Home/home_screen.dart';
 import 'Model_Class/Creatordashboarddetailsmodel.dart' as profile;
 import 'Model_Class/myprofilemodel.dart';
-import 'Profile/MyProfile/MyProfile.dart';
+import 'Profile/MyProfile/myprofile.dart';
 import 'Shoots/shoots_screen.dart';
-import 'FileManager/file_manager_screen.dart';
 import 'Messages/messages_screen.dart';
 import 'ManageAvailability/manage_availability_screen.dart';
+import 'file_manager/file_manager_screen.dart';
 import 'utility/ColorCode.dart';
 
 class Mainscreen extends StatefulWidget {
@@ -147,11 +147,11 @@ Future<void> fetchprofiledata() async {
             ),
             BottomNavigationBarItem(
               icon: _navIcon(
-                "assets/Active/Shoots.svg",
-                "assets/NonActive/Shoots(1).svg",
+                "assets/Active/shoots.svg",
+                "assets/NonActive/shoots(1).svg",
                 1,
               ),
-              label: "Shoots",
+              label: "shoots",
             ),
             BottomNavigationBarItem(
               icon: _navIcon(
@@ -307,9 +307,9 @@ Future<void> fetchprofiledata() async {
                   ),
 
                   _drawerBottomItem(
-                    "Shoots",
-                    "assets/Active/Shoots.svg",
-                    "assets/NonActive/Shoots(1).svg",
+                    "shoots",
+                    "assets/Active/shoots.svg",
+                    "assets/NonActive/shoots(1).svg",
                     1,
                   ),
 
@@ -321,15 +321,15 @@ Future<void> fetchprofiledata() async {
                   ),
 
                   _drawerBottomItem(
-                    "Messages",
-                    "assets/Active/Messages.svg",
-                    "assets/NonActive/Messages (1).svg",
+                    "messages",
+                    "assets/Active/messages.svg",
+                    "assets/NonActive/messages (1).svg",
                     3,
                   ),
                   _drawerBottomItem(
                     "Manage Availability",
                     "assets/Active/Manage Availability.svg",
-                    "assets/NonActive/ManageAvailability(2).svg",
+                    "assets/NonActive/manageavailability(2).svg",
                     4,
                   ),
 

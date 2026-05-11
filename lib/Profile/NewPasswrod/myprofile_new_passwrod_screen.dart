@@ -36,7 +36,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                       /// 🖼️ BACKGROUND IMAGE
                       Positioned.fill(
                         child: Image.asset(
-                          "assets/images/Rectangle_574057023.png",
+                          "assets/images/rectangle.png",
                           fit: BoxFit.fill,
                         ),
                       ),
