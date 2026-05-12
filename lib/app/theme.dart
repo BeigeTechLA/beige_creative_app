@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'colors.dart';
@@ -27,11 +28,11 @@ class AppTheme {
       brightness: Brightness.dark,
 
       // ━━━ SCAFFOLD ━━━
-      scaffoldBackgroundColor: AppColors.background,
+      scaffoldBackgroundColor: AppColors.backgroundColor,
 
       // ━━━ APP BAR ━━━
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.backgroundColor,
         iconTheme: IconThemeData(color: AppColors.white),
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -42,12 +43,12 @@ class AppTheme {
 
       // ━━━ COLOR SCHEME ━━━
       colorScheme: const ColorScheme.dark(
-        surface: AppColors.background,
+        surface: AppColors.backgroundColor,
         primary: AppColors.white,
-        secondary: AppColors.primary,
-        onPrimary: AppColors.background,
-        onSecondary: AppColors.onPrimary,
-        error: AppColors.error,
+        secondary: AppColors.backgroundColor,
+        onPrimary: AppColors.backgroundColor,
+        onSecondary: AppColors.backgroundColor,
+        error: AppColors.red,
         onError: AppColors.white,
         onSurface: AppColors.white,
       ),
@@ -267,3 +268,4 @@ class AppTheme {
     return dark();
   }
 }
+*/

@@ -30,7 +30,7 @@ class CustomDropdownField extends StatelessWidget {
       icon: Padding(
         padding: const EdgeInsets.only(right: 8),
         child: SvgPicture.asset(
-          "assets/svg/DROPdown.svg",
+          "assets/svg/drodown.svg",
           height: 25,
 
           width: 20,

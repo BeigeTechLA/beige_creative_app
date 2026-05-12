@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../Model_Class/Creatordashboarddetailsmodel.dart' hide Data;
-import '../../Model_Class/myprofilemodel.dart';
-import '../../service/api_endpoints.dart';
-import '../../service/api_service.dart';
-import '../../utility/ColorCode.dart';
-import '../../utility/imges_icons.dart';
-import '../../widgets/commonFileViewer.dart';
-import '../../widgets/common_uploader.dart';
+import '../Model_Class/create_dashboard_details_model.dart' hide Data;
+import '../Model_Class/myprofile_model.dart';
+import '../service/api_endpoints.dart';
+import '../service/api_service.dart';
+import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart';
+import '../widgets/commonFileViewer.dart';
+import '../widgets/common_uploader.dart';
 
 class Certificates extends StatefulWidget {
   const Certificates({super.key});
@@ -130,7 +130,7 @@ class _CertificatesState extends State<Certificates> {
                       InkWell(
                         onTap: () => Navigator.pop(context),
                         child:
-                        Image.asset(
+                        SvgPicture.asset(
                           AppImages.back,
                         /*  "assets/icons/back.png",*/
                           height: 24,color: ColorCode.white,),

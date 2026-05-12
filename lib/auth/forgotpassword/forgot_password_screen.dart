@@ -215,7 +215,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     )*/
 
-                      /// 🔙 BACK BUTTON
 
                       /// 🔙 BACK BUTTON
                       Positioned(

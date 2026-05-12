@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/service/shared_service.dart';
@@ -11,9 +12,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Home/home_screen.dart';
-import 'Model_Class/Creatordashboarddetailsmodel.dart' as profile;
-import 'Model_Class/myprofilemodel.dart';
-import 'Profile/MyProfile/myprofile.dart';
+import 'Model_Class/create_dashboard_details_model.dart' as profile;
+import 'Model_Class/myprofile_model.dart';
+
+import 'Profile/myprofile.dart';
 import 'Shoots/shoots_screen.dart';
 import 'Messages/messages_screen.dart';
 import 'ManageAvailability/manage_availability_screen.dart';
@@ -139,32 +141,35 @@ Future<void> fetchprofiledata() async {
           items: [
             BottomNavigationBarItem(
               icon: _navIcon(
-                "assets/Active/Dashboard.svg",
-                "assets/NonActive/dashboard-square-02.svg",
+                AppImages.activeDashboard,
+                AppImages.inactiveDashboard,
                 0,
               ),
               label: "Dashboard",
             ),
+
             BottomNavigationBarItem(
               icon: _navIcon(
-                "assets/Active/shoots.svg",
-                "assets/NonActive/shoots(1).svg",
+                AppImages.activeShoots,
+                AppImages.inactiveShoots,
                 1,
               ),
               label: "shoots",
             ),
+
             BottomNavigationBarItem(
               icon: _navIcon(
-                "assets/Active/FileManager.svg",
-                "assets/NonActive/FileManager(1).svg",
+                AppImages.activeFileManager,
+                AppImages.inactiveFileManager,
                 2,
               ),
               label: "File Manager",
             ),
+
             BottomNavigationBarItem(
               icon: _navIcon(
-                "assets/Active/Messages.svg",
-                "assets/NonActive/Messages (1).svg",
+                AppImages.activeMessages,
+                AppImages.inactiveMessages,
                 3,
               ),
               label: "Messages",
@@ -210,7 +215,9 @@ Future<void> fetchprofiledata() async {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Image.asset("assets/home/Group.png"),
+                      /// ===================== Drawer Top Logo =====================
+
+                      Image.asset(AppImages.group_logo),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.white),
                         onPressed: () => Navigator.pop(context),
@@ -294,6 +301,7 @@ Future<void> fetchprofiledata() async {
             const Divider(color: Colors.grey),
 
             /// 🔹 Menu Items
+
             Expanded(
               child: ListView(
                 children: [
@@ -301,49 +309,38 @@ Future<void> fetchprofiledata() async {
                   /// Bottom linked
                   _drawerBottomItem(
                     "Dashboard",
-                    "assets/Active/Dashboard.svg",
-                    "assets/NonActive/dashboard-square-02.svg",
+                    AppImages.activeDashboard,
+                    AppImages.inactiveDashboard,
                     0,
                   ),
 
                   _drawerBottomItem(
                     "shoots",
-                    "assets/Active/shoots.svg",
-                    "assets/NonActive/shoots(1).svg",
+                    AppImages.activeShoots,
+                    AppImages.inactiveShoots,
                     1,
                   ),
 
                   _drawerBottomItem(
                     "File Manager",
-                    "assets/Active/FileManager.svg",
-                    "assets/NonActive/FileManager(1).svg",
+                    AppImages.activeFileManager,
+                    AppImages.inactiveFileManager,
                     2,
                   ),
 
                   _drawerBottomItem(
                     "messages",
-                    "assets/Active/messages.svg",
-                    "assets/NonActive/messages (1).svg",
+                    AppImages.activeMessages,
+                    AppImages.inactiveMessages,
                     3,
                   ),
+
                   _drawerBottomItem(
                     "Manage Availability",
-                    "assets/Active/Manage Availability.svg",
-                    "assets/NonActive/manageavailability(2).svg",
+                    AppImages.activeManageAvailability,
+                    AppImages.inactiveManageAvailability,
                     4,
                   ),
-
-                /*  _drawerBottomItem(
-                    "Manage Availability",
-                    Icons.calendar_month,
-                    4, // index of page
-                  ),*/
-                  /// Push type screen
-                /*  _drawerPushItem(
-                    "Manage Availability",
-                    Icons.calendar_month,
-                    const ManageAvailabilityScreen(),
-                  ),*/
                 ],
               ),
             ),

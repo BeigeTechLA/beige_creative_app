@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import '../utility/ColorCode.dart';
-import 'MyProfile/myprofile.dart';
+import '../utility/imges_icons.dart';
 
 class MyprofileYoureAllSetScreen extends StatefulWidget {
   const MyprofileYoureAllSetScreen({super.key});
@@ -40,7 +40,8 @@ class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen>
 
             /// ✅ SUCCESS LOTTIE
             Lottie.asset(
-              "assets/lottie/Untitled file.json",
+              // "assets/lottie/Untitled file.json",
+              AppImages.lottie1,
               height: 180,
               repeat: false,
             ),

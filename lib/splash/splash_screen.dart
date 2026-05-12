@@ -1,5 +1,6 @@
 import 'package:beige_creative_app/Home/home_screen.dart';
 import 'package:beige_creative_app/Shoots/shoot_cancelled_lotties_screen.dart';
+import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,7 +62,8 @@ class _SplashScreenState extends State<SplashScreen>
         color: ColorCode.kHeadingColor,
         child: Center(
           child: Lottie.asset(
-            "assets/lottie/Component10.json",
+            AppImages.lottie2,
+          /*  "assets/lottie/Component10.json",*/
             controller: _controller,
             width: 250,
             fit: BoxFit.contain,

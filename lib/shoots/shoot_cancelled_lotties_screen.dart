@@ -3,6 +3,7 @@ import 'package:lottie/lottie.dart';
 
 import '../MainScreen.dart';
 import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart';
 
 
 class ShootCancelledLottiesScreen extends StatefulWidget {
@@ -37,7 +38,7 @@ class _ShootCancelledLottiesScreenState extends State<ShootCancelledLottiesScree
 
             /// ✅ SUCCESS LOTTIE
             Lottie.asset(
-              "assets/lottie/Untitled file.json",
+              AppImages.lottie1,
               height: 180,
               repeat: false,
             ),

@@ -1,32 +1,32 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:beige_creative_app/Model_Class/myprofilemodel.dart';
-import 'package:beige_creative_app/auth/login/login.dart';
-import 'package:beige_creative_app/service/api_endpoints.dart';
-import 'package:beige_creative_app/service/api_service.dart';
-import 'package:beige_creative_app/utility/imges_icons.dart';
-import 'package:beige_creative_app/widgets/app_loder.dart';
+import 'package:beige_creative_app/Model_Class/myprofile_model.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../Model_Class/myprofilemodel.dart';
-import '../../auth/view_details_screen .dart';
-import '../../auth/sign_up/signup1_screen.dart';
-import '../../service/shared_service.dart';
-import '../../utility/ColorCode.dart';
-import '../../utility/app_utils.dart';
-import '../../widgets/Topmessgae.dart';
-import '../../widgets/custom_text_field.dart';
-import '../AppPreferences/app_preferences.dart';
-import '../Certificates/certificates.dart';
-import '../Featuredwork/featured_work_list.dart';
-import '../ProfileDetils/profile_detils_1screen.dart';
-import '../Resume/Resume.dart';
+import '../auth/login/login.dart';
+import '../auth/sign_up/signup1_screen.dart';
+import '../service/api_endpoints.dart';
+import '../service/api_service.dart';
+import '../service/shared_service.dart';
+import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart';
+import '../widgets/Topmessgae.dart';
+import '../widgets/app_loder.dart';
+import '../widgets/custom_text_field.dart';
+
+import 'ProfileDetils/profile_detils_1screen.dart' show ProfileDetils1screen;
+
+import 'app_preferences.dart';
+import 'certificates.dart';
+import 'featured_work_list.dart';
+import 'resume_screen.dart';
+
 
 class Myprofile extends StatefulWidget {
   const Myprofile({super.key});
@@ -70,7 +70,7 @@ class _MyprofileState extends State<Myprofile> {
       case "google_drive":
         return AppImages.googledrive;
       default:
-        return "assets/svg/Ball.svg";
+        return "assets/svg/ball.svg";
     }
   }
   Future<void> savePortfolioLinksToApi() async {
@@ -633,7 +633,7 @@ AppImages.Image_zoom,
       case "behance":
         return AppImages.be;
       default:
-        return "assets/svg/Ball.svg";
+        return "assets/svg/ball.svg";
     }
   }
   Future<void> saveSocialLinksToApi() async {
@@ -784,7 +784,7 @@ Data? Myprofile_user;
     AppImages.insta,
     AppImages.tiktok,
     AppImages.be,
-    "assets/svg/Ball.svg"
+  /*  "assets/svg/Ball.svg"*/
   ];
 
   final List<String> Portfoliolname  = [
@@ -828,8 +828,8 @@ Data? Myprofile_user;
                           bottomLeft: Radius.circular(28),
                           bottomRight: Radius.circular(28),
                         ),
-                        child: Image.asset(
-                          AppImages.rectangle,
+                        child: SvgPicture.asset(
+                          AppImages.rectangle_profile,
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -1606,7 +1606,7 @@ Data? Myprofile_user;
                   );
                 },),
                 _divider(),
-                _menuRow(AppImages.resume, "Resume",onTap: () {
+                _menuRow(AppImages.resume, "resume",onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(

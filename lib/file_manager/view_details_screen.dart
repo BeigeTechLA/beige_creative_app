@@ -32,7 +32,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                       bottomRight: Radius.circular(28),
                     ),
                     child: Image.asset(
-                      "assets/home/Rectangle.png",
+                      AppImages.rectangle,
                       fit: BoxFit.fill,
                     ),
                   ),

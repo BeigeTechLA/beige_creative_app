@@ -36,6 +36,7 @@ class EditProfileModel {
   final int yearsOfExperience;
   final double hourlyRate;
   final String bio;
+  final String age; // Added age
 
   final List<Skill> skills;
   final List<int> skillIds;
@@ -58,6 +59,7 @@ class EditProfileModel {
     required this.yearsOfExperience,
     required this.hourlyRate,
     required this.bio,
+    required this.age, // Added age
     required this.skills,
     required this.skillIds,
     required this.user,
@@ -80,6 +82,7 @@ class EditProfileModel {
       hourlyRate:
       double.tryParse(json["hourly_rate"].toString()) ?? 0.0,
       bio: json["bio"] ?? "",
+      age: json["age"]?.toString() ?? "", // Added age
       skills: (json["skills"] as List? ?? [])
           .map((e) => Skill.fromJson(e))
           .toList(),

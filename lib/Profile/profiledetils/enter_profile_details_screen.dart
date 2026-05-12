@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../Model_Class/EditProfileModel.dart';
+import '../../Model_Class/edit_profile_model.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
@@ -307,7 +307,7 @@ class _EnterProfileDetailsScreenState
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: ColorCode.white,
                   ),
                 ),
               ),
@@ -357,7 +357,7 @@ class _EnterProfileDetailsScreenState
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Highlight your creative focus.",
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: ColorCode.grey),
                 ),
               ),
 
@@ -368,14 +368,14 @@ class _EnterProfileDetailsScreenState
                 onTap: _openSkillsBottomSheet,
                 child: AbsorbPointer(
                   child: TextField(
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: ColorCode.white),
 
                     decoration: _inputDecoration("Add Skills").copyWith(
                       hintText: _skillsDisplayText(),
-                      hintStyle: const TextStyle(color: Colors.white),
+                      hintStyle: const TextStyle(color: ColorCode.white),
                       suffixIcon: const Icon(
                         Icons.keyboard_arrow_down,
-                        color: Colors.white,
+                        color: ColorCode.white,
                       ),
                     ),
                   ),
@@ -426,7 +426,7 @@ class _EnterProfileDetailsScreenState
             child: const Text(
               "Save",
               style: TextStyle(
-                color: Colors.black,
+                color: ColorCode.black,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -460,7 +460,7 @@ class _EnterProfileDetailsScreenState
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: ColorCode.white24,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -469,7 +469,7 @@ class _EnterProfileDetailsScreenState
                   const Text(
                     "Select Roles",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: ColorCode.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -489,7 +489,7 @@ class _EnterProfileDetailsScreenState
                           title: Text(
                             role,
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: ColorCode.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               fontFamily: "Outfit",
@@ -497,12 +497,12 @@ class _EnterProfileDetailsScreenState
                           ),
 
                           activeColor: ColorCode.kButtonColor,
-                          checkColor: Colors.black,
+                          checkColor: ColorCode.black,
 
                           side: BorderSide(
                             color: isSelected
                                 ? ColorCode.kButtonColor
-                                : Colors.grey,
+                                : ColorCode.grey,
                             width: 1.5,
                           ),
 
@@ -580,7 +580,7 @@ class _EnterProfileDetailsScreenState
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: ColorCode.white24,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -589,7 +589,7 @@ class _EnterProfileDetailsScreenState
                   Text(
                     "Select Skills",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: ColorCode.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -610,11 +610,11 @@ class _EnterProfileDetailsScreenState
                         return CheckboxListTile(
                           value: isSelected,
                           activeColor: ColorCode.kButtonColor,
-                          checkColor: Colors.black,
+                          checkColor: ColorCode.black,
                           title: Text(
                             skill,
                             style:
-                            const TextStyle(color: Colors.white),
+                            const TextStyle(color: ColorCode.white),
                           ),
                           onChanged: (checked) {
                             setModalState(() {

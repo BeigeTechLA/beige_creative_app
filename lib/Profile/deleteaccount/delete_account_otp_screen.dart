@@ -81,10 +81,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
               child:SvgPicture.asset(
                 AppImages.back, // make sure it's .svg file
                 height: 24,
-                colorFilter: ColorFilter.mode(
-                  ColorCode.white,
-                  BlendMode.srcIn,
-                ),
+
               ),
             ),
 

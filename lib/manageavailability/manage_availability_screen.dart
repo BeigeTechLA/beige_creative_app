@@ -146,7 +146,9 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 ),
                 child: Row(
                   children: [
-                    SvgPicture.asset('assets/svg/infosvg.svg'),
+                    SvgPicture.asset(
+                    AppImages.info,
+                    ),
                     const SizedBox(width: 8),
                     const Expanded(
                       child: Text(

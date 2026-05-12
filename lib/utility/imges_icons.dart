@@ -1,85 +1,161 @@
 class AppImages {
-  static const String reply = "assets/icons/Reply.png";
-  static const String weddingevent = "assets/images/weddingevent.png";
-  static const String Ball = "assets/svg/Ball.svg";
-  static const String facebook = "assets/svg/facebook.svg";
-  static const String tiktok = "assets/svg/tiktok.svg";
-  static const String insta = "assets/svg/insta.svg";
-  static const String be = "assets/svg/Social Media Icon (5).svg";
-  static const String v = "assets/svg/v.svg";
-  static const String youtube = "assets/svg/you_tube.svg";
-  static const String googledrive = "assets/svg/googledrive.svg";
-  static const String Pencil = "assets/svg/Pencil.svg";
-  static const String delete = "assets/svg/delete.svg";
-  static const String profilepicture = "assets/home/profilepicture.png";
-  static const String myprofileeditphoto = "assets/svg/myprofileeditphoto.svg";
-  static const String back = "assets/svg/back.svg";
-  static const String menu = "assets/svg/menu.svg";
-  static const String goto = "assets/svg/goto.svg";
-  static const String filter = "assets/svg/filter.svg";
-  static const String notificationbell = "assets/svg/notificationbell.svg";
-  static const String doller = "assets/svg/doller.svg";
-  static const String medal = "assets/svg/medal.svg";
-  static const String map = "assets/svg/map.svg";
-  static const String SQAREPEN = "assets/svg/SQAREPEN.svg";
-  static const String userid = "assets/svg/userid.svg";
-  static const String certificates = "assets/svg/certificates.svg";
-  static const String resume = "assets/svg/resume.svg";
-  static const String appperference= "assets/svg/appperference.svg";
-  static const String notificationsetting= "assets/svg/notificationsetting.svg";
-  static const String clude = "assets/svg/clude.svg";
-  static const String appversion = "assets/svg/appversion.svg";
-  static const String chando = "assets/svg/chando.svg";
-  static const String time = "assets/svg/time.svg";
-  static const String location = "assets/svg/location.svg";
-  static const String calender = "assets/svg/calender.svg";
-  static const String avtarstack = "assets/images/avtarstack.png";
-  static const String myprofile_edit = "assets/svg/myprofile_edit.svg";
-  static const String Image_zoom = "assets/svg/Image_zoom.svg";
-  static const String rectangle = "assets/images/rectangle.png";
+  AppImages._();
 
-  ///icons
-  static const String dropdown = "assets/svg/dropdown.svg";
-  static const String Upload = "assets/svg/Upload.svg";
-  static const String book_video = "assets/svg/book_video.svg";
-  static const String HourglasTime = "assets/svg/HourglasTime.svg";
-  /// Password Eye Icons
-  static const String eyeOpen = "assets/svg/eyes1.svg";
-  static const String eyeClose = "assets/svg/eyes2.svg";
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // DIRECTORIES
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const String User_Circle = "assets/svg/User_Circle.svg";
+  static const String _svg = 'assets/svg';
+  static const String _images = 'assets/images';
+  static const String _lottie = 'assets/lottie';
+  static const String _active = 'assets/Active';
+  static const String _inactive = 'assets/NonActive';
+  static const String _home = 'assets/home';
+  static const String _shootSvg = 'assets/svg/Shoot';
+  static const String _onboarding = 'assets/Onboding';
 
-  static const String image_holder = "assets/svg/image_holder.svg";
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Active Icons
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const String person_icons = "assets/svg/person_icons.svg";
-  static const String Phone_Calling = "assets/svg/Phone_Calling.svg";
-  static const String mail_icon = "assets/svg/mail_icon.svg";
+  static const String activeDashboard = '$_active/dashboard.svg';
+  static const String activeShoots = '$_active/shoots.svg';
+  static const String activeFileManager = '$_active/filemanager.svg';
+  static const String activeMessages = '$_active/messages.svg';
+  static const String activeManageAvailability = '$_active/manage_availability.svg';
 
-/// my profile uplod svg image
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // InActive Icons
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const String scanner = "assets/svg/scanner.svg";
-  static const String document = "assets/svg/document_attachment.svg";
-  static const String gallery = "assets/svg/gallery.svg";
+  static const String inactiveDashboard = '$_inactive/dashboard-square-02.svg';
+  static const String inactiveShoots = '$_inactive/shoots(1).svg';
+  static const String inactiveFileManager = '$_inactive/filemanager(1).svg';
+  static const String inactiveMessages = '$_inactive/messages(1).svg';
+  static const String inactiveManageAvailability = '$_inactive/manageavailability(2).svg';
 
-  /// Search Icons
-///
-  static const String search_icon = "assets/svg/search_icon.svg";
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Home Drawer Images
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/// shoots
-  static const String clock_icon = "assets/svg/Shoot/clock_icon.svg";
-  static const String declined_icon = "assets/svg/Shoot/declined_icon.svg";
-  static const String photo_icon = "assets/svg/Shoot/photo_icon.svg";
-  static const String video_icon = "assets/svg/Shoot/video_icon.svg";
-  static const String calendar_icon = "assets/svg/Shoot/calendar.svg";
+  static const String group_logo = '$_home/grouplogo.png';
 
-  ///
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Common Images
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const String list = "assets/svg/list.svg";
-  static const String grid = "assets/svg/grid.svg";
+  static const String weddingevent = '$_images/weddingevent.png';
+  static const String avtarstack = '$_images/avtarstack.png';
+  static const String rectangle = '$_images/rectangle.png';
 
-///onboding
-  static const String onboding1 = "assets/Onboding/onboding_new_image.png";
-/// lottie
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Navigation & Actions
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const String lottie1 =   "assets/lottie/Untitled file.json";
+  static const String back = '$_svg/back.svg';
+  static const String menu = '$_svg/menu.svg';
+  static const String filter = '$_svg/filter.svg';
+  static const String goto = '$_svg/goto.svg';
+  static const String location = '$_svg/location.svg';
+  static const String calender = '$_svg/calender.svg';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Social
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String facebook = '$_svg/facebook.svg';
+  static const String tiktok = '$_svg/tiktok.svg';
+  static const String insta = '$_svg/insta.svg';
+  static const String be = '$_svg/Social Media Icon (5).svg';
+  static const String v = '$_svg/v.svg';
+  static const String youtube = '$_svg/you_tube.svg';
+  static const String googledrive = '$_svg/googledrive.svg';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Icons & UI Elements
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String Ball = '$_svg/ball.svg';
+  static const String Pencil = '$_svg/Pencil.svg';
+  static const String delete = '$_svg/delete.svg';
+  static const String myprofileeditphoto = '$_svg/myprofileeditphoto.svg';
+  static const String notificationbell = '$_svg/notificationbell.svg';
+  static const String doller = '$_svg/doller.svg';
+  static const String medal = '$_svg/medal.svg';
+  static const String map = '$_svg/map.svg';
+  static const String SQAREPEN = '$_svg/SQAREPEN.svg';
+  static const String userid = '$_svg/userid.svg';
+  static const String certificates = '$_svg/certificates.svg';
+  static const String resume = '$_svg/resume.svg';
+  static const String appperference = '$_svg/appperference.svg';
+  static const String notificationsetting = '$_svg/notificationsetting.svg';
+  static const String clude = '$_svg/clude.svg';
+  static const String appversion = '$_svg/appversion.svg';
+  static const String moon = '$_svg/moon.svg';
+  static const String time = '$_svg/time.svg';
+  static const String myprofile_edit = '$_svg/myprofile_edit.svg';
+  static const String Image_zoom = '$_svg/Image_zoom.svg';
+  static const String rectangle_profile = '$_svg/rectangle_profile.svg';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — User & Profile
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String User_Circle = '$_svg/user_circle.svg';
+  static const String person_icons = '$_svg/person_icons.svg';
+  static const String Phone_Calling = '$_svg/Phone_Calling.svg';
+  static const String mail_icon = '$_svg/mail_icon.svg';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Eye / Password
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String eyeOpen = '$_svg/eyes1.svg';
+  static const String eyeClose = '$_svg/eyes2.svg';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Upload
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String scanner = '$_svg/scanner.svg';
+  static const String document = '$_svg/document_attachment.svg';
+  static const String gallery = '$_svg/gallery.svg';
+  static const String box_edit = '$_svg/box_edit.svg';
+  static const String Upload = '$_svg/upload.svg';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Misc Icons
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String dropdown = '$_svg/dropdown.svg';
+  static const String book_video = '$_svg/book_video.svg';
+  static const String info = '$_svg/infosvg.svg';
+  static const String HourglasTime = '$_svg/hourglass_time.svg';
+  static const String search_icon = '$_svg/search_icon.svg';
+  static const String image_holder = '$_svg/image_holder.svg';
+  static const String list = '$_svg/list.svg';
+  static const String grid = '$_svg/grid.svg';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Shoots
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String clock_icon = '$_shootSvg/clock_icon.svg';
+  static const String declined_icon = '$_shootSvg/declined_icon.svg';
+  static const String photo_icon = '$_shootSvg/photo_icon.svg';
+  static const String video_icon = '$_shootSvg/video_icon.svg';
+  static const String calendar_icon = '$_shootSvg/calendar.svg';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Onboarding
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String onboding1 = '$_onboarding/onboding_new_image.png';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Lottie
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String lottie1 = '$_lottie/Untitled file.json';
+  static const String lottie2 = '$_lottie/Component10.json';
 }

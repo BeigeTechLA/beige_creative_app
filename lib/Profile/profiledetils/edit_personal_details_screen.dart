@@ -1,24 +1,27 @@
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 
-import '../../Model_Class/EditProfileModel.dart';
+import '../../Model_Class/edit_profile_model.dart';
 import '../../service/google_config.dart';
 import '../../utility/ColorCode.dart';
 import '../../utility/location_service.dart';
 import '../../widgets/custom_dropdown_field.dart';
 import '../../widgets/custom_text_field.dart';
-import '../ChangePassword/change_password_screen.dart';
 
-class EditPersonalDetailsScreen extends StatefulWidget {
+class
+
+ EditPersonalDetailsScreen extends StatefulWidget {
   const EditPersonalDetailsScreen({super.key});
 
   @override
@@ -29,136 +32,6 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
   bool _isPlusCode(String value) {
     return RegExp(r'^[A-Z0-9]{4,}\+[A-Z0-9]{2,}$').hasMatch(value);
   }
-
-
-
-/*
-
-  Future<void> searchLocation(String query) async {
-    try {
-      List<Location> locations = await locationFromAddress(query);
-
-      if (locations.isNotEmpty) {
-        final loc = locations.first;
-
-        final latLng = LatLng(loc.latitude, loc.longitude);
-
-        setState(() {
-          currentLatLng = latLng;
-        });
-
-        mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(latLng, 15),
-        );
-
-        await getAddressFromLatLng(latLng);
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Location not found")),
-      );
-    }
-  }
-
-  Future<void> getAddressFromLatLng(LatLng latLng) async {
-    try {
-      List<Placemark> placemarks =
-      await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
-
-      if (placemarks.isNotEmpty) {
-        final place = placemarks.first;
-
-        final address =
-            "${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.postalCode}";
-
-        setState(() {
-          selectedAddress = address;
-
-          /// 🔥 IMPORTANT: TextField ko bhi update karo
-          searchController.text = address;
-        });
-      }
-    } catch (e) {
-      debugPrint("Reverse geocode error: $e");
-    }
-  }
-
-
-  Future<void> _getCurrentLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-    if (!serviceEnabled) {
-      await Geolocator.openLocationSettings();
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Location permission permanently denied. Enable from settings."),
-        ),
-      );
-      await Geolocator.openAppSettings(); // 👈 Open app settings
-      return;
-    }
-
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    setState(() {
-      currentLatLng = LatLng(position.latitude, position.longitude);
-    });
-  }
-
-
-  Future<void> _updateLocationFromLatLng(LatLng latLng) async {
-    setState(() {
-      currentLatLng = latLng;
-    });
-
-    mapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(latLng, 14),
-    );
-
-    try {
-      final placemarks = await placemarkFromCoordinates(
-        latLng.latitude,
-        latLng.longitude,
-      );
-
-      if (placemarks.isNotEmpty) {
-        final p = placemarks.first;
-
-        // 🔥 BUILD CLEAN ADDRESS (NO PLUS CODE)
-        final parts = <String>[
-          if (p.name != null && !_isPlusCode(p.name!)) p.name!,
-          if (p.subLocality != null) p.subLocality!,
-          if (p.locality != null) p.locality!,
-          if (p.administrativeArea != null) p.administrativeArea!,
-        ];
-
-        selectedAddress = parts.join(', ');
-
-        searchController.text = selectedAddress;
-        searchController.selection = TextSelection.fromPosition(
-          TextPosition(offset: searchController.text.length),
-        );
-      }
-    } catch (e) {
-      debugPrint("Reverse geocode error: $e");
-    }
-  }
-
-*/
-
-
 
   final FocusNode _locationFocus = FocusNode();
   GoogleMapController? mapController;
@@ -183,6 +56,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
   final TextEditingController experienceController =  TextEditingController();
   final TextEditingController rateController =TextEditingController();
   final TextEditingController bioController  =TextEditingController();
+  final TextEditingController ageController = TextEditingController(); // Added age controller
   String selectedSkill = "";
   EditProfileModel?  mylist;
 
@@ -235,6 +109,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
             data.yearsOfExperience.toString();
         rateController.text = data.hourlyRate.toString();
         bioController.text = data.bio;
+        ageController.text = data.age; // Populate age
 
         selectedSkill = data.workingDistance;
       });
@@ -259,6 +134,13 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
       if (emailcontroller.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Enter email")),
+        );
+        return;
+      }
+
+      if (ageController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Enter age")),
         );
         return;
       }
@@ -288,6 +170,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
         "years_of_experience": experienceController.text.trim(),
         "hourly_rate": rateController.text.trim(),
         "bio": bioController.text.trim(),
+        "age": ageController.text.trim(), // Added age to body
       };
 
       print("📤 BODY: $body");
@@ -404,7 +287,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: ColorCode.white,
                         ),
                       ),
                     ],
@@ -417,7 +300,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
                   SizedBox(height:12),
                   /// 📅 YEAR OF EXPERIENCE
                   CustomTextField(
-                    label: "First Name*",
+                    label: "First name*",
                     controller: firstnamecontroller,
                   ),
 
@@ -425,9 +308,17 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
 
                   /// 💰 HOURLY RATE
                   CustomTextField(
-                    label: "Last Name*",
+                    label: "Last name*",
                     controller: lastnamecontroller,
                     // keyboardType: TextInputType.number,
+                  ),
+
+                  SizedBox(height:22),
+
+                  CustomTextField(
+                    label: "Age*",
+                    controller: ageController,
+                    keyboardType: TextInputType.number,
                   ),
 
                   SizedBox(height:22),
@@ -453,7 +344,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
 
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.transparent,
+                      color: ColorCode.transparent,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: ColorCode.kWhiteOpacity70,
@@ -624,22 +515,22 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
                     suffixIcon: GestureDetector(
                       onTap: () {
 
-                        Navigator.push(
+                    /*    Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) =>ChangePasswordScreen(),
                           ),
-                        );
+                        );*/
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: SvgPicture.asset(
-                          "assets/svg/newnew.svg",
+                         AppImages.box_edit,
 
                           colorFilter: const ColorFilter.mode(
                             ColorCode.kWhiteOpacity70,
                             BlendMode.srcIn,
-                          ),
+                            ),
                         ),
                       ),
                     ),
@@ -671,7 +562,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
             child: const Text(
               "Save",
               style: TextStyle(
-                color: Colors.black,
+                color: ColorCode.black,
                 fontWeight: FontWeight.w600,
               ),
             ),

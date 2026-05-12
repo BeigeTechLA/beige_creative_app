@@ -79,7 +79,6 @@ class AppAssets {
 
   static const String instagram = '$_svg/instagram.svg';
   static const String tiktok = '$_svg/tiktok.svg';
-  static const String youtube = '$_svg/youtube.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — Profile

@@ -653,7 +653,9 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       readOnly: true,
                       suffixIcon: Padding(
                         padding: const EdgeInsets.all(10.0),
-                        child: SvgPicture.asset('assets/svg/mycalender.svg'),
+                        child: SvgPicture.asset(
+                            AppImages.calender,
+                        ),
                       ),
                       onTap: () => pickDate(dateController),
                     ),

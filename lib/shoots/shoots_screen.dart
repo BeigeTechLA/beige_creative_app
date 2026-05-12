@@ -5,8 +5,8 @@ import 'package:beige_creative_app/widgets/app_loder.dart';
   import 'package:flutter/foundation.dart';
   import 'package:flutter/material.dart';
   import 'package:flutter_svg/svg.dart';
-  import '../Model_Class/Shootcountmodel.dart';
-  import '../Model_Class/ShootsModel.dart';
+  import '../Model_Class/shoot_count_model.dart';
+  import '../Model_Class/shoots_model.dart';
   import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
   import '../utility/ColorCode.dart';
   import '../utility/imges_icons.dart';
@@ -236,19 +236,19 @@ import 'shoot_cancelled_screen.dart';
                       controller: searchController,
                       onChanged: searchShoots,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: ColorCode.white,
                         fontSize: 14,
                       ),
-                      cursorColor: Colors.white,
+                      cursorColor: ColorCode.white,
                       decoration: InputDecoration(
                         hintText: "Search events or crew...",
                         hintStyle: const TextStyle(
-                            color: Colors.white38,
+                            color: ColorCode.white24,
                             fontFamily: "Outfit"
                         ),
                         prefixIcon: const Icon(
                           Icons.search,
-                          color: Colors.white54,
+                          color: ColorCode.white24,
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(vertical: 14),
@@ -289,13 +289,14 @@ import 'shoot_cancelled_screen.dart';
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [
-              Color(0xFF2A2A2A),
-              Color(0xFF1E1E1E),
+              ColorCode.k2A2A2A,
+              ColorCode.kPrimaryDark,
             ],
           ),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white10),
-        ),
+          border: Border.all(
+            color: ColorCode.white,
+          ),),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -322,7 +323,7 @@ import 'shoot_cancelled_screen.dart';
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Colors.white70,
+                    color: ColorCode.kWhiteOpacity70,
                     fontSize: 10,
                   ),
                 ),
@@ -403,7 +404,7 @@ import 'shoot_cancelled_screen.dart';
                     AppImages.image_holder,
                     height: 60,
                     colorFilter: const ColorFilter.mode(
-                      Colors.white24,
+                      ColorCode.white24,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -455,7 +456,7 @@ import 'shoot_cancelled_screen.dart';
                   Text(
                     shoot?.projectName ?? "No Title",
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: ColorCode.white,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -471,7 +472,7 @@ import 'shoot_cancelled_screen.dart';
                       const SizedBox(width: 6),
                       Text(
                         formattedDate, // ✅ FIX
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        style: const TextStyle(color: ColorCode.whiteOpacity20, fontSize: 12),
                       ),
 
                       const SizedBox(width: 14),
@@ -480,7 +481,7 @@ import 'shoot_cancelled_screen.dart';
                       const SizedBox(width: 6),
                       Text(
                         formattedTime, // ✅ FIX
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        style: const TextStyle(color: ColorCode.kWhiteOpacity70, fontSize: 12),
                       ),
 
                       const SizedBox(width: 14),
@@ -490,7 +491,7 @@ import 'shoot_cancelled_screen.dart';
                       Expanded(
                         child: Text(
                           shoot?.eventLocation ?? "No Location",
-                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          style: const TextStyle(color: ColorCode.kWhiteOpacity70, fontSize: 12),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -640,7 +641,7 @@ import 'shoot_cancelled_screen.dart';
                             width: 40,
                             margin: const EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: ColorCode.white,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -654,7 +655,7 @@ import 'shoot_cancelled_screen.dart';
                                 const Text(
                                   "Filter",
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: ColorCode.white,
                                     fontSize: 18,
                                     fontFamily: "Unbounded",
                                     fontWeight: FontWeight.w600,
@@ -662,7 +663,7 @@ import 'shoot_cancelled_screen.dart';
                                 ),
                                 GestureDetector(
                                   onTap: () => Navigator.pop(context),
-                                  child: const Icon(Icons.close, color: Colors.white),
+                                  child: const Icon(Icons.close, color: ColorCode.white),
                                 ),
                               ],
                             ),
@@ -672,7 +673,7 @@ import 'shoot_cancelled_screen.dart';
 
                           Divider(
                             thickness: 0.5,
-                            color: Colors.white.withOpacity(0.3),
+                            color: ColorCode.white.withOpacity(0.3),
                           ),
 
                           /// SCROLLABLE CONTENT
@@ -802,14 +803,14 @@ import 'shoot_cancelled_screen.dart';
                                                 borderRadius: BorderRadius.circular(12),
                                                 border: Border.all(
                                                   width: 0.5,
-                                                  color: Colors.white.withOpacity(0.6),
+                                                  color: ColorCode.white.withOpacity(0.6),
                                                 ),
                                               ),
                                               child: Center(
                                                 child: Text(
                                                   'Clear All',
                                                   style: TextStyle(
-                                                    color: Colors.white,
+                                                    color: ColorCode.white,
                                                     fontFamily: 'Unbounded',
                                                     fontWeight: FontWeight.w500,
                                                   ),
@@ -833,7 +834,7 @@ import 'shoot_cancelled_screen.dart';
                                                 borderRadius: BorderRadius.circular(12),
                                                 border: Border.all(
                                                   width: 0.5,
-                                                  color: Colors.white.withOpacity(0.6),
+                                                  color: ColorCode.white.withOpacity(0.6),
                                                 ),
                                               ),
                                               child: const Center(
@@ -893,7 +894,7 @@ import 'shoot_cancelled_screen.dart';
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black, width: 1),
+                    border: Border.all(color: ColorCode.black, width: 1),
                   ),
                   child: ClipOval(
                     child: Image.asset(
@@ -915,15 +916,15 @@ import 'shoot_cancelled_screen.dart';
                   width: avatarSize,
                   height: avatarSize,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade700,
+                    color: ColorCode.lightGrey,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black, width: 1),
+                    border: Border.all(color: ColorCode.black, width: 1),
                   ),
                   child: Center(
                     child: Text(
                       "+$extraCount",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: ColorCode.white,
                         fontSize: avatarSize * 0.35,
                         fontWeight: FontWeight.bold,
                       ),
@@ -962,7 +963,7 @@ import 'shoot_cancelled_screen.dart';
                       Text(
                         title,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: ColorCode.white,
                           fontSize: 14,
                           fontFamily: "Outfit",
                           fontWeight: FontWeight.w500,
@@ -970,7 +971,7 @@ import 'shoot_cancelled_screen.dart';
                       ),
                       Icon(size: 30,
                         isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                        color: Colors.white,
+                        color: ColorCode.white,
                       ),
                     ],
                   ),
@@ -981,7 +982,7 @@ import 'shoot_cancelled_screen.dart';
 
                   ?Divider(
                 thickness: 0.5,
-                color: Colors.white.withOpacity(0.3),
+                color: ColorCode.white.withOpacity(0.3),
               ):SizedBox(),
               if (children.isNotEmpty) ...children,
               if (children.isNotEmpty) const SizedBox(height: 6),
@@ -1006,7 +1007,7 @@ import 'shoot_cancelled_screen.dart';
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: ColorCode.white.withOpacity(0.8),
                   fontSize: 14,
                   fontFamily: "Outfit",
                 ),
@@ -1017,7 +1018,7 @@ import 'shoot_cancelled_screen.dart';
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: selected ? const Color(0xffDDDDDD) : Colors.white38,
+                    color: selected ? const Color(0xffDDDDDD) : ColorCode.kWhiteOpacity70,
                     width: 2,
                   ),
                 ),

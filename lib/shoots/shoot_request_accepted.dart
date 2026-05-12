@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 
 import '../MainScreen.dart';
 import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart' show AppImages;
 
 class ShootRequestAccepted extends StatefulWidget {
   const ShootRequestAccepted({super.key});
@@ -40,7 +41,7 @@ class _ShootRequestAcceptedState extends State<ShootRequestAccepted> {
 
             /// ✅ SUCCESS LOTTIE
             Lottie.asset(
-              "assets/lottie/Untitled file.json",
+              AppImages.lottie1,
               height: 180,
               repeat: false,
             ),

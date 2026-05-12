@@ -2,7 +2,7 @@ import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../Model_Class/myprofilemodel.dart';
+import '../../Model_Class/myprofile_model.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/ColorCode.dart';
@@ -88,7 +88,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                     children: [
                       InkWell(
                         onTap: () => Navigator.pop(context),
-                        child: Image.asset("assets/icons/back.png", height: 24),
+                        child:SvgPicture.asset(
+                    AppImages.back,
+
+                            height: 24),
                       ),
                       const Expanded(
                         child: Center(
@@ -172,7 +175,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                  Text(
                   "$firstName $lastName",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: ColorCode.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     fontFamily: "Unbounded"
@@ -193,11 +196,11 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
-                        Color(0x00FFFFFF), // transparent
-                        Color(0x1AFFFFFF), // 10% white
-                        Color(0x33FFFFFF), // 20% white (center highlight)
-                        Color(0x1AFFFFFF),
-                        Color(0x00FFFFFF),
+                        ColorCode.whiteTransparent,
+                        ColorCode.whiteOpacity10,
+                        ColorCode.whiteOpacity20,
+                        ColorCode.whiteOpacity10,
+                        ColorCode.whiteTransparent,
                       ],
                     ),
                   ),
@@ -277,7 +280,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                   child: Text(
                     "$firstName $lastName",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: ColorCode.white,
                       fontSize: 20,
                       fontFamily: "Unbounded",
                       fontWeight: FontWeight.bold,
@@ -298,11 +301,11 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
-                        Color(0x00FFFFFF), // transparent
-                        Color(0x1AFFFFFF), // 10% white
-                        Color(0x33FFFFFF), // 20% white (center highlight)
-                        Color(0x1AFFFFFF),
-                        Color(0x00FFFFFF),
+                        ColorCode.whiteTransparent,
+                        ColorCode.whiteOpacity10,
+                        ColorCode.whiteOpacity20,
+                        ColorCode.whiteOpacity10,
+                        ColorCode.whiteTransparent,
                       ],
                     ),
                   ),
@@ -359,15 +362,15 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
                         /// 🔥 GRADIENT BORDER EFFECT
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.08),
+                          color: ColorCode.white.withOpacity(0.08),
                           width: 1,
                         ),
 
                         /// 🔥 GLASS BACKGROUND
                         gradient: LinearGradient(
                           colors: [
-                            Colors.white.withOpacity(0.08),
-                            Colors.white.withOpacity(0.02),
+                            ColorCode.whiteOpacity10,
+                            ColorCode.whiteOpacity10,
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -377,7 +380,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       child: Text(
                         skill.name,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: ColorCode.white,
                           fontSize: 13,
                           fontFamily: "Outfit",
                           fontWeight: FontWeight.w400,
@@ -397,11 +400,11 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
-                        Color(0x00FFFFFF), // transparent
-                        Color(0x1AFFFFFF), // 10% white
-                        Color(0x33FFFFFF), // 20% white (center highlight)
-                        Color(0x1AFFFFFF),
-                        Color(0x00FFFFFF),
+                        ColorCode.whiteTransparent,
+                        ColorCode.whiteOpacity10,
+                        ColorCode.whiteOpacity20,
+                        ColorCode.whiteOpacity10,
+                        ColorCode.whiteTransparent,
                       ],
                     ),
                   ),
@@ -425,7 +428,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       ? profileData!.bio
                       : "-",
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: ColorCode.white,
                     fontSize: 13,
                   ),
                 ),
@@ -551,7 +554,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           decoration: BoxDecoration(
             color: isSelected
                 ? const Color(0xFFD6C3A1)
-                : Colors.transparent,
+                : ColorCode.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           alignment: Alignment.center,

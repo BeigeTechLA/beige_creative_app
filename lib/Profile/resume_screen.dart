@@ -4,13 +4,13 @@ import 'package:auto_skeleton/auto_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../Model_Class/myprofilemodel.dart';
-import '../../service/api_endpoints.dart';
-import '../../service/api_service.dart';
-import '../../utility/ColorCode.dart';
-import '../../utility/imges_icons.dart';
-import '../../widgets/commonFileViewer.dart' show CommonFileViewer;
-import '../../widgets/common_uploader.dart';
+import '../Model_Class/myprofile_model.dart';
+import '../service/api_endpoints.dart';
+import '../service/api_service.dart';
+import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart';
+import '../widgets/commonFileViewer.dart' show CommonFileViewer;
+import '../widgets/common_uploader.dart';
 
 class Resume extends StatefulWidget {
   const Resume({super.key});
@@ -128,14 +128,16 @@ Future<void> deleteData(int id) async {
                     children: [
                       InkWell(
                         onTap: () => Navigator.pop(context),
-                        child: Image.asset("assets/icons/back.png", height: 24,color: ColorCode.white,),
+                        child: SvgPicture.asset(
+                          AppImages.back,
+                          height: 24,color: ColorCode.white,),
                       ),
                     ],
                   ),
 
                   Row(
                     children: [
-                      Text("Resume",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
+                      Text("resume",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
                     ],
                   ),
                   SizedBox(height: 20,),
@@ -151,11 +153,11 @@ Future<void> deleteData(int id) async {
                           ),
 
                           child: TextField(
-                            style: const TextStyle(color: Colors.white),
+                            style: const TextStyle(color: ColorCode.white),
                             decoration: InputDecoration(
                               hintText: "Search",
-                              hintStyle: const TextStyle(color: Colors.white54),
-                              prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                              hintStyle: const TextStyle(color: ColorCode.white24),
+                              prefixIcon: const Icon(Icons.search, color: ColorCode.white24),
                               border: InputBorder.none,
                             ),
                           ),
@@ -172,7 +174,7 @@ Future<void> deleteData(int id) async {
                           color: const Color(0xFF2A2A2A),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.tune, color: Colors.white),
+                        child: const Icon(Icons.tune, color: ColorCode.white),
                       )
                     ],
                   ),
@@ -201,7 +203,7 @@ Future<void> deleteData(int id) async {
                                   child: cert.filePath.endsWith(".pdf")
                                       ? const Icon(
                                     Icons.picture_as_pdf,
-                                    color: Colors.red,
+                                    color: ColorCode.red,
                                     size: 30,
                                   )
                                       : Image.network(
@@ -240,7 +242,7 @@ Future<void> deleteData(int id) async {
                                     /*  Text(
                                     "${cert["date"]} • ${cert["type"]}",
                                     style: const TextStyle(
-                                        color: Colors.white54,
+                                        color: ColorCode.white54,
                                         fontSize: 11),
                                   ),
           */
@@ -249,7 +251,7 @@ Future<void> deleteData(int id) async {
                                   Text(
                                     cert["count"]!,
                                     style: const TextStyle(
-                                        color: Colors.white54,
+                                        color: ColorCode.white54,
                                         fontSize: 11),
                                   ),*/
                                   ],
@@ -272,7 +274,7 @@ Future<void> deleteData(int id) async {
                                   /* Text(
                                   cert["size"]!,
                                   style: const TextStyle(
-                                      color: Colors.white54,
+                                      color: ColorCode.white54,
                                       fontSize: 11),
                                 )*/
                                 ],
@@ -299,7 +301,7 @@ Future<void> deleteData(int id) async {
                           openUploadDialog();
                         },
                         child: const Text(
-                          "Add Resume",
+                          "Add resume",
                           style: TextStyle(
                             fontFamily: "Unbounded",
                             fontWeight: FontWeight.w500,
@@ -319,7 +321,7 @@ Future<void> deleteData(int id) async {
 void openUploadDialog() {
   showModalBottomSheet(
     context: context,
-    backgroundColor: Colors.transparent,
+    backgroundColor: ColorCode.transparent,
     builder: (context) {
       return Container(
         padding: const EdgeInsets.all(20),
@@ -349,13 +351,13 @@ void openUploadDialog() {
                 ),
                 InkWell(
                   onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, color: Colors.white),
+                  child: const Icon(Icons.close, color: ColorCode.white),
                 )
               ],
             ),
 
             const SizedBox(height: 20),
-            const Divider(color: Colors.white12),
+            const Divider(color: ColorCode.white24),
           /*  /// CAMERA
             uploadOption(
               svgPath: AppImages.scanner,
@@ -376,7 +378,7 @@ void openUploadDialog() {
                 }
               },
             ),
-            const Divider(color: Colors.white12),
+            const Divider(color: ColorCode.white12),
 */
             /// GALLERY
 
@@ -399,7 +401,7 @@ void openUploadDialog() {
                 }
               },
             ),
-            const Divider(color: Colors.white12),*/
+            const Divider(color: ColorCode.white12),*/
             /// FILES
 
             /// FILES
@@ -448,7 +450,7 @@ Widget uploadOption({required String svgPath, required String title, required Vo
             title,
             style: const TextStyle(
               fontSize: 14,
-              color: Colors.white,
+              color: ColorCode.white,
             ),
           ),
         ],
@@ -459,7 +461,7 @@ Widget uploadOption({required String svgPath, required String title, required Vo
 void _openOptions(CrewFile cert) {
   showModalBottomSheet(
     context: context,
-    backgroundColor: Colors.transparent,
+    backgroundColor: ColorCode.transparent,
     builder: (context) {
       return Container(
         padding: const EdgeInsets.all(20),
@@ -516,12 +518,12 @@ void _openOptions(CrewFile cert) {
               },
               child: Row(
                 children: const [
-                  Icon(Icons.visibility, color: Colors.white),
+                  Icon(Icons.visibility, color: ColorCode.white),
                   SizedBox(width: 12),
                   Text(
                     "View Details",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: ColorCode.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -541,7 +543,7 @@ void _openOptions(CrewFile cert) {
               },
               child: Row(
                 children: const [
-                  Icon(Icons.delete, color: Colors.red),
+                  Icon(Icons.delete, color: ColorCode.red),
                   SizedBox(width: 12),
                   Text(
                     "Delete",

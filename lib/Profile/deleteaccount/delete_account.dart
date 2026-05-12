@@ -125,17 +125,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: ColorCode.black.withOpacity(0.4),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          // color:  ColorCode.kPrimaryDark,
         ),
         child: Row(
           children: [

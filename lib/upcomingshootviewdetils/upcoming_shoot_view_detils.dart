@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
-import '../Model_Class/Upcomingshootviewmodel.dart';
+import '../Model_Class/upcoming_shootview_model.dart';
 import '../utility/ColorCode.dart';
 
 class UpcomingShootViewDetils extends StatefulWidget {
@@ -142,7 +142,8 @@ MyData? mydata;//
                           /// ❌ error → fallback
                           errorBuilder: (_, __, ___) {
                             return SvgPicture.asset(
-                              "assets/svg/image_holder.svg",
+                              // "assets/svg/image_holder.svg",
+                              AppImages.image_holder,
                               fit: BoxFit.cover,
                             );
                           },
@@ -157,9 +158,9 @@ MyData? mydata;//
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.3),
-                            Colors.black.withOpacity(0.8),
+                          ColorCode: [
+                            ColorCode.black.withOpacity(0.3),
+                            ColorCode.black.withOpacity(0.8),
                           ],
                         ),
                       ),
@@ -649,7 +650,7 @@ MyData? mydata;//
                                 fontFamily: "Outfit",
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.red,
+                                color: ColorCode.red,
                               ),
                             ),
                           ),
@@ -684,7 +685,7 @@ MyData? mydata;//
                                 fontFamily: "Outfit",
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.black,
+                                color: ColorCode.black,
                               ),
                             ),
                           ),
@@ -720,7 +721,7 @@ MyData? mydata;//
           ),
           child: Icon(
             icon,
-            color: Colors.black,
+            color: ColorCode.black,
             size: 20,
           ),
         ),
@@ -741,7 +742,7 @@ MyData? mydata;//
                   fontFamily: "Outfit",
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white,
+                  color: ColorCode.white,
                 ),
               ),
 
@@ -753,7 +754,7 @@ MyData? mydata;//
                   fontFamily: "Outfit",
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
-                  color: Colors.white.withOpacity(0.6),
+                  color: ColorCode.white.withOpacity(0.6),
                 ),
               ),
             ],
@@ -766,7 +767,7 @@ MyData? mydata;//
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: Colors.white60),
+        Icon(icon, size: 16, color: ColorCode.white60),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
@@ -820,7 +821,7 @@ MyData? mydata;//
                 ? NetworkImage(ApiService.imageURL + image) // 👈 base url add kar
                 : null,
             child: image.isEmpty
-                ? Icon(Icons.person, color: Colors.white)
+                ? Icon(Icons.person, color: ColorCode.white)
                 : null,
           ),
           const SizedBox(height: 10),
@@ -830,7 +831,7 @@ MyData? mydata;//
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontFamily: "Outfit",
-              color: Colors.white,
+              color: ColorCode.white,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -843,7 +844,7 @@ MyData? mydata;//
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontFamily: "Outfit",
-              color: Colors.white54,
+              color: ColorCode.white24,
               fontSize: 11,
             ),
             textAlign: TextAlign.center,
@@ -913,7 +914,7 @@ MyData? mydata;//
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: ColorCode.transparent,
       builder: (_) {
         return Container(
           height: MediaQuery.of(context).size.height * 0.92,
@@ -932,7 +933,7 @@ MyData? mydata;//
                 width: 40,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: ColorCode.white24,
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
@@ -949,18 +950,18 @@ MyData? mydata;//
                       fontFamily: "Unbounded",
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                      color: ColorCode.white,
                     ),
                   ),
                   InkWell(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.close, color: Colors.white),
+                    child: const Icon(Icons.close, color: ColorCode.white),
                   ),
                 ],
               ),
 
               const SizedBox(height: 20),
-              const Divider(color: Colors.white12),
+              const Divider(color: ColorCode.white),
 
               const SizedBox(height: 10),
 
@@ -1036,7 +1037,7 @@ MyData? mydata;//
               child: Icon(
                 icon,
                 size: 22,
-                color: active ? Colors.black : Colors.white54,
+                color: active ? ColorCode.black : ColorCode.white54,
               ),
             ),
 
@@ -1048,7 +1049,7 @@ MyData? mydata;//
                 decoration: const BoxDecoration(
                   border: Border(
                     left: BorderSide(
-                      color: Colors.white24,
+                      color: ColorCode.white24,
                       width: 2,
                     ),
                   ),
@@ -1076,7 +1077,7 @@ MyData? mydata;//
                       fontWeight: FontWeight.w500,
                       color: active
                           ? ColorCode.kButtonColor
-                          : Colors.white,
+                          : ColorCode.white,
                     ),
                   ),
                   const Text(
@@ -1084,7 +1085,7 @@ MyData? mydata;//
                     style: TextStyle(
                       fontFamily: "Outfit",
                       fontSize: 11,
-                      color: Colors.white54,
+                      color: ColorCode.white54,
                     ),
                   ),
                 ],
@@ -1097,7 +1098,7 @@ MyData? mydata;//
                 style: TextStyle(
                   fontFamily: "Outfit",
                   fontSize: 12,
-                  color: Colors.white54,
+                  color: ColorCode.white54,
                 ),
               ),
 
@@ -1113,7 +1114,7 @@ MyData? mydata;//
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: ColorCode.transparent,
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -1136,7 +1137,7 @@ MyData? mydata;//
                       width: 40,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: Colors.white24,
+                        color: ColorCode.white24,
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
@@ -1154,12 +1155,12 @@ MyData? mydata;//
                           fontFamily: "Unbounded",
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                          color: ColorCode.white,
                         ),
                       ),
                       InkWell(
                         onTap: () => Navigator.pop(context),
-                        child: const Icon(Icons.close, color: Colors.white),
+                        child: const Icon(Icons.close, color: ColorCode.white),
                       ),
                     ],
                   ),
@@ -1172,13 +1173,13 @@ MyData? mydata;//
                     style: TextStyle(
                       fontFamily: "Outfit",
                       fontSize: 13,
-                      color: Colors.white70,
+                      color: ColorCode.kWhiteOpacity70,
                     ),
                   ),
 
                   const SizedBox(height: 15),
 
-                  Divider(color: Colors.white12),
+                  Divider(color: ColorCode.white12),
 
                   const SizedBox(height: 10),
 
@@ -1189,7 +1190,7 @@ MyData? mydata;//
                       fontFamily: "Outfit",
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                      color: ColorCode.white,
                     ),
                   ),
 
@@ -1212,15 +1213,15 @@ MyData? mydata;//
                             padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.white24),
+                              border: Border.all(color: ColorCode.white24),
                             ),
                             child: TextField(
                               controller: commentController,
-                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                              style: const TextStyle(color: ColorCode.white, fontSize: 14),
                               maxLines: 3,
                               decoration: const InputDecoration(
                                 hintText: "Any additional details..",
-                                hintStyle: TextStyle(color: Colors.white38),
+                                hintStyle: TextStyle(color: ColorCode.white24),
                                 border: InputBorder.none,
                               ),
                             ),
@@ -1235,15 +1236,15 @@ MyData? mydata;//
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.white24),
+                      border: Border.all(color: ColorCode.white24),
                     ),
                     child: TextField(
                       controller: commentController,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: ColorCode.white),
                       maxLines: 2,
                       decoration: const InputDecoration(
                         hintText: "Any additional details..",
-                        hintStyle: TextStyle(color: Colors.white38),
+                        hintStyle: TextStyle(color: ColorCode.white24),
                         border: InputBorder.none,
                       ),
                     ),
@@ -1257,7 +1258,7 @@ MyData? mydata;//
                       Expanded(
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.white30),
+                            side: const BorderSide(color: ColorCode.white30),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -1266,7 +1267,7 @@ MyData? mydata;//
                           onPressed: () => Navigator.pop(context),
                           child: const Text(
                             "Cancel",
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(color: ColorCode.white),
                           ),
                         ),
                       ),
@@ -1288,7 +1289,7 @@ MyData? mydata;//
                           child: const Text(
                             "Decline",
                             style: TextStyle(
-                              color: Colors.black,
+                              color: ColorCode.black,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -1333,8 +1334,8 @@ MyData? mydata;//
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFFE8D1AB)
-                      : Colors.white54,
+                      ? ColorCode.kChampagneGold
+                      : ColorCode.white24,
                   width: 2,
                 ),
               ),
@@ -1361,7 +1362,7 @@ MyData? mydata;//
                 fontFamily: "Outfit",
                 fontSize: 14, // 👈 proper size
                 fontWeight: FontWeight.w400,
-                color: Colors.white,
+                color: ColorCode.white,
               ),
             ),
           ],

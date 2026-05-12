@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../utility/ColorCode.dart';
-import '../../widgets/custom_text_field.dart';
-import '../myprofile_youre_all_set_screen.dart';
-import 'myprofile_new_password_controller.dart';
+import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart' show AppImages;
+import '../widgets/custom_text_field.dart';
+import 'myprofile_youre_all_set_screen.dart';
 
 class MyprofileNewPasswrodScreen extends StatefulWidget {
   const MyprofileNewPasswrodScreen({super.key});
@@ -14,7 +14,27 @@ class MyprofileNewPasswrodScreen extends StatefulWidget {
 
 class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen> {
 
-  final MyprofileNewPasswordController newController = MyprofileNewPasswordController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+  bool isPasswordVisible = false;
+  bool isConfirmPasswordVisible = false;
+  bool isLoading = false;
+
+
+  String? validatePassword() {
+    if (passwordController.text.isEmpty) {
+      return "Password cannot be empty";
+    }
+    if (passwordController.text.length < 6) {
+      return "Password must be at least 6 characters";
+    }
+    if (passwordController.text != confirmPasswordController.text) {
+      return "Passwords do not match";
+    }
+    return null;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,12 +56,13 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                       /// 🖼️ BACKGROUND IMAGE
                       Positioned.fill(
                         child: Image.asset(
-                          "assets/images/rectangle.png",
+                          AppImages.rectangle,
                           fit: BoxFit.fill,
                         ),
                       ),
 
                       /// 🔙 BACK BUTTON
+                      ///
                       Positioned(
                         top: 50,
                         left: 16,
@@ -56,9 +77,9 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                                 Navigator.pop(context);
                               },
                               child: Image.asset(
-                                "assets/icons/Reply.png",
+                                AppImages.back,
                                 height: 24,
-                                color: Colors.white,
+                                color: ColorCode.white,
                               ),
                             ),
 
@@ -124,7 +145,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                           color: ColorCode.backgroundColor,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.06),
+                            color: ColorCode.white.withOpacity(0.06),
                             width: 1,
                           ),
                         ),
@@ -137,13 +158,13 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
 
                             CustomTextField(
                               label: "New Password",
-                              controller: newController.passwordController,
+                              controller: passwordController,
                               isPassword: true,
-                              isVisible: newController.isPasswordVisible,
+                              isVisible: isPasswordVisible,
                               onToggle: () {
                                 setState(() {
-                                  newController.isPasswordVisible =
-                                  !newController.isPasswordVisible;
+                                 isPasswordVisible = isPasswordVisible;
+
                                 });
                               },
                             ),
@@ -153,13 +174,13 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
 
                             CustomTextField(
                               label: "Confirm Password",
-                              controller: newController.confirmPasswordController,
+                              controller: confirmPasswordController,
                               isPassword: true,
-                              isVisible: newController.isConfirmPasswordVisible,
+                              isVisible: isConfirmPasswordVisible,
                               onToggle: () {
                                 setState(() {
-                                  newController.isConfirmPasswordVisible =
-                                  !newController.isConfirmPasswordVisible;
+                                  isConfirmPasswordVisible =
+                                  isConfirmPasswordVisible;
                                 });
                               },
                             ),
@@ -183,13 +204,13 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
-                                child:  newController.isLoading
+                                child:  isLoading
                                     ? const SizedBox(
                                   height: 22,
                                   width: 22,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Colors.black,
+                                    color: ColorCode.black,
                                   ),
                                 )
                                     : const Text(

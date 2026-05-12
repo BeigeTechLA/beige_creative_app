@@ -9,15 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../Model_Class/myprofilemodel.dart';
-import '../../service/api_endpoints.dart';
-import '../../service/api_service.dart';
-import '../../utility/ColorCode.dart';
-import '../../utility/imges_icons.dart';
-import '../../widgets/Topmessgae.dart';
-import '../../widgets/commonImagePicker.dart';
-import '../../widgets/common_uploader.dart';
-import '../../widgets/custom_text_field.dart';
+import '../Model_Class/myprofile_model.dart';
+import '../service/api_endpoints.dart';
+import '../service/api_service.dart';
+import '../utility/ColorCode.dart';
+import '../utility/imges_icons.dart';
+import '../widgets/Topmessgae.dart';
+import '../widgets/commonImagePicker.dart';
+import '../widgets/common_uploader.dart';
+import '../widgets/custom_text_field.dart';
 
 class FeaturedWorkList extends StatefulWidget {
   const FeaturedWorkList({super.key});
@@ -233,10 +233,11 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       InkWell(
                         onTap: () => Navigator.pop(context),
                         child:
-                        Image.asset(
+                        SvgPicture.asset(
                           AppImages.back,
                           // "assets/icons/back.png",
-                          height: 24,color: ColorCode.white,),
+                          height: 24,
+                          color: ColorCode.white,),
                       ),
                     ],
                   ),

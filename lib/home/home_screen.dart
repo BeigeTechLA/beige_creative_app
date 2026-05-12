@@ -9,16 +9,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../Model_Class/Creatordashboarddetailsmodel.dart';
-import '../Model_Class/Crewstatusmodel.dart';
-import '../Model_Class/Dashboardcountmodel.dart';
-import '../Model_Class/Shootstatusmodel.dart';
-import '../Model_Class/Upcomingshootsmodel.dart';
-import '../Model_Class/Creatordashboarddetailsmodel.dart' as dashboard;
-import '../Model_Class/myprofilemodel.dart' as profile;
+import '../Model_Class/create_dashboard_details_model.dart';
+import '../Model_Class/crewstatus_model.dart';
+import '../Model_Class/dashboard_count_model.dart';
+import '../Model_Class/shoot_status_model.dart';
+import '../Model_Class/upcoming_shoots_model.dart';
+import '../Model_Class/create_dashboard_details_model.dart' as dashboard;
+import '../Model_Class/myprofile_model.dart' as profile;
 
-import '../Model_Class/myprofilemodel.dart';
-import '../Profile/MyProfile/myprofile.dart';
+import '../Model_Class/myprofile_model.dart';
+import '../Profile/myprofile.dart';
 import '../Shoots/shoot_cancelled_screen.dart';
 import '../Shoots/shoots_screen.dart';
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
@@ -724,7 +724,21 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                    Divider(color: ColorCode.kDividerWhite12),
                    SizedBox(height: 10),
            if (upcomingshootslist.isNotEmpty) ...[
-          const SizedBox(),
+             Row(
+               children: [
+                 Text("Upcoming Shoots ",
+
+                   style: TextStyle(
+                     fontSize: 14,
+                     fontFamily: "Unbounded",
+                     fontWeight: FontWeight.w500,
+                     color: ColorCode.white,
+                   ),
+                 ),
+               ],
+             ),
+             SizedBox(height: 17),
+      /*    const SizedBox(),*/
 
                  /*  Row(
                      children: [

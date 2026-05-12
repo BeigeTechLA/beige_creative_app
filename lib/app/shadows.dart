@@ -59,7 +59,7 @@ class AppShadows {
     ),
   ];
 
-  /// Gold glow — for highlighted/accent containers
+/*  /// Gold glow — for highlighted/accent containers
   static List<BoxShadow> get goldGlow => [
     BoxShadow(
       color: AppColors.primary.withValues(alpha: 0.2),
@@ -75,5 +75,5 @@ class AppShadows {
       blurRadius: 8,
       offset: Offset(0, 2),
     ),
-  ];
+  ];*/
 }
