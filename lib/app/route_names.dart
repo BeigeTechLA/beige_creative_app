@@ -69,4 +69,14 @@ class RouteNames {
       "shoot-cancellooties";
   static const shootCancel =
       "shoot-cancel";
+
+  ///// ------file manager -----\\\\\\\
+  static const postProduction =
+      "post-production";
+
+  static const preProduction =
+      "pre-production";
+
+  static const viewShootDetails =
+      "view-shoot-details";
 }

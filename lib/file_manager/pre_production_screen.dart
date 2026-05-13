@@ -1,4 +1,7 @@
+import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../utility/colorcode.dart';
 import 'view_details_screen.dart';
@@ -33,12 +36,13 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
             child: Row(
               children: [
                 InkWell(
-                  onTap: () => Navigator.pop(context),
-                  child: Image.asset(
+                  onTap: () => context.pop(),
+                  child:/* Image.asset(
                     "assets/icons/Reply.png",
                     height: 24,
                     color: ColorCode.white,
-                  ),
+                  ),*/
+                  SvgPicture.asset(AppImages.back)
                 ),
                 const Spacer(),
                 const Text(

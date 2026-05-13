@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
+import '../app/route_names.dart';
 import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart';
 import '../widgets/custom_text_field.dart';
@@ -20,6 +22,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
   final TextEditingController categoryController = TextEditingController();
 
   bool loding = true;
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -30,9 +33,14 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
   @override
   void initState() {
-    _tabController = TabController(length: 2, vsync: this);
 
     super.initState();
+
+    _tabController =
+        TabController(
+          length: 2,
+          vsync: this,
+        );
   }
 
   @override
@@ -100,7 +108,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                         children: [
 
                           SvgPicture.asset(
-                              "assets/svg/serch_image.svg",
+                            AppImages.search_icon,
 
                           ),
                           const SizedBox(width: 10),
@@ -351,7 +359,8 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                             ),
                           ),
                           onPressed: () =>
-                              Navigator.pop(context),
+                              context.pop(),
+
                           child: const Text(
                             "Cancel",
                             style: TextStyle(
@@ -420,12 +429,19 @@ class _FileManagerScreenState extends State<FileManagerScreen>
       itemCount: 20,
       itemBuilder: (context, index) {
         return InkWell(
-          onTap: () {
+        /*  onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) =>  PostProductionScreen(),
               ),
+            );
+          },*/
+
+          onTap: () {
+
+            context.pushNamed(
+              RouteNames.postProduction,
             );
           },
           child: Container(

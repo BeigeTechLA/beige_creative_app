@@ -19,12 +19,8 @@ import '../Model_Class/create_dashboard_details_model.dart' as dashboard;
 import '../Model_Class/myprofile_model.dart' as profile;
 
 import '../Model_Class/myprofile_model.dart';
-import '../Profile/myprofile.dart';
-import '../Shoots/shoot_cancelled_screen.dart';
-import '../Shoots/shoots_screen.dart';
-import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
+
 import '../app/route_names.dart';
-import '../manageavailability/add_availability_screen.dart';
 import '../utility/colorcode.dart';
 import '../widgets/common_calendar.dart';
 import '../widgets/date_time.dart';
@@ -83,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   List<upcomingdatum> upcomingshootslist = [];
   List<PendingRequestCard> creatordashboarddetaillist = [];
   Map<DateTime, String> events = {};
+
   Future<void> fetchprofiledata() async {
     try {
       setState(() {

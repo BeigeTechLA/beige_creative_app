@@ -22,6 +22,8 @@ import '../auth/sign_up/signup1_screen.dart';
 import '../auth/sign_up/signup2_screen.dart';
 import '../auth/sign_up/signup3_screen.dart';
 
+import '../file_manager/post_production_screen.dart';
+import '../file_manager/pre_production_screen.dart';
 /// SPLASH + ONBOARDING
 import '../splash/splash_screen.dart';
 import '../onboding/onboding_screen.dart';
@@ -345,5 +347,22 @@ final GoRouter appRouter = GoRouter(
       name: RouteNames.shootCancel,
       builder: (context, state) => const CancelScreen(),
     ),
+
+    GoRoute(
+      path: '/post-production',
+      name: RouteNames.postProduction,
+      builder: (context, state) {
+
+        return const PostProductionScreen();
+      },
+    ),
+    GoRoute(
+      path: '/pre-production',
+      name: RouteNames.preProduction,
+      builder: (context, state) {
+        return const PreProductionScreen();
+      },
+    ),
+
   ],
 );
