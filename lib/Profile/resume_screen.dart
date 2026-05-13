@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:auto_skeleton/auto_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../Model_Class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
@@ -127,7 +128,7 @@ Future<void> deleteData(int id) async {
                   Row(
                     children: [
                       InkWell(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () => context.pop(),
                         child: SvgPicture.asset(
                           AppImages.back,
                           height: 24,color: ColorCode.white,),
@@ -137,7 +138,7 @@ Future<void> deleteData(int id) async {
 
                   Row(
                     children: [
-                      Text("resume",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
+                      Text("Resume",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
                     ],
                   ),
                   SizedBox(height: 20,),
@@ -350,7 +351,7 @@ void openUploadDialog() {
                   ),
                 ),
                 InkWell(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => context.pop(),
                   child: const Icon(Icons.close, color: ColorCode.white),
                 )
               ],
@@ -409,7 +410,7 @@ void openUploadDialog() {
               svgPath: AppImages.document,
               title: "Import from Files",
               onTap: () async {
-                Navigator.pop(context);
+                context.pop();
 
                 final file = await CommonUploader.pickFile();
 
@@ -507,7 +508,7 @@ void _openOptions(CrewFile cert) {
               onTap: () {
                 print("🔥 VIEW CLICKED");
 
-                Navigator.pop(context);
+                context.pop();
                 print("URL 👉 ${ApiService.imageURL}${cert.filePath}");
 
                 CommonFileViewer.open(
@@ -537,7 +538,7 @@ void _openOptions(CrewFile cert) {
             /// DELETE
             InkWell(
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
 
                  deleteData(cert.crewFilesId); // 👈 ID pass karo
               },

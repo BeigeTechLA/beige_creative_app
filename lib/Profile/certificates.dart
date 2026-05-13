@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../Model_Class/create_dashboard_details_model.dart' hide Data;
 import '../Model_Class/myprofile_model.dart';
@@ -64,9 +65,12 @@ class _CertificatesState extends State<Certificates> {
     } catch (e) {
       debugPrint("❌ EXCEPTION: $e");
     } finally {
-      setState(() {
-        isloading = false;
-      });
+      if (mounted) {
+
+        setState(() {
+          isloading = false;
+        });
+      }
     }
   }
 
@@ -128,7 +132,7 @@ class _CertificatesState extends State<Certificates> {
                   Row(
                     children: [
                       InkWell(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () => context.pop(),
                         child:
                         SvgPicture.asset(
                           AppImages.back,
@@ -356,7 +360,7 @@ class _CertificatesState extends State<Certificates> {
                     ),
                   ),
                   InkWell(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => context.pop(),
                     child: const Icon(Icons.close, color: ColorCode.white),
                   )
                 ],
@@ -369,7 +373,7 @@ class _CertificatesState extends State<Certificates> {
                 svgPath: AppImages.scanner,
                 title: "Scan from Camera",
                 onTap: () async {
-                  Navigator.pop(context);
+                  context.pop();
 
                   final file = await CommonUploader.pickFromCamera();
 
@@ -392,7 +396,7 @@ class _CertificatesState extends State<Certificates> {
                 svgPath: AppImages.gallery,
                 title: "Import from Gallery",
                 onTap: () async {
-                  Navigator.pop(context);
+                  context.pop();
 
                   final file = await CommonUploader.pickFromGallery();
 
@@ -415,7 +419,7 @@ class _CertificatesState extends State<Certificates> {
                 svgPath: AppImages.document,
                 title: "Import from Files",
                 onTap: () async {
-                  Navigator.pop(context);
+                  context.pop();
 
                   final file = await CommonUploader.pickFile();
 
@@ -482,7 +486,7 @@ class _CertificatesState extends State<Certificates> {
               /// VIEW DETAILS
               InkWell(
                 onTap: () {
-                  Navigator.pop(context);
+                  context.pop();
 
                   CommonFileViewer.open(
                     context: context,
@@ -507,7 +511,7 @@ class _CertificatesState extends State<Certificates> {
               /// DELETE
               InkWell(
                 onTap: () {
-                  Navigator.pop(context);
+                  context.pop();
 
                   deleteData(cert.crewFilesId); // 👈 ID pass karo
                 },

@@ -7,6 +7,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../Model_Class/myprofile_model.dart';
@@ -145,7 +146,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
         enter_work_titleController.clear();
 
         fetchprofiledata();
-        Navigator.pop(context);
+        context.pop();
 
       } else {
         print("❌ Upload Failed");
@@ -231,7 +232,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                   Row(
                     children: [
                       InkWell(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () => context.pop(),
                         child:
                         SvgPicture.asset(
                           AppImages.back,
@@ -1072,7 +1073,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         IconButton(
                           onPressed: () {
 
-                            Navigator.pop(context);
+                            context.pop();
                           },
 
                           icon: const Icon(
@@ -1441,8 +1442,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                             // enter_work_titleController.clear();
                           });
 
-                          Navigator.pop(context);
-
+                          context.pop();
                           /// ✅ REFRESH
                           fetchprofiledata();
                         },
@@ -1522,7 +1522,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => context.pop(),
                           icon: const Icon(Icons.close,
                               color: ColorCode.white),
                         )
@@ -1681,7 +1681,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           setState(() {
                             selectedTags = savedTags;
                           });
-                          Navigator.pop(context);
+                          context.pop();
                         },
                         child: const Text(
                           "Save",

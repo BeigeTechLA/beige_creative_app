@@ -5,6 +5,7 @@ import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../Model_Class/upcoming_shootview_model.dart';
@@ -59,42 +60,64 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
 
 MyData? mydata;//
 
-  Future<void> fetchupcomingshootview() async {
+  Future<void>
+  fetchupcomingshootview() async {
 
-    setState(() {
-      isloading = true;
-    });
+    try {
 
-    /// 🔥 URL PRINT
-    final url = 'creator/project-details/${widget.projectid}';
+      if (mounted) {
 
-    debugPrint("🔥 API URL => $url");
+        setState(() {
+          isloading = true;
+        });
+      }
 
-    /// 🔥 API CALL
-    final rawResponse =
-    await ApiService().fetchData(url);
+      final url =
+          'creator/project-details/${widget.projectid}';
 
-    /// 🔥 FULL RESPONSE PRINT
-    debugPrint("🔥 API RESPONSE => $rawResponse");
-
-    final response =
-    Upcomingshootviewmodel.fromJson(rawResponse);
-
-    if (response.error == false) {
-
-      /// 🔥 IMAGE URL PRINT
-      final imageUrl = ApiService().getImageURL(
-        response.data.project.imageUrl ?? "",
+      debugPrint(
+        "🔥 API URL => $url",
       );
 
-      debugPrint("🔥 IMAGE URL => $imageUrl");
+      final rawResponse =
+      await ApiService()
+          .fetchData(url);
 
-      setState(() {
-        mydata = response.data;
-        isloading = false;
-      });
+      debugPrint(
+        "🔥 API RESPONSE => $rawResponse",
+      );
 
-    } else {
+      final response =
+      Upcomingshootviewmodel
+          .fromJson(rawResponse);
+
+      if (response.error == false) {
+
+        if (!mounted) return;
+
+        setState(() {
+
+          mydata = response.data;
+
+          isloading = false;
+        });
+
+      } else {
+
+        if (!mounted) return;
+
+        setState(() {
+          isloading = false;
+        });
+      }
+
+    } catch (e) {
+
+      debugPrint(
+        "UPCOMING DETAILS ERROR: $e",
+      );
+
+      if (!mounted) return;
 
       setState(() {
         isloading = false;
@@ -177,7 +200,7 @@ MyData? mydata;//
 
                           /// 🔙 BACK BUTTON
                           InkWell(
-                            onTap: () => Navigator.pop(context),
+                            onTap: () => context.pop(),
                             // child: Image.asset("assets/icons/Reply.png", height: 24,color: ColorCode.white,),
                             child: SvgPicture.asset(AppImages.back),
                           ),

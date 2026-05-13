@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../Model_Class/edit_profile_model.dart';
 import '../../service/api_endpoints.dart';
@@ -69,180 +70,311 @@ class _EnterProfileDetailsScreenState
 
   // 🔥 GET DATA
   Future<void> editpersonaldetails() async {
+
     try {
+
       print("🚀 API CALL START");
 
-      final rawResponse =
-      await ApiService().postData(ApiEndpoints.editprofile, {});
+      final rawResponse = await ApiService().postData(
+        ApiEndpoints.editprofile,
+        {},
+      );
 
       print("📦 RAW RESPONSE 👉 $rawResponse");
 
-      final response = EditProfileResponse.fromJson(rawResponse);
+      final response =
+      EditProfileResponse.fromJson(rawResponse);
 
       print("✅ PARSED RESPONSE 👉 ${response.data}");
 
       final data = response.data;
 
+      if (!mounted) return;
+
       setState(() {
+
         mylist = data;
 
-        /// ✅ TEXT FIELDS
+        /// ✅ TEXTFIELDS
         experienceController.text =
             data.yearsOfExperience?.toString() ?? "";
+
         rateController.text =
             data.hourlyRate?.toString() ?? "";
-        bioController.text = data.bio ?? "";
 
-        /// ✅ 🔥 ROLE FIX (MAIN LOGIC)
+        bioController.text =
+            data.bio ?? "";
+
+        /// ✅ ROLE FIX
         if (data.primaryRole != null &&
-            data.primaryRole is List &&
-            data.primaryRole.isNotEmpty) {
+            data.primaryRole
+                .toString()
+                .isNotEmpty) {
 
-          int roleId = int.tryParse(data.primaryRole ?? "") ?? 0;
+          int roleId = int.tryParse(
+            data.primaryRole.toString(),
+          ) ??
+              0;
 
           print("🎯 ROLE ID 👉 $roleId");
-          print("🗺 ROLE MAP 👉 $roleMap");
 
-          // 🔥 map roleId → role name
           primaryRole = roleMap.entries
               .firstWhere(
-                (element) => element.value == roleId,
-            orElse: () => const MapEntry("", 0),
+                (element) =>
+            element.value == roleId,
+            orElse: () =>
+            const MapEntry("", 0),
           )
               .key;
 
-          if (primaryRole != null && primaryRole!.isNotEmpty) {
+          if (primaryRole != null &&
+              primaryRole!.isNotEmpty) {
+
             selectedRoles = [primaryRole!];
           }
         }
 
         /// ✅ SKILLS
-        if (data.skills != null && data.skills.isNotEmpty) {
-          skillList = data.skills.map((e) => e.name).toList();
-          selectedSkills = List.from(skillList);
+        if (data.skills != null &&
+            data.skills.isNotEmpty) {
+
+          skillList = data.skills
+              .map((e) => e.name)
+              .toList();
+
+          selectedSkills =
+          List<String>.from(skillList);
         }
       });
 
     } catch (e) {
+
       print("❌ ERROR: $e");
     }
   }
   Future<void> fetchRoles() async {
+
     try {
-      loading = true;
-      setState(() {});
+
+      if (mounted) {
+
+        setState(() {
+          loading = true;
+        });
+      }
 
       final response =
-      await ApiService().fetchData(ApiEndpoints.register_roles);
+      await ApiService().fetchData(
+        ApiEndpoints.register_roles,
+      );
 
       final List data = response['data'];
 
       final Map<String, int> tempMap = {};
 
       for (var item in data) {
-        tempMap[item['role_name']] = item['role_id'];
+
+        tempMap[item['role_name']] =
+        item['role_id'];
       }
 
+      if (!mounted) return;
+
       setState(() {
+
         roleMap = tempMap;
-        roleList = tempMap.keys.toList();
+
+        roleList =
+            tempMap.keys.toList();
+
         loading = false;
       });
+
     } catch (e) {
-      loading = false;
-      setState(() {});
+
+      if (mounted) {
+
+        setState(() {
+          loading = false;
+        });
+      }
+
       print("ROLE ERROR: $e");
     }
   }
 
   Future<void> fetchSkills() async {
+
     try {
-      loading = true;
-      setState(() {});
+
+      if (mounted) {
+
+        setState(() {
+          loading = true;
+        });
+      }
 
       final response =
-      await ApiService().fetchData(ApiEndpoints.register_Skill);
+      await ApiService().fetchData(
+        ApiEndpoints.register_Skill,
+      );
 
       final List data = response['data'];
 
       final Map<String, int> tempMap = {};
 
       for (var item in data) {
-        tempMap[item['name']] = item['id'];
+
+        tempMap[item['name']] =
+        item['id'];
       }
 
+      if (!mounted) return;
+
       setState(() {
+
         skillMap = tempMap;
-        allSkills = tempMap.keys.toList();
+
+        allSkills =
+            tempMap.keys.toList();
+
         loading = false;
       });
+
     } catch (e) {
-      loading = false;
-      setState(() {});
+
+      if (mounted) {
+
+        setState(() {
+          loading = false;
+        });
+      }
+
       print("SKILL ERROR: $e");
     }
   }
   Future<void> updateProfile() async {
+
     try {
-      // ✅ ROLE VALIDATION
-      if (primaryRole == null || primaryRole!.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please select role")),
+
+      /// ✅ ROLE VALIDATION
+      if (primaryRole == null ||
+          primaryRole!.isEmpty) {
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Please select role",
+            ),
+          ),
         );
+
         return;
       }
 
-      int? roleId = roleMap[primaryRole];
+      int? roleId =
+      roleMap[primaryRole];
 
       if (roleId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Invalid role selected")),
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Invalid role selected",
+            ),
+          ),
         );
+
         return;
       }
 
-      // ✅ EXPERIENCE VALIDATION
-      if (experienceController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Enter experience")),
+      /// ✅ EXPERIENCE
+      if (experienceController.text
+          .trim()
+          .isEmpty) {
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Enter experience",
+            ),
+          ),
         );
+
         return;
       }
 
-      // ✅ RATE VALIDATION
-      if (rateController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Enter hourly rate")),
+      /// ✅ RATE
+      if (rateController.text
+          .trim()
+          .isEmpty) {
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Enter hourly rate",
+            ),
+          ),
         );
+
         return;
       }
 
-      // ✅ SKILLS VALIDATION
+      /// ✅ SKILLS
       if (selectedSkills.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Select skills")),
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Select skills",
+            ),
+          ),
         );
+
         return;
       }
 
-      // ✅ SKILL IDS
-      List<int> skillIds = selectedSkills
-          .map((skill) => skillMap[skill] ?? 0)
+      /// ✅ SKILL IDS
+      List<int> skillIds =
+      selectedSkills
+          .map(
+            (skill) =>
+        skillMap[skill] ?? 0,
+      )
           .where((id) => id != 0)
           .toList();
 
-      // ✅ BODY
+      /// ✅ BODY
       final body = {
-        "primary_role": roleId.toString(),
-        "years_of_experience": experienceController.text.trim(),
-        "hourly_rate": rateController.text.trim(),
-        "bio": bioController.text.trim(),
-        "skills": skillIds,
+
+        "primary_role":
+        roleId.toString(),
+
+        "years_of_experience":
+        experienceController.text
+            .trim(),
+
+        "hourly_rate":
+        rateController.text
+            .trim(),
+
+        "bio":
+        bioController.text
+            .trim(),
+
+        "skills":
+        skillIds,
       };
 
       print("📤 BODY: $body");
 
-      final response = await ApiService().postData(
+      final response =
+      await ApiService().postData(
         ApiEndpoints.editprofile,
         body,
       );
@@ -250,20 +382,35 @@ class _EnterProfileDetailsScreenState
       print("📥 RESPONSE: $response");
 
       if (response["error"] == false) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Profile Updated")),
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Profile Updated",
+            ),
+          ),
         );
 
-        // 🔥 🔥 MOST IMPORTANT LINE
-        Navigator.pop(context, true);
+        if (mounted) {
+
+          context.pop(true);
+        }
 
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response["message"])),
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+          SnackBar(
+            content: Text(
+              response["message"],
+            ),
+          ),
         );
       }
 
     } catch (e) {
+
       print("❌ ERROR: $e");
     }
   }
@@ -284,7 +431,7 @@ class _EnterProfileDetailsScreenState
               Row(
                 children: [
                   InkWell(
-                    onTap: () => Navigator.pop(context,true),
+                    onTap: () => context.pop(true),
                         child: SvgPicture.asset(
         AppImages.back, // make sure it's .svg file
         height: 24,
@@ -533,7 +680,7 @@ class _EnterProfileDetailsScreenState
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => context.pop(true),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ColorCode.kButtonColor,
                         shape: RoundedRectangleBorder(
@@ -640,7 +787,7 @@ class _EnterProfileDetailsScreenState
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => context.pop(),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ColorCode.kButtonColor,
                         shape: RoundedRectangleBorder(

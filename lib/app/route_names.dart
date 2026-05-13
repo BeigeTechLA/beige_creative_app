@@ -40,7 +40,33 @@ class RouteNames {
   static const deleteAccountSuccess =
       "delete-account-success";
 
+  static const changePassword =
+      "change-password";
+  static const editPersonalDetails =
+      "edit-personal-details";
+
+  static const enterProfessionalDetails =
+      "enter-professional-details";
+
+
   /// Profile
   static const viewDetails = "view-details";
   static const myProfile = "my-profile";
+
+  static const profileDetails = "profile-details";
+
+  static const featuredWorks = "featured-works";
+
+  static const certificates = "certificates";
+
+  static const resume = "resume";
+
+  static const appPreferences = "app-preferences";
+
+  static const profilePasswordSuccess =
+      "profile-password-success";
+  static const shootCancelotties =
+      "shoot-cancellooties";
+  static const shootCancel =
+      "shoot-cancel";
 }

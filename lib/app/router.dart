@@ -2,9 +2,18 @@ import 'package:beige_creative_app/Profile/myprofile.dart';
 import 'package:go_router/go_router.dart';
 
 import '../ManageAvailability/add_availability_screen.dart';
+import '../Profile/ProfileDetils/edit_personal_details_screen.dart';
+import '../Profile/ProfileDetils/enter_profile_details_screen.dart';
+import '../Profile/ProfileDetils/profile_detils_1screen.dart';
+import '../Profile/app_preferences.dart';
+import '../Profile/certificates.dart';
 import '../Profile/deleteaccount/delete_account.dart';
 import '../Profile/deleteaccount/delete_account_lottieScreen.dart';
 import '../Profile/deleteaccount/delete_account_otp_screen.dart';
+import '../Profile/featured_work_list.dart';
+import '../Profile/myprofile_youre_all_set_screen.dart';
+import '../Profile/resume_screen.dart';
+import '../Shoots/shoot_cancelled_lotties_screen.dart';
 import '../Shoots/shoot_cancelled_screen.dart';
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 /// AUTH
@@ -176,10 +185,8 @@ final GoRouter appRouter = GoRouter(
       path: '/cancel-shoot',
       name: RouteNames.cancelShoot,
       builder: (context, state) {
-
         final data =
         state.extra as Map<String, dynamic>;
-
         return CancelScreen(
           projectId: data["projectId"],
         );
@@ -259,6 +266,84 @@ final GoRouter appRouter = GoRouter(
 
         return const Myprofile();
       },
+    ),
+    GoRoute(
+      path: '/shoot-cancelotties',
+      name: RouteNames.shootCancelotties,
+      builder: (context, state) {
+
+        return const ShootCancelledLottiesScreen();
+      },
+    ),
+ /*   GoRoute(
+      path: '/change-password',
+      name: RouteNames.changePassword,
+      builder: (context, state) {
+
+        return const ();
+      },
+    ),*/
+
+    GoRoute(
+      path: '/edit-personal-details',
+      name: RouteNames.editPersonalDetails,
+      builder: (context, state) {
+
+        return const EditPersonalDetailsScreen();
+      },
+    ),
+
+    GoRoute(
+      path: '/enter-professional-details',
+      name: RouteNames.enterProfessionalDetails,
+      builder: (context, state) {
+
+        return const EnterProfileDetailsScreen();
+      },
+    ),
+
+    GoRoute(
+      path: "/profile-details",
+      name: RouteNames.profileDetails,
+      builder: (context, state) => const ProfileDetils1screen(),
+    ),
+
+    GoRoute(
+      path: "/featured-works",
+      name: RouteNames.featuredWorks,
+      builder: (context, state) => const FeaturedWorkList(),
+    ),
+
+    GoRoute(
+      path: "/certificates",
+      name: RouteNames.certificates,
+      builder: (context, state) => const Certificates(),
+    ),
+
+    GoRoute(
+      path: "/resume",
+      name: RouteNames.resume,
+      builder: (context, state) => const Resume(),
+    ),
+
+    GoRoute(
+      path: "/app-preferences",
+      name: RouteNames.appPreferences,
+      builder: (context, state) => const AppPreferences(),
+    ),
+    GoRoute(
+      path: "/profile-password-success",
+      name: RouteNames.profilePasswordSuccess,
+      builder: (context, state) {
+
+        return const MyprofileYoureAllSetScreen();
+      },
+    ),
+
+    GoRoute(
+      path: "/shoot-Cancel",
+      name: RouteNames.shootCancel,
+      builder: (context, state) => const CancelScreen(),
     ),
   ],
 );

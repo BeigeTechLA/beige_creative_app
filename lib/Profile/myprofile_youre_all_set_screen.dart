@@ -1,7 +1,9 @@
 import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
+import '../app/route_names.dart';
 import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart';
 
@@ -14,25 +16,28 @@ class MyprofileYoureAllSetScreen extends StatefulWidget {
 
 class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen> {
   @override
+  @override
   void initState() {
+
     super.initState();
 
-    /// ⏳ 5 second delay then go to MainScreen
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => Login()),
-              (route) => false,
-        );
-      }
-    });
+    Future.delayed(
+      const Duration(seconds: 3),
+          () {
+
+        if (mounted) {
+
+          context.goNamed(
+            RouteNames.login,
+          );
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1C),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

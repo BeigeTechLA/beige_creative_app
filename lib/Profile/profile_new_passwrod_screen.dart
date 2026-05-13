@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../app/route_names.dart';
 import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart' show AppImages;
 import '../widgets/custom_text_field.dart';
@@ -74,7 +76,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                             /// 🔙 BACK BUTTON
                             InkWell(
                               onTap: () {
-                                Navigator.pop(context);
+                                context.pop();
                               },
                               child: Image.asset(
                                 AppImages.back,
@@ -163,7 +165,8 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                               isVisible: isPasswordVisible,
                               onToggle: () {
                                 setState(() {
-                                 isPasswordVisible = isPasswordVisible;
+                                  isPasswordVisible =
+                                  !isPasswordVisible;
 
                                 });
                               },
@@ -191,11 +194,8 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                               child: ElevatedButton(
                                 onPressed: () {
 
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MyprofileYoureAllSetScreen(),
-                                    ),
+                                  context.pushNamed(
+                                    RouteNames.profilePasswordSuccess,
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(

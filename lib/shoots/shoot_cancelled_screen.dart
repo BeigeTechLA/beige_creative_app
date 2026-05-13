@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:beige_creative_app/utility/colorcode.dart';
+import 'package:go_router/go_router.dart';
 
+import '../app/route_names.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import 'shoot_cancelled_lotties_screen.dart';
@@ -15,30 +17,51 @@ class CancelScreen extends StatefulWidget {
 
 class _CancelScreenState extends State<CancelScreen> {
   Future<void> declineProject() async {
-    final response = await ApiService().postData(
-      ApiEndpoints.acceptdeclineproject,
-      {
-        "project_id": widget.projectId,
-        "crew_accept": 2, // ✅ decline
-      },
-    );
 
-    if (response["error"] == false) {
-      debugPrint("Declined successfully ✅");
+    try {
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ShootCancelledLottiesScreen(),
-        ),
+      final response =
+      await ApiService().postData(
+
+        ApiEndpoints.acceptdeclineproject,
+
+        {
+          "project_id":
+          widget.projectId,
+
+          "crew_accept": 2,
+        },
       );
-    } else {
-      debugPrint("Error ❌: ${response["message"]}");
+
+      if (response["error"] == false) {
+
+        debugPrint(
+          "Declined successfully ✅",
+        );
+
+        if (!mounted) return;
+
+        context.goNamed(
+          RouteNames.cancelShoot,
+        );
+
+      } else {
+
+        debugPrint(
+          "Error ❌: ${response["message"]}",
+        );
+      }
+
+    } catch (e) {
+
+      debugPrint(
+        "DECLINE ERROR ❌ $e",
+      );
     }
   }
   String selectedReason = "";
   bool isOtherSelected = false;
-
+  bool isLoading = false;
   final TextEditingController commentController = TextEditingController();
 
   final List<String> reasons = [
@@ -99,7 +122,7 @@ class _CancelScreenState extends State<CancelScreen> {
                       ),
                     ),
                     InkWell(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () => context.pop(),
                       child: const Icon(Icons.close, color: ColorCode.white),
                     ),
                   ],
@@ -266,7 +289,7 @@ class _CancelScreenState extends State<CancelScreen> {
                             ),
                           ),
                           onPressed: () =>
-                              Navigator.pop(context),
+                              context.pop(),
                           child: const Text(
                             "Cancel",
                             style: TextStyle(
@@ -298,11 +321,25 @@ class _CancelScreenState extends State<CancelScreen> {
                               BorderRadius.circular(16),
                             ),
                           ),
-                            onPressed: selectedReason.isEmpty
-                                ? null
-                                : () {
-                              declineProject(); // ✅ API call
-                            },
+                          onPressed:
+                          selectedReason.isEmpty ||
+                              isLoading
+                              ? null
+                              : () async {
+
+                            setState(() {
+                              isLoading = true;
+                            });
+
+                            await declineProject();
+
+                            if (mounted) {
+
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
+                          },
 
 
                           child: const Text(

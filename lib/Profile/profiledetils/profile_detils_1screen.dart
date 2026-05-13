@@ -1,8 +1,10 @@
 import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../Model_Class/myprofile_model.dart';
+import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/colorcode.dart';
@@ -87,7 +89,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                   child: Row(
                     children: [
                       InkWell(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () => context.pop(),
                         child:SvgPicture.asset(
                     AppImages.back,
 
@@ -508,13 +510,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
   Widget _editButton() {
     return InkWell(
       onTap: () async {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => selectedTab == 0
-                ? const EditPersonalDetailsScreen()
-                : const EnterProfileDetailsScreen(),
-          ),
+        final result = await context.pushNamed(
+          selectedTab == 0
+              ? RouteNames.editPersonalDetails
+              : RouteNames.enterProfessionalDetails,
         );
 
         // 🔥 BACK AANE KE BAAD REFRESH
@@ -553,7 +552,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
         child: Container(
           decoration: BoxDecoration(
             color: isSelected
-                ? const Color(0xFFD6C3A1)
+                ? ColorCode.soft
                 : ColorCode.transparent,
             borderRadius: BorderRadius.circular(10),
           ),

@@ -1,8 +1,10 @@
 import 'package:beige_creative_app/Shoots/shoots_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
 import '../MainScreen.dart';
+import '../app/route_names.dart' show RouteNames;
 import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart' show AppImages;
 
@@ -16,18 +18,21 @@ class ShootRequestAccepted extends StatefulWidget {
 class _ShootRequestAcceptedState extends State<ShootRequestAccepted> {
   @override
   void initState() {
+
     super.initState();
 
-    /// ⏳ 5 second delay then go to MainScreen
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => Mainscreen()),
-              (route) => false,
-        );
-      }
-    });
+    Future.delayed(
+      const Duration(seconds: 3),
+          () {
+
+        if (mounted) {
+
+          context.goNamed(
+            RouteNames.home,
+          );
+        }
+      },
+    );
   }
 
   @override

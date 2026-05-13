@@ -9,10 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 
 import '../../Model_Class/edit_profile_model.dart';
+import '../../app/route_names.dart';
 import '../../service/google_config.dart';
 import '../../utility/colorcode.dart';
 import '../../utility/location_service.dart';
@@ -184,7 +186,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
       print("📥 RESPONSE: $response");
 
       /// ✅ LOADING CLOSE
-      Navigator.pop(context);
+      context.pop();
 
       /// ✅ RESPONSE HANDLE
       if (response != null && response["error"] == false) {
@@ -192,14 +194,14 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
           const SnackBar(content: Text("Profile Updated Successfully")),
         );
 
-        Navigator.pop(context, true);
+        context.pop(true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response?["message"] ?? "Something went wrong")),
         );
       }
     } catch (e) {
-      Navigator.pop(context); // 🔥 IMPORTANT (loader close)
+      context.pop(); // 🔥 IMPORTANT (loader close)
 
       print("❌ UPDATE ERROR: $e");
 
@@ -209,7 +211,24 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
     }
   }
 
+  @override
+  void dispose() {
 
+    firstnamecontroller.dispose();
+    lastnamecontroller.dispose();
+    emailcontroller.dispose();
+    phonecontroller.dispose();
+    searchController.dispose();
+    changepasswordcontroller.dispose();
+    experienceController.dispose();
+    rateController.dispose();
+    bioController.dispose();
+    ageController.dispose();
+
+    _locationFocus.dispose();
+
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     String _darkMapStyle = '''
@@ -271,7 +290,7 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
                   Row(
                     children: [
                       InkWell(
-                        onTap: () => Navigator.pop(context,true),
+                        onTap: () => context.pop(true),
                         child: SvgPicture.asset(
                           AppImages.back,
                           height: 24,
@@ -515,12 +534,9 @@ class _EditPersonalDetailsScreenState extends State<EditPersonalDetailsScreen> {
                     suffixIcon: GestureDetector(
                       onTap: () {
 
-                    /*    Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>ChangePasswordScreen(),
-                          ),
-                        );*/
+                        context.pushNamed(
+                          RouteNames.changePassword,
+                        );
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),

@@ -5,10 +5,12 @@ import 'package:beige_creative_app/widgets/app_loder.dart';
   import 'package:flutter/foundation.dart';
   import 'package:flutter/material.dart';
   import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
   import '../Model_Class/shoot_count_model.dart';
   import '../Model_Class/shoots_model.dart';
   import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
-  import '../utility/colorcode.dart';
+  import '../app/route_names.dart';
+import '../utility/colorcode.dart';
   import '../utility/imges_icons.dart';
   import '../widgets/date_time.dart';
 import 'shoot_cancelled_screen.dart';
@@ -65,13 +67,21 @@ import 'shoot_cancelled_screen.dart';
         final response= Shootcountmodel.fromJson(await ApiService().fetchData(ApiEndpoints.myshootcount));
 
         if(response.error==false){
+          if (!mounted) return;
+
           setState(() {
-            mycompletedShoots=response.data.completedShoots;
-            mypendingRequests=response.data.pendingRequests;
-            myconfirmedRequests=response.data.confirmedRequests;
-            myrejectedRequests=response.data.rejectedRequests;
 
+            mycompletedShoots =
+                response.data.completedShoots;
 
+            mypendingRequests =
+                response.data.pendingRequests;
+
+            myconfirmedRequests =
+                response.data.confirmedRequests;
+
+            myrejectedRequests =
+                response.data.rejectedRequests;
           });
 
         }
@@ -432,11 +442,12 @@ import 'shoot_cancelled_screen.dart';
                       ),
                       InkWell(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => UpcomingShootViewDetils(projectid:shoot.projectId,),
-                            ),
+                          context.pushNamed(
+                            RouteNames.upcomingShootDetails,
+
+                            extra: {
+                              "projectId": shoot.projectId,
+                            },
                           );
                         },
                         child: Text(
@@ -542,12 +553,20 @@ import 'shoot_cancelled_screen.dart';
                                 backgroundColor: const Color(0xffEECCC9),
                               ),
                               onPressed: () {
-                                Navigator.push(
+                              /*  Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
                                         CancelScreen(projectId: shoot.projectId),
                                   ),
+                                );*/
+                                context.pushNamed(
+                                  RouteNames.shootCancel,
+
+                                  extra: {
+                                    "projectId":
+                                    shoot.projectId,
+                                  },
                                 );
                               },
                               child: const Text(

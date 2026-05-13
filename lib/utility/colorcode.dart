@@ -12,6 +12,7 @@ class ColorCode {
   static const Color kCreamSoft = Color(0xFFECE1CE);
   static const Color kHeadingColor = Color(0xFF1D1D1B);
   static const Color kSubtextColor = Color(0xFF474746);
+  static const Color soft = Color(0xFFD6C3A1);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // BACKGROUND & SURFACE

@@ -6,9 +6,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../app/route_names.dart';
 import '../auth/login/login.dart';
 import '../auth/sign_up/signup1_screen.dart';
 import '../service/api_endpoints.dart';
@@ -203,7 +205,7 @@ class _MyprofileState extends State<Myprofile> {
                       ),
 
                       InkWell(
-                        onTap: () => Navigator.pop(context), // ❌ close bottom sheet
+                        onTap: () => context.pop(),// ❌ close bottom sheet
                         borderRadius: BorderRadius.circular(20),
                         child:  Padding(
                           padding: EdgeInsets.all(6),
@@ -840,7 +842,7 @@ Data? Myprofile_user;
                       top: 90,
                       left: 16,
                       child:  InkWell(
-                        onTap: () => Navigator.pop(context,true),
+                        onTap: () => context.pop(true),
                         child: SvgPicture.asset(
                           AppImages.back, // make sure it's .svg file
                           height: 24,
@@ -1524,12 +1526,7 @@ Data? Myprofile_user;
                   AppImages.userid,
                   "Profile Details",
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>  ProfileDetils1screen(),
-                      ),
-                    );
+                    context.pushNamed(RouteNames.profileDetails);
                   },
                 ),
 
@@ -1588,31 +1585,16 @@ Data? Myprofile_user;
 
 
                 _menuRow(AppImages.gallery, "Featured Works", onTap: () {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>  FeaturedWorkList(),
-                    ),
-                  );
+                  context.pushNamed(RouteNames.featuredWorks);
                 }),
                 _divider(),
                 _menuRow(AppImages.certificates, "certificates",onTap: () {
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>  Certificates(),
-                    ),
-                  );
+                  context.pushNamed(RouteNames.certificates);
                 },),
                 _divider(),
                 _menuRow(AppImages.resume, "resume",onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>  Resume(),
-                    ),
-                  );
+                  context.pushNamed(RouteNames.resume);
                 },),
               ],
             ),
@@ -1652,12 +1634,7 @@ Data? Myprofile_user;
                   AppImages.appperference,
                      "App Preferences",
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>  AppPreferences(),
-                        ),
-                      );
+                      context.pushNamed(RouteNames.appPreferences);
                     }),
                 _divider(),
                 _menuRow(AppImages.notificationsetting ,"Notifications Settings"),
@@ -2749,11 +2726,7 @@ Data? Myprofile_user;
                       onPressed: () async {
                         await SharedService.logout(); // 🔥 clear all prefs
 
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => Login()),
-                              (route) => false,
-                        );
+                        context.goNamed(RouteNames.login);
                       },
 
                       style: ElevatedButton.styleFrom(

@@ -1,7 +1,9 @@
 import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart' show GoRouterHelper;
 import '../../utility/colorcode.dart';
+import '../app/route_names.dart';
 import 'deleteaccount/delete_account.dart';
 
 
@@ -28,7 +30,7 @@ class _AppPreferencesState extends State<AppPreferences> {
 
               /// 🔙 BACK BUTTON
               InkWell(
-                onTap: () => Navigator.pop(context),
+                onTap: () => context.pop(),
                 child: SvgPicture.asset(
                   AppImages.back,
                   height: 24,
@@ -104,9 +106,8 @@ class _AppPreferencesState extends State<AppPreferences> {
                   /// 🗑 DELETE ACCOUNT
                   InkWell(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => DeleteAccount()),
+                      context.pushNamed(
+                        RouteNames.deleteAccount,
                       );
                     },
                     child: Container(
