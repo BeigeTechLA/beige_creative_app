@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
+import '../app/route_names.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart';
 import '../widgets/common_calendar.dart';
 import 'add_availability_screen.dart';
@@ -564,13 +566,21 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 child: InkWell(
                   borderRadius: BorderRadius.circular(20),
                   onTap: () {
-                    Navigator.push(
+                   /* Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AddAvailabilityScreen(),
                       ),
                     ).then((_) {
                       fetchAvailability();
+                    });*/
+                    context.pushNamed(
+                      RouteNames.addAvailability,
+                    ).then((value) {
+
+                      if (value == true) {
+                        fetchAvailability();
+                      }
                     });
                   },
                   child: Container(
@@ -718,11 +728,8 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     ),
                   ),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const UpcomingShootViewDetils(),
-                      ),
+                    context.pushNamed(
+                      RouteNames.upcomingShootDetails,
                     );
                   },
                   child: const Text("View Details",

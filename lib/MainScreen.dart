@@ -9,6 +9,7 @@ import 'package:beige_creative_app/service/shared_service.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Home/home_screen.dart';
@@ -19,8 +20,9 @@ import 'Profile/myprofile.dart';
 import 'Shoots/shoots_screen.dart';
 import 'Messages/messages_screen.dart';
 import 'ManageAvailability/manage_availability_screen.dart';
+import 'app/route_names.dart';
 import 'file_manager/file_manager_screen.dart';
-import 'utility/ColorCode.dart';
+import 'utility/colorcode.dart';
 
 class Mainscreen extends StatefulWidget {
   const Mainscreen({super.key});
@@ -219,8 +221,8 @@ Future<void> fetchprofiledata() async {
 
                       Image.asset(AppImages.group_logo),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: ColorCode.white),
+                        onPressed: () => context.pop(),
                       )
                     ],
                   ),
@@ -228,7 +230,7 @@ Future<void> fetchprofiledata() async {
 
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context);
+                  /*    Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -236,6 +238,12 @@ Future<void> fetchprofiledata() async {
                         ),
                       ).then((value) {
                         /// 🔥 BACK AATE HI API CALL
+                        fetchprofiledata();
+                      });*/
+                      context.pushNamed(
+                        RouteNames.myProfile,
+                      ).then((value) {
+
                         fetchprofiledata();
                       });
                     },

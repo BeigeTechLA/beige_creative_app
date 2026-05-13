@@ -1,4 +1,4 @@
-import 'package:beige_creative_app/utility/ColorCode.dart';
+import 'package:beige_creative_app/utility/colorcode.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 

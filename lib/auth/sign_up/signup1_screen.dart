@@ -8,15 +8,17 @@
   import 'package:flutter_svg/svg.dart';
   import 'package:geocoding/geocoding.dart';
   import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
   import 'package:google_maps_flutter/google_maps_flutter.dart';
   import 'package:google_places_flutter/google_places_flutter.dart';
   import 'package:image_picker/image_picker.dart';
   import 'package:lottie/lottie.dart' hide Marker;
   import 'package:path_provider/path_provider.dart';
-  import '../../service/api_endpoints.dart';
+  import '../../app/route_names.dart';
+import '../../service/api_endpoints.dart';
   import '../../service/api_service.dart';
   import '../../service/google_config.dart';
-  import '../../utility/ColorCode.dart';
+  import '../../utility/colorcode.dart';
   import '../../utility/imges_icons.dart';
   import '../../widgets/CustomDropdown.dart';
   import '../../widgets/Topmessgae.dart';
@@ -642,7 +644,7 @@ import '../../widgets/custom_text_field.dart';
             return;
           }
   
-          Navigator.pushReplacement(
+         /* Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (_) => SignUp2Screen(
@@ -656,6 +658,36 @@ import '../../widgets/custom_text_field.dart';
                 workingDistance: selectedDistance ?? "",
               ),
             ),
+          );*/
+          context.goNamed(
+            RouteNames.signupStep2,
+
+            extra: {
+
+              "crewMemberId":
+              response["data"]["crew_member_id"],
+
+              "profileImage":
+              profileImage,
+
+              "email":
+              emailController.text.trim(),
+
+              "firstName":
+              firstNameController.text.trim(),
+
+              "lastName":
+              lastNameController.text.trim(),
+
+              "location":
+              searchController.text.trim(),
+
+              "workingDistance":
+              selectedDistance,
+
+              "step1Progress":
+              _calculateCompletion(),
+            },
           );
         } else {
           _showSnack(response?['message'] ?? "Signup failed");
@@ -1372,12 +1404,14 @@ import '../../widgets/custom_text_field.dart';
                         ),
                         InkWell(
                           onTap: () {
-                            Navigator.push(
+                           /* Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) =>  Login(),
                               ),
-                            );
+                            );*/
+                            context.goNamed(RouteNames.login);
+                            // context.goNamed(RouteNames.onboarding);
                           },
                           child: const Text(
                             "Login",
@@ -1778,7 +1812,7 @@ import '../../widgets/custom_text_field.dart';
                       child: SizedBox(
                         height: 40,
                         child: ElevatedButton(
-                          onPressed: () {
+                       /*   onPressed: () {
                             showModalBottomSheet(
                               context: context,
                               isScrollControlled: true,
@@ -1791,6 +1825,42 @@ import '../../widgets/custom_text_field.dart';
                                 location: searchController.text.trim(),
                                 workingDistance: selectedDistance ?? "",
                               ),
+                            );
+                          },*/
+                          onPressed: () {
+
+                            context.pushNamed(
+
+                              RouteNames.viewDetails,
+
+                              extra: {
+
+                                "firstName":
+                                firstNameController.text.trim(),
+
+                                "lastName":
+                                lastNameController.text.trim(),
+
+                                "email":
+                                emailController.text.trim(),
+
+                                "profileImage":
+                                profileImage,
+
+                                "location":
+                                searchController.text.trim(),
+
+                                "workingDistance":
+                                selectedDistance ?? "",
+
+                                "primaryRole": "",
+                                "experience": "",
+                                "hourlyRate": "",
+                                "bio": "",
+                                "skills": "",
+                                "equipments": "",
+                                "featuredImages": [],
+                              },
                             );
                           },
                           style: ElevatedButton.styleFrom(

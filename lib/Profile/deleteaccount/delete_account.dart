@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../utility/ColorCode.dart';
+import '../../../utility/colorcode.dart';
 import '../../../utility/imges_icons.dart';
+import '../../app/route_names.dart';
 import 'delete_account_otp_screen.dart';
 
 class DeleteAccount extends StatefulWidget {
@@ -40,7 +42,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
                 /// 🔙 BACK BUTTON
                 GestureDetector(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => context.pop(),
                   child: SvgPicture.asset(
                     AppImages.back, // make sure it's .svg file
                     height: 24,
@@ -137,9 +139,12 @@ class _DeleteAccountState extends State<DeleteAccount> {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
+                   /* Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => DeleteAccountOtpScreen()),
+                    );*/
+                    context.pushNamed(
+                      RouteNames.deleteAccountOtp,
                     );
                   },
 

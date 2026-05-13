@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../utility/ColorCode.dart';
+import '../../../utility/colorcode.dart';
 import '../../../utility/imges_icons.dart';
+import '../../app/route_names.dart';
 import 'delete_account_lottieScreen.dart';
 
 
@@ -21,7 +23,6 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
   Timer? timer;
   bool isOtpFilled = false;
 
-  bool isLoading =false;
   List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
 
   String get enteredOtp {
@@ -59,6 +60,21 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
       });
     }
   }
+  @override
+  void dispose() {
+
+    timer?.cancel();
+
+    for (var controller in controllers) {
+      controller.dispose();
+    }
+
+    for (var node in focusNodes) {
+      node.dispose();
+    }
+
+    super.dispose();
+  }
   List<TextEditingController> controllers =
   List.generate(6, (index) => TextEditingController());
 
@@ -77,7 +93,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
 
             /// 🔙 BACK BUTTON
             InkWell(
-              onTap: () => Navigator.pop(context),
+              onTap: () => context.pop(),
               child:SvgPicture.asset(
                 AppImages.back, // make sure it's .svg file
                 height: 24,
@@ -214,12 +230,14 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
-                onPressed:() {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => DeleteAccountLottieScreen()),
+                onPressed: isOtpFilled
+                    ? () {
+
+                  context.goNamed(
+                    RouteNames.deleteAccountSuccess,
                   );
-                },
+                }
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isOtpFilled
                       ? ColorCode.kButtonColor

@@ -2,12 +2,14 @@ import 'package:beige_creative_app/Home/home_screen.dart';
 import 'package:beige_creative_app/Shoots/shoot_cancelled_lotties_screen.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../MainScreen.dart';
+import '../app/route_names.dart';
 import '../onboding/onboding_screen.dart';
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -35,19 +37,16 @@ class _SplashScreenState extends State<SplashScreen>
 
     if(isloggin){
 
-      Navigator.pushReplacement(
+ /*     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (_) => Mainscreen(),
         ),
-      );
+      );*/
+      context.goNamed(RouteNames.home);
     }else{
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => OnboardingScreen(),
-        ),
-      );
+
+      context.goNamed(RouteNames.onboarding);
     }
 
 

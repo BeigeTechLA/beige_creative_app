@@ -158,4 +158,11 @@ class AppImages {
 
   static const String lottie1 = '$_lottie/Untitled file.json';
   static const String lottie2 = '$_lottie/Component10.json';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // FONT FAMILIES
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  static const String fontUnbounded = 'Unbounded';
+  static const String fontOutfit = 'Outfit';
+  static const String fontHelveticaNeue = 'Helvetica Neue';
 }

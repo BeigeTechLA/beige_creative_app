@@ -14,7 +14,7 @@ import '../auth/sign_up/signup1_screen.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../service/shared_service.dart';
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/app_loder.dart';

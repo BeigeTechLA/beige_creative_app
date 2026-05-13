@@ -1,10 +1,12 @@
 import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 
+import '../app/route_names.dart';
 import '../auth/login/login.dart';
 import '../auth/sign_up/signup1_screen.dart';
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -128,12 +130,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   height: 55,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>  Login(),
-                        ),
-                      );
+                      context.pushNamed(RouteNames.login);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ColorCode.kButtonColor,
@@ -159,12 +156,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               /// ---------------- SIGN UP TEXT ----------------
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>  SignUp1Screen(),
-                    ),
-                  );
+                  context.pushNamed(RouteNames.signupStep1);
                 },
                 child: const Padding(
                   padding: EdgeInsets.only(bottom: 20),

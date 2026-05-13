@@ -8,11 +8,13 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:open_file/open_file.dart';
+import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
-import '../../utility/ColorCode.dart';
+import '../../utility/colorcode.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/commonFileViewer.dart';
 import '../../widgets/common_uploader.dart';
@@ -254,10 +256,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
       debugPrint("📥 STEP-3 RESPONSE => $response");
 
       if (response != null && response['error'] == false) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) =>  Login()),
-        );
+        context.goNamed(RouteNames.login);
       } else {
         _showSnack(response?['message'] ?? "Submission failed");
       }
@@ -354,7 +353,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     /// 🔙 BACK BUTTON
                                     InkWell(
                                       onTap: () {
-                                        Navigator.pop(context);
+                                        context.pop();
                                       },
                                       child: SvgPicture.asset(
                                         AppImages.back,
@@ -1177,21 +1176,34 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                                     /// LOGIN TEXT
                                     Center(
-                                      child: Text.rich(
-                                        TextSpan(
-                                          text: "Already have an account? ",
-                                          style: const TextStyle(
-                                            color: ColorCode.kWhiteOpacity70,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+
+                                          const Text(
+                                            "Already have an account? ",
+                                            style: TextStyle(
+                                              color: ColorCode.kWhiteOpacity70,
+                                            ),
                                           ),
-                                          children: [
-                                            TextSpan(
-                                              text: "Login",
+
+                                          InkWell(
+                                            onTap: () {
+
+                                              context.pushNamed(
+                                                RouteNames.login,
+                                              );
+
+                                            },
+                                            child: const Text(
+                                              "Login",
                                               style: TextStyle(
                                                 color: ColorCode.kButtonColor,
+                                                fontWeight: FontWeight.w600,
                                               ),
-                                            )
-                                          ],
-                                        ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     )
                                   ],

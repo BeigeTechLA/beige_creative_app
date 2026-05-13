@@ -14,7 +14,7 @@ import 'package:google_places_flutter/google_places_flutter.dart';
 
 import '../../Model_Class/edit_profile_model.dart';
 import '../../service/google_config.dart';
-import '../../utility/ColorCode.dart';
+import '../../utility/colorcode.dart';
 import '../../utility/location_service.dart';
 import '../../widgets/custom_dropdown_field.dart';
 import '../../widgets/custom_text_field.dart';

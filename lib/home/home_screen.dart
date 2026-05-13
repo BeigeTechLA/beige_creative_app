@@ -6,6 +6,7 @@ import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -22,8 +23,9 @@ import '../Profile/myprofile.dart';
 import '../Shoots/shoot_cancelled_screen.dart';
 import '../Shoots/shoots_screen.dart';
 import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
+import '../app/route_names.dart';
 import '../manageavailability/add_availability_screen.dart';
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 import '../widgets/common_calendar.dart';
 import '../widgets/date_time.dart';
 import '../widgets/multi_arc_painter.dart';
@@ -467,13 +469,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                         onPressed: () {
                           // Navigate to details screen (you can pass project ID if needed)
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => UpcomingShootViewDetils(
-                                projectid: data['projectId'],
-                              ),
-                            ),
+                          context.pushNamed(
+                            RouteNames.upcomingShootDetails,
+                            extra: {
+                              "projectId": data['projectId'],
+                            },
                           );
                         },
                         child: const Text("View Details",
@@ -625,7 +625,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                            SizedBox(width: 15),
                            InkWell(
                                onTap: () async {
-                                 final result = await Navigator.push(
+                             /*    final result = await Navigator.push(
                                    context,
                                    MaterialPageRoute(
                                      builder: (_) => Myprofile(),
@@ -634,7 +634,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
                                  if (result == true) {
                                    fetchprofiledata(); // 🔥 API call again
-                                 }
+                                 }*/
+                                 context.pushNamed(
+                                   RouteNames.myProfile,
+                                 ).then((value) {
+
+                                   if (value == true) {
+                                     fetchprofiledata();
+                                   }
+                                 });
                                },
                                child:CircleAvatar(
                                  radius: 20,
@@ -1056,11 +1064,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                              borderRadius: BorderRadius.circular(30),
                            ),
                          ),
-                         onPressed: () async {
+                      /*   onPressed: () async {
                            final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => AddAvailabilityScreen()));
                            if (result == true) {
                              fetchavailability();
                            }
+                         },*/
+
+                         onPressed: () {
+
+                           context.pushNamed(
+                             RouteNames.addAvailability,
+                           ).then((value) {
+
+                             if (value == true) {
+                               fetchavailability();
+                             }
+                           });
                          },
                          icon: const Icon(Icons.add, size: 18, color: ColorCode.black),
                          label: const Text(
@@ -1661,9 +1681,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                    ),
                                    SizedBox(width: 8),
                                    GestureDetector(
-                                     onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => UpcomingShootViewDetils(
+                                     /*onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => UpcomingShootViewDetils(
                                        projectid: data?.projectId ?? 0,
-                                     ))),
+                                     ))),*/
+                                     onTap: () {
+
+                                       context.pushNamed(
+                                         RouteNames.upcomingShootDetails,
+                                         extra: {
+                                           "projectId": data?.projectId,
+                                         },
+                                       );
+                                     },
                                      child: Text(
                                        "View Details",
                                        style: TextStyle(
@@ -1788,18 +1817,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                              }
                                            }*/
                                            onPressed: () async {
-                                             final result = await Navigator.push(
-                                               context,
-                                               MaterialPageRoute(
-                                                 builder: (context) =>
-                                                     CancelScreen(projectId: data?.projectId),
-                                               ),
-                                             );
+                                             context.pushNamed(
+                                               RouteNames.cancelShoot,
+                                               extra: {
+                                                 "projectId": data?.projectId,
+                                               },
+                                             ).then((value) {
 
-                                             // 👇 BACK aane ke baad refresh
-                                             if (result == true) {
-                                               fetchcreatordashboarddetails();
-                                             }
+                                               if (value == true) {
+                                                 fetchcreatordashboarddetails();
+                                               }
+                                             });
                                            },
                                            child: const Text(
                                              "Decline",

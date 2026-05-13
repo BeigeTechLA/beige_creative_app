@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import '../MainScreen.dart';
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart';
 
 

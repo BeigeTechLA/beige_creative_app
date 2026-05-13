@@ -7,7 +7,7 @@ import '../Model_Class/create_dashboard_details_model.dart' hide Data;
 import '../Model_Class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart';
 import '../widgets/commonFileViewer.dart';
 import '../widgets/common_uploader.dart';

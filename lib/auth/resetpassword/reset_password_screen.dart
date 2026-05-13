@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../Profile/myprofile_youre_all_set_screen.dart';
 import '../../service/api_service.dart';
-import '../../utility/ColorCode.dart';
+import '../../utility/colorcode.dart';
 import '../../utility/imges_icons.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';

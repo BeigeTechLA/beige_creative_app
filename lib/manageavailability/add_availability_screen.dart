@@ -4,8 +4,9 @@ import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 import '../widgets/CustomDropdown.dart';
 import '../widgets/custom_text_field.dart';
 
@@ -186,7 +187,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
           ),
         );*/
 
-        Navigator.pop(context, true);
+        context.pop(true);
       }
 
     } catch (e) {
@@ -271,9 +272,17 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 
   List<String> weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   List<String> selectedWeekDays = [];
-  final List abc = ["Available", "Not Available"];
-  final List recurence = ["Daily", "Weekly", "Monthly", "Does Not Repeat"];
+  final List<String> abc = [
+    "Available",
+    "Not Available",
+  ];
 
+  final List<String> recurence = [
+    "Daily",
+    "Weekly",
+    "Monthly",
+    "Does Not Repeat",
+  ];
 
 
 
@@ -588,7 +597,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
             Row(
               children: [
                 InkWell(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => context.pop(),
                   child: SvgPicture.asset(AppImages.back),
                 ),
               ],
@@ -847,7 +856,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                 child: SizedBox(
                   height: 52,
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () =>context.pop(),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),

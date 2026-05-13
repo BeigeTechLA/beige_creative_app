@@ -8,7 +8,7 @@ import 'package:beige_creative_app/widgets/app_loder.dart';
   import '../Model_Class/shoot_count_model.dart';
   import '../Model_Class/shoots_model.dart';
   import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
-  import '../utility/ColorCode.dart';
+  import '../utility/colorcode.dart';
   import '../utility/imges_icons.dart';
   import '../widgets/date_time.dart';
 import 'shoot_cancelled_screen.dart';

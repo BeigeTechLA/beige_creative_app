@@ -2,7 +2,7 @@ import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 
 class ViewDetailsScreen extends StatefulWidget {
   const ViewDetailsScreen({super.key});

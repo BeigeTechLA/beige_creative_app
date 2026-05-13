@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../Model_Class/edit_profile_model.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
-import '../../utility/ColorCode.dart';
+import '../../utility/colorcode.dart';
 import '../../utility/imges_icons.dart';
 import '../../widgets/CustomDropdown.dart';
 import '../../widgets/custom_dropdown_field.dart';

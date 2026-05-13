@@ -8,7 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 import '../Model_Class/upcoming_shootview_model.dart';
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 
 class UpcomingShootViewDetils extends StatefulWidget {
   final int? projectid;

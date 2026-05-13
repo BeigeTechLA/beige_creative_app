@@ -2,7 +2,7 @@ import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart';
 
 class MyprofileYoureAllSetScreen extends StatefulWidget {

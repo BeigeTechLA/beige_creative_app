@@ -12,7 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import '../Model_Class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/commonImagePicker.dart';

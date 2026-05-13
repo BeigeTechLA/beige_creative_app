@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../utility/ColorCode.dart';
+import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart' show AppImages;
 import '../widgets/custom_text_field.dart';
 import 'myprofile_youre_all_set_screen.dart';

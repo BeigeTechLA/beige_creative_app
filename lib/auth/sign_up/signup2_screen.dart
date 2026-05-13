@@ -7,10 +7,12 @@ import 'package:beige_creative_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
-import '../../utility/ColorCode.dart';
+import '../../utility/colorcode.dart';
 import '../../utility/imges_icons.dart';
 import '../../widgets/custom_dropdown_field.dart';
 import '../../widgets/custom_multi_selectfield.dart';
@@ -400,7 +402,56 @@ class SignUp2ScreenState
       if (response != null && response['error'] == false) {
         debugPrint("✅ STEP-2 SUCCESS → Navigating to STEP-3");
 
-        Navigator.push(
+        context.pushNamed(
+
+          RouteNames.signupStep3,
+
+          extra: {
+
+            "crewMemberId":
+            widget.crewMemberId,
+
+            "profileImage":
+            widget.profileImage,
+
+            "email":
+            widget.email,
+
+            "firstName":
+            widget.firstName,
+
+            "lastName":
+            widget.lastName,
+
+            "location":
+            widget.location,
+
+            "workingDistance":
+            widget.workingDistance,
+
+            "primaryRole":
+            selectedRoles.join(", "),
+
+            "experience":
+            YearofExperienceController.text.trim(),
+
+            "hourlyRate":
+            HourlyRateController.text.trim(),
+
+            "bio":
+            bioController.text.trim(),
+
+            "skills":
+            selectedSkills.join(", "),
+
+            "equipments":
+            selectedEquipments.join(", "),
+
+            "step2Progress":
+            _calculateStep2Progress(),
+          },
+        );
+      /*  Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => SignUp3Screen(
@@ -420,7 +471,7 @@ class SignUp2ScreenState
               step2Progress: _calculateStep2Progress(),
             ),
           ),
-        );
+        );*/
       } else {
         debugPrint("❌ STEP-2 FAILED MESSAGE: ${response?['message']}");
       }
@@ -887,12 +938,13 @@ class SignUp2ScreenState
                                         ),
                                         InkWell(
                                           onTap: () {
-                                            Navigator.push(
+                                           /* Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (_) =>  Login(),
                                               ),
-                                            );
+                                            );*/
+                                            context.pushNamed(RouteNames.login);
                                           },
                                           child: const Text(
                                             "Login",
@@ -1158,7 +1210,7 @@ class SignUp2ScreenState
                   height: 38,
                   child: ElevatedButton(
                     onPressed: () {
-                      showModalBottomSheet(
+                      /*showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: ColorCode.transparent,
@@ -1176,6 +1228,51 @@ class SignUp2ScreenState
                           skills: selectedSkills.join(", "),
                           equipments: selectedEquipments.join(", "),
                         ),
+                      );*/
+                      context.pushNamed(
+
+                        RouteNames.viewDetails,
+
+                        extra: {
+
+                          "firstName":
+                          widget.firstName ?? "",
+
+                          "lastName":
+                          widget.lastName ?? "",
+
+                          "email":
+                          widget.email ?? "",
+
+                          "profileImage":
+                          widget.profileImage,
+
+                          "location":
+                          widget.location ?? "",
+
+                          "workingDistance":
+                          widget.workingDistance ?? "",
+
+                          "primaryRole":
+                          selectedRoles.join(", "),
+
+                          "experience":
+                          YearofExperienceController.text.trim(),
+
+                          "hourlyRate":
+                          HourlyRateController.text.trim(),
+
+                          "bio":
+                          bioController.text.trim(),
+
+                          "skills":
+                          selectedSkills.join(", "),
+
+                          "equipments":
+                          selectedEquipments.join(", "),
+
+                          "featuredImages": [],
+                        },
                       );
                     },
                     style: ElevatedButton.styleFrom(

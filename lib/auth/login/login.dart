@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../MainScreen.dart';
+import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../service/shared_service.dart';
-import '../../utility/ColorCode.dart';
+import '../../utility/colorcode.dart';
 import '../../utility/imges_icons.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';
@@ -110,12 +112,12 @@ class _LoginState extends State<Login> {
       }
 
       /// ✅ SUCCESS NAVIGATION
-      Navigator.pushAndRemoveUntil(
+/*      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => Mainscreen()),
             (route) => false,
-      );
-
+      );*/
+      context.goNamed(RouteNames.home);
     }  catch (e) {
   debugPrint("Login Error: $e");
 
@@ -347,8 +349,7 @@ class _LoginState extends State<Login> {
 
                               TextButton(
                                 onPressed: () {
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: (_) => ForgotPasswordScreen()));
+                                  context.pushNamed(RouteNames.forgotPassword);
                                 },
                                 child: const Text(
                                   "Forgot Password?",
@@ -433,12 +434,13 @@ class _LoginState extends State<Login> {
             ),
             InkWell(
               onTap: () {
-                Navigator.push(
+               /* Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const SignUp1Screen(),
                   ),
-                );
+                );*/
+                context.pushNamed(RouteNames.signupStep1);
               },
               child: const Text(
                 "Sign Up",

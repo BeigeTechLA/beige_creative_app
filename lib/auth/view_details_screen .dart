@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../utility/ColorCode.dart';
+import '../../utility/colorcode.dart';
 
 class ViewDetailsScreen extends StatelessWidget {
   final String firstName;

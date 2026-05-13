@@ -1,9 +1,11 @@
 import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:beige_creative_app/utility/imges_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../utility/ColorCode.dart';
+import '../../app/route_names.dart';
+import '../../utility/colorcode.dart';
 
 
 class DeleteAccountLottieScreen extends StatefulWidget {
@@ -15,18 +17,22 @@ class DeleteAccountLottieScreen extends StatefulWidget {
 
 class _DeleteAccountLottieScreenState extends State<DeleteAccountLottieScreen> {
   @override
+  @override
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => Login()),
-              (route) => false,
-        );
-      }
-    });
+    Future.delayed(
+      const Duration(seconds: 3),
+          () {
+
+        if (mounted) {
+
+          context.goNamed(
+            RouteNames.login,
+          );
+        }
+      },
+    );
   }
 
   @override
