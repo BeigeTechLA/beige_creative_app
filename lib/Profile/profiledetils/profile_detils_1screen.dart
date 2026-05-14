@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../Model_Class/myprofile_model.dart';
+import '../../model_class/myprofile_model.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
@@ -35,14 +35,29 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
     fetchprofiledata();
   }
   String getPrimaryRole(String? role) {
-    if (role == null || role.isEmpty) return "-";
 
-    if (role.contains("1")) return "Videographer";
-    if (role.contains("2")) return "Photographer";
+    if (role == null || role.isEmpty) {
+      return "-";
+    }
 
-    return "-";
+    List<String> roles = [];
+
+    /// ✅ VIDEOGRAPHER
+    if (role.contains("1")) {
+      roles.add("Videographer");
+    }
+
+    /// ✅ PHOTOGRAPHER
+    if (role.contains("2")) {
+      roles.add("Photographer");
+    }
+
+    if (roles.isEmpty) {
+      return "-";
+    }
+
+    return roles.join(", ");
   }
-
 
   User? user;
   Data? profileData;

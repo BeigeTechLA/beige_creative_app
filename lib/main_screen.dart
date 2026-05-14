@@ -13,7 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Home/home_screen.dart';
-import 'Model_Class/create_dashboard_details_model.dart' as profile;
+import 'model_class/create_dashboard_details_model.dart' as profile;
 import 'Model_Class/myprofile_model.dart';
 
 import 'Profile/myprofile.dart';

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:beige_creative_app/widgets/CustomDropdown.dart';
+import 'package:beige_creative_app/widgets/custom_dropdown.dart';
 import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:beige_creative_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
-import '../MainScreen.dart';
+import '../main_screen.dart';
 import '../app/route_names.dart' show RouteNames;
 import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart' show AppImages;

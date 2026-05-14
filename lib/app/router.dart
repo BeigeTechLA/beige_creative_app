@@ -1,4 +1,5 @@
-import 'package:beige_creative_app/Profile/myprofile.dart';
+
+
 import 'package:go_router/go_router.dart';
 
 import '../ManageAvailability/add_availability_screen.dart';
@@ -11,6 +12,7 @@ import '../Profile/deleteaccount/delete_account.dart';
 import '../Profile/deleteaccount/delete_account_lottieScreen.dart';
 import '../Profile/deleteaccount/delete_account_otp_screen.dart';
 import '../Profile/featured_work_list.dart';
+import '../Profile/myprofile.dart';
 import '../Profile/myprofile_youre_all_set_screen.dart';
 import '../Profile/resume_screen.dart';
 import '../Shoots/shoot_cancelled_lotties_screen.dart';
@@ -34,7 +36,7 @@ import '../auth/ForgotPassword/forgot_password_otp_screen.dart';
 import '../auth/resetpassword/reset_password_screen.dart';
 
 /// MAIN
-import '../MainScreen.dart';
+import '../main_screen.dart';
 
 /// PROFILE
 import '../auth/view_details_screen .dart';

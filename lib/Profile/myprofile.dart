@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:beige_creative_app/Model_Class/myprofile_model.dart';
+import 'package:beige_creative_app/model_class/myprofile_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +20,7 @@ import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/app_loder.dart';
+import '../widgets/common_uploader.dart';
 import '../widgets/custom_text_field.dart';
 
 import 'ProfileDetils/profile_detils_1screen.dart' show ProfileDetils1screen;
@@ -38,7 +39,22 @@ class Myprofile extends StatefulWidget {
 }
 
 class _MyprofileState extends State<Myprofile> {
-  Future<void> editPortfolioLink() async {
+
+  bool isSaving = false;
+
+  bool isEditing = false;
+  bool isUploadingImage = false;
+  File? _image;
+  int editingIndex = -1;
+  Offset offset = Offset.zero;
+  Offset startOffset = Offset.zero;
+  double scale = 1.0;
+  double startScale = 1.0;
+  final ImagePicker _picker = ImagePicker();
+  File? _profileImage;
+
+
+ /* Future<void> editPortfolioLink() async {
     final item = portfolioLinks[editingIndex];
     final id = item["id"];
     final url = item["url"];                    // ✅ take from list, not controller
@@ -62,7 +78,7 @@ class _MyprofileState extends State<Myprofile> {
     } catch (e) {
       debugPrint("Edit error: $e");
     }
-  }
+  }*/
   String getPortfolioIcon(String key) {
     switch (key.toLowerCase()) {
       case "youtube":
@@ -128,36 +144,91 @@ class _MyprofileState extends State<Myprofile> {
         return name.toLowerCase();
     }
   }
-  bool isSaving = false;
 
-  bool isEditing = false;
-  bool isUploadingImage = false;
-  File? _image;
-  int editingIndex = -1;
-  Offset offset = Offset.zero;
-  Offset startOffset = Offset.zero;
-  double scale = 1.0;
-  double startScale = 1.0;
-  final ImagePicker _picker = ImagePicker();
-  File? _profileImage;
+  Future<void> _handlePortfolioSaveLink({
+    required StateSetter setModalState,
+    required void Function(bool) setUpdating,
+    required bool Function() getUpdating,
+  }) async {
+    if (selectedPortfolioIndex == -1 || linkController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Select platform & enter link"),
+          backgroundColor: ColorCode.red,
+        ),
+      );
+      return;
+    }
+
+    // ✅ EDIT MODE
+    if (editingIndex != -1) {
+      final id = portfolioLinks[editingIndex]["id"]?.toString();
+      if (id == null || id.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Invalid link ID"), backgroundColor: ColorCode.red),
+        );
+        return;
+      }
+
+      setUpdating(true);
+
+      try {
+        final response = await ApiService().postData(
+          "creator/profile/edit-portfolio-link/$id",
+          {
+            "url": linkController.text.trim(),
+            "platform": getPortfolioKey(Portfoliolname[selectedPortfolioIndex]),
+            "title": Portfoliolname[selectedPortfolioIndex],
+          },
+        );
+
+        if (response["error"] == false) {
+          await fetchprofiledata();
+          if (mounted) Navigator.pop(context);
+        } else {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(response["message"] ?? "Edit failed")),
+          );
+        }
+      } catch (e) {
+        debugPrint("Edit error: $e");
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Network error. Please try again."), backgroundColor: ColorCode.red),
+        );
+      } finally {
+        if (mounted) setUpdating(false);
+      }
+      return;
+    }
+
+    // ✅ ADD MODE — sirf local list update
+    setModalState(() {
+      setState(() {
+        portfolioLinks.add({
+          "id": "",
+          "name": Portfoliolname[selectedPortfolioIndex],
+          "url": linkController.text.trim(),
+          "icon": Portfolioicons[selectedPortfolioIndex],
+        });
+      });
+      editingIndex = -1;
+      selectedPortfolioIndex = -1;
+      nameController.clear();
+      linkController.clear();
+    });
+  }
 
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 100,
-    );
+    final File? file = await CommonUploader.pickFromGallery();
 
-    if (pickedFile != null) {
-      File file = File(pickedFile.path);
-
-      debugPrint("🟢 IMAGE PICKED: ${pickedFile.path}");
+    if (file != null) {
+      debugPrint("🟢 IMAGE PICKED: ${file.path}");
 
       /// 🔥 OPEN CROP SHEET
       openCustomCropSheet(file);
     }
   }
-
   void openCustomCropSheet(File imageFile) {
     Offset offset = Offset.zero;
     double scale = 1.0;
@@ -1154,7 +1225,7 @@ Data? Myprofile_user;
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: ColorCode.white24),
-                              color: const Color(0xFF2A2A2A),
+                              color: ColorCode.k282828
                             ),
                             child: Row(
                               children: [
@@ -1625,7 +1696,7 @@ Data? Myprofile_user;
 
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF2A2A2A),
+              color: ColorCode.k2A2A2A,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -1638,7 +1709,7 @@ Data? Myprofile_user;
                     }),
                 _divider(),
                 _menuRow(AppImages.notificationsetting ,"Notifications Settings"),
-                _divider(),
+               /* _divider(),*/
         /*        _menuRow(
                   "assets/Icons/Exit.png",
                   "Logout",
@@ -1699,12 +1770,8 @@ Data? Myprofile_user;
             // ),
           SvgPicture.asset(
             AppImages.goto, // make sure it's .svg file
-            height: 17,
-            width: 17,
-            colorFilter: ColorFilter.mode(
-              ColorCode.white,
-              BlendMode.srcIn,
-            ),
+            height: 10,
+            width: 10,
           )
 
           ],
@@ -1718,7 +1785,7 @@ Data? Myprofile_user;
       padding: EdgeInsets.symmetric(horizontal: 16),
       child: Divider(
         height: 1,
-        color: ColorCode.white,
+        color: ColorCode.kDividerWhite12,
       ),
     );
   }
@@ -2402,7 +2469,7 @@ Data? Myprofile_user;
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color(0xff282828),
+                                    color:ColorCode.k282828
                                   ),
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
@@ -2470,6 +2537,13 @@ Data? Myprofile_user;
                               ),
                             ),
                             onPressed: isUpdating
+                                ? null
+                                : () => _handlePortfolioSaveLink(
+                              setModalState: setModalState,
+                              setUpdating: (val) => setModalState(() => isUpdating = val),
+                              getUpdating: () => isUpdating,
+                            ),
+                          /*  onPressed: isUpdating
                                 ? null
                                 : () async {
                               if (selectedPortfolioIndex == -1 ||
@@ -2548,7 +2622,7 @@ Data? Myprofile_user;
                                 nameController.clear();
                                 linkController.clear();
                               });
-                            },
+                            },*/
                             child: isUpdating
                                 ? const SizedBox(
                               height: 20,

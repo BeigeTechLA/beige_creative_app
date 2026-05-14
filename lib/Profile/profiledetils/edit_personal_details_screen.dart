@@ -13,7 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 
-import '../../Model_Class/edit_profile_model.dart';
+import '../../model_class/edit_profile_model.dart';
 import '../../app/route_names.dart';
 import '../../service/google_config.dart';
 import '../../utility/colorcode.dart';

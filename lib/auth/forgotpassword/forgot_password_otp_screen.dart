@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -69,10 +70,12 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
   }
 
   Future<void> _verifyOtp() async {
+    // ━━━ Validation ━━━
     if (!isOtpFilled) {
       TopMessage.show(context, "Please enter complete OTP");
+      return; // ✅ return missing tha — bina return ke API call hoti thi
     }
-    debugPrint("📢 Verify OTP Clicked");
+
     setState(() => isLoading = true);
 
     try {
@@ -83,14 +86,17 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
           "otp": enteredOtp,
         },
       );
+
       debugPrint("📩 API RESPONSE => $response");
 
+      // ━━━ Null check ━━━
       if (response == null) {
-        TopMessage.show(context, 'Server Error');
+        TopMessage.show(context, "No response from server. Please try again.");
+        return; // ✅ return missing tha — null pe bhi neeche chalta tha
       }
 
+      // ━━━ Success ━━━
       if (response["error"] == false) {
-        debugPrint("Calling The otp verification API");
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -100,18 +106,33 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
             ),
           ),
         );
-      } else {
-        print("❌ OTP Verification Failed => ${response['message']}");
-        TopMessage.show(context, response['message'] ?? "Invalid OTP");
       }
+      // ━━━ API Error ━━━
+      else {
+        final message = response['message'];
+
+        if (message == null || message.toString().trim().isEmpty) {
+          TopMessage.show(context, "Invalid OTP. Please try again.");
+        } else {
+          TopMessage.show(context, message.toString());
+        }
+      }
+
+    }
+    on SocketException {
+      // No internet
+      TopMessage.show(context, "No internet connection. Please check your network.");
+    } on TimeoutException {
+      // Server timeout
+      TopMessage.show(context, "Request timed out. Please try again.");
+    } on FormatException {
+      // JSON parse fail
+      TopMessage.show(context, "Unexpected server response. Please try again.");
     } catch (e) {
-      debugPrint("error is:::::: $e");
-      TopMessage.show(context, "Something went wrong");
+      debugPrint("❌ OTP Error: $e");
+      TopMessage.show(context, "OTP verification failed. Please try again.");
     } finally {
-      setState(() {
-        isLoading = true;
-      });
-      debugPrint("🛑 VERIFY OTP API CALL END");
+      setState(() => isLoading = false); //
     }
   }
 
@@ -377,47 +398,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildField(String title, TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      cursorColor: ColorCode.white,
-      // ✅ WAS: TextStyle(color: ColorCode.white)
-      style: AppTextStyles.bodyMedium.copyWith(
-        color: ColorCode.white,
-      ),
-      decoration: InputDecoration(
-        labelText: "$title*",
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        // ✅ WAS: TextStyle(color: ColorCode.kWhiteOpacity70)
-        labelStyle: AppTextStyles.bodyMedium.copyWith(
-          color: ColorCode.kWhiteOpacity70,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 18,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: ColorCode.kWhiteOpacity70,
-            width: 0.5,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: ColorCode.kWhiteOpacity70,
-            width: 0.5,
-          ),
-        ),
-        // ✅ WAS: TextStyle(color: ColorCode.kWhiteOpacity70)
-        floatingLabelStyle: AppTextStyles.bodyMedium.copyWith(
-          color: ColorCode.kWhiteOpacity70,
-        ),
       ),
     );
   }

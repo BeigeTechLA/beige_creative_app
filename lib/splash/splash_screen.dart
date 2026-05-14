@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../MainScreen.dart';
+import '../main_screen.dart';
 import '../app/route_names.dart';
 import '../onboding/onboding_screen.dart';
 import '../utility/colorcode.dart';

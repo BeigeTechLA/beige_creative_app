@@ -1,14 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../Model_Class/edit_profile_model.dart';
+import '../../model_class/edit_profile_model.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/colorcode.dart';
 import '../../utility/imges_icons.dart';
-import '../../widgets/CustomDropdown.dart';
+import '../../widgets/custom_dropdown.dart';
 import '../../widgets/custom_dropdown_field.dart';
 import '../../widgets/custom_multi_selectfield.dart' show CustomMultiSelectField;
 import '../../widgets/custom_text_field.dart';
@@ -75,7 +77,8 @@ class _EnterProfileDetailsScreenState
 
       print("🚀 API CALL START");
 
-      final rawResponse = await ApiService().postData(
+      final rawResponse =
+      await ApiService().postData(
         ApiEndpoints.editprofile,
         {},
       );
@@ -83,9 +86,9 @@ class _EnterProfileDetailsScreenState
       print("📦 RAW RESPONSE 👉 $rawResponse");
 
       final response =
-      EditProfileResponse.fromJson(rawResponse);
-
-      print("✅ PARSED RESPONSE 👉 ${response.data}");
+      EditProfileResponse.fromJson(
+        rawResponse,
+      );
 
       final data = response.data;
 
@@ -97,50 +100,103 @@ class _EnterProfileDetailsScreenState
 
         /// ✅ TEXTFIELDS
         experienceController.text =
-            data.yearsOfExperience?.toString() ?? "";
+            data.yearsOfExperience.toString();
 
         rateController.text =
-            data.hourlyRate?.toString() ?? "";
+            data.hourlyRate.toString();
 
         bioController.text =
-            data.bio ?? "";
+            data.bio;
 
-        /// ✅ ROLE FIX
-        if (data.primaryRole != null &&
-            data.primaryRole
-                .toString()
-                .isNotEmpty) {
+        /// =========================
+        /// ✅ PRIMARY ROLE FIX
+        /// =========================
 
-          int roleId = int.tryParse(
-            data.primaryRole.toString(),
-          ) ??
-              0;
+        selectedRoles.clear();
 
-          print("🎯 ROLE ID 👉 $roleId");
+        if (data.primaryRole.isNotEmpty) {
 
-          primaryRole = roleMap.entries
-              .firstWhere(
-                (element) =>
-            element.value == roleId,
-            orElse: () =>
-            const MapEntry("", 0),
-          )
-              .key;
+          try {
 
-          if (primaryRole != null &&
-              primaryRole!.isNotEmpty) {
+            List<String> roleIds = [];
 
-            selectedRoles = [primaryRole!];
+            /// API:
+            /// "1"
+            /// "1,2"
+            /// [1,2]
+
+            if (data.primaryRole.startsWith("[")) {
+
+              final decoded =
+              jsonDecode(data.primaryRole);
+
+              roleIds =
+              List<String>.from(
+                decoded.map(
+                      (e) => e.toString(),
+                ),
+              );
+
+            } else {
+
+              roleIds =
+                  data.primaryRole
+                      .split(",")
+
+                      .map(
+                        (e) => e.trim(),
+                  )
+
+                      .toList();
+            }
+
+            for (var id in roleIds) {
+
+              int roleId =
+                  int.tryParse(id) ?? 0;
+
+              final matchedRole =
+              roleMap.entries.firstWhere(
+
+                    (e) =>
+                e.value == roleId,
+
+                orElse: () =>
+                const MapEntry("", 0),
+              );
+
+              if (matchedRole
+                  .key
+                  .isNotEmpty) {
+
+                selectedRoles.add(
+                  matchedRole.key,
+                );
+              }
+            }
+
+            print(
+              "✅ SELECTED ROLES => $selectedRoles",
+            );
+
+          } catch (e) {
+
+            print(
+              "❌ ROLE PARSE ERROR 👉 $e",
+            );
           }
         }
 
+        /// =========================
         /// ✅ SKILLS
-        if (data.skills != null &&
-            data.skills.isNotEmpty) {
+        /// =========================
 
-          skillList = data.skills
-              .map((e) => e.name)
-              .toList();
+        if (data.skills.isNotEmpty) {
+
+          skillList =
+              data.skills
+                  .map((e) => e.name)
+                  .toList();
 
           selectedSkills =
           List<String>.from(skillList);
@@ -203,6 +259,11 @@ class _EnterProfileDetailsScreenState
     }
   }
 
+
+
+
+
+
   Future<void> fetchSkills() async {
 
     try {
@@ -257,9 +318,11 @@ class _EnterProfileDetailsScreenState
 
     try {
 
+      /// =========================
       /// ✅ ROLE VALIDATION
-      if (primaryRole == null ||
-          primaryRole!.isEmpty) {
+      /// =========================
+
+      if (selectedRoles.isEmpty) {
 
         ScaffoldMessenger.of(context)
             .showSnackBar(
@@ -273,10 +336,20 @@ class _EnterProfileDetailsScreenState
         return;
       }
 
-      int? roleId =
-      roleMap[primaryRole];
+      /// =========================
+      /// ✅ ROLE IDS
+      /// =========================
 
-      if (roleId == null) {
+      List<int> roleIds =
+      selectedRoles
+          .map(
+            (role) =>
+        roleMap[role] ?? 0,
+      )
+          .where((id) => id != 0)
+          .toList();
+
+      if (roleIds.isEmpty) {
 
         ScaffoldMessenger.of(context)
             .showSnackBar(
@@ -290,7 +363,10 @@ class _EnterProfileDetailsScreenState
         return;
       }
 
+      /// =========================
       /// ✅ EXPERIENCE
+      /// =========================
+
       if (experienceController.text
           .trim()
           .isEmpty) {
@@ -307,7 +383,10 @@ class _EnterProfileDetailsScreenState
         return;
       }
 
+      /// =========================
       /// ✅ RATE
+      /// =========================
+
       if (rateController.text
           .trim()
           .isEmpty) {
@@ -324,7 +403,10 @@ class _EnterProfileDetailsScreenState
         return;
       }
 
+      /// =========================
       /// ✅ SKILLS
+      /// =========================
+
       if (selectedSkills.isEmpty) {
 
         ScaffoldMessenger.of(context)
@@ -339,7 +421,10 @@ class _EnterProfileDetailsScreenState
         return;
       }
 
+      /// =========================
       /// ✅ SKILL IDS
+      /// =========================
+
       List<int> skillIds =
       selectedSkills
           .map(
@@ -349,11 +434,13 @@ class _EnterProfileDetailsScreenState
           .where((id) => id != 0)
           .toList();
 
+      /// =========================
       /// ✅ BODY
+      /// =========================
+
       final body = {
 
-        "primary_role":
-        roleId.toString(),
+        "primary_role": roleIds,
 
         "years_of_experience":
         experienceController.text
@@ -367,11 +454,14 @@ class _EnterProfileDetailsScreenState
         bioController.text
             .trim(),
 
-        "skills":
-        skillIds,
+        "skills": skillIds,
       };
 
-      print("📤 BODY: $body");
+      print("📤 BODY => $body");
+
+      /// =========================
+      /// ✅ API CALL
+      /// =========================
 
       final response =
       await ApiService().postData(
@@ -379,7 +469,11 @@ class _EnterProfileDetailsScreenState
         body,
       );
 
-      print("📥 RESPONSE: $response");
+      print("📥 RESPONSE => $response");
+
+      /// =========================
+      /// ✅ SUCCESS
+      /// =========================
 
       if (response["error"] == false) {
 
@@ -403,7 +497,8 @@ class _EnterProfileDetailsScreenState
             .showSnackBar(
           SnackBar(
             content: Text(
-              response["message"],
+              response["message"]
+                  .toString(),
             ),
           ),
         );
@@ -411,10 +506,17 @@ class _EnterProfileDetailsScreenState
 
     } catch (e) {
 
-      print("❌ ERROR: $e");
+      print("❌ UPDATE ERROR => $e");
     }
   }
+  String getPrimaryRole(String? role) {
+    if (role == null || role.isEmpty) return "-";
 
+    if (role.contains("1")) return "Videographer";
+    if (role.contains("2")) return "Photographer";
+
+    return "-";
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -548,7 +650,6 @@ class _EnterProfileDetailsScreenState
                   });
                 },
               ),*/
-
               const SizedBox(height: 40),
             ],
           ),
@@ -562,7 +663,7 @@ class _EnterProfileDetailsScreenState
           height: 55,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD6C3A3),
+              backgroundColor: ColorCode.kButtonColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),//
               ),
@@ -629,10 +730,14 @@ class _EnterProfileDetailsScreenState
                     child: ListView(
                       shrinkWrap: true,
                       children: roleList.map((role) {
-                        final isSelected = selectedRoles.contains(role);
+
+                        final isSelected =
+                        selectedRoles.contains(role);
 
                         return CheckboxListTile(
+
                           value: isSelected,
+
                           title: Text(
                             role,
                             style: const TextStyle(
@@ -658,12 +763,24 @@ class _EnterProfileDetailsScreenState
                           ),
 
                           onChanged: (val) {
+
                             setModalState(() {
+
                               if (val == true) {
-                                selectedRoles.add(role);
+
+                                if (!selectedRoles.contains(role)) {
+
+                                  selectedRoles.add(role);
+                                }
+
                               } else {
+
                                 selectedRoles.remove(role);
                               }
+
+                              print(
+                                "✅ SELECTED ROLES => $selectedRoles",
+                              );
                             });
 
                             setState(() {});

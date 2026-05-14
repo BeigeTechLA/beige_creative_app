@@ -8,7 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../Model_Class/upcoming_shootview_model.dart';
+import '../model_class/upcoming_shootview_model.dart';
 import '../utility/colorcode.dart';
 
 class UpcomingShootViewDetils extends StatefulWidget {

@@ -138,15 +138,35 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                         loding = !loding;
                       });
                     },
-                    child: Container(
-                      height: 50,
-                      width: 50,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      height: 45,
+                      width: 45,
                       decoration: BoxDecoration(
-                        color: Colors.white10,
+                        color:ColorCode.k282828,
                         borderRadius: BorderRadius.circular(12),
+                        /*border: Border.all(
+                          color: Colors.white.withOpacity(0.06),
+                        ),*/
+                       /* boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.25),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],*/
                       ),
-                      child: SvgPicture.asset(
-                        loding ? AppImages.grid : AppImages.list,
+                      child: Center(
+                        child: SvgPicture.asset(
+                          loding ? AppImages.grid : AppImages.list,
+                          height: 22,
+                          width: 22,
+                          color: ColorCode.white,
+                          /*colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),*/
+                        ),
                       ),
                     ),
                   )

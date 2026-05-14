@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../Model_Class/create_dashboard_details_model.dart';
+import '../model_class/create_dashboard_details_model.dart';
 import '../Model_Class/crewstatus_model.dart';
 import '../Model_Class/dashboard_count_model.dart';
 import '../Model_Class/shoot_status_model.dart';
@@ -377,9 +377,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         : isMiddle
         ? const Color(0xFF2E2E2E)
         : const Color(0xFF303030);
-    final titleColor = isMain || isMiddle ? ColorCode.white : ColorCode.kWhiteOpacity70;
+   /* final titleColor = isMain || isMiddle ? ColorCode.white : ColorCode.kWhiteOpacity70;
     final dateColor = isMain ? ColorCode.kWhiteOpacity70 : ColorCode.white24;
-    final btnOpacity = isMain ? 1.0 : (isMiddle ? 0.8 : 0.7);
+    final btnOpacity = isMain ? 1.0 : (isMiddle ? 0.8 : 0.7);*/
 
     return Container(
       width: double.infinity,
@@ -423,7 +423,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: titleColor,
+                    color: ColorCode.white,
                   ),
                 ),
                 Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
@@ -431,13 +431,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Row(children: [
                   SvgPicture.asset(AppImages.calender, width: 14, height: 14),
                   const SizedBox(width: 5),
-                  Text(data['date'], style: TextStyle(fontSize: 12, color: dateColor)),
+                  Text(data['date'], style: TextStyle(fontSize: 12,color: ColorCode.white,)),
                 ]),
                 const SizedBox(height: 6),
                 Row(children: [
                   SvgPicture.asset(AppImages.time, width: 14, height: 14),
                   const SizedBox(width: 5),
-                  Text(data['time'], style: TextStyle(fontSize: 12, color: dateColor)),
+                  Text(data['time'], style: TextStyle(fontSize: 12, color: ColorCode.white,)),
                 ]),
                 const SizedBox(height: 6),
                 Row(children: [
@@ -446,7 +446,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   Expanded(
                     child: Text(
                       data['location'],
-                      style: TextStyle(fontSize: 12, color: dateColor),
+                      style: TextStyle(fontSize: 12, color: ColorCode.white,),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),
@@ -459,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
-                          backgroundColor: ColorCode.kButtonColor.withOpacity(btnOpacity),
+                          backgroundColor: ColorCode.kButtonColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -1786,7 +1786,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                        children: [
                                          ElevatedButton(
                                            style: ElevatedButton.styleFrom(
-                                             backgroundColor: Color(0xffD8FDE6),
+
+                                             backgroundColor:ColorCode.white
+
+
                                            ),
                                            onPressed: () {
                                              if (data != null) {
@@ -1806,7 +1809,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                          const SizedBox(width: 10),
                                          ElevatedButton(
                                            style: ElevatedButton.styleFrom(
-                                             backgroundColor: Color(0xffEECCC9),
+                                               backgroundColor:ColorCode.white
                                            ),
                                          /*  onPressed: () {
                                              if (data != null) {

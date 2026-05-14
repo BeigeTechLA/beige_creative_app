@@ -6,7 +6,7 @@ import 'package:beige_creative_app/widgets/app_loder.dart';
   import 'package:flutter/material.dart';
   import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-  import '../Model_Class/shoot_count_model.dart';
+  import '../model_class/shoot_count_model.dart';
   import '../Model_Class/shoots_model.dart';
   import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
   import '../app/route_names.dart';
@@ -156,13 +156,13 @@ import 'shoot_cancelled_screen.dart';
           children: [
             Column(
               children: [
-        
+
                 /// 🔥 TOP BAR
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
                     children: [
-        
+
                       /// MENU
                       Builder(
                         builder: (context) => InkWell(
@@ -170,12 +170,12 @@ import 'shoot_cancelled_screen.dart';
                             Scaffold.of(context).openDrawer();
                           },
                           child: SvgPicture.asset(AppImages.menu,height: 26,),
-        
+
                         ),
                       ),
-        
+
                       const Spacer(),
-        
+
                       /// TITLE
                       const Text(
                         "shoots",
@@ -186,9 +186,9 @@ import 'shoot_cancelled_screen.dart';
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-        
+
                       const Spacer(),
-        
+
                       /// FILTER
                     /*  GestureDetector(
                           onTap: () => _showFilterBottomSheet(context),
@@ -196,7 +196,7 @@ import 'shoot_cancelled_screen.dart';
                     ],
                   ),
                 ),
-        
+
                 /// 🔥 COUNT CARDS
                 SizedBox(
                   height: 70, // 👈 compact height
@@ -209,19 +209,19 @@ import 'shoot_cancelled_screen.dart';
                         "Pending shoots",
                         AppImages.clock_icon,
                       ),
-        
+
                       _countCard(
                         "$myconfirmedRequests",
                         "Confirmed shoots",
                         AppImages.video_icon,
                       ),
-        
+
                       _countCard(
                         "$mycompletedShoots",
                         "Completed",
                         AppImages.photo_icon,
                       ),
-        
+
                       _countCard(
                         "$myrejectedRequests",
                         "Declined",
@@ -230,9 +230,9 @@ import 'shoot_cancelled_screen.dart';
                     ],
                   ),
                 ),
-        
+
                 const SizedBox(height: 15),
-        
+
                 /// 🔥 SEARCH BAR
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -256,9 +256,15 @@ import 'shoot_cancelled_screen.dart';
                             color: ColorCode.white24,
                             fontFamily: "Outfit"
                         ),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: ColorCode.white24,
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(13),
+                          child: SvgPicture.asset(
+                            AppImages.search_icon,
+                            width: 14,
+                            height: 14,
+                            fit: BoxFit.contain,
+
+                          ),
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(vertical: 14),
@@ -266,9 +272,9 @@ import 'shoot_cancelled_screen.dart';
                     ),
                   ),
                 ),
-        
+
                 const SizedBox(height: 20),
-        
+
                 /// 🔥 LIST SECTION
                 Expanded(
                   child: ListView.builder(
@@ -285,7 +291,7 @@ import 'shoot_cancelled_screen.dart';
             if(isLoading)
               AppLoader()
           ],
-        
+
         ),
       );
     }
@@ -304,9 +310,7 @@ import 'shoot_cancelled_screen.dart';
             ],
           ),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: ColorCode.white,
-          ),),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -320,8 +324,9 @@ import 'shoot_cancelled_screen.dart';
                 Text(
                   number,
                   style: const TextStyle(
-                    color: Color(0xFFD6B98C),
-                    fontSize: 18,
+                    color: ColorCode.kButtonColor,
+                    fontSize: 24,
+                    fontFamily: "Outfit",
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -331,10 +336,13 @@ import 'shoot_cancelled_screen.dart';
                 Text(
                   title,
                   maxLines: 1,
+
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: ColorCode.kWhiteOpacity70,
-                    fontSize: 10,
+                  style:  TextStyle(
+                    color: ColorCode.white,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 11,
+                    fontFamily: "Outfit",
                   ),
                 ),
               ],
@@ -455,6 +463,7 @@ import 'shoot_cancelled_screen.dart';
                           style: TextStyle(
                             color: ColorCode.kButtonColor,
                             fontSize: 12,
+                            fontFamily: "Outfit",
                             fontWeight: FontWeight.w600,
                             decoration: TextDecoration.underline,
                           ),
@@ -469,6 +478,7 @@ import 'shoot_cancelled_screen.dart';
                     style: const TextStyle(
                       color: ColorCode.white,
                       fontSize: 15,
+                      fontFamily: "Outfit",
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -483,7 +493,7 @@ import 'shoot_cancelled_screen.dart';
                       const SizedBox(width: 6),
                       Text(
                         formattedDate, // ✅ FIX
-                        style: const TextStyle(color: ColorCode.whiteOpacity20, fontSize: 12),
+                        style: const TextStyle(color: ColorCode.white, fontSize: 10,fontFamily: "Outfit"),
                       ),
 
                       const SizedBox(width: 14),
@@ -492,7 +502,7 @@ import 'shoot_cancelled_screen.dart';
                       const SizedBox(width: 6),
                       Text(
                         formattedTime, // ✅ FIX
-                        style: const TextStyle(color: ColorCode.kWhiteOpacity70, fontSize: 12),
+                        style: const TextStyle(color: ColorCode.white, fontSize: 10,fontFamily: "Outfit"),
                       ),
 
                       const SizedBox(width: 14),
@@ -502,7 +512,7 @@ import 'shoot_cancelled_screen.dart';
                       Expanded(
                         child: Text(
                           shoot?.eventLocation ?? "No Location",
-                          style: const TextStyle(color: ColorCode.kWhiteOpacity70, fontSize: 12),
+                          style: const TextStyle(color: ColorCode.white, fontSize: 10,fontFamily: "Outfit"),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -535,7 +545,7 @@ import 'shoot_cancelled_screen.dart';
                           children: [
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xffD8FDE6),
+                                backgroundColor: ColorCode.white,
                               ),
                               onPressed: () {
                                 fetchacceptdecline(shoot.projectId, 1);
@@ -543,14 +553,17 @@ import 'shoot_cancelled_screen.dart';
                               child: const Text(
                                 "Accept",
                                 style: TextStyle(
-                                  color: Color(0xff1DAA23),
+                                  fontFamily: "Outfit",
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 12,
+                                  color: ColorCode.green,
                                 ),
                               ),
                             ),
                             const SizedBox(width: 10),
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xffEECCC9),
+                                backgroundColor: ColorCode.white,
                               ),
                               onPressed: () {
                               /*  Navigator.push(
@@ -569,10 +582,14 @@ import 'shoot_cancelled_screen.dart';
                                   },
                                 );
                               },
-                              child: const Text(
+                              child:  Text(
                                 "Decline",
                                 style: TextStyle(
-                                  color: Color(0xffD33732),
+                                  color: ColorCode.red,
+                                  fontFamily: "Outfit",
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 12,
+
                                 ),
                               ),
                             ),

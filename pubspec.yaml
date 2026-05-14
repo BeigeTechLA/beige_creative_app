@@ -90,7 +90,7 @@ flutter:
   assets:
 #    - assets/images/
     - assets/Splash/
-    - assets/Onboding/
+    - assets/onboding/
     - assets/icons/
     - assets/lottie/
     - assets/images/

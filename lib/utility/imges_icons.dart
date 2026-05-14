@@ -12,7 +12,7 @@ class AppImages {
   static const String _inactive = 'assets/NonActive';
   static const String _home = 'assets/home';
   static const String _shootSvg = 'assets/svg/Shoot';
-  static const String _onboarding = 'assets/Onboding';
+  static const String _onboarding = 'assets/onboding';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Active Icons
@@ -150,7 +150,7 @@ class AppImages {
   // Onboarding
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const String onboding1 = '$_onboarding/onboding_new_image.png';
+  static const String onboding1 = '$_onboarding/onboding_image.png';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Lottie
