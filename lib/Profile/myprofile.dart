@@ -232,6 +232,7 @@ class _MyprofileState extends State<Myprofile> {
   void openCustomCropSheet(File imageFile) {
     Offset offset = Offset.zero;
     double scale = 1.0;
+    bool isSaving = false;
 
     showModalBottomSheet(
       context: context,
@@ -432,34 +433,53 @@ AppImages.Image_zoom,
                         ),
                         elevation: 0,
                       ),
-                      onPressed: () async {
+                      onPressed: isSaving
+                          ? null
+                          : () async {
                         setSheetState(() {
                           isSaving = true;
                         });
 
-                        final cropped = await _cropImage(
-                          imageFile,
-                          scale,
-                          offset,
-                        );
+                        try {
+                          final cropped = await _cropImage(
+                            imageFile,
+                            scale,
+                            offset,
+                          );
 
-                        if (cropped != null) {
-                          setState(() {
-                            _profileImage = cropped;
-                          });
+                          if (cropped != null) {
+                            setState(() {
+                              _profileImage = cropped;
+                            });
 
-                          debugPrint("✅ CROPPED IMAGE PATH: ${cropped.path}");
+                            await _uploadImage();
+                          }
 
-                         await _uploadImage();
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        } catch (e) {
+                          debugPrint("❌ Error: $e");
+                        } finally {
+                          if (context.mounted) {
+                            setSheetState(() {
+                              isSaving = false;
+                            });
+                          }
                         }
-
-                        setSheetState(() {
-                          isSaving = false;
-                        });
-
-                        Navigator.pop(context);
                       },
-                      child:  Text(
+                      child: isSaving
+                          ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            ColorCode.black,
+                          ),
+                        ),
+                      )
+                          : const Text(
                         "Save",
                         style: TextStyle(
                           color: ColorCode.black,
@@ -469,7 +489,7 @@ AppImages.Image_zoom,
                         ),
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             );

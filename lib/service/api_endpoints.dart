@@ -11,6 +11,8 @@ class ApiEndpoints {
   static const String forgotpassword = "auth/forgot-password-check";
   static const String forgotpasswordverifyotp = "auth/forgot-password-verify-otp";
   static const String restartpassword = "auth/reset-password";
+
+
   static const String upcomingshoots = "creator/upcoming-accepted-project";
   static const String creatordashboarddetails = "creator/dashboard-details";
   static const String createavailability = "creator/availability";
@@ -36,7 +38,7 @@ class ApiEndpoints {
 
 
 
-
+  static const String accountDeleted   = 'account_deleted';
 
 
 

@@ -54,7 +54,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   int acceptphotographyShoots = 0;
   int acceptvideographyShoots = 0;
 
-
+  int categoryPhotoTotal = 0;
+  int categoryVideoTotal = 0;
 
   int sucessfullshoots = 0;
   int pendingshoots = 0;
@@ -139,7 +140,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       fetchcreatordashboarddetails();
     }
   }
-
   Future<void> fetchShootCategories(String tab) async {
     try {
       final response = await ApiService().fetchData(
@@ -148,34 +148,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
       if (response["error"] == false) {
         final data = response["data"];
-
-        /// 🔥 tabs data (IMPORTANT)
         final tabs = data["tabs"];
 
         setState(() {
-          photographyShoots = tabs["photo"]["total"] ?? 0;
-          videographyShoots = tabs["video"]["total"] ?? 0;
+          // ✅ Photo data
+          categoryPhotoTotal      = tabs["photo"]?["total"] ?? 0;
+          acceptphotographyShoots = tabs["photo"]?["acceptedShoots"] ?? 0;
+          rejectedPhoto           = tabs["photo"]?["rejectedShoots"] ?? 0;
+          requestPhoto            = tabs["photo"]?["shootRequests"] ?? 0;
 
-          rejectedPhoto = tabs["photo"]["rejectedShoots"] ?? 0;
-          rejectedVideo = tabs["video"]["rejectedShoots"] ?? 0;
-
-          acceptphotographyShoots=tabs["photo"]["acceptedShoots"]??0;
-          acceptvideographyShoots=tabs["video"]["acceptedShoots"]??0;
-
-
-          // ❌ OLD (गलत)
-          // requestPhoto = tabs["photo"]["requests"] ?? 0;
-
-          // ✅ NEW (सही)
-          requestPhoto = tabs["photo"]["shootRequests"] ?? 0;
-          requestVideo = tabs["video"]["shootRequests"] ?? 0;
+          // ✅ Video data
+          categoryVideoTotal      = tabs["video"]?["total"] ?? 0;
+          acceptvideographyShoots = tabs["video"]?["acceptedShoots"] ?? 0;
+          rejectedVideo           = tabs["video"]?["rejectedShoots"] ?? 0;
+          requestVideo            = tabs["video"]?["shootRequests"] ?? 0;
         });
 
-        /// 🔥 DEBUG (optional)
-        debugPrint("Photo Total: ${tabs["photo"]["total"]}");
-        debugPrint("Video Total: ${tabs["video"]["total"]}");
-      } else {
-        debugPrint("API Error: ${response["message"]}");
+        debugPrint("Photo Total: $categoryPhotoTotal | Video Total: $categoryVideoTotal");
       }
     } catch (e) {
       debugPrint("Error: $e");
@@ -229,27 +218,41 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<void> fetchcreatordashboarddetails() async {
     try {
       final response = Creatordashboarddetailsmodel.fromJson(
-        await ApiService().fetchData(ApiEndpoints.creatordashboarddetails),
+        await ApiService().fetchData(
+          ApiEndpoints.creatordashboarddetails,
+        ),
       );
 
       if (response.error == false) {
+
+        /// 👇 debug check
+        for (var item in response.data.shoots) {
+          debugPrint(
+            "STATUS ::: ${item.status} | PROJECT ::: ${item.projectName}",
+          );
+        }
+
         setState(() {
           creatordashboarddetaillist = response.data.shoots
-              .where((e) =>
-          (e.status ?? "")
-              .toString()
-              .trim()
-              .toLowerCase() == "pending")
+              .where(
+                (e) =>
+                (e.status ?? "")
+                    .toString()
+                    .trim()
+                    .toLowerCase()
+                    .contains("pending"),
+          )
               .toList();
         });
 
-        debugPrint("✅ Pending Count 👉 ${creatordashboarddetaillist.length}");
+        debugPrint(
+          "✅ Pending Count ::: ${creatordashboarddetaillist.length}",
+        );
       }
     } catch (e) {
-      debugPrint("Error is:::::$e");
+      debugPrint("ERROR ::: $e");
     }
   }
-
   Future<void> fetchupcomingshoots() async {
     try {
       final response = Upcomingshootsmodel.fromJson(await ApiService().fetchData(ApiEndpoints.upcomingshoots));
@@ -313,8 +316,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    fetchCrewStats("this_month"); // default
-    fetchShootCategories("photo"); // default tab
+    fetchCrewStats("this_month");
+    fetchShootCategories("photo");
+
     fetchavailability();
     fetchcreatordashboarddetails();
     fetchdashboardcount();
@@ -1997,7 +2001,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                      decoration: BoxDecoration(
                        color: const Color(0xFF161616),
                        borderRadius: BorderRadius.circular(28),
-                       border: Border.all(color: ColorCode.white),
+                         border: Border.all(
+                           color:ColorCode.darkCharcoal, // Border Color
+                           width: 0.5, // Border Width
+                         )
                      ),
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
@@ -2149,7 +2156,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                      decoration: BoxDecoration(
                        color: ColorCode.black,
                        borderRadius: BorderRadius.circular(28),
-                       border: Border.all(color: ColorCode.white),
+                         border: Border.all(
+                           color:ColorCode.darkCharcoal, // Border Color
+                           width: 0.5, // Border Width
+                         )
                      ),
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
@@ -2177,9 +2187,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                    mainAxisSize: MainAxisSize.min,
                                    children: [
                                      Text(
-                                       selectedTab == 0?
-                                       photographyShoots.toString()
-                                           :videographyShoots.toString(),
+                                       selectedTab == 0
+                                           ? categoryPhotoTotal.toString()
+                                           : categoryVideoTotal.toString(),
                                        //      Text(
                                        //                                     selectedTab == 0?
                                        //                                     acceptphotographyShoots.toString()

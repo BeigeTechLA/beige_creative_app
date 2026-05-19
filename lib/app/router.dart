@@ -8,12 +8,15 @@ import '../Profile/ProfileDetils/enter_profile_details_screen.dart';
 import '../Profile/ProfileDetils/profile_detils_1screen.dart';
 import '../Profile/app_preferences.dart';
 import '../Profile/certificates.dart';
+import '../Profile/change_password_screen.dart';
 import '../Profile/deleteaccount/delete_account.dart';
 import '../Profile/deleteaccount/delete_account_lottieScreen.dart';
 import '../Profile/deleteaccount/delete_account_otp_screen.dart';
 import '../Profile/featured_work_list.dart';
 import '../Profile/myprofile.dart';
 import '../Profile/myprofile_youre_all_set_screen.dart';
+import '../Profile/profile_new_passwrod_screen.dart';
+import '../Profile/profile_otp_screen.dart';
 import '../Profile/resume_screen.dart';
 import '../Shoots/shoot_cancelled_lotties_screen.dart';
 import '../Shoots/shoot_cancelled_screen.dart';
@@ -365,6 +368,42 @@ final GoRouter appRouter = GoRouter(
         return const PreProductionScreen();
       },
     ),
+    GoRoute(
+      name: RouteNames.changePassword,
+      path: '/change-password',
+      builder: (context, state) {
+        final email = state.extra as String;
 
+        return ChangePasswordScreen(
+          email: email,
+        );
+      },
+    ),
+
+    GoRoute(
+      name: RouteNames.profileOtp,
+      path: '/profile-otp',
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>? ?? {};
+
+        return ProfileOtpScreen(
+          email: data['email'] ?? '',
+        );
+      },
+    ),
+
+    GoRoute(
+      path: '/new-password',
+      name: RouteNames.newPassword,
+      builder: (context, state) {
+        final data =
+            state.extra as Map<String, dynamic>? ?? {};
+
+        return MyprofileNewPasswrodScreen(
+          email: data['email'] ?? '',
+          otp: data['otp'] ?? '',
+        );
+      },
+    ),
   ],
 );

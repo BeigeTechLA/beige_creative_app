@@ -37,7 +37,6 @@ class Data {
     );
   }
 }
-
 class Shoot {
   final int id;
   final int projectId;
@@ -48,10 +47,14 @@ class Shoot {
   final String endTime;
   final String eventLocation;
   final String contentType;
-  final int shootTypeId;
+
+  final int? shootTypeId; // ✅ nullable
+
   final String shootType;
   final String shootTypeImageUrl;
-  final String totalAmount;
+
+  final dynamic totalAmount; // ✅ int/string dono handle
+
   final dynamic budget;
   final String status;
   final int crewAccept;
@@ -85,25 +88,39 @@ class Shoot {
       projectId: json["project_id"] ?? 0,
       crewMemberId: json["crew_member_id"] ?? 0,
       projectName: json["project_name"] ?? "",
+
       eventDate:
-      DateTime.tryParse(json["event_date"] ?? "") ?? DateTime.now(),
+      DateTime.tryParse(json["event_date"] ?? "") ??
+          DateTime.now(),
+
       startTime: json["start_time"] ?? "",
       endTime: json["end_time"] ?? "",
       eventLocation: json["event_location"] ?? "",
       contentType: json["content_type"] ?? "",
-      shootTypeId: json["shoot_type_id"] ?? 0,
+
+      shootTypeId: json["shoot_type_id"], // ✅ null allowed
+
       shootType: json["shoot_type"] ?? "",
-      shootTypeImageUrl: json["shoot_type_image_url"] ?? "",
-      totalAmount: json["total_amount"] ?? "0",
+      shootTypeImageUrl:
+      json["shoot_type_image_url"] ?? "",
+
+      totalAmount: json["total_amount"], // ✅ direct
+
       budget: json["budget"],
+
       status: json["status"] ?? "",
+
       crewAccept: json["crew_accept"] ?? 0,
-      canTakeAction: json["can_take_action"] ?? false,
-      cta: json["cta"] != null ? Cta.fromJson(json["cta"]) : null,
+
+      canTakeAction:
+      json["can_take_action"] ?? false,
+
+      cta: json["cta"] != null
+          ? Cta.fromJson(json["cta"])
+          : null,
     );
   }
 }
-
 class Cta {
   final String primary;
   final String secondary;

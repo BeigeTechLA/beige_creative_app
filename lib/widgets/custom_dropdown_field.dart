@@ -27,7 +27,7 @@ class CustomDropdownField extends StatelessWidget {
       isExpanded: true,
       dropdownColor: const Color(0xFF1E1E1E),
 
-      icon: Padding(
+     /* icon: Padding(
         padding: const EdgeInsets.only(right: 8),
         child: SvgPicture.asset(
           "assets/svg/drodown.svg",
@@ -39,7 +39,7 @@ class CustomDropdownField extends StatelessWidget {
             BlendMode.srcIn,
           ),
         ),
-      ),
+      ),*/
       style: const TextStyle(
         color: Colors.white,
         fontSize: 14,

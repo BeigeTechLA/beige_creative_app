@@ -6,6 +6,7 @@ class ColorCode {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // BRAND COLORS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  static const Color primary = Color(0xFFE8D1AB);
 
   static const Color kButtonColor = Color(0xFFE8D1AB);
   static const Color kChampagneGold = Color(0xFFE8D1AB);
@@ -13,7 +14,7 @@ class ColorCode {
   static const Color kHeadingColor = Color(0xFF1D1D1B);
   static const Color kSubtextColor = Color(0xFF474746);
   static const Color soft = Color(0xFFD6C3A1);
-
+  static const Color borderGold = Color(0x80E8D1AB);
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // BACKGROUND & SURFACE
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -48,6 +49,7 @@ class ColorCode {
   static const Color white12 = Color(0x1FFFFFFF);
   static const Color textfieldbordercollor = Color(0xFFE8D1AB80);
   static const Color kCircleBorderDark = Color(0xFF1D1D1B);
+  static const darkCharcoal = Color(0xFF3D3D3D);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // WHITE OPACITY VARIANTS

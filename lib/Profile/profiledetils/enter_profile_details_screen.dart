@@ -566,13 +566,19 @@ class _EnterProfileDetailsScreenState
               /// ROLE
               CustomMultiSelectField(
                 label: "Primary Role*",
+
                 value: selectedRoles.join(", "),
+
                 hasValue: selectedRoles.isNotEmpty,
+
+                prefixIcon: SvgPicture.asset(
+                  AppImages.dropdown,
+                ),
+
                 onTap: () async {
-                  _openRolesBottomSheet(); // ✅ must return Future
+                  _openRolesBottomSheet();
                 },
               ),
-
               const SizedBox(height: 22),
 
               /// EXPERIENCE
@@ -688,7 +694,7 @@ class _EnterProfileDetailsScreenState
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1C1C1C),
+      backgroundColor:  ColorCode.backgroundColor,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

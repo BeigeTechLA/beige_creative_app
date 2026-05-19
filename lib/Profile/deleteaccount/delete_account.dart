@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../utility/colorcode.dart';
 import '../../../utility/imges_icons.dart';
 import '../../app/route_names.dart';
+import '../../service/api_endpoints.dart';
+import '../../service/api_service.dart';
 import 'delete_account_otp_screen.dart';
 
 class DeleteAccount extends StatefulWidget {
@@ -27,7 +29,19 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
 
 
+  Future<void> _deleteacoount() async {
+    try {
+      final response =(await ApiService().deleteData(ApiEndpoints.accountDeleted));
 
+      if (response.error == false) {
+
+        debugPrint('Responsecheck  :: ${response}');
+
+      }
+    } catch (e) {
+      debugPrint("Error is:::::$e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
