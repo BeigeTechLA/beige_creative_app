@@ -96,6 +96,7 @@ class AppImages {
   static const String myprofile_edit = '$_svg/myprofile_edit.svg';
   static const String Image_zoom = '$_svg/Image_zoom.svg';
   static const String rectangle_profile = '$_svg/rectangle_profile.svg';
+  static const String circle_arrow = '$_svg/circle_arrow.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — User & Profile

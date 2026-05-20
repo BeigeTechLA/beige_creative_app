@@ -13,6 +13,7 @@ import '../Profile/deleteaccount/delete_account.dart';
 import '../Profile/deleteaccount/delete_account_lottieScreen.dart';
 import '../Profile/deleteaccount/delete_account_otp_screen.dart';
 import '../Profile/featured_work_list.dart';
+import '../Profile/featuredwork_details_screen.dart';
 import '../Profile/myprofile.dart';
 import '../Profile/myprofile_youre_all_set_screen.dart';
 import '../Profile/profile_new_passwrod_screen.dart';
@@ -319,6 +320,22 @@ final GoRouter appRouter = GoRouter(
       path: "/featured-works",
       name: RouteNames.featuredWorks,
       builder: (context, state) => const FeaturedWorkList(),
+    ),
+
+    GoRoute(
+      path: '/featured-work-details',
+      name: RouteNames.featuredWorkDetails,
+
+      builder: (context, state) {
+
+        final data =
+        state.extra as Map<String, dynamic>;
+
+        return FeaturedWorkDetailsScreen(
+          title: data["title"],
+          images: data["images"],
+        );
+      },
     ),
 
     GoRoute(

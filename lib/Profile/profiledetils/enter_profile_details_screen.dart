@@ -120,10 +120,6 @@ class _EnterProfileDetailsScreenState
 
             List<String> roleIds = [];
 
-            /// API:
-            /// "1"
-            /// "1,2"
-            /// [1,2]
 
             if (data.primaryRole.startsWith("[")) {
 

@@ -56,6 +56,8 @@ class RouteNames {
 
   static const featuredWorks = "featured-works";
 
+  static const featuredWorkDetails = "featured-work-details";
+
   static const certificates = "certificates";
 
   static const resume = "resume";
@@ -85,4 +87,5 @@ class RouteNames {
   static const profileOtp = "profile-otp";
 
   static const newPassword = "new-password";
+
 }

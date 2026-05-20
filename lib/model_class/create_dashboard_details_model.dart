@@ -46,7 +46,7 @@ class PendingRequestCard {
   final String eventLocation;
   final String contentType;
   final dynamic shootTypeId;
-  final String totalAmount;
+  final int   totalAmount;
   final dynamic budget;
   final String status;
   final int crewAccept;
@@ -88,7 +88,8 @@ class PendingRequestCard {
         eventLocation: json["event_location"] ?? "",
         contentType: json["content_type"] ?? "",
         shootTypeId: json["shoot_type_id"],
-        totalAmount: json["total_amount"] ?? "0",
+        totalAmount: json["total_amount"] ?? 0,
+
         budget: json["budget"],
         status: json["status"] ?? "",
         crewAccept: json["crew_accept"] ?? 0,

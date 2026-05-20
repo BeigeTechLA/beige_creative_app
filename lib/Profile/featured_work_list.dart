@@ -10,6 +10,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../app/route_names.dart';
 import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
@@ -19,6 +20,7 @@ import '../widgets/Topmessgae.dart';
 import '../widgets/commonImagePicker.dart';
 import '../widgets/common_uploader.dart';
 import '../widgets/custom_text_field.dart';
+import 'featuredwork_details_screen.dart';
 
 class FeaturedWorkList extends StatefulWidget {
   const FeaturedWorkList({super.key});
@@ -347,36 +349,28 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                       child: Stack(
                                         children: [
 
-                                          /// HORIZONTAL IMAGE SCROLL
-                                          ListView.builder(
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: images.length,
 
-                                            itemBuilder: (context, index) {
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(18),
 
-                                              final imageData = images[index];
+                                            child: Image.network(
+                                              "${ApiService.imageURL}${images.first.filePath}",
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              fit: BoxFit.cover,
 
-                                              return Container(
-                                                width: 320,
-                                                margin: const EdgeInsets.only(right: 12),
-
-                                                child: ClipRRect(
-                                                  borderRadius: BorderRadius.circular(18),
-
-                                                  child: Image.network(
-                                                    "${ApiService.imageURL}${imageData.filePath}",
-                                                    fit: BoxFit.cover,
-
-                                                    errorBuilder: (context, error, stackTrace) {
-                                                      return Container(
-                                                        color: ColorCode.lightGrey,
-                                                        child: const Icon(Icons.image),
-                                                      );
-                                                    },
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Container(
+                                                  color: ColorCode.lightGrey,
+                                                  child: const Center(
+                                                    child: Icon(
+                                                      Icons.image,
+                                                      color: ColorCode.white,
+                                                    ),
                                                   ),
-                                                ),
-                                              );
-                                            },
+                                                );
+                                              },
+                                            ),
                                           ),
 
                                           /// TOP RIGHT ICONS
@@ -453,19 +447,47 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                           Positioned(
                                             left: 15,
                                             bottom: 15,
+                                            right: 15, // ✅ add this
 
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
 
-                                                Text(
-                                                  title,
-                                                  style: const TextStyle(
-                                                    color: ColorCode.white,
-                                                    fontSize: 18,
-                                                    fontFamily: "Outfit",
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
+                                                    /// LEFT SIDE TITLE
+                                                    Text(
+                                                      title,
+                                                      style: const TextStyle(
+                                                        color: ColorCode.white,
+                                                        fontSize: 18,
+                                                        fontFamily: "Outfit",
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+
+                                                    /// RIGHT SIDE ICON
+                                                    GestureDetector(
+                                                      onTap: () {
+
+                                                        context.pushNamed(
+                                                          RouteNames.featuredWorkDetails,
+
+                                                          extra: {
+                                                            "title": title,
+                                                            "images": images,
+                                                          },
+                                                        );
+                                                      },
+
+                                                      child: SvgPicture.asset(
+                                                        AppImages.circle_arrow,
+                                                        height: 30,
+                                                        width: 30,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
 
                                                 const SizedBox(height: 8),
