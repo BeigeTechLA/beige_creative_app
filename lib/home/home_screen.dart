@@ -29,19 +29,18 @@ import '../widgets/multi_arc_painter.dart';
 class HomeScreen extends StatefulWidget {
   // final Function(int)? onTabChange;
 
-  const HomeScreen({super.key, });
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   int rejectedPhoto = 0;
   int rejectedVideo = 0;
   int requestPhoto = 0;
   int requestVideo = 0;
-
-
 
   String name = "";
   String email = "";
@@ -75,8 +74,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       return "this_year";
     }
   }
-  bool isloading =true;
-/*  Data? Myprofile_user;*/
+
+  bool isloading = true;
+  /*  Data? Myprofile_user;*/
   List<upcomingdatum> upcomingshootslist = [];
   List<PendingRequestCard> creatordashboarddetaillist = [];
   Map<DateTime, String> events = {};
@@ -87,8 +87,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         isloading = true;
       });
 
-      final rawResponse =
-      await ApiService().postData(ApiEndpoints.profiledetails, {});
+      final rawResponse = await ApiService().postData(
+        ApiEndpoints.profiledetails,
+        {},
+      );
 
       debugPrint("📦 RAW API RESPONSE: $rawResponse");
 
@@ -97,7 +99,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       debugPrint("✅ PARSED RESPONSE: ${response.data}");
 
       if (response.error == false) {
-
         /// ✅ SOCIAL LINKS
 
         /// ✅ PORTFOLIO LINKS
@@ -111,7 +112,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         setState(() {
           Myprofile_user = response.data;
         });
-
       } else {
         debugPrint("❌ API ERROR: ${response.message}");
       }
@@ -127,10 +127,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<void> fetchacceptdecline(int projectid, int crewid) async {
     final response = await ApiService().postData(
       ApiEndpoints.acceptdeclineproject,
-      {
-        "project_id": projectid,
-        "crew_accept": crewid
-      },
+      {"project_id": projectid, "crew_accept": crewid},
     );
 
     if (response["error"] == false) {
@@ -138,8 +135,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
       /// 🔥 UI refresh (important)
       fetchcreatordashboarddetails();
+      fetchdashboardcount();
     }
   }
+
   Future<void> fetchShootCategories(String tab) async {
     try {
       final response = await ApiService().fetchData(
@@ -152,24 +151,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
         setState(() {
           // ✅ Photo data
-          categoryPhotoTotal      = tabs["photo"]?["total"] ?? 0;
+          categoryPhotoTotal = tabs["photo"]?["total"] ?? 0;
           acceptphotographyShoots = tabs["photo"]?["acceptedShoots"] ?? 0;
-          rejectedPhoto           = tabs["photo"]?["rejectedShoots"] ?? 0;
-          requestPhoto            = tabs["photo"]?["shootRequests"] ?? 0;
+          rejectedPhoto = tabs["photo"]?["rejectedShoots"] ?? 0;
+          requestPhoto = tabs["photo"]?["shootRequests"] ?? 0;
 
           // ✅ Video data
-          categoryVideoTotal      = tabs["video"]?["total"] ?? 0;
+          categoryVideoTotal = tabs["video"]?["total"] ?? 0;
           acceptvideographyShoots = tabs["video"]?["acceptedShoots"] ?? 0;
-          rejectedVideo           = tabs["video"]?["rejectedShoots"] ?? 0;
-          requestVideo            = tabs["video"]?["shootRequests"] ?? 0;
+          rejectedVideo = tabs["video"]?["rejectedShoots"] ?? 0;
+          requestVideo = tabs["video"]?["shootRequests"] ?? 0;
         });
 
-        debugPrint("Photo Total: $categoryPhotoTotal | Video Total: $categoryVideoTotal");
+        debugPrint(
+          "Photo Total: $categoryPhotoTotal | Video Total: $categoryVideoTotal",
+        );
       }
     } catch (e) {
       debugPrint("Error: $e");
     }
   }
+
   Future<void> fetchCrewStats(String filter) async {
     try {
       final response = CrewStatsModel.fromJson(
@@ -200,10 +202,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     try {
       final response = await ApiService().postData(
         ApiEndpoints.createavailability,
-        {
-          "month": _focusedDay.month,
-          "year": _focusedDay.year
-        },
+        {"month": _focusedDay.month, "year": _focusedDay.year},
       );
       if (response["error"] == false) {
         final availability = response["data"]["availability"];
@@ -218,13 +217,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<void> fetchcreatordashboarddetails() async {
     try {
       final response = Creatordashboarddetailsmodel.fromJson(
-        await ApiService().fetchData(
-          ApiEndpoints.creatordashboarddetails,
-        ),
+        await ApiService().fetchData(ApiEndpoints.creatordashboarddetails),
       );
 
       if (response.error == false) {
-
         /// 👇 debug check
         for (var item in response.data.shoots) {
           debugPrint(
@@ -235,35 +231,35 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         setState(() {
           creatordashboarddetaillist = response.data.shoots
               .where(
-                (e) =>
-                (e.status ?? "")
+                (e) => (e.status ?? "")
                     .toString()
                     .trim()
                     .toLowerCase()
                     .contains("pending"),
-          )
+              )
               .toList();
         });
 
-        debugPrint(
-          "✅ Pending Count ::: ${creatordashboarddetaillist.length}",
-        );
+        debugPrint("✅ Pending Count ::: ${creatordashboarddetaillist.length}");
       }
     } catch (e) {
       debugPrint("ERROR ::: $e");
     }
   }
+
   Future<void> fetchupcomingshoots() async {
     try {
-      final response = Upcomingshootsmodel.fromJson(await ApiService().fetchData(ApiEndpoints.upcomingshoots));
+      final response = Upcomingshootsmodel.fromJson(
+        await ApiService().fetchData(ApiEndpoints.upcomingshoots),
+      );
 
       if (response.error == false) {
-
         debugPrint('Responsecheck  :: ${response}');
         setState(() {
           upcomingshootslist = response.data;
           // Reset current index if needed
-          if (_currentIndex >= upcomingshootslist.length && upcomingshootslist.isNotEmpty) {
+          if (_currentIndex >= upcomingshootslist.length &&
+              upcomingshootslist.isNotEmpty) {
             _currentIndex = 0;
           }
         });
@@ -275,7 +271,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Future<void> fetchdashboardcount() async {
     try {
-      final response = Dashboardcountmodel.fromJson(await ApiService().fetchData(ApiEndpoints.dashboardcount));
+      final response = Dashboardcountmodel.fromJson(
+        await ApiService().fetchData(ApiEndpoints.dashboardcount),
+      );
       if (response.error == false) {
         debugPrint('Response is::::::::::::::::: $response');
         setState(() {
@@ -288,7 +286,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       debugPrint("error is::::$e");
     }
   }
-
 
   void prepareAvailabilityEvents(Map<String, dynamic> availability) {
     events.clear();
@@ -304,8 +301,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       }
     });
   }
-
-
 
   @override
   void dispose() {
@@ -333,7 +328,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       end: const Offset(0, 1.5),
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed && upcomingshootslist.isNotEmpty) {
+      if (status == AnimationStatus.completed &&
+          upcomingshootslist.isNotEmpty) {
         setState(() {
           _currentIndex = (_currentIndex + 1) % upcomingshootslist.length;
         });
@@ -362,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   // Helper to convert upcomingdatum to a map for card display
   Map<String, dynamic> _cardFromDatum(upcomingdatum datum) {
     return {
-      'image':datum.shootTypeImageUrl,
+      'image': datum.shootTypeImageUrl,
       'projectId': datum.projectId, // 👈 ye add karo
 
       'title': datum.projectName,
@@ -374,14 +370,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   // Reusable card widget to avoid duplication
-  Widget _buildCard(Map<String, dynamic> data,
-      {bool isMain = false, bool isBack = false, bool isMiddle = false}) {
+  Widget _buildCard(
+    Map<String, dynamic> data, {
+    bool isMain = false,
+    bool isBack = false,
+    bool isMiddle = false,
+  }) {
     final bgColor = isMain
         ? ColorCode.k282828
         : isMiddle
         ? const Color(0xFF2E2E2E)
         : const Color(0xFF303030);
-   /* final titleColor = isMain || isMiddle ? ColorCode.white : ColorCode.kWhiteOpacity70;
+    /* final titleColor = isMain || isMiddle ? ColorCode.white : ColorCode.kWhiteOpacity70;
     final dateColor = isMain ? ColorCode.kWhiteOpacity70 : ColorCode.white24;
     final btnOpacity = isMain ? 1.0 : (isMiddle ? 0.8 : 0.7);*/
 
@@ -397,23 +397,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child:Image.network(
-                ApiService().getImageURL(data['image'] ?? ""),
-                height: 169,
-                width: 117,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  print("IMAGE ERROR: ${data['image']}");
-                  return
-                    SvgPicture.asset(
-                  AppImages.image_holder,// 👈 your svg path
-                      height: 169,
-                      width: 117,
-                      fit: BoxFit.cover,
-                    );
-                },
-              )
+            borderRadius: BorderRadius.circular(14),
+            child: Image.network(
+              ApiService().getImageURL(data['image'] ?? ""),
+              height: 169,
+              width: 117,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                print("IMAGE ERROR: ${data['image']}");
+                return SvgPicture.asset(
+                  AppImages.image_holder, // 👈 your svg path
+                  height: 169,
+                  width: 117,
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -432,30 +431,42 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
                 Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
                 const SizedBox(height: 6),
-                Row(children: [
-                  SvgPicture.asset(AppImages.calender, width: 14, height: 14),
-                  const SizedBox(width: 5),
-                  Text(data['date'], style: TextStyle(fontSize: 12,color: ColorCode.white,)),
-                ]),
-                const SizedBox(height: 6),
-                Row(children: [
-                  SvgPicture.asset(AppImages.time, width: 14, height: 14),
-                  const SizedBox(width: 5),
-                  Text(data['time'], style: TextStyle(fontSize: 12, color: ColorCode.white,)),
-                ]),
-                const SizedBox(height: 6),
-                Row(children: [
-                  SvgPicture.asset(AppImages.location, width: 14, height: 14),
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Text(
-                      data['location'],
-                      style: TextStyle(fontSize: 12, color: ColorCode.white,),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+                Row(
+                  children: [
+                    SvgPicture.asset(AppImages.calender, width: 14, height: 14),
+                    const SizedBox(width: 5),
+                    Text(
+                      data['date'],
+                      style: TextStyle(fontSize: 12, color: ColorCode.white),
                     ),
-                  ),
-                ]),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    SvgPicture.asset(AppImages.time, width: 14, height: 14),
+                    const SizedBox(width: 5),
+                    Text(
+                      data['time'],
+                      style: TextStyle(fontSize: 12, color: ColorCode.white),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    SvgPicture.asset(AppImages.location, width: 14, height: 14),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        data['location'],
+                        style: TextStyle(fontSize: 12, color: ColorCode.white),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -472,17 +483,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           // Navigate to details screen (you can pass project ID if needed)
                           context.pushNamed(
                             RouteNames.upcomingShootDetails,
-                            extra: {
-                              "projectId": data['projectId'],
-                            },
+                            extra: {"projectId": data['projectId']},
                           );
                         },
-                        child: const Text("View Details",
-                            style: TextStyle(color: ColorCode.black, fontSize: 11)),
+                        child: const Text(
+                          "View Details",
+                          style: TextStyle(
+                            color: ColorCode.black,
+                            fontSize: 11,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 6),
-
                   ],
                 ),
               ],
@@ -492,6 +505,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
     );
   }
+
   void _goToNext() {
     if (!_controller.isAnimating && upcomingshootslist.isNotEmpty) {
       _controller.forward();
@@ -503,10 +517,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       setState(() {
         _currentIndex =
             (_currentIndex - 1 + upcomingshootslist.length) %
-                upcomingshootslist.length;
+            upcomingshootslist.length;
       });
     }
   }
+
   void _onCardTap() {
     if (!_controller.isAnimating && upcomingshootslist.isNotEmpty) {
       _controller.forward();
@@ -533,25 +548,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }).toList();
 
     final categoryStats = [
-      selectedTab == 0
-          ? acceptphotographyShoots
-          : acceptvideographyShoots,
+      selectedTab == 0 ? acceptphotographyShoots : acceptvideographyShoots,
 
-      selectedTab == 0
-          ? 0
-          : acceptvideographyShoots,
+      selectedTab == 0 ? 0 : acceptvideographyShoots,
 
-      selectedTab == 0
-          ? rejectedPhoto
-          : rejectedVideo,
+      selectedTab == 0 ? rejectedPhoto : rejectedVideo,
 
-      selectedTab == 0
-          ? requestPhoto
-          : requestVideo,
+      selectedTab == 0 ? requestPhoto : requestVideo,
     ];
 
-    final categoryTotal =
-    categoryStats.fold(0, (sum, item) => sum + item);
+    final categoryTotal = categoryStats.fold(0, (sum, item) => sum + item);
 
     final categoryArcValues = categoryStats.map((e) {
       if (e == 0 || categoryTotal == 0) {
@@ -561,72 +567,74 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       return (e / categoryTotal).clamp(0.0, 1.0);
     }).toList();
 
-
     final data = creatordashboarddetaillist.isNotEmpty
         ? creatordashboarddetaillist.first
         : null;
-    return
-       SingleChildScrollView(
-         physics: const BouncingScrollPhysics(), //
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(), //
 
-         child: Column(
-           children: [
-             Container(
-               width: double.infinity,
-               decoration: const BoxDecoration(
-                 color: ColorCode.k282828,
-                 borderRadius: BorderRadius.only(
-                   bottomLeft: Radius.circular(40),
-                   bottomRight: Radius.circular(40),
-                 ),
-               ),
-               child: SafeArea(
-                 bottom: false,
-                 child: Padding(
-                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-                   child: Column(
-                     mainAxisSize: MainAxisSize.min,
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [
-                       Row(
-                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                         children: [
-                           Builder(
-                             builder: (context) => InkWell(
-                               onTap: () {
-                                 Scaffold.of(context).openDrawer();
-                               },
-                               child: SvgPicture.asset(AppImages.menu,
-                                 width: 26,
-                                 colorFilter: ColorFilter.mode(ColorCode.white, BlendMode.srcIn),
-                               ),
-                             ),
-                           ),
-                           const SizedBox(width: 12),
-                           Expanded(
-                             child: Text(
-                               "Welcome Back, ${Myprofile_user?.firstName?? 'User..'}",
-                               style: const TextStyle(
-                                 fontSize: 16,
-                                 fontFamily: "Outfit",
-                                 fontWeight: FontWeight.w500,
-                                 color: ColorCode.white,
-                               ),
-                             ),
-                           ),
-                           const SizedBox(width: 15),
-                           SvgPicture.asset(
-                             AppImages.notificationbell,
-                             width: 22,
-                             colorFilter: const ColorFilter.mode(
-                               ColorCode.white,
-                               BlendMode.srcIn,
-                             ),
-                           ),
-                           SizedBox(width: 15),
-                           InkWell(
-                               onTap: () async {
-                             /*    final result = await Navigator.push(
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: ColorCode.k282828,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(40),
+                bottomRight: Radius.circular(40),
+              ),
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Builder(
+                          builder: (context) => InkWell(
+                            onTap: () {
+                              Scaffold.of(context).openDrawer();
+                            },
+                            child: SvgPicture.asset(
+                              AppImages.menu,
+                              width: 26,
+                              colorFilter: ColorFilter.mode(
+                                ColorCode.white,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "Welcome Back, ${Myprofile_user?.firstName ?? 'User..'}",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily: "Outfit",
+                              fontWeight: FontWeight.w500,
+                              color: ColorCode.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                        SvgPicture.asset(
+                          AppImages.notificationbell,
+                          width: 22,
+                          colorFilter: const ColorFilter.mode(
+                            ColorCode.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        SizedBox(width: 15),
+                        InkWell(
+                          onTap: () async {
+                            /*    final result = await Navigator.push(
                                    context,
                                    MaterialPageRoute(
                                      builder: (_) => Myprofile(),
@@ -636,120 +644,126 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                  if (result == true) {
                                    fetchprofiledata(); // 🔥 API call again
                                  }*/
-                                 context.pushNamed(
-                                   RouteNames.myProfile,
-                                 ).then((value) {
+                            context.pushNamed(RouteNames.myProfile).then((
+                              value,
+                            ) {
+                              if (value == true) {
+                                fetchprofiledata();
+                              }
+                            });
+                          },
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundImage:
+                                (Myprofile_user?.profileImageUrl ?? "")
+                                    .isNotEmpty
+                                ? NetworkImage(
+                                    "${ApiService.imageURL}${Myprofile_user!.profileImageUrl}",
+                                  )
+                                : null,
 
-                                   if (value == true) {
-                                     fetchprofiledata();
-                                   }
-                                 });
-                               },
-                               child:CircleAvatar(
-                                 radius: 20,
-                                 backgroundImage: (Myprofile_user?.profileImageUrl ?? "").isNotEmpty
-                                     ? NetworkImage(
-                                   "${ApiService.imageURL}${Myprofile_user!.profileImageUrl}",
-                                 )
-                                     : null,
+                            child:
+                                (Myprofile_user?.profileImageUrl ?? "").isEmpty
+                                ? SvgPicture.asset(
+                                    AppImages.User_Circle,
+                                    width: 20,
+                                    height: 20,
+                                  )
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      "Your Dashboard",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: "Unbounded",
+                        fontWeight: FontWeight.w500,
+                        color: ColorCode.white,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: ColorCode.dashboardPanelBorder,
+                      width: 0.6,
+                    ),
+                    color: ColorCode.dashboardPanel,
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Column(
+                    children: [
+                      _dashboardCard(
+                        index: 0,
+                        title: "Completed shoots",
+                        count: completedshoots,
+                        // percent: "+3% from last month",
+                        percentColor: ColorCode.green,
+                        iconPath: /*"assets/images/svideo.png",*/
+                            AppImages.video_icon,
+                      ),
+                      const SizedBox(height: 12),
+                      _dashboardCard(
+                        index: 1,
+                        title: "Upcoming shoots",
+                        count: upcomingshoots,
+                        // percent: "+3% from last month",
+                        percentColor: ColorCode.green,
+                        iconPath: AppImages.calendar_icon,
+                      ),
+                      const SizedBox(height: 12),
+                      _dashboardCard(
+                        index: 2,
+                        title: "Pending Requests",
+                        count: pendingrequests,
+                        // percent: "-2% from last month",
+                        percentColor: ColorCode.red,
+                        iconPath: AppImages.clock_icon,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 14),
+                Divider(color: ColorCode.kDividerWhite12),
+                SizedBox(height: 14),
+                if (upcomingshootslist.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      Text(
+                        "Upcoming Shoots ",
 
-                                 child: (Myprofile_user?.profileImageUrl ?? "").isEmpty
-                                     ? SvgPicture.asset(
-                                   AppImages.User_Circle,
-                                   width: 20,
-                                   height: 20,
-                                 )
-                                     : null,
-                               )
-                           ),
-                         ],
-                       ),
-                       const SizedBox(height: 20),
-                     ],
-                   ),
-                 ),
-               ),
-             ),
-             Padding(
-               padding: const EdgeInsets.all(19.0),
-               child: Column(
-                 children: [
-                   Row(
-                     children: [
-                       Text("Your Dashboard",
-                         style: TextStyle(
-                           fontSize: 14,
-                           fontFamily: "Unbounded",
-                           fontWeight: FontWeight.w500,
-                           color: ColorCode.white,
-                         ),
-                       ),
-                     ],
-                   ),
-                   const SizedBox(height: 12),
-                   Container(
-                     padding: const EdgeInsets.all(18),
-                     decoration: BoxDecoration(
-                       border: Border.all(
-                         color: Color(0xff014FFFFFF),
-                         width: 0.5,//
-                       ),
-                       color: ColorCode.k282828,
-                       borderRadius: BorderRadius.circular(22),
-                     ),
-                     child: Column(
-                       children: [
-                         _dashboardCard(
-                           index: 0,
-                           title: "Completed shoots",
-                           count: completedshoots,
-                           // percent: "+3% from last month",
-                           percentColor: ColorCode.green,
-                           iconPath: /*"assets/images/svideo.png",*/
-                           AppImages.video_icon,
-                         ),
-                         const SizedBox(height: 18),
-                         _dashboardCard(
-                           index: 1,
-                           title: "Upcoming shoots",
-                           count: upcomingshoots,
-                           // percent: "+3% from last month",
-                           percentColor: ColorCode.green,
-                           iconPath: AppImages.calendar_icon,
-                         ),
-                         const SizedBox(height: 18),
-                         _dashboardCard(
-                           index: 2,
-                           title: "Pending Requests",
-                           count: pendingrequests,
-                           // percent: "-2% from last month",
-                           percentColor: ColorCode.red,
-                           iconPath: AppImages.clock_icon,
-                         ),
-                       ],
-                     ),
-                   ),
-                   SizedBox(height: 10),
-                   Divider(color: ColorCode.kDividerWhite12),
-                   SizedBox(height: 10),
-           if (upcomingshootslist.isNotEmpty) ...[
-             Row(
-               children: [
-                 Text("Upcoming Shoots ",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: "Unbounded",
+                          fontWeight: FontWeight.w500,
+                          color: ColorCode.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 17),
 
-                   style: TextStyle(
-                     fontSize: 14,
-                     fontFamily: "Unbounded",
-                     fontWeight: FontWeight.w500,
-                     color: ColorCode.white,
-                   ),
-                 ),
-               ],
-             ),
-             SizedBox(height: 17),
-      /*    const SizedBox(),*/
+                  /*    const SizedBox(),*/
 
-                 /*  Row(
+                  /*  Row(
                      children: [
                        Text("Upcoming Shoots ",
 
@@ -841,7 +855,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                    ),
                    const SizedBox(height: 55),*/
 
-                 /*  // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
+                  /*  // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
                    if (upcomingshootslist.isEmpty)
                      Container(
                        padding: const EdgeInsets.all(20),
@@ -936,168 +950,179 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                        ),
                      ),
                    // ========================================================================
-       */// ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
+       */
+                  // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
+                  Builder(
+                    builder: (context) {
+                      final n = upcomingshootslist.length;
 
+                      // ✅ 👉 ONLY 1 DATA → NO SWIPE, NO STACK
+                      if (n == 1) {
+                        final current = _cardFromDatum(upcomingshootslist[0]);
+                        return _buildCard(current, isMain: true);
+                      }
 
+                      // ✅ 👉 MULTIPLE DATA → SWIPE + STACK
+                      return GestureDetector(
+                        onTap: _onCardTap,
+                        onHorizontalDragEnd: (details) {
+                          if (details.primaryVelocity == null) return;
 
-        Builder(
-           builder: (context) {
-           final n = upcomingshootslist.length;
+                          if (details.primaryVelocity! > 0) {
+                            _goToPrevious();
+                          } else if (details.primaryVelocity! < 0) {
+                            _goToNext();
+                          }
+                        },
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final totalWidth = constraints.maxWidth;
 
-           // ✅ 👉 ONLY 1 DATA → NO SWIPE, NO STACK
-           if (n == 1) {
-           final current = _cardFromDatum(upcomingshootslist[0]);
-           return _buildCard(current, isMain: true);
-           }
+                            final currentDatum =
+                                upcomingshootslist[_currentIndex % n];
+                            final nextDatum =
+                                upcomingshootslist[(_currentIndex + 1) % n];
+                            final next2Datum = n > 2
+                                ? upcomingshootslist[(_currentIndex + 2) % n]
+                                : null;
 
-           // ✅ 👉 MULTIPLE DATA → SWIPE + STACK
-           return GestureDetector(
-           onTap: _onCardTap,
-           onHorizontalDragEnd: (details) {
-           if (details.primaryVelocity == null) return;
+                            final current = _cardFromDatum(currentDatum);
+                            final next = _cardFromDatum(nextDatum);
+                            final next2 = next2Datum != null
+                                ? _cardFromDatum(next2Datum)
+                                : null;
 
-           if (details.primaryVelocity! > 0) {
-           _goToPrevious();
-           } else if (details.primaryVelocity! < 0) {
-           _goToNext();
-           }
-           },
-           child: LayoutBuilder(
-           builder: (context, constraints) {
-           final totalWidth = constraints.maxWidth;
+                            return Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                // 👉 3rd card
+                                if (next2 != null)
+                                  AnimatedPositioned(
+                                    duration: const Duration(milliseconds: 300),
+                                    top: _controller.isAnimating ? -32 : -24,
+                                    left: totalWidth * 0.07,
+                                    right: totalWidth * 0.07,
+                                    child: AnimatedOpacity(
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      opacity: _controller.isAnimating
+                                          ? 0.5
+                                          : 1,
+                                      child: _buildCard(next2, isBack: true),
+                                    ),
+                                  ),
 
-           final currentDatum =
-           upcomingshootslist[_currentIndex % n];
-           final nextDatum =
-           upcomingshootslist[(_currentIndex + 1) % n];
-           final next2Datum = n > 2
-           ? upcomingshootslist[(_currentIndex + 2) % n]
-       : null;
+                                // 👉 2nd card
+                                if (n >= 2)
+                                  AnimatedPositioned(
+                                    duration: const Duration(milliseconds: 300),
+                                    top: _controller.isAnimating ? -20 : -12,
+                                    left: totalWidth * 0.035,
+                                    right: totalWidth * 0.035,
+                                    child: AnimatedOpacity(
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      opacity: _controller.isAnimating
+                                          ? 0.7
+                                          : 1,
+                                      child: _buildCard(
+                                        next,
+                                        isBack: true,
+                                        isMiddle: true,
+                                      ),
+                                    ),
+                                  ),
 
-           final current = _cardFromDatum(currentDatum);
-           final next = _cardFromDatum(nextDatum);
-           final next2 = next2Datum != null
-           ? _cardFromDatum(next2Datum)
-       : null;
+                                // 👉 MAIN CARD
+                                AnimatedBuilder(
+                                  animation: _controller,
+                                  builder: (context, child) {
+                                    return Transform.translate(
+                                      offset: Offset(
+                                        0,
+                                        _controller.value * 200,
+                                      ),
+                                      child: Opacity(
+                                        opacity: 1 - _controller.value,
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                                  child: _buildCard(current, isMain: true),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 17),
+                  Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                ],
 
-           return Stack(
-           clipBehavior: Clip.none,
-           children: [
-           // 👉 3rd card
-           if (next2 != null)
-           AnimatedPositioned(
-           duration: const Duration(milliseconds: 300),
-           top: _controller.isAnimating ? -32 : -24,
-           left: totalWidth * 0.07,
-           right: totalWidth * 0.07,
-           child: AnimatedOpacity(
-           duration: const Duration(milliseconds: 300),
-           opacity:
-           _controller.isAnimating ? 0.5 : 1,
-           child: _buildCard(next2, isBack: true),
-           ),
-           ),
+                // ========================================================================
+                const SizedBox(height: 14),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Availability",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: "Unbounded",
+                        fontWeight: FontWeight.w500,
+                        color: ColorCode.white,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorCode.kButtonColor,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 9,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
 
-           // 👉 2nd card
-           if (n >= 2)
-           AnimatedPositioned(
-           duration: const Duration(milliseconds: 300),
-           top: _controller.isAnimating ? -20 : -12,
-           left: totalWidth * 0.035,
-           right: totalWidth * 0.035,
-           child: AnimatedOpacity(
-           duration: const Duration(milliseconds: 300),
-           opacity:
-           _controller.isAnimating ? 0.7 : 1,
-           child: _buildCard(
-           next,
-           isBack: true,
-           isMiddle: true,
-           ),
-           ),
-           ),
-
-           // 👉 MAIN CARD
-           AnimatedBuilder(
-           animation: _controller,
-           builder: (context, child) {
-           return Transform.translate(
-           offset:
-           Offset(0, _controller.value * 200),
-           child: Opacity(
-           opacity: 1 - _controller.value,
-           child: child,
-           ),
-           );
-           },
-           child: _buildCard(current, isMain: true),
-           ),
-           ],
-           );
-           },
-           ),
-           );
-           },
-           ),
-             const SizedBox(height: 17),
-             Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-       ],
-       // ========================================================================
-
-                   const SizedBox(height: 12),
-                   Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                     children: [
-                       Text(
-                         "Availability",
-                         style: TextStyle(
-                           fontSize: 16,
-                           fontFamily: "Unbounded",
-                           fontWeight: FontWeight.w500,
-                           color: ColorCode.white,
-                         ),
-                       ),
-                       ElevatedButton.icon(
-                         style: ElevatedButton.styleFrom(
-                           backgroundColor: ColorCode.kButtonColor,
-                           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                           shape: RoundedRectangleBorder(
-                             borderRadius: BorderRadius.circular(30),
-                           ),
-                         ),
                       /*   onPressed: () async {
                            final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => AddAvailabilityScreen()));
                            if (result == true) {
                              fetchavailability();
                            }
                          },*/
-
-                         onPressed: () {
-
-                           context.pushNamed(
-                             RouteNames.addAvailability,
-                           ).then((value) {
-
-                             if (value == true) {
-                               fetchavailability();
-                             }
-                           });
-                         },
-                         icon: const Icon(Icons.add, size: 18, color: ColorCode.black),
-                         label: const Text(
-                           "Add",
-                           style: TextStyle(
-                             fontFamily: "Outfit",
-                             color: ColorCode.black,
-                             fontSize: 12,
-                             fontWeight: FontWeight.bold,
-                           ),
-                         ),
-                       ),
-                     ],
-                   ),
-                   const SizedBox(height: 12),
-                   /*Container(
+                      onPressed: () {
+                        context.pushNamed(RouteNames.addAvailability).then((
+                          value,
+                        ) {
+                          if (value == true) {
+                            fetchavailability();
+                          }
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.add,
+                        size: 18,
+                        color: ColorCode.black,
+                      ),
+                      label: const Text(
+                        "Add",
+                        style: TextStyle(
+                          fontFamily: "Outfit",
+                          color: ColorCode.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                /*Container(
                      decoration: BoxDecoration(
                        color: ColorCode.k282828,
                        borderRadius: BorderRadius.circular(20),
@@ -1168,247 +1193,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                              ],
                            ),
                            const SizedBox(height: 10),
-                      *//*     TableCalendar(
-                             daysOfWeekHeight: 70,
-                             calendarBuilders: CalendarBuilders(
-                               dowBuilder: (context, day) {
-                                 final text = DateFormat.E().format(day);
-                                 return Container(
-                                   height: 45,
-                                   alignment: Alignment.center,
-                                   decoration: BoxDecoration(
-                                     border: Border(
-                                       bottom: BorderSide(
-                                         color: ColorCode.kDividerWhite12,
-                                         width: 1,
-                                       ),
-                                     ),
-                                   ),
-                                   child: Text(
-                                     text,
-                                     style: const TextStyle(
-                                       color: ColorCode.white,
-                                       fontSize: 14,
-                                       fontWeight: FontWeight.w500,
-                                     ),
-                                   ),
-                                 );
-                               },
-                               defaultBuilder: (context, day, focusedDay) {
-                                 final dateKey = DateTime(day.year, day.month, day.day);
-                                 final event = events[dateKey];
-                                 bool showEvent = false;
-                                 if (selectedEvent == "All Events") {
-                                   showEvent = true;
-                                 } else if (selectedEvent == "Available" && event == "Available") {
-                                   showEvent = true;
-                                 } else if (selectedEvent == "Shoot" && event == "Shoot") {
-                                   showEvent = true;
-                                 }
-                                 return Column(
-                                   mainAxisAlignment: MainAxisAlignment.center,
-                                   children: [
-                                     Text("${day.day}", style: const TextStyle(color: ColorCode.white)),
-                                     const SizedBox(height: 4),
-                                     if (event != null && showEvent) eventLabel(event),
-                                   ],
-                                 );
-                               },
-                             ),
-                             firstDay: DateTime(2020),
-                             lastDay: DateTime(2050),
-                             focusedDay: _focusedDay,
-                             headerVisible: false,
-                             rowHeight: 85,
-                             calendarStyle: CalendarStyle(
-                               tableBorder: TableBorder.all(
-                                 color: ColorCode.kDividerWhite12,
-                                 width: 1,
-                               ),
-                               defaultTextStyle: const TextStyle(color: ColorCode.white),
-                               weekendTextStyle: const TextStyle(color: ColorCode.white),
-                               outsideTextStyle: const TextStyle(color: ColorCode.white38),
-                             ),
-                             daysOfWeekStyle: const DaysOfWeekStyle(
-                               weekdayStyle: TextStyle(color: ColorCode.white70),
-                               weekendStyle: TextStyle(color: ColorCode.white70),
-                             ),
-                             onPageChanged: (focusedDay) {
-                               setState(() {
-                                 _focusedDay = focusedDay;
-                                 fetchavailability();
-                               });
-                             },
-                           ),
-       *//*
-                           CommonCalendar(
-                             focusedDay: _focusedDay,
-                             events: events,
-                             selectedEvent: selectedEvent,
-                             onPageChanged: (day) {
-                               setState(() {
-                                 _focusedDay = day;
-                                 fetchavailability();
-                               });
-                             },
-                           )
-                         ],
-                       ),
-                     ),
-                   ),*/
-                   Container(
-                     decoration: BoxDecoration(
-
-                       color:ColorCode.k282828,
-                       borderRadius: BorderRadius.circular(20),
-                       border: Border.all(width: 0.5, color: Color(0xff626262)),
-                     ),
-                     child: ClipRRect(
-                       borderRadius: BorderRadius.circular(20),
-                       child: Column(
-                         mainAxisSize: MainAxisSize.min,
-                         children: [
-                           Row(
-                             children: [
-                               // LEFT SIDE (month + arrows)
-                               Expanded(
-                                 child: Row(
-                                   mainAxisAlignment: MainAxisAlignment.start,
-                                   children: [
-                                     IconButton(
-                                       icon: const Icon(Icons.chevron_left, color: ColorCode.white),
-                                       onPressed: () {
-                                         setState(() {
-                                           _focusedDay =
-                                               DateTime(_focusedDay.year, _focusedDay.month - 1);
-                                         });
-                                       },
-                                     ),
-
-                                     // ✅ CENTER FEEL TEXT
-                                     Expanded(
-                                       child: Center(
-                                         child: FittedBox(
-                                           fit: BoxFit.scaleDown,
-                                           child: Text(
-                                             getMonthYear(_focusedDay),
-                                             style: const TextStyle(
-                                               color: ColorCode.white,
-                                               fontSize: 18,
-                                               fontWeight: FontWeight.w500,
-                                             ),
-                                           ),
-                                         ),
-                                       ),
-                                     ),
-
-                                     IconButton(
-                                       icon: const Icon(Icons.chevron_right, color: ColorCode.white),
-                                       onPressed: () {
-                                         setState(() {
-                                           _focusedDay =
-                                               DateTime(_focusedDay.year, _focusedDay.month + 1);
-                                         });
-                                       },
-                                     ),
-                                   ],
-                                 ),
-                               ),
-
-                               // RIGHT SIDE (dropdown)
-                               Container(
-                                 margin: const EdgeInsets.only(right: 8),
-                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                 decoration: BoxDecoration(
-                                   color: ColorCode.white,
-                                   borderRadius: BorderRadius.circular(10),
-                                 ),
-                                 child: DropdownButtonHideUnderline(
-                                   child: DropdownButton<String>(
-                                     value: selectedEvent,
-                                     isDense: true,
-                                     icon: const Icon(Icons.keyboard_arrow_down,
-                                         color: ColorCode.black, size: 18),
-                                     dropdownColor: ColorCode.white,
-                                     style: const TextStyle(color: ColorCode.black, fontSize: 13),
-                                     items: eventList.map((String value) {
-                                       return DropdownMenuItem(
-                                         value: value,
-                                         child: Text(value),
-                                       );
-                                     }).toList(),
-                                     onChanged: (value) {
-                                       setState(() {
-                                         selectedEvent = value!;
-                                       });
-                                     },
-                                   ),
-                                 ),
-                               ),
-                             ],
-                           ),
-                           // Row(
-                           //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                           //   children: [
-                           //     Row(
-                           //       children: [
-                           //         IconButton(
-                           //           icon: const Icon(Icons.chevron_left, color: ColorCode.white),
-                           //           onPressed: () {
-                           //             setState(() {
-                           //               _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
-                           //             });
-                           //           },
-                           //         ),
-                           //         Text(
-                           //           getMonthYear(_focusedDay),
-                           //           style: const TextStyle(
-                           //             color: ColorCode.white,
-                           //             fontSize: 18,
-                           //             fontWeight: FontWeight.w600,
-                           //           ),
-                           //         ),
-                           //         IconButton(
-                           //           icon: const Icon(Icons.chevron_right, color: ColorCode.white),
-                           //           onPressed: () {
-                           //             setState(() {
-                           //               _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
-                           //             });
-                           //           },
-                           //         ),
-                           //       ],
-                           //     ),
-                           //     Container(
-                           //       margin: EdgeInsets.all(7),
-                           //       padding: const EdgeInsets.symmetric(horizontal: 19,),
-                           //       decoration: BoxDecoration(
-                           //         color: ColorCode.white,
-                           //         borderRadius: BorderRadius.circular(6),
-                           //       ),
-                           //       child: DropdownButtonHideUnderline(
-                           //         child: DropdownButton<String>(
-                           //           value: selectedEvent,
-                           //           icon: const Icon(Icons.keyboard_arrow_down, color: ColorCode.black),
-                           //           dropdownColor: ColorCode.white,
-                           //           style: const TextStyle(color: ColorCode.black, fontSize: 12),
-                           //           items: eventList.map((String value) {
-                           //             return DropdownMenuItem(
-                           //               value: value,
-                           //               child: Text(value),
-                           //             );
-                           //           }).toList(),
-                           //           onChanged: (value) {
-                           //             setState(() {
-                           //               selectedEvent = value!;
-                           //             });
-                           //           },
-                           //         ),
-                           //       ),
-                           //     )
-                           //   ],
-                           // ),
-                           const SizedBox(height: 10),
-                           /*     TableCalendar(
+                      */
+                /*     TableCalendar(
                              daysOfWeekHeight: 70,
                              calendarBuilders: CalendarBuilders(
                                dowBuilder: (context, day) {
@@ -1481,6 +1267,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                              },
                            ),
        */
+                /*
                            CommonCalendar(
                              focusedDay: _focusedDay,
                              events: events,
@@ -1491,28 +1278,294 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                  fetchavailability();
                                });
                              },
-                           ),
+                           )
                          ],
                        ),
                      ),
-                   ),
-                   const SizedBox(height: 12),
-                   Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-                   const SizedBox(height: 12),
-           if (creatordashboarddetaillist.isNotEmpty) ...[
-                   Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                     children: [
-                       Text(
-                         "shoots",
-                         style: TextStyle(
-                           fontSize: 16,
-                           fontFamily: "Unbounded",
-                           fontWeight: FontWeight.w500,
-                           color: ColorCode.white,
-                         ),
-                       ),
-                    /*  GestureDetector(
+                   ),*/
+                Container(
+                  decoration: BoxDecoration(
+                    color: ColorCode.dashboardPanel,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      width: 0.6,
+                      color: ColorCode.dashboardPanelBorder,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            // LEFT SIDE (month + arrows)
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.chevron_left,
+                                      color: ColorCode.white,
+                                      size: 24,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _focusedDay = DateTime(
+                                          _focusedDay.year,
+                                          _focusedDay.month - 1,
+                                        );
+                                      });
+                                    },
+                                  ),
+
+                                  // ✅ CENTER FEEL TEXT
+                                  Expanded(
+                                    child: Center(
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          getMonthYear(_focusedDay),
+                                          style: const TextStyle(
+                                            color: ColorCode.white,
+                                            fontSize: 16,
+                                            fontFamily: "Outfit",
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.chevron_right,
+                                      color: ColorCode.white,
+                                      size: 24,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _focusedDay = DateTime(
+                                          _focusedDay.year,
+                                          _focusedDay.month + 1,
+                                        );
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // RIGHT SIDE (dropdown)
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 7,
+                              ),
+                              decoration: BoxDecoration(
+                                color: ColorCode.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: selectedEvent,
+                                  isDense: true,
+                                  icon: const Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: ColorCode.black,
+                                    size: 18,
+                                  ),
+                                  dropdownColor: ColorCode.white,
+                                  style: const TextStyle(
+                                    color: ColorCode.black,
+                                    fontSize: 12,
+                                    fontFamily: "Outfit",
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  items: eventList.map((String value) {
+                                    return DropdownMenuItem(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedEvent = value!;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: [
+                        //     Row(
+                        //       children: [
+                        //         IconButton(
+                        //           icon: const Icon(Icons.chevron_left, color: ColorCode.white),
+                        //           onPressed: () {
+                        //             setState(() {
+                        //               _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
+                        //             });
+                        //           },
+                        //         ),
+                        //         Text(
+                        //           getMonthYear(_focusedDay),
+                        //           style: const TextStyle(
+                        //             color: ColorCode.white,
+                        //             fontSize: 18,
+                        //             fontWeight: FontWeight.w600,
+                        //           ),
+                        //         ),
+                        //         IconButton(
+                        //           icon: const Icon(Icons.chevron_right, color: ColorCode.white),
+                        //           onPressed: () {
+                        //             setState(() {
+                        //               _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
+                        //             });
+                        //           },
+                        //         ),
+                        //       ],
+                        //     ),
+                        //     Container(
+                        //       margin: EdgeInsets.all(7),
+                        //       padding: const EdgeInsets.symmetric(horizontal: 19,),
+                        //       decoration: BoxDecoration(
+                        //         color: ColorCode.white,
+                        //         borderRadius: BorderRadius.circular(6),
+                        //       ),
+                        //       child: DropdownButtonHideUnderline(
+                        //         child: DropdownButton<String>(
+                        //           value: selectedEvent,
+                        //           icon: const Icon(Icons.keyboard_arrow_down, color: ColorCode.black),
+                        //           dropdownColor: ColorCode.white,
+                        //           style: const TextStyle(color: ColorCode.black, fontSize: 12),
+                        //           items: eventList.map((String value) {
+                        //             return DropdownMenuItem(
+                        //               value: value,
+                        //               child: Text(value),
+                        //             );
+                        //           }).toList(),
+                        //           onChanged: (value) {
+                        //             setState(() {
+                        //               selectedEvent = value!;
+                        //             });
+                        //           },
+                        //         ),
+                        //       ),
+                        //     )
+                        //   ],
+                        // ),
+                        const SizedBox(height: 10),
+                        /*     TableCalendar(
+                             daysOfWeekHeight: 70,
+                             calendarBuilders: CalendarBuilders(
+                               dowBuilder: (context, day) {
+                                 final text = DateFormat.E().format(day);
+                                 return Container(
+                                   height: 45,
+                                   alignment: Alignment.center,
+                                   decoration: BoxDecoration(
+                                     border: Border(
+                                       bottom: BorderSide(
+                                         color: ColorCode.kDividerWhite12,
+                                         width: 1,
+                                       ),
+                                     ),
+                                   ),
+                                   child: Text(
+                                     text,
+                                     style: const TextStyle(
+                                       color: ColorCode.white,
+                                       fontSize: 14,
+                                       fontWeight: FontWeight.w500,
+                                     ),
+                                   ),
+                                 );
+                               },
+                               defaultBuilder: (context, day, focusedDay) {
+                                 final dateKey = DateTime(day.year, day.month, day.day);
+                                 final event = events[dateKey];
+                                 bool showEvent = false;
+                                 if (selectedEvent == "All Events") {
+                                   showEvent = true;
+                                 } else if (selectedEvent == "Available" && event == "Available") {
+                                   showEvent = true;
+                                 } else if (selectedEvent == "Shoot" && event == "Shoot") {
+                                   showEvent = true;
+                                 }
+                                 return Column(
+                                   mainAxisAlignment: MainAxisAlignment.center,
+                                   children: [
+                                     Text("${day.day}", style: const TextStyle(color: ColorCode.white)),
+                                     const SizedBox(height: 4),
+                                     if (event != null && showEvent) eventLabel(event),
+                                   ],
+                                 );
+                               },
+                             ),
+                             firstDay: DateTime(2020),
+                             lastDay: DateTime(2050),
+                             focusedDay: _focusedDay,
+                             headerVisible: false,
+                             rowHeight: 85,
+                             calendarStyle: CalendarStyle(
+                               tableBorder: TableBorder.all(
+                                 color: ColorCode.kDividerWhite12,
+                                 width: 1,
+                               ),
+                               defaultTextStyle: const TextStyle(color: ColorCode.white),
+                               weekendTextStyle: const TextStyle(color: ColorCode.white),
+                               outsideTextStyle: const TextStyle(color: ColorCode.white38),
+                             ),
+                             daysOfWeekStyle: const DaysOfWeekStyle(
+                               weekdayStyle: TextStyle(color: ColorCode.white70),
+                               weekendStyle: TextStyle(color: ColorCode.white70),
+                             ),
+                             onPageChanged: (focusedDay) {
+                               setState(() {
+                                 _focusedDay = focusedDay;
+                                 fetchavailability();
+                               });
+                             },
+                           ),
+       */
+                        CommonCalendar(
+                          focusedDay: _focusedDay,
+                          events: events,
+                          selectedEvent: selectedEvent,
+                          onPageChanged: (day) {
+                            setState(() {
+                              _focusedDay = day;
+                              fetchavailability();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                const SizedBox(height: 12),
+                if (creatordashboarddetaillist.isNotEmpty) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "shoots",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: "Unbounded",
+                          fontWeight: FontWeight.w500,
+                          color: ColorCode.white,
+                        ),
+                      ),
+                      /*  GestureDetector(
            onTap:
            () {
 
@@ -1521,7 +1574,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
            );
            },
 
-                      *//* InkWell(
+                      */
+                      /* InkWell(
                          onTap: () {
                            Navigator.push(
                              context,
@@ -1529,77 +1583,82 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                builder: (context) => ShootsScreen(), // 👈 next screen
                              ),
                            );
-                         },*//*
+                         },*/
+                      /*
                          child: const Icon(
                            Icons.arrow_forward_ios,
                            color: ColorCode.white70,
                            size: 16,
                          ),
                        ),*/
-                     ],
-                   ),
-                   const SizedBox(height: 14),
-                   Container(
-                     decoration: BoxDecoration(
-                       color: ColorCode.k282828,
-                       borderRadius: BorderRadius.circular(22),
-                     ),
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Stack(
-                           children: [
-                             ClipRRect(
-                               borderRadius: const BorderRadius.vertical(
-                                 top: Radius.circular(22),
-                               ),
-                               child: data?.shootTypeImageUrl != null &&
-                                   data!.shootTypeImageUrl.isNotEmpty
-                                   ? Image.network(
-                                 ApiService().getImageURL(data.shootTypeImageUrl),
-                                 height: 220,
-                                 width: double.infinity,
-                                 fit: BoxFit.cover,
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: ColorCode.k282828,
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(22),
+                              ),
+                              child:
+                                  data?.shootTypeImageUrl != null &&
+                                      data!.shootTypeImageUrl.isNotEmpty
+                                  ? Image.network(
+                                      ApiService().getImageURL(
+                                        data.shootTypeImageUrl,
+                                      ),
+                                      height: 220,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
 
-                                 errorBuilder: (context, error, stackTrace) {
-                                   return Center(
-                                     child: SvgPicture.asset(
-                                     AppImages.image_holder, // 👈 your svg path
-                                       height: 220,
-                                       width: double.infinity,
-                                       fit: BoxFit.cover,
-                                     ),
-                                   );
-                                 },
-                               )
-                                   : Center(
-                                 child: SvgPicture.asset(
-                                   // "assets/svg/image_holder.svg",
-                                   AppImages.image_holder,
-                                   height: 220,
-                                   width: double.infinity,
-                                   fit: BoxFit.cover,
-                                 ),
-                               ),
-                             ),
-                             Positioned.fill(
-                               child: Container(
-                                 decoration: BoxDecoration(
-                                   borderRadius: const BorderRadius.vertical(
-                                     top: Radius.circular(22),
-                                   ),
-                                   gradient: LinearGradient(
-                                     begin: Alignment.bottomCenter,
-                                     end: Alignment.topCenter,
-                                     colors: [
-                                       ColorCode.k282828,
-                                       ColorCode.transparent,
-                                     ],
-                                   ),
-                                 ),
-                               ),
-                             ),
-                           /*  Positioned(
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Center(
+                                          child: SvgPicture.asset(
+                                            AppImages
+                                                .image_holder, // 👈 your svg path
+                                            height: 220,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Center(
+                                      child: SvgPicture.asset(
+                                        // "assets/svg/image_holder.svg",
+                                        AppImages.image_holder,
+                                        height: 220,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                            ),
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(22),
+                                  ),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.bottomCenter,
+                                    end: Alignment.topCenter,
+                                    colors: [
+                                      ColorCode.k282828,
+                                      ColorCode.transparent,
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            /*  Positioned(
                                top: 14,
                                left: 14,
                                child: Container(
@@ -1634,7 +1693,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                  ),
                                ),
                              ),*/
-                              /* Positioned(
+                            /* Positioned(
                                  bottom: 14,
                                  left: 14,
                                  child: Container(
@@ -1659,206 +1718,223 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                    ),
                                  ),
                                ),*/
-                           ],
-                         ),
-                         Padding(
-                           padding: const EdgeInsets.all(16),
-                           child: Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               Row(
-                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                 children: [
-                                   Expanded(
-                                     child: Text(
-                                       data?.projectName ?? "",
-                                       style: TextStyle(
-                                         fontFamily: "Outfit",
-                                         color: ColorCode.white,//
-                                         fontSize: 15,
-                                         fontWeight: FontWeight.w500,
-                                       ),
-                                     ),
-                                   ),
-                                   SizedBox(width: 8),
-                                   GestureDetector(
-                                     /*onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => UpcomingShootViewDetils(
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      data?.projectName ?? "",
+                                      style: TextStyle(
+                                        fontFamily: "Outfit",
+                                        color: ColorCode.white, //
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  GestureDetector(
+                                    /*onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => UpcomingShootViewDetils(
                                        projectid: data?.projectId ?? 0,
                                      ))),*/
-                                     onTap: () {
+                                    onTap: () {
+                                      context.pushNamed(
+                                        RouteNames.upcomingShootDetails,
+                                        extra: {"projectId": data?.projectId},
+                                      );
+                                    },
+                                    child: Text(
+                                      "View Details",
+                                      style: TextStyle(
+                                        fontFamily: "Outfit",
+                                        fontWeight: FontWeight.w600,
+                                        color: ColorCode.kButtonColor,
+                                        fontSize: 12,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Divider(
+                                color: ColorCode.kDividerWhite12,
+                                thickness: 0.8,
+                              ),
+                              const SizedBox(height: 12),
+                              Wrap(
+                                spacing: 14,
+                                runSpacing: 8,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SvgPicture.asset(
+                                        AppImages.calender,
+                                        width: 14,
+                                        height: 14,
+                                      ),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        DateTimeUtils.formatDate(
+                                          data?.eventDate.toIso8601String(),
+                                        ),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontFamily: "Outfit",
+                                          color: ColorCode.white,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SvgPicture.asset(
+                                        AppImages.time,
+                                        width: 14,
+                                        height: 14,
+                                      ),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        "${DateTimeUtils.formatTime(data?.startTime)} - ${DateTimeUtils.formatTime(data?.endTime)}",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontFamily: "Outfit",
+                                          color: ColorCode.white,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SvgPicture.asset(
+                                        AppImages.location,
+                                        width: 14,
+                                        height: 14,
+                                      ),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        data?.eventLocation ?? "",
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontFamily: "Outfit",
+                                          color: ColorCode.white,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 18),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  /// ✅ LEFT SIDE (Avatar Stack)
+                                  // _buildAvatarStack(
+                                  // images: [
+                                  // AppImages.avtarstack,
+                                  // AppImages.avtarstack,
+                                  // AppImages.avtarstack,
+                                  // AppImages.avtarstack,
+                                  // ],
+                                  // extraCount: 3,
+                                  // avatarSize: 20,
+                                  // overlap: 10,
+                                  // ),
+                                  SizedBox(),
 
-                                       context.pushNamed(
-                                         RouteNames.upcomingShootDetails,
-                                         extra: {
-                                           "projectId": data?.projectId,
-                                         },
-                                       );
-                                     },
-                                     child: Text(
-                                       "View Details",
-                                       style: TextStyle(
-                                         fontFamily: "Outfit",
-                                         fontWeight: FontWeight.w600,
-                                         color: ColorCode.kButtonColor,
-                                         fontSize: 12,
-                                         decoration: TextDecoration.underline,
-                                       ),
-                                     ),
-                                   ),
-                                 ],
-                               ),
-                               Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-                               const SizedBox(height: 12),
-                               Wrap(
-                                 spacing: 14,
-                                 runSpacing: 8,
-                                 children:  [
-                                   Row(
-                                     mainAxisSize: MainAxisSize.min,
-                                     children: [
-                                       SvgPicture.asset(AppImages.calender, width: 14, height: 14),
-                                       SizedBox(width: 6),
-                                       Text(
-                                           DateTimeUtils.formatDate(
-                                             data?.eventDate.toIso8601String(),
-                                           ),
-                                         style: TextStyle(
-                                             fontWeight: FontWeight.w400,
-                                             fontFamily: "Outfit",
-                                             color: ColorCode.white,
-                                             fontSize: 10),
-                                       ),
-                                     ],
-                                   ),
-                                   Row(
-                                     mainAxisSize: MainAxisSize.min,
-                                     children: [
-                                       SvgPicture.asset(AppImages.time, width: 14, height: 14),
-                                       SizedBox(width: 6),
-                                       Text(
-                                           "${DateTimeUtils.formatTime(data?.startTime)} - ${DateTimeUtils.formatTime(data?.endTime)}",
-                                         style: TextStyle(
-                                             fontWeight: FontWeight.w400,
-                                             fontFamily: "Outfit",
-                                             color: ColorCode.white,
-                                             fontSize: 10),
-                                       ),
-                                     ],
-                                   ),
-                                   Row(
-                                     mainAxisSize: MainAxisSize.min,
-                                     children: [
-                                       SvgPicture.asset(AppImages.location, width: 14, height: 14),
-                                       SizedBox(width: 6),
-                                       Text(
-                                         data?.eventLocation ?? "",
-                                         maxLines: 1,
-                                         overflow: TextOverflow.ellipsis,
-                                         style: TextStyle(
-                                           fontWeight: FontWeight.w400,
-                                           fontFamily: "Outfit",
-                                           color: ColorCode.white,
-                                           fontSize: 10,
-                                         ),
-                                       )
-                                     ],
-                                   ),
-                                 ],
-                               ),
-                               const SizedBox(height: 18),
-                               Row(
-                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                 children: [
-
-                                   /// ✅ LEFT SIDE (Avatar Stack)
-                                   // _buildAvatarStack(
-                                   // images: [
-                                   // AppImages.avtarstack,
-                                   // AppImages.avtarstack,
-                                   // AppImages.avtarstack,
-                                   // AppImages.avtarstack,
-                                   // ],
-                                   // extraCount: 3,
-                                   // avatarSize: 20,
-                                   // overlap: 10,
-                                   // ),
-                                   SizedBox(),
-
-                                   /// ✅ RIGHT SIDE (Your SAME Buttons - untouched)
-                                   ///
-                                     Row(
-                                       children: [
-                                         ElevatedButton(
-                                           style: ElevatedButton.styleFrom(
-
-                                             backgroundColor:ColorCode.white
-
-
-                                           ),
-                                           onPressed: () {
-                                             if (data != null) {
-                                               fetchacceptdecline(data!.projectId, 1);
-                                             }
-                                           },
-                                           child: const Text(
-                                             "Accept",
-                                             style: TextStyle(
-                                                 color:ColorCode.green,
-                                                 fontFamily: "Outfit",
-                                                 fontWeight: FontWeight.w600,
-                                                 fontSize: 12
-                                             ),
-                                           ),
-                                         ),
-                                         const SizedBox(width: 10),
-                                         ElevatedButton(
-                                           style: ElevatedButton.styleFrom(
-                                               backgroundColor:ColorCode.white
-                                           ),
-                                         /*  onPressed: () {
-                                             if (data != null) {
-                                               fetchacceptdecline(data!.projectId, 2);
-                                             }
-                                           }*/
-                                           onPressed: () async {
-                                             context.pushNamed(
-                                               RouteNames.cancelShoot,
-                                               extra: {
-                                                 "projectId": data?.projectId,
-                                               },
-                                             ).then((value) {
-
-                                               if (value == true) {
-                                                 fetchcreatordashboarddetails();
-                                               }
-                                             });
-                                           },
-                                           child: const Text(
-                                             "Decline",
-                                             style: TextStyle(
-                                               color:ColorCode.red,
-                                               fontFamily: "Outfit",
-                                               fontWeight: FontWeight.w600,
-                                               fontSize: 12
-                                             ),
-                                           ),
-                                         ),
-                                       ],
-                                     )
-                                 ],
-                               ),
-                             ],
-                           ),
-                         ),
-                       ],
-                     ),
-                   ),
-                   const SizedBox(height: 12),
-                   Divider(color: ColorCode.kDividerWhite12,
-                   thickness: 0.8),
-                   ],
-                   SizedBox(height: 12),
-               /*    Row(
+                                  if (data?.canTakeAction == true)
+                                    Row(
+                                      children: [
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: ColorCode.white,
+                                          ),
+                                          onPressed: () {
+                                            if (data != null) {
+                                              fetchacceptdecline(
+                                                data.projectId,
+                                                1,
+                                              );
+                                            }
+                                          },
+                                          child: Text(
+                                            data?.cta?.primary.isNotEmpty ==
+                                                    true
+                                                ? data!.cta!.primary
+                                                : "Accept",
+                                            style: const TextStyle(
+                                              color: ColorCode.green,
+                                              fontFamily: "Outfit",
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: ColorCode.white,
+                                          ),
+                                          onPressed: () async {
+                                            context
+                                                .pushNamed(
+                                                  RouteNames.cancelShoot,
+                                                  extra: {
+                                                    "projectId":
+                                                        data?.projectId,
+                                                  },
+                                                )
+                                                .then((value) {
+                                                  if (value == true) {
+                                                    fetchcreatordashboarddetails();
+                                                    fetchdashboardcount();
+                                                  }
+                                                });
+                                          },
+                                          child: Text(
+                                            data?.cta?.secondary.isNotEmpty ==
+                                                    true
+                                                ? data!.cta!.secondary
+                                                : "Reject",
+                                            style: const TextStyle(
+                                              color: ColorCode.red,
+                                              fontFamily: "Outfit",
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                ],
+                SizedBox(height: 12),
+                /*    Row(
                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                      children: [
                        Text(
@@ -1934,320 +2010,331 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                      ),
                    ),
                    const SizedBox(height: 14),*/
-                   // Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-                   const SizedBox(height: 14),
-                   Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                     children: [
-                       const Text(
-                         "Shoot Status",
-                         style: TextStyle(
-                           fontSize: 17,
-                           fontFamily: "Outfit",
-                           color: ColorCode.white,
-                           fontWeight: FontWeight.w600,
-                         ),
-                       ),
-                       Container(
-                         height: 38,
-                         padding: const EdgeInsets.symmetric(horizontal: 14),
-                         decoration: BoxDecoration(
-                           color: ColorCode.k282828,
-                           borderRadius: BorderRadius.circular(30),
-                           border: Border.all(
-                             color: ColorCode.kWhiteOpacity70,
-                           ),
-                         ),
-                         child: DropdownButtonHideUnderline(
-                           child: DropdownButton<String>(
-                             value: selectedRange,
-                             dropdownColor: const Color(0xFF1E1E1E),
-                             icon: const Icon(
-                               Icons.keyboard_arrow_down,
-                               color: ColorCode.white24,
-                               size: 20,
-                             ),
-                             style: const TextStyle(
-                               color: ColorCode.white,
-                               fontSize: 14,
-                               fontWeight: FontWeight.w500,
-                               fontFamily: "Outfit",
-                             ),
-                             items: ["Week", "Month", "Year"]
-                                 .map(
-                                   (e) => DropdownMenuItem<String>(
-                                 value: e,
-                                 child: Text(e),
-                               ),
-                             )
-                                 .toList(),
-                             onChanged: (val) {
-                               setState(() {
-                                 selectedRange = val!;
-                               });
+                // Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                const SizedBox(height: 14),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Shoot Status",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: "Unbounded",
+                        color: ColorCode.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Container(
+                      height: 38,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: ColorCode.dashboardPanelDark,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: ColorCode.dashboardPanelBorder,
+                        ),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: selectedRange,
+                          dropdownColor: const Color(0xFF1E1E1E),
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: ColorCode.white24,
+                            size: 20,
+                          ),
+                          style: const TextStyle(
+                            color: ColorCode.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: "Outfit",
+                          ),
+                          items: ["Week", "Month", "Year"]
+                              .map(
+                                (e) => DropdownMenuItem<String>(
+                                  value: e,
+                                  child: Text(e),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              selectedRange = val!;
+                            });
 
-                               // 👇 yaha lagao
-                               fetchCrewStats(getFilterValue());
+                            // 👇 yaha lagao
+                            fetchCrewStats(getFilterValue());
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+                  decoration: BoxDecoration(
+                    color: ColorCode.dashboardPanelDark,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: ColorCode.dashboardPanelBorder,
+                      width: 0.6,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: SizedBox(
+                          height: 160,
+                          width: 300,
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              CustomPaint(
+                                size: const Size(700, 150),
+                                painter: MultiArcPainter(
+                                  values: arcValues,
+                                  colors: const [
+                                    ColorCode.arcPurple,
+                                    ColorCode.arcBlue,
+                                    ColorCode.arcYellow,
+                                    ColorCode.arcGreen,
+                                  ],
+                                ),
+                              ),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "${sucessfullshoots + pendingshoots + rejectedshoots + shootrequest}",
+                                    style: const TextStyle(
+                                      color: Color(0xFFE8D7B9),
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Outfit",
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      _statusItem(
+                        "${sucessfullshoots}",
+                        "Successful shoots",
+                        const Color(0xFFA678F1),
+                      ),
+                      _statusItem(
+                        "${pendingshoots}",
+                        "Pending shoots",
+                        const Color(0xFF5CC4FF),
+                      ),
+                      _statusItem(
+                        "${rejectedshoots}",
+                        "Rejected shoots",
+                        const Color(0xFFFFC04F),
+                      ),
+                      _statusItem(
+                        "${shootrequest}",
+                        "Shoot Requests",
+                        const Color(0xFF2DC497),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Shoot Categories",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: "Unbounded",
+                        color: ColorCode.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Container(
+                      height: 38,
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: ColorCode.dashboardPanelDark,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: ColorCode.dashboardPanelBorder,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedTab = 0;
+                              });
+                              fetchShootCategories("photo"); // 🔥 ADD
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                              ),
+                              decoration: BoxDecoration(
+                                color: selectedTab == 0
+                                    ? const Color(0xFFE8D7B9)
+                                    : ColorCode.transparent,
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Photo",
+                                style: TextStyle(
+                                  color: selectedTab == 0
+                                      ? ColorCode.black
+                                      : ColorCode.kWhiteOpacity70,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: "Outfit",
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedTab = 1;
+                              });
+                              fetchShootCategories("video"); // 🔥 ADD
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                              ),
+                              decoration: BoxDecoration(
+                                color: selectedTab == 1
+                                    ? const Color(0xFFE8D7B9)
+                                    : ColorCode.transparent,
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Video",
+                                style: TextStyle(
+                                  color: selectedTab == 1
+                                      ? ColorCode.black
+                                      : ColorCode.kWhiteOpacity70,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: "Outfit",
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+                  decoration: BoxDecoration(
+                    color: ColorCode.black,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: ColorCode.dashboardPanelBorder,
+                      width: 0.6,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: SizedBox(
+                          height: 160,
+                          width: 300,
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              CustomPaint(
+                                size: const Size(700, 150),
+                                painter: MultiArcPainter(
+                                  values: categoryArcValues,
+                                  colors: const [
+                                    ColorCode.arcPurple,
+                                    ColorCode.arcBlue,
+                                    ColorCode.arcYellow,
+                                    ColorCode.arcGreen,
+                                  ],
+                                ),
+                              ),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    selectedTab == 0
+                                        ? categoryPhotoTotal.toString()
+                                        : categoryVideoTotal.toString(),
 
-                             },
-                           ),
-                         ),
-                       )
-                     ],
-                   ),
-                   const SizedBox(height: 20),
-                   Container(
-                     padding: const EdgeInsets.all(22),
-                     decoration: BoxDecoration(
-                       color: const Color(0xFF161616),
-                       borderRadius: BorderRadius.circular(28),
-                         border: Border.all(
-                           color:ColorCode.darkCharcoal, // Border Color
-                           width: 0.5, // Border Width
-                         )
-                     ),
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
+                                    //      Text(
+                                    //                                     selectedTab == 0?
+                                    //                                     acceptphotographyShoots.toString()
+                                    //                                     :.toString(),
+                                    style: const TextStyle(
+                                      color: Color(0xFFE8D7B9),
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Outfit",
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      _statusItem(
+                        "$acceptphotographyShoots",
+                        "Photography shoots",
+                        const Color(0xFFA678F1),
+                      ),
 
-                         Center(
-                           child: SizedBox(
-                             height: 160,
-                             width: 300,
-                             child: Stack(
-                               alignment: Alignment.bottomCenter,
-                               children: [
-                                 CustomPaint(
-                                   size: const Size(700, 150),
-                                   painter: MultiArcPainter(
-                                     values: arcValues,
-                                     colors: const [
-                                       ColorCode.arcPurple,
-                                       ColorCode.arcBlue,
-                                       ColorCode.arcYellow,
-                                       ColorCode.arcGreen,
-                                     ],
-                                   ),
-                                 ),
-                                 Column(
-                                   mainAxisSize: MainAxisSize.min,
-                                   children: [
-                                     Text(
-                                       "${sucessfullshoots+pendingshoots+rejectedshoots+shootrequest}",
-                                       style: const TextStyle(
-                                         color: Color(0xFFE8D7B9),
-                                         fontSize: 26,
-                                         fontWeight: FontWeight.bold,
-                                         fontFamily: "Outfit",
-                                       ),
-                                     ),
-                                     const SizedBox(height: 4),
-                                   ],
-                                 ),
-                               ],
-                             ),
-                           ),
-                         ),
-                         const SizedBox(height: 35),
-                         _statusItem("${sucessfullshoots}", "Successful shoots", const Color(0xFFA678F1)),
-                         _statusItem("${pendingshoots}", "Pending shoots", const Color(0xFF5CC4FF)),
-                         _statusItem("${rejectedshoots}", "Rejected shoots", const Color(0xFFFFC04F)),
-                         _statusItem("${shootrequest}", "Shoot Requests", const Color(0xFF2DC497)),
-                       ],
-                     ),
-                   ),
-                   const SizedBox(height: 14),
-                   Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
-                   const SizedBox(height: 14),
-                   Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                     children: [
-                       const Text(
-                         "Shoot Categories",
-                         style: TextStyle(
-                           fontSize: 17,
-                           fontFamily: "Outfit",
-                           color: ColorCode.white,
-                           fontWeight: FontWeight.w600,
-                         ),
-                       ),
-                       Container(
-                         height: 38,
-                         padding: const EdgeInsets.all(4),
-                         decoration: BoxDecoration(
-                           color: const Color(0xFF1C1C1C),
-                           borderRadius: BorderRadius.circular(30),
-                           border: Border.all(
-                             color: ColorCode.white24,
-                           ),
-                         ),
-                         child: Row(
-                           mainAxisSize: MainAxisSize.min,
-                           children: [
-                             GestureDetector(
-                               onTap: () {
-                                 setState(() {
-                                   selectedTab = 0;
+                      _statusItem(
+                        "$acceptvideographyShoots",
+                        "Videography shoots",
+                        const Color(0xFF5CC4FF),
+                      ),
 
-                                 });
-                                 fetchShootCategories("photo"); // 🔥 ADD
-                               },
-                               child: AnimatedContainer(
-                                 duration: const Duration(milliseconds: 250),
-                                 padding: const EdgeInsets.symmetric(horizontal: 18),
-                                 decoration: BoxDecoration(
-                                   color: selectedTab == 0
-                                       ? const Color(0xFFE8D7B9)
-                                       : ColorCode.transparent,
-                                   borderRadius: BorderRadius.circular(25),
-                                 ),
-                                 alignment: Alignment.center,
-                                 child: Text(
-                                   "Photo",
-                                   style: TextStyle(
-                                     color: selectedTab == 0
-                                         ? ColorCode.black
-                                         : ColorCode.kWhiteOpacity70,
-                                     fontSize: 13,
-                                     fontWeight: FontWeight.w500,
-                                     fontFamily: "Outfit",
-                                   ),
-                                 ),
-                               ),
-                             ),
-                             GestureDetector(
-                               onTap: () {
-                                 setState(() {
-                                   selectedTab = 1;
-                                 });
-                                 fetchShootCategories("video"); // 🔥 ADD
-                               },
-                               child: AnimatedContainer(
-                                 duration: const Duration(milliseconds: 250),
-                                 padding: const EdgeInsets.symmetric(horizontal: 18),
-                                 decoration: BoxDecoration(
-                                   color: selectedTab == 1
-                                       ? const Color(0xFFE8D7B9)
-                                       : ColorCode.transparent,
-                                   borderRadius: BorderRadius.circular(25),
-                                 ),
-                                 alignment: Alignment.center,
-                                 child: Text(
-                                   "Video",
-                                   style: TextStyle(
-                                     color: selectedTab == 1
-                                         ? ColorCode.black
-                                         : ColorCode.kWhiteOpacity70,
-                                     fontSize: 13,
-                                     fontWeight: FontWeight.w500,
-                                     fontFamily: "Outfit",
-                                   ),
-                                 ),
-                               ),
-                             ),
-                           ],
-                         ),
-                       )
-                     ],
-                   ),
-                   const SizedBox(height: 14),
-                   Container(
-                     padding: const EdgeInsets.all(22),
-                     decoration: BoxDecoration(
-                       color: ColorCode.black,
-                       borderRadius: BorderRadius.circular(28),
-                         border: Border.all(
-                           color:ColorCode.darkCharcoal, // Border Color
-                           width: 0.5, // Border Width
-                         )
-                     ),
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Center(
-                           child: SizedBox(
-                             height: 160,
-                             width: 300,
-                             child: Stack(
-                               alignment: Alignment.bottomCenter,
-                               children: [
-                                 CustomPaint(
-                                   size: const Size(700, 150),
-                                   painter: MultiArcPainter(
-                                     values: categoryArcValues,
-                                     colors: const [
-                                       ColorCode.arcPurple,
-                                       ColorCode.arcBlue,
-                                       ColorCode.arcYellow,
-                                       ColorCode.arcGreen,
-                                     ],
-                                   ),
-                                 ),
-                                 Column(
-                                   mainAxisSize: MainAxisSize.min,
-                                   children: [
-                                     Text(
-                                       selectedTab == 0
-                                           ? categoryPhotoTotal.toString()
-                                           : categoryVideoTotal.toString(),
-                                       //      Text(
-                                       //                                     selectedTab == 0?
-                                       //                                     acceptphotographyShoots.toString()
-                                       //                                     :.toString(),
+                      _statusItem(
+                        selectedTab == 0 ? "$rejectedPhoto" : "$rejectedVideo",
+                        "Rejected shoots",
+                        const Color(0xFFFFC04F),
+                      ),
 
-                                       style: const TextStyle(
-                                         color: Color(0xFFE8D7B9),
-                                         fontSize: 26,
-                                         fontWeight: FontWeight.bold,
-                                         fontFamily: "Outfit",
-                                       ),
-                                     ),
-                                     const SizedBox(height: 4),
-                                   ],
-                                 ),
-                               ],
-                             ),
-                           ),
-                         ),
-                         const SizedBox(height: 35),
-                         _statusItem(
-                           "$acceptphotographyShoots",
-                           "Photography shoots",
-                           const Color(0xFFA678F1),
-                         ),
-
-                         _statusItem(
-                           "$acceptvideographyShoots",
-                           "Videography shoots",
-                           const Color(0xFF5CC4FF),
-                         ),
-
-                         _statusItem(
-                           selectedTab == 0
-                               ? "$rejectedPhoto"
-                               : "$rejectedVideo",
-                           "Rejected shoots",
-                           const Color(0xFFFFC04F),
-                         ),
-
-                         _statusItem(
-                           selectedTab == 0
-                               ? "$requestPhoto"
-                               : "$requestVideo",
-                           "Shoot Requests",
-                           const Color(0xFF2DC497),
-                         ),
-
-                       ],
-                     ),
-                   ),
-                 ],
-               ),
-             )
-           ],
-         ),
-       );
-
+                      _statusItem(
+                        selectedTab == 0 ? "$requestPhoto" : "$requestVideo",
+                        "Shoot Requests",
+                        const Color(0xFF2DC497),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget eventLabel(String event) {
@@ -2257,9 +2344,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       margin: EdgeInsetsGeometry.all(3),
       padding: EdgeInsetsGeometry.all(3),
       decoration: BoxDecoration(
-        color: isAvailable
-            ? const Color(0xFFD8FDE6)
-            : const Color(0xFFE0E7F8),
+        color: isAvailable ? const Color(0xFFD8FDE6) : const Color(0xFFE0E7F8),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Text(
@@ -2288,18 +2373,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     bool isCategoryExpanded = false;
     bool isTypeExpanded = false;
 
-    final DraggableScrollableController sheetController = DraggableScrollableController();
+    final DraggableScrollableController sheetController =
+        DraggableScrollableController();
 
     final List<String> dateOptions = [
-      "Today", "This Week", "Marketing Analytics", "This Month", "Custom Range"
+      "Today",
+      "This Week",
+      "Marketing Analytics",
+      "This Month",
+      "Custom Range",
     ];
     final List<String> statusOptions = [
-      "Upcoming", "Active", "Completed", "Cancelled"
+      "Upcoming",
+      "Active",
+      "Completed",
+      "Cancelled",
     ];
     final List<String> categoryOptions = [];
-    final List<String> typeOptions = [
-      "All", "shoots", "Rental",
-    ];
+    final List<String> typeOptions = ["All", "shoots", "Rental"];
 
     showModalBottomSheet(
       isScrollControlled: true,
@@ -2317,7 +2408,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 return GestureDetector(
                   onVerticalDragUpdate: (details) {
                     final currentSize = sheetController.size;
-                    final newSize = currentSize - (details.delta.dy / MediaQuery.of(context).size.height);
+                    final newSize =
+                        currentSize -
+                        (details.delta.dy / MediaQuery.of(context).size.height);
                     sheetController.jumpTo(newSize.clamp(0.4, 0.95));
                   },
                   child: Container(
@@ -2355,7 +2448,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               ),
                               GestureDetector(
                                 onTap: () => Navigator.pop(context),
-                                child: const Icon(Icons.close, color: ColorCode.white),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: ColorCode.white,
+                                ),
                               ),
                             ],
                           ),
@@ -2394,17 +2490,26 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       if (isDateExpanded) {
                                         sheetController.animateTo(
                                           0.95,
-                                          duration: const Duration(milliseconds: 300),
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
                                           curve: Curves.easeInOut,
                                         );
                                       }
                                     }),
                                     children: isDateExpanded
-                                        ? dateOptions.map((label) => _radioOption(
-                                      label: label,
-                                      selected: selectedDate == label,
-                                      onTap: () => setState(() => selectedDate = label),
-                                    )).toList()
+                                        ? dateOptions
+                                              .map(
+                                                (label) => _radioOption(
+                                                  label: label,
+                                                  selected:
+                                                      selectedDate == label,
+                                                  onTap: () => setState(
+                                                    () => selectedDate = label,
+                                                  ),
+                                                ),
+                                              )
+                                              .toList()
                                         : [],
                                   ),
                                   _filterSection(
@@ -2416,17 +2521,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       if (isStatusExpanded) {
                                         sheetController.animateTo(
                                           0.95,
-                                          duration: const Duration(milliseconds: 300),
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
                                           curve: Curves.easeInOut,
                                         );
                                       }
                                     }),
                                     children: isStatusExpanded
-                                        ? statusOptions.map((label) => _radioOption(
-                                      label: label,
-                                      selected: selectedStatus == label,
-                                      onTap: () => setState(() => selectedStatus = label),
-                                    )).toList()
+                                        ? statusOptions
+                                              .map(
+                                                (label) => _radioOption(
+                                                  label: label,
+                                                  selected:
+                                                      selectedStatus == label,
+                                                  onTap: () => setState(
+                                                    () =>
+                                                        selectedStatus = label,
+                                                  ),
+                                                ),
+                                              )
+                                              .toList()
                                         : [],
                                   ),
                                   _filterSection(
@@ -2438,17 +2553,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       if (isCategoryExpanded) {
                                         sheetController.animateTo(
                                           0.95,
-                                          duration: const Duration(milliseconds: 300),
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
                                           curve: Curves.easeInOut,
                                         );
                                       }
                                     }),
                                     children: isCategoryExpanded
-                                        ? categoryOptions.map((label) => _radioOption(
-                                      label: label,
-                                      selected: selectedCategory == label,
-                                      onTap: () => setState(() => selectedCategory = label),
-                                    )).toList()
+                                        ? categoryOptions
+                                              .map(
+                                                (label) => _radioOption(
+                                                  label: label,
+                                                  selected:
+                                                      selectedCategory == label,
+                                                  onTap: () => setState(
+                                                    () => selectedCategory =
+                                                        label,
+                                                  ),
+                                                ),
+                                              )
+                                              .toList()
                                         : [],
                                   ),
                                   _filterSection(
@@ -2460,17 +2585,26 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       if (isTypeExpanded) {
                                         sheetController.animateTo(
                                           0.95,
-                                          duration: const Duration(milliseconds: 300),
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
                                           curve: Curves.easeInOut,
                                         );
                                       }
                                     }),
                                     children: isTypeExpanded
-                                        ? typeOptions.map((label) => _radioOption(
-                                      label: label,
-                                      selected: selectedType == label,
-                                      onTap: () => setState(() => selectedType = label),
-                                    )).toList()
+                                        ? typeOptions
+                                              .map(
+                                                (label) => _radioOption(
+                                                  label: label,
+                                                  selected:
+                                                      selectedType == label,
+                                                  onTap: () => setState(
+                                                    () => selectedType = label,
+                                                  ),
+                                                ),
+                                              )
+                                              .toList()
                                         : [],
                                   ),
                                   const SizedBox(height: 13),
@@ -2491,13 +2625,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                             });
                                           },
                                           child: Container(
-                                            margin: const EdgeInsets.only(left: 12),
+                                            margin: const EdgeInsets.only(
+                                              left: 12,
+                                            ),
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                               border: Border.all(
                                                 width: 0.5,
-                                                color: ColorCode.white.withOpacity(0.6),
+                                                color: ColorCode.white
+                                                    .withOpacity(0.6),
                                               ),
                                             ),
                                             child: Center(
@@ -2518,14 +2656,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                         child: GestureDetector(
                                           onTap: () => Navigator.pop(context),
                                           child: Container(
-                                            margin: const EdgeInsets.only(right: 12),
+                                            margin: const EdgeInsets.only(
+                                              right: 12,
+                                            ),
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
                                               color: const Color(0xffE8D1AB),
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                               border: Border.all(
                                                 width: 0.5,
-                                                color: ColorCode.white.withOpacity(0.6),
+                                                color: ColorCode.white
+                                                    .withOpacity(0.6),
                                               ),
                                             ),
                                             child: const Center(
@@ -2562,8 +2704,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-
-
   Widget _filterSection({
     required String title,
     required bool isExpanded,
@@ -2584,7 +2724,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               onTap: onTap,
               borderRadius: BorderRadius.circular(14),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -2597,8 +2740,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Icon(size: 30,
-                      isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    Icon(
+                      size: 30,
+                      isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
                       color: ColorCode.white,
                     ),
                   ],
@@ -2607,9 +2753,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
             isExpanded && showDivider
                 ? Divider(
-              thickness: 0.5,
-              color: ColorCode.white.withOpacity(0.3),
-            )
+                    thickness: 0.5,
+                    color: ColorCode.white.withOpacity(0.3),
+                  )
                 : SizedBox(),
             if (children.isNotEmpty) ...children,
             if (children.isNotEmpty) const SizedBox(height: 6),
@@ -2651,15 +2797,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
               child: selected
                   ? Center(
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFFE8D1AB),
-                  ),
-                ),
-              )
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFE8D1AB),
+                        ),
+                      ),
+                    )
                   : null,
             ),
           ],
@@ -2686,7 +2832,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       //  borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.all(16),
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 86),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isSelected ? ColorCode.kButtonColor : ColorCode.transparent,
           borderRadius: BorderRadius.circular(16),
@@ -2700,18 +2848,21 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     fontFamily: "Outfit",
                     fontWeight: FontWeight.w500,
-                    color: isSelected ? ColorCode.black : ColorCode.white24,
+                    color: isSelected
+                        ? ColorCode.black
+                        : ColorCode.dashboardMutedText,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 9),
                 Text(
                   count.toString(),
                   style: TextStyle(
                     fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: "Outfit",
                     color: isSelected ? ColorCode.black : ColorCode.white,
                   ),
                 ),
@@ -2726,16 +2877,26 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ],
             ),
             CircleAvatar(
-              radius: 18,
-              backgroundColor: isSelected ? ColorCode.black : const Color(0xff171717),
-              child: SvgPicture.asset(iconPath,width: 18,height: 18,),
+              radius: 17,
+              backgroundColor: isSelected
+                  ? ColorCode.black
+                  : ColorCode.dashboardPanelDark,
+              child: SvgPicture.asset(
+                iconPath,
+                width: 17,
+                height: 17,
+                colorFilter: ColorFilter.mode(
+                  isSelected ? ColorCode.kButtonColor : ColorCode.kButtonColor,
+                  BlendMode.srcIn,
+                ),
+              ),
               // child: SvgPicture.asset(
               //   iconPath,
               //   width: 16,
               //   height: 16,
               //   color: isSelected ? ColorCode.white : ColorCode.white70,
               // ),
-            )
+            ),
           ],
         ),
       ),
@@ -2773,7 +2934,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     color: ColorCode.white,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.videocam, color: ColorCode.white, size: 18),
+                  child: const Icon(
+                    Icons.videocam,
+                    color: ColorCode.white,
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 const Text(
@@ -2792,32 +2957,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xffF5D6A5),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
                     "Initiated",
-                    style: TextStyle(
-                      color: ColorCode.orange,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: ColorCode.orange, fontSize: 12),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: ColorCode.white,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
                     "Google Meet",
-                    style: TextStyle(
-                      color: ColorCode.black,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: ColorCode.black, fontSize: 12),
                   ),
                 ),
               ],
@@ -2870,18 +3035,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _statusItem(String count, String label, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 11),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            width: 75,
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            width: 70,
+            padding: const EdgeInsets.symmetric(vertical: 11),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              border: Border.all(
-                color: color.withOpacity(0.6),
-                width: 1.5,
-              ),
+              border: Border.all(color: color.withOpacity(0.6), width: 1.5),
             ),
             child: Center(
               child: Text(
@@ -2895,14 +3058,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: ColorCode.white24,
-                fontSize: 14,
-                fontFamily: "Outfit",
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 24),
+              child: Text(
+                label,
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  color: ColorCode.dashboardMutedText,
+                  fontSize: 13,
+                  fontFamily: "Outfit",
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ),

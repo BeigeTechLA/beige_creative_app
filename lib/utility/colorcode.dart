@@ -121,6 +121,17 @@ class ColorCode {
 
   static const Color transparent = Colors.transparent;
   static const Color cardBg = Color(0xFFFFFFFF);
+  static const Color shootStatsCardTop = Color(0xFF2B2A28);
+  static const Color shootStatsCardBottom = Color(0xFF1E1D1B);
+  static const Color shootStatsCardBorder = Color(0x1AE8D1AB);
+  static const Color shootStatsIconBg = Color(0xFFE8D1AB);
+  static const Color dashboardPanel = Color(0xFF282828);
+  static const Color dashboardPanelDark = Color(0xFF161616);
+  static const Color dashboardPanelBorder = Color(0xFF3D3D3D);
+  static const Color dashboardMutedText = Color(0xFF777571);
+  static const Color calendarCell = Color(0xFF202020);
+  static const Color calendarHeader = Color(0xFF1D1D1B);
+  static const Color calendarGrid = Color(0xFF3A3A3A);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // STATUS COLORS

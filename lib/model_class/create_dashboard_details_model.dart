@@ -22,15 +22,13 @@ class Creatordashboarddetailsmodel {
 class Data {
   final List<PendingRequestCard> shoots;
 
-  Data({
-    required this.shoots,
-  });
+  Data({required this.shoots});
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     shoots: json["shoots"] != null
         ? List<PendingRequestCard>.from(
-      json["shoots"].map((x) => PendingRequestCard.fromJson(x)),
-    )
+            json["shoots"].map((x) => PendingRequestCard.fromJson(x)),
+          )
         : [],
   );
 }
@@ -52,6 +50,7 @@ class PendingRequestCard {
   final dynamic budget;
   final String status;
   final int crewAccept;
+  final bool canTakeAction;
   final Cta? cta; // ✅ NULL SAFE
 
   PendingRequestCard({
@@ -69,6 +68,7 @@ class PendingRequestCard {
     required this.budget,
     required this.status,
     required this.crewAccept,
+    required this.canTakeAction,
     required this.shootType,
     required this.shootTypeImageUrl,
     this.cta,
@@ -92,6 +92,7 @@ class PendingRequestCard {
         budget: json["budget"],
         status: json["status"] ?? "",
         crewAccept: json["crew_accept"] ?? 0,
+        canTakeAction: json["can_take_action"] ?? false,
 
         /// ✅ SAFE CTA
         cta: json["cta"] != null ? Cta.fromJson(json["cta"]) : null,
@@ -102,13 +103,8 @@ class Cta {
   final String primary;
   final String secondary;
 
-  Cta({
-    required this.primary,
-    required this.secondary,
-  });
+  Cta({required this.primary, required this.secondary});
 
-  factory Cta.fromJson(Map<String, dynamic> json) => Cta(
-    primary: json["primary"] ?? "",
-    secondary: json["secondary"] ?? "",
-  );
+  factory Cta.fromJson(Map<String, dynamic> json) =>
+      Cta(primary: json["primary"] ?? "", secondary: json["secondary"] ?? "");
 }
