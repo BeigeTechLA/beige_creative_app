@@ -28,18 +28,59 @@ class _DeleteAccountState extends State<DeleteAccount> {
   ];
 
 
+  Future<void> _deleteAccount() async {
+    if (selectedReason == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please select delete reason"),
+        ),
+      );
+      return;
+    }
 
-  Future<void> _deleteacoount() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
-      final response =(await ApiService().deleteData(ApiEndpoints.accountDeleted));
+      final response = await ApiService().postData(
+        ApiEndpoints.accountDeleted,
+        {
+          "delete_reason": selectedReason,
+        },
+      );
+
+      debugPrint("DELETE ACCOUNT RESPONSE => $response");
 
       if (response.error == false) {
 
-        debugPrint('Responsecheck  :: ${response}');
+        /// OTP SCREEN OPEN
+        context.pushNamed(
+          RouteNames.deleteAccountOtp,
+          extra: {
+            "reason": selectedReason,
+          },
+        );
 
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.message ?? "Something went wrong"),
+          ),
+        );
       }
     } catch (e) {
-      debugPrint("Error is:::::$e");
+      debugPrint("Error => $e");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong"),
+        ),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -152,14 +193,10 @@ class _DeleteAccountState extends State<DeleteAccount> {
               child: SizedBox(
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: () {
-                   /* Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => DeleteAccountOtpScreen()),
-                    );*/
-                    context.pushNamed(
-                      RouteNames.deleteAccountOtp,
-                    );
+                  onPressed: isLoading
+                      ? null
+                      : () {
+                    _deleteAccount();
                   },
 
 
