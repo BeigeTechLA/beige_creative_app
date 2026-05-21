@@ -676,6 +676,92 @@ class _MyprofileState extends State<Myprofile> {
     await fetchprofiledata();
   }
 
+  Future<void> deleteData(int id) async {
+    final response = await ApiService().deleteData(
+      "${ApiEndpoints.delete_allfiles}/$id",
+    );
+
+    if (response["error"] == false) {
+
+      setState(() {
+        portfolioLinks.removeWhere(
+              (e) => e["id"].toString() == id.toString(),
+        );
+      });
+
+      await fetchprofiledata();
+
+      print("✅ Deleted Successfully");
+    } else {
+      print("❌ Delete Failed");
+    }
+  }
+
+  Future<void> saveSocialLinksToApi() async {
+    if (socialLinks.isEmpty) {
+      TopMessage.show(context, "Add at least one link");
+      return;
+    }
+
+    setState(() => isloading = true);
+
+    try {
+
+      /// 🔥 FORMAT DATA FOR API
+      final List<Map<String, String>> formattedLinks =
+      socialLinks.map((e) {
+        return {
+          "platform": e["name"] ?? "",
+          "url": e["url"] ?? "",
+        };
+      }).toList();
+
+      debugPrint("SOCIAL LINKS PAYLOAD =====> $formattedLinks");
+
+      /// 🔥 API CALL
+      final response = await ApiService().postData(
+        ApiEndpoints.editprofile,
+        {
+          "social_media_links": formattedLinks,
+        },
+      );
+
+      debugPrint("SOCIAL API RESPONSE =====> $response");
+
+      await fetchprofiledata();
+
+      if (response == null) {
+        TopMessage.show(context, "Server Error");
+        return;
+      }
+
+      if (response["error"] == false) {
+
+        // TopMessage.show(context, "Social links updated successfully");
+
+        Navigator.pop(context);
+
+      } else {
+
+        TopMessage.show(
+          context,
+          response["message"] ?? "Failed to update",
+        );
+      }
+
+    } catch (e) {
+
+      debugPrint("SOCIAL LINK ERROR =====> $e");
+
+      TopMessage.show(context, "Something went wrong");
+
+    } finally {
+
+      setState(() => isloading = false);
+
+    }
+  }
+
   void setSocialLinksFromApi(Map<String, dynamic> links) {
     //final links = userData.socialMediaLinks;
     if (links.isEmpty) {
@@ -747,43 +833,7 @@ class _MyprofileState extends State<Myprofile> {
     }
   }
 
-  Future<void> saveSocialLinksToApi() async {
-    if (socialLinks.isEmpty) {
-      TopMessage.show(context, "Add at least one link");
-      return;
-    }
 
-    setState(() => isloading = true);
-
-    try {
-      final List<Map<String, String>> formattedLinks = socialLinks.map((e) {
-        return {
-          "platform": getPlatformKey(e["name"] ?? ""),
-          "url": e["url"] ?? "",
-        };
-      }).toList();
-
-      final response = await ApiService().postData(
-        ApiEndpoints.editprofile, // 👈 same endpoint
-        {"social_media_links": formattedLinks},
-      );
-      await fetchprofiledata();
-      if (response == null) {
-        TopMessage.show(context, "Server Error");
-        return;
-      }
-
-      if (response["error"] == false) {
-        Navigator.pop(context); // close bottom sheet
-      } else {
-        TopMessage.show(context, response["message"] ?? "Failed to update");
-      }
-    } catch (e) {
-      TopMessage.show(context, "Something went wrong");
-    } finally {
-      setState(() => isloading = false);
-    }
-  }
 
   List<Widget> _buildSkillChips(List<String> skills) {
     List<Widget> chips = [];
@@ -806,6 +856,7 @@ class _MyprofileState extends State<Myprofile> {
   bool isloading = false;
 
   Data? Myprofile_user;
+
   @override
   void initState() {
     super.initState();
@@ -1481,16 +1532,19 @@ class _MyprofileState extends State<Myprofile> {
                                       ),
 
                                       /// DELETE
+                                      /// DELETE
                                       IconButton(
                                         icon: const Icon(
                                           Icons.delete,
                                           color: ColorCode.red,
                                           size: 18,
                                         ),
-                                        onPressed: () {
-                                          setState(() {
-                                            portfolioLinks.removeAt(index);
-                                          });
+                                        onPressed: () async {
+                                          final id = int.parse(item["id"].toString());
+
+                                          debugPrint("DELETE ID ======> $id");
+
+                                          await deleteData(id);
                                         },
                                       ),
                                     ],

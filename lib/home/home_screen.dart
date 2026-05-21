@@ -759,7 +759,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ],
                   ),
-                  SizedBox(height: 17),
+                  SizedBox(height: 30),
 
                   /*    const SizedBox(),*/
 

@@ -79,6 +79,7 @@ class AppAssets {
 
   static const String instagram = '$_svg/instagram.svg';
   static const String tiktok = '$_svg/tiktok.svg';
+  static const String you_tube = '$_svg/you_tube.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — Profile
@@ -128,6 +129,7 @@ class AppAssets {
   static const String profilePreferences = '$svgProfile/app_preferences.svg';
   static const String profileLogout = '$svgProfile/logout.svg';
   static const String chevronRight = '$svgProfile/chevron_right.svg';
+  static const String more_vert = '$svgProfile/more_vert.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // PNG — Images

@@ -97,7 +97,7 @@ class AppImages {
   static const String Image_zoom = '$_svg/Image_zoom.svg';
   static const String rectangle_profile = '$_svg/rectangle_profile.svg';
   static const String circle_arrow = '$_svg/circle_arrow.svg';
-
+  static const String more_vert = '$_svg/more_vert.svg';
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — User & Profile
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

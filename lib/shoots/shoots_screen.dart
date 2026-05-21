@@ -327,21 +327,21 @@ class _ShootsScreenState extends State<ShootsScreen> {
             top: 10,
             right: 4,
             child: Container(
-              width: 20,
-              height: 20,
+              /*width: 20,
+              height: 20,*/
               alignment: Alignment.center,
-              decoration: const BoxDecoration(
+              /*decoration: const BoxDecoration(
                 color: ColorCode.shootStatsIconBg,
                 shape: BoxShape.circle,
-              ),
+              ),*/
               child: SvgPicture.asset(
                 iconPath,
-                width: 15,
-                height: 15,
-                colorFilter: const ColorFilter.mode(
-                  ColorCode.kHeadingColor,
-                  BlendMode.srcIn,
-                ),
+                width: 25,
+                height: 25,
+                // colorFilter: const ColorFilter.mode(
+                //   ColorCode.kHeadingColor,
+                //   BlendMode.srcIn,
+                // ),
               ),
             ),
           ),

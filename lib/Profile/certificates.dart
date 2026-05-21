@@ -273,7 +273,12 @@ class _CertificatesState extends State<Certificates> {
                                     onTap: () {
                                       _openOptions(cert);
                                     },
-                                    child: const Icon(Icons.more_vert, color: ColorCode.white24),
+                                    child: SvgPicture.asset(
+                                      AppImages
+                                          .more_vert,
+                                      height: 20,
+                                      width: 20,
+                                    ),
                                   ),
 
                                   const SizedBox(height: 15),
