@@ -40,8 +40,7 @@ class RouteNames {
   static const deleteAccountSuccess =
       "delete-account-success";
 
-  static const changePassword =
-      "change-password";
+
   static const editPersonalDetails =
       "edit-personal-details";
 
@@ -56,6 +55,8 @@ class RouteNames {
   static const profileDetails = "profile-details";
 
   static const featuredWorks = "featured-works";
+
+  static const featuredWorkDetails = "featured-work-details";
 
   static const certificates = "certificates";
 
@@ -79,4 +80,12 @@ class RouteNames {
 
   static const viewShootDetails =
       "view-shoot-details";
+
+  /// Change Password Flow
+  static const changePassword = "change-password";
+
+  static const profileOtp = "profile-otp";
+
+  static const newPassword = "new-password";
+
 }

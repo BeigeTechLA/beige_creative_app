@@ -128,51 +128,63 @@ Future<void> fetchprofiledata() async {
 
   Widget _buildBottomBar() {
     return ClipRect(
-
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 80, sigmaY: 70),
         child: BottomNavigationBar(
-          // currentIndex: _selectedIndex,
           currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
-
           type: BottomNavigationBarType.fixed,
+          backgroundColor: ColorCode.backgroundColor,
+
           selectedItemColor: ColorCode.white,
           unselectedItemColor: ColorCode.kWhiteOpacity70,
 
+          selectedFontSize: 10,
+          unselectedFontSize: 10,
+
+          iconSize: 26,
+          elevation: 0,
+
           onTap: _onItemTapped,
+
           items: [
             BottomNavigationBarItem(
-              icon: _navIcon(
-                AppImages.activeDashboard,
+              icon: _buildInactiveIcon(
                 AppImages.inactiveDashboard,
-                0,
+              ),
+              activeIcon: _buildActiveIcon(
+                AppImages.activeDashboard,
               ),
               label: "Dashboard",
             ),
 
             BottomNavigationBarItem(
-              icon: _navIcon(
-                AppImages.activeShoots,
+              icon: _buildInactiveIcon(
                 AppImages.inactiveShoots,
-                1,
               ),
-              label: "shoots",
+              activeIcon: _buildActiveIcon(
+                AppImages.activeShoots,
+                width: 46,
+              ),
+              label: "Shoots",
             ),
 
             BottomNavigationBarItem(
-              icon: _navIcon(
-                AppImages.activeFileManager,
+              icon: _buildInactiveIcon(
                 AppImages.inactiveFileManager,
-                2,
               ),
-              label: "File Manager",
+              activeIcon: _buildActiveIcon(
+                AppImages.activeFileManager,
+                width: 48,
+              ),
+              label: "Files",
             ),
 
             BottomNavigationBarItem(
-              icon: _navIcon(
-                AppImages.activeMessages,
+              icon: _buildInactiveIcon(
                 AppImages.inactiveMessages,
-                3,
+              ),
+              activeIcon: _buildActiveIcon(
+                AppImages.activeMessages,
               ),
               label: "Messages",
             ),
@@ -197,7 +209,69 @@ Future<void> fetchprofiledata() async {
       ),
     );
   }
+  Widget _buildInactiveIcon(String path) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: SizedBox(
+        width: 44,
+        height: 26,
+        child: Center(
+          child: SvgPicture.asset(
+            path,
+            height: 26,
+            width: 26,
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+    );
+  }
 
+  Widget _buildActiveIcon(
+      String path, {
+        double? width,
+        double? height,
+      }) {
+    final artWidth = width ?? 44;
+    final artHeight = height ?? 44;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: SizedBox(
+        width: artWidth,
+        height: 26,
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+
+            /// glow
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.2),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+            ),
+
+            SvgPicture.asset(
+              path,
+              width: artWidth,
+              height: artHeight,
+              fit: BoxFit.contain,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
   // ================================
   // 🔥 Drawer
   // ================================
@@ -366,16 +440,27 @@ Future<void> fetchprofiledata() async {
       int index,
       ) {
     return ListTile(
-      leading: SvgPicture.asset(
-        _selectedIndex == index ? activeIcon : inactiveIcon,
-        height: 24,
-        width: 24,
-        fit: BoxFit.contain,
-        colorFilter: ColorFilter.mode(
-          _selectedIndex == index
-              ? Colors.white
-              : ColorCode.kWhiteOpacity70,
-          BlendMode.srcIn,
+      leading: SizedBox(
+        width: 32,
+        height: 32,
+        child: Center(
+          child: SvgPicture.asset(
+            _selectedIndex == index
+                ? activeIcon
+                : inactiveIcon,
+
+            width: _selectedIndex == index ? 28 : 24,
+            height: _selectedIndex == index ? 28 : 24,
+
+            fit: BoxFit.contain,
+
+            colorFilter: ColorFilter.mode(
+              _selectedIndex == index
+                  ? Colors.white
+                  : ColorCode.kWhiteOpacity70,
+              BlendMode.srcIn,
+            ),
+          ),
         ),
       ),
       title: Text(

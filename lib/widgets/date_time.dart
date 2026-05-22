@@ -25,25 +25,15 @@ class DateTimeUtils {
   }
 
   /// ✅ Date + Time together
-  static String formatDateTime(String? date, String? time) {
-    if (date == null || time == null) return "--";
+  static String formatDateTime(String? dateTime) {
+    if (dateTime == null || dateTime.isEmpty) return "-";
+
     try {
-      final dateParsed = DateTime.parse(date);
-      final timeParsed = DateFormat("HH:mm:ss").parse(time);
-
-      final combined = DateTime(
-        dateParsed.year,
-        dateParsed.month,
-        dateParsed.day,
-        timeParsed.hour,
-        timeParsed.minute,
-      );
-
-      return DateFormat("dd-MM-yyyy hh:mm a").format(combined);
+      final parsedDate = DateTime.parse(dateTime).toLocal();
+      return DateFormat("MMM d, yyyy h:mm a").format(parsedDate);
     } catch (e) {
-      return "--";
+      return dateTime;
     }
   }
-
 
 }

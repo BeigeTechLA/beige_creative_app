@@ -1829,37 +1829,31 @@ import '../../widgets/custom_text_field.dart';
                           },*/
                           onPressed: () {
 
+                            print("========== VIEW DETAILS ==========");
+
+                            print("First Name: ${firstNameController.text.trim()}");
+                            print("Last Name: ${lastNameController.text.trim()}");
+                            print("Email: ${emailController.text.trim()}");
+                            print("Profile Image: ${profileImage?.path}");
+                            print("Location: ${searchController.text.trim()}");
+                            print("Working Distance: ${selectedDistance ?? ""}");
+
                             context.pushNamed(
-
                               RouteNames.viewDetails,
-
                               extra: {
-
-                                "firstName":
-                                firstNameController.text.trim(),
-
-                                "lastName":
-                                lastNameController.text.trim(),
-
-                                "email":
-                                emailController.text.trim(),
-
-                                "profileImage":
-                                profileImage,
-
-                                "location":
-                                searchController.text.trim(),
-
-                                "workingDistance":
-                                selectedDistance ?? "",
-
+                                "firstName": firstNameController.text.trim(),
+                                "lastName": lastNameController.text.trim(),
+                                "email": emailController.text.trim(),
+                                "profileImage": profileImage,
+                                "location": searchController.text.trim(),
+                                "workingDistance": selectedDistance ?? "",
                                 "primaryRole": "",
                                 "experience": "",
                                 "hourlyRate": "",
                                 "bio": "",
                                 "skills": "",
                                 "equipments": "",
-                                "featuredImages": [],
+                                "featuredImages": <File>[],
                               },
                             );
                           },

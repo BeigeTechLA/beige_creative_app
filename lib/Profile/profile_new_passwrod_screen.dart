@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app/route_names.dart';
+import '../service/api_endpoints.dart' show ApiEndpoints;
+import '../service/api_service.dart';
 import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart' show AppImages;
+import '../widgets/Topmessgae.dart';
 import '../widgets/custom_text_field.dart';
 import 'myprofile_youre_all_set_screen.dart';
 
 class MyprofileNewPasswrodScreen extends StatefulWidget {
-  const MyprofileNewPasswrodScreen({super.key});
+  final String email;
+  final String otp;
+  const MyprofileNewPasswrodScreen({super.key, required this.email, required this.otp});
 
   @override
   State<MyprofileNewPasswrodScreen> createState() => _MyprofileNewPasswrodScreenState();
@@ -18,6 +24,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
 
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
+
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
   bool isLoading = false;
@@ -36,6 +43,84 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
     return null;
   }
 
+/*  Future<void> _newpasswrod() async {
+    print("📢 Reset Password Clicked");
+    print("📧 Email => ${widget.email}");
+
+    if (newPasswordController.text.trim().isEmpty ||
+        confirmPasswordController.text.trim().isEmpty) {
+      _showSnack("Please enter password");
+      return;
+    }
+
+    if (newPasswordController.text.trim().length < 6) {
+      _showSnack("Password must be at least 6 characters");
+      return;
+    }
+
+    if (newPasswordController.text.trim() !=
+        confirmPasswordController.text.trim()) {
+      _showSnack("Passwords do not match");
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final apiService = ApiService();
+
+      print("🚀 RESET PASSWORD API CALL START");
+      print("📡 Endpoint => ${ApiEndpoints.restartpassword}");
+
+      final response = await apiService.postData(
+        ApiEndpoints.restartpassword,
+        {
+          "otp": widget.otp, // 🔥 replace with actual OTP if needed
+          "email": widget.email,
+          "new_password": newPasswordController.text.trim(),
+          "confirm_password": confirmPasswordController.text.trim(),
+        },
+      );
+
+      print("📩 API RESPONSE => $response");
+
+      if (response == null) {
+        _showSnack("Server error");
+        return;
+      }
+
+      if (response['error'] == false) {
+        print("✅ Password Reset Success");
+
+        if (!mounted) return;
+
+       *//* Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const MyprofileYoureAllSetScreen(),
+          ),
+        );*//*
+        context.pushNamed(RouteNames.);
+      } else {
+        print("❌ Reset Failed => ${response['message']}");
+        _showSnack(response['message'] ?? "Failed to reset password");
+      }
+    } catch (e) {
+      print("🔥 Exception => $e");
+      _showSnack("Something went wrong");
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+      print("🛑 RESET PASSWORD API CALL END");
+    }
+  }*/
+
+
+  void _showSnack(String message) {
+    TopMessage.show(context, message);
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +163,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                               onTap: () {
                                 context.pop();
                               },
-                              child: Image.asset(
+                              child: SvgPicture.asset(
                                 AppImages.back,
                                 height: 24,
                                 color: ColorCode.white,
@@ -99,7 +184,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                           children: [
 
                             Text(
-                              "Secure your Account",
+                              "Set your new Password",
                               style: TextStyle(
                                 fontFamily: "Unbounded",
                                 fontSize: 16,
@@ -111,8 +196,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                             SizedBox(height: 10),
 
                             Text(
-                              "You're almost done! Set a new password\n to secure your account.",
-
+                              "You're almost done! Set a new password to secure \n your account. Make sure it's strong and unique.",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontFamily: "Outfit",

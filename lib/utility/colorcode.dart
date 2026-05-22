@@ -6,6 +6,7 @@ class ColorCode {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // BRAND COLORS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  static const Color primary = Color(0xFFE8D1AB);
 
   static const Color kButtonColor = Color(0xFFE8D1AB);
   static const Color kChampagneGold = Color(0xFFE8D1AB);
@@ -13,7 +14,7 @@ class ColorCode {
   static const Color kHeadingColor = Color(0xFF1D1D1B);
   static const Color kSubtextColor = Color(0xFF474746);
   static const Color soft = Color(0xFFD6C3A1);
-
+  static const Color borderGold = Color(0x80E8D1AB);
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // BACKGROUND & SURFACE
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -48,6 +49,7 @@ class ColorCode {
   static const Color white12 = Color(0x1FFFFFFF);
   static const Color textfieldbordercollor = Color(0xFFE8D1AB80);
   static const Color kCircleBorderDark = Color(0xFF1D1D1B);
+  static const darkCharcoal = Color(0xFF3D3D3D);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // WHITE OPACITY VARIANTS
@@ -79,7 +81,7 @@ class ColorCode {
   // GOLD & GRADIENT COLORS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const Color kGoldGradientLight = Color(0xFFE8D1AB);
+  static const Color kGoldGradientLight = Color(0x80E8D1AB);
   static const Color kGoldGradientDark = Color(0xFFD4A14D);
   static const Color kGold40 = Color(0x66E9BE78);
   static const Color k1D1D1B_Opacity70 = Color(0xB21D1D1B);
@@ -119,6 +121,17 @@ class ColorCode {
 
   static const Color transparent = Colors.transparent;
   static const Color cardBg = Color(0xFFFFFFFF);
+  static const Color shootStatsCardTop = Color(0xFF2B2A28);
+  static const Color shootStatsCardBottom = Color(0xFF1E1D1B);
+  static const Color shootStatsCardBorder = Color(0x1AE8D1AB);
+  static const Color shootStatsIconBg = Color(0xFFE8D1AB);
+  static const Color dashboardPanel = Color(0xFF282828);
+  static const Color dashboardPanelDark = Color(0xFF161616);
+  static const Color dashboardPanelBorder = Color(0xFF3D3D3D);
+  static const Color dashboardMutedText = Color(0xFF777571);
+  static const Color calendarCell = Color(0xFF202020);
+  static const Color calendarHeader = Color(0xFF1D1D1B);
+  static const Color calendarGrid = Color(0xFF3A3A3A);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // STATUS COLORS

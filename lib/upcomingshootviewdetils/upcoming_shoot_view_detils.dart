@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 
 import '../model_class/upcoming_shootview_model.dart';
 import '../utility/colorcode.dart';
+import '../widgets/date_time.dart';
 
 class UpcomingShootViewDetils extends StatefulWidget {
   final int? projectid;
@@ -31,37 +32,20 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
   }
   bool isloading=false;
 
-  String formatDateTime(String dateTime) {
-    try {
-      final parsedDate = DateTime.parse(dateTime).toLocal(); // 👈 important
-      return DateFormat("MMM d, yyyy h:mm a").format(parsedDate);
-    } catch (e) {
-      return dateTime;
-    }
-  }
-  String formatTime(String time) {
-    try {
-      final parsedTime = DateFormat("HH:mm:ss").parse(time);
-      return DateFormat("h:mm a").format(parsedTime);
-    } catch (e) {
-      return time; // fallback
-    }
-  }
-  String formatDate(String? rawDate) {
-    if (rawDate == null || rawDate.isEmpty) return '-';
-    try {
-      final dt = DateTime.parse(rawDate);
-      return DateFormat('MMM dd, yyyy').format(dt);
-    } catch (e) {
-      return rawDate;
-    }
-  }
 
 
 MyData? mydata;//
+  String selectedReason = "";
+  bool isOtherSelected = false;
+  TextEditingController commentController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    fetchupcomingshootview();
+    debugPrint("🔥 Project ID received: ${widget.projectid}");
 
-  Future<void>
-  fetchupcomingshootview() async {
+  }
+  Future<void>fetchupcomingshootview() async {
 
     try {
 
@@ -126,17 +110,10 @@ MyData? mydata;//
   }
 
 
-  @override
-  void initState() {
-    super.initState();
-    fetchupcomingshootview();
-    debugPrint("🔥 Project ID received: ${widget.projectid}");
 
-  }
 
-  String selectedReason = "";
-  bool isOtherSelected = false;
-  TextEditingController commentController = TextEditingController();
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -281,13 +258,13 @@ MyData? mydata;//
                 const SizedBox(height: 16),
 
                 /// 📅 DATE
-                _infoRow(Icons.calendar_today, formatDate("${mydata?.project.eventDate}")),
+                _infoRow(Icons.calendar_today, DateTimeUtils.formatDate("${mydata?.project.eventDate}")),
                 const SizedBox(height: 10),
 
                 /// ⏰ TIME
                 _infoRow(
                   Icons.access_time,
-                  "${formatTime(mydata?.project.startTime ?? "")} - ${formatTime(mydata?.project.endTime ?? "")}",
+                  "${DateTimeUtils.formatTime(mydata?.project.startTime ?? "")} - ${DateTimeUtils.formatTime(mydata?.project.endTime ?? "")}",
                 ),                const SizedBox(height: 10),
 
                 /// 📍 LOCATION
@@ -435,7 +412,9 @@ MyData? mydata;//
                             ),
                           ),
                           Text(
-                            formatDateTime(mydata?.project.lastUpdated ?? ""),
+                            DateTimeUtils.formatDateTime(
+                              mydata?.project.lastUpdated?.toString()
+                            ),
                             style: const TextStyle(
                               fontFamily: "Outfit",
                               fontSize: 12,
@@ -554,7 +533,7 @@ MyData? mydata;//
                   child: _budgetCardItem(
                     icon: Icons.access_time,
                     title: "Total Time Duration",
-                    value: "${(mydata?.project.totalTimeDurationHours ?? 0).toString().padLeft(2, '0')} hours",
+                    value: "${mydata?.project.totalTimeDurationHours ?? 0} hours",
 
                   ),
                 ),

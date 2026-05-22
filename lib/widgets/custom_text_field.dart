@@ -4,34 +4,54 @@ import '../utility/colorcode.dart';
 
 class CustomTextField extends StatefulWidget {
   final String label;
-  final TextEditingController controller;
+  final String? hint;
+  final String? errorText;
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
   final bool isPassword;
   final bool isVisible;
   final VoidCallback? onToggle;
   final TextInputType keyboardType;
   final int maxLines;
+  final int? maxLength;
+  final Widget? prefixIcon;
   final Widget? suffixIcon;
   final bool readOnly;
+  final bool enabled;
+  final bool autofocus;
   final VoidCallback? onTap;
   final Iterable<String>? autofillHints;
   final List<TextInputFormatter>? inputFormatters;
+  final TextInputAction? textInputAction;
   final Function(String)? onChanged;
+  final Function(String)? onFieldSubmitted;
+  final String? Function(String?)? validator;
 
   const CustomTextField({
     super.key,
     required this.label,
-    required this.controller,
+    this.hint,
+    this.errorText,
+    this.controller,
+    this.focusNode,
     this.isPassword = false,
     this.isVisible = false,
     this.onToggle,
     this.keyboardType = TextInputType.text,
     this.maxLines = 1,
+    this.maxLength,
+    this.prefixIcon,
     this.suffixIcon,
     this.readOnly = false,
+    this.enabled = true,
+    this.autofocus = false,
     this.onTap,
     this.autofillHints,
     this.inputFormatters,
+    this.textInputAction,
     this.onChanged,
+    this.onFieldSubmitted,
+    this.validator,
   });
 
   @override
@@ -39,60 +59,99 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  final FocusNode _focusNode = FocusNode();
+  late FocusNode _internalFocusNode;
+
+  FocusNode get _effectiveFocusNode =>
+      widget.focusNode ?? _internalFocusNode;
 
   @override
   void initState() {
     super.initState();
 
-    _focusNode.addListener(() {
-      setState(() {});
-    });
+    _internalFocusNode = FocusNode();
 
-    widget.controller.addListener(() {
-      setState(() {});
-    });
+    _effectiveFocusNode.addListener(_refresh);
+    widget.controller?.addListener(_refresh);
   }
+
   @override
-  void didUpdateWidget(CustomTextField oldWidget) {
-
-
+  void didUpdateWidget(covariant CustomTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isVisible != widget.isVisible) {
-      setState(() {});
+
+    if (oldWidget.focusNode != widget.focusNode) {
+      (oldWidget.focusNode ?? _internalFocusNode)
+          .removeListener(_refresh);
+
+      _effectiveFocusNode.addListener(_refresh);
+    }
+
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?.removeListener(_refresh);
+      widget.controller?.addListener(_refresh);
     }
   }
 
+  @override
+  void dispose() {
+    _effectiveFocusNode.removeListener(_refresh);
+    widget.controller?.removeListener(_refresh);
+
+    if (widget.focusNode == null) {
+      _internalFocusNode.dispose();
+    }
+
+    super.dispose();
+  }
+
+  void _refresh() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
-    bool isFocused = _focusNode.hasFocus;
-    bool hasText = widget.controller.text.isNotEmpty;
-    bool highlight = isFocused || hasText;
+    final bool isFocused = _effectiveFocusNode.hasFocus;
+    final bool hasText =
+        widget.controller?.text.isNotEmpty ?? false;
 
-    return TextField(
+    final bool highlight = isFocused || hasText;
+
+    return TextFormField(
       controller: widget.controller,
-      focusNode: _focusNode,
+      focusNode: _effectiveFocusNode,
       readOnly: widget.readOnly,
+      enabled: widget.enabled,
+      autofocus: widget.autofocus,
       onTap: widget.onTap,
-      obscureText: widget.isPassword ? !widget.isVisible : false,
+      obscureText:
+      widget.isPassword ? !widget.isVisible : false,
       keyboardType: widget.keyboardType,
-      cursorColor: ColorCode.kButtonColor,
+      maxLines: widget.isPassword ? 1 : widget.maxLines,
+      maxLength: widget.maxLength,
       autofillHints: widget.autofillHints,
-      onChanged: widget.onChanged,
-      maxLines: widget.maxLines,
       inputFormatters: widget.inputFormatters,
-      enableSuggestions: false,   // ✅ ADD THIS
-      autocorrect: false,
+      textInputAction: widget.textInputAction,
+      onChanged: widget.onChanged,
+      onFieldSubmitted: widget.onFieldSubmitted,
+      validator: widget.validator,
+      cursorColor: ColorCode.kButtonColor,
+
+      enableSuggestions: !widget.isPassword,
+      autocorrect: !widget.isPassword,
+
       style: const TextStyle(
         color: ColorCode.white,
         fontFamily: "Outfit",
         fontSize: 15,
       ),
+
       decoration: InputDecoration(
         labelText: widget.label,
+        hintText: widget.hint,
+        errorText: widget.errorText,
 
-        floatingLabelBehavior: FloatingLabelBehavior.always,
+        floatingLabelBehavior:
+        FloatingLabelBehavior.always,
+
         labelStyle: TextStyle(
           fontSize: 14,
           color: highlight
@@ -100,27 +159,48 @@ class _CustomTextFieldState extends State<CustomTextField> {
               : ColorCode.kWhiteOpacity_60,
           fontFamily: "Outfit",
         ),
-        contentPadding:
-        const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: highlight
-                  ? ColorCode.kGoldBorder50
-                  : ColorCode.kWhiteOpacity30,
-              width: 0.5,
-            ),
-          ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color:ColorCode.kGoldBorder50,
+
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 18,
+        ),
+
+        prefixIcon: widget.prefixIcon,
+        suffixIcon: widget.suffixIcon,
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: highlight
+                ? ColorCode.kGoldBorder50
+                : ColorCode.kWhiteOpacity30,
             width: 0.5,
           ),
         ),
-        suffixIcon: widget.suffixIcon,
 
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: ColorCode.kGoldBorder50,
+            width: 0.5,
+          ),
+        ),
 
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Colors.red,
+            width: 0.8,
+          ),
+        ),
+
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Colors.red,
+            width: 0.8,
+          ),
+        ),
       ),
     );
   }

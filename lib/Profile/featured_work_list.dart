@@ -10,6 +10,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../app/route_names.dart';
 import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
@@ -19,6 +20,7 @@ import '../widgets/Topmessgae.dart';
 import '../widgets/commonImagePicker.dart';
 import '../widgets/common_uploader.dart';
 import '../widgets/custom_text_field.dart';
+import 'featuredwork_details_screen.dart';
 
 class FeaturedWorkList extends StatefulWidget {
   const FeaturedWorkList({super.key});
@@ -33,11 +35,10 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
   List<File> featuredImages = [];
   List<dynamic> editingImages = [];
   bool isEditMode = false;
-  bool isloading =true;
-  final enter_work_titleController=TextEditingController();
+  bool isloading = true;
+  final enter_work_titleController = TextEditingController();
   List<Map<String, dynamic>> featuredWorks = [];
   File? selectedImage;
-
 
   List<Map<String, String>> socialLinks = [];
   List<File> selectedImages = [];
@@ -54,14 +55,17 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
     super.initState();
     fetchprofiledata();
   }
+
   Future<void> fetchprofiledata() async {
     try {
       setState(() {
         isloading = true;
       });
 
-      final rawResponse =
-      await ApiService().postData(ApiEndpoints.profiledetails, {});
+      final rawResponse = await ApiService().postData(
+        ApiEndpoints.profiledetails,
+        {},
+      );
 
       // ✅ FULL RAW RESPONSE
       debugPrint("📦 RAW API RESPONSE: $rawResponse");
@@ -74,19 +78,25 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
       debugPrint("✅ PARSED DATA: ${response.data}");
 
       if (response.error == false) {
-
         setState(() {
           Myprofile_user = response.data;
         });
 
         // ✅ FEATURED WORK FILES COUNT + DATA
-        debugPrint("🖼 FEATURED WORK COUNT: ${response.data?.featuredWorkFiles.length}");
+        debugPrint(
+          "🖼 FEATURED WORK COUNT: ${response.data?.featuredWorkFiles.length}",
+        );
 
-        for (int i = 0; i < (response.data?.featuredWorkFiles.length ?? 0); i++) {
+        for (
+          int i = 0;
+          i < (response.data?.featuredWorkFiles.length ?? 0);
+          i++
+        ) {
           final item = response.data!.featuredWorkFiles[i];
-          debugPrint("🖼 ITEM[$i] => filePath: ${item.filePath} | fileType: ${item.fileType} | tag: ${item.tag}");
+          debugPrint(
+            "🖼 ITEM[$i] => filePath: ${item.filePath} | fileType: ${item.fileType} | tag: ${item.tag}",
+          );
         }
-
       } else {
         debugPrint("❌ API ERROR: ${response.message}");
       }
@@ -118,21 +128,20 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
     print("📦 PAYLOAD:");
     print("   🔹 title   => ${enter_work_titleController.text.trim()}");
     print("   🔹 tag     => ${jsonEncode(selectedTags)}");
-    print("   🔹 files[] => ${featuredImages.length} image(s) — but passing only 1 (featuredImages.first)");
+    print(
+      "   🔹 files[] => ${featuredImages.length} image(s) — but passing only 1 (featuredImages.first)",
+    );
     print("   🔹 file[0] => ${featuredImages.first.path.split('/').last}");
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
     setState(() => isloading = true);
 
     try {
-      final response = await ApiService().postMultipartDataMultiple(
-        ApiEndpoints.upload_recent_work,
-        {
-          "title": enter_work_titleController.text.trim(),
-          "tag": jsonEncode(selectedTags),
-        },
-        featuredImages,
-      );
+      final response = await ApiService()
+          .postMultipartDataMultiple(ApiEndpoints.upload_recent_work, {
+            "title": enter_work_titleController.text.trim(),
+            "tag": jsonEncode(selectedTags),
+          }, featuredImages);
 
       debugPrint("📥 RESPONSE => $response");
 
@@ -147,12 +156,10 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
         fetchprofiledata();
         context.pop();
-
       } else {
         print("❌ Upload Failed");
         _showSnack(response?['message'] ?? "Upload Failed");
       }
-
     } catch (e) {
       print("🔥 ERROR => $e");
       _showSnack("Something went wrong");
@@ -160,6 +167,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
       setState(() => isloading = false);
     }
   }
+
   Future<void> deleteData(int id) async {
     try {
       setState(() {
@@ -175,25 +183,58 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
       print("📥 DELETE RESPONSE => $response");
 
       if (response != null && response["error"] == false) {
-
         // _showSnack(response["message"] ?? "Deleted Successfully");
 
         /// refresh api
         await fetchprofiledata();
-
       } else {
-
         _showSnack(response["message"] ?? "Delete Failed");
       }
-
     } catch (e) {
-
       print("❌ DELETE ERROR => $e");
 
       _showSnack("Something went wrong");
-
     } finally {
+      setState(() {
+        isloading = false;
+      });
+    }
+  }
 
+  Future<void> deleteProjectData(List<dynamic> images) async {
+    if (images.isEmpty) {
+      return;
+    }
+
+    try {
+      setState(() {
+        isloading = true;
+      });
+
+      bool hasError = false;
+      String errorMessage = "Delete Failed";
+
+      for (final imageData in images) {
+        final response = await ApiService().deleteData(
+          "${ApiEndpoints.delete_allfiles}/${imageData.crewFilesId}",
+        );
+
+        if (response == null || response["error"] != false) {
+          hasError = true;
+          errorMessage = response?["message"] ?? errorMessage;
+          break;
+        }
+      }
+
+      if (hasError) {
+        _showSnack(errorMessage);
+      }
+
+      await fetchprofiledata();
+    } catch (e) {
+      print("❌ DELETE PROJECT ERROR => $e");
+      _showSnack("Something went wrong");
+    } finally {
       setState(() {
         isloading = false;
       });
@@ -204,10 +245,9 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
     TopMessage.show(context, message);
   }
 
-
   TextEditingController tagController = TextEditingController();
   TextEditingController EnterWorkTitleController = TextEditingController();
-// ✅ FIXED: Accept setModalState so modal UI updates properly
+  // ✅ FIXED: Accept setModalState so modal UI updates properly
   void pickImage(StateSetter setModalState) async {
     final images = await CommonImagePicker.pickMultiImage();
 
@@ -219,6 +259,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
       setState(() {});
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -233,23 +274,30 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                     children: [
                       InkWell(
                         onTap: () => context.pop(),
-                        child:
-                        SvgPicture.asset(
+                        child: SvgPicture.asset(
                           AppImages.back,
                           // "assets/icons/back.png",
                           height: 24,
-                          color: ColorCode.white,),
+                          color: ColorCode.white,
+                        ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(height: 10),
                   Row(
                     children: [
-                      Text("Featured work",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
+                      Text(
+                        "Featured work",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontFamily: "Unbounded",
+                          fontSize: 16,
+                        ),
+                      ),
                     ],
                   ),
-                  SizedBox(height: 10,),
-              /*    Row(
+                  SizedBox(height: 10),
+                  /*    Row(
                     children: [
 
                       Expanded(
@@ -286,20 +334,16 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       )
                     ],
                   ),*/
-                  SizedBox(height: 10,),
+                  SizedBox(height: 10),
                   Expanded(
                     child: Builder(
                       builder: (context) {
-
                         if (Myprofile_user == null ||
                             Myprofile_user!.featuredWorkFiles.isEmpty) {
-
                           return const Center(
                             child: Text(
                               "No Featured Work",
-                              style: TextStyle(
-                                color: ColorCode.white24,
-                              ),
+                              style: TextStyle(color: ColorCode.white24),
                             ),
                           );
                         }
@@ -308,7 +352,6 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         Map<String, List<dynamic>> groupedData = {};
 
                         for (var item in Myprofile_user!.featuredWorkFiles) {
-
                           String title = item.title ?? "Untitled";
 
                           if (!groupedData.containsKey(title)) {
@@ -321,163 +364,215 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         return SingleChildScrollView(
                           child: Column(
                             children: groupedData.entries.map((entry) {
-
                               String title = entry.key;
                               List<dynamic> images = entry.value;
 
-                              return Container(
-                                // margin: const EdgeInsets.only(bottom: 25),
+                              return GestureDetector(
+                                onTap: () async {
+                                  final result = await context.pushNamed(
+                                    RouteNames.featuredWorkDetails,
+                                    extra: {"title": title, "images": images},
+                                  );
 
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
+                                  if (result == true) {
+                                    fetchprofiledata();
+                                  }
+                                },
+                                child: Container(
+                                  // margin: const EdgeInsets.only(bottom: 25),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      /// ✅ HORIZONTAL IMAGE ROW
+                                      Container(
+                                        height: 250,
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.all(12),
 
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF1F1F1F),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
 
-                                    /// ✅ HORIZONTAL IMAGE ROW
-                                    Container(
-                                      height: 250,
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.all(12),
+                                        child: Stack(
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
 
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF1F1F1F),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
+                                              child: Image.network(
+                                                "${ApiService.imageURL}${images.first.filePath}",
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                fit: BoxFit.cover,
 
-                                      child: Stack(
-                                        children: [
-
-                                          /// HORIZONTAL IMAGE SCROLL
-                                          ListView.builder(
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: images.length,
-
-                                            itemBuilder: (context, index) {
-
-                                              final imageData = images[index];
-
-                                              return Container(
-                                                width: 320,
-                                                margin: const EdgeInsets.only(right: 12),
-
-                                                child: ClipRRect(
-                                                  borderRadius: BorderRadius.circular(18),
-
-                                                  child: Image.network(
-                                                    "${ApiService.imageURL}${imageData.filePath}",
-                                                    fit: BoxFit.cover,
-
-                                                    errorBuilder: (context, error, stackTrace) {
+                                                errorBuilder:
+                                                    (
+                                                      context,
+                                                      error,
+                                                      stackTrace,
+                                                    ) {
                                                       return Container(
-                                                        color: ColorCode.lightGrey,
-                                                        child: const Icon(Icons.image),
+                                                        color:
+                                                            ColorCode.lightGrey,
+                                                        child: const Center(
+                                                          child: Icon(
+                                                            Icons.image,
+                                                            color:
+                                                                ColorCode.white,
+                                                          ),
+                                                        ),
                                                       );
                                                     },
+                                              ),
+                                            ),
+
+                                            /// TOP RIGHT ICONS
+                                            Positioned(
+                                              top: 10,
+                                              right: 10,
+
+                                              child: Row(
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        isEditMode = true;
+
+                                                        /// ✅ TITLE
+                                                        enter_work_titleController
+                                                                .text =
+                                                            title;
+
+                                                        /// ✅ OLD NETWORK IMAGES
+                                                        editingImages =
+                                                            List.from(images);
+
+                                                        /// ✅ CLEAR NEW IMAGES
+                                                        tempFeaturedImages
+                                                            .clear();
+                                                      });
+
+                                                      _featuredSheet();
+                                                    },
+
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            8,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: ColorCode.black
+                                                            .withOpacity(0.5),
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.edit,
+                                                        color: ColorCode.white,
+                                                        size: 18,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              );
-                                            },
-                                          ),
 
-                                          /// TOP RIGHT ICONS
-                                          Positioned(
-                                            top: 10,
-                                            right: 10,
+                                                  const SizedBox(width: 8),
 
-                                            child: Row(
-                                              children: [
-                                                GestureDetector(
-                                                  onTap: () {
-
-                                                    setState(() {
-
-                                                      isEditMode = true;
-
-                                                      /// ✅ TITLE
-                                                      enter_work_titleController.text =
-                                                          title;
-
-                                                      /// ✅ OLD NETWORK IMAGES
-                                                      editingImages =
-                                                          List.from(images);
-
-                                                      /// ✅ CLEAR NEW IMAGES
-                                                      tempFeaturedImages.clear();
-                                                    });
-
-                                                    _featuredSheet();
-                                                  },
-
-                                                  child: Container(
-                                                    padding: const EdgeInsets.all(8),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.all(8),
                                                     decoration: BoxDecoration(
-                                                      color: ColorCode.black.withOpacity(0.5),
+                                                      color: ColorCode.black
+                                                          .withOpacity(0.5),
                                                       shape: BoxShape.circle,
                                                     ),
-                                                    child: const Icon(
-                                                      Icons.edit,
-                                                      color: ColorCode.white,
-                                                      size: 18,
+                                                    child: GestureDetector(
+                                                      onTap: () async {
+                                                        await deleteProjectData(
+                                                          images,
+                                                        );
+                                                      },
+                                                      child: const Icon(
+                                                        Icons.delete,
+                                                        color: ColorCode.white,
+                                                        size: 18,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-
-                                                const SizedBox(width: 8),
-
-                                                Container(
-                                                  padding: const EdgeInsets.all(8),
-                                                  decoration: BoxDecoration(
-                                                    color: ColorCode.black.withOpacity(0.5),
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: GestureDetector(
-                                                    onTap: () async {
-                                                      /// FIRST IMAGE ID
-                                                      final imageData = images.first;
-
-                                                      await deleteData(imageData.crewFilesId);
-
-                                                    },
-                                                    child: const Icon(
-                                                      Icons.delete,
-                                                      color: ColorCode.white,
-                                                      size: 18,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
-                                          ),
 
-                                          /// BOTTOM TITLE
-                                          Positioned(
-                                            left: 15,
-                                            bottom: 15,
+                                            /// BOTTOM TITLE
+                                            Positioned(
+                                              left: 15,
+                                              bottom: 15,
+                                              right: 15, // ✅ add this
 
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      /// LEFT SIDE TITLE
+                                                      Text(
+                                                        title,
+                                                        style: const TextStyle(
+                                                          color:
+                                                              ColorCode.white,
+                                                          fontSize: 18,
+                                                          fontFamily: "Outfit",
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
 
-                                                Text(
-                                                  title,
-                                                  style: const TextStyle(
-                                                    color: ColorCode.white,
-                                                    fontSize: 18,
-                                                    fontFamily: "Outfit",
-                                                    fontWeight: FontWeight.w600,
+                                                      /// RIGHT SIDE ICON
+                                                      GestureDetector(
+                                                        onTap: () async {
+                                                          final result =
+                                                              await context
+                                                                  .pushNamed(
+                                                                    RouteNames
+                                                                        .featuredWorkDetails,
+
+                                                                    extra: {
+                                                                      "title":
+                                                                          title,
+                                                                      "images":
+                                                                          images,
+                                                                    },
+                                                                  );
+
+                                                          if (result == true) {
+                                                            fetchprofiledata();
+                                                          }
+                                                        },
+
+                                                        child: SvgPicture.asset(
+                                                          AppImages
+                                                              .circle_arrow,
+                                                          height: 30,
+                                                          width: 30,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ),
 
-                                                const SizedBox(height: 8),
-
-
-                                              ],
+                                                  const SizedBox(height: 8),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    )
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               );
                             }).toList(),
@@ -486,7 +581,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       },
                     ),
                   ),
-                 /* SizedBox(
+                  /* SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
@@ -518,11 +613,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
             ),
           ),
 
-
-          if(isloading)
-            AppLoader()
+          if (isloading) AppLoader(),
         ],
-
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(15),
@@ -532,7 +624,6 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
           height: 50,
 
           child: ElevatedButton(
-
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorCode.kButtonColor,
 
@@ -542,7 +633,6 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
             ),
 
             onPressed: () {
-
               _featuredSheet();
             },
 
@@ -559,7 +649,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
       ),
     );
   }
-/*  void openFeaturedWork() {
+
+  /*  void openFeaturedWork() {
 
     showModalBottomSheet(
       context: context,
@@ -858,7 +949,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
       },
     );
   }*/
- /* void openAddTagDialog() {
+  /* void openAddTagDialog() {
 
     showModalBottomSheet(
       context: context,
@@ -1017,49 +1108,39 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-
             /// ✅ TOTAL IMAGE COUNT
-            int totalImages =
-                editingImages.length + tempFeaturedImages.length;
+            int totalImages = editingImages.length + tempFeaturedImages.length;
 
             return Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: ColorCode.backgroundColor,
-                borderRadius:
-                const BorderRadius.vertical(
+                borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(24),
                 ),
               ),
 
               child: SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     /// 🔘 TOP BAR
                     Center(
                       child: Container(
                         height: 4,
                         width: 40,
-                        margin:
-                        const EdgeInsets.only(
-                            bottom: 12),
+                        margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: ColorCode.white24,
-                          borderRadius:
-                          BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                     ),
 
                     /// 🟢 HEADER
                     Row(
-                      mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-
                         const Text(
                           "Featured Work",
                           style: TextStyle(
@@ -1072,14 +1153,10 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                         IconButton(
                           onPressed: () {
-
                             context.pop();
                           },
 
-                          icon: const Icon(
-                            Icons.close,
-                            color: ColorCode.white,
-                          ),
+                          icon: const Icon(Icons.close, color: ColorCode.white),
                         ),
                       ],
                     ),
@@ -1095,27 +1172,22 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                     const SizedBox(height: 16),
 
-                    Divider(
-                      color: ColorCode.kDividerWhite12,
-                    ),
+                    Divider(color: ColorCode.kDividerWhite12),
 
                     const SizedBox(height: 20),
 
                     /// ✏️ TITLE
                     CustomTextField(
                       label: "Enter Work Title*",
-                      controller:
-                      enter_work_titleController,
+                      controller: enter_work_titleController,
                     ),
 
                     const SizedBox(height: 16),
 
                     /// ✅ IMAGE SECTION
                     DottedBorder(
-                      options:
-                      RoundedRectDottedBorderOptions(
-                        radius:
-                        const Radius.circular(16),
+                      options: RoundedRectDottedBorderOptions(
+                        radius: const Radius.circular(16),
                         color: ColorCode.white24,
                         strokeWidth: 1,
                         dashPattern: [4, 4],
@@ -1123,249 +1195,233 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                       child: Container(
                         width: double.infinity,
-                        padding:
-                        const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
 
                         decoration: BoxDecoration(
-                          borderRadius:
-                          BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: totalImages == 0
                             ? GestureDetector(
-                          onTap: () async {
+                                onTap: () async {
+                                  final file =
+                                      await CommonUploader.pickFromGallery();
 
-                            final file =
-                            await CommonUploader.pickFromGallery();
+                                  if (file != null) {
+                                    setModalState(() {
+                                      tempFeaturedImages.add(file);
+                                    });
+                                  }
+                                },
 
-                            if (file != null) {
+                                child: SizedBox(
+                                  height: 220,
+                                  width: double.infinity,
 
-                              setModalState(() {
-
-                                tempFeaturedImages.add(file);
-                              });
-                            }
-                          },
-
-                          child: SizedBox(
-                            height: 220,
-                            width: double.infinity,
-
-                            child: Column(
-                              mainAxisAlignment:
-                              MainAxisAlignment.center,
-                              crossAxisAlignment:
-                              CrossAxisAlignment.center,
-                              children: [
-
-                                SvgPicture.asset(
-                                  AppImages.Upload, //  your svg path
-                                  color: ColorCode.white,
-                                  width: 24,
-                                  height: 24,
-                                ),
-
-                                const SizedBox(height: 18),
-
-                                const Text(
-                                  "Upload New Image, Video,Or Browse",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: "Outfit",
-                                    color: ColorCode.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 10),
-
-                                const Text(
-                                  "Choose a file in a 4:3, 5:4, 9:16,\nor 16:9 aspect ratio.",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: "Outfit",
-                                    color: ColorCode.kWhiteOpacity70,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-
-                        /// ✅ GRID
-                            : SizedBox(
-                          height: 320,
-
-                          child: GridView.builder(
-                            shrinkWrap: true,
-                            physics: const BouncingScrollPhysics(),
-
-                            /// ✅ UNLIMITED IMAGES
-                            itemCount: totalImages + 1,
-
-                            gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              childAspectRatio: 1,
-                            ),
-
-                            itemBuilder: (context, index) {
-
-                              /// ➕ ADD BUTTON
-                              if (index == totalImages) {
-
-                                return GestureDetector(
-                                  onTap: () async {
-
-                                    final file =
-                                    await CommonUploader
-                                        .pickFromGallery();
-
-                                    if (file != null) {
-
-                                      setModalState(() {
-
-                                        /// ✅ ADD IMAGE
-                                        tempFeaturedImages.add(file);
-                                      });
-                                    }
-                                  },
-
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius:
-                                      BorderRadius.circular(12),
-
-                                      border: Border.all(
-                                        color: ColorCode.white24,
-                                      ),
-                                    ),
-
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.add,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      SvgPicture.asset(
+                                        AppImages.Upload, //  your svg path
                                         color: ColorCode.white,
-                                        size: 28,
+                                        width: 24,
+                                        height: 24,
                                       ),
-                                    ),
+
+                                      const SizedBox(height: 18),
+
+                                      const Text(
+                                        "Upload New Image, Video,Or Browse",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontFamily: "Outfit",
+                                          color: ColorCode.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 10),
+
+                                      const Text(
+                                        "Choose a file in a 4:3, 5:4, 9:16,\nor 16:9 aspect ratio.",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontFamily: "Outfit",
+                                          color: ColorCode.kWhiteOpacity70,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                );
-                              }
+                                ),
+                              )
+                            /// ✅ GRID
+                            : SizedBox(
+                                height: 320,
 
-                              /// ✅ NETWORK IMAGE
-                              if (index < editingImages.length) {
+                                child: GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const BouncingScrollPhysics(),
 
-                                final image =
-                                editingImages[index];
+                                  /// ✅ UNLIMITED IMAGES
+                                  itemCount: totalImages + 1,
 
-                                return Stack(
-                                  children: [
-
-                                    ClipRRect(
-                                      borderRadius:
-                                      BorderRadius.circular(12),
-
-                                      child: Image.network(
-                                        "${ApiService.imageURL}${image.filePath}",
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3,
+                                        crossAxisSpacing: 10,
+                                        mainAxisSpacing: 10,
+                                        childAspectRatio: 1,
                                       ),
-                                    ),
 
-                                    Positioned(
-                                      top: 6,
-                                      right: 6,
+                                  itemBuilder: (context, index) {
+                                    /// ➕ ADD BUTTON
+                                    if (index == totalImages) {
+                                      return GestureDetector(
+                                        onTap: () async {
+                                          final file =
+                                              await CommonUploader.pickFromGallery();
 
-                                      child: GestureDetector(
-                                        onTap: () {
-
-                                          setModalState(() {
-
-                                            editingImages.removeAt(index);
-                                          });
+                                          if (file != null) {
+                                            setModalState(() {
+                                              /// ✅ ADD IMAGE
+                                              tempFeaturedImages.add(file);
+                                            });
+                                          }
                                         },
 
                                         child: Container(
-                                          height: 24,
-                                          width: 24,
-
                                           decoration: BoxDecoration(
-                                            color: ColorCode.black.withOpacity(0.7),
-                                            shape: BoxShape.circle,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+
+                                            border: Border.all(
+                                              color: ColorCode.white24,
+                                            ),
                                           ),
 
-                                          child: const Icon(
-                                            Icons.close,
-                                            size: 14,
-                                            color: ColorCode.white,
+                                          child: const Center(
+                                            child: Icon(
+                                              Icons.add,
+                                              color: ColorCode.white,
+                                              size: 28,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }
+                                      );
+                                    }
 
-                              /// ✅ LOCAL IMAGE
-                              final localIndex =
-                                  index - editingImages.length;
+                                    /// ✅ NETWORK IMAGE
+                                    if (index < editingImages.length) {
+                                      final image = editingImages[index];
 
-                              return Stack(
-                                children: [
+                                      return Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
 
-                                  ClipRRect(
-                                    borderRadius:
-                                    BorderRadius.circular(12),
+                                            child: Image.network(
+                                              "${ApiService.imageURL}${image.filePath}",
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                            ),
+                                          ),
 
-                                    child: Image.file(
-                                      tempFeaturedImages[localIndex],
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                    ),
-                                  ),
+                                          Positioned(
+                                            top: 6,
+                                            right: 6,
 
-                                  Positioned(
-                                    top: 6,
-                                    right: 6,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setModalState(() {
+                                                  editingImages.removeAt(index);
+                                                });
+                                              },
 
-                                    child: GestureDetector(
-                                      onTap: () {
+                                              child: Container(
+                                                height: 24,
+                                                width: 24,
 
-                                        setModalState(() {
+                                                decoration: BoxDecoration(
+                                                  color: ColorCode.black
+                                                      .withOpacity(0.7),
+                                                  shape: BoxShape.circle,
+                                                ),
 
-                                          tempFeaturedImages
-                                              .removeAt(localIndex);
-                                        });
-                                      },
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  size: 14,
+                                                  color: ColorCode.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }
 
-                                      child: Container(
-                                        height: 24,
-                                        width: 24,
+                                    /// ✅ LOCAL IMAGE
+                                    final localIndex =
+                                        index - editingImages.length;
 
-                                        decoration: BoxDecoration(
-                                          color: ColorCode.black.withOpacity(0.7),
-                                          shape: BoxShape.circle,
+                                    return Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+
+                                          child: Image.file(
+                                            tempFeaturedImages[localIndex],
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                          ),
                                         ),
 
-                                        child: const Icon(
-                                          Icons.close,
-                                          size: 14,
-                                          color: ColorCode.white,
+                                        Positioned(
+                                          top: 6,
+                                          right: 6,
+
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              setModalState(() {
+                                                tempFeaturedImages.removeAt(
+                                                  localIndex,
+                                                );
+                                              });
+                                            },
+
+                                            child: Container(
+                                              height: 24,
+                                              width: 24,
+
+                                              decoration: BoxDecoration(
+                                                color: ColorCode.black
+                                                    .withOpacity(0.7),
+                                                shape: BoxShape.circle,
+                                              ),
+
+                                              child: const Icon(
+                                                Icons.close,
+                                                size: 14,
+                                                color: ColorCode.white,
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
                       ),
                     ),
 
@@ -1377,46 +1433,31 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       height: 48,
 
                       child: ElevatedButton(
-
-                        style:
-                        ElevatedButton.styleFrom(
-                          backgroundColor:
-                          totalImages >= 5
-                              ? ColorCode
-                              .kButtonColor
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: totalImages >= 5
+                              ? ColorCode.kButtonColor
                               : ColorCode.grey,
 
-                          shape:
-                          RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius.circular(
-                                14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
 
                         onPressed: () async {
-
                           /// TITLE CHECK
-                          if (enter_work_titleController.text
-                              .trim()
-                              .isEmpty) {
-
+                          if (enter_work_titleController.text.trim().isEmpty) {
                             _showSnack("Please enter title");
                             return;
                           }
 
                           /// TOTAL IMAGES
-                          List<File> allImages =
-                          List.from(tempFeaturedImages);
+                          List<File> allImages = List.from(tempFeaturedImages);
 
                           int totalImages =
-                              editingImages.length +
-                                  tempFeaturedImages.length;
+                              editingImages.length + tempFeaturedImages.length;
 
                           if (totalImages < 5) {
-
-                            _showSnack(
-                                "Minimum 5 images required");
+                            _showSnack("Minimum 5 images required");
 
                             return;
                           }
@@ -1431,7 +1472,6 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                           /// ✅ RESET
                           setState(() {
-
                             tempFeaturedImages.clear();
 
                             editingImages.clear();
@@ -1443,6 +1483,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           });
 
                           context.pop();
+
                           /// ✅ REFRESH
                           fetchprofiledata();
                         },
@@ -1451,8 +1492,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           "Save",
                           style: TextStyle(
                             color: ColorCode.black,
-                            fontWeight:
-                            FontWeight.w600,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -1467,7 +1507,9 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
         );
       },
     );
-  }  void _openAddTagSheet(StateSetter setFeaturedModalState) {
+  }
+
+  void _openAddTagSheet(StateSetter setFeaturedModalState) {
     TextEditingController tagController = TextEditingController();
     List<String> tempTags = List.from(selectedTags);
 
@@ -1486,14 +1528,12 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                 padding: const EdgeInsets.all(20),
                 decoration: const BoxDecoration(
                   color: Color(0xFF1E1E1E),
-                  borderRadius:
-                  BorderRadius.vertical(top: Radius.circular(24)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     /// Drag
                     Center(
                       child: Container(
@@ -1509,8 +1549,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                     /// Header
                     Row(
-                      mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
                           "Add Tag",
@@ -1523,9 +1562,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         ),
                         IconButton(
                           onPressed: () => context.pop(),
-                          icon: const Icon(Icons.close,
-                              color: ColorCode.white),
-                        )
+                          icon: const Icon(Icons.close, color: ColorCode.white),
+                        ),
                       ],
                     ),
 
@@ -1533,10 +1571,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                     const Text(
                       "Help people find your work",
-                      style: TextStyle(
-                        color: ColorCode.white24,
-                        fontSize: 13,
-                      ),
+                      style: TextStyle(color: ColorCode.white24, fontSize: 13),
                     ),
 
                     const SizedBox(height: 20),
@@ -1551,13 +1586,22 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                             decoration: const InputDecoration(
                               hintText: "Type tag and press + or Enter",
                               hintStyle: TextStyle(color: ColorCode.white24),
-                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(12)),
-                                borderSide: BorderSide(color: ColorCode.white24),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(12),
+                                ),
+                                borderSide: BorderSide(
+                                  color: ColorCode.white24,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(12),
+                                ),
                                 borderSide: BorderSide(color: ColorCode.white),
                               ),
                             ),
@@ -1606,20 +1650,17 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         runSpacing: 8,
                         children: tempTags.map((tag) {
                           return Container(
-                            padding:
-                            const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: ColorCode.black,
-                              borderRadius:
-                              BorderRadius.circular(20),
-                              border: Border.all(
-                                  color: ColorCode.white24),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: ColorCode.white24),
                             ),
                             child: Row(
-                              mainAxisSize:
-                              MainAxisSize.min,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
                                   tag,
@@ -1654,27 +1695,25 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                          const Color(0xFFEAD3A1),
+                          backgroundColor: const Color(0xFFEAD3A1),
                           foregroundColor: ColorCode.black,
-                          padding:
-                          const EdgeInsets.symmetric(
-                              vertical: 14),
-                          shape:
-                          RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius.circular(14),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                         onPressed: () {
                           // ✅ Agar textfield mein kuch likha hai to pehle add karo
                           final currentText = tagController.text.trim();
-                          if (currentText.isNotEmpty && !tempTags.contains(currentText)) {
+                          if (currentText.isNotEmpty &&
+                              !tempTags.contains(currentText)) {
                             tempTags.add(currentText);
                             tagController.clear();
                           }
 
-                          final List<String> savedTags = List<String>.from(tempTags);
+                          final List<String> savedTags = List<String>.from(
+                            tempTags,
+                          );
                           setFeaturedModalState(() {
                             selectedTags = savedTags;
                           });
@@ -1685,9 +1724,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         },
                         child: const Text(
                           "Save",
-                          style: TextStyle(
-                              fontWeight:
-                              FontWeight.w600),
+                          style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
