@@ -37,10 +37,8 @@ class ApiEndpoints {
 
 
 
-
-
-
-
+  static const String accountDeleted   = 'auth/user/delete-account/request';
+  static const String account_deleted_otp  = 'auth/user/delete-account/confirm';
 
 
 
