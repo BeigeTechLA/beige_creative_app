@@ -229,7 +229,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     decoration: InputDecoration(
                       hintText: "Search events or crew...",
                       hintStyle: const TextStyle(
-                        color: ColorCode.white24,
+                        color: ColorCode.white,
                         fontFamily: "Outfit",
                       ),
                       prefixIcon: Padding(
@@ -302,7 +302,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                   number.padLeft(2, "0"),
                   style: const TextStyle(
                     color: ColorCode.kButtonColor,
-                    fontSize: 29,
+                    fontSize: 24,
                     fontFamily: "Outfit",
                     fontWeight: FontWeight.w700,
                     height: 0.95,

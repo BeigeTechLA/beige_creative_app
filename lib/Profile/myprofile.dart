@@ -1080,7 +1080,7 @@ class _MyprofileState extends State<Myprofile> {
                                       shape: BoxShape.circle,
                                     ),
                                     child: SvgPicture.asset(
-                                      AppImages.myprofileeditphoto,
+                                      AppImages.edit_circle,
                                       height: 18,
                                       width: 18,
                                     ),

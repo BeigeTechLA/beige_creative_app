@@ -148,9 +148,24 @@ class Data {
         ? []
         : List<Skill>.from(json["skills"].map((x) => Skill.fromJson(x))),
 
-    socialMediaLinks: json["social_media_links"] is Map
-        ? Map<String, dynamic>.from(json["social_media_links"])
-        : {},
+    socialMediaLinks: () {
+      final raw = json["social_media_links"];
+      if (raw is Map) return Map<String, dynamic>.from(raw);
+      if (raw is String && raw.isNotEmpty) {
+        try {
+          final parsed = jsonDecode(raw);
+          if (parsed is List) {
+            return Map<String, dynamic>.fromEntries(
+              (parsed as List).map((e) => MapEntry(
+                e["platform"]?.toString() ?? "",
+                e["url"]?.toString() ?? "",
+              )),
+            );
+          }
+        } catch (_) {}
+      }
+      return <String, dynamic>{};
+    }(),
     user: User.fromJson(json["user"] ?? {}),
     profileImageUrl: json["profile_image_url"]?.toString() ?? "",
   );
@@ -239,10 +254,24 @@ class User {
         : json["certifications"]?.toString() ?? "",
 
     /// 🔥 MAIN FIX (dynamic social links)
-    socialMediaLinks: json["social_media_links"] != null
-        ? Map<String, dynamic>.from(json["social_media_links"])
-        : {},
-
+    socialMediaLinks: () {
+      final raw = json["social_media_links"];
+      if (raw is Map) return Map<String, dynamic>.from(raw);
+      if (raw is String && raw.isNotEmpty) {
+        try {
+          final parsed = jsonDecode(raw);
+          if (parsed is List) {
+            return Map<String, dynamic>.fromEntries(
+              (parsed as List).map((e) => MapEntry(
+                e["platform"]?.toString() ?? "",
+                e["url"]?.toString() ?? "",
+              )),
+            );
+          }
+        } catch (_) {}
+      }
+      return <String, dynamic>{};
+    }(),
     profileImageUrl: json["profile_image_url"]?.toString() ?? "",
   );
 }

@@ -500,12 +500,13 @@ import '../../widgets/custom_text_field.dart';
         debugPrint("Reverse geocode error: $e");
       }
     }
-  
-  
+
+
     final List<String> distances = [
-      "Upto 10 Miles",
-      "10-20 Miles",
-      "20-50 Miles",
+      "Upto 50 Miles",
+      "Upto 75 miles",
+      "Upto 100 miles",
+      "I’m open to traveling",
     ];
     Future<File?> _cropImage(
         File imageFile,
@@ -615,7 +616,7 @@ import '../../widgets/custom_text_field.dart';
   
   
       debugPrint("📸 PROFILE IMAGE: ${profileImage!.path}");
-  
+
       try {
         final response = await ApiService().postMultipart(
           ApiEndpoints.register_step1,
@@ -632,73 +633,56 @@ import '../../widgets/custom_text_field.dart';
           },
           profileImage!,
         );
-        debugPrint("📤 SIGNUP PAYLOAD:");
-  
+
         debugPrint("📥 API RESPONSE: $response");
-  
+
         if (response != null && response['error'] == false) {
+
           final crewMemberId = response['data']?['crew_member_id'];
-  
+
           if (crewMemberId == null) {
             _showSnack("Crew member id not received");
             return;
           }
-  
-         /* Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => SignUp2Screen(
-                step1Progress: _calculateCompletion(),
-                crewMemberId: crewMemberId,
-                profileImage: profileImage,
-                email: emailController.text.trim(),
-                firstName: firstNameController.text.trim(),
-                lastName: lastNameController.text.trim(),
-                location: searchController.text.trim(),
-                workingDistance: selectedDistance ?? "",
-              ),
-            ),
-          );*/
+
           context.goNamed(
             RouteNames.signupStep2,
-
             extra: {
-
-              "crewMemberId":
-              response["data"]["crew_member_id"],
-
-              "profileImage":
-              profileImage,
-
-              "email":
-              emailController.text.trim(),
-
-              "firstName":
-              firstNameController.text.trim(),
-
-              "lastName":
-              lastNameController.text.trim(),
-
-              "location":
-              searchController.text.trim(),
-
-              "workingDistance":
-              selectedDistance,
-
-              "step1Progress":
-              _calculateCompletion(),
+              "crewMemberId": response["data"]["crew_member_id"],
+              "profileImage": profileImage,
+              "email": emailController.text.trim(),
+              "firstName": firstNameController.text.trim(),
+              "lastName": lastNameController.text.trim(),
+              "location": searchController.text.trim(),
+              "workingDistance": selectedDistance,
+              "step1Progress": _calculateCompletion(),
             },
           );
+
         } else {
-          _showSnack(response?['message'] ?? "Signup failed");
+
+          _showSnack(response?['message'] ?? "Something went wrong");
         }
+
       } catch (e) {
+
         if (e is DioException) {
+
           debugPrint("❌ STATUS: ${e.response?.statusCode}");
           debugPrint("❌ ERROR DATA: ${e.response?.data}");
+
+          final errorMessage =
+              e.response?.data?['message'] ?? "Something went wrong";
+
+          _showSnack(errorMessage);
+
+        } else {
+
+          _showSnack("Something went wrong");
         }
-        _showSnack("Signup failed");
+
       } finally {
+
         setState(() => isLoggingIn = false);
       }
     }
@@ -761,22 +745,22 @@ import '../../widgets/custom_text_field.dart';
       bool isLocationFilled = searchController.text.isNotEmpty;
       bool locationHighlight = isLocationFocused || isLocationFilled;
   
-      return SafeArea(
-        child: Scaffold(
-  
-          // backgroundColor: ColorCode.white,
-          body: Stack(
+      return Scaffold(
+
+        // backgroundColor: ColorCode.white,
+        body: SafeArea(
+          child: Stack(
             children: [
               SingleChildScrollView(
                 child: Column(
                   children: [
-  
+          
                     /// 🔝 TOP IMAGE + TITLE SECTION
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.28,
                       child: Stack(
                         children: [
-  
+          
                           /// 🖼️ BACKGROUND IMAGE
                           Positioned.fill(
                             child: Image.asset(
@@ -785,7 +769,7 @@ import '../../widgets/custom_text_field.dart';
                               fit: BoxFit.fill,
                             ),
                           ),
-  
+          
                           /// 🔙 BACK BUTTON
                           Positioned(
                             top: 30,
@@ -794,8 +778,8 @@ import '../../widgets/custom_text_field.dart';
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-  
-  
+          
+          
                                 /// 📄 STEP COUNT
                                 Text(
                                   "1/3",
@@ -809,14 +793,14 @@ import '../../widgets/custom_text_field.dart';
                               ],
                             ),
                           ),
-  
+          
                           /// 🏷️ TITLE + SUBTITLE (CENTER)
                           Align(
                             alignment: Alignment.center,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children:  [
-  
+          
                                 Text(
                                   "Build your Creative Profile",
                                   style: TextStyle(
@@ -826,12 +810,12 @@ import '../../widgets/custom_text_field.dart';
                                     color: ColorCode.white,
                                   ),
                                 ),
-  
+          
                                 SizedBox(height: 10),
-  
+          
                                 Text(
                                   "Create your profile to get discovered by\n production teams.",
-  
+          
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontFamily: "Outfit",
@@ -864,14 +848,14 @@ import '../../widgets/custom_text_field.dart';
                       ),
                     ),
                     SizedBox(height: 25),
-  
+          
                     /// 📦 FORM CONTAINER (NICHE)
                     Transform.translate(
                       offset: const Offset(0, -40),
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
-  
+          
                           /// 🧱 MAIN FORM CONTAINER
                           Container(
                             width: double.infinity,
@@ -892,23 +876,23 @@ import '../../widgets/custom_text_field.dart';
                             ),
                             child: Column(
                               children: [
-  
+          
                                // _buildField("First Name",  firstNameController),
                                 CustomTextField(
                                   label: "First Name",
                                   controller: firstNameController,
                                 ),
-  
+          
                                 SizedBox(height: 20),
-  
+          
                                // _buildField("Last Name", lastNameController),
                                 CustomTextField(
                                   label: "Last Name",
                                   controller: lastNameController,
                                 ),
-  
+          
                                 SizedBox(height: 20),
-  
+          
                              //   _buildField("Email Address", emailController),
                                 CustomTextField(
                                   label: "Email Address",
@@ -924,9 +908,9 @@ import '../../widgets/custom_text_field.dart';
                                     LengthLimitingTextInputFormatter(10),   // max 10 digits
                                   ],
                                 ),
-  
+          
                                 SizedBox(height: 20),
-  
+          
                                /* Container(
                                   decoration: BoxDecoration(
                                     color: Colors.transparent,
@@ -939,19 +923,19 @@ import '../../widgets/custom_text_field.dart';
                                   child: GooglePlaceAutoCompleteTextField(
                                     textEditingController: searchController,
                                     focusNode: _locationFocus, // ✅ ADD THIS
-  
+          
                                     googleAPIKey: GoogleConfig.placesApiKey,
                                     debounceTime: 600,
-  
+          
                                     isLatLngRequired: true,
-  
-  
+          
+          
                                     textStyle: const TextStyle(
                                       color: ColorCode.white,
                                       fontFamily: "Outfit",
                                       fontSize: 14,
                                     ),
-  
+          
                                     inputDecoration: const InputDecoration(
                                       border: InputBorder.none,
                                       enabledBorder: InputBorder.none,
@@ -977,41 +961,41 @@ import '../../widgets/custom_text_field.dart';
                                         double.parse(prediction.lat!),
                                         double.parse(prediction.lng!),
                                       );
-  
+          
                                       _locationFocus.unfocus();
-  
+          
                                       await _updateLocationFromLatLng(latLng);
-  
+          
                                       setState(() {
                                         currentLatLng = latLng;
                                         selectedAddress = prediction.description ?? "";
                                         showMap = true;
                                       });
-  
+          
                                       searchController.text = selectedAddress;
                                       searchController.selection = TextSelection.fromPosition(
                                         TextPosition(offset: searchController.text.length),
                                       );
-  
+          
                                       mapController?.animateCamera(
                                         CameraUpdate.newLatLngZoom(latLng, 14),
                                       );
                                     },
-  
-  
+          
+          
                                     itemClick: (prediction) {
                                       searchController.text = prediction.description ?? "";
                                       searchController.selection = TextSelection.fromPosition(
                                         TextPosition(offset: searchController.text.length),
                                       );
                                     },
-  
+          
                                     isCrossBtnShown: true,
                                   ),
                                 ),
-  */
-  
-  
+          */
+          
+          
                                 Stack(
                                   children: [
                                     Container(
@@ -1023,9 +1007,9 @@ import '../../widgets/custom_text_field.dart';
                                               ? ColorCode.kGoldBorder50   // ✅ ACTIVE
                                               : ColorCode.kWhiteOpacity30,
                                           width: 0.5,
-  
+          
                                         ),
-  
+          
                                       ),
                                       child: GooglePlaceAutoCompleteTextField(
                                         textEditingController: searchController,
@@ -1033,12 +1017,12 @@ import '../../widgets/custom_text_field.dart';
                                         googleAPIKey: GoogleConfig.placesApiKey,
                                         debounceTime: 600,
                                         isLatLngRequired: true,
-  
+          
                                         textStyle: const TextStyle(
                                           color: ColorCode.white,
                                           fontSize: 14,
                                         ),
-  
+          
                                         inputDecoration: const InputDecoration(
                                           border: InputBorder.none,
                                           // hintText: "Search location",
@@ -1048,23 +1032,23 @@ import '../../widgets/custom_text_field.dart';
                                             vertical: 16,
                                           ),
                                         ),
-  
+          
                                         getPlaceDetailWithLatLng: (prediction) async {
                                           final latLng = LatLng(
                                             double.parse(prediction.lat!),
                                             double.parse(prediction.lng!),
                                           );
-  
+          
                                           _locationFocus.unfocus();
                                           await _updateLocationFromLatLng(latLng);
                                         },
-  
+          
                                         itemClick: (prediction) {
                                           searchController.text = prediction.description ?? "";
                                         },
                                       ),
                                     ),
-  
+          
                                     /// 🔥 FLOATING LABEL (IMPORTANT)
                                     Positioned(
                                       left: 14,
@@ -1082,13 +1066,13 @@ import '../../widgets/custom_text_field.dart';
                                             fontFamily: "Outfit",
                                           ),
                                         ),
-  
+          
                                       ),
                                     ),
                                   ],
                                 ),
-  
-  
+          
+          
                                 /// 🗺️ MAP WITH FIXED HEIGHT
                                 if (showMap)
                                   Padding(
@@ -1104,48 +1088,48 @@ import '../../widgets/custom_text_field.dart';
                                             target: currentLatLng!,
                                             zoom: 14,
                                           ),
-  
+          
                                           myLocationEnabled: true,
                                           myLocationButtonEnabled: true,
                                           zoomControlsEnabled: true,
                                           compassEnabled: false,
-  
+          
                                           // 🔥 IMPORTANT FIX (touch enable)
                                           gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
                                             Factory<OneSequenceGestureRecognizer>(
                                                   () => EagerGestureRecognizer(),
                                             ),
                                           },
-  
+          
                                           onMapCreated: (controller) {
                                             mapController = controller;
                                             controller.setMapStyle(_darkMapStyle);
                                           },
-  
+          
                                           markers: {
                                             Marker(
                                               markerId: const MarkerId("selected"),
                                               position: currentLatLng!,
                                             ),
                                           },
-  
+          
                                           onTap: (latLng) async {
                                             await _updateLocationFromLatLng(latLng);
                                           },
                                         ),
-  
+          
                                       ),
                                     ),
                                   ),
-  
-  
-  
+          
+          
+          
                                 SizedBox(height: 20),
-  
-                               // _workingDistanceDropdown(),//
+          
                                 CustomDropdown<String>(
                                   label: "Working Distance*",
                                   value: selectedDistance,
+                                  icon: SvgPicture.asset(AppImages.dropdown,color:ColorCode.white,),
                                   items: distances
                                       .map((e) => DropdownMenuItem<String>(
                                     value: e,
@@ -1162,7 +1146,7 @@ import '../../widgets/custom_text_field.dart';
                                   },
                                 ),
                                 SizedBox(height: 20),
-  
+          
                                 // _buildPasswordField(
                                 //   "Create Password",
                                 //   showPassword,
@@ -1170,12 +1154,12 @@ import '../../widgets/custom_text_field.dart';
                                 //   passwordController,
                                 //   _passwordFocus,
                                 // ),
-  
+          
                                 CustomTextField(
                                   isVisible: showPassword,
-  
+          
                                 suffixIcon:IconButton(onPressed:() {
-  
+          
                                   setState(() {
                                      showPassword= !showPassword;
                                   });
@@ -1187,22 +1171,22 @@ import '../../widgets/custom_text_field.dart';
                                     height: 24,
                                     width: 24,
                                   ),
-  
+          
                                 ),
                                   isPassword: true,
                                   label:'Create Password',
                                     controller: passwordController,
-  
+          
                                 ),
-  
+          
                                 SizedBox(height: 20),
-  
+          
                                 CustomTextField(
                                   isVisible: showConfirmPassword,
                                   isPassword: true,
                                   label: 'Confirm Password',
                                   controller: confirmPasswordController,
-  
+          
                                   suffixIcon: IconButton(
                                     onPressed: () {
                                       setState(() {
@@ -1218,13 +1202,13 @@ import '../../widgets/custom_text_field.dart';
                                     ),
                                   ),
                                 ),
-  
+          
                                 SizedBox(height: 20),
-  
+          
                                 _profilePictureCard(),
-  
+          
                                 SizedBox(height: 24),
-  
+          
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
@@ -1261,7 +1245,7 @@ import '../../widgets/custom_text_field.dart';
                                                 fontFamily: "Outfit", // ⭐ Added Outfit font
                                               ),
                                             ),
-  
+          
                                             TextSpan(
                                               text: "Terms & Condition & Privacy Policy",
                                               style: TextStyle(
@@ -1271,8 +1255,8 @@ import '../../widgets/custom_text_field.dart';
                                                 fontFamily: "Outfit", // ⭐ Added Outfit font
                                               ),
                                             ),
-  
-  
+          
+          
                                             TextSpan(text: "\nset out of this site",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w400,
@@ -1285,13 +1269,13 @@ import '../../widgets/custom_text_field.dart';
                                         ),
                                       ),
                                     ),
-  
-  
+          
+          
                                   ],
                                 ),
-  
+          
                                 SizedBox(height: 40),
-  
+          
                                 SizedBox(
                                   width: double.infinity,
                                   height: 55,
@@ -1314,7 +1298,7 @@ import '../../widgets/custom_text_field.dart';
                                         color: isFormValid
                                             ? ColorCode.kHeadingColor
                                             : ColorCode.k282828,
-  
+          
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -1377,20 +1361,20 @@ import '../../widgets/custom_text_field.dart';
                             ),
                           SizedBox(height: 30),
                           if (isPreviewVisible)
-  
-  
+          
+          
                           Positioned(
                               top: -40,
                               left: 20,
                               right: 20,
                               child: _userPreviewCard(),
                             ),
-  
+          
                         ],
                       ),
-  
+          
                     ),
-  
+          
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -1431,13 +1415,13 @@ import '../../widgets/custom_text_field.dart';
               ),
               if (isLoggingIn)
                 AppLoader(),
-  
+          
             ],
-  
+          
           ),
-  
-  
         ),
+
+
       );
   
     }
