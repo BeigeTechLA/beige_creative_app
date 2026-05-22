@@ -79,7 +79,7 @@ class ColorCode {
   // GOLD & GRADIENT COLORS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const Color kGoldGradientLight = Color(0xFFE8D1AB);
+  static const Color kGoldGradientLight = Color(0x80E8D1AB);
   static const Color kGoldGradientDark = Color(0xFFD4A14D);
   static const Color kGold40 = Color(0x66E9BE78);
   static const Color k1D1D1B_Opacity70 = Color(0xB21D1D1B);

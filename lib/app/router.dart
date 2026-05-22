@@ -1,5 +1,7 @@
 
 
+import 'dart:io';
+
 import 'package:go_router/go_router.dart';
 
 import '../ManageAvailability/add_availability_screen.dart';
@@ -258,7 +260,7 @@ final GoRouter appRouter = GoRouter(
           equipments:
           data['equipments'] ?? "",
           featuredImages:
-          data['featuredImages'] ?? [],
+          (data['featuredImages'] as List<File>?) ?? <File>[],
         );
       },
     ),
