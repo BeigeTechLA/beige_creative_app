@@ -1,10 +1,9 @@
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart' show GoRouterHelper;
 import '../../utility/colorcode.dart';
 import '../app/route_names.dart';
-import 'deleteaccount/delete_account.dart';
 
 
 class AppPreferences extends StatefulWidget {
@@ -32,7 +31,7 @@ class _AppPreferencesState extends State<AppPreferences> {
               InkWell(
                 onTap: () => context.pop(),
                 child: SvgPicture.asset(
-                  AppImages.back,
+                  AppAssets.back,
                   height: 24,
                   color: ColorCode.white,
                 ),
@@ -71,7 +70,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                         Row(
                           children: [
                             SvgPicture.asset(
-                              AppImages.moon,
+                              AppAssets.moon,
                               height: 24,
                               width: 24,
                               colorFilter: ColorFilter.mode(
@@ -122,7 +121,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                           Row(
                             children: [
                               SvgPicture.asset(
-                                AppImages.delete,
+                                AppAssets.delete,
                                 height: 24,
                                 width: 24,
                                 colorFilter: ColorFilter.mode(
@@ -141,7 +140,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                             ],
                           ),
                           SvgPicture.asset(
-                            AppImages.goto,
+                            AppAssets.goto,
                             height: 20,
                             width: 20,
                             colorFilter: ColorFilter.mode(
@@ -166,7 +165,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                     child: Row(
                       children: [
                         SvgPicture.asset(
-                          AppImages.appversion,
+                          AppAssets.appversion,
                           height: 24,
                           width: 24,
                           colorFilter: ColorFilter.mode(

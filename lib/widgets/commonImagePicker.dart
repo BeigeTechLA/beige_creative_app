@@ -6,11 +6,9 @@ class CommonImagePicker {
 
   /// MULTI IMAGE PICK
   static Future<List<File>> pickMultiImage() async {
-    final List<XFile>? images = await _picker.pickMultiImage(
+    final List<XFile> images = await _picker.pickMultiImage(
       imageQuality: 80,
     );
-
-    if (images == null) return [];
 
     return images.map((e) => File(e.path)).toList();
   }

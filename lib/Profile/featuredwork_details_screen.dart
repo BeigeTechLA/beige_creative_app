@@ -6,7 +6,7 @@ import '../service/api_service.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/app_loder.dart';
 import '../utility/ColorCode.dart';
-import '../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 
 class FeaturedWorkDetailsScreen extends StatefulWidget {
   final String title;
@@ -92,7 +92,7 @@ class _FeaturedWorkDetailsScreenState extends State<FeaturedWorkDetailsScreen> {
             },
 
             icon: SvgPicture.asset(
-              AppImages.back,
+              AppAssets.back,
               height: 18,
               width: 18,
               color: ColorCode.white,

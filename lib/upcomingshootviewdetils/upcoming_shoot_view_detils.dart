@@ -1,12 +1,9 @@
-import 'package:auto_skeleton/auto_skeleton.dart';
-import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../model_class/upcoming_shootview_model.dart';
 import '../utility/colorcode.dart';
@@ -25,8 +22,8 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
   List<String> getProfileImageUrls() {
     if (mydata?.teamMembers == null) return [];
 
-    return mydata!.teamMembers!
-        .map((e) => ApiService.imageURL + (e.profileImageUrl ?? ""))
+    return mydata!.teamMembers
+        .map((e) => ApiService.imageURL + e.profileImageUrl)
         .where((url) => !url.endsWith("/")) // empty remove
         .toList();
   }
@@ -140,10 +137,10 @@ MyData? mydata;//
                           fit: BoxFit.cover,
 
                           /// ❌ error → fallback
-                          errorBuilder: (_, __, ___) {
+                          errorBuilder: (_, _, _) {
                             return SvgPicture.asset(
                               // "assets/svg/image_holder.svg",
-                              AppImages.image_holder,
+                              AppAssets.image_holder,
                               fit: BoxFit.cover,
                             );
                           },
@@ -179,7 +176,7 @@ MyData? mydata;//
                           InkWell(
                             onTap: () => context.pop(),
                             // child: Image.asset("assets/icons/Reply.png", height: 24,color: ColorCode.white,),
-                            child: SvgPicture.asset(AppImages.back),
+                            child: SvgPicture.asset(AppAssets.back),
                           ),
 
                         ],
@@ -573,7 +570,7 @@ MyData? mydata;//
 
                 _contactItem(
                   icon: SvgPicture.asset(
-                    AppImages.person_icons,
+                    AppAssets.person_icons,
 
                   ),
                   title: "Contact Name",
@@ -584,7 +581,7 @@ MyData? mydata;//
 
                 _contactItem(
                   icon: SvgPicture.asset(
-                    AppImages.Phone_Calling,
+                    AppAssets.Phone_Calling,
 
                   ),
                   title: "Contact Number",
@@ -594,7 +591,7 @@ MyData? mydata;//
 
                 _contactItem(
                   icon: SvgPicture.asset(
-                    AppImages.mail_icon,
+                    AppAssets.mail_icon,
 
                   ),
                   title: "Email ID",
@@ -623,7 +620,7 @@ MyData? mydata;//
                             context,
                             PageRouteBuilder(
                               transitionDuration: const Duration(milliseconds: 400),
-                              pageBuilder: (_, __, ___) => const CancelScreen(),
+                              pageBuilder: (_, _, _) => const CancelScreen(),
                               transitionsBuilder: (_, animation, __, child) {
                                 return SlideTransition(
                                   position: Tween(

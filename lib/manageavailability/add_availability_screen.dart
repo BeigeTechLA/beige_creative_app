@@ -1,6 +1,6 @@
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -438,7 +438,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       suffixIcon: Padding(
         padding: const EdgeInsets.all(10.0),
         child: SvgPicture.asset(
-          'assets/svg/mycalender.svg',
+          AppAssets.mycalender,
           width: 13,
           height: 13,
         ),
@@ -504,7 +504,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
         children: [
           Row(
             children: [
-              SvgPicture.asset('assets/svg/Info.svg',
+              SvgPicture.asset(AppAssets.info_svg,
                   color: const Color(0xffFF9D25)),
               const SizedBox(width: 6),
               const Text("Repeat every day",
@@ -598,7 +598,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
               children: [
                 InkWell(
                   onTap: () => context.pop(),
-                  child: SvgPicture.asset(AppImages.back),
+                  child: SvgPicture.asset(AppAssets.back),
                 ),
               ],
             ),
@@ -663,7 +663,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       suffixIcon: Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: SvgPicture.asset(
-                            AppImages.calender,
+                            AppAssets.calender,
                         ),
                       ),
                       onTap: () => pickDate(dateController),

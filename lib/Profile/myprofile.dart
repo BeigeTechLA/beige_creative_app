@@ -3,32 +3,24 @@ import 'dart:ui' as ui;
 
 import 'package:beige_creative_app/model_class/myprofile_model.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../app/route_names.dart';
-import '../auth/login/login.dart';
 import '../auth/sign_up/signup1_screen.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../service/shared_service.dart';
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/app_loder.dart';
 import '../widgets/common_uploader.dart';
 import '../widgets/custom_text_field.dart';
 
-import 'ProfileDetils/profile_detils_1screen.dart' show ProfileDetils1screen;
 
-import 'app_preferences.dart';
-import 'certificates.dart';
-import 'featured_work_list.dart';
-import 'resume_screen.dart';
 
 class Myprofile extends StatefulWidget {
   const Myprofile({super.key});
@@ -42,13 +34,11 @@ class _MyprofileState extends State<Myprofile> {
 
   bool isEditing = false;
   bool isUploadingImage = false;
-  File? _image;
   int editingIndex = -1;
   Offset offset = Offset.zero;
   Offset startOffset = Offset.zero;
   double scale = 1.0;
   double startScale = 1.0;
-  final ImagePicker _picker = ImagePicker();
   File? _profileImage;
 
   /* Future<void> editPortfolioLink() async {
@@ -79,13 +69,13 @@ class _MyprofileState extends State<Myprofile> {
   String getPortfolioIcon(String key) {
     switch (key.toLowerCase()) {
       case "youtube":
-        return AppImages.youtube;
+        return AppAssets.youtube;
       case "vimeo":
-        return AppImages.v;
+        return AppAssets.v;
       case "google_drive":
-        return AppImages.googledrive;
+        return AppAssets.googledrive;
       default:
-        return "assets/svg/ball.svg";
+        return AppAssets.Ball;
     }
   }
 
@@ -198,20 +188,22 @@ class _MyprofileState extends State<Myprofile> {
           await fetchprofiledata();
           if (mounted) Navigator.pop(context);
         } else {
-          if (mounted)
+          if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(response["message"] ?? "Edit failed")),
             );
+          }
         }
       } catch (e) {
         debugPrint("Edit error: $e");
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Network error. Please try again."),
               backgroundColor: ColorCode.red,
             ),
           );
+        }
       } finally {
         if (mounted) setUpdating(false);
       }
@@ -378,7 +370,7 @@ class _MyprofileState extends State<Myprofile> {
                         SvgPicture.asset(
                           /* "assets/svg/crop_image.svg",*/
                           // 👈 your image
-                          AppImages.Image_zoom,
+                          AppAssets.Image_zoom,
                           height: 20,
                           width: 20,
                           /*  color: ColorCode.white.withOpacity(0.7), */
@@ -419,7 +411,7 @@ class _MyprofileState extends State<Myprofile> {
 
                         /// 🔹 LEFT IMAGE ICON
                         SvgPicture.asset(
-                          AppImages.Image_zoom,
+                          AppAssets.Image_zoom,
 
                           // 👈 your image
                           height: 26,
@@ -821,15 +813,15 @@ class _MyprofileState extends State<Myprofile> {
   String getIcon(String key) {
     switch (key.toLowerCase()) {
       case "facebook":
-        return AppImages.facebook;
+        return AppAssets.facebook;
       case "instagram":
-        return AppImages.insta;
+        return AppAssets.insta;
       case "tiktok":
-        return AppImages.tiktok;
+        return AppAssets.tiktok;
       case "behance":
-        return AppImages.be;
+        return AppAssets.be;
       default:
-        return "assets/svg/ball.svg";
+        return AppAssets.Ball;
     }
   }
 
@@ -932,10 +924,10 @@ class _MyprofileState extends State<Myprofile> {
     // "assets/icons/ticktok.png",
     // "assets/icons/behance.png",
     // "assets/icons/webside.png",
-    AppImages.facebook,
-    AppImages.insta,
-    AppImages.tiktok,
-    AppImages.be,
+    AppAssets.facebook,
+    AppAssets.insta,
+    AppAssets.tiktok,
+    AppAssets.be,
     /*  "assets/svg/Ball.svg"*/
   ];
 
@@ -945,9 +937,9 @@ class _MyprofileState extends State<Myprofile> {
     // "assets/icons/vimeo-icon 1.png",
     // "assets/icons/YouTube.png",
     // "assets/icons/Google_Drive.png",
-    AppImages.v,
-    AppImages.youtube,
-    AppImages.googledrive,
+    AppAssets.v,
+    AppAssets.youtube,
+    AppAssets.googledrive,
   ];
 
   @override
@@ -972,7 +964,7 @@ class _MyprofileState extends State<Myprofile> {
                           bottomRight: Radius.circular(28),
                         ),
                         child: SvgPicture.asset(
-                          AppImages.rectangle_profile,
+                          AppAssets.rectangle_profile,
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -985,7 +977,7 @@ class _MyprofileState extends State<Myprofile> {
                       child: InkWell(
                         onTap: () => context.pop(true),
                         child: SvgPicture.asset(
-                          AppImages.back, // make sure it's .svg file
+                          AppAssets.back, // make sure it's .svg file
                           height: 24,
                           colorFilter: ColorFilter.mode(
                             ColorCode.kHeadingColor,
@@ -1049,7 +1041,7 @@ class _MyprofileState extends State<Myprofile> {
                                           fit: BoxFit.cover,
                                         )
                                       : SvgPicture.asset(
-                                          AppImages.User_Circle,
+                                          AppAssets.User_Circle,
                                           width: 96,
                                           height: 96,
                                         ),
@@ -1080,7 +1072,7 @@ class _MyprofileState extends State<Myprofile> {
                                       shape: BoxShape.circle,
                                     ),
                                     child: SvgPicture.asset(
-                                      AppImages.myprofileeditphoto,
+                                      AppAssets.myprofileeditphoto,
                                       height: 18,
                                       width: 18,
                                     ),
@@ -1202,19 +1194,19 @@ class _MyprofileState extends State<Myprofile> {
                             value:
                                 "\$${double.tryParse(Myprofile_user?.hourlyRate ?? '0')?.toInt() ?? 0}",
                             title: "Per Hour",
-                            icon: AppImages.doller,
+                            icon: AppAssets.doller,
                           ),
 
                           infoCard(
-                            icon: AppImages.medal,
+                            icon: AppAssets.medal,
                             value:
                                 "${(Myprofile_user?.yearsOfExperience ?? 0).toString().padLeft(2, '0')} yrs",
                             title: "Experience",
                           ),
 
                           infoCard(
-                            icon: AppImages.map,
-                            value: "${Myprofile_user?.workingDistance ?? ''}",
+                            icon: AppAssets.map,
+                            value: Myprofile_user?.workingDistance ?? '',
                             title: "Radius",
                           ),
                         ],
@@ -1429,7 +1421,7 @@ class _MyprofileState extends State<Myprofile> {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: SvgPicture.asset(
-                                AppImages.myprofile_edit,
+                                AppAssets.myprofile_edit,
                                 /*    color: Color(0xff1D1D1B),
                               fit: BoxFit.cover,*/
                               ),
@@ -1603,7 +1595,7 @@ class _MyprofileState extends State<Myprofile> {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: SvgPicture.asset(
-                                AppImages.myprofile_edit,
+                                AppAssets.myprofile_edit,
                                 /*    color: Color(0xff1D1D1B),
                               fit: BoxFit.cover,*/
                               ),
@@ -1704,7 +1696,7 @@ class _MyprofileState extends State<Myprofile> {
             child: Column(
               children: [
                 _menuRow(
-                  AppImages.userid,
+                  AppAssets.userid,
                   "Profile Details",
                   onTap: () {
                     context.pushNamed(RouteNames.profileDetails);
@@ -1767,7 +1759,7 @@ class _MyprofileState extends State<Myprofile> {
             child: Column(
               children: [
                 _menuRow(
-                  AppImages.gallery,
+                  AppAssets.gallery,
                   "Featured Works",
                   onTap: () {
                     context.pushNamed(RouteNames.featuredWorks);
@@ -1775,7 +1767,7 @@ class _MyprofileState extends State<Myprofile> {
                 ),
                 _divider(),
                 _menuRow(
-                  AppImages.certificates,
+                  AppAssets.certificates,
                   "certificates",
                   onTap: () {
                     context.pushNamed(RouteNames.certificates);
@@ -1783,7 +1775,7 @@ class _MyprofileState extends State<Myprofile> {
                 ),
                 _divider(),
                 _menuRow(
-                  AppImages.resume,
+                  AppAssets.resume,
                   "resume",
                   onTap: () {
                     context.pushNamed(RouteNames.resume);
@@ -1825,7 +1817,7 @@ class _MyprofileState extends State<Myprofile> {
             child: Column(
               children: [
                 _menuRow(
-                  AppImages.appperference,
+                  AppAssets.appperference,
                   "App Preferences",
                   onTap: () {
                     context.pushNamed(RouteNames.appPreferences);
@@ -1833,7 +1825,7 @@ class _MyprofileState extends State<Myprofile> {
                 ),
                 _divider(),
                 _menuRow(
-                  AppImages.notificationsetting,
+                  AppAssets.notificationsetting,
                   "Notifications Settings",
                 ),
 
@@ -1900,7 +1892,7 @@ class _MyprofileState extends State<Myprofile> {
             //   color: ColorCode.white,
             // ),
             SvgPicture.asset(
-              AppImages.goto, // make sure it's .svg file
+              AppAssets.goto, // make sure it's .svg file
               height: 10,
               width: 10,
             ),
@@ -2278,7 +2270,7 @@ class _MyprofileState extends State<Myprofile> {
                               ],
                             ),
                           );
-                        }).toList(),
+                        }),
 
                         const SizedBox(height: 10),
                       ],
@@ -2650,8 +2642,9 @@ class _MyprofileState extends State<Myprofile> {
                                                   e.toLowerCase() ==
                                                   item["name"]!.toLowerCase(),
                                             );
-                                        if (selectedPortfolioIndex == -1)
+                                        if (selectedPortfolioIndex == -1) {
                                           selectedPortfolioIndex = 0;
+                                        }
                                         nameController.text = item["name"]!;
                                         linkController.text = item["url"]!;
                                         editingIndex = index;
@@ -2686,7 +2679,7 @@ class _MyprofileState extends State<Myprofile> {
                               ],
                             ),
                           );
-                        }).toList(),
+                        }),
                         const SizedBox(height: 10),
                       ],
 

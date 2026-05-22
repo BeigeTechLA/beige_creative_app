@@ -1,17 +1,15 @@
 import 'dart:async';
 
-import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../utility/colorcode.dart';
-import '../../../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../widgets/Topmessgae.dart';
-import 'delete_account_lottieScreen.dart';
 
 
 class DeleteAccountOtpScreen extends StatefulWidget {
@@ -177,7 +175,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
             InkWell(
               onTap: () => context.pop(),
               child:SvgPicture.asset(
-                AppImages.back, // make sure it's .svg file
+                AppAssets.back, // make sure it's .svg file
                 height: 24,
 
               ),

@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 class EditProfileResponse {
   final bool error;

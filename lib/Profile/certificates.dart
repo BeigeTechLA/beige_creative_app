@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../model_class/create_dashboard_details_model.dart' hide Data;
 import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/commonFileViewer.dart';
 import '../widgets/common_uploader.dart';
 
@@ -135,7 +134,7 @@ class _CertificatesState extends State<Certificates> {
                         onTap: () => context.pop(),
                         child:
                         SvgPicture.asset(
-                          AppImages.back,
+                          AppAssets.back,
                         /*  "assets/icons/back.png",*/
                           height: 24,color: ColorCode.white,),
                       ),
@@ -219,7 +218,7 @@ class _CertificatesState extends State<Certificates> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: SvgPicture.asset(
                                           // "assets/svg/image_holder.svg",
-                                          AppImages.image_holder,
+                                          AppAssets.image_holder,
                                           fit: BoxFit.contain,
                                         ),
                                       );
@@ -274,7 +273,7 @@ class _CertificatesState extends State<Certificates> {
                                       _openOptions(cert);
                                     },
                                     child: SvgPicture.asset(
-                                      AppImages
+                                      AppAssets
                                           .more_vert,
                                       height: 20,
                                       width: 20,
@@ -375,7 +374,7 @@ class _CertificatesState extends State<Certificates> {
               const Divider(color: ColorCode.white24),
               /// CAMERA
               uploadOption(
-                svgPath: AppImages.scanner,
+                svgPath: AppAssets.scanner,
                 title: "Scan from Camera",
                 onTap: () async {
                   context.pop();
@@ -398,7 +397,7 @@ class _CertificatesState extends State<Certificates> {
               /// GALLERY
 
               uploadOption(
-                svgPath: AppImages.gallery,
+                svgPath: AppAssets.gallery,
                 title: "Import from Gallery",
                 onTap: () async {
                   context.pop();
@@ -421,7 +420,7 @@ class _CertificatesState extends State<Certificates> {
 
               /// FILES
               uploadOption(
-                svgPath: AppImages.document,
+                svgPath: AppAssets.document,
                 title: "Import from Files",
                 onTap: () async {
                   context.pop();

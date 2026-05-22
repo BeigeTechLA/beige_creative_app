@@ -1,5 +1,4 @@
-import 'package:beige_creative_app/auth/login/login.dart';
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
@@ -44,7 +43,7 @@ class _DeleteAccountLottieScreenState extends State<DeleteAccountLottieScreen> {
           children: [
 
             Lottie.asset(
-             AppImages.lottie1,
+             AppAssets.lottie1,
               height: 180,
               repeat: false,
             ),

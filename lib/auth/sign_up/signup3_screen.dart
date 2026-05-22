@@ -1,16 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
-import 'package:open_file/open_file.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
@@ -20,7 +17,6 @@ import '../../widgets/commonFileViewer.dart';
 import '../../widgets/common_uploader.dart';
 import '../../widgets/custom_text_field.dart';
 import '../view_details_screen .dart';
-import '../login/login.dart';
 
 class SignUp3Screen extends StatefulWidget {
   final int? crewMemberId;
@@ -113,9 +109,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
     // "assets/icons/vimeo-icon 1.png",
     // "assets/icons/YouTube.png",
     // "assets/icons/Google_Drive.png",
-    AppImages.v,
-    AppImages.youtube,
-    AppImages.googledrive,
+    AppAssets.v,
+    AppAssets.youtube,
+    AppAssets.googledrive,
   ];
 
   final List<String> socialNames = [
@@ -127,11 +123,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   ];
 
   final List<String> socialIcons = [
-    AppImages.facebook,
-    AppImages.insta,
-    AppImages.tiktok,
-    AppImages.be,
-    AppImages.Ball,
+    AppAssets.facebook,
+    AppAssets.insta,
+    AppAssets.tiktok,
+    AppAssets.be,
+    AppAssets.Ball,
   ];
 
   String getSocialPlatformKey(String name) {
@@ -374,7 +370,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       /// 🖼️ BACKGROUND IMAGE
                       Positioned.fill(
                         child: Image.asset(
-                          AppImages.rectangle,
+                          AppAssets.rectangle,
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -393,7 +389,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 context.pop();
                               },
                               child: SvgPicture.asset(
-                                AppImages.back,
+                                AppAssets.back,
                                 height: 24,
                                 color: ColorCode.white,
                               ),
@@ -559,7 +555,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         /// ✏️ EDIT
                                         IconButton(
                                           icon: SvgPicture.asset(
-                                            AppImages.Pencil,
+                                            AppAssets.Pencil,
                                             width: 18,
                                             height: 18,
                                           ),
@@ -580,7 +576,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         /// 🗑 DELETE
                                         IconButton(
                                           icon: SvgPicture.asset(
-                                            AppImages.delete,
+                                            AppAssets.delete,
                                             width: 18,
                                             height: 18,
                                           ),
@@ -665,7 +661,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                                         IconButton(
                                           icon: SvgPicture.asset(
-                                            AppImages.Pencil,
+                                            AppAssets.Pencil,
                                             width: 18,
                                             height: 18,
                                           ),
@@ -688,7 +684,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                                         IconButton(
                                           icon: SvgPicture.asset(
-                                            AppImages.delete,
+                                            AppAssets.delete,
                                             width: 18,
                                             height: 18,
                                           ),
@@ -1939,7 +1935,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   ),
 
                                   child: IconButton(
-                                    icon: SvgPicture.asset(AppImages.Pencil),
+                                    icon: SvgPicture.asset(AppAssets.Pencil),
 
                                     // icon: const Icon(Icons.edit,
                                     //     color: ColorCode.white, size: 18),
@@ -1966,7 +1962,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   ),
 
                                   child: IconButton(
-                                    icon: SvgPicture.asset(AppImages.delete),
+                                    icon: SvgPicture.asset(AppAssets.delete),
                                     // icon: const Icon(Icons.delete,
                                     //     color: ColorCode.redAccent, size: 18),
                                     onPressed: () {
@@ -1981,7 +1977,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               ],
                             ),
                           );
-                        }).toList(),
+                        }),
 
                         const SizedBox(height: 10),
                       ],
@@ -2555,7 +2551,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     // icon: const Icon(Icons.edit,
                                     //     color: ColorCode.white, size: 18),
                                     icon: SvgPicture.asset(
-                                      AppImages.Pencil,
+                                      AppAssets.Pencil,
                                       width: 18,
                                       height: 18,
                                     ),
@@ -2588,7 +2584,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     icon: SvgPicture.asset(
-                                      AppImages.delete,
+                                      AppAssets.delete,
                                       width: 18,
                                       height: 18,
                                     ),
@@ -2604,7 +2600,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               ],
                             ),
                           );
-                        }).toList(),
+                        }),
 
                         const SizedBox(height: 10),
                       ],

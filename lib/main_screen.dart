@@ -2,21 +2,16 @@
 
 import 'dart:ui';
 
-import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
-import 'package:beige_creative_app/service/shared_service.dart';
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Home/home_screen.dart';
-import 'model_class/create_dashboard_details_model.dart' as profile;
 import 'Model_Class/myprofile_model.dart';
 
-import 'Profile/myprofile.dart';
 import 'Shoots/shoots_screen.dart';
 import 'Messages/messages_screen.dart';
 import 'ManageAvailability/manage_availability_screen.dart';
@@ -149,20 +144,20 @@ Future<void> fetchprofiledata() async {
           items: [
             BottomNavigationBarItem(
               icon: _buildInactiveIcon(
-                AppImages.inactiveDashboard,
+                AppAssets.inactiveDashboard,
               ),
               activeIcon: _buildActiveIcon(
-                AppImages.activeDashboard,
+                AppAssets.activeDashboard,
               ),
               label: "Dashboard",
             ),
 
             BottomNavigationBarItem(
               icon: _buildInactiveIcon(
-                AppImages.inactiveShoots,
+                AppAssets.inactiveShoots,
               ),
               activeIcon: _buildActiveIcon(
-                AppImages.activeShoots,
+                AppAssets.activeShoots,
                 width: 46,
               ),
               label: "Shoots",
@@ -170,10 +165,10 @@ Future<void> fetchprofiledata() async {
 
             BottomNavigationBarItem(
               icon: _buildInactiveIcon(
-                AppImages.inactiveFileManager,
+                AppAssets.inactiveFileManager,
               ),
               activeIcon: _buildActiveIcon(
-                AppImages.activeFileManager,
+                AppAssets.activeFileManager,
                 width: 48,
               ),
               label: "Files",
@@ -181,10 +176,10 @@ Future<void> fetchprofiledata() async {
 
             BottomNavigationBarItem(
               icon: _buildInactiveIcon(
-                AppImages.inactiveMessages,
+                AppAssets.inactiveMessages,
               ),
               activeIcon: _buildActiveIcon(
-                AppImages.activeMessages,
+                AppAssets.activeMessages,
               ),
               label: "Messages",
             ),
@@ -293,7 +288,7 @@ Future<void> fetchprofiledata() async {
                     children: [
                       /// ===================== Drawer Top Logo =====================
 
-                      Image.asset(AppImages.group_logo),
+                      Image.asset(AppAssets.group_logo),
                       IconButton(
                         icon: const Icon(Icons.close, color: ColorCode.white),
                         onPressed: () => context.pop(),
@@ -337,7 +332,7 @@ Future<void> fetchprofiledata() async {
                             )
                                 : null,
                             child: (Myprofile_user?.profileImageUrl ?? "").isEmpty
-                                ? SvgPicture.asset(AppImages.User_Circle)
+                                ? SvgPicture.asset(AppAssets.User_Circle)
                                 : null,
                           ),
                           const SizedBox(width: 12),
@@ -391,36 +386,36 @@ Future<void> fetchprofiledata() async {
                   /// Bottom linked
                   _drawerBottomItem(
                     "Dashboard",
-                    AppImages.activeDashboard,
-                    AppImages.inactiveDashboard,
+                    AppAssets.activeDashboard,
+                    AppAssets.inactiveDashboard,
                     0,
                   ),
 
                   _drawerBottomItem(
                     "shoots",
-                    AppImages.activeShoots,
-                    AppImages.inactiveShoots,
+                    AppAssets.activeShoots,
+                    AppAssets.inactiveShoots,
                     1,
                   ),
 
                   _drawerBottomItem(
                     "File Manager",
-                    AppImages.activeFileManager,
-                    AppImages.inactiveFileManager,
+                    AppAssets.activeFileManager,
+                    AppAssets.inactiveFileManager,
                     2,
                   ),
 
                   _drawerBottomItem(
                     "messages",
-                    AppImages.activeMessages,
-                    AppImages.inactiveMessages,
+                    AppAssets.activeMessages,
+                    AppAssets.inactiveMessages,
                     3,
                   ),
 
                   _drawerBottomItem(
                     "Manage Availability",
-                    AppImages.activeManageAvailability,
-                    AppImages.inactiveManageAvailability,
+                    AppAssets.activeManageAvailability,
+                    AppAssets.inactiveManageAvailability,
                     4,
                   ),
                 ],

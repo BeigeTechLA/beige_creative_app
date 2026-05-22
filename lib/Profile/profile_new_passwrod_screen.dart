@@ -3,13 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app/route_names.dart';
-import '../service/api_endpoints.dart' show ApiEndpoints;
-import '../service/api_service.dart';
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart' show AppImages;
+import 'package:beige_creative_app/app/assets.dart' show AppAssets;
 import '../widgets/Topmessgae.dart';
 import '../widgets/custom_text_field.dart';
-import 'myprofile_youre_all_set_screen.dart';
 
 class MyprofileNewPasswrodScreen extends StatefulWidget {
   final String email;
@@ -143,7 +140,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                       /// 🖼️ BACKGROUND IMAGE
                       Positioned.fill(
                         child: Image.asset(
-                          AppImages.rectangle,
+                          AppAssets.rectangle,
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -164,7 +161,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                                 context.pop();
                               },
                               child: SvgPicture.asset(
-                                AppImages.back,
+                                AppAssets.back,
                                 height: 24,
                                 color: ColorCode.white,
                               ),

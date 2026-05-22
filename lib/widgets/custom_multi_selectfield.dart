@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart' show SvgPicture;
 
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart' show AppImages;
+import 'package:beige_creative_app/app/assets.dart' show AppAssets;
 
 class CustomMultiSelectField extends StatefulWidget {
   final String label;
@@ -136,7 +136,7 @@ class _CustomMultiSelectFieldState
               padding: const EdgeInsets.all(18.0),
 
               child: SvgPicture.asset(
-                AppImages.dropdown,
+                AppAssets.dropdown,
                 color: ColorCode.white,
                 width: 24,
                 height: 24,

@@ -1,11 +1,10 @@
-import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
 import '../app/route_names.dart';
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 
 class MyprofileYoureAllSetScreen extends StatefulWidget {
   const MyprofileYoureAllSetScreen({super.key});
@@ -46,7 +45,7 @@ class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen>
             /// ✅ SUCCESS LOTTIE
             Lottie.asset(
               // "assets/lottie/Untitled file.json",
-              AppImages.lottie1,
+              AppAssets.lottie1,
               height: 180,
               repeat: false,
             ),

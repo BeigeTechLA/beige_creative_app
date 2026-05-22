@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../app/route_names.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
-import 'shoot_cancelled_lotties_screen.dart';
 
 class CancelScreen extends StatefulWidget {
   final int? projectId;
@@ -222,7 +221,7 @@ class _CancelScreenState extends State<CancelScreen> {
                             ),
                           ),
                         );
-                      }).toList(),
+                      }),
 
                       /// Others TextField
                       AnimatedSwitcher(

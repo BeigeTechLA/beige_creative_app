@@ -1,24 +1,16 @@
 import 'dart:io';
-import 'dart:ui';
 
-import 'package:beige_creative_app/widgets/custom_dropdown.dart';
 import 'package:beige_creative_app/widgets/app_loder.dart';
 import 'package:beige_creative_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/colorcode.dart';
-import '../../utility/imges_icons.dart';
-import '../../widgets/custom_dropdown_field.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/custom_multi_selectfield.dart';
-import '../view_details_screen .dart';
-import '../login/login.dart';
-import 'signup3_screen.dart';
 
 class SignUp2Screen extends StatefulWidget{
   final int ?crewMemberId;
@@ -507,7 +499,7 @@ class SignUp2ScreenState
                               /// 🖼️ BACKGROUND IMAGE
                               Positioned.fill(
                                 child: Image.asset(
-                                  AppImages.rectangle,
+                                  AppAssets.rectangle,
                                   fit: BoxFit.fill,
                                 ),
                               ),
@@ -527,7 +519,7 @@ class SignUp2ScreenState
                                         Navigator.pop(context);
                                       },
                                       child: SvgPicture.asset(
-                                        AppImages.back,
+                                        AppAssets.back,
                                         fit: BoxFit.fill,
                                       ),
                                     ),

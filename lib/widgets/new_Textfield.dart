@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../utility/colorcode.dart';
 
 class CustomInputField extends StatefulWidget {
@@ -85,7 +84,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
       ),
 
       decoration: InputDecoration(
-        labelText: "${widget.title}",
+        labelText: widget.title,
         floatingLabelBehavior: FloatingLabelBehavior.always,
 
 

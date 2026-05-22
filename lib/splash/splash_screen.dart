@@ -1,14 +1,10 @@
-import 'package:beige_creative_app/Home/home_screen.dart';
-import 'package:beige_creative_app/Shoots/shoot_cancelled_lotties_screen.dart';
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../main_screen.dart';
 import '../app/route_names.dart';
-import '../onboding/onboding_screen.dart';
 import '../utility/colorcode.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -61,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen>
         color: ColorCode.kHeadingColor,
         child: Center(
           child: Lottie.asset(
-            AppImages.lottie2,
+            AppAssets.lottie2,
           /*  "assets/lottie/Component10.json",*/
             controller: _controller,
             width: 250,

@@ -1,19 +1,15 @@
-import 'package:auto_skeleton/auto_skeleton.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/widgets/app_loder.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import '../model_class/shoot_count_model.dart';
 import '../Model_Class/shoots_model.dart';
-import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../app/route_names.dart';
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/date_time.dart';
-import 'shoot_cancelled_screen.dart';
 
 class ShootsScreen extends StatefulWidget {
   const ShootsScreen({super.key});
@@ -72,7 +68,9 @@ class _ShootsScreenState extends State<ShootsScreen> {
           myrejectedRequests = response.data.rejectedRequests;
         });
       }
-    } on Exception catch (e) {}
+    } on Exception {
+      // ignored
+    }
   }
 
   Future<void> fetchshootmodel() async {
@@ -112,9 +110,9 @@ class _ShootsScreenState extends State<ShootsScreen> {
     final lowerQuery = query.toLowerCase();
 
     final filtered = allShoots.where((shoot) {
-      final projectName = (shoot.projectName ?? "").toLowerCase();
+      final projectName = shoot.projectName.toLowerCase();
 
-      final contentType = (shoot.contentType ?? "").toLowerCase();
+      final contentType = shoot.contentType.toLowerCase();
 
       return projectName.contains(lowerQuery) ||
           contentType.contains(lowerQuery);
@@ -146,7 +144,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                         onTap: () {
                           Scaffold.of(context).openDrawer();
                         },
-                        child: SvgPicture.asset(AppImages.menu, height: 26),
+                        child: SvgPicture.asset(AppAssets.menu, height: 26),
                       ),
                     ),
 
@@ -168,7 +166,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     /// FILTER
                     /*  GestureDetector(
                           onTap: () => _showFilterBottomSheet(context),
-                          child: SvgPicture.asset(AppImages.filter,width: 26,height: 26,)),*/
+                          child: SvgPicture.asset(AppAssets.filter,width: 26,height: 26,)),*/
                   ],
                 ),
               ),
@@ -183,25 +181,25 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     _countCard(
                       "$mypendingRequests",
                       "Pending Shoots",
-                      AppImages.clock_icon,
+                      AppAssets.clock_icon,
                     ),
 
                     _countCard(
                       "$myconfirmedRequests",
                       "Confirmed Shoots",
-                      AppImages.video_icon,
+                      AppAssets.video_icon,
                     ),
 
                     _countCard(
                       "$mycompletedShoots",
                       "Completed Shoots",
-                      AppImages.photo_icon,
+                      AppAssets.photo_icon,
                     ),
 
                     _countCard(
                       "$myrejectedRequests",
                       "Declined",
-                      AppImages.declined_icon,
+                      AppAssets.declined_icon,
                     ),
                   ],
                 ),
@@ -235,7 +233,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(13),
                         child: SvgPicture.asset(
-                          AppImages.search_icon,
+                          AppAssets.search_icon,
                           width: 14,
                           height: 14,
                           fit: BoxFit.contain,
@@ -403,7 +401,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                       color: const Color(0xFF1E1E1E),
                       alignment: Alignment.center,
                       child: SvgPicture.asset(
-                        AppImages.image_holder,
+                        AppAssets.image_holder,
                         height: 60,
                         colorFilter: const ColorFilter.mode(
                           ColorCode.white24,
@@ -455,7 +453,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
 
                 /// TITLE
                 Text(
-                  shoot?.projectName ?? "No Title",
+                  shoot.projectName,
                   style: const TextStyle(
                     color: ColorCode.white,
                     fontSize: 15,
@@ -470,7 +468,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 /// ✅ DATE + TIME + LOCATION (FIXED)
                 Row(
                   children: [
-                    SvgPicture.asset(AppImages.calender, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.calender, width: 14, height: 14),
                     const SizedBox(width: 6),
                     Text(
                       formattedDate, // ✅ FIX
@@ -483,7 +481,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
 
                     const SizedBox(width: 14),
 
-                    SvgPicture.asset(AppImages.time, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.time, width: 14, height: 14),
                     const SizedBox(width: 6),
                     Text(
                       formattedTime, // ✅ FIX
@@ -496,11 +494,11 @@ class _ShootsScreenState extends State<ShootsScreen> {
 
                     const SizedBox(width: 14),
 
-                    SvgPicture.asset(AppImages.location, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.location, width: 14, height: 14),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        shoot?.eventLocation ?? "No Location",
+                        shoot.eventLocation,
                         style: const TextStyle(
                           color: ColorCode.white,
                           fontSize: 10,
@@ -523,10 +521,10 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     /// ✅ LEFT SIDE (Avatar Stack)
                     // _buildAvatarStack(
                     //   images: [
-                    //     AppImages.avtarstack,
-                    //     AppImages.avtarstack,
-                    //     AppImages.avtarstack,
-                    //     AppImages.avtarstack,
+                    //     AppAssets.avtarstack,
+                    //     AppAssets.avtarstack,
+                    //     AppAssets.avtarstack,
+                    //     AppAssets.avtarstack,
                     //   ],
                     //   extraCount: 3,
                     //   avatarSize: 20,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 
 class CustomDropdown<T> extends StatefulWidget {
   final String label;
@@ -36,7 +36,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
         padding: const EdgeInsets.only(right: 9),
         child: widget.icon ??
             SvgPicture.asset(
-              AppImages.dropdown, //  your svg path
+              AppAssets.dropdown, //  your svg path
               color: ColorCode.white,
               width: 24,
               height: 24,

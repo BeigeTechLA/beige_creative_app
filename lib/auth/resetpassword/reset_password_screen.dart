@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../Profile/myprofile_youre_all_set_screen.dart';
 import '../../service/api_service.dart';
 import '../../utility/colorcode.dart';
-import '../../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';
 
@@ -127,7 +127,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 children: [
                   Positioned.fill(
                     child: Image.asset(
-                      AppImages.rectangle,
+                      AppAssets.rectangle,
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -150,7 +150,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         Navigator.pop(context); // 🔥 screen pop karega
                       },
                       child: SvgPicture.asset(
-                        AppImages.back,
+                        AppAssets.back,
                         height: 24,
 
                       ),
@@ -263,8 +263,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             },
                             icon: SvgPicture.asset(
                               showNewPassword
-                                  ? AppImages.eyeOpen
-                                  : AppImages.eyeClose,
+                                  ? AppAssets.eyeOpen
+                                  : AppAssets.eyeClose,
                               height: 22,
                               colorFilter: const ColorFilter.mode(
                                 ColorCode.white,
@@ -292,8 +292,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             },
                             icon: SvgPicture.asset(
                               showConfirmPassword
-                                  ? AppImages.eyeOpen
-                                  : AppImages.eyeClose,
+                                  ? AppAssets.eyeOpen
+                                  : AppAssets.eyeClose,
                               height: 22,
                               colorFilter: const ColorFilter.mode(
                                 ColorCode.white,
@@ -373,7 +373,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
                                   image: AssetImage(
-                                      "assets/images/chooese_your_role2.png"),
+                                      AppAssets.imageChooseRole2),
                                   fit: BoxFit.fill,
                                 ),
                               ),

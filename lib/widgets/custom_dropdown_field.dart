@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import '../utility/colorcode.dart';
 
 class CustomDropdownField extends StatelessWidget {

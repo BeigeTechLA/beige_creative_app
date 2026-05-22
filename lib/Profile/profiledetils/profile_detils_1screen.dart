@@ -8,9 +8,7 @@ import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/colorcode.dart';
-import '../../utility/imges_icons.dart';
-import 'edit_personal_details_screen.dart';
-import 'enter_profile_details_screen.dart';
+import 'package:beige_creative_app/app/assets.dart';
 
 class ProfileDetils1screen extends StatefulWidget {
   const ProfileDetils1screen({super.key});
@@ -106,7 +104,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       InkWell(
                         onTap: () => context.pop(),
                         child:SvgPicture.asset(
-                    AppImages.back,
+                    AppAssets.back,
 
                             height: 24),
                       ),
@@ -255,9 +253,9 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                   ? "${ApiService.imageURL}${profileData!.profileImageUrl}"
                   : "",
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) {
+              errorBuilder: (_, _, _) {
                 return SvgPicture.asset(
-                  AppImages.User_Circle,
+                  AppAssets.User_Circle,
                   fit: BoxFit.cover,
                 );
               },
@@ -471,9 +469,9 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                   ? "${ApiService.imageURL}${profileData!.profileImageUrl}"
                   : "",
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) {
+              errorBuilder: (_, _, _) {
                 return SvgPicture.asset(
-                  AppImages.User_Circle,
+                  AppAssets.User_Circle,
                   fit: BoxFit.cover,
                 );
               },

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:open_file/open_file.dart';
@@ -27,7 +27,7 @@ class CommonFileViewer {
               backgroundColor: Colors.black,
               leading: IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon:SvgPicture.asset(AppImages.back)
+                icon:SvgPicture.asset(AppAssets.back)
               ),
             ),
             body: Center(
@@ -36,9 +36,9 @@ class CommonFileViewer {
                     ? Image.network(
                   filePath,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) {
+                  errorBuilder: (_, _, _) {
                     return SvgPicture.asset(
-                    AppImages.image_holder,
+                    AppAssets.image_holder,
                       height: 150,
                     );
                   },

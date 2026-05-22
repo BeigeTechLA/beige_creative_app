@@ -4,17 +4,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../main_screen.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../service/shared_service.dart';
 import '../../utility/colorcode.dart';
-import '../../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';
-import '../ForgotPassword/forgot_password_screen.dart';
-import '../sign_up/signup1_screen.dart';
 // import '../creative_sign_up/signup1_screen.dart';
 
 class Login extends StatefulWidget {
@@ -227,7 +224,7 @@ class _LoginState extends State<Login> {
                   /// 🖼️ BACKGROUND IMAGE
                   Positioned.fill(
                     child: Image.asset(
-                      AppImages.rectangle,
+                      AppAssets.rectangle,
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -332,8 +329,8 @@ class _LoginState extends State<Login> {
                               },
                               icon: SvgPicture.asset(
                                 showConfirmPassword
-                                    ? AppImages.eyeOpen
-                                    : AppImages.eyeClose,
+                                    ? AppAssets.eyeOpen
+                                    : AppAssets.eyeClose,
                                 height: 22,
                                 colorFilter: const ColorFilter.mode(
                                   ColorCode.white,

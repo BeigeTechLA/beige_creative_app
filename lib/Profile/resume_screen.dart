@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:auto_skeleton/auto_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +8,7 @@ import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/commonFileViewer.dart' show CommonFileViewer;
 import '../widgets/common_uploader.dart';
 
@@ -130,7 +129,7 @@ Future<void> deleteData(int id) async {
                       InkWell(
                         onTap: () => context.pop(),
                         child: SvgPicture.asset(
-                          AppImages.back,
+                          AppAssets.back,
                           height: 24,color: ColorCode.white,),
                       ),
                     ],
@@ -214,7 +213,7 @@ Future<void> deleteData(int id) async {
                                       return Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: SvgPicture.asset(
-                                          "assets/svg/image_holder.svg",
+                                          AppAssets.image_holder,
                                           fit: BoxFit.contain,
                                         ),
                                       );
@@ -361,7 +360,7 @@ void openUploadDialog() {
             const Divider(color: ColorCode.white24),
           /*  /// CAMERA
             uploadOption(
-              svgPath: AppImages.scanner,
+              svgPath: AppAssets.scanner,
               title: "Scan from Camera",
               onTap: () async {
                 Navigator.pop(context);
@@ -384,7 +383,7 @@ void openUploadDialog() {
             /// GALLERY
 
        /*     uploadOption(
-              svgPath: AppImages.gallery,
+              svgPath: AppAssets.gallery,
               title: "Import from Gallery",
               onTap: () async {
                 Navigator.pop(context);
@@ -407,7 +406,7 @@ void openUploadDialog() {
 
             /// FILES
             uploadOption(
-              svgPath: AppImages.document,
+              svgPath: AppAssets.document,
               title: "Import from Files",
               onTap: () async {
                 context.pop();

@@ -11,23 +11,18 @@
 import 'package:go_router/go_router.dart';
   import 'package:google_maps_flutter/google_maps_flutter.dart';
   import 'package:google_places_flutter/google_places_flutter.dart';
-  import 'package:image_picker/image_picker.dart';
-  import 'package:lottie/lottie.dart' hide Marker;
   import 'package:path_provider/path_provider.dart';
   import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
   import '../../service/api_service.dart';
   import '../../service/google_config.dart';
   import '../../utility/colorcode.dart';
-  import '../../utility/imges_icons.dart';
+  import 'package:beige_creative_app/app/assets.dart';
   import '../../widgets/custom_dropdown.dart';
   import '../../widgets/Topmessgae.dart';
   import '../../widgets/app_loder.dart' show AppLoader;
   import '../../widgets/common_uploader.dart';
 import '../../widgets/custom_text_field.dart';
-  import '../view_details_screen .dart';
-  import 'signup2_screen.dart';
-  import '../login/login.dart';
   
   
   
@@ -47,7 +42,6 @@ import '../../widgets/custom_text_field.dart';
     bool isLocationFocused = false;
   
     File? profileImage;
-    final ImagePicker _picker = ImagePicker();
     final FocusNode _locationFocus = FocusNode();
     bool showPassword = false;
     bool showConfirmPassword = false;
@@ -268,7 +262,7 @@ import '../../widgets/custom_text_field.dart';
                             *//*  color: Colors.white.withOpacity(0.7), *//*// optional
                           ),*/
   SvgPicture.asset(
-    AppImages.Image_zoom,
+    AppAssets.Image_zoom,
     height: 20,
     width: 20,
   ),
@@ -306,7 +300,7 @@ import '../../widgets/custom_text_field.dart';
                           /// 🔹 RIGHT IMAGE ICON
                           /// 🔹 LEFT IMAGE ICON
                           SvgPicture.asset(
-                            AppImages.Image_zoom,
+                            AppAssets.Image_zoom,
                             height: 20,
                             width: 20,
                           ),
@@ -781,7 +775,7 @@ import '../../widgets/custom_text_field.dart';
                           Positioned.fill(
                             child: Image.asset(
                          //     "assets/images/rectangle.png",
-                              AppImages.rectangle,
+                              AppAssets.rectangle,
                               fit: BoxFit.fill,
                             ),
                           ),
@@ -1182,8 +1176,8 @@ import '../../widgets/custom_text_field.dart';
                                  },
                                   icon: SvgPicture.asset(
                                     showPassword
-                                        ? AppImages.eyeOpen
-                                        : AppImages.eyeClose,
+                                        ? AppAssets.eyeOpen
+                                        : AppAssets.eyeClose,
                                     height: 24,
                                     width: 24,
                                   ),
@@ -1211,8 +1205,8 @@ import '../../widgets/custom_text_field.dart';
                                     },
                                     icon: SvgPicture.asset(
                                       showConfirmPassword
-                                          ? AppImages.eyeOpen
-                                          : AppImages.eyeClose,
+                                          ? AppAssets.eyeOpen
+                                          : AppAssets.eyeClose,
                                       height: 24,
                                       width: 24,
                                     ),
@@ -1353,7 +1347,7 @@ import '../../widgets/custom_text_field.dart';
                                     mainAxisSize: MainAxisSize.min,
                                     children:  [
                                     SvgPicture.asset(
-                                      AppImages.User_Circle,
+                                      AppAssets.User_Circle,
                                       width: 30,
                                       height: 30,
                                     ),
@@ -1672,7 +1666,7 @@ import '../../widgets/custom_text_field.dart';
                   backgroundColor: ColorCode.k282828,
                   backgroundImage: profileImage != null
                       ? FileImage(profileImage!)
-                      : const AssetImage("assets/images/profile_placeholder.png")
+                      : const AssetImage(AppAssets.imageProfilePlaceholder)
                   as ImageProvider,
                 ),
   

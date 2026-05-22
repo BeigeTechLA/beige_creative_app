@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
 import '../app/route_names.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/common_calendar.dart';
-import 'add_availability_screen.dart';
 
 class ManageAvailabilityScreen extends StatefulWidget {
   const ManageAvailabilityScreen({super.key});
@@ -22,12 +20,12 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
     with SingleTickerProviderStateMixin {
   // final ManageAvailabilityController nexwController = ManageAvailabilityController();
   late AnimationController _controller;
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
 
   // Calendar related
   // Calendar related
   DateTime _focusedDay = DateTime.now();
-  Map<DateTime, String> _events = {};
+  final Map<DateTime, String> _events = {};
   String _selectedEventFilter = "All Events";
   final List<String> _eventFilterList = ["All Events", "Available", "Shoot"];
 
@@ -125,7 +123,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     onTap: () {
                       Scaffold.of(context).openDrawer();
                     },
-                    child: SvgPicture.asset(AppImages.menu, width: 26),
+                    child: SvgPicture.asset(AppAssets.menu, width: 26),
                   ),
                   const Spacer(),
                   const Text(
@@ -154,7 +152,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               ),
               child: Row(
                 children: [
-                  SvgPicture.asset(AppImages.info),
+                  SvgPicture.asset(AppAssets.info),
                   const SizedBox(width: 8),
                   const Expanded(
                     child: Text(
@@ -333,7 +331,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   const SizedBox(height: 16),
 
                   _buildStatCard(
-                    svgIcon: AppImages.calender,
+                    svgIcon: AppAssets.calender,
                     title: "Available Days",
                     value: "${_getAvailableDaysCount()}",
                   ),
@@ -341,7 +339,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   const SizedBox(height: 12),
 
                   _buildStatCard(
-                    svgIcon: AppImages.book_video,
+                    svgIcon: AppAssets.book_video,
                     title: "Book shoots",
                     value: "${_getShootCount()}",
                   ),
@@ -349,7 +347,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   const SizedBox(height: 12),
 
                   _buildStatCard(
-                    svgIcon: AppImages.HourglasTime,
+                    svgIcon: AppAssets.HourglasTime,
                     title: "Time Off",
                     value: "${_getTimeOffCount()}",
                   ),
@@ -724,7 +722,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    SvgPicture.asset(AppImages.calender, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.calender, width: 14, height: 14),
                     const SizedBox(width: 5),
                     Text(
                       data['date'],
@@ -735,7 +733,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    SvgPicture.asset(AppImages.time, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.time, width: 14, height: 14),
                     const SizedBox(width: 5),
                     Text(
                       data['time'],
@@ -746,7 +744,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    SvgPicture.asset(AppImages.location, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.location, width: 14, height: 14),
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(

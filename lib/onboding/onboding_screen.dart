@@ -1,11 +1,9 @@
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 
 import '../app/route_names.dart';
-import '../auth/login/login.dart';
-import '../auth/sign_up/signup1_screen.dart';
 import '../utility/colorcode.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -33,7 +31,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     //   "Find local photo, video, and editing work.\nBook. Shoot. Earn. 📍⚡",
     // },
     {
-      "image": AppImages.onboding1,
+      "image": AppAssets.onboding1,
       "title": "Find Your Next\nCreative Gig",
       "description":
       "Access shoots, collaborate with brands, and\nmanage your work — all in one place. Shoot. Edit. Earn.📍⚡",

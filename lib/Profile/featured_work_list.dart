@@ -2,25 +2,21 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:beige_creative_app/widgets/app_loder.dart';
-import 'package:dio/dio.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../app/route_names.dart';
 import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/commonImagePicker.dart';
 import '../widgets/common_uploader.dart';
 import '../widgets/custom_text_field.dart';
-import 'featuredwork_details_screen.dart';
 
 class FeaturedWorkList extends StatefulWidget {
   const FeaturedWorkList({super.key});
@@ -84,15 +80,15 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
         // ✅ FEATURED WORK FILES COUNT + DATA
         debugPrint(
-          "🖼 FEATURED WORK COUNT: ${response.data?.featuredWorkFiles.length}",
+          "🖼 FEATURED WORK COUNT: ${response.data.featuredWorkFiles.length}",
         );
 
         for (
           int i = 0;
-          i < (response.data?.featuredWorkFiles.length ?? 0);
+          i < response.data.featuredWorkFiles.length;
           i++
         ) {
-          final item = response.data!.featuredWorkFiles[i];
+          final item = response.data.featuredWorkFiles[i];
           debugPrint(
             "🖼 ITEM[$i] => filePath: ${item.filePath} | fileType: ${item.fileType} | tag: ${item.tag}",
           );
@@ -275,7 +271,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       InkWell(
                         onTap: () => context.pop(),
                         child: SvgPicture.asset(
-                          AppImages.back,
+                          AppAssets.back,
                           // "assets/icons/back.png",
                           height: 24,
                           color: ColorCode.white,
@@ -352,7 +348,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         Map<String, List<dynamic>> groupedData = {};
 
                         for (var item in Myprofile_user!.featuredWorkFiles) {
-                          String title = item.title ?? "Untitled";
+                          String title = item.title;
 
                           if (!groupedData.containsKey(title)) {
                             groupedData[title] = [];
@@ -555,7 +551,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                                         },
 
                                                         child: SvgPicture.asset(
-                                                          AppImages
+                                                          AppAssets
                                                               .circle_arrow,
                                                           height: 30,
                                                           width: 30,
@@ -1223,7 +1219,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       SvgPicture.asset(
-                                        AppImages.Upload, //  your svg path
+                                        AppAssets.Upload, //  your svg path
                                         color: ColorCode.white,
                                         width: 24,
                                         height: 24,

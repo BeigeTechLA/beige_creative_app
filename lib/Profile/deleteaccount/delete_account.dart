@@ -3,11 +3,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../utility/colorcode.dart';
-import '../../../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
-import 'delete_account_otp_screen.dart';
 
 class DeleteAccount extends StatefulWidget {
   const DeleteAccount({super.key});
@@ -99,7 +98,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                 GestureDetector(
                   onTap: () => context.pop(),
                   child: SvgPicture.asset(
-                    AppImages.back, // make sure it's .svg file
+                    AppAssets.back, // make sure it's .svg file
                     height: 24,
                     colorFilter: ColorFilter.mode(
                       //ColorCode.kHeadingColor,
@@ -170,7 +169,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
                       ...reasons.map((reason) {
                         return _buildReasonOption(reason);
-                      }).toList(),
+                      }),
 
                     ],
                   ),

@@ -6,7 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/colorcode.dart';
-import '../../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';
 import 'forgot_password_otp_screen.dart';
@@ -201,7 +201,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       /// 🖼️ BACKGROUND IMAGE
                       Positioned.fill(
                         child: Image.asset(
-                          AppImages.rectangle,
+                          AppAssets.rectangle,
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -223,7 +223,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             Navigator.pop(context); // 🔥 screen pop karega
                           },
                           child: SvgPicture.asset(
-                            AppImages.back,
+                            AppAssets.back,
                             height: 24,
                           ),
                         ),

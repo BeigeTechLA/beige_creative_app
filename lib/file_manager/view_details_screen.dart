@@ -1,4 +1,4 @@
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -32,7 +32,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                       bottomRight: Radius.circular(28),
                     ),
                     child: Image.asset(
-                      AppImages.rectangle,
+                      AppAssets.rectangle,
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -46,7 +46,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                     onTap: () => Navigator.pop(context),
 
                     child: SvgPicture.asset(
-                      AppImages.back, // change extension
+                      AppAssets.back, // change extension
                       height: 24,
                     ),
                   ),

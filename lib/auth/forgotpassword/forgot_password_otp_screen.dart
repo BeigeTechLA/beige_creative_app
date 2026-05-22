@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../app/text_styles.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/colorcode.dart';
-import '../../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/Topmessgae.dart';
 import '../resetpassword/reset_password_screen.dart';
 
@@ -192,7 +191,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                             Navigator.pop(context);
                           },
                           child: SvgPicture.asset(
-                            AppImages.back,
+                            AppAssets.back,
                             height: 24,
                             color: ColorCode.white,
                           ),

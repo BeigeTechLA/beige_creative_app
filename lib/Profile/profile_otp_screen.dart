@@ -1,6 +1,6 @@
   import 'dart:async';
 
-  import 'package:beige_creative_app/utility/imges_icons.dart';
+  import 'package:beige_creative_app/app/assets.dart';
   import 'package:flutter/material.dart';
   import 'package:flutter_svg/flutter_svg.dart';
   import 'package:go_router/go_router.dart';
@@ -21,7 +21,6 @@
   }
 
   class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
-    @override
     int seconds = 59;
     Timer? timer;
     bool isOtpFilled = false;
@@ -214,7 +213,7 @@
 
                         InkWell(
                           onTap: () => Navigator.pop(context),
-                          child:   SvgPicture.asset(AppImages.back)
+                          child:   SvgPicture.asset(AppAssets.back)
                         ),
                         SizedBox(height: 10),
 

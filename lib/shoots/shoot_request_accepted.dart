@@ -1,12 +1,10 @@
-import 'package:beige_creative_app/Shoots/shoots_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
-import '../main_screen.dart';
 import '../app/route_names.dart' show RouteNames;
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart' show AppImages;
+import 'package:beige_creative_app/app/assets.dart' show AppAssets;
 
 class ShootRequestAccepted extends StatefulWidget {
   const ShootRequestAccepted({super.key});
@@ -46,7 +44,7 @@ class _ShootRequestAcceptedState extends State<ShootRequestAccepted> {
 
             /// ✅ SUCCESS LOTTIE
             Lottie.asset(
-              AppImages.lottie1,
+              AppAssets.lottie1,
               height: 180,
               repeat: false,
             ),

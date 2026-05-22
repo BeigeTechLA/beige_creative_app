@@ -1,14 +1,12 @@
   import 'package:beige_creative_app/service/api_endpoints.dart';
   import 'package:beige_creative_app/service/api_service.dart';
-  import 'package:beige_creative_app/utility/imges_icons.dart';
-  import 'package:flutter/cupertino.dart';
+  import 'package:beige_creative_app/app/assets.dart';
   import 'package:flutter/foundation.dart';
   import 'package:flutter/gestures.dart';
   import 'package:flutter/material.dart';
 
   import 'package:flutter_svg/svg.dart';
   import 'package:geocoding/geocoding.dart';
-  import 'package:geolocator/geolocator.dart';
   import 'package:go_router/go_router.dart';
   import 'package:google_maps_flutter/google_maps_flutter.dart';
   import 'package:google_places_flutter/google_places_flutter.dart';
@@ -310,7 +308,7 @@ import '../../model_class/edit_profile_model.dart';
                         InkWell(
                           onTap: () => context.pop(true),
                           child: SvgPicture.asset(
-                            AppImages.back,
+                            AppAssets.back,
                             height: 24,
                           ),
                         ),
@@ -630,7 +628,7 @@ import '../../model_class/edit_profile_model.dart';
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: SvgPicture.asset(
-                           AppImages.box_edit,
+                           AppAssets.box_edit,
 
                             colorFilter: const ColorFilter.mode(
                               ColorCode.kWhiteOpacity70,

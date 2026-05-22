@@ -3,9 +3,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import '../app/route_names.dart';
 import '../utility/colorcode.dart';
-import '../utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/custom_text_field.dart';
-import 'post_production_screen.dart';
 
 class FileManagerScreen extends StatefulWidget {
   const FileManagerScreen({super.key});
@@ -62,7 +61,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                         Scaffold.of(context).openDrawer();
                       },
                    child: SvgPicture.asset(
-                      AppImages.menu,
+                      AppAssets.menu,
                       width: 26,
                       height: 26,
                       ),
@@ -108,7 +107,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                         children: [
 
                           SvgPicture.asset(
-                            AppImages.search_icon,
+                            AppAssets.search_icon,
 
                           ),
                           const SizedBox(width: 10),
@@ -158,7 +157,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       ),
                       child: Center(
                         child: SvgPicture.asset(
-                          loding ? AppImages.grid : AppImages.list,
+                          loding ? AppAssets.grid : AppAssets.list,
                           height: 22,
                           width: 22,
                           color: ColorCode.white,

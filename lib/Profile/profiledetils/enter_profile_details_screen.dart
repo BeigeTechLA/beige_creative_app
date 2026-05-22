@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -9,9 +8,7 @@ import '../../model_class/edit_profile_model.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../utility/colorcode.dart';
-import '../../utility/imges_icons.dart';
-import '../../widgets/custom_dropdown.dart';
-import '../../widgets/custom_dropdown_field.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/custom_multi_selectfield.dart' show CustomMultiSelectField;
 import '../../widgets/custom_text_field.dart';
 
@@ -531,7 +528,7 @@ class _EnterProfileDetailsScreenState
                   InkWell(
                     onTap: () => context.pop(true),
                         child: SvgPicture.asset(
-        AppImages.back, // make sure it's .svg file
+        AppAssets.back, // make sure it's .svg file
         height: 24,
         colorFilter: ColorFilter.mode(
           ColorCode.white,
@@ -568,7 +565,7 @@ class _EnterProfileDetailsScreenState
                 hasValue: selectedRoles.isNotEmpty,
 
                 prefixIcon: SvgPicture.asset(
-                  AppImages.dropdown,
+                  AppAssets.dropdown,
                 ),
 
                 onTap: () async {

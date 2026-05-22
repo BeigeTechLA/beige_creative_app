@@ -1,21 +1,15 @@
-import 'dart:math';
 
-import 'package:auto_skeleton/auto_skeleton.dart';
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
-import 'package:beige_creative_app/utility/imges_icons.dart';
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:table_calendar/table_calendar.dart';
 import '../model_class/create_dashboard_details_model.dart';
 import '../Model_Class/crewstatus_model.dart';
 import '../Model_Class/dashboard_count_model.dart';
-import '../Model_Class/shoot_status_model.dart';
 import '../Model_Class/upcoming_shoots_model.dart';
-import '../Model_Class/create_dashboard_details_model.dart' as dashboard;
 import '../Model_Class/myprofile_model.dart' as profile;
 
 import '../Model_Class/myprofile_model.dart';
@@ -231,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen>
         setState(() {
           creatordashboarddetaillist = response.data.shoots
               .where(
-                (e) => (e.status ?? "")
+                (e) => e.status
                     .toString()
                     .trim()
                     .toLowerCase()
@@ -254,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen>
       );
 
       if (response.error == false) {
-        debugPrint('Responsecheck  :: ${response}');
+        debugPrint('Responsecheck  :: $response');
         setState(() {
           upcomingshootslist = response.data;
           // Reset current index if needed
@@ -323,10 +317,6 @@ class _HomeScreenState extends State<HomeScreen>
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
-    _slideOut = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0, 1.5),
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed &&
           upcomingshootslist.isNotEmpty) {
@@ -339,7 +329,6 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   late AnimationController _controller;
-  late Animation<Offset> _slideOut;
   int _currentIndex = 0;
 
   int selectedDashboardIndex = 0;
@@ -352,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen>
   DateTime _focusedDay = DateTime.now();
 
   String getMonthYear(DateTime date) {
-    return "${DateFormat('MMMM yyyy').format(date)}";
+    return DateFormat('MMMM yyyy').format(date);
   }
 
   // Helper to convert upcomingdatum to a map for card display
@@ -406,7 +395,7 @@ class _HomeScreenState extends State<HomeScreen>
               errorBuilder: (context, error, stackTrace) {
                 print("IMAGE ERROR: ${data['image']}");
                 return SvgPicture.asset(
-                  AppImages.image_holder, // 👈 your svg path
+                  AppAssets.image_holder, // 👈 your svg path
                   height: 169,
                   width: 117,
                   fit: BoxFit.cover,
@@ -433,7 +422,7 @@ class _HomeScreenState extends State<HomeScreen>
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    SvgPicture.asset(AppImages.calender, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.calender, width: 14, height: 14),
                     const SizedBox(width: 5),
                     Text(
                       data['date'],
@@ -444,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen>
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    SvgPicture.asset(AppImages.time, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.time, width: 14, height: 14),
                     const SizedBox(width: 5),
                     Text(
                       data['time'],
@@ -455,7 +444,7 @@ class _HomeScreenState extends State<HomeScreen>
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    SvgPicture.asset(AppImages.location, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.location, width: 14, height: 14),
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
@@ -601,7 +590,7 @@ class _HomeScreenState extends State<HomeScreen>
                               Scaffold.of(context).openDrawer();
                             },
                             child: SvgPicture.asset(
-                              AppImages.menu,
+                              AppAssets.menu,
                               width: 26,
                               colorFilter: ColorFilter.mode(
                                 ColorCode.white,
@@ -624,7 +613,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         const SizedBox(width: 15),
                         SvgPicture.asset(
-                          AppImages.notificationbell,
+                          AppAssets.notificationbell,
                           width: 22,
                           colorFilter: const ColorFilter.mode(
                             ColorCode.white,
@@ -665,7 +654,7 @@ class _HomeScreenState extends State<HomeScreen>
                             child:
                                 (Myprofile_user?.profileImageUrl ?? "").isEmpty
                                 ? SvgPicture.asset(
-                                    AppImages.User_Circle,
+                                    AppAssets.User_Circle,
                                     width: 20,
                                     height: 20,
                                   )
@@ -718,7 +707,7 @@ class _HomeScreenState extends State<HomeScreen>
                         // percent: "+3% from last month",
                         percentColor: ColorCode.green,
                         iconPath: /*"assets/images/svideo.png",*/
-                            AppImages.video_icon,
+                            AppAssets.video_icon,
                       ),
                       const SizedBox(height: 12),
                       _dashboardCard(
@@ -727,7 +716,7 @@ class _HomeScreenState extends State<HomeScreen>
                         count: upcomingshoots,
                         // percent: "+3% from last month",
                         percentColor: ColorCode.green,
-                        iconPath: AppImages.calendar_icon,
+                        iconPath: AppAssets.calendar_icon,
                       ),
                       const SizedBox(height: 12),
                       _dashboardCard(
@@ -736,7 +725,7 @@ class _HomeScreenState extends State<HomeScreen>
                         count: pendingrequests,
                         // percent: "-2% from last month",
                         percentColor: ColorCode.red,
-                        iconPath: AppImages.clock_icon,
+                        iconPath: AppAssets.clock_icon,
                       ),
                     ],
                   ),
@@ -796,7 +785,7 @@ class _HomeScreenState extends State<HomeScreen>
                                prefixIcon: Padding(
                                  padding: const EdgeInsets.all(10), // control spacing
                                  child: SvgPicture.asset(
-                                   AppImages.search_icon,
+                                   AppAssets.search_icon,
                                    height: 20,   // now this will work
                                    width: 20,
                                  ),
@@ -843,7 +832,7 @@ class _HomeScreenState extends State<HomeScreen>
                                  ),
                                ),
                                const SizedBox(width: 6),
-                               SvgPicture.asset(AppImages.filter,
+                               SvgPicture.asset(AppAssets.filter,
                                  height: 18,
                                  width: 18,
                                )
@@ -1622,7 +1611,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       errorBuilder: (context, error, stackTrace) {
                                         return Center(
                                           child: SvgPicture.asset(
-                                            AppImages
+                                            AppAssets
                                                 .image_holder, // 👈 your svg path
                                             height: 220,
                                             width: double.infinity,
@@ -1634,7 +1623,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   : Center(
                                       child: SvgPicture.asset(
                                         // "assets/svg/image_holder.svg",
-                                        AppImages.image_holder,
+                                        AppAssets.image_holder,
                                         height: 220,
                                         width: double.infinity,
                                         fit: BoxFit.cover,
@@ -1777,7 +1766,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       SvgPicture.asset(
-                                        AppImages.calender,
+                                        AppAssets.calender,
                                         width: 14,
                                         height: 14,
                                       ),
@@ -1799,7 +1788,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       SvgPicture.asset(
-                                        AppImages.time,
+                                        AppAssets.time,
                                         width: 14,
                                         height: 14,
                                       ),
@@ -1819,7 +1808,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       SvgPicture.asset(
-                                        AppImages.location,
+                                        AppAssets.location,
                                         width: 14,
                                         height: 14,
                                       ),
@@ -1847,10 +1836,10 @@ class _HomeScreenState extends State<HomeScreen>
                                   /// ✅ LEFT SIDE (Avatar Stack)
                                   // _buildAvatarStack(
                                   // images: [
-                                  // AppImages.avtarstack,
-                                  // AppImages.avtarstack,
-                                  // AppImages.avtarstack,
-                                  // AppImages.avtarstack,
+                                  // AppAssets.avtarstack,
+                                  // AppAssets.avtarstack,
+                                  // AppAssets.avtarstack,
+                                  // AppAssets.avtarstack,
                                   // ],
                                   // extraCount: 3,
                                   // avatarSize: 20,
@@ -2124,22 +2113,22 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       const SizedBox(height: 28),
                       _statusItem(
-                        "${sucessfullshoots}",
+                        "$sucessfullshoots",
                         "Successful shoots",
                         const Color(0xFFA678F1),
                       ),
                       _statusItem(
-                        "${pendingshoots}",
+                        "$pendingshoots",
                         "Pending shoots",
                         const Color(0xFF5CC4FF),
                       ),
                       _statusItem(
-                        "${rejectedshoots}",
+                        "$rejectedshoots",
                         "Rejected shoots",
                         const Color(0xFFFFC04F),
                       ),
                       _statusItem(
-                        "${shootrequest}",
+                        "$shootrequest",
                         "Shoot Requests",
                         const Color(0xFF2DC497),
                       ),
