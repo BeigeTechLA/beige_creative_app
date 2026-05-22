@@ -22,37 +22,6 @@ class CommonCalendar extends StatefulWidget {
 
 class _CommonCalendarState extends State<CommonCalendar>
     with TickerProviderStateMixin {
-
-  late DateTime _internalFocusedDay;
-
-  @override
-  void initState() {
-    super.initState();
-    _internalFocusedDay = widget.focusedDay;
-  }
-
-  @override
-  void didUpdateWidget(CommonCalendar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.focusedDay != widget.focusedDay) {
-      Future.delayed(const Duration(milliseconds: 50), () {
-        if (mounted) {
-          setState(() {
-            _internalFocusedDay = widget.focusedDay;
-          });
-        }
-      });
-    }
-  }
-
-  int _getRowCount(DateTime month) {
-    final firstDay = DateTime(month.year, month.month, 1);
-    final lastDay = DateTime(month.year, month.month + 1, 0);
-    final firstWeekday = firstDay.weekday % 7;
-    final totalDays = firstWeekday + lastDay.day;
-    return (totalDays / 7).ceil();
-  }
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -60,23 +29,21 @@ class _CommonCalendarState extends State<CommonCalendar>
         final width = constraints.maxWidth;
         final cellHeight = width * 0.20;
         final daysRowHeight = width * 0.13;
-        final rowCount = _getRowCount(_internalFocusedDay);
-
         return Container(
-          color: const Color(0xFF1C1C1E),
+          color: ColorCode.calendarCell,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: double.infinity,
                 height: 0.5,
-                  color: ColorCode.kWhiteOpacity70
+                color: ColorCode.calendarGrid,
               ),
               _buildDaysRow(width),
               Container(
                 width: double.infinity,
                 height: 0.5,
-                  color: ColorCode.kWhiteOpacity70
+                color: ColorCode.calendarGrid,
               ),
               AnimatedSize(
                 duration: const Duration(milliseconds: 250),
@@ -103,15 +70,15 @@ class _CommonCalendarState extends State<CommonCalendar>
                       cellPadding: EdgeInsets.zero,
                       tableBorder: TableBorder(
                         horizontalInside: BorderSide(
-                          color: Colors.white.withOpacity(0.1),
+                          color: ColorCode.calendarGrid,
                           width: 0.6,
                         ),
                         verticalInside: BorderSide(
-                          color: Colors.white.withOpacity(0.1),
+                          color: ColorCode.calendarGrid,
                           width: 0.6,
                         ),
                         bottom: BorderSide(
-                          color: Colors.white.withOpacity(0.1),
+                          color: ColorCode.calendarGrid,
                           width: 0.6,
                         ),
                       ),
@@ -138,22 +105,22 @@ class _CommonCalendarState extends State<CommonCalendar>
     final days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     return Container(
       decoration: BoxDecoration(
-        color: ColorCode.black,
-        border: Border.all(width: 0.5, color: Color(0xff626262)),
+        color: ColorCode.calendarHeader,
+        border: Border.all(width: 0.5, color: ColorCode.calendarGrid),
       ),
       child: Row(
         children: List.generate(days.length, (index) {
           return Expanded(
             child: Container(
-              color: const Color(0xff626262).withOpacity(0.5),
+              color: ColorCode.calendarHeader,
               height: width * 0.13,
               alignment: Alignment.center,
               child: Text(
                 days[index],
                 style: TextStyle(
                   fontFamily: 'Outfit',
-                  color: Colors.white,
-                  fontSize: width * 0.038,
+                  color: ColorCode.white,
+                  fontSize: width * 0.034,
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -173,13 +140,15 @@ class _CommonCalendarState extends State<CommonCalendar>
     bool shouldShowEvent = false;
     if (widget.selectedEvent == "All Events") {
       shouldShowEvent = eventText != null;
-    } else if (widget.selectedEvent == "Available" && eventText == "Available") {
+    } else if (widget.selectedEvent == "Available" &&
+        eventText == "Available") {
       shouldShowEvent = true;
     } else if (widget.selectedEvent == "Shoot" && eventText == "Shoot") {
       shouldShowEvent = true;
     }
 
-    bool isStrikethrough = day.month == 1 && day.day >= 13 && day.day <= 17 && !isOutside;
+    bool isStrikethrough =
+        day.month == 1 && day.day >= 13 && day.day <= 17 && !isOutside;
 
     return Center(
       child: Column(
@@ -190,8 +159,8 @@ class _CommonCalendarState extends State<CommonCalendar>
             style: TextStyle(
               fontSize: width * 0.045,
               color: isOutside || isStrikethrough
-                  ? Colors.white.withOpacity(0.25)
-                  : Colors.white,
+                  ? ColorCode.white24
+                  : ColorCode.white,
               decoration: isStrikethrough ? TextDecoration.lineThrough : null,
             ),
           ),
@@ -201,8 +170,7 @@ class _CommonCalendarState extends State<CommonCalendar>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                if (shouldShowEvent)
-                  _buildEventTag(width, eventText!),
+                if (shouldShowEvent) _buildEventTag(width, eventText!),
               ],
             ),
           ),
@@ -214,7 +182,7 @@ class _CommonCalendarState extends State<CommonCalendar>
   Widget _buildEventTag(double width, String text) {
     bool isAvailable = text.toLowerCase() == "available";
     return Container(
-      width: width * 0.18,
+      width: width * 0.155,
       alignment: Alignment.center,
       margin: EdgeInsets.symmetric(
         horizontal: width * 0.01,
@@ -223,7 +191,7 @@ class _CommonCalendarState extends State<CommonCalendar>
       padding: EdgeInsets.symmetric(horizontal: width * 0.006),
       decoration: BoxDecoration(
         color: isAvailable ? const Color(0xffD8FDE6) : const Color(0xffE1E8F9),
-        borderRadius: BorderRadius.circular(width * 0.01),
+        borderRadius: BorderRadius.circular(width * 0.008),
       ),
       child: Text(
         text,
@@ -231,8 +199,10 @@ class _CommonCalendarState extends State<CommonCalendar>
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: isAvailable ? const Color(0xFF2F855A) : const Color(0xFF4338CA),
-          fontSize: width * 0.024,
+          color: isAvailable
+              ? const Color(0xFF2F855A)
+              : const Color(0xFF4338CA),
+          fontSize: width * 0.021,
           fontWeight: FontWeight.w600,
         ),
       ),

@@ -8,6 +8,9 @@ import 'package:go_router/go_router.dart';
 import '../../../utility/colorcode.dart';
 import '../../../utility/imges_icons.dart';
 import '../../app/route_names.dart';
+import '../../service/api_endpoints.dart';
+import '../../service/api_service.dart';
+import '../../widgets/Topmessgae.dart';
 import 'delete_account_lottieScreen.dart';
 
 
@@ -22,7 +25,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
   int seconds = 59;
   Timer? timer;
   bool isOtpFilled = false;
-
+  bool isLoading = false;
   List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
 
   String get enteredOtp {
@@ -78,9 +81,88 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
   List<TextEditingController> controllers =
   List.generate(6, (index) => TextEditingController());
 
+  Future<void> _deleteAccountOtp() async {
 
+    setState(() {
+      isLoading = true;
+    });
 
+    try {
 
+      final response = await ApiService().postData(
+        ApiEndpoints.account_deleted_otp,
+        {
+          "otp": enteredOtp,
+        },
+      );
+
+      debugPrint("OTP RESPONSE => $response");
+
+      if (response.error == false) {
+
+        context.goNamed(
+          RouteNames.deleteAccountSuccess,
+        );
+
+      } else {
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              response.message ?? "Invalid OTP",
+            ),
+          ),
+        );
+      }
+
+    } catch (e) {
+
+      debugPrint("ERROR => $e");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong"),
+        ),
+      );
+
+    } finally {
+
+      setState(() {
+        isLoading = false;
+      });
+
+    }
+  }
+  Future<void> _resendOtp() async {
+    if (seconds != 0) return; // safety check
+
+    setState(() => isLoading = true);
+
+    try {
+      final response = await ApiService().postData(
+        ApiEndpoints.restartpassword,
+        {
+          // 👇 jo required field ho (email / phone)
+          // "email": widget.email,
+        },
+      );
+
+      if (response != null && response['error'] == false) {
+        TopMessage.show(context, "OTP sent successfully");
+
+        timer?.cancel();  // old timer stop
+        resetTimer();     // restart 59 sec
+
+      } else {
+        TopMessage.show(context, response['message'] ?? "Failed to resend OTP");
+      }
+
+    } catch (e) {
+      TopMessage.show(context, "Something went wrong");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,10 +287,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 InkWell(
-                  onTap: () {
-                    timer?.cancel();  // stop old timer
-                    resetTimer();     // restart new timer
-                  },
+                  onTap: seconds == 0 ? _resendOtp : null,
                   child: Text(
                     "Resend OTP",
                     style: TextStyle(
@@ -230,13 +309,11 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
-                onPressed: isOtpFilled
-                    ? () {
+                  onPressed: isOtpFilled && !isLoading
+                      ? () {
+                    _deleteAccountOtp();
+                  }
 
-                  context.goNamed(
-                    RouteNames.deleteAccountSuccess,
-                  );
-                }
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isOtpFilled

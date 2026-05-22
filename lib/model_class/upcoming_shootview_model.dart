@@ -49,7 +49,7 @@ class MyData {
 
   factory MyData.fromJson(Map<String, dynamic> json) => MyData(
     project: Project.fromJson(json["project"]),
-    paymentStatus: json["payment_status"],
+    paymentStatus: json["payment_state"] ?? "",
     teamMembers: List<TeamMember>.from(json["team_members"].map((x) => TeamMember.fromJson(x))),
     teamSummary: TeamSummary.fromJson(json["team_summary"]),
     clientContact: ClientContact.fromJson(json["client_contact"]),
@@ -97,16 +97,16 @@ class Project {
   final String projectName;
   final String status;
   final dynamic imageUrl;
-  final DateTime eventDate;
+  final String? eventDate;        // ✅ DateTime → String? (null safe)
   final String startTime;
   final String endTime;
   final String eventLocation;
   final String shootType;
   final String bookingType;
   final dynamic lastUpdated;
-  final int totalTimeDurationHours;
-  final int budget;
-  final String totalAmount;
+  final double totalTimeDurationHours;
+  final dynamic budget;           // ✅ int → dynamic
+  final dynamic totalAmount;      // ✅ String → dynamic (API int bhejta hai)
   final String idLabel;
 
   Project({
@@ -114,7 +114,7 @@ class Project {
     required this.projectName,
     required this.status,
     required this.imageUrl,
-    required this.eventDate,
+    this.eventDate,
     required this.startTime,
     required this.endTime,
     required this.eventLocation,
@@ -127,44 +127,40 @@ class Project {
     required this.idLabel,
   });
 
-  factory Project.fromRawJson(String str) => Project.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory Project.fromJson(Map<String, dynamic> json) => Project(
-    projectId: json["project_id"],
-    projectName: json["project_name"],
-    status: json["status"],
-    imageUrl: json["image_url"],
-    eventDate: DateTime.parse(json["event_date"]),
-    startTime: json["start_time"],
-    endTime: json["end_time"],
-    eventLocation: json["event_location"],
-    shootType: json["shoot_type"],
-    bookingType: json["booking_type"],
-    lastUpdated: json["last_updated"],
-    totalTimeDurationHours: json["total_time_duration_hours"],
-    budget: json["budget"],
-    totalAmount: json["total_amount"],
-    idLabel: json["id_label"],
+    projectId:              json["project_id"] ?? 0,
+    projectName:            json["project_name"] ?? "",
+    status:                 json["status"] ?? "",
+    imageUrl:               json["image_url"],
+    eventDate:              json["event_date"],             // ✅ direct String
+    startTime:              json["start_time"] ?? "",
+    endTime:                json["end_time"] ?? "",
+    eventLocation:          json["event_location"] ?? "",
+    shootType:              json["shoot_type"] ?? "",
+    bookingType:            json["booking_type"] ?? "",
+    lastUpdated:            json["last_updated"],
+    totalTimeDurationHours: (json["total_time_duration_hours"] ?? 0).toDouble(),
+    budget:                 json["budget"],                 // ✅ dynamic
+    totalAmount:            json["total_amount"],           // ✅ dynamic
+    idLabel:                json["id_label"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
-    "project_id": projectId,
-    "project_name": projectName,
-    "status": status,
-    "image_url": imageUrl,
-    "event_date": "${eventDate.year.toString().padLeft(4, '0')}-${eventDate.month.toString().padLeft(2, '0')}-${eventDate.day.toString().padLeft(2, '0')}",
-    "start_time": startTime,
-    "end_time": endTime,
-    "event_location": eventLocation,
-    "shoot_type": shootType,
-    "booking_type": bookingType,
-    "last_updated": lastUpdated,
-    "total_time_duration_hours": totalTimeDurationHours,
-    "budget": budget,
-    "total_amount": totalAmount,
-    "id_label": idLabel,
+    "project_id":                 projectId,
+    "project_name":               projectName,
+    "status":                     status,
+    "image_url":                  imageUrl,
+    "event_date":                 eventDate,
+    "start_time":                 startTime,
+    "end_time":                   endTime,
+    "event_location":             eventLocation,
+    "shoot_type":                 shootType,
+    "booking_type":               bookingType,
+    "last_updated":               lastUpdated,
+    "total_time_duration_hours":  totalTimeDurationHours,
+    "budget":                     budget,
+    "total_amount":               totalAmount,
+    "id_label":                   idLabel,
   };
 }
 
@@ -186,12 +182,11 @@ class TeamMember {
   String toRawJson() => json.encode(toJson());
 
   factory TeamMember.fromJson(Map<String, dynamic> json) => TeamMember(
-    crewMemberId: json["crew_member_id"],
-    name: json["name"],
-    roleName: json["role_name"],
-    profileImageUrl: json["profile_image_url"],
+    crewMemberId: json["crew_member_id"] ?? 0,
+    name: json["name"] ?? "",
+    roleName: json["role_name"] ?? "",
+    profileImageUrl: json["profile_image_url"] ?? "",
   );
-
   Map<String, dynamic> toJson() => {
     "crew_member_id": crewMemberId,
     "name": name,
@@ -212,12 +207,10 @@ class TeamSummary {
   factory TeamSummary.fromRawJson(String str) => TeamSummary.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
-
   factory TeamSummary.fromJson(Map<String, dynamic> json) => TeamSummary(
-    assignedCount: json["assigned_count"],
-    totalRequired: json["total_required"],
+    assignedCount: json["assigned_count"] ?? 0,
+    totalRequired: json["total_required"] ?? 0,
   );
-
   Map<String, dynamic> toJson() => {
     "assigned_count": assignedCount,
     "total_required": totalRequired,

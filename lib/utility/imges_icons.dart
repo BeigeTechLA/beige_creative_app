@@ -18,10 +18,10 @@ class AppImages {
   // Active Icons
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const String activeDashboard = '$_active/dashboard.svg';
-  static const String activeShoots = '$_active/shoots.svg';
-  static const String activeFileManager = '$_active/filemanager.svg';
-  static const String activeMessages = '$_active/messages.svg';
+  static const String activeDashboard = '$_active/dashboard_active.svg';
+  static const String activeShoots = '$_active/shoots_active.svg';
+  static const String activeFileManager = '$_active/file_manager_active.svg';
+  static const String activeMessages = '$_active/messages_active_.svg';
   static const String activeManageAvailability = '$_active/manage_availability.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -96,7 +96,8 @@ class AppImages {
   static const String myprofile_edit = '$_svg/myprofile_edit.svg';
   static const String Image_zoom = '$_svg/Image_zoom.svg';
   static const String rectangle_profile = '$_svg/rectangle_profile.svg';
-
+  static const String circle_arrow = '$_svg/circle_arrow.svg';
+  static const String more_vert = '$_svg/more_vert.svg';
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — User & Profile
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

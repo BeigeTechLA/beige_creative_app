@@ -7,11 +7,11 @@ class CrewFile {
   final String tag;
   final String title;
 
-
   CrewFile({
     required this.fileType,
     required this.filePath,
-    required this.tag, required this.crewFilesId,
+    required this.tag,
+    required this.crewFilesId,
     required this.title,
   });
 
@@ -23,6 +23,7 @@ class CrewFile {
     title: json["title"] ?? "",
   );
 }
+
 class Myprofilemodel {
   final bool error;
   final int code;
@@ -39,13 +40,12 @@ class Myprofilemodel {
   factory Myprofilemodel.fromRawJson(String str) =>
       Myprofilemodel.fromJson(json.decode(str));
 
-  factory Myprofilemodel.fromJson(Map<String, dynamic> json) =>
-      Myprofilemodel(
-        error: json["error"] ?? false,
-        code: json["code"] ?? 0,
-        message: json["message"] ?? "",
-        data: Data.fromJson(json["data"] ?? {}),
-      );
+  factory Myprofilemodel.fromJson(Map<String, dynamic> json) => Myprofilemodel(
+    error: json["error"] ?? false,
+    code: json["code"] ?? 0,
+    message: json["message"] ?? "",
+    data: Data.fromJson(json["data"] ?? {}),
+  );
 }
 
 class Data {
@@ -68,6 +68,7 @@ class Data {
   final List<Skill> skills;
   final Map<String, dynamic> socialMediaLinks;
   final List<CrewFile> crewMemberFiles;
+  final List<CrewFile> portfolioLinks;
   final List<CrewFile> certificateFiles;
   final List<CrewFile> resumeFiles;
   final String profileImageUrl;
@@ -88,6 +89,7 @@ class Data {
     required this.socialMediaLinks,
     required this.user,
     required this.crewMemberFiles,
+    required this.portfolioLinks,
     required this.primaryRole,
     required this.bio,
     required this.equipmentOwnership,
@@ -107,8 +109,13 @@ class Data {
     primaryRole: json["primary_role"]?.toString() ?? "",
     crewMemberFiles: json["crew_member_files"] is List
         ? List<CrewFile>.from(
-      json["crew_member_files"].map((x) => CrewFile.fromJson(x)),
-    )
+            json["crew_member_files"].map((x) => CrewFile.fromJson(x)),
+          )
+        : [],
+    portfolioLinks: json["portfolio_links"] is List
+        ? List<CrewFile>.from(
+            json["portfolio_links"].map((x) => CrewFile.fromJson(x)),
+          )
         : [],
     crewMemberId: json["crew_member_id"] ?? 0,
     firstName: json["first_name"] ?? "",
@@ -121,28 +128,25 @@ class Data {
     hourlyRate: json["hourly_rate"]?.toString() ?? "",
     isAvailable: json["is_available"] ?? 0,
 
-
     // 🔥 ADD THIS
     featuredWorkFiles: json["featured_work_files"] is List
         ? List<CrewFile>.from(
-      json["featured_work_files"].map((x) => CrewFile.fromJson(x)),
-    )
+            json["featured_work_files"].map((x) => CrewFile.fromJson(x)),
+          )
         : [],
     certificateFiles: json["certificate_files"] is List
         ? List<CrewFile>.from(
-      json["certificate_files"].map((x) => CrewFile.fromJson(x)),
-    )
+            json["certificate_files"].map((x) => CrewFile.fromJson(x)),
+          )
         : [],
     resumeFiles: json["resume_files"] is List
         ? List<CrewFile>.from(
-      json["resume_files"].map((x) => CrewFile.fromJson(x)),
-    )
+            json["resume_files"].map((x) => CrewFile.fromJson(x)),
+          )
         : [],
     skills: json["skills"] == null
         ? []
-        : List<Skill>.from(
-      json["skills"].map((x) => Skill.fromJson(x)),
-    ),
+        : List<Skill>.from(json["skills"].map((x) => Skill.fromJson(x))),
 
     socialMediaLinks: json["social_media_links"] is Map
         ? Map<String, dynamic>.from(json["social_media_links"])
@@ -215,8 +219,7 @@ class User {
     latitude: json["latitude"]?.toString() ?? "",
     longitude: json["longitude"]?.toString() ?? "",
     phoneNumber: json["phone_number"]?.toString() ?? "",
-    userProfileImageUrl:
-    json["user_profile_image_url"]?.toString() ?? "",
+    userProfileImageUrl: json["user_profile_image_url"]?.toString() ?? "",
     hourlyRate: json["hourly_rate"]?.toString() ?? "",
     yearsOfExperience: json["years_of_experience"] ?? 0,
     bio: json["bio"]?.toString() ?? "",
@@ -224,12 +227,9 @@ class User {
         ? (jsonDecode(json["primary_role"]) as List).join(", ")
         : "",
 
-
     /// 🔥 SKILLS FIX
     skills: json["skills"] is List
-        ? List<Skill>.from(
-      json["skills"].map((x) => Skill.fromJson(x)),
-    )
+        ? List<Skill>.from(json["skills"].map((x) => Skill.fromJson(x)))
         : [],
 
     equipmentOwnership: json["equipment_ownership"] ?? [],
@@ -251,13 +251,8 @@ class Skill {
   final int id;
   final String name;
 
-  Skill({
-    required this.id,
-    required this.name,
-  });
+  Skill({required this.id, required this.name});
 
-  factory Skill.fromJson(Map<String, dynamic> json) => Skill(
-    id: json["id"] ?? 0,
-    name: json["name"] ?? "",
-  );
+  factory Skill.fromJson(Map<String, dynamic> json) =>
+      Skill(id: json["id"] ?? 0, name: json["name"] ?? "");
 }

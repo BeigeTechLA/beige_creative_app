@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart' show SvgPicture;
+
 import '../utility/colorcode.dart';
 import '../utility/imges_icons.dart' show AppImages;
 
@@ -8,7 +9,10 @@ class CustomMultiSelectField extends StatefulWidget {
   final String value;
   final bool hasValue;
 
-  // ✅ FIX: VoidCallback → Future function
+  /// ✅ SVG / ICON SUPPORT
+  final Widget? prefixIcon;
+
+  /// ✅ Future callback
   final Future<void> Function() onTap;
 
   const CustomMultiSelectField({
@@ -17,6 +21,7 @@ class CustomMultiSelectField extends StatefulWidget {
     required this.value,
     required this.hasValue,
     required this.onTap,
+    this.prefixIcon,
   });
 
   @override
@@ -26,12 +31,16 @@ class CustomMultiSelectField extends StatefulWidget {
 
 class _CustomMultiSelectFieldState
     extends State<CustomMultiSelectField> {
+
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _focusNode.addListener(() => setState(() {}));
+
+    _focusNode.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -42,28 +51,38 @@ class _CustomMultiSelectFieldState
 
   @override
   Widget build(BuildContext context) {
+
     bool highlight =
         _focusNode.hasFocus || widget.hasValue;
 
     return GestureDetector(
+
       onTap: () async {
+
         _focusNode.requestFocus();
 
-        // ✅ wait for bottomsheet close
+        /// ✅ wait until bottomsheet closes
         await widget.onTap();
 
         _focusNode.unfocus();
       },
+
       child: AbsorbPointer(
+
         child: TextField(
+
           focusNode: _focusNode,
+
           style: const TextStyle(
             color: ColorCode.white,
             fontFamily: "Outfit",
             fontSize: 15,
           ),
+
           decoration: InputDecoration(
+
             labelText: widget.label,
+
             floatingLabelBehavior:
             FloatingLabelBehavior.always,
 
@@ -76,7 +95,9 @@ class _CustomMultiSelectFieldState
             ),
 
             hintText:
-            widget.hasValue ? widget.value : "Select",
+            widget.hasValue
+                ? widget.value
+                : "Select",
 
             hintStyle: TextStyle(
               color: widget.hasValue
@@ -84,9 +105,14 @@ class _CustomMultiSelectFieldState
                   : ColorCode.kWhiteOpacity_60,
             ),
 
+            /// ✅ PREFIX ICON
+            prefixIcon: widget.prefixIcon,
+
             contentPadding:
             const EdgeInsets.symmetric(
-                horizontal: 18, vertical: 18),
+              horizontal: 18,
+              vertical: 18,
+            ),
 
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
@@ -108,9 +134,10 @@ class _CustomMultiSelectFieldState
 
             suffixIcon: Padding(
               padding: const EdgeInsets.all(18.0),
+
               child: SvgPicture.asset(
-                AppImages.dropdown, //  your svg path
-               color: ColorCode.white,
+                AppImages.dropdown,
+                color: ColorCode.white,
                 width: 24,
                 height: 24,
               ),
