@@ -17,7 +17,7 @@ import 'Messages/messages_screen.dart';
 import 'ManageAvailability/manage_availability_screen.dart';
 import 'app/route_names.dart';
 import 'file_manager/file_manager_screen.dart';
-import 'utility/colorcode.dart';
+import 'app/colors.dart';
 
 class Mainscreen extends StatefulWidget {
   const Mainscreen({super.key});
@@ -101,7 +101,7 @@ Future<void> fetchprofiledata() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorCode.backgroundColor,
+      backgroundColor: AppColors.background,
       drawer: _buildDrawer(),
       // drawerEnableOpenDragGesture: true,
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
@@ -128,10 +128,10 @@ Future<void> fetchprofiledata() async {
         child: BottomNavigationBar(
           currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
           type: BottomNavigationBarType.fixed,
-          backgroundColor: ColorCode.backgroundColor,
+          backgroundColor: AppColors.background,
 
-          selectedItemColor: ColorCode.white,
-          unselectedItemColor: ColorCode.kWhiteOpacity70,
+          selectedItemColor: AppColors.white,
+          unselectedItemColor: AppColors.white30,
 
           selectedFontSize: 10,
           unselectedFontSize: 10,
@@ -197,8 +197,8 @@ Future<void> fetchprofiledata() async {
       fit: BoxFit.contain,
       colorFilter: ColorFilter.mode(
         _selectedIndex == index
-            ? ColorCode.white
-            : ColorCode.kWhiteOpacity70,
+            ? AppColors.white
+            : AppColors.white30,
         BlendMode.srcIn,
 
       ),
@@ -248,7 +248,7 @@ Future<void> fetchprofiledata() async {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.2),
+                    color: AppColors.white.withOpacity(0.2),
                     blurRadius: 8,
                     spreadRadius: 1,
                   ),
@@ -273,7 +273,7 @@ Future<void> fetchprofiledata() async {
 
   Widget _buildDrawer() {
     return Drawer(
-      backgroundColor: const Color(0xFF111111),
+      backgroundColor: AppColors.surfaceAbyss,
       child: SafeArea(
         child: Column(
           children: [
@@ -290,7 +290,7 @@ Future<void> fetchprofiledata() async {
 
                       Image.asset(AppAssets.group_logo),
                       IconButton(
-                        icon: const Icon(Icons.close, color: ColorCode.white),
+                        icon: const Icon(Icons.close, color: AppColors.white),
                         onPressed: () => context.pop(),
                       )
                     ],
@@ -319,7 +319,7 @@ Future<void> fetchprofiledata() async {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD6B98C),
+                        color: AppColors.goldSandLight,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
@@ -347,7 +347,7 @@ Future<void> fetchprofiledata() async {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                     fontFamily: "Outfit",
-                                    color: ColorCode.black,
+                                    color: AppColors.black,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -357,7 +357,7 @@ Future<void> fetchprofiledata() async {
                                     fontSize: 12,
                                     fontFamily: "Outfit",
                                     fontWeight: FontWeight.w500,
-                                    color: ColorCode.black,
+                                    color: AppColors.black,
                                   ),
                                 ),
                               ],
@@ -366,7 +366,7 @@ Future<void> fetchprofiledata() async {
                           const Icon(
                             Icons.arrow_forward_ios,
                             size: 16,
-                            color: ColorCode.black,
+                            color: AppColors.black,
                           )
                         ],
                       ),
@@ -375,7 +375,7 @@ Future<void> fetchprofiledata() async {
                 ],
               ),
             ),
-            const Divider(color: Colors.grey),
+            const Divider(color: AppColors.neutralGrey),
 
             /// 🔹 Menu Items
 
@@ -451,8 +451,8 @@ Future<void> fetchprofiledata() async {
 
             colorFilter: ColorFilter.mode(
               _selectedIndex == index
-                  ? Colors.white
-                  : ColorCode.kWhiteOpacity70,
+                  ? AppColors.white
+                  : AppColors.white30,
               BlendMode.srcIn,
             ),
           ),
@@ -461,7 +461,7 @@ Future<void> fetchprofiledata() async {
       title: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
+          color: AppColors.white,
           fontFamily: "Outfit",
         ),
       ),

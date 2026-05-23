@@ -15,7 +15,7 @@ import '../Model_Class/myprofile_model.dart' as profile;
 import '../Model_Class/myprofile_model.dart';
 
 import '../app/route_names.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import '../widgets/common_calendar.dart';
 import '../widgets/date_time.dart';
 import '../widgets/multi_arc_painter.dart';
@@ -366,12 +366,12 @@ class _HomeScreenState extends State<HomeScreen>
     bool isMiddle = false,
   }) {
     final bgColor = isMain
-        ? ColorCode.k282828
+        ? AppColors.surfaceMid
         : isMiddle
-        ? const Color(0xFF2E2E2E)
-        : const Color(0xFF303030);
-    /* final titleColor = isMain || isMiddle ? ColorCode.white : ColorCode.kWhiteOpacity70;
-    final dateColor = isMain ? ColorCode.kWhiteOpacity70 : ColorCode.white24;
+        ? AppColors.surfaceDim
+        : AppColors.surfaceMute;
+    /* final titleColor = isMain || isMiddle ? AppColors.white : AppColors.white30;
+    final dateColor = isMain ? AppColors.white30 : AppColors.white24;
     final btnOpacity = isMain ? 1.0 : (isMiddle ? 0.8 : 0.7);*/
 
     return Container(
@@ -379,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen>
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: bgColor,
-        border: Border.all(color: ColorCode.white.withOpacity(0.08)),
+        border: Border.all(color: AppColors.white.withOpacity(0.08)),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
@@ -415,10 +415,10 @@ class _HomeScreenState extends State<HomeScreen>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: ColorCode.white,
+                    color: AppColors.white,
                   ),
                 ),
-                Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                Divider(color: AppColors.dividerDark, thickness: 0.8),
                 const SizedBox(height: 6),
                 Row(
                   children: [
@@ -426,7 +426,7 @@ class _HomeScreenState extends State<HomeScreen>
                     const SizedBox(width: 5),
                     Text(
                       data['date'],
-                      style: TextStyle(fontSize: 12, color: ColorCode.white),
+                      style: TextStyle(fontSize: 12, color: AppColors.white),
                     ),
                   ],
                 ),
@@ -437,7 +437,7 @@ class _HomeScreenState extends State<HomeScreen>
                     const SizedBox(width: 5),
                     Text(
                       data['time'],
-                      style: TextStyle(fontSize: 12, color: ColorCode.white),
+                      style: TextStyle(fontSize: 12, color: AppColors.white),
                     ),
                   ],
                 ),
@@ -449,7 +449,7 @@ class _HomeScreenState extends State<HomeScreen>
                     Expanded(
                       child: Text(
                         data['location'],
-                        style: TextStyle(fontSize: 12, color: ColorCode.white),
+                        style: TextStyle(fontSize: 12, color: AppColors.white),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -463,7 +463,7 @@ class _HomeScreenState extends State<HomeScreen>
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
-                          backgroundColor: ColorCode.kButtonColor,
+                          backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -478,7 +478,7 @@ class _HomeScreenState extends State<HomeScreen>
                         child: const Text(
                           "View Details",
                           style: TextStyle(
-                            color: ColorCode.black,
+                            color: AppColors.black,
                             fontSize: 11,
                           ),
                         ),
@@ -567,7 +567,7 @@ class _HomeScreenState extends State<HomeScreen>
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
-              color: ColorCode.k282828,
+              color: AppColors.surfaceMid,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(40),
                 bottomRight: Radius.circular(40),
@@ -593,7 +593,7 @@ class _HomeScreenState extends State<HomeScreen>
                               AppAssets.menu,
                               width: 26,
                               colorFilter: ColorFilter.mode(
-                                ColorCode.white,
+                                AppColors.white,
                                 BlendMode.srcIn,
                               ),
                             ),
@@ -607,7 +607,7 @@ class _HomeScreenState extends State<HomeScreen>
                               fontSize: 16,
                               fontFamily: "Outfit",
                               fontWeight: FontWeight.w500,
-                              color: ColorCode.white,
+                              color: AppColors.white,
                             ),
                           ),
                         ),
@@ -616,7 +616,7 @@ class _HomeScreenState extends State<HomeScreen>
                           AppAssets.notificationbell,
                           width: 22,
                           colorFilter: const ColorFilter.mode(
-                            ColorCode.white,
+                            AppColors.white,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -682,7 +682,7 @@ class _HomeScreenState extends State<HomeScreen>
                         fontSize: 14,
                         fontFamily: "Unbounded",
                         fontWeight: FontWeight.w500,
-                        color: ColorCode.white,
+                        color: AppColors.white,
                       ),
                     ),
                   ],
@@ -692,10 +692,10 @@ class _HomeScreenState extends State<HomeScreen>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: ColorCode.dashboardPanelBorder,
+                      color: AppColors.darkCharcoal,
                       width: 0.6,
                     ),
-                    color: ColorCode.dashboardPanel,
+                    color: AppColors.surfaceMid,
                     borderRadius: BorderRadius.circular(22),
                   ),
                   child: Column(
@@ -705,7 +705,7 @@ class _HomeScreenState extends State<HomeScreen>
                         title: "Completed shoots",
                         count: completedshoots,
                         // percent: "+3% from last month",
-                        percentColor: ColorCode.green,
+                        percentColor: AppColors.success,
                         iconPath: /*"assets/images/svideo.png",*/
                             AppAssets.video_icon,
                       ),
@@ -715,7 +715,7 @@ class _HomeScreenState extends State<HomeScreen>
                         title: "Upcoming shoots",
                         count: upcomingshoots,
                         // percent: "+3% from last month",
-                        percentColor: ColorCode.green,
+                        percentColor: AppColors.success,
                         iconPath: AppAssets.calendar_icon,
                       ),
                       const SizedBox(height: 12),
@@ -724,14 +724,14 @@ class _HomeScreenState extends State<HomeScreen>
                         title: "Pending Requests",
                         count: pendingrequests,
                         // percent: "-2% from last month",
-                        percentColor: ColorCode.red,
+                        percentColor: AppColors.error,
                         iconPath: AppAssets.clock_icon,
                       ),
                     ],
                   ),
                 ),
                 SizedBox(height: 14),
-                Divider(color: ColorCode.kDividerWhite12),
+                Divider(color: AppColors.dividerDark),
                 SizedBox(height: 14),
                 if (upcomingshootslist.isNotEmpty) ...[
                   Row(
@@ -743,7 +743,7 @@ class _HomeScreenState extends State<HomeScreen>
                           fontSize: 14,
                           fontFamily: "Unbounded",
                           fontWeight: FontWeight.w500,
-                          color: ColorCode.white,
+                          color: AppColors.white,
                         ),
                       ),
                     ],
@@ -760,7 +760,7 @@ class _HomeScreenState extends State<HomeScreen>
                            fontSize: 14,
                            fontFamily: "Unbounded",
                            fontWeight: FontWeight.w500,
-                           color: ColorCode.white,
+                           color: AppColors.white,
                          ),
                        ),
                      ],
@@ -772,15 +772,15 @@ class _HomeScreenState extends State<HomeScreen>
                          child: Container(
                            padding: const EdgeInsets.symmetric(horizontal: 10),
                            decoration: BoxDecoration(
-                             color: ColorCode.transparent,
+                             color: AppColors.transparent,
                              borderRadius: BorderRadius.circular(12),
                              border: Border.all(
-                               color: ColorCode.kWhiteOpacity70,
+                               color: AppColors.white30,
                                width: 1,
                              ),
                            ),
                            child: TextField(
-                             style: TextStyle(color: ColorCode.white),
+                             style: TextStyle(color: AppColors.white),
                              decoration: InputDecoration(
                                prefixIcon: Padding(
                                  padding: const EdgeInsets.all(10), // control spacing
@@ -797,7 +797,7 @@ class _HomeScreenState extends State<HomeScreen>
                                hintText: "Search events or crew...",
                                hintStyle: TextStyle(
                                  fontFamily: "Outfit",
-                                 color: ColorCode.kWhiteOpacity70,
+                                 color: AppColors.white30,
                                  fontSize: 12,
                                ),
                                border: InputBorder.none,
@@ -815,10 +815,10 @@ class _HomeScreenState extends State<HomeScreen>
                            height: 52,
                            padding: const EdgeInsets.symmetric(horizontal: 18),
                            decoration: BoxDecoration(
-                             color: ColorCode.transparent,
+                             color: AppColors.transparent,
                              borderRadius: BorderRadius.circular(12),
                              border: Border.all(
-                               color: ColorCode.white24,
+                               color: AppColors.white24,
                                width: 1,
                              ),
                            ),
@@ -827,7 +827,7 @@ class _HomeScreenState extends State<HomeScreen>
                                const Text(
                                  "Filter",
                                  style: TextStyle(
-                                   color: ColorCode.white,
+                                   color: AppColors.white,
                                    fontSize: 14,
                                  ),
                                ),
@@ -849,13 +849,13 @@ class _HomeScreenState extends State<HomeScreen>
                      Container(
                        padding: const EdgeInsets.all(20),
                        decoration: BoxDecoration(
-                         color: ColorCode.k282828,
+                         color: AppColors.surfaceMid,
                          borderRadius: BorderRadius.circular(18),
                        ),
                        child: const Center(
                          child: Text(
                            "No upcoming shoots",
-                           style: TextStyle(color: ColorCode.white70),
+                           style: TextStyle(color: AppColors.white70),
                          ),
                        ),
                      )
@@ -1049,7 +1049,7 @@ class _HomeScreenState extends State<HomeScreen>
                     },
                   ),
                   const SizedBox(height: 17),
-                  Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                  Divider(color: AppColors.dividerDark, thickness: 0.8),
                 ],
 
                 // ========================================================================
@@ -1063,12 +1063,12 @@ class _HomeScreenState extends State<HomeScreen>
                         fontSize: 15,
                         fontFamily: "Unbounded",
                         fontWeight: FontWeight.w500,
-                        color: ColorCode.white,
+                        color: AppColors.white,
                       ),
                     ),
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kButtonColor,
+                        backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 9,
@@ -1096,13 +1096,13 @@ class _HomeScreenState extends State<HomeScreen>
                       icon: const Icon(
                         Icons.add,
                         size: 18,
-                        color: ColorCode.black,
+                        color: AppColors.black,
                       ),
                       label: const Text(
                         "Add",
                         style: TextStyle(
                           fontFamily: "Outfit",
-                          color: ColorCode.black,
+                          color: AppColors.black,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -1113,9 +1113,9 @@ class _HomeScreenState extends State<HomeScreen>
                 const SizedBox(height: 10),
                 /*Container(
                      decoration: BoxDecoration(
-                       color: ColorCode.k282828,
+                       color: AppColors.surfaceMid,
                        borderRadius: BorderRadius.circular(20),
-                       border: Border.all(width: 0.5, color: Color(0xff626262)),
+                       border: Border.all(width: 0.5, color: AppColors.greyMid),
                      ),
                      child: ClipRRect(
                        borderRadius: BorderRadius.circular(20),
@@ -1127,7 +1127,7 @@ class _HomeScreenState extends State<HomeScreen>
                                Row(
                                  children: [
                                    IconButton(
-                                     icon: const Icon(Icons.chevron_left, color: ColorCode.white),
+                                     icon: const Icon(Icons.chevron_left, color: AppColors.white),
                                      onPressed: () {
                                        setState(() {
                                          _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
@@ -1137,13 +1137,13 @@ class _HomeScreenState extends State<HomeScreen>
                                    Text(
                                      getMonthYear(_focusedDay),
                                      style: const TextStyle(
-                                       color: ColorCode.white,
+                                       color: AppColors.white,
                                        fontSize: 18,
                                        fontWeight: FontWeight.w600,
                                      ),
                                    ),
                                    IconButton(
-                                     icon: const Icon(Icons.chevron_right, color: ColorCode.white),
+                                     icon: const Icon(Icons.chevron_right, color: AppColors.white),
                                      onPressed: () {
                                        setState(() {
                                          _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
@@ -1156,15 +1156,15 @@ class _HomeScreenState extends State<HomeScreen>
                                  margin: EdgeInsets.all(7),
                                  padding: const EdgeInsets.symmetric(horizontal: 19,),
                                  decoration: BoxDecoration(
-                                   color: ColorCode.white,
+                                   color: AppColors.white,
                                    borderRadius: BorderRadius.circular(6),
                                  ),
                                  child: DropdownButtonHideUnderline(
                                    child: DropdownButton<String>(
                                      value: selectedEvent,
-                                     icon: const Icon(Icons.keyboard_arrow_down, color: ColorCode.black),
-                                     dropdownColor: ColorCode.white,
-                                     style: const TextStyle(color: ColorCode.black, fontSize: 12),
+                                     icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.black),
+                                     dropdownColor: AppColors.white,
+                                     style: const TextStyle(color: AppColors.black, fontSize: 12),
                                      items: eventList.map((String value) {
                                        return DropdownMenuItem(
                                          value: value,
@@ -1194,7 +1194,7 @@ class _HomeScreenState extends State<HomeScreen>
                                    decoration: BoxDecoration(
                                      border: Border(
                                        bottom: BorderSide(
-                                         color: ColorCode.kDividerWhite12,
+                                         color: AppColors.dividerDark,
                                          width: 1,
                                        ),
                                      ),
@@ -1202,7 +1202,7 @@ class _HomeScreenState extends State<HomeScreen>
                                    child: Text(
                                      text,
                                      style: const TextStyle(
-                                       color: ColorCode.white,
+                                       color: AppColors.white,
                                        fontSize: 14,
                                        fontWeight: FontWeight.w500,
                                      ),
@@ -1223,7 +1223,7 @@ class _HomeScreenState extends State<HomeScreen>
                                  return Column(
                                    mainAxisAlignment: MainAxisAlignment.center,
                                    children: [
-                                     Text("${day.day}", style: const TextStyle(color: ColorCode.white)),
+                                     Text("${day.day}", style: const TextStyle(color: AppColors.white)),
                                      const SizedBox(height: 4),
                                      if (event != null && showEvent) eventLabel(event),
                                    ],
@@ -1237,16 +1237,16 @@ class _HomeScreenState extends State<HomeScreen>
                              rowHeight: 85,
                              calendarStyle: CalendarStyle(
                                tableBorder: TableBorder.all(
-                                 color: ColorCode.kDividerWhite12,
+                                 color: AppColors.dividerDark,
                                  width: 1,
                                ),
-                               defaultTextStyle: const TextStyle(color: ColorCode.white),
-                               weekendTextStyle: const TextStyle(color: ColorCode.white),
-                               outsideTextStyle: const TextStyle(color: ColorCode.white38),
+                               defaultTextStyle: const TextStyle(color: AppColors.white),
+                               weekendTextStyle: const TextStyle(color: AppColors.white),
+                               outsideTextStyle: const TextStyle(color: AppColors.white38),
                              ),
                              daysOfWeekStyle: const DaysOfWeekStyle(
-                               weekdayStyle: TextStyle(color: ColorCode.white70),
-                               weekendStyle: TextStyle(color: ColorCode.white70),
+                               weekdayStyle: TextStyle(color: AppColors.white70),
+                               weekendStyle: TextStyle(color: AppColors.white70),
                              ),
                              onPageChanged: (focusedDay) {
                                setState(() {
@@ -1274,11 +1274,11 @@ class _HomeScreenState extends State<HomeScreen>
                    ),*/
                 Container(
                   decoration: BoxDecoration(
-                    color: ColorCode.dashboardPanel,
+                    color: AppColors.surfaceMid,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       width: 0.6,
-                      color: ColorCode.dashboardPanelBorder,
+                      color: AppColors.darkCharcoal,
                     ),
                   ),
                   child: ClipRRect(
@@ -1296,7 +1296,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   IconButton(
                                     icon: const Icon(
                                       Icons.chevron_left,
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                       size: 24,
                                     ),
                                     onPressed: () {
@@ -1317,7 +1317,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         child: Text(
                                           getMonthYear(_focusedDay),
                                           style: const TextStyle(
-                                            color: ColorCode.white,
+                                            color: AppColors.white,
                                             fontSize: 16,
                                             fontFamily: "Outfit",
                                             fontWeight: FontWeight.w500,
@@ -1330,7 +1330,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   IconButton(
                                     icon: const Icon(
                                       Icons.chevron_right,
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                       size: 24,
                                     ),
                                     onPressed: () {
@@ -1354,7 +1354,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 vertical: 7,
                               ),
                               decoration: BoxDecoration(
-                                color: ColorCode.white,
+                                color: AppColors.white,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: DropdownButtonHideUnderline(
@@ -1363,12 +1363,12 @@ class _HomeScreenState extends State<HomeScreen>
                                   isDense: true,
                                   icon: const Icon(
                                     Icons.keyboard_arrow_down,
-                                    color: ColorCode.black,
+                                    color: AppColors.black,
                                     size: 18,
                                   ),
-                                  dropdownColor: ColorCode.white,
+                                  dropdownColor: AppColors.white,
                                   style: const TextStyle(
-                                    color: ColorCode.black,
+                                    color: AppColors.black,
                                     fontSize: 12,
                                     fontFamily: "Outfit",
                                     fontWeight: FontWeight.w500,
@@ -1395,7 +1395,7 @@ class _HomeScreenState extends State<HomeScreen>
                         //     Row(
                         //       children: [
                         //         IconButton(
-                        //           icon: const Icon(Icons.chevron_left, color: ColorCode.white),
+                        //           icon: const Icon(Icons.chevron_left, color: AppColors.white),
                         //           onPressed: () {
                         //             setState(() {
                         //               _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
@@ -1405,13 +1405,13 @@ class _HomeScreenState extends State<HomeScreen>
                         //         Text(
                         //           getMonthYear(_focusedDay),
                         //           style: const TextStyle(
-                        //             color: ColorCode.white,
+                        //             color: AppColors.white,
                         //             fontSize: 18,
                         //             fontWeight: FontWeight.w600,
                         //           ),
                         //         ),
                         //         IconButton(
-                        //           icon: const Icon(Icons.chevron_right, color: ColorCode.white),
+                        //           icon: const Icon(Icons.chevron_right, color: AppColors.white),
                         //           onPressed: () {
                         //             setState(() {
                         //               _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
@@ -1424,15 +1424,15 @@ class _HomeScreenState extends State<HomeScreen>
                         //       margin: EdgeInsets.all(7),
                         //       padding: const EdgeInsets.symmetric(horizontal: 19,),
                         //       decoration: BoxDecoration(
-                        //         color: ColorCode.white,
+                        //         color: AppColors.white,
                         //         borderRadius: BorderRadius.circular(6),
                         //       ),
                         //       child: DropdownButtonHideUnderline(
                         //         child: DropdownButton<String>(
                         //           value: selectedEvent,
-                        //           icon: const Icon(Icons.keyboard_arrow_down, color: ColorCode.black),
-                        //           dropdownColor: ColorCode.white,
-                        //           style: const TextStyle(color: ColorCode.black, fontSize: 12),
+                        //           icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.black),
+                        //           dropdownColor: AppColors.white,
+                        //           style: const TextStyle(color: AppColors.black, fontSize: 12),
                         //           items: eventList.map((String value) {
                         //             return DropdownMenuItem(
                         //               value: value,
@@ -1461,7 +1461,7 @@ class _HomeScreenState extends State<HomeScreen>
                                    decoration: BoxDecoration(
                                      border: Border(
                                        bottom: BorderSide(
-                                         color: ColorCode.kDividerWhite12,
+                                         color: AppColors.dividerDark,
                                          width: 1,
                                        ),
                                      ),
@@ -1469,7 +1469,7 @@ class _HomeScreenState extends State<HomeScreen>
                                    child: Text(
                                      text,
                                      style: const TextStyle(
-                                       color: ColorCode.white,
+                                       color: AppColors.white,
                                        fontSize: 14,
                                        fontWeight: FontWeight.w500,
                                      ),
@@ -1490,7 +1490,7 @@ class _HomeScreenState extends State<HomeScreen>
                                  return Column(
                                    mainAxisAlignment: MainAxisAlignment.center,
                                    children: [
-                                     Text("${day.day}", style: const TextStyle(color: ColorCode.white)),
+                                     Text("${day.day}", style: const TextStyle(color: AppColors.white)),
                                      const SizedBox(height: 4),
                                      if (event != null && showEvent) eventLabel(event),
                                    ],
@@ -1504,16 +1504,16 @@ class _HomeScreenState extends State<HomeScreen>
                              rowHeight: 85,
                              calendarStyle: CalendarStyle(
                                tableBorder: TableBorder.all(
-                                 color: ColorCode.kDividerWhite12,
+                                 color: AppColors.dividerDark,
                                  width: 1,
                                ),
-                               defaultTextStyle: const TextStyle(color: ColorCode.white),
-                               weekendTextStyle: const TextStyle(color: ColorCode.white),
-                               outsideTextStyle: const TextStyle(color: ColorCode.white38),
+                               defaultTextStyle: const TextStyle(color: AppColors.white),
+                               weekendTextStyle: const TextStyle(color: AppColors.white),
+                               outsideTextStyle: const TextStyle(color: AppColors.white38),
                              ),
                              daysOfWeekStyle: const DaysOfWeekStyle(
-                               weekdayStyle: TextStyle(color: ColorCode.white70),
-                               weekendStyle: TextStyle(color: ColorCode.white70),
+                               weekdayStyle: TextStyle(color: AppColors.white70),
+                               weekendStyle: TextStyle(color: AppColors.white70),
                              ),
                              onPageChanged: (focusedDay) {
                                setState(() {
@@ -1539,7 +1539,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
                 const SizedBox(height: 12),
-                Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                Divider(color: AppColors.dividerDark, thickness: 0.8),
                 const SizedBox(height: 12),
                 if (creatordashboarddetaillist.isNotEmpty) ...[
                   Row(
@@ -1551,7 +1551,7 @@ class _HomeScreenState extends State<HomeScreen>
                           fontSize: 16,
                           fontFamily: "Unbounded",
                           fontWeight: FontWeight.w500,
-                          color: ColorCode.white,
+                          color: AppColors.white,
                         ),
                       ),
                       /*  GestureDetector(
@@ -1576,7 +1576,7 @@ class _HomeScreenState extends State<HomeScreen>
                       /*
                          child: const Icon(
                            Icons.arrow_forward_ios,
-                           color: ColorCode.white70,
+                           color: AppColors.white70,
                            size: 16,
                          ),
                        ),*/
@@ -1585,7 +1585,7 @@ class _HomeScreenState extends State<HomeScreen>
                   const SizedBox(height: 14),
                   Container(
                     decoration: BoxDecoration(
-                      color: ColorCode.k282828,
+                      color: AppColors.surfaceMid,
                       borderRadius: BorderRadius.circular(22),
                     ),
                     child: Column(
@@ -1640,8 +1640,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     begin: Alignment.bottomCenter,
                                     end: Alignment.topCenter,
                                     colors: [
-                                      ColorCode.k282828,
-                                      ColorCode.transparent,
+                                      AppColors.surfaceMid,
+                                      AppColors.transparent,
                                     ],
                                   ),
                                 ),
@@ -1653,13 +1653,13 @@ class _HomeScreenState extends State<HomeScreen>
                                child: Container(
                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                  decoration: BoxDecoration(
-                                   color: ColorCode.black.withOpacity(0.6),
+                                   color: AppColors.black.withOpacity(0.6),
                                    borderRadius: BorderRadius.circular(20),
                                  ),
                                  child: const Text(
                                    "10 mins Ago",
                                    style: TextStyle(
-                                     color: ColorCode.white,
+                                     color: AppColors.white,
                                      fontSize: 11,
                                    ),
                                  ),
@@ -1672,12 +1672,12 @@ class _HomeScreenState extends State<HomeScreen>
                                  height: 38,
                                  width: 38,
                                  decoration: BoxDecoration(
-                                   color: ColorCode.white.withOpacity(0.2),
+                                   color: AppColors.white.withOpacity(0.2),
                                    shape: BoxShape.circle,
                                  ),
                                  child: const Icon(
                                    Icons.arrow_forward,
-                                   color: ColorCode.white,
+                                   color: AppColors.white,
                                    size: 18,
                                  ),
                                ),
@@ -1688,17 +1688,17 @@ class _HomeScreenState extends State<HomeScreen>
                                  child: Container(
                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                                    decoration: BoxDecoration(
-                                     color: const Color(0xffC8F5D3),
+                                     color: AppColors.greenMintLight,
                                      borderRadius: BorderRadius.circular(20),
                                    ),
                                    child: Row(
                                      children:  [
-                                       // Icon(Icons.check_circle, size: 14, color: ColorCode.green),
+                                       // Icon(Icons.check_circle, size: 14, color: AppColors.success),
                                        SizedBox(width: 6),
                                        Text(
                                          data?.status ?? "",
                                          style: TextStyle(
-                                           color: ColorCode.green,
+                                           color: AppColors.success,
                                            fontSize: 12,
                                            fontWeight: FontWeight.w600,
                                          ),
@@ -1723,7 +1723,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       data?.projectName ?? "",
                                       style: TextStyle(
                                         fontFamily: "Outfit",
-                                        color: ColorCode.white, //
+                                        color: AppColors.white, //
                                         fontSize: 15,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -1745,7 +1745,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       style: TextStyle(
                                         fontFamily: "Outfit",
                                         fontWeight: FontWeight.w600,
-                                        color: ColorCode.kButtonColor,
+                                        color: AppColors.primary,
                                         fontSize: 12,
                                         decoration: TextDecoration.underline,
                                       ),
@@ -1754,7 +1754,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 ],
                               ),
                               Divider(
-                                color: ColorCode.kDividerWhite12,
+                                color: AppColors.dividerDark,
                                 thickness: 0.8,
                               ),
                               const SizedBox(height: 12),
@@ -1778,7 +1778,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         style: TextStyle(
                                           fontWeight: FontWeight.w400,
                                           fontFamily: "Outfit",
-                                          color: ColorCode.white,
+                                          color: AppColors.white,
                                           fontSize: 10,
                                         ),
                                       ),
@@ -1798,7 +1798,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         style: TextStyle(
                                           fontWeight: FontWeight.w400,
                                           fontFamily: "Outfit",
-                                          color: ColorCode.white,
+                                          color: AppColors.white,
                                           fontSize: 10,
                                         ),
                                       ),
@@ -1820,7 +1820,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         style: TextStyle(
                                           fontWeight: FontWeight.w400,
                                           fontFamily: "Outfit",
-                                          color: ColorCode.white,
+                                          color: AppColors.white,
                                           fontSize: 10,
                                         ),
                                       ),
@@ -1852,7 +1852,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       children: [
                                         ElevatedButton(
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: ColorCode.white,
+                                            backgroundColor: AppColors.white,
                                           ),
                                           onPressed: () {
                                             if (data != null) {
@@ -1868,7 +1868,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                 ? data!.cta!.primary
                                                 : "Accept",
                                             style: const TextStyle(
-                                              color: ColorCode.green,
+                                              color: AppColors.success,
                                               fontFamily: "Outfit",
                                               fontWeight: FontWeight.w600,
                                               fontSize: 12,
@@ -1878,7 +1878,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         const SizedBox(width: 10),
                                         ElevatedButton(
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: ColorCode.white,
+                                            backgroundColor: AppColors.white,
                                           ),
                                           onPressed: () async {
                                             context
@@ -1902,7 +1902,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                 ? data!.cta!.secondary
                                                 : "Reject",
                                             style: const TextStyle(
-                                              color: ColorCode.red,
+                                              color: AppColors.error,
                                               fontFamily: "Outfit",
                                               fontWeight: FontWeight.w600,
                                               fontSize: 12,
@@ -1920,7 +1920,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                  Divider(color: AppColors.dividerDark, thickness: 0.8),
                 ],
                 SizedBox(height: 12),
                 /*    Row(
@@ -1932,14 +1932,14 @@ class _HomeScreenState extends State<HomeScreen>
                            fontSize: 16,
                            fontFamily: "Unbounded",
                            fontWeight: FontWeight.w500,
-                           color: ColorCode.white,
+                           color: AppColors.white,
                          ),
                        ),
                        InkWell(
                          onTap: () {},
                          child: const Icon(
                            Icons.arrow_forward_ios,
-                           color: ColorCode.white70,
+                           color: AppColors.white70,
                            size: 16,
                          ),
                        ),
@@ -1960,7 +1960,7 @@ class _HomeScreenState extends State<HomeScreen>
                              scale: currentIndex == 0 ? 0.85 : 0.95,
                              child: _meetingCard(
                                opacity: 0.3,
-                               backgroundColor: ColorCode.white.withOpacity(0.03),
+                               backgroundColor: AppColors.white.withOpacity(0.03),
                              ),
                            ),
                          ),
@@ -1973,7 +1973,7 @@ class _HomeScreenState extends State<HomeScreen>
                              scale: currentIndex == 0 ? 0.92 : 0.85,
                              child: _meetingCard(
                                opacity: 0.6,
-                               backgroundColor: ColorCode.white.withOpacity(0.05),
+                               backgroundColor: AppColors.white.withOpacity(0.05),
                              ),
                            ),
                          ),
@@ -1991,7 +1991,7 @@ class _HomeScreenState extends State<HomeScreen>
                              curve: Curves.easeInOut,
                              child: _meetingCard(
                                opacity: 1,
-                               backgroundColor: ColorCode.k282828,
+                               backgroundColor: AppColors.surfaceMid,
                              ),
                            ),
                          ),
@@ -1999,7 +1999,7 @@ class _HomeScreenState extends State<HomeScreen>
                      ),
                    ),
                    const SizedBox(height: 14),*/
-                // Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                // Divider(color: AppColors.dividerDark, thickness: 0.8),
                 const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2009,7 +2009,7 @@ class _HomeScreenState extends State<HomeScreen>
                       style: TextStyle(
                         fontSize: 15,
                         fontFamily: "Unbounded",
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -2017,23 +2017,23 @@ class _HomeScreenState extends State<HomeScreen>
                       height: 38,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
-                        color: ColorCode.dashboardPanelDark,
+                        color: AppColors.dashboardPanelDark,
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                          color: ColorCode.dashboardPanelBorder,
+                          color: AppColors.darkCharcoal,
                         ),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: selectedRange,
-                          dropdownColor: const Color(0xFF1E1E1E),
+                          dropdownColor: AppColors.surfaceStats,
                           icon: const Icon(
                             Icons.keyboard_arrow_down,
-                            color: ColorCode.white24,
+                            color: AppColors.white24,
                             size: 20,
                           ),
                           style: const TextStyle(
-                            color: ColorCode.white,
+                            color: AppColors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             fontFamily: "Outfit",
@@ -2063,10 +2063,10 @@ class _HomeScreenState extends State<HomeScreen>
                 Container(
                   padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
                   decoration: BoxDecoration(
-                    color: ColorCode.dashboardPanelDark,
+                    color: AppColors.dashboardPanelDark,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: ColorCode.dashboardPanelBorder,
+                      color: AppColors.darkCharcoal,
                       width: 0.6,
                     ),
                   ),
@@ -2085,10 +2085,10 @@ class _HomeScreenState extends State<HomeScreen>
                                 painter: MultiArcPainter(
                                   values: arcValues,
                                   colors: const [
-                                    ColorCode.arcPurple,
-                                    ColorCode.arcBlue,
-                                    ColorCode.arcYellow,
-                                    ColorCode.arcGreen,
+                                    AppColors.arcPurple,
+                                    AppColors.arcBlue,
+                                    AppColors.arcYellow,
+                                    AppColors.arcGreen,
                                   ],
                                 ),
                               ),
@@ -2098,7 +2098,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   Text(
                                     "${sucessfullshoots + pendingshoots + rejectedshoots + shootrequest}",
                                     style: const TextStyle(
-                                      color: Color(0xFFE8D7B9),
+                                      color: AppColors.goldCream,
                                       fontSize: 26,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: "Outfit",
@@ -2115,28 +2115,28 @@ class _HomeScreenState extends State<HomeScreen>
                       _statusItem(
                         "$sucessfullshoots",
                         "Successful shoots",
-                        const Color(0xFFA678F1),
+                        AppColors.arcPurple,
                       ),
                       _statusItem(
                         "$pendingshoots",
                         "Pending shoots",
-                        const Color(0xFF5CC4FF),
+                        AppColors.arcBlue,
                       ),
                       _statusItem(
                         "$rejectedshoots",
                         "Rejected shoots",
-                        const Color(0xFFFFC04F),
+                        AppColors.arcYellow,
                       ),
                       _statusItem(
                         "$shootrequest",
                         "Shoot Requests",
-                        const Color(0xFF2DC497),
+                        AppColors.arcGreen,
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
-                Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                Divider(color: AppColors.dividerDark, thickness: 0.8),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2146,7 +2146,7 @@ class _HomeScreenState extends State<HomeScreen>
                       style: TextStyle(
                         fontSize: 15,
                         fontFamily: "Unbounded",
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -2154,10 +2154,10 @@ class _HomeScreenState extends State<HomeScreen>
                       height: 38,
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: ColorCode.dashboardPanelDark,
+                        color: AppColors.dashboardPanelDark,
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                          color: ColorCode.dashboardPanelBorder,
+                          color: AppColors.darkCharcoal,
                         ),
                       ),
                       child: Row(
@@ -2177,8 +2177,8 @@ class _HomeScreenState extends State<HomeScreen>
                               ),
                               decoration: BoxDecoration(
                                 color: selectedTab == 0
-                                    ? const Color(0xFFE8D7B9)
-                                    : ColorCode.transparent,
+                                    ? AppColors.goldCream
+                                    : AppColors.transparent,
                                 borderRadius: BorderRadius.circular(25),
                               ),
                               alignment: Alignment.center,
@@ -2186,8 +2186,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 "Photo",
                                 style: TextStyle(
                                   color: selectedTab == 0
-                                      ? ColorCode.black
-                                      : ColorCode.kWhiteOpacity70,
+                                      ? AppColors.black
+                                      : AppColors.white30,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                   fontFamily: "Outfit",
@@ -2209,8 +2209,8 @@ class _HomeScreenState extends State<HomeScreen>
                               ),
                               decoration: BoxDecoration(
                                 color: selectedTab == 1
-                                    ? const Color(0xFFE8D7B9)
-                                    : ColorCode.transparent,
+                                    ? AppColors.goldCream
+                                    : AppColors.transparent,
                                 borderRadius: BorderRadius.circular(25),
                               ),
                               alignment: Alignment.center,
@@ -2218,8 +2218,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 "Video",
                                 style: TextStyle(
                                   color: selectedTab == 1
-                                      ? ColorCode.black
-                                      : ColorCode.kWhiteOpacity70,
+                                      ? AppColors.black
+                                      : AppColors.white30,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                   fontFamily: "Outfit",
@@ -2236,10 +2236,10 @@ class _HomeScreenState extends State<HomeScreen>
                 Container(
                   padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
                   decoration: BoxDecoration(
-                    color: ColorCode.black,
+                    color: AppColors.black,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: ColorCode.dashboardPanelBorder,
+                      color: AppColors.darkCharcoal,
                       width: 0.6,
                     ),
                   ),
@@ -2258,10 +2258,10 @@ class _HomeScreenState extends State<HomeScreen>
                                 painter: MultiArcPainter(
                                   values: categoryArcValues,
                                   colors: const [
-                                    ColorCode.arcPurple,
-                                    ColorCode.arcBlue,
-                                    ColorCode.arcYellow,
-                                    ColorCode.arcGreen,
+                                    AppColors.arcPurple,
+                                    AppColors.arcBlue,
+                                    AppColors.arcYellow,
+                                    AppColors.arcGreen,
                                   ],
                                 ),
                               ),
@@ -2278,7 +2278,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     //                                     acceptphotographyShoots.toString()
                                     //                                     :.toString(),
                                     style: const TextStyle(
-                                      color: Color(0xFFE8D7B9),
+                                      color: AppColors.goldCream,
                                       fontSize: 26,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: "Outfit",
@@ -2295,25 +2295,25 @@ class _HomeScreenState extends State<HomeScreen>
                       _statusItem(
                         "$acceptphotographyShoots",
                         "Photography shoots",
-                        const Color(0xFFA678F1),
+                        AppColors.arcPurple,
                       ),
 
                       _statusItem(
                         "$acceptvideographyShoots",
                         "Videography shoots",
-                        const Color(0xFF5CC4FF),
+                        AppColors.arcBlue,
                       ),
 
                       _statusItem(
                         selectedTab == 0 ? "$rejectedPhoto" : "$rejectedVideo",
                         "Rejected shoots",
-                        const Color(0xFFFFC04F),
+                        AppColors.arcYellow,
                       ),
 
                       _statusItem(
                         selectedTab == 0 ? "$requestPhoto" : "$requestVideo",
                         "Shoot Requests",
-                        const Color(0xFF2DC497),
+                        AppColors.arcGreen,
                       ),
                     ],
                   ),
@@ -2333,7 +2333,7 @@ class _HomeScreenState extends State<HomeScreen>
       margin: EdgeInsetsGeometry.all(3),
       padding: EdgeInsetsGeometry.all(3),
       decoration: BoxDecoration(
-        color: isAvailable ? const Color(0xFFD8FDE6) : const Color(0xFFE0E7F8),
+        color: isAvailable ? AppColors.softMint : AppColors.blueIce,
         borderRadius: BorderRadius.circular(3),
       ),
       child: Text(
@@ -2341,8 +2341,8 @@ class _HomeScreenState extends State<HomeScreen>
         event,
         style: TextStyle(
           color: isAvailable
-              ? const Color(0xFF1DAA23)
-              : const Color(0xFF2D66D2),
+              ? AppColors.greenBright
+              : AppColors.blueRoyal,
           fontSize: 7.79,
           fontFamily: 'Outfit',
           fontWeight: FontWeight.w400,
@@ -2404,7 +2404,7 @@ class _HomeScreenState extends State<HomeScreen>
                   },
                   child: Container(
                     decoration: const BoxDecoration(
-                      color: Color(0xff282828),
+                      color: AppColors.surfaceMid,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
@@ -2417,7 +2417,7 @@ class _HomeScreenState extends State<HomeScreen>
                           width: 40,
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: ColorCode.white,
+                            color: AppColors.white,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -2429,7 +2429,7 @@ class _HomeScreenState extends State<HomeScreen>
                               const Text(
                                 "Filter",
                                 style: TextStyle(
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                   fontSize: 18,
                                   fontFamily: "Unbounded",
                                   fontWeight: FontWeight.w600,
@@ -2439,7 +2439,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 onTap: () => Navigator.pop(context),
                                 child: const Icon(
                                   Icons.close,
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                 ),
                               ),
                             ],
@@ -2448,7 +2448,7 @@ class _HomeScreenState extends State<HomeScreen>
                         const SizedBox(height: 16),
                         Divider(
                           thickness: 0.5,
-                          color: ColorCode.white.withOpacity(0.3),
+                          color: AppColors.white.withOpacity(0.3),
                         ),
                         Expanded(
                           child: NotificationListener<ScrollNotification>(
@@ -2623,7 +2623,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                   BorderRadius.circular(12),
                                               border: Border.all(
                                                 width: 0.5,
-                                                color: ColorCode.white
+                                                color: AppColors.white
                                                     .withOpacity(0.6),
                                               ),
                                             ),
@@ -2631,7 +2631,7 @@ class _HomeScreenState extends State<HomeScreen>
                                               child: Text(
                                                 'Clear All',
                                                 style: TextStyle(
-                                                  color: ColorCode.white,
+                                                  color: AppColors.white,
                                                   fontFamily: 'Unbounded',
                                                   fontWeight: FontWeight.w500,
                                                 ),
@@ -2650,12 +2650,12 @@ class _HomeScreenState extends State<HomeScreen>
                                             ),
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xffE8D1AB),
+                                              color: AppColors.primary,
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                               border: Border.all(
                                                 width: 0.5,
-                                                color: ColorCode.white
+                                                color: AppColors.white
                                                     .withOpacity(0.6),
                                               ),
                                             ),
@@ -2665,7 +2665,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                 style: TextStyle(
                                                   fontFamily: 'Unbounded',
                                                   fontWeight: FontWeight.w500,
-                                                  color: Color(0xff1D1D1B),
+                                                  color: AppColors.onPrimary,
                                                 ),
                                               ),
                                             ),
@@ -2704,7 +2704,7 @@ class _HomeScreenState extends State<HomeScreen>
       padding: EdgeInsets.all(10),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF1D1D1B),
+          color: AppColors.onPrimary,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
@@ -2723,7 +2723,7 @@ class _HomeScreenState extends State<HomeScreen>
                     Text(
                       title,
                       style: const TextStyle(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontSize: 14,
                         fontFamily: "Outfit",
                         fontWeight: FontWeight.w500,
@@ -2734,7 +2734,7 @@ class _HomeScreenState extends State<HomeScreen>
                       isExpanded
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
-                      color: ColorCode.white,
+                      color: AppColors.white,
                     ),
                   ],
                 ),
@@ -2743,7 +2743,7 @@ class _HomeScreenState extends State<HomeScreen>
             isExpanded && showDivider
                 ? Divider(
                     thickness: 0.5,
-                    color: ColorCode.white.withOpacity(0.3),
+                    color: AppColors.white.withOpacity(0.3),
                   )
                 : SizedBox(),
             if (children.isNotEmpty) ...children,
@@ -2769,7 +2769,7 @@ class _HomeScreenState extends State<HomeScreen>
             Text(
               label,
               style: TextStyle(
-                color: ColorCode.white.withOpacity(0.8),
+                color: AppColors.white.withOpacity(0.8),
                 fontSize: 14,
                 fontFamily: "Outfit",
               ),
@@ -2780,7 +2780,7 @@ class _HomeScreenState extends State<HomeScreen>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected ? const Color(0xffDDDDDD) : ColorCode.white24,
+                  color: selected ? AppColors.border : AppColors.white24,
                   width: 2,
                 ),
               ),
@@ -2791,7 +2791,7 @@ class _HomeScreenState extends State<HomeScreen>
                         height: 10,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0xFFE8D1AB),
+                          color: AppColors.primary,
                         ),
                       ),
                     )
@@ -2825,7 +2825,7 @@ class _HomeScreenState extends State<HomeScreen>
         constraints: const BoxConstraints(minHeight: 86),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? ColorCode.kButtonColor : ColorCode.transparent,
+          color: isSelected ? AppColors.primary : AppColors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -2841,8 +2841,8 @@ class _HomeScreenState extends State<HomeScreen>
                     fontFamily: "Outfit",
                     fontWeight: FontWeight.w500,
                     color: isSelected
-                        ? ColorCode.black
-                        : ColorCode.dashboardMutedText,
+                        ? AppColors.black
+                        : AppColors.textTertiary,
                   ),
                 ),
                 const SizedBox(height: 9),
@@ -2852,7 +2852,7 @@ class _HomeScreenState extends State<HomeScreen>
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
                     fontFamily: "Outfit",
-                    color: isSelected ? ColorCode.black : ColorCode.white,
+                    color: isSelected ? AppColors.black : AppColors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -2860,7 +2860,7 @@ class _HomeScreenState extends State<HomeScreen>
                   percent,
                   style: TextStyle(
                     fontSize: 11,
-                    color: isSelected ? ColorCode.green : percentColor,
+                    color: isSelected ? AppColors.success : percentColor,
                   ),
                 ),*/
               ],
@@ -2868,14 +2868,14 @@ class _HomeScreenState extends State<HomeScreen>
             CircleAvatar(
               radius: 17,
               backgroundColor: isSelected
-                  ? ColorCode.black
-                  : ColorCode.dashboardPanelDark,
+                  ? AppColors.black
+                  : AppColors.dashboardPanelDark,
               child: SvgPicture.asset(
                 iconPath,
                 width: 17,
                 height: 17,
                 colorFilter: ColorFilter.mode(
-                  isSelected ? ColorCode.kButtonColor : ColorCode.kButtonColor,
+                  isSelected ? AppColors.primary : AppColors.primary,
                   BlendMode.srcIn,
                 ),
               ),
@@ -2883,7 +2883,7 @@ class _HomeScreenState extends State<HomeScreen>
               //   iconPath,
               //   width: 16,
               //   height: 16,
-              //   color: isSelected ? ColorCode.white : ColorCode.white70,
+              //   color: isSelected ? AppColors.white : AppColors.white70,
               // ),
             ),
           ],
@@ -2894,7 +2894,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _meetingCard({
     double opacity = 1,
-    Color backgroundColor = const Color(0xFF2A2A2A),
+    Color backgroundColor = AppColors.surfaceVariant,
   }) {
     return Opacity(
       opacity: opacity,
@@ -2906,7 +2906,7 @@ class _HomeScreenState extends State<HomeScreen>
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: ColorCode.black.withOpacity(0.4),
+              color: AppColors.black.withOpacity(0.4),
               blurRadius: 20,
               offset: const Offset(0, 15),
             ),
@@ -2920,12 +2920,12 @@ class _HomeScreenState extends State<HomeScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.videocam,
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     size: 18,
                   ),
                 ),
@@ -2933,7 +2933,7 @@ class _HomeScreenState extends State<HomeScreen>
                 const Text(
                   "Pre-Production Kickoff",
                   style: TextStyle(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -2941,7 +2941,7 @@ class _HomeScreenState extends State<HomeScreen>
               ],
             ),
             const SizedBox(height: 16),
-            const Divider(color: ColorCode.white),
+            const Divider(color: AppColors.white),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -2951,12 +2951,12 @@ class _HomeScreenState extends State<HomeScreen>
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xffF5D6A5),
+                    color: AppColors.goldHoney,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
                     "Initiated",
-                    style: TextStyle(color: ColorCode.orange, fontSize: 12),
+                    style: TextStyle(color: AppColors.orange, fontSize: 12),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -2966,12 +2966,12 @@ class _HomeScreenState extends State<HomeScreen>
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
                     "Google Meet",
-                    style: TextStyle(color: ColorCode.black, fontSize: 12),
+                    style: TextStyle(color: AppColors.black, fontSize: 12),
                   ),
                 ),
               ],
@@ -2979,29 +2979,29 @@ class _HomeScreenState extends State<HomeScreen>
             const SizedBox(height: 18),
             const Row(
               children: [
-                Icon(Icons.calendar_today, size: 14, color: ColorCode.white24),
+                Icon(Icons.calendar_today, size: 14, color: AppColors.white24),
                 SizedBox(width: 8),
                 Text(
                   "16 Jun, 2024",
-                  style: TextStyle(color: ColorCode.white24, fontSize: 12),
+                  style: TextStyle(color: AppColors.white24, fontSize: 12),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             const Row(
               children: [
-                Icon(Icons.access_time, size: 14, color: ColorCode.white24),
+                Icon(Icons.access_time, size: 14, color: AppColors.white24),
                 SizedBox(width: 8),
                 Text(
                   "10:00 PM to 13:00 PM",
-                  style: TextStyle(color: ColorCode.white24, fontSize: 12),
+                  style: TextStyle(color: AppColors.white24, fontSize: 12),
                 ),
               ],
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xffE8D7B9),
+                backgroundColor: AppColors.goldCream,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
@@ -3011,7 +3011,7 @@ class _HomeScreenState extends State<HomeScreen>
               child: const Text(
                 "Join Meeting",
                 style: TextStyle(
-                  color: ColorCode.black,
+                  color: AppColors.black,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -3039,7 +3039,7 @@ class _HomeScreenState extends State<HomeScreen>
               child: Text(
                 count,
                 style: const TextStyle(
-                  color: ColorCode.white,
+                  color: AppColors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   fontFamily: "Outfit",
@@ -3054,7 +3054,7 @@ class _HomeScreenState extends State<HomeScreen>
                 label,
                 textAlign: TextAlign.right,
                 style: const TextStyle(
-                  color: ColorCode.dashboardMutedText,
+                  color: AppColors.textTertiary,
                   fontSize: 13,
                   fontFamily: "Outfit",
                   fontWeight: FontWeight.w400,

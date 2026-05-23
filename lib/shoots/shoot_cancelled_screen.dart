@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:beige_creative_app/utility/colorcode.dart';
+import 'package:beige_creative_app/app/colors.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app/route_names.dart';
@@ -74,7 +74,7 @@ class _CancelScreenState extends State<CancelScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorCode.black.withOpacity(0.4),
+      backgroundColor: AppColors.black.withOpacity(0.4),
       resizeToAvoidBottomInset: true,
       body: Align(
         alignment: Alignment.bottomCenter,
@@ -82,7 +82,7 @@ class _CancelScreenState extends State<CancelScreen> {
           height: MediaQuery.of(context).size.height * 0.75,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           decoration: const BoxDecoration(
-            color: Color(0xFF282828),
+            color: AppColors.surfaceMid,
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(28),
             ),
@@ -99,7 +99,7 @@ class _CancelScreenState extends State<CancelScreen> {
                     width: 42,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: ColorCode.white24,
+                      color: AppColors.white24,
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
@@ -117,12 +117,12 @@ class _CancelScreenState extends State<CancelScreen> {
                         fontSize: 16,
                         fontFamily: "Unbounded",
                         fontWeight: FontWeight.w500,
-                        color: ColorCode.white,
+                        color: AppColors.white,
                       ),
                     ),
                     InkWell(
                       onTap: () => context.pop(),
-                      child: const Icon(Icons.close, color: ColorCode.white),
+                      child: const Icon(Icons.close, color: AppColors.white),
                     ),
                   ],
                 ),
@@ -134,14 +134,14 @@ class _CancelScreenState extends State<CancelScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontFamily: "Outfit",
-                    color: ColorCode.kWhiteOpacity60,
+                    color: AppColors.white60,
                   ),
                 ),
 
                 const SizedBox(height: 18),
 
                 const Divider(
-                  color: ColorCode.kDividerWhite12,
+                  color: AppColors.dividerDark,
                   thickness: 0.8,
                 ),
 
@@ -153,7 +153,7 @@ class _CancelScreenState extends State<CancelScreen> {
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     fontFamily: "Outfit",
-                    color: ColorCode.white,
+                    color: AppColors.white,
                   ),
                 ),
 
@@ -186,8 +186,8 @@ class _CancelScreenState extends State<CancelScreen> {
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                       color: selectedReason == reason
-                                          ? const Color(0xFFE8D1AB)
-                                          : ColorCode.white24,
+                                          ? AppColors.primary
+                                          : AppColors.white24,
                                       width: 1.3,
                                     ),
                                   ),
@@ -200,7 +200,7 @@ class _CancelScreenState extends State<CancelScreen> {
                                       const BoxDecoration(
                                         shape: BoxShape.circle,
                                         color:
-                                        Color(0xFFE8D1AB),
+                                        AppColors.primary,
                                       ),
                                     ),
                                   )
@@ -214,7 +214,7 @@ class _CancelScreenState extends State<CancelScreen> {
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontFamily: "Outfit",
-                                    color: ColorCode.white,
+                                    color: AppColors.white,
                                   ),
                                 ),
                               ],
@@ -239,8 +239,8 @@ class _CancelScreenState extends State<CancelScreen> {
                               borderRadius:
                               BorderRadius.circular(14),
                               border: Border.all(
-                                  color: ColorCode.white24),
-                              color: ColorCode.black
+                                  color: AppColors.white24),
+                              color: AppColors.black
                                   .withOpacity(0.2),
                             ),
                             child: TextField(
@@ -248,13 +248,13 @@ class _CancelScreenState extends State<CancelScreen> {
                               commentController,
                               maxLines: 3,
                               style: const TextStyle(
-                                  color: ColorCode.white),
+                                  color: AppColors.white),
                               decoration:
                               const InputDecoration(
                                 hintText:
                                 "Any additional details...",
                                 hintStyle: TextStyle(
-                                  color: ColorCode.white24,
+                                  color: AppColors.white24,
                                   fontSize: 13,
                                 ),
                                 border: InputBorder.none,
@@ -280,7 +280,7 @@ class _CancelScreenState extends State<CancelScreen> {
                           style:
                           OutlinedButton.styleFrom(
                             side: const BorderSide(
-                                color: ColorCode.white24),
+                                color: AppColors.white24),
                             shape:
                             RoundedRectangleBorder(
                               borderRadius:
@@ -296,7 +296,7 @@ class _CancelScreenState extends State<CancelScreen> {
                               fontFamily: "Unbounded",
                               fontWeight:
                               FontWeight.w500,
-                              color: ColorCode.white,
+                              color: AppColors.white,
                             ),
                           ),
                         ),
@@ -312,7 +312,7 @@ class _CancelScreenState extends State<CancelScreen> {
                           style:
                           ElevatedButton.styleFrom(
                             backgroundColor:
-                            const Color(0xFFE8D1AB),
+                            AppColors.primary,
                             elevation: 0,
                             shape:
                             RoundedRectangleBorder(
@@ -348,7 +348,7 @@ class _CancelScreenState extends State<CancelScreen> {
                               fontFamily: "Unbounded",
                               fontWeight:
                               FontWeight.w500,
-                              color: ColorCode.black,
+                              color: AppColors.black,
                             ),
                           ),
                         ),

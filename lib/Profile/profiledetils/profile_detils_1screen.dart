@@ -7,7 +7,7 @@ import '../../model_class/myprofile_model.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
-import '../../utility/colorcode.dart';
+import '../../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class ProfileDetils1screen extends StatefulWidget {
@@ -114,7 +114,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                             "Profile Details",
                             style: TextStyle(
                               fontFamily: "Unbounded",
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
@@ -134,7 +134,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                   padding: const EdgeInsets.all(5),
                   height: 53,
                   decoration: BoxDecoration(
-                    color: ColorCode.k282828,
+                    color: AppColors.surfaceMid,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Row(
@@ -181,7 +181,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
           width: double.infinity,
           decoration: BoxDecoration(
-            color: ColorCode.k282828,
+            color: AppColors.surfaceMid,
             borderRadius: BorderRadius.circular(20),
           ),
           child: SingleChildScrollView(
@@ -190,7 +190,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                  Text(
                   "$firstName $lastName",
                   style: TextStyle(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     fontFamily: "Unbounded"
@@ -211,11 +211,11 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
-                        ColorCode.whiteTransparent,
-                        ColorCode.whiteOpacity10,
-                        ColorCode.whiteOpacity20,
-                        ColorCode.whiteOpacity10,
-                        ColorCode.whiteTransparent,
+                        AppColors.whiteTransparent,
+                        AppColors.white10,
+                        AppColors.white20,
+                        AppColors.white10,
+                        AppColors.whiteTransparent,
                       ],
                     ),
                   ),
@@ -243,7 +243,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: const Color(0xFFD6C3A1),
+              color: AppColors.goldSoftSand,
               width: 3,
             ),
           ),
@@ -283,7 +283,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           padding:  EdgeInsets.fromLTRB(20, 70, 20, 20),
           width: double.infinity,
           decoration: BoxDecoration(
-            color: ColorCode.k282828,
+            color: AppColors.surfaceMid,
             borderRadius: BorderRadius.circular(20),
           ),
           child: SingleChildScrollView(
@@ -295,7 +295,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                   child: Text(
                     "$firstName $lastName",
                     style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 20,
                       fontFamily: "Unbounded",
                       fontWeight: FontWeight.bold,
@@ -316,11 +316,11 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
-                        ColorCode.whiteTransparent,
-                        ColorCode.whiteOpacity10,
-                        ColorCode.whiteOpacity20,
-                        ColorCode.whiteOpacity10,
-                        ColorCode.whiteTransparent,
+                        AppColors.whiteTransparent,
+                        AppColors.white10,
+                        AppColors.white20,
+                        AppColors.white10,
+                        AppColors.whiteTransparent,
                       ],
                     ),
                   ),
@@ -354,7 +354,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                 const Text(
                   "Skills",
                   style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontFamily: "Outfit",
                       fontSize: 14,
                       fontWeight: FontWeight.w400
@@ -377,15 +377,15 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
                         /// 🔥 GRADIENT BORDER EFFECT
                         border: Border.all(
-                          color: ColorCode.white.withOpacity(0.08),
+                          color: AppColors.white.withOpacity(0.08),
                           width: 1,
                         ),
 
                         /// 🔥 GLASS BACKGROUND
                         gradient: LinearGradient(
                           colors: [
-                            ColorCode.whiteOpacity10,
-                            ColorCode.whiteOpacity10,
+                            AppColors.white10,
+                            AppColors.white10,
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -395,7 +395,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       child: Text(
                         skill.name,
                         style: const TextStyle(
-                          color: ColorCode.white,
+                          color: AppColors.white,
                           fontSize: 13,
                           fontFamily: "Outfit",
                           fontWeight: FontWeight.w400,
@@ -415,11 +415,11 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
-                        ColorCode.whiteTransparent,
-                        ColorCode.whiteOpacity10,
-                        ColorCode.whiteOpacity20,
-                        ColorCode.whiteOpacity10,
-                        ColorCode.whiteTransparent,
+                        AppColors.whiteTransparent,
+                        AppColors.white10,
+                        AppColors.white20,
+                        AppColors.white10,
+                        AppColors.whiteTransparent,
                       ],
                     ),
                   ),
@@ -428,7 +428,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                 const Text(
                   "Bio / About",
                   style:TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontFamily: "Outfit",
                       fontSize: 14,
                       fontWeight: FontWeight.w400
@@ -443,7 +443,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                       ? profileData!.bio
                       : "-",
                   style: const TextStyle(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     fontSize: 13,
                   ),
                 ),
@@ -459,7 +459,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: const Color(0xFFD6C3A1),
+              color: AppColors.goldSoftSand,
               width: 3,
             ),
           ),
@@ -505,7 +505,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
         decoration: BoxDecoration(
-          color: ColorCode.kButtonColor,
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(25),
         ),
         child: const Text(
@@ -513,7 +513,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           style: TextStyle(
             fontSize: 14,
             fontFamily: "Outfit",
-            color: ColorCode.k282828,
+            color: AppColors.surfaceMid,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -537,7 +537,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
         decoration: BoxDecoration(
-          color: ColorCode.kButtonColor,
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(25),
         ),
         child: const Text(
@@ -545,7 +545,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           style: TextStyle(
             fontSize: 14,
             fontFamily: "Outfit",
-            color: ColorCode.k282828,
+            color: AppColors.surfaceMid,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -565,8 +565,8 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
         child: Container(
           decoration: BoxDecoration(
             color: isSelected
-                ? ColorCode.soft
-                : ColorCode.transparent,
+                ? AppColors.goldSoftSand
+                : AppColors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           alignment: Alignment.center,
@@ -576,8 +576,8 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
               fontFamily: "Outfit",
               fontSize: 14,
               color: isSelected
-                  ? ColorCode.kHeadingColor
-                  : ColorCode.kWhiteOpacity70,
+                  ? AppColors.textHeading
+                  : AppColors.white30,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -595,7 +595,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           Text(
             title,
             style: const TextStyle(
-              color: ColorCode.white,
+              color: AppColors.white,
               fontFamily: "Outfit",
               fontSize: 14,
               fontWeight: FontWeight.w400
@@ -606,7 +606,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
               value,
               textAlign: TextAlign.end,
               style: const TextStyle(
-                color: ColorCode.kWhiteOpacity60,
+                color: AppColors.white60,
                   fontFamily: "Outfit",
                   fontSize: 14,
                   fontWeight: FontWeight.w400

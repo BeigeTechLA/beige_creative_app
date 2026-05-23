@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../model_class/edit_profile_model.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
-import '../../utility/colorcode.dart';
+import '../../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/custom_multi_selectfield.dart' show CustomMultiSelectField;
 import '../../widgets/custom_text_field.dart';
@@ -531,7 +531,7 @@ class _EnterProfileDetailsScreenState
         AppAssets.back, // make sure it's .svg file
         height: 24,
         colorFilter: ColorFilter.mode(
-          ColorCode.white,
+          AppColors.white,
           BlendMode.srcIn,
         ),
       ),
@@ -549,7 +549,7 @@ class _EnterProfileDetailsScreenState
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: ColorCode.white,
+                    color: AppColors.white,
                   ),
                 ),
               ),
@@ -605,7 +605,7 @@ class _EnterProfileDetailsScreenState
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Highlight your creative focus.",
-                  style: TextStyle(color: ColorCode.grey),
+                  style: TextStyle(color: AppColors.lavenderGrey),
                 ),
               ),
 
@@ -616,14 +616,14 @@ class _EnterProfileDetailsScreenState
                 onTap: _openSkillsBottomSheet,
                 child: AbsorbPointer(
                   child: TextField(
-                    style: const TextStyle(color: ColorCode.white),
+                    style: const TextStyle(color: AppColors.white),
 
                     decoration: _inputDecoration("Add Skills").copyWith(
                       hintText: _skillsDisplayText(),
-                      hintStyle: const TextStyle(color: ColorCode.white),
+                      hintStyle: const TextStyle(color: AppColors.white),
                       suffixIcon: const Icon(
                         Icons.keyboard_arrow_down,
-                        color: ColorCode.white,
+                        color: AppColors.white,
                       ),
                     ),
                   ),
@@ -662,7 +662,7 @@ class _EnterProfileDetailsScreenState
           height: 55,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: ColorCode.kButtonColor,
+              backgroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),//
               ),
@@ -673,7 +673,7 @@ class _EnterProfileDetailsScreenState
             child: const Text(
               "Save",
               style: TextStyle(
-                color: ColorCode.black,
+                color: AppColors.black,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -687,7 +687,7 @@ class _EnterProfileDetailsScreenState
 
     showModalBottomSheet(
       context: context,
-      backgroundColor:  ColorCode.backgroundColor,
+      backgroundColor:  AppColors.background,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -707,7 +707,7 @@ class _EnterProfileDetailsScreenState
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: ColorCode.white24,
+                      color: AppColors.white24,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -716,7 +716,7 @@ class _EnterProfileDetailsScreenState
                   const Text(
                     "Select Roles",
                     style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -740,20 +740,20 @@ class _EnterProfileDetailsScreenState
                           title: Text(
                             role,
                             style: const TextStyle(
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               fontFamily: "Outfit",
                             ),
                           ),
 
-                          activeColor: ColorCode.kButtonColor,
-                          checkColor: ColorCode.black,
+                          activeColor: AppColors.primary,
+                          checkColor: AppColors.black,
 
                           side: BorderSide(
                             color: isSelected
-                                ? ColorCode.kButtonColor
-                                : ColorCode.grey,
+                                ? AppColors.primary
+                                : AppColors.lavenderGrey,
                             width: 1.5,
                           ),
 
@@ -798,7 +798,7 @@ class _EnterProfileDetailsScreenState
                     child: ElevatedButton(
                       onPressed: () => context.pop(true),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kButtonColor,
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -806,7 +806,7 @@ class _EnterProfileDetailsScreenState
                       child: const Text(
                         "Done",
                         style: TextStyle(
-                          color: ColorCode.kHeadingColor,
+                          color: AppColors.textHeading,
                           fontSize: 15,
                           fontFamily: "Outfit",
                         ),
@@ -824,7 +824,7 @@ class _EnterProfileDetailsScreenState
   void _openSkillsBottomSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1C1C1C),
+      backgroundColor: AppColors.surfaceCropSheet,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -843,7 +843,7 @@ class _EnterProfileDetailsScreenState
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: ColorCode.white24,
+                      color: AppColors.white24,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -852,7 +852,7 @@ class _EnterProfileDetailsScreenState
                   Text(
                     "Select Skills",
                     style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -872,12 +872,12 @@ class _EnterProfileDetailsScreenState
 
                         return CheckboxListTile(
                           value: isSelected,
-                          activeColor: ColorCode.kButtonColor,
-                          checkColor: ColorCode.black,
+                          activeColor: AppColors.primary,
+                          checkColor: AppColors.black,
                           title: Text(
                             skill,
                             style:
-                            const TextStyle(color: ColorCode.white),
+                            const TextStyle(color: AppColors.white),
                           ),
                           onChanged: (checked) {
                             setModalState(() {
@@ -905,7 +905,7 @@ class _EnterProfileDetailsScreenState
                     child: ElevatedButton(
                       onPressed: () => context.pop(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kButtonColor,
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -913,7 +913,7 @@ class _EnterProfileDetailsScreenState
                       child: const Text(
                         "Done",
                         style: TextStyle(
-                          color: ColorCode.kHeadingColor,
+                          color: AppColors.textHeading,
                           fontSize: 15,
                         ),
                       ),
@@ -931,18 +931,18 @@ class _EnterProfileDetailsScreenState
     return InputDecoration(
       labelText: title,
       floatingLabelBehavior: FloatingLabelBehavior.always,
-      labelStyle: const TextStyle(color: ColorCode.kWhiteOpacity70),
+      labelStyle: const TextStyle(color: AppColors.white30),
       contentPadding:
       const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide:
-        const BorderSide(color: ColorCode.kWhiteOpacity70, width: 0.5),
+        const BorderSide(color: AppColors.white30, width: 0.5),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide:
-        const BorderSide(color: ColorCode.kButtonColor, width: 1),
+        const BorderSide(color: AppColors.primary, width: 1),
       ),
     );
   }

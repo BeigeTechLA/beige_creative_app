@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import '../widgets/custom_dropdown.dart';
 import '../widgets/custom_text_field.dart';
 
@@ -183,7 +183,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       /*  ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Availability Saved Successfully"),
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.success,
           ),
         );*/
 
@@ -203,7 +203,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString()),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -220,27 +220,27 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
-            dialogBackgroundColor: const Color(0xFF121212),
+            dialogBackgroundColor: AppColors.surfaceGradientDark,
 
             colorScheme: const ColorScheme.dark(
-              primary: Color(0xFFD6C19A), // 🔥 main golden
-              onPrimary: Colors.white,
-              surface: Color(0xFF1E1E1E),
-              onSurface: Colors.white,
+              primary: AppColors.goldSand, // 🔥 main golden
+              onPrimary: AppColors.white,
+              surface: AppColors.surfaceStats,
+              onSurface: AppColors.white,
             ),
 
             timePickerTheme: const TimePickerThemeData(
-              backgroundColor: Color(0xFF121212),
-              dialBackgroundColor: Color(0xFF121212),
+              backgroundColor: AppColors.surfaceGradientDark,
+              dialBackgroundColor: AppColors.surfaceGradientDark,
 
-              dialHandColor: Colors.white,
-              dialTextColor: Colors.grey,
+              dialHandColor: AppColors.white,
+              dialTextColor: AppColors.neutralGrey,
 
-              hourMinuteColor: Color(0xFFD6C19A),
-              hourMinuteTextColor: Colors.black,
+              hourMinuteColor: AppColors.goldSand,
+              hourMinuteTextColor: AppColors.black,
 
-              dayPeriodColor: Color(0xFFD6C19A),
-              dayPeriodTextColor: Colors.white,
+              dayPeriodColor: AppColors.goldSand,
+              dayPeriodTextColor: AppColors.white,
             ),
           ),
           child: child!,
@@ -302,29 +302,29 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
         return Theme(
           data: ThemeData.dark().copyWith(
             useMaterial3: true,
-            dialogBackgroundColor: const Color(0xFF121212),
+            dialogBackgroundColor: AppColors.surfaceGradientDark,
 
             colorScheme: const ColorScheme.dark(
-              primary: Color(0xFFD6C19A),
-              onPrimary: Colors.black,
-              surface: Color(0xFF121212),
-              onSurface: Colors.white,
+              primary: AppColors.goldSand,
+              onPrimary: AppColors.black,
+              surface: AppColors.surfaceGradientDark,
+              onSurface: AppColors.white,
             ),
 
             datePickerTheme: DatePickerThemeData(
-              backgroundColor: Color(0xFF121212),
-              dividerColor: Colors.white12,
+              backgroundColor: AppColors.surfaceGradientDark,
+              dividerColor: AppColors.dividerDark,
 
-              headerBackgroundColor: Color(0xFF0E0E0E),
+              headerBackgroundColor: AppColors.surfaceNearBlack,
 
               headerHeadlineStyle: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
-                color: Colors.white,
+                color: AppColors.white,
               ),
 
-              dayStyle: TextStyle(color: Colors.white),
-              weekdayStyle: TextStyle(color: Colors.white70),
+              dayStyle: TextStyle(color: AppColors.white),
+              weekdayStyle: TextStyle(color: AppColors.white70),
             ),
           ),
           child: child!,
@@ -420,7 +420,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
         child: Text(
           summaryText,
           style: const TextStyle(
-            color: Color(0xFFD6C19A),
+            color: AppColors.goldSand,
             fontSize: 12,
             fontStyle: FontStyle.italic,
           ),
@@ -473,18 +473,18 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isSelected
-                      ? const Color(0xFFD6C19A)
-                      : const Color(0xFF1E1E1E),
+                      ? AppColors.goldSand
+                      : AppColors.surfaceStats,
                   border: Border.all(
                     color: isSelected
-                        ? const Color(0xFFD6C19A)
-                        : Colors.white12,
+                        ? AppColors.goldSand
+                        : AppColors.dividerDark,
                   ),
                 ),
                 child: Text(
                   day,
                   style: TextStyle(
-                    color: isSelected ? Colors.black : Colors.white70,
+                    color: isSelected ? AppColors.black : AppColors.white70,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -505,10 +505,10 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
           Row(
             children: [
               SvgPicture.asset(AppAssets.info_svg,
-                  color: const Color(0xffFF9D25)),
+                  color: AppColors.orangeBright),
               const SizedBox(width: 6),
               const Text("Repeat every day",
-                  style: TextStyle(color: Colors.orange)),
+                  style: TextStyle(color: AppColors.orange)),
             ],
           ),
           Row(
@@ -522,7 +522,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                 },
               ),
               const Text("Include Weekends",
-                  style: TextStyle(color: Colors.white)),
+                  style: TextStyle(color: AppColors.white)),
             ],
           ),
           buildUntilDateField(),
@@ -536,7 +536,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text("Repeat on specific weekdays",
-              style: TextStyle(color: Colors.orange)),
+              style: TextStyle(color: AppColors.orange)),
           const SizedBox(height: 12),
           buildWeekDays(),
           const SizedBox(height: 12),
@@ -610,7 +610,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
               child: Text(
                 "Add Availability",
                 style: TextStyle(
-                  color: ColorCode.white,
+                  color: AppColors.white,
                   fontSize: 16,
                   fontFamily: "Unbounded",
                 ),
@@ -621,7 +621,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
               fontFamily:'Outfit',
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: Colors.white.withOpacity(0.6),
+              color: AppColors.white.withOpacity(0.6),
 
             ),),
 
@@ -643,7 +643,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                         value: e,
                         child: Text(e,
                             style: const TextStyle(
-                                color: Colors.white)),
+                                color: AppColors.white)),
                       ))
                           .toList(),
                       onChanged: (val) {
@@ -683,7 +683,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                               // suffixIcon: const Padding(
                               //   padding: EdgeInsets.all(10.0),
                               //   child: Icon(Icons.access_time,
-                              //       color: Colors.white, size: 18),
+                              //       color: AppColors.white, size: 18),
                               // ),
                               onTap: () =>
                                   pickTime(startTimeController),
@@ -698,7 +698,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                               // suffixIcon: const Padding(
                               //   padding: EdgeInsets.all(10.0),
                               //   child: Icon(Icons.access_time,
-                              //       color: Colors.white, size: 18),
+                              //       color: AppColors.white, size: 18),
                               // ),
                               onTap: () =>
                                   pickTime(endTimeController),
@@ -713,9 +713,9 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                     Row(
                       children: [
                         Checkbox(
-                          activeColor: const Color(0xFFD6C19A),
+                          activeColor: AppColors.goldSand,
                           side: BorderSide(
-                            color: Colors.white.withOpacity(0.6),
+                            color: AppColors.white.withOpacity(0.6),
                             width: 0.5,
                           ),
                           shape: RoundedRectangleBorder(
@@ -729,7 +729,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                           },
                         ),
                         const Text("All Day",
-                            style: TextStyle(color: Colors.white)),
+                            style: TextStyle(color: AppColors.white)),
                       ],
                     ),
 
@@ -744,7 +744,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                         value: e,
                         child: Text(e,
                             style: const TextStyle(
-                                color: Colors.white)),
+                                color: AppColors.white)),
                       ))
                           .toList(),
                       onChanged: (val) {
@@ -788,7 +788,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.6),
+                                  color: AppColors.white.withOpacity(0.6),
                                   width: 0.5,
                                 ),
                               ),
@@ -796,7 +796,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                                 child: Text(
                                   "Cancel",
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: AppColors.white,
                                     fontFamily: "Unbounded",
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -815,14 +815,14 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               decoration: BoxDecoration(
-                                color: const Color(0xffE8D1AB),
+                                color: AppColors.primary,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Center(
                                 child: Text(
                                   "Save",
                                   style: TextStyle(
-                                    color: ColorCode.black,
+                                    color: AppColors.black,
                                     fontFamily: "Unbounded",
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -861,7 +861,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.6),
+                          color: AppColors.white.withOpacity(0.6),
                           width: 0.5,
                         ),
                       ),
@@ -869,7 +869,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                         child: Text(
                           "Cancel",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.white,
                             fontFamily: "Unbounded",
                             fontWeight: FontWeight.w500,
                           ),
@@ -890,14 +890,14 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                     onTap: isLoading ? null : addAvailability,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xffE8D1AB),
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
                         child: Text(
                           "Save",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: AppColors.black,
                             fontFamily: "Unbounded",
                             fontWeight: FontWeight.w500,
                           ),

@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/commonFileViewer.dart' show CommonFileViewer;
 import '../widgets/common_uploader.dart';
@@ -130,7 +130,7 @@ Future<void> deleteData(int id) async {
                         onTap: () => context.pop(),
                         child: SvgPicture.asset(
                           AppAssets.back,
-                          height: 24,color: ColorCode.white,),
+                          height: 24,color: AppColors.white,),
                       ),
                     ],
                   ),
@@ -148,16 +148,16 @@ Future<void> deleteData(int id) async {
                         child: Container(
                           height: 45,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2A2A2A),
+                            color: AppColors.surfaceVariant,
                             borderRadius: BorderRadius.circular(12),
                           ),
 
                           child: TextField(
-                            style: const TextStyle(color: ColorCode.white),
+                            style: const TextStyle(color: AppColors.white),
                             decoration: InputDecoration(
                               hintText: "Search",
-                              hintStyle: const TextStyle(color: ColorCode.white24),
-                              prefixIcon: const Icon(Icons.search, color: ColorCode.white24),
+                              hintStyle: const TextStyle(color: AppColors.white24),
+                              prefixIcon: const Icon(Icons.search, color: AppColors.white24),
                               border: InputBorder.none,
                             ),
                           ),
@@ -171,10 +171,10 @@ Future<void> deleteData(int id) async {
                         height: 45,
                         width: 45,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2A2A2A),
+                          color: AppColors.surfaceVariant,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.tune, color: ColorCode.white),
+                        child: const Icon(Icons.tune, color: AppColors.white),
                       )
                     ],
                   ),
@@ -188,7 +188,7 @@ Future<void> deleteData(int id) async {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1F1F1F),
+                            color: AppColors.surfaceShadow,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -203,7 +203,7 @@ Future<void> deleteData(int id) async {
                                   child: cert.filePath.endsWith(".pdf")
                                       ? const Icon(
                                     Icons.picture_as_pdf,
-                                    color: ColorCode.red,
+                                    color: AppColors.error,
                                     size: 30,
                                   )
                                       : Image.network(
@@ -242,7 +242,7 @@ Future<void> deleteData(int id) async {
                                     /*  Text(
                                     "${cert["date"]} • ${cert["type"]}",
                                     style: const TextStyle(
-                                        color: ColorCode.white54,
+                                        color: AppColors.white54,
                                         fontSize: 11),
                                   ),
           */
@@ -251,7 +251,7 @@ Future<void> deleteData(int id) async {
                                   Text(
                                     cert["count"]!,
                                     style: const TextStyle(
-                                        color: ColorCode.white54,
+                                        color: AppColors.white54,
                                         fontSize: 11),
                                   ),*/
                                   ],
@@ -266,7 +266,7 @@ Future<void> deleteData(int id) async {
                                       _openOptions(cert);
                                     },
                                     child: const Icon(Icons.more_vert,
-                                        color: ColorCode.white),
+                                        color: AppColors.white),
                                   ),
 
                                   const SizedBox(height: 15),
@@ -274,7 +274,7 @@ Future<void> deleteData(int id) async {
                                   /* Text(
                                   cert["size"]!,
                                   style: const TextStyle(
-                                      color: ColorCode.white54,
+                                      color: AppColors.white54,
                                       fontSize: 11),
                                 )*/
                                 ],
@@ -292,7 +292,7 @@ Future<void> deleteData(int id) async {
                       height: 50,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorCode.kButtonColor,
+                          backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -305,7 +305,7 @@ Future<void> deleteData(int id) async {
                           style: TextStyle(
                             fontFamily: "Unbounded",
                             fontWeight: FontWeight.w500,
-                            color: ColorCode.black,
+                            color: AppColors.black,
                           ),
                         ),
                       ),
@@ -321,12 +321,12 @@ Future<void> deleteData(int id) async {
 void openUploadDialog() {
   showModalBottomSheet(
     context: context,
-    backgroundColor: ColorCode.transparent,
+    backgroundColor: AppColors.transparent,
     builder: (context) {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
-          color: Color(0xFF1F1F1F),
+          color: AppColors.surfaceShadow,
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(25),
           ),
@@ -351,13 +351,13 @@ void openUploadDialog() {
                 ),
                 InkWell(
                   onTap: () => context.pop(),
-                  child: const Icon(Icons.close, color: ColorCode.white),
+                  child: const Icon(Icons.close, color: AppColors.white),
                 )
               ],
             ),
 
             const SizedBox(height: 20),
-            const Divider(color: ColorCode.white24),
+            const Divider(color: AppColors.white24),
           /*  /// CAMERA
             uploadOption(
               svgPath: AppAssets.scanner,
@@ -378,7 +378,7 @@ void openUploadDialog() {
                 }
               },
             ),
-            const Divider(color: ColorCode.white12),
+            const Divider(color: AppColors.dividerDark),
 */
             /// GALLERY
 
@@ -401,7 +401,7 @@ void openUploadDialog() {
                 }
               },
             ),
-            const Divider(color: ColorCode.white12),*/
+            const Divider(color: AppColors.dividerDark),*/
             /// FILES
 
             /// FILES
@@ -450,7 +450,7 @@ Widget uploadOption({required String svgPath, required String title, required Vo
             title,
             style: const TextStyle(
               fontSize: 14,
-              color: ColorCode.white,
+              color: AppColors.white,
             ),
           ),
         ],
@@ -461,12 +461,12 @@ Widget uploadOption({required String svgPath, required String title, required Vo
 void _openOptions(CrewFile cert) {
   showModalBottomSheet(
     context: context,
-    backgroundColor: ColorCode.transparent,
+    backgroundColor: AppColors.transparent,
     builder: (context) {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
-          color: Color(0xFF1F1F1F),
+          color: AppColors.surfaceShadow,
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(20),
           ),
@@ -492,11 +492,11 @@ void _openOptions(CrewFile cert) {
               },
               child: Row(
                 children: const [
-                  Icon(Icons.refresh, color: ColorCode.white),
+                  Icon(Icons.refresh, color: AppColors.white),
                   SizedBox(width: 12),
                   Text(
                     "Replace",
-                    style: TextStyle(color:ColorCode.white, fontSize: 14),
+                    style: TextStyle(color:AppColors.white, fontSize: 14),
                   ),
                 ],
               ),
@@ -518,12 +518,12 @@ void _openOptions(CrewFile cert) {
               },
               child: Row(
                 children: const [
-                  Icon(Icons.visibility, color: ColorCode.white),
+                  Icon(Icons.visibility, color: AppColors.white),
                   SizedBox(width: 12),
                   Text(
                     "View Details",
                     style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -543,11 +543,11 @@ void _openOptions(CrewFile cert) {
               },
               child: Row(
                 children: const [
-                  Icon(Icons.delete, color: ColorCode.red),
+                  Icon(Icons.delete, color: AppColors.error),
                   SizedBox(width: 12),
                   Text(
                     "Delete",
-                    style: TextStyle(color:ColorCode.white, fontSize: 14),
+                    style: TextStyle(color:AppColors.white, fontSize: 14),
                   ),
                 ],
               ),

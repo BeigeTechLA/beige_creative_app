@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 
 class CustomInputField extends StatefulWidget {
   final String title;
@@ -70,7 +70,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
       keyboardType: widget.keyboardType,
       textInputAction: widget.textInputAction,        // ✅
       onSubmitted: widget.onFieldSubmitted,           // ✅
-      cursorColor: ColorCode.kButtonColor,
+      cursorColor: AppColors.primary,
       autofillHints: widget.autofillHints,
       onChanged: widget.onChanged,
       inputFormatters: widget.inputFormatters,
@@ -78,7 +78,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
 
 
       style: const TextStyle(
-        color: ColorCode.white,
+        color: AppColors.white,
         fontFamily: "Outfit",
         fontSize: 15,
       ),
@@ -91,8 +91,8 @@ class _CustomInputFieldState extends State<CustomInputField> {
         labelStyle: TextStyle(
           fontSize: 14,
           color: highlight
-              ? ColorCode.kButtonColor
-              : ColorCode.kWhiteOpacity60,
+              ? AppColors.primary
+              : AppColors.white60,
           fontFamily: "Outfit",
         ),
 
@@ -103,8 +103,8 @@ class _CustomInputFieldState extends State<CustomInputField> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
             color: highlight
-                ? ColorCode.kGoldBorder50
-                : ColorCode.kWhiteOpacity30,
+                ? AppColors.borderGold
+                : AppColors.white30,
             width: 0.5,
           ),
         ),
@@ -112,7 +112,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: ColorCode.kGoldBorder50,
+            color: AppColors.borderGold,
             width: 0.5,
           ),
         ),

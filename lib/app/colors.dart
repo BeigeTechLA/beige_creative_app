@@ -247,4 +247,208 @@ class AppColors {
 
   static const Color mapBlue = Color(0xFF1A73E8);
   static const Color mapGrey = Color(0xFF757575);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // EXTENDED — Phase 1 additions (harvested from widget literals)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  // — Dark surface variants (greyscale near-black) —
+  /// 0xFF0E0E0E — Deep card surface
+  static const Color surfaceNearBlack = Color(0xFF0E0E0E);
+
+  /// 0xFF111111 — Abyss dark
+  static const Color surfaceAbyss = Color(0xFF111111);
+
+  /// 0xFF1B1B1B — Charcoal surface
+  static const Color surfaceCharcoal = Color(0xFF1B1B1B);
+
+  /// 0xFF1F1F1F — Shadow surface
+  static const Color surfaceShadow = Color(0xFF1F1F1F);
+
+  /// 0xFF242424 — Coal surface
+  static const Color surfaceCoal = Color(0xFF242424);
+
+  /// 0xFF2C2C2E — Slate surface
+  static const Color surfaceSlate = Color(0xFF2C2C2E);
+
+  /// 0xFF2E2E2E — Dim surface
+  static const Color surfaceDim = Color(0xFF2E2E2E);
+
+  /// 0xFF303030 — Mute surface
+  static const Color surfaceMute = Color(0xFF303030);
+
+  /// 0xFF3A3A3C — Ash surface
+  static const Color surfaceAsh = Color(0xFF3A3A3C);
+
+  /// 0xFF4A4A4C — Fog surface
+  static const Color surfaceFog = Color(0xFF4A4A4C);
+
+  // — Mid grey —
+  /// 0xFF626262 — Mid neutral grey
+  static const Color greyMid = Color(0xFF626262);
+
+  // — Extended greens —
+  /// 0xFF1DAA23 — Bright signal green
+  static const Color greenBright = Color(0xFF1DAA23);
+
+  /// 0xFF2F855A — Forest green
+  static const Color greenForest = Color(0xFF2F855A);
+
+  /// 0xFFC8F5D3 — Light mint green
+  static const Color greenMintLight = Color(0xFFC8F5D3);
+
+  // — Extended blues —
+  /// 0xFF2D66D2 — Royal blue
+  static const Color blueRoyal = Color(0xFF2D66D2);
+
+  /// 0xFF4338CA — Deep indigo
+  static const Color indigoDeep = Color(0xFF4338CA);
+
+  /// 0xFF3B82F6 — Accent blue
+  static const Color blueAccent = Color(0xFF3B82F6);
+
+  /// 0xFFE0E7F8 — Ice blue
+  static const Color blueIce = Color(0xFFE0E7F8);
+
+  /// 0xFFE1E8F9 — Pale blue
+  static const Color bluePale = Color(0xFFE1E8F9);
+
+  /// 0xFFEFF6FF — Wash blue (lightest)
+  static const Color blueWash = Color(0xFFEFF6FF);
+
+  // — Extended purple —
+  /// 0xFF540B94 — Deep purple
+  static const Color purpleDeep = Color(0xFF540B94);
+
+  // — Extended gold / cream variants —
+  /// 0xFFD6B98C — Light gold sand
+  static const Color goldSandLight = Color(0xFFD6B98C);
+
+  /// 0xFFD6C19A — Gold sand
+  static const Color goldSand = Color(0xFFD6C19A);
+
+  /// 0xFFD6C3A3 — Pale gold sand
+  static const Color goldSandPale = Color(0xFFD6C3A3);
+
+  /// 0xFFE8D7B9 — Gold cream
+  static const Color goldCream = Color(0xFFE8D7B9);
+
+  /// 0xFFEAD3A1 — Soft gold
+  static const Color goldSoft = Color(0xFFEAD3A1);
+
+  /// 0xFFF4E1C1 — Pale cream gold
+  static const Color goldPaleCream = Color(0xFFF4E1C1);
+
+  /// 0xFFF5D6A5 — Honey gold
+  static const Color goldHoney = Color(0xFFF5D6A5);
+
+  // — Extended pink —
+  /// 0xFFEAC5C5 — Soft pink
+  static const Color pinkSoft = Color(0xFFEAC5C5);
+
+  // — Extended orange —
+  /// 0xFFFF9D25 — Bright orange
+  static const Color orangeBright = Color(0xFFFF9D25);
+
+  // — Material-default aliases (replace Colors.X usage) —
+  /// 0xFFFF5252 — Material redAccent
+  static const Color redAccent = Color(0xFFFF5252);
+
+  /// 0xFF2196F3 — Material blue 500
+  static const Color blue = Color(0xFF2196F3);
+
+  /// 0xFF00E676 — Material greenAccent 400
+  static const Color greenAccent = Color(0xFF00E676);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // BRIDGED FROM ColorCode (legacy palette consolidation)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// 0xFFD6C3A1 — Soft gold-sand (ColorCode.soft)
+  static const Color goldSoftSand = Color(0xFFD6C3A1);
+
+  /// 0xFF333333 — Dark grey
+  static const Color darkGrey333 = Color(0xFF333333);
+
+  /// 0xFF737373 — Mid-dark grey
+  static const Color greyShade737 = Color(0xFF737373);
+
+  /// 0xFF9995B4 — Hint text lavender
+  static const Color hintLavender = Color(0xFF9995B4);
+
+  /// 0xFF9B97B5 — Lavender-tinted grey
+  static const Color lavenderGrey = Color(0xFF9B97B5);
+
+  /// 0xFFF1F2F5 — Grey wash (near-white)
+  static const Color greyWash = Color(0xFFF1F2F5);
+
+  /// 0xFF3D3D3D — Dark charcoal (also dashboardPanelBorder)
+  static const Color darkCharcoal = Color(0xFF3D3D3D);
+
+  /// 0x00FFFFFF — Fully transparent white (for gradients)
+  static const Color whiteTransparent = Color(0x00FFFFFF);
+
+  /// 0x33FFFFFF — White at 20%
+  static const Color white20 = Color(0x33FFFFFF);
+
+  /// 0xFFFF9800 — Material orange 500
+  static const Color orange = Color(0xFFFF9800);
+
+  /// 0xFFC026D3 — Magenta/purple accent
+  static const Color magenta = Color(0xFFC026D3);
+
+  /// 0xFF5A0760 — Wine deep purple
+  static const Color wine = Color(0xFF5A0760);
+
+  /// 0xFF008080 — Classic teal
+  static const Color teal = Color(0xFF008080);
+
+  /// 0xFF2DBB9A — Light teal accent
+  static const Color tealLight = Color(0xFF2DBB9A);
+
+  /// 0xFF1FAF8A — Dark teal accent
+  static const Color tealDark = Color(0xFF1FAF8A);
+
+  /// 0xFFEECCC9 — Soft peach
+  static const Color softPeach = Color(0xFFEECCC9);
+
+  /// 0xFFD8FDE6 — Soft mint
+  static const Color softMint = Color(0xFFD8FDE6);
+
+  /// 0xFFC8E1FF — Soft light blue
+  static const Color softLightBlue = Color(0xFFC8E1FF);
+
+  /// 0xFF2B2A28 — Shoot stats card top
+  static const Color shootStatsCardTop = Color(0xFF2B2A28);
+
+  /// 0xFF1E1D1B — Shoot stats card bottom
+  static const Color shootStatsCardBottom = Color(0xFF1E1D1B);
+
+  /// 0x1AE8D1AB — Shoot stats card border (gold at 10%)
+  static const Color shootStatsCardBorder = Color(0x1AE8D1AB);
+
+  /// 0xFF161616 — Dashboard panel dark
+  static const Color dashboardPanelDark = Color(0xFF161616);
+
+  /// 0xFF202020 — Calendar cell
+  static const Color calendarCell = Color(0xFF202020);
+
+  /// 0xFF3A3A3A — Calendar grid lines
+  static const Color calendarGrid = Color(0xFF3A3A3A);
+
+  /// 0xFFA678F1 — Arc chart purple
+  static const Color arcPurple = Color(0xFFA678F1);
+
+  /// 0xFF5CC4FF — Arc chart blue
+  static const Color arcBlue = Color(0xFF5CC4FF);
+
+  /// 0xFFFFC04F — Arc chart yellow
+  static const Color arcYellow = Color(0xFFFFC04F);
+
+  /// 0xFF2DC497 — Arc chart green
+  static const Color arcGreen = Color(0xFF2DC497);
+
+  /// 0xFFE8D1AB80 — Textfield border (legacy 40-bit value, masks to 0xE8D1AB80)
+  static const Color textfieldBorderLegacy = Color(0xFFE8D1AB80);
 }
+

@@ -17,7 +17,7 @@ import '../../app/text_styles.dart';
 import '../../model_class/edit_profile_model.dart';
   import '../../app/route_names.dart';
   import '../../service/google_config.dart';
-  import '../../utility/colorcode.dart';
+  import '../../app/colors.dart';
   import '../../utility/location_service.dart';
   import '../../widgets/custom_dropdown_field.dart';
   import '../../widgets/custom_text_field.dart';
@@ -322,7 +322,7 @@ import '../../model_class/edit_profile_model.dart';
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: ColorCode.white,
+                            color: AppColors.white,
                           ),
                         ),
                       ],
@@ -385,17 +385,17 @@ import '../../model_class/edit_profile_model.dart';
                           children: [
                             IconTheme(
                               data: const IconThemeData(
-                                color: ColorCode.white30,
+                                color: AppColors.white30,
                                 size: 20,
                               ),
                               child: GooglePlaceAutoCompleteTextField(
                                 boxDecoration: BoxDecoration(
-                                  color: ColorCode.transparent,
+                                  color: AppColors.transparent,
                                   borderRadius: AppRadii.lgAll,
                                   border: Border.all(
                                     color: locationHighlight
-                                        ? ColorCode.kGoldBorder50
-                                        : ColorCode.white30,
+                                        ? AppColors.borderGold
+                                        : AppColors.white30,
                                     width: 0.5,
                                   ),
                                 ),
@@ -405,13 +405,13 @@ import '../../model_class/edit_profile_model.dart';
                                 debounceTime: 600,
                                 isLatLngRequired: true,
                                 textStyle: const TextStyle(
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                   fontFamily: AppTextStyles.fontFamilyBody,
                                   fontSize: 15,
                                 ),
                                 inputDecoration: const InputDecoration(
                                   filled: true,
-                                  fillColor: ColorCode.transparent,
+                                  fillColor: AppColors.transparent,
                                   border: InputBorder.none,
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
@@ -425,7 +425,7 @@ import '../../model_class/edit_profile_model.dart';
                                     ),
                                     child: Icon(
                                       Icons.location_on_outlined,
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                     ),
                                   ),
                                 ),
@@ -468,7 +468,7 @@ import '../../model_class/edit_profile_model.dart';
                               left: AppSpacing.md,
                               top: -8,
                               child: Container(
-                                color: ColorCode.backgroundColor,
+                                color: AppColors.background,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: AppSpacing.xxs,
                                 ),
@@ -477,8 +477,8 @@ import '../../model_class/edit_profile_model.dart';
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: locationHighlight
-                                        ? ColorCode.primary
-                                        : ColorCode.white60,
+                                        ? AppColors.primary
+                                        : AppColors.white60,
                                      fontFamily: AppTextStyles.fontFamilyBody,
                                   ),
                                 ),
@@ -631,7 +631,7 @@ import '../../model_class/edit_profile_model.dart';
                            AppAssets.box_edit,
 
                             colorFilter: const ColorFilter.mode(
-                              ColorCode.kWhiteOpacity70,
+                              AppColors.white30,
                               BlendMode.srcIn,
                               ),
                           ),
@@ -653,7 +653,7 @@ import '../../model_class/edit_profile_model.dart';
             height: 55,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD6C3A3),
+                backgroundColor: AppColors.goldSandPale,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),//
                 ),
@@ -665,7 +665,7 @@ import '../../model_class/edit_profile_model.dart';
               child: const Text(
                 "Save",
                 style: TextStyle(
-                  color: ColorCode.black,
+                  color: AppColors.black,
                   fontWeight: FontWeight.w600,
                 ),
               ),

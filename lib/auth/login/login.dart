@@ -8,7 +8,7 @@ import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../service/shared_service.dart';
-import '../../utility/colorcode.dart';
+import '../../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';
@@ -39,7 +39,7 @@ class _LoginState extends State<Login> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: ColorCode.red,
+        backgroundColor: AppColors.error,
       ),
     );
   }
@@ -210,7 +210,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: ColorCode.white,
+      // backgroundColor: AppColors.white,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -245,7 +245,7 @@ class _LoginState extends State<Login> {
                             fontFamily: "Unbounded",
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: ColorCode.white,
+                            color: AppColors.white,
                           ),
                         ),
 
@@ -255,7 +255,7 @@ class _LoginState extends State<Login> {
                           'Enter your details to access your account. Continue\nmanaging your bookings and profile.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: ColorCode.white.withValues(alpha: 0.60),
+                            color: AppColors.white.withValues(alpha: 0.60),
                             fontSize: 14,
                             fontFamily: 'Outfit',
                             fontWeight: FontWeight.w400,
@@ -282,10 +282,10 @@ class _LoginState extends State<Login> {
                     padding: const EdgeInsets.fromLTRB(20, 32,20, 20),
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: ColorCode.backgroundColor,
+                      color: AppColors.background,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: ColorCode.white24,
+                        color: AppColors.white24,
                         width: 1,
                       ),
                     ),
@@ -333,7 +333,7 @@ class _LoginState extends State<Login> {
                                     : AppAssets.eyeClose,
                                 height: 22,
                                 colorFilter: const ColorFilter.mode(
-                                  ColorCode.white,
+                                  AppColors.white,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -352,12 +352,12 @@ class _LoginState extends State<Login> {
                                   "Forgot Password?",
                                   style: TextStyle(
                                       fontFamily: "Outfit",
-                                      color: ColorCode.kButtonColor,
+                                      color: AppColors.primary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12,
                                       decoration: TextDecoration.underline,
                                       decorationThickness: 1.8,
-                                      decorationColor: ColorCode.kButtonColor
+                                      decorationColor: AppColors.primary
                                   ),
                                 ),
                               ),
@@ -377,8 +377,8 @@ class _LoginState extends State<Login> {
 
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: isFormValid
-                                    ? ColorCode.kButtonColor
-                                    : ColorCode.kGoldGradientLight,
+                                    ? AppColors.primary
+                                    : AppColors.borderGold,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
@@ -391,8 +391,8 @@ class _LoginState extends State<Login> {
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: isFormValid
-                                      ? ColorCode.kHeadingColor
-                                      : ColorCode.k282828,
+                                      ? AppColors.textHeading
+                                      : AppColors.surfaceMid,
                                 ),
                               ),
                             ),
@@ -424,7 +424,7 @@ class _LoginState extends State<Login> {
             const Text(
               "Don’t have an account? ",
               style: TextStyle(
-                color: ColorCode.kWhiteOpacity60,
+                color: AppColors.white60,
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
@@ -442,7 +442,7 @@ class _LoginState extends State<Login> {
               child: const Text(
                 "Sign Up",
                 style: TextStyle(
-                  color: ColorCode.white,
+                  color: AppColors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   decoration: TextDecoration.underline,

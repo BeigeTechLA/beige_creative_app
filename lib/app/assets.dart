@@ -58,7 +58,7 @@ class AppAssets {
   static const String location = '$_svg/location.svg';
   static const String calender = '$_svg/calender.svg';
   static const String mycalender = '$_svg/mycalender.svg';
-
+  static const String edit_circle = '$_svg/edit_circle.svg';
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — Social
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
 import '../app/route_names.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class MyprofileYoureAllSetScreen extends StatefulWidget {
@@ -55,7 +55,7 @@ class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen>
             const Text(
               "You're All Set",
               style: TextStyle(
-                color: ColorCode.kButtonColor,
+                color: AppColors.primary,
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 fontFamily: "Unbounded",
@@ -68,7 +68,7 @@ class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen>
               "Congratulations! Your password has been\nchanged successfully",
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: ColorCode.kWhiteOpacity70,
+                color: AppColors.white30,
                 fontSize: 14,
                 fontFamily: "Outfit",
               ),

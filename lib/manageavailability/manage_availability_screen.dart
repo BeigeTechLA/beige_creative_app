@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../app/route_names.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/common_calendar.dart';
 
@@ -129,7 +129,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   const Text(
                     "Manage Availability",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 16,
                       fontFamily: "Unbounded",
                       fontWeight: FontWeight.w500,
@@ -146,7 +146,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               // padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12, right: 20),
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xffEFF6FF),
+                color: AppColors.blueWash,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(width: 0.5),
               ),
@@ -159,7 +159,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                       "Your availability is automatically blocked for confirmed shoots",
                       style: TextStyle(
                         fontFamily: 'outfit',
-                        color: Color(0xff3B82F6),
+                        color: AppColors.blueAccent,
                         fontSize: 12,
                       ),
                     ),
@@ -172,11 +172,11 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
-                color: ColorCode.dashboardPanel,
+                color: AppColors.surfaceMid,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
                   width: 0.6,
-                  color: ColorCode.dashboardPanelBorder,
+                  color: AppColors.darkCharcoal,
                 ),
               ),
               child: ClipRRect(
@@ -195,7 +195,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                               IconButton(
                                 icon: const Icon(
                                   Icons.chevron_left,
-                                  color: Colors.white,
+                                  color: AppColors.white,
                                   size: 24,
                                 ),
                                 onPressed: () {
@@ -215,7 +215,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                                     child: Text(
                                       _getMonthYear(_focusedDay),
                                       style: const TextStyle(
-                                        color: Colors.white,
+                                        color: AppColors.white,
                                         fontSize: 16,
                                         fontFamily: "Outfit",
                                         fontWeight: FontWeight.w500,
@@ -227,7 +227,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                               IconButton(
                                 icon: const Icon(
                                   Icons.chevron_right,
-                                  color: Colors.white,
+                                  color: AppColors.white,
                                   size: 24,
                                 ),
                                 onPressed: () {
@@ -252,7 +252,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                             vertical: 7,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.white,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: DropdownButtonHideUnderline(
@@ -261,12 +261,12 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                               isDense: true,
                               icon: const Icon(
                                 Icons.keyboard_arrow_down,
-                                color: Colors.black,
+                                color: AppColors.black,
                                 size: 18,
                               ),
-                              dropdownColor: Colors.white,
+                              dropdownColor: AppColors.white,
                               style: const TextStyle(
-                                color: Colors.black,
+                                color: AppColors.black,
                                 fontSize: 12,
                                 fontFamily: "Outfit",
                                 fontWeight: FontWeight.w500,
@@ -313,7 +313,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF2C2C2E),
+                color: AppColors.surfaceSlate,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
@@ -322,7 +322,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   const Text(
                     "This Month",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       fontFamily: "Outfit",
@@ -362,7 +362,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2C2C2E),
+                  color: AppColors.surfaceSlate,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
@@ -371,7 +371,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     const Text(
                       "Share Availability",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         fontFamily: "Outfit",
@@ -381,7 +381,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     const Text(
                       "Share your availability link with production teams",
                       style: TextStyle(
-                        color: Colors.white70,
+                        color: AppColors.white70,
                         fontSize: 14,
                         fontFamily: "Outfit",
                       ),
@@ -395,7 +395,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                       child: Container(
                         height: 56,
                         decoration: BoxDecoration(
-                          color: ColorCode.kButtonColor,
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Row(
@@ -403,13 +403,13 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                           children: [
                             Icon(
                               Icons.copy_rounded,
-                              color: ColorCode.kCircleGradientTop,
+                              color: AppColors.circleGradientTop,
                             ),
                             SizedBox(width: 10),
                             Text(
                               "Copy Link",
                               style: TextStyle(
-                                color: ColorCode.kCircleGradientTop,
+                                color: AppColors.circleGradientTop,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: "Outfit",
@@ -423,7 +423,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 ),
               ),
         
-              const Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+              const Divider(color: AppColors.dividerDark, thickness: 0.8),
               const SizedBox(height: 12),*/
 
             // Upcoming Shoots Section
@@ -437,7 +437,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                         fontSize: 14,
                         fontFamily: "Unbounded",
                         fontWeight: FontWeight.w500,
-                        color: ColorCode.white,
+                        color: AppColors.white,
                       ),
                     ),
                   ],
@@ -453,23 +453,23 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                       height: 52,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: Colors.transparent,
+                        color: AppColors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: ColorCode.kWhiteOpacity70,
+                          color: AppColors.white30,
                           width: 1,
                         ),
                       ),
                       child: const TextField(
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: AppColors.white),
                         decoration: InputDecoration(
                           prefixIcon: Icon(
                             Icons.search,
-                            color: Colors.white54,
+                            color: AppColors.white54,
                           ),
                           hintText: "Search events or crew...",
                           hintStyle: TextStyle(
-                            color: Colors.white54,
+                            color: AppColors.white54,
                             fontSize: 14,
                           ),
                           border: InputBorder.none,
@@ -485,10 +485,10 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                       height: 52,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       decoration: BoxDecoration(
-                        color: Colors.transparent,
+                        color: AppColors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white24,
+                          color: AppColors.white24,
                           width: 1,
                         ),
                       ),
@@ -497,12 +497,12 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                           Text(
                             "Filter",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.white,
                               fontSize: 14,
                             ),
                           ),
                           SizedBox(width: 6),
-                          Icon(Icons.filter_list, color: Colors.white54, size: 18),
+                          Icon(Icons.filter_list, color: AppColors.white54, size: 18),
                         ],
                       ),
                     ),
@@ -517,13 +517,13 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: ColorCode.k282828,
+                    color: AppColors.surfaceMid,
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: const Center(
                     child: Text(
                       "No upcoming shoots",
-                      style: TextStyle(color: Colors.white70),
+                      style: TextStyle(color: AppColors.white70),
                     ),
                   ),
                 )
@@ -586,7 +586,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 ),
         
               const SizedBox(height: 12),
-              const Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+              const Divider(color: AppColors.dividerDark, thickness: 0.8),
               const SizedBox(height: 25),*/
 
             // Add Availability Button
@@ -612,14 +612,14 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 child: Container(
                   height: 56,
                   decoration: BoxDecoration(
-                    color: ColorCode.kButtonColor,
+                    color: AppColors.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Center(
                     child: Text(
                       "Add Availability",
                       style: TextStyle(
-                        color: ColorCode.kCircleGradientTop,
+                        color: AppColors.circleGradientTop,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         fontFamily: "Unbounded",
@@ -667,12 +667,12 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
     bool isMiddle = false,
   }) {
     final bgColor = isMain
-        ? ColorCode.k282828
+        ? AppColors.surfaceMid
         : isMiddle
-        ? const Color(0xFF2E2E2E)
-        : const Color(0xFF303030);
-    final titleColor = isMain || isMiddle ? Colors.white : Colors.white70;
-    final dateColor = isMain ? Colors.white70 : Colors.white54;
+        ? AppColors.surfaceDim
+        : AppColors.surfaceMute;
+    final titleColor = isMain || isMiddle ? AppColors.white : AppColors.white70;
+    final dateColor = isMain ? AppColors.white70 : AppColors.white54;
     final btnOpacity = isMain ? 1.0 : (isMiddle ? 0.8 : 0.7);
 
     return Container(
@@ -680,7 +680,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: bgColor,
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: AppColors.white.withOpacity(0.08)),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
@@ -697,8 +697,8 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 return Container(
                   height: 169,
                   width: 117,
-                  color: Colors.grey[800],
-                  child: const Icon(Icons.image, color: Colors.white54),
+                  color: AppColors.greyShade800,
+                  child: const Icon(Icons.image, color: AppColors.white54),
                 );
               },
             ),
@@ -718,7 +718,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     color: titleColor,
                   ),
                 ),
-                Divider(color: ColorCode.kDividerWhite12, thickness: 0.8),
+                Divider(color: AppColors.dividerDark, thickness: 0.8),
                 const SizedBox(height: 6),
                 Row(
                   children: [
@@ -763,7 +763,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                       horizontal: 20,
                       vertical: 8,
                     ),
-                    backgroundColor: ColorCode.kButtonColor.withOpacity(
+                    backgroundColor: AppColors.primary.withOpacity(
                       btnOpacity,
                     ),
                     shape: RoundedRectangleBorder(
@@ -775,7 +775,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   },
                   child: const Text(
                     "View Details",
-                    style: TextStyle(color: Colors.black, fontSize: 11),
+                    style: TextStyle(color: AppColors.black, fontSize: 11),
                   ),
                 ),
               ],
@@ -806,7 +806,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFF3A3A3C),
+        color: AppColors.surfaceAsh,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -814,16 +814,16 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF4A4A4C),
+              color: AppColors.surfaceFog,
               borderRadius: BorderRadius.circular(12),
             ),
 
-            // child: Icon(icon, color: Colors.white70, size: 20),
+            // child: Icon(icon, color: AppColors.white70, size: 20),
             child: SvgPicture.asset(
               svgIcon,
               height: 20,
               width: 20,
-              color: Colors.white70,
+              color: AppColors.white70,
             ),
           ),
 
@@ -832,7 +832,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
             child: Text(
               title,
               style: const TextStyle(
-                color: Colors.white70,
+                color: AppColors.white70,
                 fontSize: 14,
                 fontFamily: "Outfit",
               ),
@@ -841,7 +841,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
           Text(
             value,
             style: const TextStyle(
-              color: Color(0xFFD6C19A),
+              color: AppColors.goldSand,
               fontSize: 16,
               fontWeight: FontWeight.w600,
               fontFamily: "Outfit",
@@ -868,7 +868,7 @@ class _Legend extends StatelessWidget {
         Text(
           text,
           style: const TextStyle(
-            color: ColorCode.kWhiteOpacity70,
+            color: AppColors.white30,
             fontSize: 12,
           ),
         ),

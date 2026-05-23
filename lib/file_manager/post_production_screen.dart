@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../app/route_names.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 
 
 class PostProductionScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class _PostProductionScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorCode.backgroundColor,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -35,7 +35,7 @@ class _PostProductionScreenState
                     child: /*Image.asset(
                       "assets/icons/Reply.png",
                       height: 24,
-                      color: ColorCode.white,
+                      color: AppColors.white,
                     ),*/
                     SvgPicture.asset(AppAssets.back)
                   ),
@@ -43,7 +43,7 @@ class _PostProductionScreenState
                   const Text(
                     "Lana #123456",
                     style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 16,
                       fontFamily: "Unbounded",
                       fontWeight: FontWeight.w500,
@@ -64,22 +64,22 @@ class _PostProductionScreenState
                 padding:
                 const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
-                  color: ColorCode.k282828,
+                  color: AppColors.surfaceMid,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Row(
                   children: [
                     Icon(Icons.search,
-                        color: Colors.white54),
+                        color: AppColors.white54),
                     SizedBox(width: 10),
                     Expanded(
                       child: TextField(
                         style: TextStyle(
-                            color: Colors.white),
+                            color: AppColors.white),
                         decoration: InputDecoration(
                           hintText: "Search",
                           hintStyle: TextStyle(
-                              color: Colors.white38),
+                              color: AppColors.white38),
                           border: InputBorder.none,
                         ),
                       ),
@@ -112,7 +112,7 @@ class _PostProductionScreenState
                       padding:
                       const EdgeInsets.all(22),
                       decoration: BoxDecoration(
-                        color: ColorCode.k282828,
+                        color: AppColors.surfaceMid,
                         borderRadius:
                         BorderRadius.circular(22),
                       ),
@@ -124,14 +124,13 @@ class _PostProductionScreenState
                           Row(
                             children: const [
                               Icon(Icons.folder,
-                                  color: ColorCode
-                                      .kButtonColor),
+                                  color: AppColors.primary),
                               SizedBox(width: 8),
                               Text(
                                 "Lana #123456",
                                 style: TextStyle(
                                   color:
-                                  ColorCode.white,
+                                  AppColors.white,
                                   fontSize: 13,
                                   fontFamily:
                                   "Outfit",
@@ -142,7 +141,7 @@ class _PostProductionScreenState
                               Spacer(),
                               Icon(Icons.more_vert,
                                   color:
-                                  ColorCode.white),
+                                  AppColors.white),
                             ],
                           ),
 
@@ -151,8 +150,7 @@ class _PostProductionScreenState
                           const Text(
                             "02 Files",
                             style: TextStyle(
-                              color: ColorCode
-                                  .kButtonColor,
+                              color: AppColors.primary,
                               fontSize: 12,
                               fontFamily: "Outfit",
                             ),
@@ -166,8 +164,7 @@ class _PostProductionScreenState
                                 horizontal: 12,
                                 vertical: 10),
                             decoration: BoxDecoration(
-                              color: ColorCode
-                                  .kCircleGradientTop,
+                              color: AppColors.circleGradientTop,
                               borderRadius:
                               BorderRadius.circular(
                                   20),
@@ -176,7 +173,7 @@ class _PostProductionScreenState
                               "Corporate Event",
                               style: TextStyle(
                                 color:
-                                ColorCode.white,
+                                AppColors.white,
                                 fontSize: 12,
                                 fontFamily:
                                 "Outfit",
@@ -185,8 +182,7 @@ class _PostProductionScreenState
                           ),
 
                           const Divider(
-                            color: ColorCode
-                                .kDividerWhite12,
+                            color: AppColors.dividerDark,
                             thickness: 0.8,
                           ),
 
@@ -195,22 +191,19 @@ class _PostProductionScreenState
                               CircleAvatar(
                                 radius: 16,
                                 backgroundColor:
-                                ColorCode
-                                    .kSoftLightBlue,
+                                AppColors.softLightBlue,
                                 child: Text(
                                   "DP",
                                   style: TextStyle(
                                       color:
-                                      ColorCode
-                                          .black),
+                                      AppColors.black),
                                 ),
                               ),
                               SizedBox(width: 10),
                               Text(
                                 "Opened 2 hours ago",
                                 style: TextStyle(
-                                  color: ColorCode
-                                      .kWhiteOpacity70,
+                                  color: AppColors.white30,
                                   fontSize: 14,
                                 ),
                               ),

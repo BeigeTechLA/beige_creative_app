@@ -13,7 +13,7 @@ import '../auth/sign_up/signup1_screen.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../service/shared_service.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/app_loder.dart';
@@ -153,7 +153,7 @@ class _MyprofileState extends State<Myprofile> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Select platform & enter link"),
-          backgroundColor: ColorCode.red,
+          backgroundColor: AppColors.error,
         ),
       );
       return;
@@ -166,7 +166,7 @@ class _MyprofileState extends State<Myprofile> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Invalid link ID"),
-            backgroundColor: ColorCode.red,
+            backgroundColor: AppColors.error,
           ),
         );
         return;
@@ -200,7 +200,7 @@ class _MyprofileState extends State<Myprofile> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Network error. Please try again."),
-              backgroundColor: ColorCode.red,
+              backgroundColor: AppColors.error,
             ),
           );
         }
@@ -247,14 +247,14 @@ class _MyprofileState extends State<Myprofile> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: ColorCode.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
             return Container(
               height: MediaQuery.of(context).size.height * 0.85,
               decoration: const BoxDecoration(
-                color: Color(0xFF1C1C1C),
+                color: AppColors.surfaceCropSheet,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
               padding: const EdgeInsets.all(16),
@@ -265,7 +265,7 @@ class _MyprofileState extends State<Myprofile> {
                       width: 35,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: ColorCode.kWhiteOpacity70,
+                        color: AppColors.white30,
                         borderRadius: BorderRadius.circular(18),
                       ),
                     ),
@@ -277,7 +277,7 @@ class _MyprofileState extends State<Myprofile> {
                       Text(
                         "Crop your Profile",
                         style: TextStyle(
-                          color: ColorCode.white,
+                          color: AppColors.white,
                           fontSize: 18,
                           fontFamily: "Outfit",
                           fontWeight: FontWeight.w500,
@@ -291,7 +291,7 @@ class _MyprofileState extends State<Myprofile> {
                           padding: EdgeInsets.all(6),
                           child: Icon(
                             Icons.close,
-                            color: ColorCode.white,
+                            color: AppColors.white,
                             size: 22,
                           ),
                         ),
@@ -301,7 +301,7 @@ class _MyprofileState extends State<Myprofile> {
 
                   SizedBox(height: 20),
 
-                  Divider(color: ColorCode.kDividerWhite12),
+                  Divider(color: AppColors.dividerDark),
 
                   /// 🔥 CIRCULAR PREVIEW AREA
                   Expanded(
@@ -373,7 +373,7 @@ class _MyprofileState extends State<Myprofile> {
                           AppAssets.Image_zoom,
                           height: 20,
                           width: 20,
-                          /*  color: ColorCode.white.withOpacity(0.7), */
+                          /*  color: AppColors.white.withOpacity(0.7), */
                           // optional
                         ),
 
@@ -390,11 +390,11 @@ class _MyprofileState extends State<Myprofile> {
                               overlayShape: const RoundSliderOverlayShape(
                                 overlayRadius: 14,
                               ),
-                              activeTrackColor: ColorCode.kButtonColor,
-                              inactiveTrackColor: ColorCode.white.withOpacity(
+                              activeTrackColor: AppColors.primary,
+                              inactiveTrackColor: AppColors.white.withOpacity(
                                 0.3,
                               ),
-                              thumbColor: ColorCode.kButtonColor,
+                              thumbColor: AppColors.primary,
                             ),
                             child: Slider(
                               min: 1,
@@ -416,7 +416,7 @@ class _MyprofileState extends State<Myprofile> {
                           // 👈 your image
                           height: 26,
                           width: 26,
-                          /*  color: ColorCode.white.withOpacity(0.7), */
+                          /*  color: AppColors.white.withOpacity(0.7), */
                           // optional
                         ),
                       ],
@@ -431,7 +431,7 @@ class _MyprofileState extends State<Myprofile> {
                     height: 55,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kButtonColor,
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -479,14 +479,14 @@ class _MyprofileState extends State<Myprofile> {
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  ColorCode.black,
+                                  AppColors.black,
                                 ),
                               ),
                             )
                           : const Text(
                               "Save",
                               style: TextStyle(
-                                color: ColorCode.black,
+                                color: AppColors.black,
                                 fontSize: 14,
                                 fontFamily: "Unbounded",
                                 fontWeight: FontWeight.w500,
@@ -980,7 +980,7 @@ class _MyprofileState extends State<Myprofile> {
                           AppAssets.back, // make sure it's .svg file
                           height: 24,
                           colorFilter: ColorFilter.mode(
-                            ColorCode.kHeadingColor,
+                            AppColors.textHeading,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -996,7 +996,7 @@ class _MyprofileState extends State<Myprofile> {
                         child: Text(
                           "My Profile",
                           style: TextStyle(
-                            color: ColorCode.kHeadingColor,
+                            color: AppColors.textHeading,
                             fontSize: 16,
                             fontFamily: "Unbounded",
                             fontWeight: FontWeight.w500,
@@ -1016,12 +1016,12 @@ class _MyprofileState extends State<Myprofile> {
                             Container(
                               padding: const EdgeInsets.all(4),
                               decoration: const BoxDecoration(
-                                color: ColorCode.white,
+                                color: AppColors.white,
                                 shape: BoxShape.circle,
                               ),
                               child: CircleAvatar(
                                 radius: 48,
-                                backgroundColor: ColorCode.lightGrey,
+                                backgroundColor: AppColors.border,
                                 child: ClipOval(
                                   child: _profileImage != null
                                       ? Image.file(
@@ -1052,7 +1052,7 @@ class _MyprofileState extends State<Myprofile> {
                               bottom: 0,
                               right: 2,
                               child: Material(
-                                color: ColorCode.transparent,
+                                color: AppColors.transparent,
                                 child: GestureDetector(
                                   // borderRadius: BorderRadius.circular(30),
                                   onTap: () {
@@ -1066,13 +1066,13 @@ class _MyprofileState extends State<Myprofile> {
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                        color: ColorCode.white,
+                                        color: AppColors.white,
                                       ),
-                                      color: ColorCode.kGoldGradientLight,
+                                      color: AppColors.borderGold,
                                       shape: BoxShape.circle,
                                     ),
                                     child: SvgPicture.asset(
-                                      AppImages.edit_circle,
+                                      AppAssets.edit_circle,
                                       height: 18,
                                       width: 18,
                                     ),
@@ -1094,7 +1094,7 @@ class _MyprofileState extends State<Myprofile> {
                   "${Myprofile_user?.firstName ?? ''} ${Myprofile_user?.lastName ?? ''}",
                   style: TextStyle(
                     fontFamily: "Outfit",
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
                   ),
@@ -1113,7 +1113,7 @@ class _MyprofileState extends State<Myprofile> {
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: ColorCode.kWhiteOpacity60,
+                            color: AppColors.white60,
                             fontFamily: "Outfit",
                             fontSize: 14,
                           ),
@@ -1126,7 +1126,7 @@ class _MyprofileState extends State<Myprofile> {
                         child: Text(
                           "|",
                           style: TextStyle(
-                            color: ColorCode.kWhiteOpacity60,
+                            color: AppColors.white60,
                             fontSize: 14,
                           ),
                         ),
@@ -1140,7 +1140,7 @@ class _MyprofileState extends State<Myprofile> {
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: ColorCode.kWhiteOpacity60,
+                            color: AppColors.white60,
                             fontFamily: "Outfit",
                             fontSize: 14,
                           ),
@@ -1167,7 +1167,7 @@ class _MyprofileState extends State<Myprofile> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 10),
                   decoration: BoxDecoration(
-                    color:  ColorCode.white,
+                    color:  AppColors.white,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Text(
@@ -1175,7 +1175,7 @@ class _MyprofileState extends State<Myprofile> {
                     style: TextStyle(
                       fontSize: 10,
                       fontFamily: "Outfit",
-                      color: ColorCode.kHeadingColor,
+                      color: AppColors.textHeading,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -1226,7 +1226,7 @@ class _MyprofileState extends State<Myprofile> {
                       margin: EdgeInsetsGeometry.only(top: 17),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD8FDE6), // light green bg
+                        color: AppColors.softMint, // light green bg
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -1237,18 +1237,18 @@ class _MyprofileState extends State<Myprofile> {
                             width: 12,
                             height: 12,
                             decoration: const BoxDecoration(
-                              color: Color(0xFF1DAA23),
+                              color: AppColors.greenBright,
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(Icons.check,color: ColorCode.white,size: 6,),
+                            child: Icon(Icons.check,color: AppColors.white,size: 6,),
                           ),
                           SizedBox(width: 6),
                           Text(
                             Myprofile_user?.isAvailable == 1 ? "Available" : "Unavailable",
                             style: TextStyle(
                               color: Myprofile_user?.isAvailable == 1
-                                  ? Color(0xFF1DAA23)
-                                  : ColorCode.red,
+                                  ? AppColors.greenBright
+                                  : AppColors.error,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -1258,14 +1258,14 @@ class _MyprofileState extends State<Myprofile> {
                     ),*/
                       Padding(
                         padding: EdgeInsets.all(12),
-                        child: Divider(color: ColorCode.kDividerWhite12),
+                        child: Divider(color: AppColors.dividerDark),
                       ),
                       Row(
                         children: [
                           Text(
                             "Social Link",
                             style: TextStyle(
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontFamily: "Unbounded",
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -1277,7 +1277,7 @@ class _MyprofileState extends State<Myprofile> {
                       socialLinks.isEmpty
                           ? const Text(
                               "No social links added",
-                              style: TextStyle(color: ColorCode.white24),
+                              style: TextStyle(color: AppColors.white24),
                             )
                           : Column(
                               children: socialLinks.asMap().entries.map((
@@ -1295,9 +1295,9 @@ class _MyprofileState extends State<Myprofile> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: ColorCode.white24,
+                                      color: AppColors.white24,
                                     ),
-                                    color: ColorCode.k282828,
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: Row(
                                     children: [
@@ -1306,7 +1306,7 @@ class _MyprofileState extends State<Myprofile> {
                                         item["icon"]!,
                                         height: 20,
                                         width: 20,
-                                        color: ColorCode.white,
+                                        color: AppColors.white,
                                       ),
 
                                       const SizedBox(width: 10),
@@ -1320,13 +1320,13 @@ class _MyprofileState extends State<Myprofile> {
                                             Text(
                                               item["name"]!,
                                               style: const TextStyle(
-                                                color: ColorCode.white,
+                                                color: AppColors.white,
                                               ),
                                             ),
                                             Text(
                                               item["url"]!,
                                               style: const TextStyle(
-                                                color: ColorCode.white24,
+                                                color: AppColors.white24,
                                               ),
                                             ),
                                           ],
@@ -1337,7 +1337,7 @@ class _MyprofileState extends State<Myprofile> {
                                       IconButton(
                                         icon: const Icon(
                                           Icons.edit,
-                                          color: ColorCode.white,
+                                          color: AppColors.white,
                                           size: 18,
                                         ),
                                         onPressed: () {
@@ -1357,7 +1357,7 @@ class _MyprofileState extends State<Myprofile> {
                                       IconButton(
                                         icon: const Icon(
                                           Icons.delete,
-                                          color: ColorCode.red,
+                                          color: AppColors.error,
                                           size: 18,
                                         ),
                                         onPressed: () async {
@@ -1379,9 +1379,9 @@ class _MyprofileState extends State<Myprofile> {
                           /* Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2A2A2A),
+                            color: AppColors.surfaceVariant,
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: ColorCode.white12),
+                            border: Border.all(color: AppColors.dividerDark),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -1389,7 +1389,7 @@ class _MyprofileState extends State<Myprofile> {
                               Text(
                                 "Bē",
                                 style: TextStyle(
-                                  color: Color(0xFFE8D1AB),
+                                  color: AppColors.primary,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -1398,7 +1398,7 @@ class _MyprofileState extends State<Myprofile> {
                               Text(
                                 "Behance",
                                 style: TextStyle(
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                   fontFamily: "Outfit",
                                   fontSize: 14,
                                 ),
@@ -1417,12 +1417,12 @@ class _MyprofileState extends State<Myprofile> {
                             child: Container(
                               padding: EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: ColorCode.kButtonColor, // beige
+                                color: AppColors.primary, // beige
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: SvgPicture.asset(
                                 AppAssets.myprofile_edit,
-                                /*    color: Color(0xff1D1D1B),
+                                /*    color: AppColors.onPrimary,
                               fit: BoxFit.cover,*/
                               ),
                             ),
@@ -1435,7 +1435,7 @@ class _MyprofileState extends State<Myprofile> {
                           Text(
                             "Portfolio Link",
                             style: TextStyle(
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontFamily: "Unbounded",
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -1447,7 +1447,7 @@ class _MyprofileState extends State<Myprofile> {
                       portfolioLinks.isEmpty
                           ? const Text(
                               "No portfolio links added",
-                              style: TextStyle(color: ColorCode.white24),
+                              style: TextStyle(color: AppColors.white24),
                             )
                           : Column(
                               children: portfolioLinks.asMap().entries.map((
@@ -1465,9 +1465,9 @@ class _MyprofileState extends State<Myprofile> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: ColorCode.white24,
+                                      color: AppColors.white24,
                                     ),
-                                    color: const Color(0xFF2A2A2A),
+                                    color: AppColors.surfaceVariant,
                                   ),
                                   child: Row(
                                     children: [
@@ -1476,7 +1476,7 @@ class _MyprofileState extends State<Myprofile> {
                                         item["icon"]!,
                                         height: 20,
                                         width: 20,
-                                        color: const Color(0xffE8D1AB),
+                                        color: AppColors.primary,
                                       ),
 
                                       const SizedBox(width: 10),
@@ -1490,13 +1490,13 @@ class _MyprofileState extends State<Myprofile> {
                                             Text(
                                               item["name"]!,
                                               style: const TextStyle(
-                                                color: ColorCode.white,
+                                                color: AppColors.white,
                                               ),
                                             ),
                                             Text(
                                               item["url"]!,
                                               style: const TextStyle(
-                                                color: ColorCode.white24,
+                                                color: AppColors.white24,
                                               ),
                                             ),
                                           ],
@@ -1507,7 +1507,7 @@ class _MyprofileState extends State<Myprofile> {
                                       IconButton(
                                         icon: const Icon(
                                           Icons.edit,
-                                          color: ColorCode.white,
+                                          color: AppColors.white,
                                           size: 18,
                                         ),
                                         onPressed: () {
@@ -1528,7 +1528,7 @@ class _MyprofileState extends State<Myprofile> {
                                       IconButton(
                                         icon: const Icon(
                                           Icons.delete,
-                                          color: ColorCode.red,
+                                          color: AppColors.error,
                                           size: 18,
                                         ),
                                         onPressed: () async {
@@ -1553,9 +1553,9 @@ class _MyprofileState extends State<Myprofile> {
                           /*   Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2A2A2A),
+                            color: AppColors.surfaceVariant,
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: ColorCode.white12),
+                            border: Border.all(color: AppColors.dividerDark),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -1563,7 +1563,7 @@ class _MyprofileState extends State<Myprofile> {
                               Text(
                                 "Bē",
                                 style: TextStyle(
-                                  color: Color(0xFFE8D1AB),
+                                  color: AppColors.primary,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -1572,7 +1572,7 @@ class _MyprofileState extends State<Myprofile> {
                               Text(
                                 "YouTube",
                                 style: TextStyle(
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                   fontFamily: "Outfit",
                                   fontSize: 14,
                                 ),
@@ -1591,12 +1591,12 @@ class _MyprofileState extends State<Myprofile> {
                             child: Container(
                               padding: EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: ColorCode.kButtonColor, // beige
+                                color: AppColors.primary, // beige
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: SvgPicture.asset(
                                 AppAssets.myprofile_edit,
-                                /*    color: Color(0xff1D1D1B),
+                                /*    color: AppColors.onPrimary,
                               fit: BoxFit.cover,*/
                               ),
                             ),
@@ -1618,14 +1618,14 @@ class _MyprofileState extends State<Myprofile> {
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
-        color: ColorCode.backgroundColor,
+        color: AppColors.background,
         child: InkWell(
           onTap: _showLogoutBottomSheet,
           borderRadius: BorderRadius.circular(16),
           child: Container(
             height: 52,
             decoration: BoxDecoration(
-              color: ColorCode.kButtonColor, // beige color
+              color: AppColors.primary, // beige color
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Center(
@@ -1635,7 +1635,7 @@ class _MyprofileState extends State<Myprofile> {
                   fontFamily: "Unbounded",
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: ColorCode.kHeadingColor,
+                  color: AppColors.textHeading,
                 ),
               ),
             ),
@@ -1649,10 +1649,10 @@ class _MyprofileState extends State<Myprofile> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFF282828), // bg color
+        color: AppColors.surfaceMid, // bg color
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: ColorCode.white.withOpacity(0.2), // 20% opacity
+          color: AppColors.white.withOpacity(0.2), // 20% opacity
           width: 0.5,
         ),
       ),
@@ -1660,7 +1660,7 @@ class _MyprofileState extends State<Myprofile> {
         text,
         style: const TextStyle(
           fontFamily: 'Outfit',
-          color: ColorCode.white,
+          color: AppColors.white,
           fontSize: 12,
         ),
       ),
@@ -1679,7 +1679,7 @@ class _MyprofileState extends State<Myprofile> {
                 Text(
                   "My Account",
                   style: TextStyle(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     fontFamily: "Unbounded",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -1690,7 +1690,7 @@ class _MyprofileState extends State<Myprofile> {
           ),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF2A2A2A),
+              color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -1708,7 +1708,7 @@ class _MyprofileState extends State<Myprofile> {
                   child: Row(
                     children: [
                       Text("Portfolio & Credentials",style: TextStyle(
-                          color: ColorCode.white,
+                          color: AppColors.white,
                           fontFamily: "Unbounded",
                           fontSize: 14,
                           fontWeight: FontWeight.w500
@@ -1742,7 +1742,7 @@ class _MyprofileState extends State<Myprofile> {
                 Text(
                   "Portfolio & Credentials",
                   style: TextStyle(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     fontFamily: "Unbounded",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -1753,7 +1753,7 @@ class _MyprofileState extends State<Myprofile> {
           ),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF2A2A2A),
+              color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -1788,7 +1788,7 @@ class _MyprofileState extends State<Myprofile> {
           SizedBox(height: 10),
           Padding(
             padding: EdgeInsets.all(12),
-            child: Divider(color: ColorCode.kDividerWhite12),
+            child: Divider(color: AppColors.dividerDark),
           ),
 
           Padding(
@@ -1798,7 +1798,7 @@ class _MyprofileState extends State<Myprofile> {
                 Text(
                   "Settings",
                   style: TextStyle(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     fontFamily: "Unbounded",
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -1811,7 +1811,7 @@ class _MyprofileState extends State<Myprofile> {
 
           Container(
             decoration: BoxDecoration(
-              color: ColorCode.k2A2A2A,
+              color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -1855,7 +1855,7 @@ class _MyprofileState extends State<Myprofile> {
               height: 44,
               width: 44,
               decoration: const BoxDecoration(
-                color: Color(0xFF3A3A3A),
+                color: AppColors.calendarGrid,
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -1863,14 +1863,14 @@ class _MyprofileState extends State<Myprofile> {
                   iconPath,
                   width: 22,
                   height: 22,
-                  color: ColorCode.white,
+                  color: AppColors.white,
                 ),
 
                 // Image.asset(
                 //   iconPath,
                 //   height: 22,
                 //   width: 22,
-                //   color: ColorCode.white,
+                //   color: AppColors.white,
                 // ),
               ),
             ),
@@ -1880,7 +1880,7 @@ class _MyprofileState extends State<Myprofile> {
                 title,
                 style: const TextStyle(
                   fontFamily: "Outfit",
-                  color: ColorCode.white,
+                  color: AppColors.white,
                   fontSize: 14,
                 ),
               ),
@@ -1889,7 +1889,7 @@ class _MyprofileState extends State<Myprofile> {
             //   "assets/profile/path9429.png",
             //   height: 20,
             //   width: 20,
-            //   color: ColorCode.white,
+            //   color: AppColors.white,
             // ),
             SvgPicture.asset(
               AppAssets.goto, // make sure it's .svg file
@@ -1905,7 +1905,7 @@ class _MyprofileState extends State<Myprofile> {
   Widget _divider() {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Divider(height: 1, color: ColorCode.kDividerWhite12),
+      child: Divider(height: 1, color: AppColors.dividerDark),
     );
   }
 
@@ -1925,9 +1925,9 @@ class _MyprofileState extends State<Myprofile> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            ColorCode.kGradientLight,
-            ColorCode.kGradientDark,
-            ColorCode.kGradientMedium,
+            AppColors.primary.withOpacity(0.40),
+            AppColors.primary.withOpacity(0.04),
+            AppColors.primary.withOpacity(0.28),
           ],
         ),
       ),
@@ -1937,7 +1937,7 @@ class _MyprofileState extends State<Myprofile> {
         padding: const EdgeInsets.all(0.6), // 👈 border thickness (0.5px feel)
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
+            color: AppColors.surfaceStats,
             borderRadius: BorderRadius.circular(11.5),
           ),
           child: Stack(
@@ -1951,7 +1951,7 @@ class _MyprofileState extends State<Myprofile> {
                   width: 38,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE8D1AB),
+                    color: AppColors.primary,
                     borderRadius: const BorderRadius.vertical(
                       bottom: Radius.circular(14),
                     ),
@@ -1960,7 +1960,7 @@ class _MyprofileState extends State<Myprofile> {
                     icon,
                     // width: 16,
                     // height: 16,
-                    color: ColorCode.black,
+                    color: AppColors.black,
                   ),
                 ),
               ),
@@ -1976,7 +1976,7 @@ class _MyprofileState extends State<Myprofile> {
                       fontFamily: "Outfit",
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: ColorCode.white,
+                      color: AppColors.white,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -1986,7 +1986,7 @@ class _MyprofileState extends State<Myprofile> {
                       fontFamily: "Outfit",
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
-                      color: ColorCode.white.withOpacity(0.7),
+                      color: AppColors.white.withOpacity(0.7),
                     ),
                   ),
                 ],
@@ -2003,7 +2003,7 @@ class _MyprofileState extends State<Myprofile> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: ColorCode.transparent,
+      backgroundColor: AppColors.transparent,
       isScrollControlled: true,
       builder: (_) {
         return StatefulBuilder(
@@ -2017,7 +2017,7 @@ class _MyprofileState extends State<Myprofile> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: const BoxDecoration(
-                    color: ColorCode.backgroundColor,
+                    color: AppColors.background,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24),
                     ),
@@ -2032,7 +2032,7 @@ class _MyprofileState extends State<Myprofile> {
                           width: 40,
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
-                            color: ColorCode.white24,
+                            color: AppColors.white24,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -2045,7 +2045,7 @@ class _MyprofileState extends State<Myprofile> {
                           const Text(
                             "Add Social Links",
                             style: TextStyle(
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontSize: 16,
                               fontFamily: "Unbounded",
                               fontWeight: FontWeight.w500,
@@ -2055,7 +2055,7 @@ class _MyprofileState extends State<Myprofile> {
                             onPressed: () => Navigator.pop(context),
                             icon: const Icon(
                               Icons.close,
-                              color: ColorCode.white,
+                              color: AppColors.white,
                             ),
                           ),
                         ],
@@ -2064,7 +2064,7 @@ class _MyprofileState extends State<Myprofile> {
                       const Text(
                         "Add links that showcase your work, recognition,\npersonality and more!",
                         style: TextStyle(
-                          color: ColorCode.kWhiteOpacity70,
+                          color: AppColors.white30,
                           fontSize: 14,
                           fontFamily: "Outfit",
                           fontWeight: FontWeight.w400,
@@ -2072,7 +2072,7 @@ class _MyprofileState extends State<Myprofile> {
                       ),
 
                       const SizedBox(height: 20),
-                      const Divider(color: ColorCode.kDividerWhite12),
+                      const Divider(color: AppColors.dividerDark),
                       const SizedBox(height: 20),
 
                       /// SOCIAL ICONS ROW
@@ -2094,13 +2094,13 @@ class _MyprofileState extends State<Myprofile> {
                               width: 52,
                               decoration: BoxDecoration(
                                 color: selectedSocialIndex == index
-                                    ? ColorCode.kButtonColor.withOpacity(0.2)
-                                    : ColorCode.transparent,
+                                    ? AppColors.primary.withOpacity(0.2)
+                                    : AppColors.transparent,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
                                   color: selectedSocialIndex == index
-                                      ? ColorCode.kButtonColor
-                                      : ColorCode.white24,
+                                      ? AppColors.primary
+                                      : AppColors.white24,
                                   width: selectedSocialIndex == index
                                       ? 1.5
                                       : 0.8,
@@ -2108,7 +2108,7 @@ class _MyprofileState extends State<Myprofile> {
                                 boxShadow: selectedSocialIndex == index
                                     ? [
                                         BoxShadow(
-                                          color: ColorCode.kButtonColor
+                                          color: AppColors.primary
                                               .withOpacity(0.35),
                                           blurRadius: 8,
                                           offset: const Offset(0, 4),
@@ -2123,8 +2123,8 @@ class _MyprofileState extends State<Myprofile> {
                                   width: 22,
                                   colorFilter: ColorFilter.mode(
                                     selectedSocialIndex == index
-                                        ? ColorCode.kButtonColor
-                                        : ColorCode.white,
+                                        ? AppColors.primary
+                                        : AppColors.white,
                                     BlendMode.srcIn,
                                   ),
                                 ),
@@ -2141,7 +2141,7 @@ class _MyprofileState extends State<Myprofile> {
                         Text(
                           "${socialLinks.length}/6",
                           style: const TextStyle(
-                            color: ColorCode.white24,
+                            color: AppColors.white24,
                             fontSize: 12,
                             fontFamily: "Outfit",
                           ),
@@ -2160,8 +2160,8 @@ class _MyprofileState extends State<Myprofile> {
                             ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: ColorCode.white24),
-                              color: ColorCode.black,
+                              border: Border.all(color: AppColors.white24),
+                              color: AppColors.black,
                             ),
                             child: Row(
                               children: [
@@ -2173,13 +2173,13 @@ class _MyprofileState extends State<Myprofile> {
                                       MediaQuery.of(context).size.width * 0.09,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: Transform.rotate(
                                     angle: 3.14159 / 2,
                                     child: const Icon(
                                       Icons.drag_indicator,
-                                      color: ColorCode.kButtonColor,
+                                      color: AppColors.primary,
                                       size: 18,
                                     ),
                                   ),
@@ -2191,13 +2191,13 @@ class _MyprofileState extends State<Myprofile> {
                                 //   item["icon"]!,
                                 //   height: 20,
                                 //   width: 20,
-                                //   color: ColorCode.white,
+                                //   color: AppColors.white,
                                 // ),
                                 SvgPicture.asset(
                                   item["icon"]!,
                                   width: 20,
                                   height: 20,
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                 ),
 
                                 const SizedBox(width: 10),
@@ -2207,7 +2207,7 @@ class _MyprofileState extends State<Myprofile> {
                                   child: Text(
                                     item["name"]!,
                                     style: const TextStyle(
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                       fontWeight: FontWeight.w500,
                                       fontFamily: "Outfit",
                                     ),
@@ -2220,13 +2220,13 @@ class _MyprofileState extends State<Myprofile> {
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     icon: const Icon(
                                       Icons.edit,
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                       size: 16,
                                     ),
                                     onPressed: () {
@@ -2249,13 +2249,13 @@ class _MyprofileState extends State<Myprofile> {
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     icon: const Icon(
                                       Icons.delete,
-                                      color: ColorCode.red,
+                                      color: AppColors.error,
                                       size: 16,
                                     ),
                                     onPressed: () {
@@ -2293,7 +2293,7 @@ class _MyprofileState extends State<Myprofile> {
                           height: 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorCode.kButtonColor,
+                              backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -2306,7 +2306,7 @@ class _MyprofileState extends State<Myprofile> {
                                     content: Text(
                                       "Please select platform and enter link",
                                     ),
-                                    backgroundColor: ColorCode.red,
+                                    backgroundColor: AppColors.error,
                                   ),
                                 );
                                 return;
@@ -2349,7 +2349,7 @@ class _MyprofileState extends State<Myprofile> {
                             child: const Text(
                               "Save Link",
                               style: TextStyle(
-                                color: ColorCode.black,
+                                color: AppColors.black,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -2376,11 +2376,11 @@ class _MyprofileState extends State<Myprofile> {
                                 width: 30,
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                 ),
                                 child: const Icon(
                                   Icons.add,
-                                  color: ColorCode.black,
+                                  color: AppColors.black,
                                   size: 18,
                                 ),
                               ),
@@ -2388,7 +2388,7 @@ class _MyprofileState extends State<Myprofile> {
                               const Text(
                                 "Add another link",
                                 style: TextStyle(
-                                  color: ColorCode.kWhiteOpacity70,
+                                  color: AppColors.white30,
                                   fontSize: 14,
                                   fontFamily: "Outfit",
                                 ),
@@ -2403,7 +2403,7 @@ class _MyprofileState extends State<Myprofile> {
                           height: 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorCode.kButtonColor,
+                              backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -2412,7 +2412,7 @@ class _MyprofileState extends State<Myprofile> {
                             child: const Text(
                               "Save",
                               style: TextStyle(
-                                color: ColorCode.black,
+                                color: AppColors.black,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -2438,7 +2438,7 @@ class _MyprofileState extends State<Myprofile> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: ColorCode.transparent,
+      backgroundColor: AppColors.transparent,
       isScrollControlled: true,
       builder: (_) {
         return StatefulBuilder(
@@ -2452,7 +2452,7 @@ class _MyprofileState extends State<Myprofile> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: const BoxDecoration(
-                    color: ColorCode.backgroundColor,
+                    color: AppColors.background,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(28),
                     ),
@@ -2468,7 +2468,7 @@ class _MyprofileState extends State<Myprofile> {
                           width: 40,
                           margin: const EdgeInsets.only(bottom: 14),
                           decoration: BoxDecoration(
-                            color: ColorCode.white24,
+                            color: AppColors.white24,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -2481,7 +2481,7 @@ class _MyprofileState extends State<Myprofile> {
                           const Text(
                             "Add Portfolio Links",
                             style: TextStyle(
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontSize: 16,
                               fontFamily: "Unbounded",
                               fontWeight: FontWeight.w500,
@@ -2491,7 +2491,7 @@ class _MyprofileState extends State<Myprofile> {
                             onPressed: () => Navigator.pop(context),
                             icon: const Icon(
                               Icons.close,
-                              color: ColorCode.white,
+                              color: AppColors.white,
                             ),
                           ),
                         ],
@@ -2500,7 +2500,7 @@ class _MyprofileState extends State<Myprofile> {
                       const Text(
                         "Add YouTube, Vimeo, or Google Drive links to showcase your portfolio.",
                         style: TextStyle(
-                          color: ColorCode.kWhiteOpacity70,
+                          color: AppColors.white30,
                           fontSize: 13,
                         ),
                       ),
@@ -2529,12 +2529,12 @@ class _MyprofileState extends State<Myprofile> {
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
                                   color: selectedPortfolioIndex == index
-                                      ? ColorCode.kButtonColor
-                                      : ColorCode.white24,
+                                      ? AppColors.primary
+                                      : AppColors.white24,
                                 ),
                                 color: selectedPortfolioIndex == index
-                                    ? ColorCode.kButtonColor.withOpacity(0.15)
-                                    : ColorCode.transparent,
+                                    ? AppColors.primary.withOpacity(0.15)
+                                    : AppColors.transparent,
                               ),
                               child: Center(
                                 child: SvgPicture.asset(
@@ -2543,8 +2543,8 @@ class _MyprofileState extends State<Myprofile> {
                                   width: 22,
                                   colorFilter: ColorFilter.mode(
                                     selectedPortfolioIndex == index
-                                        ? ColorCode.kButtonColor
-                                        : ColorCode.white,
+                                        ? AppColors.primary
+                                        : AppColors.white,
                                     BlendMode.srcIn,
                                   ),
                                 ),
@@ -2562,7 +2562,7 @@ class _MyprofileState extends State<Myprofile> {
                         Text(
                           "${portfolioLinks.length}/3",
                           style: const TextStyle(
-                            color: ColorCode.white24,
+                            color: AppColors.white24,
                             fontSize: 12,
                             fontFamily: "Outfit",
                           ),
@@ -2579,8 +2579,8 @@ class _MyprofileState extends State<Myprofile> {
                             ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: ColorCode.white24),
-                              color: ColorCode.black,
+                              border: Border.all(color: AppColors.white24),
+                              color: AppColors.black,
                             ),
                             child: Row(
                               children: [
@@ -2589,14 +2589,14 @@ class _MyprofileState extends State<Myprofile> {
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: Transform.rotate(
                                     angle: 3.14159 / 2,
                                     child: const Icon(
                                       Icons.drag_indicator,
                                       size: 18,
-                                      color: ColorCode.kButtonColor,
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                 ),
@@ -2605,14 +2605,14 @@ class _MyprofileState extends State<Myprofile> {
                                   item["icon"]!,
                                   height: 20,
                                   width: 20,
-                                  color: const Color(0xffE8D1AB),
+                                  color: AppColors.primary,
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
                                     item["name"]!,
                                     style: const TextStyle(
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                       fontWeight: FontWeight.w500,
                                       fontFamily: "Outfit",
                                     ),
@@ -2623,13 +2623,13 @@ class _MyprofileState extends State<Myprofile> {
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: ColorCode.k282828,
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     icon: const Icon(
                                       Icons.edit,
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                       size: 16,
                                     ),
                                     onPressed: () {
@@ -2658,13 +2658,13 @@ class _MyprofileState extends State<Myprofile> {
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     icon: const Icon(
                                       Icons.delete,
-                                      color: ColorCode.red,
+                                      color: AppColors.error,
                                       size: 16,
                                     ),
                                     onPressed: () {
@@ -2695,7 +2695,7 @@ class _MyprofileState extends State<Myprofile> {
                           height: 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorCode.kButtonColor,
+                              backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -2717,7 +2717,7 @@ class _MyprofileState extends State<Myprofile> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text("Select platform & enter link"),
-                                    backgroundColor: ColorCode.red,
+                                    backgroundColor: AppColors.error,
                                   ),
                                 );
                                 return;
@@ -2730,7 +2730,7 @@ class _MyprofileState extends State<Myprofile> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text("Invalid link ID"),
-                                      backgroundColor: ColorCode.red,
+                                      backgroundColor: AppColors.error,
                                     ),
                                   );
                                   return;
@@ -2764,7 +2764,7 @@ class _MyprofileState extends State<Myprofile> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text("Network error. Please try again."),
-                                      backgroundColor: ColorCode.red,
+                                      backgroundColor: AppColors.error,
                                     ),
                                   );
                                 } finally {
@@ -2795,13 +2795,13 @@ class _MyprofileState extends State<Myprofile> {
                                     width: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      color: ColorCode.black,
+                                      color: AppColors.black,
                                     ),
                                   )
                                 : const Text(
                                     "Save Link",
                                     style: TextStyle(
-                                      color: ColorCode.black,
+                                      color: AppColors.black,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -2830,11 +2830,11 @@ class _MyprofileState extends State<Myprofile> {
                                 width: 30,
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                 ),
                                 child: const Icon(
                                   Icons.add,
-                                  color: ColorCode.black,
+                                  color: AppColors.black,
                                   size: 18,
                                 ),
                               ),
@@ -2842,7 +2842,7 @@ class _MyprofileState extends State<Myprofile> {
                               const Text(
                                 "Add another link",
                                 style: TextStyle(
-                                  color: ColorCode.kWhiteOpacity70,
+                                  color: AppColors.white30,
                                   fontSize: 14,
                                   fontFamily: "Outfit",
                                 ),
@@ -2859,7 +2859,7 @@ class _MyprofileState extends State<Myprofile> {
                             height: 50,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: ColorCode.kButtonColor,
+                                backgroundColor: AppColors.primary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
@@ -2868,7 +2868,7 @@ class _MyprofileState extends State<Myprofile> {
                               child: const Text(
                                 "Save",
                                 style: TextStyle(
-                                  color: ColorCode.black,
+                                  color: AppColors.black,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -2890,13 +2890,13 @@ class _MyprofileState extends State<Myprofile> {
   void _showLogoutBottomSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: ColorCode.transparent,
+      backgroundColor: AppColors.transparent,
       isScrollControlled: true,
       builder: (_) {
         return Container(
           padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
-            color: Color(0xFF1E1E1E),
+            color: AppColors.surfaceStats,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -2908,7 +2908,7 @@ class _MyprofileState extends State<Myprofile> {
                 width: 30,
                 margin: EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: ColorCode.kWhiteOpacity70,
+                  color: AppColors.white30,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -2916,7 +2916,7 @@ class _MyprofileState extends State<Myprofile> {
               Text(
                 "Logout",
                 style: TextStyle(
-                  color: ColorCode.white,
+                  color: AppColors.white,
                   fontSize: 15,
                   fontFamily: "Unbounded",
                   fontWeight: FontWeight.w600,
@@ -2929,14 +2929,14 @@ class _MyprofileState extends State<Myprofile> {
               const Text(
                 "Are you sure you want to log out?",
                 style: TextStyle(
-                  color: ColorCode.kWhiteOpacity70,
+                  color: AppColors.white30,
                   fontSize: 14,
                   fontFamily: "Outfit",
                 ),
               ),
               SizedBox(height: 14),
 
-              Divider(height: 1, color: ColorCode.kDividerWhite12),
+              Divider(height: 1, color: AppColors.dividerDark),
 
               SizedBox(height: 10),
 
@@ -2950,7 +2950,7 @@ class _MyprofileState extends State<Myprofile> {
                         Navigator.pop(context);
                       },
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: ColorCode.kWhiteOpacity60),
+                        side: BorderSide(color: AppColors.white60),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -2961,7 +2961,7 @@ class _MyprofileState extends State<Myprofile> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: ColorCode.white,
+                          color: AppColors.white,
                           fontFamily: "Unbounded",
                         ),
                       ),
@@ -2980,7 +2980,7 @@ class _MyprofileState extends State<Myprofile> {
                       },
 
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kButtonColor,
+                        backgroundColor: AppColors.primary,
                         padding: EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -2991,7 +2991,7 @@ class _MyprofileState extends State<Myprofile> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: ColorCode.kHeadingColor,
+                          color: AppColors.textHeading,
                           fontFamily: "Unbounded",
                         ),
                       ),

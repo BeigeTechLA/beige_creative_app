@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app/colors.dart';
 
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
@@ -17,7 +18,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
           Center(
             child: Text(
               "messages",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.white),
             ),
           ),
         ],

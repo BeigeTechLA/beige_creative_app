@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart' show SvgPicture;
 
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart' show AppAssets;
 
 class CustomMultiSelectField extends StatefulWidget {
@@ -74,7 +74,7 @@ class _CustomMultiSelectFieldState
           focusNode: _focusNode,
 
           style: const TextStyle(
-            color: ColorCode.white,
+            color: AppColors.white,
             fontFamily: "Outfit",
             fontSize: 15,
           ),
@@ -90,8 +90,8 @@ class _CustomMultiSelectFieldState
               fontSize: 14,
               fontFamily: "Outfit",
               color: highlight
-                  ? ColorCode.kButtonColor
-                  : ColorCode.kWhiteOpacity_60,
+                  ? AppColors.primary
+                  : AppColors.white60,
             ),
 
             hintText:
@@ -101,8 +101,8 @@ class _CustomMultiSelectFieldState
 
             hintStyle: TextStyle(
               color: widget.hasValue
-                  ? ColorCode.white
-                  : ColorCode.kWhiteOpacity_60,
+                  ? AppColors.white
+                  : AppColors.white60,
             ),
 
             /// ✅ PREFIX ICON
@@ -118,8 +118,8 @@ class _CustomMultiSelectFieldState
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
                 color: highlight
-                    ? ColorCode.textfieldbordercollor
-                    : ColorCode.kWhiteOpacity70,
+                    ? AppColors.textfieldBorderLegacy
+                    : AppColors.white30,
                 width: 0.5,
               ),
             ),
@@ -127,7 +127,7 @@ class _CustomMultiSelectFieldState
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(
-                color: ColorCode.textfieldbordercollor,
+                color: AppColors.textfieldBorderLegacy,
                 width: 1,
               ),
             ),
@@ -137,7 +137,7 @@ class _CustomMultiSelectFieldState
 
               child: SvgPicture.asset(
                 AppAssets.dropdown,
-                color: ColorCode.white,
+                color: AppColors.white,
                 width: 24,
                 height: 24,
               ),

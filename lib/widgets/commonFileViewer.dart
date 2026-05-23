@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,9 +23,9 @@ class CommonFileViewer {
         context,
         MaterialPageRoute(
           builder: (context) => Scaffold(
-            backgroundColor: Colors.black,
+            backgroundColor: AppColors.black,
             appBar: AppBar(
-              backgroundColor: Colors.black,
+              backgroundColor: AppColors.black,
               leading: IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon:SvgPicture.asset(AppAssets.back)

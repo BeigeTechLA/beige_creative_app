@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../Profile/myprofile_youre_all_set_screen.dart';
 import '../../service/api_service.dart';
-import '../../utility/colorcode.dart';
+import '../../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';
@@ -112,7 +112,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: ColorCode.white,
+      // backgroundColor: AppColors.white,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -137,7 +137,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   /// 🌫️ DARK OVERLAY
                   /*    Positioned.fill(
                     child: Container(
-                      color: ColorCode.black.withOpacity(0.55),
+                      color: AppColors.black.withOpacity(0.55),
                     ),
                   )*/
 
@@ -169,7 +169,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           'Secure your Account',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: ColorCode.white,
+                            color: AppColors.white,
                             fontSize: 16,
                             fontFamily: 'Unbounded',
                             fontWeight: FontWeight.w500,
@@ -182,7 +182,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           'You\'re almost done! Set a new password\nto secure your account.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: ColorCode.white.withValues(alpha: 0.60),
+                            color: AppColors.white.withValues(alpha: 0.60),
                             fontSize: 14,
                             fontFamily: 'Outfit',
                             fontWeight: FontWeight.w400,
@@ -210,10 +210,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     // 👈 top extra
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: ColorCode.backgroundColor,
+                      color: AppColors.background,
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(
-                        color: ColorCode.white.withValues(alpha: 0.10),
+                        color: AppColors.white.withValues(alpha: 0.10),
                         width: 0.50,
                       ),
                     ),
@@ -267,7 +267,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                   : AppAssets.eyeClose,
                               height: 22,
                               colorFilter: const ColorFilter.mode(
-                                ColorCode.white,
+                                AppColors.white,
                                 BlendMode.srcIn,
                               ),
                             ),
@@ -296,7 +296,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                   : AppAssets.eyeClose,
                               height: 22,
                               colorFilter: const ColorFilter.mode(
-                                ColorCode.white,
+                                AppColors.white,
                                 BlendMode.srcIn,
                               ),
                             ),
@@ -314,8 +314,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
                             style: ElevatedButton.styleFrom(
                               backgroundColor: isPasswordFilled
-                                  ? ColorCode.kButtonColor
-                                  : ColorCode.kGoldGradientLight,
+                                  ? AppColors.primary
+                                  : AppColors.borderGold,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -327,8 +327,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: isPasswordFilled
-                                    ? ColorCode.kHeadingColor
-                                    : ColorCode.k282828,
+                                    ? AppColors.textHeading
+                                    : AppColors.surfaceMid,
                               ),
                             ),
                           ),
@@ -349,15 +349,15 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         height: 50,
                         decoration: BoxDecoration(
-                          color: ColorCode.white,
+                          color: AppColors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: ColorCode.white.withOpacity(0.12),
+                            color: AppColors.white.withOpacity(0.12),
                             width: 1,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: ColorCode.black.withOpacity(0.35),
+                              color: AppColors.black.withOpacity(0.35),
                               blurRadius: 16,
                               offset: const Offset(0, 8),
                             ),
@@ -389,7 +389,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                     fontFamily: "Outfit",
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: ColorCode.black,
+                                    color: AppColors.black,
                                   ),
                                 ),
                                 SizedBox(height: 4),
@@ -399,7 +399,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                     fontFamily: "Outfit",
                                     fontSize: 12,
                                     fontWeight: FontWeight.w400,
-                                    color: ColorCode.black54,
+                                    color: AppColors.black54,
                                   ),
                                 ),
                               ],

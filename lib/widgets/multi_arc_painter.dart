@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app/colors.dart';
 
 class MultiArcPainter extends CustomPainter {
   final List<double> values;
@@ -16,7 +17,7 @@ class MultiArcPainter extends CustomPainter {
       double radius = size.width / 2 - (i * spacing);
 
       Paint bgPaint = Paint()
-        ..color = const Color(0xFF242424)
+        ..color = AppColors.surfaceCoal
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth
         ..strokeCap = StrokeCap.butt;
@@ -45,7 +46,7 @@ class MultiArcPainter extends CustomPainter {
     }
 
     Paint linePaint = Paint()
-      ..color = Colors.white24
+      ..color = AppColors.white24
       ..strokeWidth = 1;
 
     final baselineY = size.height - 1;
@@ -58,7 +59,7 @@ class MultiArcPainter extends CustomPainter {
     canvas.drawCircle(
       Offset(size.width / 2, baselineY),
       5,
-      Paint()..color = const Color(0xFFE8D1AB),
+      Paint()..color = AppColors.primary,
     );
   }
 

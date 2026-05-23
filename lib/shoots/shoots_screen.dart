@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../model_class/shoot_count_model.dart';
 import '../Model_Class/shoots_model.dart';
 import '../app/route_names.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/date_time.dart';
 
@@ -154,7 +154,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     const Text(
                       "shoots",
                       style: TextStyle(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontSize: 16,
                         fontFamily: "Unbounded",
                         fontWeight: FontWeight.w500,
@@ -213,21 +213,21 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 child: Container(
                   height: 48,
                   decoration: BoxDecoration(
-                    color: ColorCode.k282828,
+                    color: AppColors.surfaceMid,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: TextField(
                     controller: searchController,
                     onChanged: searchShoots,
                     style: const TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 14,
                     ),
-                    cursorColor: ColorCode.white,
+                    cursorColor: AppColors.white,
                     decoration: InputDecoration(
                       hintText: "Search events or crew...",
                       hintStyle: const TextStyle(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontFamily: "Outfit",
                       ),
                       prefixIcon: Padding(
@@ -277,13 +277,13 @@ class _ShootsScreenState extends State<ShootsScreen> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [ColorCode.shootStatsCardTop, ColorCode.shootStatsCardBottom],
+          colors: [AppColors.shootStatsCardTop, AppColors.shootStatsCardBottom],
         ),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: ColorCode.shootStatsCardBorder, width: 0.8),
+        border: Border.all(color: AppColors.shootStatsCardBorder, width: 0.8),
         boxShadow: const [
           BoxShadow(
-            color: ColorCode.kBlackOpacity12,
+            color: AppColors.black12,
             blurRadius: 12,
             offset: Offset(0, 6),
           ),
@@ -299,7 +299,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 Text(
                   number.padLeft(2, "0"),
                   style: const TextStyle(
-                    color: ColorCode.kButtonColor,
+                    color: AppColors.primary,
                     fontSize: 24,
                     fontFamily: "Outfit",
                     fontWeight: FontWeight.w700,
@@ -311,7 +311,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     fontWeight: FontWeight.w500,
                     fontSize: 13,
                     fontFamily: "Outfit",
@@ -329,7 +329,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
               height: 20,*/
               alignment: Alignment.center,
               /*decoration: const BoxDecoration(
-                color: ColorCode.shootStatsIconBg,
+                color: AppColors.primary,
                 shape: BoxShape.circle,
               ),*/
               child: SvgPicture.asset(
@@ -337,7 +337,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 width: 25,
                 height: 25,
                 // colorFilter: const ColorFilter.mode(
-                //   ColorCode.kHeadingColor,
+                //   AppColors.textHeading,
                 //   BlendMode.srcIn,
                 // ),
               ),
@@ -377,7 +377,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: ColorCode.k282828,
+        color: AppColors.surfaceMid,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -398,13 +398,13 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     )
                   /// IMAGE EMPTY
                   : Container(
-                      color: const Color(0xFF1E1E1E),
+                      color: AppColors.surfaceStats,
                       alignment: Alignment.center,
                       child: SvgPicture.asset(
                         AppAssets.image_holder,
                         height: 60,
                         colorFilter: const ColorFilter.mode(
-                          ColorCode.white24,
+                          AppColors.white24,
                           BlendMode.srcIn,
                         ),
                       ),
@@ -424,7 +424,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     Text(
                       "ID: ${shoot.id}",
                       style: TextStyle(
-                        color: ColorCode.kButtonColor,
+                        color: AppColors.primary,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -440,7 +440,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                       child: Text(
                         "View Details",
                         style: TextStyle(
-                          color: ColorCode.kButtonColor,
+                          color: AppColors.primary,
                           fontSize: 12,
                           fontFamily: "Outfit",
                           fontWeight: FontWeight.w600,
@@ -455,7 +455,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 Text(
                   shoot.projectName,
                   style: const TextStyle(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     fontSize: 15,
                     fontFamily: "Outfit",
                     fontWeight: FontWeight.w600,
@@ -463,7 +463,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 ),
 
                 const SizedBox(height: 8),
-                Divider(color: ColorCode.kDividerWhite12),
+                Divider(color: AppColors.dividerDark),
 
                 /// ✅ DATE + TIME + LOCATION (FIXED)
                 Row(
@@ -473,7 +473,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     Text(
                       formattedDate, // ✅ FIX
                       style: const TextStyle(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontSize: 10,
                         fontFamily: "Outfit",
                       ),
@@ -486,7 +486,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     Text(
                       formattedTime, // ✅ FIX
                       style: const TextStyle(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontSize: 10,
                         fontFamily: "Outfit",
                       ),
@@ -500,7 +500,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                       child: Text(
                         shoot.eventLocation,
                         style: const TextStyle(
-                          color: ColorCode.white,
+                          color: AppColors.white,
                           fontSize: 10,
                           fontFamily: "Outfit",
                         ),
@@ -537,7 +537,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                         children: [
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorCode.white,
+                              backgroundColor: AppColors.white,
                             ),
                             onPressed: () {
                               fetchacceptdecline(shoot.projectId, 1);
@@ -548,14 +548,14 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                 fontFamily: "Outfit",
                                 fontWeight: FontWeight.w400,
                                 fontSize: 12,
-                                color: ColorCode.green,
+                                color: AppColors.success,
                               ),
                             ),
                           ),
                           const SizedBox(width: 10),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorCode.white,
+                              backgroundColor: AppColors.white,
                             ),
                             onPressed: () {
                               /*  Navigator.push(
@@ -574,7 +574,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                             child: Text(
                               "Decline",
                               style: TextStyle(
-                                color: ColorCode.red,
+                                color: AppColors.error,
                                 fontFamily: "Outfit",
                                 fontWeight: FontWeight.w400,
                                 fontSize: 12,
@@ -658,7 +658,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                   },
                   child: Container(
                     decoration: const BoxDecoration(
-                      color: Color(0xff282828),
+                      color: AppColors.surfaceMid,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
@@ -672,7 +672,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                           width: 40,
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: ColorCode.white,
+                            color: AppColors.white,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -686,7 +686,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                               const Text(
                                 "Filter",
                                 style: TextStyle(
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                   fontSize: 18,
                                   fontFamily: "Unbounded",
                                   fontWeight: FontWeight.w600,
@@ -696,7 +696,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                 onTap: () => Navigator.pop(context),
                                 child: const Icon(
                                   Icons.close,
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                 ),
                               ),
                             ],
@@ -707,7 +707,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
 
                         Divider(
                           thickness: 0.5,
-                          color: ColorCode.white.withOpacity(0.3),
+                          color: AppColors.white.withOpacity(0.3),
                         ),
 
                         /// SCROLLABLE CONTENT
@@ -863,7 +863,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                                   BorderRadius.circular(12),
                                               border: Border.all(
                                                 width: 0.5,
-                                                color: ColorCode.white
+                                                color: AppColors.white
                                                     .withOpacity(0.6),
                                               ),
                                             ),
@@ -871,7 +871,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                               child: Text(
                                                 'Clear All',
                                                 style: TextStyle(
-                                                  color: ColorCode.white,
+                                                  color: AppColors.white,
                                                   fontFamily: 'Unbounded',
                                                   fontWeight: FontWeight.w500,
                                                 ),
@@ -893,12 +893,12 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                             ),
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xffE8D1AB),
+                                              color: AppColors.primary,
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                               border: Border.all(
                                                 width: 0.5,
-                                                color: ColorCode.white
+                                                color: AppColors.white
                                                     .withOpacity(0.6),
                                               ),
                                             ),
@@ -908,7 +908,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                                 style: TextStyle(
                                                   fontFamily: 'Unbounded',
                                                   fontWeight: FontWeight.w500,
-                                                  color: Color(0xff1D1D1B),
+                                                  color: AppColors.onPrimary,
                                                 ),
                                               ),
                                             ),
@@ -959,7 +959,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: ColorCode.black, width: 1),
+                  border: Border.all(color: AppColors.black, width: 1),
                 ),
                 child: ClipOval(
                   child: Image.asset(
@@ -981,15 +981,15 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 width: avatarSize,
                 height: avatarSize,
                 decoration: BoxDecoration(
-                  color: ColorCode.lightGrey,
+                  color: AppColors.border,
                   shape: BoxShape.circle,
-                  border: Border.all(color: ColorCode.black, width: 1),
+                  border: Border.all(color: AppColors.black, width: 1),
                 ),
                 child: Center(
                   child: Text(
                     "+$extraCount",
                     style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: avatarSize * 0.35,
                       fontWeight: FontWeight.bold,
                     ),
@@ -1013,7 +1013,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
       padding: EdgeInsets.all(10),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF1D1D1B),
+          color: AppColors.onPrimary,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
@@ -1032,7 +1032,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     Text(
                       title,
                       style: const TextStyle(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontSize: 14,
                         fontFamily: "Outfit",
                         fontWeight: FontWeight.w500,
@@ -1043,7 +1043,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                       isExpanded
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
-                      color: ColorCode.white,
+                      color: AppColors.white,
                     ),
                   ],
                 ),
@@ -1053,7 +1053,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
             isExpanded && showDivider
                 ? Divider(
                     thickness: 0.5,
-                    color: ColorCode.white.withOpacity(0.3),
+                    color: AppColors.white.withOpacity(0.3),
                   )
                 : SizedBox(),
             if (children.isNotEmpty) ...children,
@@ -1079,7 +1079,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
             Text(
               label,
               style: TextStyle(
-                color: ColorCode.white.withOpacity(0.8),
+                color: AppColors.white.withOpacity(0.8),
                 fontSize: 14,
                 fontFamily: "Outfit",
               ),
@@ -1091,8 +1091,8 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: selected
-                      ? const Color(0xffDDDDDD)
-                      : ColorCode.kWhiteOpacity70,
+                      ? AppColors.border
+                      : AppColors.white30,
                   width: 2,
                 ),
               ),
@@ -1103,7 +1103,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                         height: 10,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0xFFE8D1AB),
+                          color: AppColors.primary,
                         ),
                       ),
                     )

@@ -5,7 +5,7 @@ import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app/route_names.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -54,7 +54,7 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: ColorCode.kHeadingColor,
+        color: AppColors.textHeading,
         child: Center(
           child: Lottie.asset(
             AppAssets.lottie2,

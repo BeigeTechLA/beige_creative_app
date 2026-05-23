@@ -2,7 +2,7 @@ import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart' show GoRouterHelper;
-import '../../utility/colorcode.dart';
+import '../../app/colors.dart';
 import '../app/route_names.dart';
 
 
@@ -33,7 +33,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                 child: SvgPicture.asset(
                   AppAssets.back,
                   height: 24,
-                  color: ColorCode.white,
+                  color: AppColors.white,
                 ),
               ),
 
@@ -46,7 +46,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                   fontFamily: "Unbounded",
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: ColorCode.white,
+                  color: AppColors.white,
                 ),
               ),
 
@@ -62,7 +62,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(12)
                     ),
-                      color: ColorCode.k282828,
+                      color: AppColors.surfaceMid,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -74,7 +74,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                               height: 24,
                               width: 24,
                               colorFilter: ColorFilter.mode(
-                                ColorCode.white,
+                                AppColors.white,
                                 BlendMode.srcIn,
                               ),
                             ),
@@ -82,7 +82,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                             Text(
                               "Dark Mode",
                               style: TextStyle(
-                                color: ColorCode.white,
+                                color: AppColors.white,
                                 fontSize: 14,
                               ),
                             ),
@@ -90,7 +90,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                         ),
                         Switch(
                           value: isDarkMode,
-                          activeColor: ColorCode.arcYellow,
+                          activeColor: AppColors.arcYellow,
                           onChanged: (value) {
                             setState(() {
                               isDarkMode = value;
@@ -113,7 +113,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                       padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(12)
                       ),
-                        color: ColorCode.k282828,
+                        color: AppColors.surfaceMid,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -125,7 +125,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                                 height: 24,
                                 width: 24,
                                 colorFilter: ColorFilter.mode(
-                                  ColorCode.white,
+                                  AppColors.white,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -133,7 +133,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                               Text(
                                 "Delete Account",
                                 style: TextStyle(
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                   fontSize: 14,
                                 ),
                               ),
@@ -144,7 +144,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                             height: 20,
                             width: 20,
                             colorFilter: ColorFilter.mode(
-                              ColorCode.white,
+                              AppColors.white,
                               BlendMode.srcIn,
                             ),
                           ),
@@ -160,7 +160,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                     padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(12)
                     ),
-                      color: ColorCode.k282828,
+                      color: AppColors.surfaceMid,
                     ),
                     child: Row(
                       children: [
@@ -169,7 +169,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                           height: 24,
                           width: 24,
                           colorFilter: ColorFilter.mode(
-                            ColorCode.white,
+                            AppColors.white,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -177,7 +177,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                         Text(
                           "App Version V1.0",
                           style: TextStyle(
-                            color: ColorCode.white24,
+                            color: AppColors.white24,
                             fontSize: 13,
                           ),
                         ),

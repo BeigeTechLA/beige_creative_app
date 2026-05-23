@@ -7,7 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../app/text_styles.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
-import '../../utility/colorcode.dart';
+import '../../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/Topmessgae.dart';
 import '../resetpassword/reset_password_screen.dart';
@@ -193,7 +193,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                           child: SvgPicture.asset(
                             AppAssets.back,
                             height: 24,
-                            color: ColorCode.white,
+                            color: AppColors.white,
                           ),
                         ),
                       ),
@@ -210,7 +210,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                               "Enter OTP code",
                               style: AppTextStyles.titleSmall.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: ColorCode.white,
+                                color: AppColors.white,
                               ),
                             ),
 
@@ -221,7 +221,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                               "Enter 6 digit OTP sent to your\nregistered email ID.",
                               textAlign: TextAlign.center,
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: ColorCode.kWhiteOpacity70,
+                                color: AppColors.white30,
                               ),
                             ),
                           ],
@@ -242,10 +242,10 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                         padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
-                          color: ColorCode.backgroundColor,
+                          color: AppColors.background,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: ColorCode.white.withOpacity(0.06),
+                            color: AppColors.white.withOpacity(0.06),
                             width: 1,
                           ),
                         ),
@@ -268,8 +268,8 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                         border: Border.all(
                                           color: (focusNodes[index].hasFocus ||
                                               controllers[index].text.isNotEmpty)
-                                              ? ColorCode.kGoldBorder50
-                                              : ColorCode.kWhiteOpacity60,
+                                              ? AppColors.borderGold
+                                              : AppColors.white60,
                                           width: 0.5,
                                         ),
                                       ),
@@ -320,7 +320,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                   style: AppTextStyles.labelLarge.copyWith(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: ColorCode.kButtonColor,
+                                    color: AppColors.primary,
                                   ),
                                 ),
                               ],
@@ -336,7 +336,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                 Text(
                                   "Didn't received the code?",
                                   style: AppTextStyles.bodyMedium.copyWith(
-                                    color: const Color(0xFFD5D5D5),
+                                    color: AppColors.textLightNeutral,
                                     height: 1.60,
                                   ),
                                 ),
@@ -346,7 +346,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                   child: Text(
                                     " Resend the Code",
                                     style: AppTextStyles.linkMedium.copyWith(
-                                      color: ColorCode.kButtonColor,
+                                      color: AppColors.primary,
                                       fontWeight: FontWeight.bold,
                                       decoration: TextDecoration.underline,
                                     ),
@@ -365,8 +365,8 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                 onPressed: isOtpFilled ? _verifyOtp : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: isOtpFilled
-                                      ? ColorCode.kButtonColor
-                                      : ColorCode.kGoldGradientLight,
+                                      ? AppColors.primary
+                                      : AppColors.borderGold,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -378,8 +378,8 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                     fontSize: 13,
                                     fontFamily: AppTextStyles.fontFamilyDisplay,
                                     color: isOtpFilled
-                                        ? ColorCode.kHeadingColor
-                                        : ColorCode.k282828,
+                                        ? AppColors.textHeading
+                                        : AppColors.surfaceMid,
                                   ),
                                 ),
                               ),

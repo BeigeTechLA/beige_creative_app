@@ -1,4 +1,5 @@
 import 'dart:ui';
+import '../app/colors.dart';
 import 'package:flutter/material.dart';
 
 class TopMessage {
@@ -20,7 +21,7 @@ class TopMessage {
 
               ),
               child: Container(
-                color: Colors.black.withOpacity(0.8),
+                color: AppColors.black.withOpacity(0.8),
               ),
             ),
           ),
@@ -31,7 +32,7 @@ class TopMessage {
             left: 16,
             right: 16,
             child: Material(
-              color: Colors.transparent,
+              color: AppColors.transparent,
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -39,16 +40,16 @@ class TopMessage {
                 ),
                 decoration: BoxDecoration(
 
-                  color: const Color(0xff100B03),
+                  color: AppColors.errorSurface,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color:Color(0xffF66E6E)),
+                  border: Border.all(color:AppColors.errorAccent),
                 ),
                 child: Row(
                   children: [
 
                     const Icon(
                       Icons.do_not_disturb,
-                      color: Color(0xffF66E6E),
+                      color: AppColors.errorAccent,
                     ),
 
                     const SizedBox(width: 10),
@@ -58,7 +59,7 @@ class TopMessage {
                         message,
                         style: const TextStyle(
                           fontFamily: "Outfit",
-                          color: Color(0xffF66E6E),
+                          color: AppColors.errorAccent,
                           fontSize: 11,
                         ),
                       ),
@@ -70,7 +71,7 @@ class TopMessage {
                       },
                       child: const Icon(
                         Icons.close,
-                        color: Colors.white,
+                        color: AppColors.white,
                       ),
                     ),
                   ],

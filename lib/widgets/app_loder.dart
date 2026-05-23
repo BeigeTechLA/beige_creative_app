@@ -2,7 +2,7 @@ import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 
 class AppLoader extends StatelessWidget {
   const AppLoader({super.key});
@@ -11,7 +11,7 @@ class AppLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned.fill( // 🔥 full screen cover
       child: Container(
-        color: ColorCode.backgroundColor,
+        color: AppColors.background,
         child: Center(
           child: Lottie.asset(
             AppAssets.lottieLoader,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import '../app/route_names.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/custom_text_field.dart';
 
@@ -75,7 +75,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                   const Text(
                     "File Manager",
                     style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 16,
                       fontFamily: "Unbounded",
                       fontWeight: FontWeight.w500,
@@ -100,7 +100,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       height: 50,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
-                        color: ColorCode.k282828,
+                        color: AppColors.surfaceMid,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Row(
@@ -115,10 +115,10 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                           /// TextField should be Expanded
                           const Expanded(
                             child: TextField(
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: AppColors.white),
                               decoration: InputDecoration(
                                 hintText: "Search File, User...",
-                                hintStyle: TextStyle(color: Colors.white38),
+                                hintStyle: TextStyle(color: AppColors.white38),
                                 border: InputBorder.none,
                               ),
                             ),
@@ -142,14 +142,14 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       height: 45,
                       width: 45,
                       decoration: BoxDecoration(
-                        color:ColorCode.k282828,
+                        color:AppColors.surfaceMid,
                         borderRadius: BorderRadius.circular(12),
                         /*border: Border.all(
-                          color: Colors.white.withOpacity(0.06),
+                          color: AppColors.white.withOpacity(0.06),
                         ),*/
                        /* boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.25),
+                            color: AppColors.black.withOpacity(0.25),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -160,9 +160,9 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                           loding ? AppAssets.grid : AppAssets.list,
                           height: 22,
                           width: 22,
-                          color: ColorCode.white,
+                          color: AppColors.white,
                           /*colorFilter: const ColorFilter.mode(
-                            Colors.white,
+                            AppColors.white,
                             BlendMode.srcIn,
                           ),*/
                         ),
@@ -187,13 +187,13 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                   indicator: UnderlineTabIndicator(
                     borderSide: BorderSide(
                       width: 3,
-                      color: ColorCode.kButtonColor,
+                      color: AppColors.primary,
                     ),
                     insets: const EdgeInsets.symmetric(horizontal: 25),
                   ),
 
-                  labelColor: ColorCode.kButtonColor,
-                  unselectedLabelColor: ColorCode.kWhiteOpacity70,
+                  labelColor: AppColors.primary,
+                  unselectedLabelColor: AppColors.white30,
 
                   labelStyle: const TextStyle(
                     fontSize: 14,
@@ -212,7 +212,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                 /// 👇 Full Width Bottom Divider Line
                 Container(
                   height: 2,
-                  color: Colors.white12,
+                  color: AppColors.dividerDark,
                 ),
               ],
             ),
@@ -242,11 +242,11 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     height: 50,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
+                          color: AppColors.black.withOpacity(0.25),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -255,12 +255,12 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.add, color: Colors.black, size: 20),
+                        Icon(Icons.add, color: AppColors.black, size: 20),
                         SizedBox(width: 8),
                         Text(
                           "Add / Create",
                           style: TextStyle(
-                            color: ColorCode.kHeadingColor,
+                            color: AppColors.textHeading,
                             fontSize: 14,
                             fontFamily: "Outfit",
                             fontWeight: FontWeight.w500,
@@ -283,14 +283,14 @@ class _FileManagerScreenState extends State<FileManagerScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (context) {
         return Container(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           decoration: const BoxDecoration(
-            color: Color(0xFF1E1E1E),
+            color: AppColors.surfaceStats,
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(25),
             ),
@@ -309,7 +309,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     width: 40,
                     margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: AppColors.white24,
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -322,7 +322,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     const Text(
                       "Create Folder",
                       style: TextStyle(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontSize: 16,
                         fontFamily: "Unbounded",
                         fontWeight: FontWeight.w500,
@@ -331,7 +331,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
                     InkWell(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.close, color: Colors.white),
+                      child: const Icon(Icons.close, color: AppColors.white),
                     ),
                   ],
                 ),
@@ -341,7 +341,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                 const Text(
                   "Create new folder for users",
                   style: TextStyle(
-                    color: ColorCode.kWhiteOpacity70,
+                    color: AppColors.white30,
                     fontSize: 12,
                     fontFamily: "Outfit",
                     fontWeight: FontWeight.w400,
@@ -350,7 +350,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
 
                 Divider(
-                  color: ColorCode.kDividerWhite12,
+                  color: AppColors.dividerDark,
                   thickness: 0.8,
 
                 ),
@@ -370,7 +370,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                           style:
                           OutlinedButton.styleFrom(
                             side: const BorderSide(
-                                color: Colors.white24),
+                                color: AppColors.white24),
                             shape:
                             RoundedRectangleBorder(
                               borderRadius:
@@ -387,7 +387,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                               fontFamily: "Unbounded",
                               fontWeight:
                               FontWeight.w500,
-                              color: ColorCode.white,
+                              color: AppColors.white,
                             ),
                           ),
                         ),
@@ -404,7 +404,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                           ElevatedButton.styleFrom(
                             padding: EdgeInsets.all(0),
                             backgroundColor:
-                            const Color(0xFFE8D1AB),
+                            AppColors.primary,
                             elevation: 0,
                             shape:
                             RoundedRectangleBorder(
@@ -424,7 +424,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                               fontFamily: "Unbounded",
                               fontWeight:
                               FontWeight.w500,
-                              color: ColorCode.black,
+                              color: AppColors.black,
                             ),
                           ),
                         ),
@@ -467,7 +467,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
             margin: const EdgeInsets.only(bottom: 14),
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              color: ColorCode.k282828,
+              color: AppColors.surfaceMid,
               borderRadius: BorderRadius.circular(22),
             ),
             child: Column(
@@ -478,12 +478,12 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                 Row(
                   children: [
                     Icon(Icons.folder,
-                        color: ColorCode.kButtonColor),
+                        color: AppColors.primary),
                     const SizedBox(width: 8),
                     const Text(
                       "Lana #123456",
                       style: TextStyle(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontSize: 13,
                         fontFamily: "Outfit",
                         fontWeight: FontWeight.w600,
@@ -491,8 +491,8 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     ),
                     const Spacer(),
                     PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: ColorCode.white),
-                      color: Colors.black,
+                      icon: const Icon(Icons.more_vert, color: AppColors.white),
+                      color: AppColors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18),
                       ),
@@ -535,7 +535,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                 const Text(
                   "02 Files",
                   style: TextStyle(
-                    color: ColorCode.kButtonColor,
+                    color: AppColors.primary,
                     fontSize: 12,
                     fontFamily: "Outfit",
                     fontWeight: FontWeight.w400,
@@ -548,13 +548,13 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                   padding: const EdgeInsets.symmetric(
                       horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                    color: ColorCode.kCircleGradientTop,
+                    color: AppColors.circleGradientTop,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
                     "Corporate Event",
                     style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 12,
                       fontFamily: "Outfit",
                       fontWeight: FontWeight.w500,
@@ -563,7 +563,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                 ),
 
                 Divider(
-                  color: ColorCode.kDividerWhite12,
+                  color: AppColors.dividerDark,
                   thickness: 0.8,
 
                 ),
@@ -571,10 +571,10 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                   children: const [
                     CircleAvatar(
                       radius: 16,
-                      backgroundColor: ColorCode.kSoftLightBlue,
+                      backgroundColor: AppColors.softLightBlue,
                       child: Text("DP",
             style: TextStyle(
-          color: ColorCode.black,
+          color: AppColors.black,
           fontSize: 16,
           fontFamily: "Outfit",
           fontWeight: FontWeight.w500,
@@ -584,7 +584,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     Text(
                       "Opened 2 hours ago",
                       style: TextStyle(
-                        color: ColorCode.kWhiteOpacity70,
+                        color: AppColors.white30,
                         fontSize: 16,
                         fontFamily: "Outfit",
                         fontWeight: FontWeight.w500,
@@ -609,20 +609,20 @@ class _FileManagerScreenState extends State<FileManagerScreen>
               margin: const EdgeInsets.only(bottom: 14),
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: ColorCode.k282828,
+                color: AppColors.surfaceMid,
                 borderRadius: BorderRadius.circular(22),
               ),
               child: Row(
                 children: const [
-                  Icon(Icons.folder, color: ColorCode.kButtonColor),
+                  Icon(Icons.folder, color: AppColors.primary),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       "Lana #123456",
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: AppColors.white),
                     ),
                   ),
-                  Icon(Icons.more_vert, color: Colors.white),
+                  Icon(Icons.more_vert, color: AppColors.white),
                 ],
               ),
             ),
@@ -644,13 +644,13 @@ class _FileManagerScreenState extends State<FileManagerScreen>
         children: [
           Icon(
             icon,
-            color: isDelete ? Colors.red : Colors.white,
+            color: isDelete ? AppColors.error : AppColors.white,
           ),
           const SizedBox(width: 10),
           Text(
             text,
             style: TextStyle(
-              color: isDelete ? Colors.red : Colors.white,
+              color: isDelete ? AppColors.error : AppColors.white,
               fontFamily: "Outfit",
             ),
           ),

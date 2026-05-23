@@ -5,7 +5,7 @@ import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/app_loder.dart';
-import '../utility/ColorCode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class FeaturedWorkDetailsScreen extends StatefulWidget {
@@ -83,7 +83,7 @@ class _FeaturedWorkDetailsScreenState extends State<FeaturedWorkDetailsScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: ColorCode.backgroundColor,
+          backgroundColor: AppColors.background,
           elevation: 0,
 
           leading: IconButton(
@@ -95,14 +95,14 @@ class _FeaturedWorkDetailsScreenState extends State<FeaturedWorkDetailsScreen> {
               AppAssets.back,
               height: 18,
               width: 18,
-              color: ColorCode.white,
+              color: AppColors.white,
             ),
           ),
 
           title: Text(
             widget.title,
             style: const TextStyle(
-              color: ColorCode.white,
+              color: AppColors.white,
               fontFamily: "Outfit",
               fontWeight: FontWeight.w600,
               fontSize: 18,
@@ -126,7 +126,7 @@ class _FeaturedWorkDetailsScreenState extends State<FeaturedWorkDetailsScreen> {
 
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: const Color(0xFF1F1F1F),
+                    color: AppColors.surfaceShadow,
                   ),
 
                   child: Stack(
@@ -153,13 +153,13 @@ class _FeaturedWorkDetailsScreenState extends State<FeaturedWorkDetailsScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
+                              color: AppColors.black.withOpacity(0.5),
                               shape: BoxShape.circle,
                             ),
 
                             child: const Icon(
                               Icons.delete,
-                              color: Colors.white,
+                              color: AppColors.white,
                               size: 18,
                             ),
                           ),

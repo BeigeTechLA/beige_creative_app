@@ -3,8 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 import 'app/router.dart';
+import 'app/theme.dart';
 import 'config/env.dart';
-import 'utility/colorcode.dart';
 
 Future<void> startApp(Environment environment) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,62 +43,7 @@ class MyApp extends StatelessWidget {
 
       routerConfig: appRouter,
 
-      theme: ThemeData(
-
-        scaffoldBackgroundColor:
-        ColorCode.backgroundColor,
-
-        appBarTheme: const AppBarTheme(
-          backgroundColor:
-          ColorCode.backgroundColor,
-
-          iconTheme:
-          IconThemeData(color: Colors.white),
-
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          surfaceTintColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-        ),
-
-        colorScheme: ColorScheme.dark(
-          background:
-          ColorCode.backgroundColor,
-
-          primary: Colors.white,
-        ),
-
-        splashFactory:
-        NoSplash.splashFactory,
-
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        hoverColor: Colors.transparent,
-
-        elevatedButtonTheme:
-        ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            splashFactory:
-            NoSplash.splashFactory,
-          ),
-        ),
-
-        textButtonTheme:
-        TextButtonThemeData(
-          style: TextButton.styleFrom(
-            splashFactory:
-            NoSplash.splashFactory,
-          ),
-        ),
-
-        outlinedButtonTheme:
-        OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            splashFactory:
-            NoSplash.splashFactory,
-          ),
-        ),
-      ),
+      theme: AppTheme.dark(),
     );
   }
 }

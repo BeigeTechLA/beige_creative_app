@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../utility/colorcode.dart';
+import '../../app/colors.dart';
 
 class ViewDetailsScreen extends StatelessWidget {
   final String firstName;
@@ -56,7 +56,7 @@ class ViewDetailsScreen extends StatelessWidget {
                 width: 40,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: ColorCode.white24,
+                  color: AppColors.white24,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -75,19 +75,19 @@ class ViewDetailsScreen extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: "Unbounded",
                       fontSize: 14,
-                      color: ColorCode.white,
+                      color: AppColors.white,
                     ),
                   ),
                   GestureDetector(
                     onTap: () => context.pop(),
-                    child: const Icon(Icons.close, color: ColorCode.white),
+                    child: const Icon(Icons.close, color: AppColors.white),
                   ),
                 ],
               ),
             ),
       
             const SizedBox(height: 15),
-            Divider(color: ColorCode.kDividerWhite12),
+            Divider(color: AppColors.dividerDark),
             const SizedBox(height: 20),
       
             /// 🔥 SCROLLABLE CONTENT
@@ -103,9 +103,9 @@ class ViewDetailsScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
-                          color:ColorCode.k282828,
+                          color:AppColors.surfaceMid,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: ColorCode.white.withOpacity(0.05)),
+                          border: Border.all(color: AppColors.white.withOpacity(0.05)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,7 +116,7 @@ class ViewDetailsScreen extends StatelessWidget {
                               children: [
                                 CircleAvatar(
                                   radius: 28,
-                                  backgroundColor: ColorCode.lightGrey,
+                                  backgroundColor: AppColors.border,
                                   backgroundImage:
                                   profileImage != null
                                       ? FileImage(profileImage!)
@@ -124,7 +124,7 @@ class ViewDetailsScreen extends StatelessWidget {
                                   child: profileImage == null
                                       ? const Icon(Icons.person,
                                       size: 30,
-                                      color: ColorCode.grey)
+                                      color: AppColors.lavenderGrey)
                                       : null,
                                 ),
                                 const SizedBox(width: 14),
@@ -135,7 +135,7 @@ class ViewDetailsScreen extends StatelessWidget {
                                       fontFamily: "Outfit",
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                     ),
                                   ),
                                 ),
@@ -168,7 +168,7 @@ class ViewDetailsScreen extends StatelessWidget {
                                 style: const TextStyle(
                                   fontFamily: "Outfit",
                                   fontSize: 13,
-                                  color: ColorCode.white24,
+                                  color: AppColors.white24,
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -183,7 +183,7 @@ class ViewDetailsScreen extends StatelessWidget {
                                 style: const TextStyle(
                                   fontFamily: "Outfit",
                                   fontSize: 13,
-                                  color: ColorCode.kWhiteOpacity70,
+                                  color: AppColors.white30,
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -198,7 +198,7 @@ class ViewDetailsScreen extends StatelessWidget {
                                 style: const TextStyle(
                                   fontFamily: "Outfit",
                                   fontSize: 13,
-                                  color: ColorCode.kWhiteOpacity70,
+                                  color: AppColors.white30,
                                 ),
                               ),
                             ],
@@ -247,7 +247,7 @@ class ViewDetailsScreen extends StatelessWidget {
         fontFamily: "Outfit",
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: ColorCode.white,
+        color: AppColors.white,
       ),
     );
   }
@@ -266,7 +266,7 @@ class ViewDetailsScreen extends StatelessWidget {
               fontFamily: "Outfit",
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: ColorCode.white,
+              color: AppColors.white,
             ),
           ),
           Expanded(
@@ -275,7 +275,7 @@ class ViewDetailsScreen extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: "Outfit",
                 fontSize: 13,
-                color: ColorCode.kWhiteOpacity70,
+                color: AppColors.white30,
               ),
             ),
           ),
@@ -293,7 +293,7 @@ class ViewDetailsScreen extends StatelessWidget {
         style: const TextStyle(
           fontFamily: "Outfit",
           fontSize: 13,
-          color: ColorCode.kWhiteOpacity70,
+          color: AppColors.white30,
         ),
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 
 class CustomTextField extends StatefulWidget {
   final String label;
@@ -133,13 +133,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
       onChanged: widget.onChanged,
       onFieldSubmitted: widget.onFieldSubmitted,
       validator: widget.validator,
-      cursorColor: ColorCode.kButtonColor,
+      cursorColor: AppColors.primary,
 
       enableSuggestions: !widget.isPassword,
       autocorrect: !widget.isPassword,
 
       style: const TextStyle(
-        color: ColorCode.white,
+        color: AppColors.white,
         fontFamily: "Outfit",
         fontSize: 15,
       ),
@@ -155,8 +155,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
         labelStyle: TextStyle(
           fontSize: 14,
           color: highlight
-              ? ColorCode.kButtonColor
-              : ColorCode.kWhiteOpacity_60,
+              ? AppColors.primary
+              : AppColors.white60,
           fontFamily: "Outfit",
         ),
 
@@ -172,8 +172,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
             color: highlight
-                ? ColorCode.kGoldBorder50
-                : ColorCode.kWhiteOpacity30,
+                ? AppColors.borderGold
+                : AppColors.white30,
             width: 0.5,
           ),
         ),
@@ -181,7 +181,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: ColorCode.kGoldBorder50,
+            color: AppColors.borderGold,
             width: 0.5,
           ),
         ),
@@ -189,7 +189,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: Colors.red,
+            color: AppColors.error,
             width: 0.8,
           ),
         ),
@@ -197,7 +197,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: Colors.red,
+            color: AppColors.error,
             width: 0.8,
           ),
         ),

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../app/route_names.dart';
-import '../../utility/colorcode.dart';
+import '../../app/colors.dart';
 
 
 class DeleteAccountLottieScreen extends StatefulWidget {
@@ -53,7 +53,7 @@ class _DeleteAccountLottieScreenState extends State<DeleteAccountLottieScreen> {
             const Text(
               "Account Deleted",
               style: TextStyle(
-                color: ColorCode.kButtonColor,
+                color: AppColors.primary,
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 fontFamily: "Unbounded",
@@ -66,7 +66,7 @@ class _DeleteAccountLottieScreenState extends State<DeleteAccountLottieScreen> {
               "Your account has been successfully.",
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: ColorCode.kWhiteOpacity70,
+                color: AppColors.white30,
                 fontSize: 14,
                 fontFamily: "Outfit",
               ),
@@ -75,7 +75,7 @@ class _DeleteAccountLottieScreenState extends State<DeleteAccountLottieScreen> {
               "deleted.",
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: ColorCode.kWhiteOpacity70,
+                color: AppColors.white30,
                 fontSize: 14,
                 fontFamily: "Outfit",
               ),

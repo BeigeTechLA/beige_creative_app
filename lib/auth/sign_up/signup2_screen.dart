@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
-import '../../utility/colorcode.dart';
+import '../../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/custom_multi_selectfield.dart';
 
@@ -131,7 +131,7 @@ class SignUp2ScreenState
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1C1C1C),
+      backgroundColor: AppColors.surfaceCropSheet,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -151,7 +151,7 @@ class SignUp2ScreenState
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: ColorCode.white24,
+                      color: AppColors.white24,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -160,7 +160,7 @@ class SignUp2ScreenState
                   const Text(
                     "Select Roles",
                     style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -180,20 +180,20 @@ class SignUp2ScreenState
                           title: Text(
                             role,
                             style: const TextStyle(
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               fontFamily: "Outfit",
                             ),
                           ),
 
-                          activeColor: ColorCode.kButtonColor,
-                          checkColor: ColorCode.black,
+                          activeColor: AppColors.primary,
+                          checkColor: AppColors.black,
 
                           side: BorderSide(
                             color: isSelected
-                                ? ColorCode.kButtonColor
-                                : ColorCode.grey,
+                                ? AppColors.primary
+                                : AppColors.lavenderGrey,
                             width: 1.5,
                           ),
 
@@ -226,7 +226,7 @@ class SignUp2ScreenState
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kButtonColor,
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -234,7 +234,7 @@ class SignUp2ScreenState
                       child: const Text(
                         "Done",
                         style: TextStyle(
-                          color: ColorCode.kHeadingColor,
+                          color: AppColors.textHeading,
                           fontSize: 15,
                           fontFamily: "Outfit",
                         ),
@@ -528,7 +528,7 @@ class SignUp2ScreenState
                                     const Text(
                                       "2/3",
                                       style: TextStyle(
-                                        color: ColorCode.white,
+                                        color: AppColors.white,
                                         fontSize: 14,
                                         fontFamily: "Outfit",
                                         fontWeight: FontWeight.w500,
@@ -551,7 +551,7 @@ class SignUp2ScreenState
                                         fontFamily: "Unbounded",
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        color: ColorCode.white,
+                                        color: AppColors.white,
                                       ),
                                     ),
 
@@ -564,7 +564,7 @@ class SignUp2ScreenState
                                       style: TextStyle(
                                         fontFamily: "Outfit",
                                         fontSize: 14,
-                                        color: ColorCode.kWhiteOpacity70,
+                                        color: AppColors.white30,
                                       ),
                                     ),
                                     SizedBox(height: 10),
@@ -578,8 +578,8 @@ class SignUp2ScreenState
                                           margin: const EdgeInsets.symmetric(horizontal: 4),
                                           decoration: BoxDecoration(
                                             color: index <= 1
-                                                ? ColorCode.kButtonColor
-                                                : ColorCode.kSubtextColor,
+                                                ? AppColors.primary
+                                                : AppColors.textSubtle,
                                             borderRadius: BorderRadius.circular(20),
                                           ),
                                         ),
@@ -607,10 +607,10 @@ class SignUp2ScreenState
                                 padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
                                 margin: const EdgeInsets.symmetric(horizontal: 16),
                                 decoration: BoxDecoration(
-                                  color: ColorCode.backgroundColor,
+                                  color: AppColors.background,
                                   borderRadius: BorderRadius.circular(24),
                                   border: Border.all(
-                                    color: ColorCode.white.withOpacity(0.06),
+                                    color: AppColors.white.withOpacity(0.06),
                                     width: 1,
                                   ),
                                 ),
@@ -635,7 +635,7 @@ class SignUp2ScreenState
                                     //       .map((e) => DropdownMenuItem<String>(
                                     //     value: e,
                                     //     child: Text(e,
-                                    //         style: const TextStyle(color: ColorCode.white)),
+                                    //         style: const TextStyle(color: AppColors.white)),
                                     //   ))
                                     //       .toList(),
                                     //   onChanged: (v) {
@@ -709,7 +709,7 @@ class SignUp2ScreenState
                                     SizedBox(height: 5,),
                                     Row(
                                       children: [
-                                        Text("  Highlight your creative focus.",style: TextStyle(color: ColorCode.k737373,fontFamily: "Outfit",fontSize: 12),)
+                                        Text("  Highlight your creative focus.",style: TextStyle(color: AppColors.greyShade737,fontFamily: "Outfit",fontSize: 12),)
                                       ],
                                     ),
 
@@ -720,9 +720,9 @@ class SignUp2ScreenState
                     /// 🔽 SKILLS DROPDOWN
                     DropdownButtonFormField<String>(
                       value: selectedSkill,
-                      dropdownColor: const Color(0xFF1C1C1C),
-                      icon: const Icon(Icons.keyboard_arrow_down, color: ColorCode.white),
-                      style: const TextStyle(color: ColorCode.white),
+                      dropdownColor: AppColors.surfaceCropSheet,
+                      icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.white),
+                      style: const TextStyle(color: AppColors.white),
                       decoration: _inputDecoration("Add Skills"),
                       items: allSkills.map((skill) {
                         return DropdownMenuItem(
@@ -752,11 +752,11 @@ class SignUp2ScreenState
                           return Chip(
                             label: Text(
                               skill,
-                              style:  TextStyle(color: ColorCode.white),
+                              style:  TextStyle(color: AppColors.white),
                             ),
                             backgroundColor:
-                            ColorCode.kHeadingColor.withOpacity(0.9),
-                            deleteIconColor: ColorCode.white,
+                            AppColors.textHeading.withOpacity(0.9),
+                            deleteIconColor: AppColors.white,
                             onDeleted: () {
                               setState(() {
                                 selectedSkills.remove(skill);
@@ -773,13 +773,13 @@ class SignUp2ScreenState
                                     //   onTap: _openSkillsBottomSheet,
                                     //   child: AbsorbPointer(
                                     //     child: TextField(
-                                    //       style: const TextStyle(color: ColorCode.white),
+                                    //       style: const TextStyle(color: AppColors.white),
                                     //       decoration: _inputDecoration("Add Skills").copyWith(
                                     //         hintText: _skillsDisplayText(),
-                                    //         hintStyle: const TextStyle(color: ColorCode.white),
+                                    //         hintStyle: const TextStyle(color: AppColors.white),
                                     //         suffixIcon: const Icon(
                                     //           Icons.keyboard_arrow_down,
-                                    //           color: ColorCode.white,
+                                    //           color: AppColors.white,
                                     //         ),
                                     //       ),
                                     //     ),
@@ -818,7 +818,7 @@ class SignUp2ScreenState
                                             child: Center(
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
-                                                color: ColorCode.kButtonColor,
+                                                color: AppColors.primary,
                                               ),
                                             ),
                                           ),
@@ -829,9 +829,9 @@ class SignUp2ScreenState
                                           Container(
                                             margin: const EdgeInsets.only(top: 6),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFF1C1C1C),
+                                              color: AppColors.surfaceCropSheet,
                                               borderRadius: BorderRadius.circular(12),
-                                              border: Border.all(color: ColorCode.white24),
+                                              border: Border.all(color: AppColors.white24),
                                             ),
                                             child: ListView.builder(
                                               shrinkWrap: true,
@@ -842,7 +842,7 @@ class SignUp2ScreenState
                                                 return ListTile(
                                                   title: Text(
                                                     item,
-                                                    style: const TextStyle(color: ColorCode.white),
+                                                    style: const TextStyle(color: AppColors.white),
                                                   ),
                                                   onTap: () {
                                                     setState(() {
@@ -869,11 +869,11 @@ class SignUp2ScreenState
                                                 return Chip(
                                                   label: Text(
                                                     item,
-                                                    style: const TextStyle(color: ColorCode.white),
+                                                    style: const TextStyle(color: AppColors.white),
                                                   ),
                                                   backgroundColor:
-                                                  ColorCode.kHeadingColor.withOpacity(0.9),
-                                                  deleteIconColor: ColorCode.white,
+                                                  AppColors.textHeading.withOpacity(0.9),
+                                                  deleteIconColor: AppColors.white,
                                                   onDeleted: () {
                                                     setState(() {
                                                       selectedEquipments.remove(item);
@@ -898,7 +898,7 @@ class SignUp2ScreenState
                                       child: ElevatedButton(
                                         onPressed:_fetch_step2,
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: ColorCode.kButtonColor,
+                                          backgroundColor: AppColors.primary,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(14),
                                           ),
@@ -907,7 +907,7 @@ class SignUp2ScreenState
                                           "Next",
                                           style: TextStyle(
                                             fontSize: 16,
-                                            color: ColorCode.kHeadingColor,
+                                            color: AppColors.textHeading,
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -923,7 +923,7 @@ class SignUp2ScreenState
                                         const Text(
                                           "Already have an account? ",
                                           style: TextStyle(
-                                            color: ColorCode.kWhiteOpacity60,
+                                            color: AppColors.white60,
                                             fontSize: 15,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -941,7 +941,7 @@ class SignUp2ScreenState
                                           child: const Text(
                                             "Login",
                                             style: TextStyle(
-                                              color: ColorCode.white,
+                                              color: AppColors.white,
                                               fontSize: 15,
                                               fontWeight: FontWeight.w600,
                                               decoration: TextDecoration.underline,
@@ -980,7 +980,7 @@ class SignUp2ScreenState
   void _openSkillsBottomSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1C1C1C),
+      backgroundColor: AppColors.surfaceCropSheet,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -999,7 +999,7 @@ class SignUp2ScreenState
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: ColorCode.white24,
+                      color: AppColors.white24,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -1008,7 +1008,7 @@ class SignUp2ScreenState
                   Text(
                     "Select Skills",
                     style: TextStyle(
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 16,
                       fontFamily: "Unbounded",
                       fontWeight: FontWeight.w500,
@@ -1029,12 +1029,12 @@ class SignUp2ScreenState
 
                         return CheckboxListTile(
                           value: isSelected,
-                          activeColor: ColorCode.kButtonColor,
-                          checkColor: ColorCode.black,
+                          activeColor: AppColors.primary,
+                          checkColor: AppColors.black,
                           title: Text(
                             skill,
                             style:
-                            const TextStyle(color: ColorCode.white,fontSize: 14,fontFamily: "Outfit"),
+                            const TextStyle(color: AppColors.white,fontSize: 14,fontFamily: "Outfit"),
 
                           ),
                           onChanged: (checked) {
@@ -1063,7 +1063,7 @@ class SignUp2ScreenState
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorCode.kButtonColor,
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -1071,7 +1071,7 @@ class SignUp2ScreenState
                       child: const Text(
                         "Done",
                         style: TextStyle(
-                          color: ColorCode.kHeadingColor,
+                          color: AppColors.textHeading,
                           fontSize: 15,
                           fontFamily: "Outfit"
                         ),
@@ -1093,18 +1093,18 @@ class SignUp2ScreenState
     return InputDecoration(
       labelText: title,
       floatingLabelBehavior: FloatingLabelBehavior.always,
-      labelStyle: const TextStyle(color: ColorCode.kWhiteOpacity70),
+      labelStyle: const TextStyle(color: AppColors.white30),
       contentPadding:
       const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide:
-        const BorderSide(color: ColorCode.kWhiteOpacity70, width: 0.5),
+        const BorderSide(color: AppColors.white30, width: 0.5),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide:
-        const BorderSide(color: ColorCode.kButtonColor, width: 1),
+        const BorderSide(color: AppColors.primary, width: 1),
       ),
     );
   }
@@ -1129,11 +1129,11 @@ class SignUp2ScreenState
       margin: EdgeInsets.all(10),
 
       decoration: BoxDecoration(
-        color: ColorCode.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: ColorCode.black.withOpacity(0.15),
+            color: AppColors.black.withOpacity(0.15),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -1149,12 +1149,12 @@ class SignUp2ScreenState
               children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: ColorCode.lightGrey,
+                  backgroundColor: AppColors.border,
                   backgroundImage:
                   image != null ? FileImage(image) : null,
                   child: image == null
                       ? const Icon(Icons.person,
-                      size: 26, color: ColorCode.grey)
+                      size: 26, color: AppColors.lavenderGrey)
                       : null,
                 ),
 
@@ -1170,7 +1170,7 @@ class SignUp2ScreenState
                           fontFamily: "Outfit",
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: ColorCode.black,
+                          color: AppColors.black,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -1180,7 +1180,7 @@ class SignUp2ScreenState
                         style: const TextStyle(
                           fontFamily: "Outfit",
                           fontSize: 12,
-                          color: ColorCode.k282828,
+                          color: AppColors.surfaceMid,
                         ),
                       ),
 
@@ -1205,7 +1205,7 @@ class SignUp2ScreenState
                       /*showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
-                        backgroundColor: ColorCode.transparent,
+                        backgroundColor: AppColors.transparent,
                         builder: (_) => ViewDetailsScreen(
                           firstName: widget.firstName ?? "",
                           lastName: widget.lastName ?? "",
@@ -1267,7 +1267,7 @@ class SignUp2ScreenState
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorCode.black,
+                      backgroundColor: AppColors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -1279,7 +1279,7 @@ class SignUp2ScreenState
                         fontFamily: "Outfit",
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: ColorCode.kButtonColor,
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -1294,9 +1294,9 @@ class SignUp2ScreenState
                 decoration: BoxDecoration(
                   border: Border.all(
                     width:0.5,
-                    color: ColorCode.lightGrey,
+                    color: AppColors.border,
                   ),
-                  color: ColorCode.lightGrey,
+                  color: AppColors.border,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 alignment: Alignment.center,
@@ -1306,7 +1306,7 @@ class SignUp2ScreenState
                     fontFamily: "Outfit",
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: ColorCode.black
+                    color: AppColors.black
                   ),
                 ),
               ),

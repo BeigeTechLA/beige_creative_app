@@ -16,7 +16,7 @@ import 'package:go_router/go_router.dart';
 import '../../service/api_endpoints.dart';
   import '../../service/api_service.dart';
   import '../../service/google_config.dart';
-  import '../../utility/colorcode.dart';
+  import '../../app/colors.dart';
   import 'package:beige_creative_app/app/assets.dart';
   import '../../widgets/custom_dropdown.dart';
   import '../../widgets/Topmessgae.dart';
@@ -130,14 +130,14 @@ import '../../widgets/custom_text_field.dart';
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        backgroundColor: ColorCode.transparent,
+        backgroundColor: AppColors.transparent,
         builder: (_) {
           return StatefulBuilder(
             builder: (context, setSheetState) {
               return Container(
                 height: MediaQuery.of(context).size.height * 0.85,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF1C1C1C),
+                  color: AppColors.surfaceCropSheet,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
                 padding: const EdgeInsets.all(16),
@@ -150,7 +150,7 @@ import '../../widgets/custom_text_field.dart';
                         width: 35,
                         height: 5,
                         decoration: BoxDecoration(
-                          color:ColorCode.kWhiteOpacity70,
+                          color:AppColors.white30,
                           borderRadius: BorderRadius.circular(18),
                         ),
                       ),
@@ -162,7 +162,7 @@ import '../../widgets/custom_text_field.dart';
                         Text(
                           "Crop your Profile",
                           style: TextStyle(
-                            color: ColorCode.white,
+                            color: AppColors.white,
                             fontSize: 18,
                             fontFamily: "Outfit",
                             fontWeight: FontWeight.w500,
@@ -176,7 +176,7 @@ import '../../widgets/custom_text_field.dart';
                             padding: EdgeInsets.all(6),
                             child: Icon(
                               Icons.close,
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               size: 22,
                             ),
                           ),
@@ -187,7 +187,7 @@ import '../../widgets/custom_text_field.dart';
   
                     SizedBox(height: 20),
   
-                    Divider(color: ColorCode.kDividerWhite12,),
+                    Divider(color: AppColors.dividerDark,),
   
                     /// 🔥 CIRCULAR PREVIEW AREA
                     Expanded(
@@ -259,7 +259,7 @@ import '../../widgets/custom_text_field.dart';
 
                             height: 20,
                             width: 20,
-                            *//*  color: Colors.white.withOpacity(0.7), *//*// optional
+                            *//*  color: AppColors.white.withOpacity(0.7), *//*// optional
                           ),*/
   SvgPicture.asset(
     AppAssets.Image_zoom,
@@ -279,9 +279,9 @@ import '../../widgets/custom_text_field.dart';
                                 overlayShape: const RoundSliderOverlayShape(
                                   overlayRadius: 14,
                                 ),
-                                activeTrackColor: ColorCode.kButtonColor,
-                                inactiveTrackColor: ColorCode.white.withOpacity(0.3),
-                                thumbColor: ColorCode.kButtonColor,
+                                activeTrackColor: AppColors.primary,
+                                inactiveTrackColor: AppColors.white.withOpacity(0.3),
+                                thumbColor: AppColors.primary,
                               ),
                               child: Slider(
                                 min: 1,
@@ -317,7 +317,7 @@ import '../../widgets/custom_text_field.dart';
                       height: 55,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorCode.kButtonColor,
+                          backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -341,7 +341,7 @@ import '../../widgets/custom_text_field.dart';
                         child:  Text(
                           "Save",
                           style: TextStyle(
-                            color: ColorCode.black,
+                            color: AppColors.black,
                             fontSize: 14,
                             fontFamily: "Unbounded",
                             fontWeight: FontWeight.w500,
@@ -741,7 +741,7 @@ import '../../widgets/custom_text_field.dart';
   
       return Scaffold(
 
-        // backgroundColor: ColorCode.white,
+        // backgroundColor: AppColors.white,
         body: SafeArea(
           child: Stack(
             children: [
@@ -778,7 +778,7 @@ import '../../widgets/custom_text_field.dart';
                                 Text(
                                   "1/3",
                                   style: TextStyle(
-                                    color: ColorCode.white,
+                                    color: AppColors.white,
                                     fontSize: 14,
                                     fontFamily: "Outfit",
                                     fontWeight: FontWeight.w500,
@@ -801,7 +801,7 @@ import '../../widgets/custom_text_field.dart';
                                     fontFamily: "Unbounded",
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: ColorCode.white,
+                                    color: AppColors.white,
                                   ),
                                 ),
           
@@ -814,7 +814,7 @@ import '../../widgets/custom_text_field.dart';
                                   style: TextStyle(
                                     fontFamily: "Outfit",
                                     fontSize: 14,
-                                    color: ColorCode.kWhiteOpacity70,
+                                    color: AppColors.white30,
                                   ),
                                 ),
                                 SizedBox(height: 10),
@@ -828,8 +828,8 @@ import '../../widgets/custom_text_field.dart';
                                       margin: const EdgeInsets.symmetric(horizontal: 4),
                                       decoration: BoxDecoration(
                                         color: index == 0   // 👈 current step change here
-                                            ? ColorCode.kButtonColor
-                                            : ColorCode.kSubtextColor,
+                                            ? AppColors.primary
+                                            : AppColors.textSubtle,
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                     ),
@@ -861,10 +861,10 @@ import '../../widgets/custom_text_field.dart';
                             ),
                             margin: const EdgeInsets.symmetric(horizontal: 16),
                             decoration: BoxDecoration(
-                              color: ColorCode.backgroundColor,
+                              color: AppColors.background,
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: ColorCode.white.withOpacity(0.06),
+                                color: AppColors.white.withOpacity(0.06),
                                 width: 1,
                               ),
                             ),
@@ -907,10 +907,10 @@ import '../../widgets/custom_text_field.dart';
           
                                /* Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.transparent,
+                                    color: AppColors.transparent,
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: ColorCode.kWhiteOpacity70,
+                                      color: AppColors.white30,
                                       width: 0.8,
                                     ),
                                   ),
@@ -925,7 +925,7 @@ import '../../widgets/custom_text_field.dart';
           
           
                                     textStyle: const TextStyle(
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                       fontFamily: "Outfit",
                                       fontSize: 14,
                                     ),
@@ -936,7 +936,7 @@ import '../../widgets/custom_text_field.dart';
                                       focusedBorder: InputBorder.none,
                                       hintText: "Search or select location",
                                       hintStyle: TextStyle(
-                                        color: ColorCode.kWhiteOpacity70,
+                                        color: AppColors.white30,
                                       ),
                                       contentPadding: EdgeInsets.symmetric(
                                         horizontal: 16,
@@ -946,7 +946,7 @@ import '../../widgets/custom_text_field.dart';
                                         padding: EdgeInsets.only(right: 8),
                                         child: Icon(
                                           Icons.location_on_outlined,
-                                          color: ColorCode.kWhiteOpacity70,
+                                          color: AppColors.white30,
                                         ),
                                       ),
                                     ),
@@ -998,8 +998,8 @@ import '../../widgets/custom_text_field.dart';
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
                                           color: locationHighlight
-                                              ? ColorCode.kGoldBorder50   // ✅ ACTIVE
-                                              : ColorCode.kWhiteOpacity30,
+                                              ? AppColors.borderGold   // ✅ ACTIVE
+                                              : AppColors.white30,
                                           width: 0.5,
           
                                         ),
@@ -1013,14 +1013,14 @@ import '../../widgets/custom_text_field.dart';
                                         isLatLngRequired: true,
           
                                         textStyle: const TextStyle(
-                                          color: ColorCode.white,
+                                          color: AppColors.white,
                                           fontSize: 14,
                                         ),
           
                                         inputDecoration: const InputDecoration(
                                           border: InputBorder.none,
                                           // hintText: "Search location",
-                                          hintStyle: TextStyle(color: ColorCode.kWhiteOpacity70),
+                                          hintStyle: TextStyle(color: AppColors.white30),
                                           contentPadding: EdgeInsets.symmetric(
                                             horizontal: 16,
                                             vertical: 16,
@@ -1049,13 +1049,13 @@ import '../../widgets/custom_text_field.dart';
                                       top: 0,
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 6),
-                                        color: ColorCode.backgroundColor,
+                                        color: AppColors.background,
                                         child:  Text(
                                           "Location*",
                                           style: TextStyle(
                                             color: locationHighlight
-                                                ? ColorCode.kButtonColor
-                                                : ColorCode.kWhiteOpacity60,
+                                                ? AppColors.primary
+                                                : AppColors.white60,
                                             fontSize: 12,
                                             fontFamily: "Outfit",
                                           ),
@@ -1123,13 +1123,13 @@ import '../../widgets/custom_text_field.dart';
                                 CustomDropdown<String>(
                                   label: "Working Distance*",
                                   value: selectedDistance,
-                                  icon: SvgPicture.asset(AppImages.dropdown,color:ColorCode.white,),
+                                  icon: SvgPicture.asset(AppAssets.dropdown,color:AppColors.white,),
                                   items: distances
                                       .map((e) => DropdownMenuItem<String>(
                                     value: e,
                                     child: Text(
                                       e,
-                                      style: const TextStyle(color: ColorCode.white),
+                                      style: const TextStyle(color: AppColors.white),
                                     ),
                                   ))
                                       .toList(),
@@ -1212,12 +1212,12 @@ import '../../widgets/custom_text_field.dart';
                                         height: 18,
                                         width: 18,
                                         decoration: BoxDecoration(
-                                          color: savePassword ? ColorCode.kButtonColor : ColorCode.transparent,
+                                          color: savePassword ? AppColors.primary : AppColors.transparent,
                                           borderRadius: BorderRadius.circular(5),
-                                          border: Border.all(color: ColorCode.kWhiteOpacity70),
+                                          border: Border.all(color: AppColors.white30),
                                         ),
                                         child: savePassword
-                                            ? const Icon(Icons.check, size: 14, color: ColorCode.black)
+                                            ? const Icon(Icons.check, size: 14, color: AppColors.black)
                                             : null,
                                       ),
                                     ),
@@ -1227,14 +1227,14 @@ import '../../widgets/custom_text_field.dart';
                                         text: TextSpan(
                                           style: const TextStyle(
                                             fontSize: 13,
-                                            color: ColorCode.black,
+                                            color: AppColors.black,
                                             height: 1.4, // line spacing perfect
                                           ),
                                           children: const [
                                             TextSpan(text: "I agree to the ",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w400,
-                                                color: ColorCode.kWhiteOpacity70,
+                                                color: AppColors.white30,
                                                 fontSize: 13,
                                                 fontFamily: "Outfit", // ⭐ Added Outfit font
                                               ),
@@ -1244,7 +1244,7 @@ import '../../widgets/custom_text_field.dart';
                                               text: "Terms & Condition & Privacy Policy",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                color: ColorCode.white,
+                                                color: AppColors.white,
                                                 fontSize: 13,
                                                 fontFamily: "Outfit", // ⭐ Added Outfit font
                                               ),
@@ -1254,7 +1254,7 @@ import '../../widgets/custom_text_field.dart';
                                             TextSpan(text: "\nset out of this site",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w400,
-                                                color: ColorCode.kWhiteOpacity70,
+                                                color: AppColors.white30,
                                                 fontSize: 13,
                                                 fontFamily: "Outfit", // ⭐ Added Outfit font
                                               ),
@@ -1278,8 +1278,8 @@ import '../../widgets/custom_text_field.dart';
                                     // onPressed: isLoggingIn ? null : _fetchSingup,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: isFormValid
-                                          ? ColorCode.kButtonColor   // ✅ Active color
-                                          : ColorCode.kGoldGradientLight,
+                                          ? AppColors.primary   // ✅ Active color
+                                          : AppColors.borderGold,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
@@ -1290,8 +1290,8 @@ import '../../widgets/custom_text_field.dart';
                                         fontSize: 13,
                                         fontFamily: "Unbounded",
                                         color: isFormValid
-                                            ? ColorCode.kHeadingColor
-                                            : ColorCode.k282828,
+                                            ? AppColors.textHeading
+                                            : AppColors.surfaceMid,
           
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -1313,15 +1313,15 @@ import '../../widgets/custom_text_field.dart';
                                   padding: const EdgeInsets.symmetric(horizontal: 16),
                                   height: 60,
                                   decoration: BoxDecoration(
-                                    color: ColorCode.backgroundColor,
+                                    color: AppColors.background,
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: ColorCode.white.withOpacity(0.12),
+                                      color: AppColors.white.withOpacity(0.12),
                                       width: 1,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: ColorCode.black.withOpacity(0.35),
+                                        color: AppColors.black.withOpacity(0.35),
                                         blurRadius: 16,
                                         offset: const Offset(0, 8),
                                       ),
@@ -1337,7 +1337,7 @@ import '../../widgets/custom_text_field.dart';
                                     ),
                                      /* Icon(Icons.person_outline,
                                           size: 16,
-                                          color: ColorCode.kWhiteOpacity70),*/
+                                          color: AppColors.white30),*/
                                       SizedBox(width: 10),
                                       Text(
                                         "Tell Us About Yourself & Add Details",
@@ -1345,7 +1345,7 @@ import '../../widgets/custom_text_field.dart';
                                           fontFamily: "Outfit",
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
-                                          color: ColorCode.singuptextColor,
+                                          color: AppColors.disabled,
                                         ),
                                       ),
                                     ],
@@ -1375,7 +1375,7 @@ import '../../widgets/custom_text_field.dart';
                         const Text(
                           "Already have an account? ",
                           style: TextStyle(
-                            color: ColorCode.kWhiteOpacity60,
+                            color: AppColors.white60,
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                           ),
@@ -1394,7 +1394,7 @@ import '../../widgets/custom_text_field.dart';
                           child: const Text(
                             "Login",
                             style: TextStyle(
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                               decoration: TextDecoration.underline,
@@ -1423,11 +1423,11 @@ import '../../widgets/custom_text_field.dart';
     Widget _buildField(String title, TextEditingController controller) {
       return TextField(
         controller: controller,
-        cursorColor: ColorCode.white,
+        cursorColor: AppColors.white,
   
   
         style: const TextStyle(
-          color: ColorCode.white, // typed text color
+          color: AppColors.white, // typed text color
         ),
   
         decoration: InputDecoration(
@@ -1435,7 +1435,7 @@ import '../../widgets/custom_text_field.dart';
           floatingLabelBehavior: FloatingLabelBehavior.always,
   
           labelStyle: const TextStyle(
-            color: ColorCode.kButtonColor, // #1D1D1B 60% opacity
+            color: AppColors.primary, // #1D1D1B 60% opacity
           ),
   
           contentPadding: const EdgeInsets.symmetric(
@@ -1447,7 +1447,7 @@ import '../../widgets/custom_text_field.dart';
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
-              color: ColorCode.kWhiteOpacity70, // #1D1D1B99 (60% opacity)
+              color: AppColors.white30, // #1D1D1B99 (60% opacity)
               width: 0.5,                       // 🔥 exact 0.5px
             ),
           ),
@@ -1455,13 +1455,13 @@ import '../../widgets/custom_text_field.dart';
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
-              color: ColorCode.textfieldbordercollor, // #1D1D1B99 (60% opacity)
+              color: AppColors.textfieldBorderLegacy, // #1D1D1B99 (60% opacity)
               width: 0.5,                          // focus border thicker
             ),
           ),
   
           floatingLabelStyle: const TextStyle(
-            color: ColorCode.kWhiteOpacity70,
+            color: AppColors.white30,
           ),)
         ,);
     }
@@ -1470,10 +1470,10 @@ import '../../widgets/custom_text_field.dart';
     // Widget _workingDistanceDropdown() {
     //   return DropdownButtonFormField<String>(
     //     value: selectedDistance,
-    //     dropdownColor: const Color(0xFF1C1C1C),
-    //     icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+    //     dropdownColor: AppColors.surfaceCropSheet,
+    //     icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.white),
     //
-    //     style: const TextStyle(color: Colors.white),
+    //     style: const TextStyle(color: AppColors.white),
     //
     //     decoration: InputDecoration(
     //       labelText: "Working Distance*",
@@ -1481,8 +1481,8 @@ import '../../widgets/custom_text_field.dart';
     //
     //       labelStyle: TextStyle(
     //         color: selectedDistance != null
-    //             ? ColorCode.kButtonColor   // active
-    //             : ColorCode.kWhiteOpacity70,
+    //             ? AppColors.primary   // active
+    //             : AppColors.white30,
     //       ),
     //
     //       contentPadding: const EdgeInsets.symmetric(
@@ -1493,7 +1493,7 @@ import '../../widgets/custom_text_field.dart';
     //       enabledBorder: OutlineInputBorder(
     //         borderRadius: BorderRadius.circular(12),
     //         borderSide: const BorderSide(
-    //           color: ColorCode.kWhiteOpacity70,
+    //           color: AppColors.white30,
     //           width: 0.5,
     //         ),
     //       ),
@@ -1501,7 +1501,7 @@ import '../../widgets/custom_text_field.dart';
     //       focusedBorder: OutlineInputBorder(
     //         borderRadius: BorderRadius.circular(12),
     //         borderSide: const BorderSide(
-    //           color: ColorCode.kButtonColor,
+    //           color: AppColors.primary,
     //           width: 1,
     //         ),
     //       ),
@@ -1509,7 +1509,7 @@ import '../../widgets/custom_text_field.dart';
     //
     //     /*  hint: const Text(
     //       "Select distance",
-    //       style: TextStyle(color: Colors.white54),
+    //       style: TextStyle(color: AppColors.white54),
     //     ),*/
     //
     //     items: distances
@@ -1518,7 +1518,7 @@ import '../../widgets/custom_text_field.dart';
     //         value: e,
     //         child: Text(
     //           e,
-    //           style: const TextStyle(color: Colors.white),
+    //           style: const TextStyle(color: AppColors.white),
     //         ),
     //       ),
     //     )
@@ -1544,10 +1544,10 @@ import '../../widgets/custom_text_field.dart';
     //     controller: controller,
     //     focusNode: focusNode,
     //     obscureText: !isVisible,
-    //     cursorColor: ColorCode.kButtonColor,
+    //     cursorColor: AppColors.primary,
     //
     //     style: const TextStyle(
-    //       color: ColorCode.white,
+    //       color: AppColors.white,
     //     ),
     //
     //     decoration: InputDecoration(
@@ -1557,8 +1557,8 @@ import '../../widgets/custom_text_field.dart';
     //       /// 🔥 LABEL COLOR CHANGE
     //       labelStyle: TextStyle(
     //         color: focusNode.hasFocus
-    //             ? ColorCode.kButtonColor
-    //             : ColorCode.kWhiteOpacity70,
+    //             ? AppColors.primary
+    //             : AppColors.white30,
     //       ),
     //
     //       contentPadding: const EdgeInsets.symmetric(
@@ -1572,8 +1572,8 @@ import '../../widgets/custom_text_field.dart';
     //         icon: Icon(
     //           isVisible ? Icons.visibility : Icons.visibility_off,
     //           color: focusNode.hasFocus
-    //               ? ColorCode.kButtonColor
-    //               : ColorCode.kWhiteOpacity70,
+    //               ? AppColors.primary
+    //               : AppColors.white30,
     //           size: 20,
     //         ),
     //       ),
@@ -1581,7 +1581,7 @@ import '../../widgets/custom_text_field.dart';
     //       enabledBorder: OutlineInputBorder(
     //         borderRadius: BorderRadius.circular(14),
     //         borderSide: const BorderSide(
-    //           color: ColorCode.kWhiteOpacity70,
+    //           color: AppColors.white30,
     //           width: 0.5,
     //         ),
     //       ),
@@ -1590,7 +1590,7 @@ import '../../widgets/custom_text_field.dart';
     //       focusedBorder: OutlineInputBorder(
     //         borderRadius: BorderRadius.circular(12),
     //         borderSide: const BorderSide(
-    //           color: ColorCode.kButtonColor,
+    //           color: AppColors.primary,
     //           width: 1,
     //         ),
     //       ),
@@ -1609,7 +1609,7 @@ import '../../widgets/custom_text_field.dart';
   
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-              color: ColorCode.kWhiteOpacity60,
+              color: AppColors.white60,
             width: 0.5
           ),
         ),
@@ -1623,7 +1623,7 @@ import '../../widgets/custom_text_field.dart';
                 fontSize: 16,
                 fontFamily: "Outfit",
                 fontWeight: FontWeight.w500,
-                color: ColorCode.white,
+                color: AppColors.white,
               ),
             ),
   
@@ -1635,7 +1635,7 @@ import '../../widgets/custom_text_field.dart';
               style: TextStyle(
                   fontSize: 12,
                   fontFamily: "Outfit",
-                  color: ColorCode.kWhiteOpacity70
+                  color: AppColors.white30
               ),
             ),
   
@@ -1647,7 +1647,7 @@ import '../../widgets/custom_text_field.dart';
                 /// 👤 PROFILE IMAGE
                 CircleAvatar(
                   radius: 26,
-                  backgroundColor: ColorCode.k282828,
+                  backgroundColor: AppColors.surfaceMid,
                   backgroundImage: profileImage != null
                       ? FileImage(profileImage!)
                       : const AssetImage(AppAssets.imageProfilePlaceholder)
@@ -1663,7 +1663,7 @@ import '../../widgets/custom_text_field.dart';
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12,horizontal: 10),
                       decoration: BoxDecoration(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Row(
@@ -1674,9 +1674,9 @@ import '../../widgets/custom_text_field.dart';
                                 ? Icons.camera_alt_outlined   // image nahi hai
                                 : Icons.refresh,              // image hai → re-upload
                             size: 18,
-                            color: ColorCode.black,
+                            color: AppColors.black,
                           ),
-                          // Icon(Icons.camera_alt_outlined, size: 18, color: Colors.black),
+                          // Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.black),
                           SizedBox(width: 8),
                           Text(
                             profileImage == null
@@ -1685,7 +1685,7 @@ import '../../widgets/custom_text_field.dart';
                             style:  TextStyle(
                                 fontSize: 12,        // 🔹 thoda bada (image jaisa)
                                 fontWeight: FontWeight.w500, // 🔹 bold
-                                color: ColorCode.black,
+                                color: AppColors.black,
                                 fontFamily: "Outfit"
                             ),
                           ),
@@ -1722,11 +1722,11 @@ import '../../widgets/custom_text_field.dart';
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             margin: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: ColorCode.white,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: ColorCode.black,
+                  color: AppColors.black,
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -1740,11 +1740,11 @@ import '../../widgets/custom_text_field.dart';
                   children: [
                     CircleAvatar(
                       radius: 26,
-                      backgroundColor: ColorCode.lightGrey,
+                      backgroundColor: AppColors.border,
                       backgroundImage:
                       profileImage != null ? FileImage(profileImage!) : null,
                       child: profileImage == null
-                          ? const Icon(Icons.person, size: 28, color: ColorCode.grey)
+                          ? const Icon(Icons.person, size: 28, color: AppColors.lavenderGrey)
                           : null,
                     ),
   
@@ -1760,7 +1760,7 @@ import '../../widgets/custom_text_field.dart';
                               fontFamily: "Outfit",
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
-                              color: ColorCode.black,
+                              color: AppColors.black,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -1770,7 +1770,7 @@ import '../../widgets/custom_text_field.dart';
                             style: const TextStyle(
                               fontFamily: "Outfit",
                               fontSize: 12,
-                              color: ColorCode.k737373,
+                              color: AppColors.greyShade737,
                             ),
                           ),
                         ],
@@ -1794,7 +1794,7 @@ import '../../widgets/custom_text_field.dart';
                             showModalBottomSheet(
                               context: context,
                               isScrollControlled: true,
-                              backgroundColor: ColorCode.transparent,
+                              backgroundColor: AppColors.transparent,
                               builder: (_) => ViewDetailsScreen(
                                 firstName: firstNameController.text.trim(),
                                 lastName: lastNameController.text.trim(),
@@ -1836,7 +1836,7 @@ import '../../widgets/custom_text_field.dart';
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: ColorCode.black,
+                            backgroundColor: AppColors.black,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -1848,7 +1848,7 @@ import '../../widgets/custom_text_field.dart';
                               fontFamily: "Outfit",
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: ColorCode.kButtonColor,
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
@@ -1862,7 +1862,7 @@ import '../../widgets/custom_text_field.dart';
                       height: 40,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: ColorCode.lightGrey,
+                        color: AppColors.border,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       alignment: Alignment.center,
@@ -1872,7 +1872,7 @@ import '../../widgets/custom_text_field.dart';
                           fontFamily: "Outfit",
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: ColorCode.black,
+                          color: AppColors.black,
                         ),
                       ),
                     ),
@@ -1898,7 +1898,7 @@ import '../../widgets/custom_text_field.dart';
       /// dark overlay
       canvas.drawRect(
         Offset.zero & size,
-        Paint()..color = ColorCode.black.withOpacity(0.6),
+        Paint()..color = AppColors.black.withOpacity(0.6),
       );
   
       /// clear circle
@@ -1918,7 +1918,7 @@ import '../../widgets/custom_text_field.dart';
         center,
         radius,
         Paint()
-          ..color = ColorCode.white
+          ..color = AppColors.white
           ..style = PaintingStyle.stroke
           ..strokeWidth = 3,
       );

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 
 import '../app/route_names.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -71,7 +71,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontFamily: "Unbounded",
-                            color: ColorCode.white,
+                            color: AppColors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
                           ),
@@ -86,7 +86,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontFamily: "Outfit",
-                              color: ColorCode.kWhiteOpacity60,
+                              color: AppColors.white60,
                               fontSize: 12,
                             ),
                           ),
@@ -110,8 +110,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               //       height: 4,
               //       decoration: BoxDecoration(
               //         color: _currentPage == index
-              //             ? ColorCode.white
-              //             : ColorCode.kWhiteOpacity60,
+              //             ? AppColors.white
+              //             : AppColors.white60,
               //         borderRadius: BorderRadius.circular(4),
               //       ),
               //     ),
@@ -131,7 +131,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       context.pushNamed(RouteNames.login);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorCode.kButtonColor,
+                      backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -142,7 +142,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       style: TextStyle(
                         fontFamily: "Unbounded",
                         fontSize: 14,
-                        color: ColorCode.kHeadingColor,
+                        color: AppColors.textHeading,
                       ),
                     ),
                   ),
@@ -163,7 +163,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       text: "Don’t have an account? ",
                       style: TextStyle(
                         fontFamily: "Outfit",
-                        color: ColorCode.kWhiteOpacity60,
+                        color: AppColors.white60,
                         fontSize: 14,
                       ),
                       children: [
@@ -171,7 +171,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           text: "Sign Up",
                           style: TextStyle(
                             fontFamily: "Outfit",
-                            color: ColorCode.white,
+                            color: AppColors.white,
                             decoration: TextDecoration.underline,
                           ),
                         ),
@@ -202,7 +202,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     "Skip",
                     style: TextStyle(
                       fontFamily: "Outfit",
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       fontSize: 14,
                     ),
                   ),

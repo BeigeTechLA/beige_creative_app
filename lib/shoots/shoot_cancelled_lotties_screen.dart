@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
 import '../app/route_names.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 
@@ -53,7 +53,7 @@ class _ShootCancelledLottiesScreenState extends State<ShootCancelledLottiesScree
             const Text(
               "Shoot Cancelled",
               style: TextStyle(
-                color: ColorCode.kButtonColor,
+                color: AppColors.primary,
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 fontFamily: "Unbounded",
@@ -66,7 +66,7 @@ class _ShootCancelledLottiesScreenState extends State<ShootCancelledLottiesScree
               "The shoot request has been cancelled.\nsuccessfully.",
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: ColorCode.kWhiteOpacity70,
+                color: AppColors.white30,
                 fontSize: 14,
                 fontFamily: "Outfit",
               ),

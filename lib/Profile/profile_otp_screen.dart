@@ -8,7 +8,7 @@
   import '../app/route_names.dart';
   import '../service/api_endpoints.dart';
   import '../service/api_service.dart';
-  import '../utility/ColorCode.dart';
+  import '../app/colors.dart';
   import '../widgets/Topmessgae.dart';
 
   class ProfileOtpScreen extends StatefulWidget {
@@ -222,14 +222,14 @@
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: ColorCode.white),
+                              color: AppColors.white),
                         ),
 
                         const SizedBox(height: 6),
 
                         const Text(
                           "Enter 6 digit OTP sent to your registered email ID\nreset your password.",
-                          style: TextStyle(fontSize: 12, color: ColorCode.kWhiteOpacity60),
+                          style: TextStyle(fontSize: 12, color: AppColors.white60),
                         ),
 
                         const SizedBox(height: 20),
@@ -250,8 +250,8 @@
                                     border: Border.all(
                                       color: (focusNodes[index].hasFocus ||
                                           controllers[index].text.isNotEmpty)
-                                          ? ColorCode.kGoldBorder50
-                                          : ColorCode.kWhiteOpacity60,
+                                          ? AppColors.borderGold
+                                          : AppColors.white60,
                                       width: 0.5,
                                     ),
                                   ),
@@ -302,7 +302,7 @@
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: "Outfit",
-                                color: ColorCode.kWhiteOpacity60,
+                                color: AppColors.white60,
                               ),
                             ),
                           ],
@@ -324,8 +324,8 @@
                         "Resend OTP",
                         style:  TextStyle(
                           color: seconds == 0
-                              ? ColorCode.white
-                              : ColorCode.white,
+                              ? AppColors.white
+                              : AppColors.white,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.underline,
@@ -345,8 +345,8 @@
                     onPressed: isOtpFilled ? _verifyOtp : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isOtpFilled
-                          ? ColorCode.kButtonColor
-                          : ColorCode.kGold40,
+                          ? AppColors.primary
+                          : AppColors.goldOpacity40,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -357,8 +357,8 @@
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: isOtpFilled
-                            ? ColorCode.kHeadingColor
-                            : Colors.black38,
+                            ? AppColors.textHeading
+                            : AppColors.black38,
                       ),
                     ),
                   ),

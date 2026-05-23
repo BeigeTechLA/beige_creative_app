@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app/route_names.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart' show AppAssets;
 import '../widgets/Topmessgae.dart';
 import '../widgets/custom_text_field.dart';
@@ -163,7 +163,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                               child: SvgPicture.asset(
                                 AppAssets.back,
                                 height: 24,
-                                color: ColorCode.white,
+                                color: AppColors.white,
                               ),
                             ),
 
@@ -186,7 +186,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                                 fontFamily: "Unbounded",
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: ColorCode.white,
+                                color: AppColors.white,
                               ),
                             ),
 
@@ -198,7 +198,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                               style: TextStyle(
                                 fontFamily: "Outfit",
                                 fontSize: 14,
-                                color: ColorCode.kWhiteOpacity70,
+                                color: AppColors.white30,
                               ),
                             ),
                             SizedBox(height: 10),
@@ -225,10 +225,10 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                         // 👈 top extra
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
-                          color: ColorCode.backgroundColor,
+                          color: AppColors.background,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: ColorCode.white.withOpacity(0.06),
+                            color: AppColors.white.withOpacity(0.06),
                             width: 1,
                           ),
                         ),
@@ -280,7 +280,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: ColorCode.kGoldGradientLight,
+                                  backgroundColor: AppColors.borderGold,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -291,7 +291,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                                   width: 22,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: ColorCode.black,
+                                    color: AppColors.black,
                                   ),
                                 )
                                     : const Text(
@@ -300,7 +300,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                                     fontFamily: "Unbounded",
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: ColorCode.kHeadingColor,
+                                    color: AppColors.textHeading,
                                   ),
                                 ),
                               ),

@@ -1,4 +1,4 @@
-import 'package:beige_creative_app/utility/colorcode.dart';
+import 'package:beige_creative_app/app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -30,20 +30,20 @@ class _CommonCalendarState extends State<CommonCalendar>
         final cellHeight = width * 0.20;
         final daysRowHeight = width * 0.13;
         return Container(
-          color: ColorCode.calendarCell,
+          color: AppColors.calendarCell,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: double.infinity,
                 height: 0.5,
-                color: ColorCode.calendarGrid,
+                color: AppColors.calendarGrid,
               ),
               _buildDaysRow(width),
               Container(
                 width: double.infinity,
                 height: 0.5,
-                color: ColorCode.calendarGrid,
+                color: AppColors.calendarGrid,
               ),
               AnimatedSize(
                 duration: const Duration(milliseconds: 250),
@@ -70,15 +70,15 @@ class _CommonCalendarState extends State<CommonCalendar>
                       cellPadding: EdgeInsets.zero,
                       tableBorder: TableBorder(
                         horizontalInside: BorderSide(
-                          color: ColorCode.calendarGrid,
+                          color: AppColors.calendarGrid,
                           width: 0.6,
                         ),
                         verticalInside: BorderSide(
-                          color: ColorCode.calendarGrid,
+                          color: AppColors.calendarGrid,
                           width: 0.6,
                         ),
                         bottom: BorderSide(
-                          color: ColorCode.calendarGrid,
+                          color: AppColors.calendarGrid,
                           width: 0.6,
                         ),
                       ),
@@ -105,21 +105,21 @@ class _CommonCalendarState extends State<CommonCalendar>
     final days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     return Container(
       decoration: BoxDecoration(
-        color: ColorCode.calendarHeader,
-        border: Border.all(width: 0.5, color: ColorCode.calendarGrid),
+        color: AppColors.background,
+        border: Border.all(width: 0.5, color: AppColors.calendarGrid),
       ),
       child: Row(
         children: List.generate(days.length, (index) {
           return Expanded(
             child: Container(
-              color: ColorCode.calendarHeader,
+              color: AppColors.background,
               height: width * 0.13,
               alignment: Alignment.center,
               child: Text(
                 days[index],
                 style: TextStyle(
                   fontFamily: 'Outfit',
-                  color: ColorCode.white,
+                  color: AppColors.white,
                   fontSize: width * 0.034,
                   fontWeight: FontWeight.w400,
                 ),
@@ -159,8 +159,8 @@ class _CommonCalendarState extends State<CommonCalendar>
             style: TextStyle(
               fontSize: width * 0.045,
               color: isOutside || isStrikethrough
-                  ? ColorCode.white24
-                  : ColorCode.white,
+                  ? AppColors.white24
+                  : AppColors.white,
               decoration: isStrikethrough ? TextDecoration.lineThrough : null,
             ),
           ),
@@ -190,7 +190,7 @@ class _CommonCalendarState extends State<CommonCalendar>
       ),
       padding: EdgeInsets.symmetric(horizontal: width * 0.006),
       decoration: BoxDecoration(
-        color: isAvailable ? const Color(0xffD8FDE6) : const Color(0xffE1E8F9),
+        color: isAvailable ? AppColors.softMint : AppColors.bluePale,
         borderRadius: BorderRadius.circular(width * 0.008),
       ),
       child: Text(
@@ -200,8 +200,8 @@ class _CommonCalendarState extends State<CommonCalendar>
         textAlign: TextAlign.center,
         style: TextStyle(
           color: isAvailable
-              ? const Color(0xFF2F855A)
-              : const Color(0xFF4338CA),
+              ? AppColors.greenForest
+              : AppColors.indigoDeep,
           fontSize: width * 0.021,
           fontWeight: FontWeight.w600,
         ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../utility/colorcode.dart';
+import '../../../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
@@ -101,8 +101,8 @@ class _DeleteAccountState extends State<DeleteAccount> {
                     AppAssets.back, // make sure it's .svg file
                     height: 24,
                     colorFilter: ColorFilter.mode(
-                      //ColorCode.kHeadingColor,
-                      ColorCode.white,
+                      //AppColors.textHeading,
+                      AppColors.white,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -117,7 +117,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                     fontFamily: "Unbounded",
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: ColorCode.white,
+                    color: AppColors.white,
                   ),
                 ),
 
@@ -128,7 +128,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                   "This action will permanently delete your account and all associated data. If you need help or have questions, please contact us at support@beige.com",
                   style: TextStyle(
                       fontSize: 14,
-                      color: ColorCode.kWhiteOpacity70,
+                      color: AppColors.white30,
                       height: 1.5,
                       fontWeight: FontWeight.w400,
                       fontFamily: "Outfit"
@@ -139,7 +139,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                 Container(
                   padding: EdgeInsets.all(20),
 
-                  decoration: BoxDecoration(color: ColorCode.k282828),
+                  decoration: BoxDecoration(color: AppColors.surfaceMid),
 
                   child: Column(
                     children: [
@@ -148,7 +148,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                           Text("Why do you wish to leave Beige?",
                             style: TextStyle(
                                 fontSize: 14,
-                                color: ColorCode.white,
+                                color: AppColors.white,
                                 fontWeight: FontWeight.w500,
                                 fontFamily: "Outfit"
                             ),),
@@ -160,7 +160,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                         "Please let us know the reason for deleting your account.",
                         style: TextStyle(
                             fontSize: 12,
-                            color: ColorCode.kWhiteOpacity70,
+                            color: AppColors.white30,
                             fontFamily: "Outfit",
                             fontWeight: FontWeight.w400
 
@@ -181,7 +181,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          // color:  ColorCode.kPrimaryDark,
+          // color:  AppColors.surfaceStats,
         ),
         child: Row(
           children: [
@@ -200,7 +200,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorCode.kButtonColor,
+                    backgroundColor: AppColors.primary,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -212,7 +212,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       fontFamily: "Unbounded",
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: ColorCode.kHeadingColor,
+                      color: AppColors.textHeading,
                     ),
                   ),
                 ),
@@ -248,8 +248,8 @@ class _DeleteAccountState extends State<DeleteAccount> {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSelected
-                      ? ColorCode.kButtonColor
-                      : ColorCode.kWhiteOpacity70,
+                      ? AppColors.primary
+                      : AppColors.white30,
 
                 ),
               ),
@@ -260,7 +260,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                   height: 10,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: ColorCode.kButtonColor,
+                    color: AppColors.primary,
                   ),
                 ),
               )
@@ -277,7 +277,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                   fontSize: 14,
                   fontFamily: "Outfit",
                   fontWeight: FontWeight.w400,
-                  color: ColorCode.kWhiteOpacity70,
+                  color: AppColors.white30,
                 ),
               ),
             ),

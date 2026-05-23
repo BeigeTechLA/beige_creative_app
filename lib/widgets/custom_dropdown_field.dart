@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 
 class CustomDropdownField extends StatelessWidget {
   final String label;
@@ -24,7 +24,7 @@ class CustomDropdownField extends StatelessWidget {
     return DropdownButtonFormField<String>(
       value: value,
       isExpanded: true,
-      dropdownColor: const Color(0xFF1E1E1E),
+      dropdownColor: AppColors.surfaceStats,
 
      /* icon: Padding(
         padding: const EdgeInsets.only(right: 8),
@@ -34,13 +34,13 @@ class CustomDropdownField extends StatelessWidget {
 
           width: 20,
           colorFilter: const ColorFilter.mode(
-            ColorCode.white,
+            AppColors.white,
             BlendMode.srcIn,
           ),
         ),
       ),*/
       style: const TextStyle(
-        color: Colors.white,
+        color: AppColors.white,
         fontSize: 14,
       ),
 
@@ -49,7 +49,7 @@ class CustomDropdownField extends StatelessWidget {
         floatingLabelBehavior: FloatingLabelBehavior.always,
 
         labelStyle: const TextStyle(
-          color: ColorCode.kWhiteOpacity70,
+          color: AppColors.white30,
           fontSize: 13,
         ),
 
@@ -63,8 +63,8 @@ class CustomDropdownField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
             color: isSelected
-                ?  ColorCode.textfieldbordercollor// ✅ highlight when selected
-                : ColorCode.kWhiteOpacity70,
+                ?  AppColors.textfieldBorderLegacy// ✅ highlight when selected
+                : AppColors.white30,
             width: 0.8,
           ),
         ),
@@ -73,7 +73,7 @@ class CustomDropdownField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: Color(0xFFD6C3A3), // ✅ gold highlight
+            color: AppColors.goldSandPale, // ✅ gold highlight
             width: 1.2,
           ),
         ),

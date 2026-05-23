@@ -2,7 +2,7 @@ import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 
 class ViewDetailsScreen extends StatefulWidget {
   const ViewDetailsScreen({super.key});
@@ -60,7 +60,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                     child: Text(
                       "Shoot Details",
                       style: TextStyle(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontSize: 14,
                         fontFamily: "Outfit",
                         fontWeight: FontWeight.w400,
@@ -85,8 +85,8 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
                               colors: [
-                                Color(0xFFE8D1AB), // gold light
-                                Color(0xFF434341), // dark
+                                AppColors.primary, // gold light
+                                AppColors.circleGradientBottom, // dark
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -97,13 +97,13 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                             height: 96,
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Color(0xFF1D1D1B), // inside dark
+                              color: AppColors.onPrimary, // inside dark
                             ),
                             child: const Center(
                               child: Text(
                                 "L#1",
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: AppColors.white,
                                   fontSize: 28,
                                   fontWeight: FontWeight.w600,
                                   fontFamily: "Unbounded",
@@ -120,13 +120,13 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: const BoxDecoration(
-                              color: Colors.white,
+                              color: AppColors.white,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
                               Icons.edit,
                               size: 16,
-                              color: ColorCode.black,
+                              color: AppColors.black,
                             ),
                           ),
                         ),*/
@@ -158,7 +158,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
         
-                  color: ColorCode.kWhiteOpacity60,
+                  color: AppColors.white60,
                   fontSize: 14,
                   fontFamily: "Outfit",
                 ),
@@ -169,13 +169,13 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               decoration: BoxDecoration(
-                color: ColorCode.white,
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Text(
                 "Post Production",
                 style: TextStyle(
-                  color: Color(0xff540B94),
+                  color: AppColors.purpleDeep,
                   fontSize: 13,
                   fontFamily: "Outfit",
                   fontWeight: FontWeight.w500,
@@ -184,7 +184,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
             ),
             SizedBox(height: 18),
             Divider(
-              color: ColorCode.kDividerWhite12,
+              color: AppColors.dividerDark,
               thickness: 0.8,
             ),
             SizedBox(height: 18),
@@ -192,12 +192,12 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 18),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: ColorCode.k2A2A2A,
+                color: AppColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: ColorCode.kDividerWhite12),
+                border: Border.all(color: AppColors.dividerDark),
                 boxShadow: const [
                   BoxShadow(
-                    color: ColorCode.kBlackOpacity10,
+                    color: AppColors.black10,
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
@@ -213,7 +213,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                     child: const Text(
                       "Shoot Details",
                       style: TextStyle(
-                        color: ColorCode.white,
+                        color: AppColors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         fontFamily: "Outfit",
@@ -256,7 +256,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
             child: Text(
               title,
               style: const TextStyle(
-                color: ColorCode.kWhiteOpacity60,
+                color: AppColors.white60,
                 fontSize: 13,
                 fontFamily: "Outfit",
               ),
@@ -265,7 +265,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
 
           const Text(
             ":  ",
-            style: TextStyle(color: ColorCode.kWhiteOpacity60),
+            style: TextStyle(color: AppColors.white60),
           ),
 
           /// Right Value
@@ -274,10 +274,10 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
               value,
               style: TextStyle(
                 color: isGreen
-                    ? Colors.greenAccent
+                    ? AppColors.greenAccent
                     : isLink
-                    ? ColorCode.kGoldGradientLight
-                    : ColorCode.white,
+                    ? AppColors.borderGold
+                    : AppColors.white,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 decoration:

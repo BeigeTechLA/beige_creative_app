@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
 import '../app/route_names.dart' show RouteNames;
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart' show AppAssets;
 
 class ShootRequestAccepted extends StatefulWidget {
@@ -36,7 +36,7 @@ class _ShootRequestAcceptedState extends State<ShootRequestAccepted> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1C),
+      backgroundColor: AppColors.surfaceCropSheet,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -54,7 +54,7 @@ class _ShootRequestAcceptedState extends State<ShootRequestAccepted> {
             const Text(
               "Shoot request accepted",
               style: TextStyle(
-                color: ColorCode.kButtonColor,
+                color: AppColors.primary,
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 fontFamily: "Unbounded",
@@ -67,7 +67,7 @@ class _ShootRequestAcceptedState extends State<ShootRequestAccepted> {
               "You’ve successfully accepted the shoot.\nCheck your calendar for details.",
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: ColorCode.kWhiteOpacity70,
+                color: AppColors.white30,
                 fontSize: 14,
                 fontFamily: "Outfit",
               ),

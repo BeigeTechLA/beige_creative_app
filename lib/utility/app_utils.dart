@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
@@ -12,7 +13,7 @@ class AppUtils {
   static void showSnack(
       BuildContext context,
       String message, {
-        Color color = Colors.red,
+        Color color = AppColors.error,
       }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

@@ -11,7 +11,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
-import '../../utility/colorcode.dart';
+import '../../app/colors.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/commonFileViewer.dart';
 import '../../widgets/common_uploader.dart';
@@ -356,7 +356,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorCode.backgroundColor,
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -391,7 +391,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               child: SvgPicture.asset(
                                 AppAssets.back,
                                 height: 24,
-                                color: ColorCode.white,
+                                color: AppColors.white,
                               ),
                             ),
 
@@ -399,7 +399,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             const Text(
                               "3/3",
                               style: TextStyle(
-                                color: ColorCode.white,
+                                color: AppColors.white,
                                 fontSize: 14,
                                 fontFamily: "Outfit",
                                 fontWeight: FontWeight.w500,
@@ -421,7 +421,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 fontFamily: "Unbounded",
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: ColorCode.white,
+                                color: AppColors.white,
                               ),
                             ),
 
@@ -434,7 +434,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               style: TextStyle(
                                 fontFamily: "Outfit",
                                 fontSize: 14,
-                                color: ColorCode.kWhiteOpacity70,
+                                color: AppColors.white30,
                               ),
                             ),
                             SizedBox(height: 10),
@@ -450,8 +450,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: index <= 2
-                                        ? ColorCode.kButtonColor
-                                        : ColorCode.kSubtextColor,
+                                        ? AppColors.primary
+                                        : AppColors.textSubtle,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
@@ -477,10 +477,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
-                          color: ColorCode.backgroundColor,
+                          color: AppColors.background,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: ColorCode.white.withOpacity(0.06),
+                            color: AppColors.white.withOpacity(0.06),
                             width: 1,
                           ),
                         ),
@@ -506,7 +506,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         ).withOpacity(0.5),
                                         width: 0.5,
                                       ),
-                                      color: ColorCode.black,
+                                      color: AppColors.black,
                                     ),
                                     child: Row(
                                       children: [
@@ -515,7 +515,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                           // height: 20,
                                           width: 40,
                                           decoration: BoxDecoration(
-                                            //color: ColorCode.kButtonColor.withOpacity(0.15),
+                                            //color: AppColors.primary.withOpacity(0.15),
                                             // borderRadius: BorderRadius.circular(12),
                                           ),
                                           child:
@@ -527,7 +527,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                   height: 20,
                                                   width: 20,
                                                   colorFilter: ColorFilter.mode(
-                                                    ColorCode.kButtonColor,
+                                                    AppColors.primary,
                                                     BlendMode.srcIn,
                                                   ),
                                                 )
@@ -535,7 +535,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                   item['icon'],
                                                   height: 15,
                                                   width: 15,
-                                                  color: ColorCode.kButtonColor,
+                                                  color: AppColors.primary,
                                                 ),
                                         ),
 
@@ -546,7 +546,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                           child: Text(
                                             item['name'],
                                             style: const TextStyle(
-                                              color: ColorCode.white,
+                                              color: AppColors.white,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -616,7 +616,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         ).withOpacity(0.5),
                                         width: 0.5,
                                       ),
-                                      color: ColorCode.kSubtextColor,
+                                      color: AppColors.textSubtle,
                                     ),
                                     child: Row(
                                       children: [
@@ -624,7 +624,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                           // height: 20,
                                           width: 40,
                                           decoration: BoxDecoration(
-                                            //color: ColorCode.kButtonColor.withOpacity(0.15),
+                                            //color: AppColors.primary.withOpacity(0.15),
                                             // borderRadius: BorderRadius.circular(12),
                                           ),
                                           child:
@@ -636,7 +636,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                   height: 20,
                                                   width: 20,
                                                   colorFilter: ColorFilter.mode(
-                                                    ColorCode.kButtonColor,
+                                                    AppColors.primary,
                                                     BlendMode.srcIn,
                                                   ),
                                                 )
@@ -644,7 +644,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                   item['icon'],
                                                   height: 15,
                                                   width: 15,
-                                                  color: ColorCode.kButtonColor,
+                                                  color: AppColors.primary,
                                                 ),
                                         ),
                                         const SizedBox(width: 12),
@@ -653,7 +653,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                           child: Text(
                                             item['name'],
                                             style: const TextStyle(
-                                              color: ColorCode.white,
+                                              color: AppColors.white,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -711,9 +711,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               constraints: const BoxConstraints(minHeight: 220),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: ColorCode.backgroundColor,
+                                color: AppColors.background,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: ColorCode.white24),
+                                border: Border.all(color: AppColors.white24),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -726,7 +726,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       const Text(
                                         "Featured Work",
                                         style: TextStyle(
-                                          color: ColorCode.white,
+                                          color: AppColors.white,
                                           fontSize: 14,
                                           fontFamily: "Outfit",
                                           fontWeight: FontWeight.w600,
@@ -754,12 +754,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                 width: 28,
                                                 decoration: const BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  color: Color(0xFFF4E1C1),
+                                                  color: AppColors.goldPaleCream,
                                                 ),
                                                 child: const Icon(
                                                   Icons.add,
                                                   size: 16,
-                                                  color: ColorCode.black,
+                                                  color: AppColors.black,
                                                 ),
                                               ),
                                               const SizedBox(width: 6),
@@ -767,7 +767,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                 "Add another",
                                                 style: TextStyle(
                                                   color:
-                                                      ColorCode.kWhiteOpacity70,
+                                                      AppColors.white30,
                                                   fontSize: 13,
                                                   fontFamily: "Outfit",
                                                 ),
@@ -792,7 +792,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                             12,
                                           ),
                                           border: Border.all(
-                                            color: ColorCode.white24,
+                                            color: AppColors.white24,
                                           ),
                                         ),
                                         child: const Center(
@@ -802,13 +802,13 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                             children: [
                                               Icon(
                                                 Icons.add,
-                                                color: ColorCode.white,
+                                                color: AppColors.white,
                                               ), // 👈 icon
                                               SizedBox(width: 8),
                                               Text(
                                                 "Add",
                                                 style: TextStyle(
-                                                  color: ColorCode.white,
+                                                  color: AppColors.white,
                                                 ),
                                               ),
                                             ],
@@ -904,8 +904,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                             ),
                                                         decoration:
                                                             BoxDecoration(
-                                                              color: ColorCode
-                                                                  .black
+                                                              color: AppColors.black
                                                                   .withOpacity(
                                                                     0.8,
                                                                   ),
@@ -916,7 +915,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                           Icons.edit,
                                                           size: 16,
                                                           color:
-                                                              ColorCode.white,
+                                                              AppColors.white,
                                                         ),
                                                       ),
                                                     ),
@@ -944,8 +943,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                         width: 30,
                                                         decoration:
                                                             BoxDecoration(
-                                                              color: ColorCode
-                                                                  .red
+                                                              color: AppColors.error
                                                                   .withOpacity(
                                                                     0.8,
                                                                   ),
@@ -956,7 +954,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                           Icons.delete,
                                                           size: 16,
                                                           color:
-                                                              ColorCode.white,
+                                                              AppColors.white,
                                                         ),
                                                       ),
                                                     ),
@@ -976,7 +974,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                       : "",
                                                   textAlign: TextAlign.left,
                                                   style: const TextStyle(
-                                                    color: ColorCode.white,
+                                                    color: AppColors.white,
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -1034,12 +1032,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                           shape:
                                                               BoxShape.circle,
                                                           color:
-                                                              ColorCode.k282828,
+                                                              AppColors.surfaceMid,
                                                         ),
                                                     child: const Icon(
                                                       Icons.close,
                                                       size: 14,
-                                                      color: ColorCode.white,
+                                                      color: AppColors.white,
                                                     ),
                                                   ),
                                                 ),
@@ -1058,9 +1056,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: ColorCode.backgroundColor,
+                                color: AppColors.background,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: ColorCode.white24),
+                                border: Border.all(color: AppColors.white24),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1073,7 +1071,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       const Text(
                                         "Upload Certifications",
                                         style: TextStyle(
-                                          color: ColorCode.white,
+                                          color: AppColors.white,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -1087,13 +1085,13 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                               Icon(
                                                 Icons.add,
                                                 size: 18,
-                                                color: Color(0xFFF4E1C1),
+                                                color: AppColors.goldPaleCream,
                                               ),
                                               SizedBox(width: 4),
                                               Text(
                                                 "Add another",
                                                 style: TextStyle(
-                                                  color: Color(0xFFF4E1C1),
+                                                  color: AppColors.goldPaleCream,
                                                   fontSize: 13,
                                                   fontWeight: FontWeight.w500,
                                                 ),
@@ -1117,14 +1115,14 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                             12,
                                           ),
                                           border: Border.all(
-                                            color: ColorCode.white24,
+                                            color: AppColors.white24,
                                           ),
                                         ),
                                         child: const Center(
                                           child: Text(
                                             "Upload",
                                             style: TextStyle(
-                                              color: ColorCode.white,
+                                              color: AppColors.white,
                                             ),
                                           ),
                                         ),
@@ -1151,11 +1149,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                               vertical: 10,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: ColorCode.k282828,
+                                              color: AppColors.surfaceMid,
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                               border: Border.all(
-                                                color: ColorCode.white24,
+                                                color: AppColors.white24,
                                               ),
                                             ),
                                             child: Row(
@@ -1163,7 +1161,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                 /// FILE ICON
                                                 const Icon(
                                                   Icons.link,
-                                                  color: ColorCode.white,
+                                                  color: AppColors.white,
                                                 ),
 
                                                 const SizedBox(width: 10),
@@ -1176,7 +1174,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: const TextStyle(
-                                                      color: ColorCode.white,
+                                                      color: AppColors.white,
                                                     ),
                                                   ),
                                                 ),
@@ -1185,7 +1183,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                 IconButton(
                                                   icon: const Icon(
                                                     Icons.remove_red_eye,
-                                                    color: ColorCode.white,
+                                                    color: AppColors.white,
                                                   ),
                                                   onPressed: () {
                                                     CommonFileViewer.open(
@@ -1200,7 +1198,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                 IconButton(
                                                   icon: const Icon(
                                                     Icons.delete,
-                                                    color: ColorCode.white,
+                                                    color: AppColors.white,
                                                   ),
                                                   onPressed: () {
                                                     setState(() {
@@ -1227,10 +1225,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: ColorCode.backgroundColor,
+                                    color: AppColors.background,
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: ColorCode.white24,
+                                      color: AppColors.white24,
                                     ),
                                   ),
                                   child: Column(
@@ -1241,7 +1239,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       const Text(
                                         "Upload Documents",
                                         style: TextStyle(
-                                          color: ColorCode.white,
+                                          color: AppColors.white,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -1310,7 +1308,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         _fetchSingup3();
                       },*/
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: ColorCode.kButtonColor,
+                                  backgroundColor: AppColors.primary,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -1320,7 +1318,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontFamily: "Unbounded",
-                                    color: ColorCode.kHeadingColor,
+                                    color: AppColors.textHeading,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -1337,7 +1335,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   const Text(
                                     "Already have an account? ",
                                     style: TextStyle(
-                                      color: ColorCode.kWhiteOpacity70,
+                                      color: AppColors.white30,
                                     ),
                                   ),
 
@@ -1348,7 +1346,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     child: const Text(
                                       "Login",
                                       style: TextStyle(
-                                        color: ColorCode.kButtonColor,
+                                        color: AppColors.primary,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -1372,15 +1370,15 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             height: 50,
                             decoration: BoxDecoration(
-                              color: ColorCode.k282828,
+                              color: AppColors.surfaceMid,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: ColorCode.white.withOpacity(0.12),
+                                color: AppColors.white.withOpacity(0.12),
                                 width: 1,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: ColorCode.black.withOpacity(0.35),
+                                  color: AppColors.black.withOpacity(0.35),
                                   blurRadius: 16,
                                   offset: const Offset(0, 8),
                                 ),
@@ -1393,13 +1391,13 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   height: 28,
                                   width: 28,
                                   decoration: BoxDecoration(
-                                    color: ColorCode.white.withOpacity(0.08),
+                                    color: AppColors.white.withOpacity(0.08),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
                                     Icons.person_outline,
                                     size: 16,
-                                    color: ColorCode.kWhiteOpacity70,
+                                    color: AppColors.white30,
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -1409,7 +1407,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     fontFamily: "Outfit",
                                     fontSize: 11,
                                     fontWeight: FontWeight.w500,
-                                    color: ColorCode.kWhiteOpacity70,
+                                    color: AppColors.white30,
                                     letterSpacing: 0.2,
                                   ),
                                 ),
@@ -1448,9 +1446,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
             width: 44,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: ColorCode.white,
+              color: AppColors.white,
             ),
-            child: const Icon(Icons.add, color: ColorCode.black, size: 16),
+            child: const Icon(Icons.add, color: AppColors.black, size: 16),
           ),
 
           const SizedBox(width: 14),
@@ -1459,7 +1457,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
           Text(
             title,
             style: const TextStyle(
-              color: ColorCode.kWhiteOpacity70,
+              color: AppColors.white30,
               fontSize: 15,
               fontFamily: "Outfit",
             ),
@@ -1484,7 +1482,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: ColorCode.white24,
+                  color: AppColors.white24,
                   style: BorderStyle.solid, // dashed jaisa look
                 ),
               ),
@@ -1492,12 +1490,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.upload, color: ColorCode.white24),
+                    const Icon(Icons.upload, color: AppColors.white24),
                     const SizedBox(width: 8),
                     Text(
                       label,
                       style: const TextStyle(
-                        color: ColorCode.white24,
+                        color: AppColors.white24,
                         fontSize: 14,
                       ),
                     ),
@@ -1510,16 +1508,16 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
         : Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: ColorCode.black,
+              color: AppColors.black,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: ColorCode.white24),
+              border: Border.all(color: AppColors.white24),
             ),
             child: Row(
               children: [
                 /// FILE ICON
                 const Icon(
                   Icons.insert_drive_file,
-                  color: ColorCode.white,
+                  color: AppColors.white,
                   size: 22,
                 ),
 
@@ -1531,7 +1529,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                     file.path.split('/').last,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: ColorCode.white),
+                    style: const TextStyle(color: AppColors.white),
                   ),
                 ),
 
@@ -1539,7 +1537,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                 IconButton(
                   icon: const Icon(
                     Icons.remove_red_eye,
-                    color: ColorCode.white,
+                    color: AppColors.white,
                   ),
                   onPressed: () {
                     CommonFileViewer.open(
@@ -1552,7 +1550,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                 /// DELETE
                 IconButton(
-                  icon: const Icon(Icons.delete, color: ColorCode.white),
+                  icon: const Icon(Icons.delete, color: AppColors.white),
                   onPressed: onDelete,
                 ),
               ],
@@ -1563,7 +1561,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   // void _openSocialSheet() {
   //   showModalBottomSheet(
   //     context: context,
-  //     backgroundColor: ColorCode.transparent,
+  //     backgroundColor: AppColors.transparent,
   //     isScrollControlled: true,
   //     builder: (_) {
   //       return StatefulBuilder(
@@ -1582,7 +1580,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                   Container(
   //                     padding: const EdgeInsets.all(20),
   //                     decoration: const BoxDecoration(
-  //                       color: ColorCode.backgroundColor,
+  //                       color: AppColors.background,
   //                       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
   //                     ),
   //                     child: Column(
@@ -1594,7 +1592,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                             width: 40,
   //                             margin:  EdgeInsets.only(bottom: 12),
   //                             decoration: BoxDecoration(
-  //                               color: ColorCode.white24,
+  //                               color: AppColors.white24,
   //                               borderRadius: BorderRadius.circular(4),
   //                             ),
   //                           ),
@@ -1605,22 +1603,22 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                           children: [
   //                             Text(
   //                                 "Add Social Links",
-  //                                 style: TextStyle(color: ColorCode.white, fontSize: 16,fontFamily: "Unbounded",fontWeight: FontWeight.w500,)
+  //                                 style: TextStyle(color: AppColors.white, fontSize: 16,fontFamily: "Unbounded",fontWeight: FontWeight.w500,)
   //                             ),
   //                             IconButton(
   //                               onPressed: () => Navigator.pop(context),
-  //                               icon: const Icon(Icons.close, color: ColorCode.white),
+  //                               icon: const Icon(Icons.close, color: AppColors.white),
   //                             )
   //                           ],
   //                         ),
   //
   //                         Text(
   //                             "Add links that showcase your work, recognition,\npersonality and more!",
-  //                             style: TextStyle(color: ColorCode.kWhiteOpacity70, fontSize: 14,fontFamily: "Outfit",fontWeight: FontWeight.w400,)
+  //                             style: TextStyle(color: AppColors.white30, fontSize: 14,fontFamily: "Outfit",fontWeight: FontWeight.w400,)
   //                         ),
   //                         SizedBox(height: 20),
   //
-  //                         Divider(color: ColorCode.kDividerWhite12,
+  //                         Divider(color: AppColors.dividerDark,
   //
   //                         ),
   //                         SizedBox(height: 20),
@@ -1658,7 +1656,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                           height: 48,
   //                           child: ElevatedButton(
   //                             style: ElevatedButton.styleFrom(
-  //                               backgroundColor: ColorCode.kButtonColor,
+  //                               backgroundColor: AppColors.primary,
   //                               shape: RoundedRectangleBorder(
   //                                 borderRadius: BorderRadius.circular(14),
   //                               ),
@@ -1704,7 +1702,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                             child: const Text(
   //                               "Save Link",
   //                               style: TextStyle(
-  //                                 color: ColorCode.black,
+  //                                 color: AppColors.black,
   //                                 fontWeight: FontWeight.w600,
   //                               ),
   //                             ),
@@ -1738,7 +1736,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: ColorCode.transparent,
+      backgroundColor: AppColors.transparent,
       isScrollControlled: true,
       builder: (_) {
         return StatefulBuilder(
@@ -1753,7 +1751,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: const BoxDecoration(
-                    color: ColorCode.backgroundColor,
+                    color: AppColors.background,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24),
                     ),
@@ -1768,7 +1766,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           width: 40,
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
-                            color: ColorCode.white24,
+                            color: AppColors.white24,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -1781,7 +1779,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           const Text(
                             "Add Social Links",
                             style: TextStyle(
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontSize: 16,
                               fontFamily: "Unbounded",
                               fontWeight: FontWeight.w500,
@@ -1791,7 +1789,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             onPressed: () => Navigator.pop(context),
                             icon: const Icon(
                               Icons.close,
-                              color: ColorCode.white,
+                              color: AppColors.white,
                             ),
                           ),
                         ],
@@ -1800,7 +1798,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       const Text(
                         "Add links that showcase your work, recognition,personality and more!",
                         style: TextStyle(
-                          color: ColorCode.kWhiteOpacity70,
+                          color: AppColors.white30,
                           fontSize: 12,
                           fontFamily: "Outfit",
                           fontWeight: FontWeight.w400,
@@ -1808,7 +1806,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       ),
 
                       const SizedBox(height: 20),
-                      const Divider(color: ColorCode.kDividerWhite12),
+                      const Divider(color: AppColors.dividerDark),
                       const SizedBox(height: 20),
 
                       /// ✅ ICONS ROW — HAMESHA VISIBLE
@@ -1850,7 +1848,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         Text(
                           "${savedLinks.length}/6",
                           style: const TextStyle(
-                            color: ColorCode.white24,
+                            color: AppColors.white24,
                             fontSize: 12,
                             fontFamily: "Outfit",
                           ),
@@ -1869,8 +1867,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: ColorCode.white24),
-                              color: ColorCode.kBlackOpacity10,
+                              border: Border.all(color: AppColors.white24),
+                              color: AppColors.black10,
                             ),
                             child: Row(
                               children: [
@@ -1883,13 +1881,13 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       0.09, // ✅ har screen pe same ratio
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: Transform.rotate(
                                     angle: pi / 2,
                                     child: const Icon(
                                       Icons.drag_indicator,
-                                      color: ColorCode.kButtonColor,
+                                      color: AppColors.primary,
                                       size: 18,
                                     ),
                                   ),
@@ -1902,7 +1900,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         height: 20,
                                         width: 20,
                                         colorFilter: const ColorFilter.mode(
-                                          ColorCode.kGoldGradientLight,
+                                          AppColors.borderGold,
                                           BlendMode.srcIn,
                                         ),
                                       )
@@ -1910,7 +1908,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         item['icon'],
                                         height: 20,
                                         width: 20,
-                                        color: ColorCode.white,
+                                        color: AppColors.white,
                                       ),
 
                                 const SizedBox(width: 10),
@@ -1919,7 +1917,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   child: Text(
                                     item['name'],
                                     style: const TextStyle(
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                       fontWeight: FontWeight.w500,
                                       fontFamily: "Outfit",
                                     ),
@@ -1931,14 +1929,14 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
 
                                   child: IconButton(
                                     icon: SvgPicture.asset(AppAssets.Pencil),
 
                                     // icon: const Icon(Icons.edit,
-                                    //     color: ColorCode.white, size: 18),
+                                    //     color: AppColors.white, size: 18),
                                     onPressed: () {
                                       setInnerState(() {
                                         showForm = true;
@@ -1958,13 +1956,13 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
 
                                   child: IconButton(
                                     icon: SvgPicture.asset(AppAssets.delete),
                                     // icon: const Icon(Icons.delete,
-                                    //     color: ColorCode.redAccent, size: 18),
+                                    //     color: AppColors.redAccent, size: 18),
                                     onPressed: () {
                                       setInnerState(() {
                                         setState(() {
@@ -2001,7 +1999,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           height: 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorCode.kButtonColor,
+                              backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -2048,7 +2046,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             child: const Text(
                               "Save Link",
                               style: TextStyle(
-                                color: ColorCode.black,
+                                color: AppColors.black,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -2075,11 +2073,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 width: 30,
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                 ),
                                 child: const Icon(
                                   Icons.add,
-                                  color: ColorCode.black,
+                                  color: AppColors.black,
                                   size: 18,
                                 ),
                               ),
@@ -2087,7 +2085,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               const Text(
                                 "Add another link",
                                 style: TextStyle(
-                                  color: ColorCode.kWhiteOpacity70,
+                                  color: AppColors.white30,
                                   fontSize: 14,
                                   fontFamily: "Outfit",
                                 ),
@@ -2102,7 +2100,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           height: 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: ColorCode.kButtonColor,
+                              backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -2111,7 +2109,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             child: const Text(
                               "Save",
                               style: TextStyle(
-                                color: ColorCode.black,
+                                color: AppColors.black,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -2134,7 +2132,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   // void _openPortfoliole() {
   //   showModalBottomSheet(
   //     context: context,
-  //     backgroundColor: ColorCode.transparent,
+  //     backgroundColor: AppColors.transparent,
   //     isScrollControlled: true,
   //     builder: (_) {
   //       return StatefulBuilder(
@@ -2142,7 +2140,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //           return Container(
   //             padding: const EdgeInsets.all(20),
   //             decoration: const BoxDecoration(
-  //               color: Color(0xFF1E1E1E),
+  //               color: AppColors.surfaceStats,
   //               borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
   //             ),
   //             child: Column(
@@ -2157,7 +2155,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                     width: 40,
   //                     margin: const EdgeInsets.only(bottom: 14),
   //                     decoration: BoxDecoration(
-  //                       color: ColorCode.white24,
+  //                       color: AppColors.white24,
   //                       borderRadius: BorderRadius.circular(4),
   //                     ),
   //                   ),
@@ -2170,7 +2168,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                     const Text(
   //                       "Add Portfolio Links",
   //                       style: TextStyle(
-  //                         color: ColorCode.white,
+  //                         color: AppColors.white,
   //                         fontSize: 16,
   //                         fontFamily: "Unbounded",
   //                         fontWeight: FontWeight.w500,
@@ -2178,7 +2176,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                     ),
   //                     IconButton(
   //                       onPressed: () => Navigator.pop(context),
-  //                       icon: const Icon(Icons.close, color: ColorCode.white),
+  //                       icon: const Icon(Icons.close, color: AppColors.white),
   //                     )
   //                   ],
   //                 ),
@@ -2188,7 +2186,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                 const Text(
   //                   "Add YouTube, Vimeo, or Google Drive links to showcase your portfolio.",
   //                   style: TextStyle(
-  //                     color: ColorCode.white70,
+  //                     color: AppColors.white70,
   //                     fontSize: 13,
   //                   ),
   //                 ),
@@ -2214,12 +2212,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                           borderRadius: BorderRadius.circular(14),
   //                           border: Border.all(
   //                             color: selectedPortfolioIndex == index
-  //                                 ? ColorCode.kButtonColor
-  //                                 : ColorCode.white24,
+  //                                 ? AppColors.primary
+  //                                 : AppColors.white24,
   //                           ),
   //                           color: selectedPortfolioIndex == index
-  //                               ? ColorCode.kButtonColor.withOpacity(0.15)
-  //                               : ColorCode.transparent,
+  //                               ? AppColors.primary.withOpacity(0.15)
+  //                               : AppColors.transparent,
   //                         ),
   //                         child: Center(
   //                           child: Portfolioicons[index].toString().endsWith('.svg')  // ✅ index use karo, item nahi
@@ -2229,8 +2227,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                             width: 22,
   //                             colorFilter: ColorFilter.mode(
   //                               selectedPortfolioIndex == index
-  //                                   ? ColorCode.kButtonColor
-  //                                   : ColorCode.white,
+  //                                   ? AppColors.primary
+  //                                   : AppColors.white,
   //                               BlendMode.srcIn,
   //                             ),
   //                           )
@@ -2239,8 +2237,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                             height: 22,
   //                             width: 22,
   //                             color: selectedPortfolioIndex == index
-  //                                 ? ColorCode.kButtonColor
-  //                                 : ColorCode.white,
+  //                                 ? AppColors.primary
+  //                                 : AppColors.white,
   //                           ),
   //                         ),
   //                       ),
@@ -2253,22 +2251,22 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                 /// SINGLE INPUT FIELD (LIKE IMAGE)
   //                 // TextField(
   //                 //   controller: portfolioLinkController,
-  //                 //   style: const TextStyle(color: ColorCode.white),
+  //                 //   style: const TextStyle(color: AppColors.white),
   //                 //   decoration: InputDecoration(
   //                 //     hintText: "Name of the Link",
-  //                 //     hintStyle: const TextStyle(color: ColorCode.white54),
+  //                 //     hintStyle: const TextStyle(color: AppColors.white54),
   //                 //     contentPadding: const EdgeInsets.symmetric(
   //                 //       horizontal: 20,
   //                 //       vertical: 16,
   //                 //     ),
   //                 //     enabledBorder: OutlineInputBorder(
   //                 //       borderRadius: BorderRadius.circular(14),
-  //                 //       borderSide: const BorderSide(color: ColorCode.white24),
+  //                 //       borderSide: const BorderSide(color: AppColors.white24),
   //                 //     ),
   //                 //     focusedBorder: OutlineInputBorder(
   //                 //       borderRadius: BorderRadius.circular(14),
   //                 //       borderSide:
-  //                 //       BorderSide(color: ColorCode.kButtonColor),
+  //                 //       BorderSide(color: AppColors.primary),
   //                 //     ),
   //                 //   ),
   //                 // ),
@@ -2282,7 +2280,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                   height: 50,
   //                   child: ElevatedButton(
   //                     style: ElevatedButton.styleFrom(
-  //                       backgroundColor: Color(0xFFEAD3A1),
+  //                       backgroundColor: AppColors.goldSoft,
   //                       shape: RoundedRectangleBorder(
   //                         borderRadius: BorderRadius.circular(14),
   //                       ),
@@ -2309,7 +2307,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                     child: const Text(
   //                       "Save Link",
   //                       style: TextStyle(
-  //                         color: ColorCode.black,
+  //                         color: AppColors.black,
   //                         fontWeight: FontWeight.w600,
   //                       ),
   //                     ),
@@ -2331,7 +2329,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: ColorCode.transparent,
+      backgroundColor: AppColors.transparent,
       isScrollControlled: true,
       builder: (_) {
         return StatefulBuilder(
@@ -2345,7 +2343,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: const BoxDecoration(
-                    color: Color(0xFF1E1E1E),
+                    color: AppColors.surfaceStats,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(28),
                     ),
@@ -2361,7 +2359,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           width: 40,
                           margin: const EdgeInsets.only(bottom: 14),
                           decoration: BoxDecoration(
-                            color: ColorCode.white24,
+                            color: AppColors.white24,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -2374,7 +2372,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           const Text(
                             "Add Portfolio Links",
                             style: TextStyle(
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontSize: 16,
                               fontFamily: "Unbounded",
                               fontWeight: FontWeight.w500,
@@ -2384,7 +2382,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             onPressed: () => Navigator.pop(context),
                             icon: const Icon(
                               Icons.close,
-                              color: ColorCode.white,
+                              color: AppColors.white,
                             ),
                           ),
                         ],
@@ -2394,7 +2392,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                       const Text(
                         "Add YouTube, Vimeo, or Google Drive links to showcase your portfolio.",
-                        style: TextStyle(color: ColorCode.white, fontSize: 13),
+                        style: TextStyle(color: AppColors.white, fontSize: 13),
                       ),
 
                       const SizedBox(height: 20),
@@ -2418,12 +2416,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
                                   color: selectedPortfolioIndex == index
-                                      ? ColorCode.kButtonColor
-                                      : ColorCode.white24,
+                                      ? AppColors.primary
+                                      : AppColors.white24,
                                 ),
                                 color: selectedPortfolioIndex == index
-                                    ? ColorCode.kButtonColor.withOpacity(0.15)
-                                    : ColorCode.transparent,
+                                    ? AppColors.primary.withOpacity(0.15)
+                                    : AppColors.transparent,
                               ),
                               child: Center(
                                 child:
@@ -2436,8 +2434,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         width: 22,
                                         colorFilter: ColorFilter.mode(
                                           selectedPortfolioIndex == index
-                                              ? ColorCode.kButtonColor
-                                              : ColorCode.white,
+                                              ? AppColors.primary
+                                              : AppColors.white,
                                           BlendMode.srcIn,
                                         ),
                                       )
@@ -2446,8 +2444,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         height: 22,
                                         width: 22,
                                         color: selectedPortfolioIndex == index
-                                            ? ColorCode.kButtonColor
-                                            : ColorCode.white,
+                                            ? AppColors.primary
+                                            : AppColors.white,
                                       ),
                               ),
                             ),
@@ -2462,7 +2460,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         Text(
                           "${savedPortfolioLinks.length}/3",
                           style: const TextStyle(
-                            color: ColorCode.white24,
+                            color: AppColors.white24,
                             fontSize: 12,
                             fontFamily: "Outfit",
                           ),
@@ -2481,8 +2479,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: ColorCode.white24),
-                              color: ColorCode.kSubtextColor,
+                              border: Border.all(color: AppColors.white24),
+                              color: AppColors.textSubtle,
                             ),
                             child: Row(
                               children: [
@@ -2492,7 +2490,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: Transform.rotate(
                                     angle: pi / 2,
@@ -2513,7 +2511,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         height: 20,
                                         width: 20,
                                         colorFilter: const ColorFilter.mode(
-                                          Color(0xffE8D1AB),
+                                          AppColors.primary,
                                           BlendMode.srcIn,
                                         ),
                                       )
@@ -2521,7 +2519,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         item['icon'],
                                         height: 20,
                                         width: 20,
-                                        color: Color(0xffE8D1AB),
+                                        color: AppColors.primary,
                                       ),
 
                                 const SizedBox(width: 10),
@@ -2531,7 +2529,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   child: Text(
                                     item['name'],
                                     style: const TextStyle(
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                       fontWeight: FontWeight.w500,
                                       fontFamily: "Outfit",
                                     ),
@@ -2544,12 +2542,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     // icon: const Icon(Icons.edit,
-                                    //     color: ColorCode.white, size: 18),
+                                    //     color: AppColors.white, size: 18),
                                     icon: SvgPicture.asset(
                                       AppAssets.Pencil,
                                       width: 18,
@@ -2579,7 +2577,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color(0xff282828),
+                                    color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
@@ -2618,7 +2616,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           height: 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFEAD3A1),
+                              backgroundColor: AppColors.goldSoft,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -2660,7 +2658,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             child: const Text(
                               "Save Link",
                               style: TextStyle(
-                                color: ColorCode.black,
+                                color: AppColors.black,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -2687,11 +2685,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 width: 30,
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: ColorCode.white,
+                                  color: AppColors.white,
                                 ),
                                 child: const Icon(
                                   Icons.add,
-                                  color: ColorCode.black,
+                                  color: AppColors.black,
                                   size: 18,
                                 ),
                               ),
@@ -2699,7 +2697,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               const Text(
                                 "Add another link",
                                 style: TextStyle(
-                                  color: ColorCode.kWhiteOpacity70,
+                                  color: AppColors.white30,
                                   fontSize: 14,
                                   fontFamily: "Outfit",
                                 ),
@@ -2715,7 +2713,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           height: 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFEAD3A1),
+                              backgroundColor: AppColors.goldSoft,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -2724,7 +2722,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             child: const Text(
                               "Save",
                               style: TextStyle(
-                                color: ColorCode.black,
+                                color: AppColors.black,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -2766,12 +2764,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
         decoration: BoxDecoration(
           /// ✅ BACKGROUND COLOR CHANGE HERE
           color: isSelected
-              ? ColorCode.kButtonColor.withOpacity(0.2)
-              : ColorCode.transparent,
+              ? AppColors.primary.withOpacity(0.2)
+              : AppColors.transparent,
 
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? ColorCode.kButtonColor : ColorCode.white24,
+            color: isSelected ? AppColors.primary : AppColors.white24,
             width: isSelected ? 1.5 : 0.8,
           ),
 
@@ -2779,7 +2777,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: ColorCode.kButtonColor.withOpacity(0.35),
+                    color: AppColors.primary.withOpacity(0.35),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -2793,7 +2791,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                   height: 22,
                   width: 22,
                   colorFilter: ColorFilter.mode(
-                    isSelected ? ColorCode.kButtonColor : ColorCode.white,
+                    isSelected ? AppColors.primary : AppColors.white,
                     BlendMode.srcIn,
                   ),
                 )
@@ -2801,7 +2799,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                   imagePath,
                   height: 22,
                   width: 22,
-                  color: isSelected ? ColorCode.kButtonColor : ColorCode.white,
+                  color: isSelected ? AppColors.primary : AppColors.white,
                 ),
         ),
       ),
@@ -2828,11 +2826,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
         width: 52,
         decoration: BoxDecoration(
           color: isSelected
-              ? ColorCode.kButtonColor.withOpacity(0.2)
-              : ColorCode.transparent,
+              ? AppColors.primary.withOpacity(0.2)
+              : AppColors.transparent,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? ColorCode.kButtonColor : ColorCode.white24,
+            color: isSelected ? AppColors.primary : AppColors.white24,
           ),
         ),
         child: Center(
@@ -2840,7 +2838,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
             imagePath,
             height: 22,
             width: 22,
-            color: isSelected ? ColorCode.kButtonColor : ColorCode.white,
+            color: isSelected ? AppColors.primary : AppColors.white,
           ),
         ),
       ),
@@ -2850,7 +2848,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   void _featuredSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: ColorCode.transparent,
+      backgroundColor: AppColors.transparent,
       isScrollControlled: true,
       builder: (_) {
         return StatefulBuilder(
@@ -2858,7 +2856,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
             return Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: ColorCode.backgroundColor,
+                color: AppColors.background,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SingleChildScrollView(
@@ -2872,7 +2870,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         width: 40,
                         margin: EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
-                          color: ColorCode.white24,
+                          color: AppColors.white24,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -2885,7 +2883,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         Text(
                           "Featured Work",
                           style: TextStyle(
-                            color: ColorCode.white,
+                            color: AppColors.white,
                             fontSize: 16,
                             fontFamily: "Unbounded ",
                             fontWeight: FontWeight.w500,
@@ -2893,7 +2891,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         ),
                         IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: Icon(Icons.close, color: ColorCode.white),
+                          icon: Icon(Icons.close, color: AppColors.white),
                         ),
                       ],
                     ),
@@ -2901,7 +2899,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                     Text(
                       "For best results, use a PNG, JPG, Video or\nGIF image etc.",
                       style: TextStyle(
-                        color: ColorCode.kWhiteOpacity70,
+                        color: AppColors.white30,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         fontFamily: "Outfit",
@@ -2909,7 +2907,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                     ),
 
                     SizedBox(height: 16),
-                    Divider(color: ColorCode.kDividerWhite12),
+                    Divider(color: AppColors.dividerDark),
                     SizedBox(height: 20),
 
                     /// ✏️ WORK TITLE
@@ -2945,7 +2943,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       child: DottedBorder(
                         options: RoundedRectDottedBorderOptions(
                           radius: const Radius.circular(16),
-                          color: ColorCode.white24,
+                          color: AppColors.white24,
                           strokeWidth: 1,
                           dashPattern: [4, 4],
                         ),
@@ -2954,7 +2952,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            //    color: const Color(0xFF1E1E1E),
+                            //    color: AppColors.surfaceStats,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: tempFeaturedImages.isEmpty
@@ -2963,7 +2961,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   children: const [
                                     Icon(
                                       Icons.upload,
-                                      color: ColorCode.white,
+                                      color: AppColors.white,
                                       size: 28,
                                     ),
                                     SizedBox(height: 10),
@@ -2972,7 +2970,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontFamily: "Outfit",
-                                        color: ColorCode.white,
+                                        color: AppColors.white,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -3026,13 +3024,13 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                               border: Border.all(
-                                                color: ColorCode.white24,
+                                                color: AppColors.white24,
                                               ),
                                             ),
                                             child: const Center(
                                               child: Icon(
                                                 Icons.add,
-                                                color: ColorCode.white,
+                                                color: AppColors.white,
                                                 size: 28,
                                               ),
                                             ),
@@ -3072,14 +3070,14 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                 height: 24,
                                                 width: 24,
                                                 decoration: BoxDecoration(
-                                                  color: ColorCode.black
+                                                  color: AppColors.black
                                                       .withOpacity(0.7),
                                                   shape: BoxShape.circle,
                                                 ),
                                                 child: const Icon(
                                                   Icons.close,
                                                   size: 14,
-                                                  color: ColorCode.white,
+                                                  color: AppColors.white,
                                                 ),
                                               ),
                                             ),
@@ -3110,21 +3108,21 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   return Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: ColorCode.black,
+                                      color: AppColors.black,
                                       borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: ColorCode.white24),
+                                      border: Border.all(color: AppColors.white24),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text(tag, style: const TextStyle(color: ColorCode.white, fontSize: 12)),
+                                        Text(tag, style: const TextStyle(color: AppColors.white, fontSize: 12)),
                                         const SizedBox(width: 6),
                                         GestureDetector(
                                           onTap: () {
                                             setModalState(() { selectedTags.remove(tag); });
                                             setState(() { selectedTags.remove(tag); });
                                           },
-                                          child: const Icon(Icons.close, size: 14, color: ColorCode.white70),
+                                          child: const Icon(Icons.close, size: 14, color: AppColors.white70),
                                         ),
                                       ],
                                     ),
@@ -3134,16 +3132,16 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                   decoration: BoxDecoration(
-                                    color: ColorCode.black26,
+                                    color: AppColors.black26,
                                     borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: ColorCode.white24),
+                                    border: Border.all(color: AppColors.white24),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: const [
-                                      Icon(Icons.local_offer_outlined, size: 16, color: ColorCode.white),
+                                      Icon(Icons.local_offer_outlined, size: 16, color: AppColors.white),
                                       SizedBox(width: 6),
-                                      Text("# Add Tags", style: TextStyle(color: ColorCode.white, fontSize: 13)),
+                                      Text("# Add Tags", style: TextStyle(color: AppColors.white, fontSize: 13)),
                                     ],
                                   ),
                                 ),
@@ -3170,8 +3168,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: isValid
-                                  ? ColorCode.kButtonColor
-                                  : ColorCode.grey,
+                                  ? AppColors.primary
+                                  : AppColors.lavenderGrey,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -3217,7 +3215,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             child: const Text(
                               "Save",
                               style: TextStyle(
-                                color: ColorCode.black,
+                                color: AppColors.black,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -3244,7 +3242,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: ColorCode.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -3255,7 +3253,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF1E1E1E),
+                  color: AppColors.surfaceStats,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
                 child: Column(
@@ -3269,7 +3267,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         width: 40,
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
-                          color: ColorCode.white24,
+                          color: AppColors.white24,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -3282,7 +3280,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         const Text(
                           "Add Tag",
                           style: TextStyle(
-                            color: ColorCode.white,
+                            color: AppColors.white,
                             fontSize: 16,
                             fontFamily: "Unbounded",
                             fontWeight: FontWeight.w600,
@@ -3290,7 +3288,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         ),
                         IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close, color: ColorCode.white),
+                          icon: const Icon(Icons.close, color: AppColors.white),
                         ),
                       ],
                     ),
@@ -3299,7 +3297,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                     const Text(
                       "Help people find your work",
-                      style: TextStyle(color: ColorCode.white, fontSize: 13),
+                      style: TextStyle(color: AppColors.white, fontSize: 13),
                     ),
 
                     const SizedBox(height: 20),
@@ -3310,10 +3308,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         Expanded(
                           child: TextField(
                             controller: tagController,
-                            style: const TextStyle(color: ColorCode.white),
+                            style: const TextStyle(color: AppColors.white),
                             decoration: const InputDecoration(
                               hintText: "Type tag and press + or Enter",
-                              hintStyle: TextStyle(color: ColorCode.white24),
+                              hintStyle: TextStyle(color: AppColors.white24),
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 14,
@@ -3323,14 +3321,14 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   Radius.circular(12),
                                 ),
                                 borderSide: BorderSide(
-                                  color: ColorCode.white24,
+                                  color: AppColors.white24,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(12),
                                 ),
-                                borderSide: BorderSide(color: ColorCode.white),
+                                borderSide: BorderSide(color: AppColors.white),
                               ),
                             ),
                             onSubmitted: (value) {
@@ -3360,10 +3358,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         //     height: 50,
                         //     width: 50,
                         //     decoration: BoxDecoration(
-                        //       color: const Color(0xFFEAD3A1),
+                        //       color: AppColors.goldSoft,
                         //       borderRadius: BorderRadius.circular(12),
                         //     ),
-                        //     child: const Icon(Icons.add, color: ColorCode.black),
+                        //     child: const Icon(Icons.add, color: AppColors.black),
                         //   ),
                         // ),
                       ],
@@ -3383,9 +3381,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: ColorCode.black,
+                              color: AppColors.black,
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: ColorCode.white24),
+                              border: Border.all(color: AppColors.white24),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -3393,7 +3391,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 Text(
                                   tag,
                                   style: const TextStyle(
-                                    color: ColorCode.white,
+                                    color: AppColors.white,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -3407,7 +3405,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   child: const Icon(
                                     Icons.close,
                                     size: 14,
-                                    color: ColorCode.white24,
+                                    color: AppColors.white24,
                                   ),
                                 ),
                               ],
@@ -3423,8 +3421,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFEAD3A1),
-                          foregroundColor: ColorCode.black,
+                          backgroundColor: AppColors.goldSoft,
+                          foregroundColor: AppColors.black,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -3483,11 +3481,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       margin: EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: ColorCode.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: ColorCode.black.withOpacity(0.25),
+            color: AppColors.black.withOpacity(0.25),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -3499,10 +3497,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
           /// 🔵 PROFILE IMAGE
           CircleAvatar(
             radius: 26,
-            backgroundColor: ColorCode.lightGrey,
+            backgroundColor: AppColors.border,
             backgroundImage: image != null ? FileImage(image) : null,
             child: image == null
-                ? const Icon(Icons.person, size: 28, color: ColorCode.grey)
+                ? const Icon(Icons.person, size: 28, color: AppColors.lavenderGrey)
                 : null,
           ),
 
@@ -3522,7 +3520,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                     fontFamily: "Outfit",
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: ColorCode.black,
+                    color: AppColors.black,
                   ),
                 ),
 
@@ -3536,7 +3534,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                   style: const TextStyle(
                     fontFamily: "Outfit",
                     fontSize: 12,
-                    color: ColorCode.k282828,
+                    color: AppColors.surfaceMid,
                   ),
                 ),
 
@@ -3554,7 +3552,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             showModalBottomSheet(
                               context: context,
                               isScrollControlled: true,
-                              backgroundColor: ColorCode.transparent,
+                              backgroundColor: AppColors.transparent,
                               builder: (_) => ViewDetailsScreen(
                                 firstName: widget.firstName ?? "",
                                 lastName: widget.lastName ?? "",
@@ -3575,7 +3573,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: ColorCode.black,
+                            backgroundColor: AppColors.black,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
@@ -3588,7 +3586,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               fontFamily: "Outfit",
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: ColorCode.kButtonColor,
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
@@ -3602,7 +3600,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       height: 36,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: ColorCode.lightGrey,
+                        color: AppColors.border,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       alignment: Alignment.center,
@@ -3612,7 +3610,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           fontFamily: "Outfit",
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: ColorCode.black,
+                          color: AppColors.black,
                         ),
                       ),
                     ),

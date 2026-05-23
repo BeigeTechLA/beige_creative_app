@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class CustomDropdown<T> extends StatefulWidget {
@@ -31,19 +31,19 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
 
     return DropdownButtonFormField<T>(
       value: widget.value,
-      dropdownColor: const Color(0xFF1C1C1C),
+      dropdownColor: AppColors.surfaceCropSheet,
       icon: Padding(
         padding: const EdgeInsets.only(right: 9),
         child: widget.icon ??
             SvgPicture.asset(
               AppAssets.dropdown, //  your svg path
-              color: ColorCode.white,
+              color: AppColors.white,
               width: 24,
               height: 24,
             ),
       ),
       style: const TextStyle(
-        color: ColorCode.white,
+        color: AppColors.white,
         fontFamily: "Outfit",
         fontSize: 15,
       ),
@@ -54,8 +54,8 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
           fontSize: 14,
           fontFamily: "Outfit",
           color: highlight
-              ? ColorCode.kButtonColor
-              : ColorCode.kWhiteOpacity60,
+              ? AppColors.primary
+              : AppColors.white60,
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
@@ -65,8 +65,8 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
             color: highlight
-                ? ColorCode.textfieldbordercollor
-                : ColorCode.kWhiteOpacity_60,
+                ? AppColors.textfieldBorderLegacy
+                : AppColors.white60,
             width: 0.5,
           ),
         ),
@@ -74,8 +74,8 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
             color: highlight
-                ? ColorCode.textfieldbordercollor
-                : ColorCode.kWhiteOpacity70,
+                ? AppColors.textfieldBorderLegacy
+                : AppColors.white30,
             width: 0.5,
           ),
         ),

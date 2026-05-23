@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../utility/colorcode.dart';
+import '../app/colors.dart';
 import 'view_details_screen.dart';
 
 class PreProductionScreen extends StatefulWidget {
@@ -40,7 +40,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                   child:/* Image.asset(
                     "assets/icons/Reply.png",
                     height: 24,
-                    color: ColorCode.white,
+                    color: AppColors.white,
                   ),*/
                   SvgPicture.asset(AppAssets.back)
                 ),
@@ -48,7 +48,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                 const Text(
                   "Pre Production",
                   style: TextStyle(
-                    color: ColorCode.white,
+                    color: AppColors.white,
                     fontSize: 16,
                     fontFamily: "Unbounded",
                     fontWeight: FontWeight.w500,
@@ -69,22 +69,22 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
               padding:
               const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: ColorCode.k282828,
+                color: AppColors.surfaceMid,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Row(
                 children: [
                   Icon(Icons.search,
-                      color: ColorCode.white),
+                      color: AppColors.white),
                   SizedBox(width: 10),
                   Expanded(
                     child: TextField(
                       style: TextStyle(
-                          color: Colors.white),
+                          color: AppColors.white),
                       decoration: InputDecoration(
                         hintText: "Search",
                         hintStyle: TextStyle(
-                            color: ColorCode.kWhiteOpacity70,),
+                            color: AppColors.white30,),
                         border: InputBorder.none,
                       ),
                     ),
@@ -106,7 +106,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                   margin: const EdgeInsets.only(bottom: 18),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: ColorCode.k282828,
+                    color: AppColors.surfaceMid,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
@@ -118,14 +118,14 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                         children: [
                           Icon(
                             isPdf ? Icons.picture_as_pdf : Icons.description,
-                            color: isPdf ? Colors.redAccent : Colors.blue,
+                            color: isPdf ? AppColors.redAccent : AppColors.blue,
                             size: 18,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             isPdf ? "Example.pdf" : "Example.docx",
                             style: const TextStyle(
-                              color: ColorCode.white,
+                              color: AppColors.white,
                               fontSize: 13,
                               fontFamily: "Outfit",
                               fontWeight: FontWeight.w500,
@@ -133,7 +133,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                           ),
                           const Spacer(),
                           const Icon(Icons.more_vert,
-                              color: ColorCode.white),
+                              color: AppColors.white),
                         ],
                       ),
 
@@ -144,7 +144,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                         height: 140,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: ColorCode.kCircleGradientTop,
+                          color: AppColors.circleGradientTop,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Center(
@@ -153,15 +153,15 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                                 horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: isPdf
-                                  ? Colors.redAccent
-                                  : Colors.blue,
+                                  ? AppColors.redAccent
+                                  : AppColors.blue,
                               borderRadius:
                               BorderRadius.circular(8),
                             ),
                             child: Text(
                               isPdf ? "Pdf" : "Doc",
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: AppColors.white,
                                 fontSize: 16,
                                 fontWeight:
                                 FontWeight.w600,
@@ -174,7 +174,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                       const SizedBox(height: 14),
 
                       const Divider(
-                        color: ColorCode.kDividerWhite12,
+                        color: AppColors.dividerDark,
                         thickness: 0.8,
                       ),
 
@@ -186,11 +186,11 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                           CircleAvatar(
                             radius: 16,
                             backgroundColor:
-                            ColorCode.kSoftLightBlue,
+                            AppColors.softLightBlue,
                             child: Text(
                               "DP",
                               style: TextStyle(
-                                color: ColorCode.black,
+                                color: AppColors.black,
                                 fontSize: 13,
                                 fontWeight:
                                 FontWeight.w600,
@@ -201,7 +201,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                           Text(
                             "Opened 2 hours ago",
                             style: TextStyle(
-                              color: ColorCode.kWhiteOpacity70,
+                              color: AppColors.white30,
                               fontSize: 13,
                             ),
                           )
@@ -219,7 +219,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
         decoration: const BoxDecoration(
-          color: ColorCode.backgroundColor,
+          color: AppColors.background,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -245,7 +245,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                       fontFamily: "Outfit",
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
-                      color: ColorCode.white,
+                      color: AppColors.white,
                       decoration: TextDecoration.underline
                     ),
                   ),
@@ -262,17 +262,17 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
               width: double.infinity,
               height: 55,
               child: ElevatedButton.icon(
-                icon: const Icon(Icons.upload, color: Colors.black),
+                icon: const Icon(Icons.upload, color: AppColors.black),
                 label: const Text(
                   "Upload Files",
                   style: TextStyle(
-                    color: Colors.black,
+                    color: AppColors.black,
                     fontFamily: "Unbounded",
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorCode.kButtonColor,
+                  backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -291,14 +291,14 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (context) {
         return Container(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           decoration: const BoxDecoration(
-            color: Color(0xFF1E1E1E),
+            color: AppColors.surfaceStats,
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(25),
             ),
@@ -317,7 +317,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                     width: 40,
                     margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
-                      color: ColorCode.kWhiteOpacity70,
+                      color: AppColors.white30,
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -330,7 +330,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                     const Text(
                       "Upload Files",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.white,
                         fontSize: 16,
                         fontFamily: "Unbounded",
                         fontWeight: FontWeight.w500,
@@ -339,7 +339,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                     InkWell(
                       onTap: () => Navigator.pop(context),
                       child: const Icon(Icons.close,
-                          color: Colors.white),
+                          color: AppColors.white),
                     ),
                   ],
                 ),
@@ -349,13 +349,13 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                 const Text(
                   "Files will be uploaded to the folder Lana Guzman",
                   style: TextStyle(
-                    color: ColorCode.kWhiteOpacity70,
+                    color: AppColors.white30,
                     fontSize: 12,
                     fontFamily: "Outfit",
                   ),
                 ),
                 Divider(
-                  color: ColorCode.kDividerWhite12,
+                  color: AppColors.dividerDark,
                   thickness: 0.8,
 
                 ),
@@ -379,10 +379,10 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                     height: 230,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: ColorCode.k282828,
+                      color: AppColors.surfaceMid,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Colors.white12,
+                        color: AppColors.dividerDark,
                       ),
                     ),
                     child: Center(
@@ -405,7 +405,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                                 TextSpan(
                                   text: "Drag your files here or ",
                                   style: TextStyle(
-                                    color: ColorCode.white,
+                                    color: AppColors.white,
                                     fontSize: 16,
                                     fontFamily: "Outfit",
                                     fontWeight: FontWeight.w500,
@@ -414,7 +414,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                                 TextSpan(
                                   text: "Browse",
                                   style: TextStyle(
-                                    color: ColorCode.kButtonColor,
+                                    color: AppColors.primary,
                                     fontSize: 16,
                                     fontFamily: "Outfit",
                                     decoration: TextDecoration.underline,
@@ -441,7 +441,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(
-                                color: Colors.white24),
+                                color: AppColors.white24),
                             shape: RoundedRectangleBorder(
                               borderRadius:
                               BorderRadius.circular(14),
@@ -452,7 +452,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                           child: const Text(
                             "Cancel",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.white,
                               fontFamily: "Unbounded",
                             ),
                           ),
@@ -469,7 +469,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.zero,
                             backgroundColor:
-                            ColorCode.kButtonColor,
+                            AppColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius:
                               BorderRadius.circular(14),
@@ -481,7 +481,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                           child: const Text(
                             "Upload Files",
                             style: TextStyle(
-                              color: Colors.black,
+                              color: AppColors.black,
                               fontFamily: "Unbounded",
                             ),
                           ),
