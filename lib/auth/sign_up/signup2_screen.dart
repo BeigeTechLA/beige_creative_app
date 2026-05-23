@@ -516,7 +516,7 @@ class SignUp2ScreenState
                                     /// 🔙 BACK BUTTON
                                     InkWell(
                                       onTap: () {
-                                        Navigator.pop(context);
+                                        context.pop();
                                       },
                                       child: SvgPicture.asset(
                                         AppAssets.back,
@@ -1262,8 +1262,7 @@ class SignUp2ScreenState
 
                           "equipments":
                           selectedEquipments.join(", "),
-
-                          "featuredImages": [],
+                          "featuredImages": <File>[],
                         },
                       );
                     },

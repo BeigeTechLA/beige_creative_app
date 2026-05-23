@@ -78,7 +78,8 @@ class AppImages {
   static const String Ball = '$_svg/ball.svg';
   static const String Pencil = '$_svg/Pencil.svg';
   static const String delete = '$_svg/delete.svg';
-  static const String myprofileeditphoto = '$_svg/myprofileeditphoto.svg';
+  // static const String myprofileeditphoto = '$_svg/myprofileeditphoto.svg';
+  static const String edit_circle = '$_svg/edit_circle.svg';
   static const String notificationbell = '$_svg/notificationbell.svg';
   static const String doller = '$_svg/doller.svg';
   static const String medal = '$_svg/medal.svg';

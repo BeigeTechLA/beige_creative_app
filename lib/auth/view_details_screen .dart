@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../utility/colorcode.dart';
 
 class ViewDetailsScreen extends StatelessWidget {
@@ -36,201 +37,206 @@ class ViewDetailsScreen extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.90,
-      decoration: const BoxDecoration(
-        color: Color(0xFF1C1C1C),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+    return DefaultTextStyle(
+      style: const TextStyle(
+        decoration: TextDecoration.none,
       ),
-      child: Column(
-        children: [
-
-          /// 🔹 DRAG HANDLE
-          Center(
-            child: Container(
-              width: 40,
-              height: 5,
-              decoration: BoxDecoration(
-                color: ColorCode.white24,
-                borderRadius: BorderRadius.circular(10),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.90,
+        decoration: const BoxDecoration(
+          
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          children: [
+      
+            /// 🔹 DRAG HANDLE
+            Center(
+              child: Container(
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: ColorCode.white24,
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
-          ),
-
-          const SizedBox(height: 20),
-
-          /// 🔹 HEADER
-          Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Profile Details",
-                  style: TextStyle(
-                    fontFamily: "Unbounded",
-                    fontSize: 14,
-                    color: ColorCode.white,
+      
+            const SizedBox(height: 20),
+      
+            /// 🔹 HEADER
+            Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Profile Details",
+                    style: TextStyle(
+                      fontFamily: "Unbounded",
+                      fontSize: 14,
+                      color: ColorCode.white,
+                    ),
                   ),
-                ),
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, color: ColorCode.white),
-                ),
-              ],
+                  GestureDetector(
+                    onTap: () => context.pop(),
+                    child: const Icon(Icons.close, color: ColorCode.white),
+                  ),
+                ],
+              ),
             ),
-          ),
-
-          const SizedBox(height: 15),
-          Divider(color: ColorCode.kDividerWhite12),
-          const SizedBox(height: 20),
-
-          /// 🔥 SCROLLABLE CONTENT
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    /// 🔥 PROFILE CARD
-                    Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color:ColorCode.k282828,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: ColorCode.white.withOpacity(0.05)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-
-                          /// 🔹 IMAGE + NAME
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 28,
-                                backgroundColor: ColorCode.lightGrey,
-                                backgroundImage:
-                                profileImage != null
-                                    ? FileImage(profileImage!)
-                                    : null,
-                                child: profileImage == null
-                                    ? const Icon(Icons.person,
-                                    size: 30,
-                                    color: ColorCode.grey)
-                                    : null,
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Text(
-                                  "$firstName $lastName",
-                                  style: const TextStyle(
-                                    fontFamily: "Outfit",
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: ColorCode.white,
+      
+            const SizedBox(height: 15),
+            Divider(color: ColorCode.kDividerWhite12),
+            const SizedBox(height: 20),
+      
+            /// 🔥 SCROLLABLE CONTENT
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+      
+                      /// 🔥 PROFILE CARD
+                      Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color:ColorCode.k282828,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: ColorCode.white.withOpacity(0.05)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+      
+                            /// 🔹 IMAGE + NAME
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 28,
+                                  backgroundColor: ColorCode.lightGrey,
+                                  backgroundImage:
+                                  profileImage != null
+                                      ? FileImage(profileImage!)
+                                      : null,
+                                  child: profileImage == null
+                                      ? const Icon(Icons.person,
+                                      size: 30,
+                                      color: ColorCode.grey)
+                                      : null,
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Text(
+                                    "$firstName $lastName",
+                                    style: const TextStyle(
+                                      fontFamily: "Outfit",
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: ColorCode.white,
+                                    ),
                                   ),
+                                ),
+                              ],
+                            ),
+      
+                            const SizedBox(height: 16),
+      
+                            _infoText(email),
+                            _infoText(location),
+                            _infoText(workingDistance),
+      
+                            const SizedBox(height: 20),
+      
+                            /// 🔹 PROFESSIONAL DETAILS
+                            _sectionTitle("Professional Details"),
+      
+                            _infoRow("Primary Role", primaryRole),
+                            _infoRow("Experience", experience.isEmpty ? "" : "$experience Years"),
+                            _infoRow("Hourly Rate", hourlyRate.isEmpty ? "" : "₹ $hourlyRate"),
+      
+                            const SizedBox(height: 20),
+      
+                            /// 🔹 BIO
+                            if (bio.isNotEmpty) ...[
+                              _sectionTitle("Bio"),
+                              const SizedBox(height: 6),
+                              Text(
+                                bio,
+                                style: const TextStyle(
+                                  fontFamily: "Outfit",
+                                  fontSize: 13,
+                                  color: ColorCode.white24,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+      
+                            /// 🔹 SKILLS
+                            if (skills.isNotEmpty) ...[
+                              _sectionTitle("Skills"),
+                              const SizedBox(height: 6),
+                              Text(
+                                skills,
+                                style: const TextStyle(
+                                  fontFamily: "Outfit",
+                                  fontSize: 13,
+                                  color: ColorCode.kWhiteOpacity70,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+      
+                            /// 🔹 EQUIPMENTS
+                            if (equipments.isNotEmpty) ...[
+                              _sectionTitle("Equipments"),
+                              const SizedBox(height: 6),
+                              Text(
+                                equipments,
+                                style: const TextStyle(
+                                  fontFamily: "Outfit",
+                                  fontSize: 13,
+                                  color: ColorCode.kWhiteOpacity70,
                                 ),
                               ),
                             ],
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          _infoText(email),
-                          _infoText(location),
-                          _infoText(workingDistance),
-
-                          const SizedBox(height: 20),
-
-                          /// 🔹 PROFESSIONAL DETAILS
-                          _sectionTitle("Professional Details"),
-
-                          _infoRow("Primary Role", primaryRole),
-                          _infoRow("Experience", experience.isEmpty ? "" : "$experience Years"),
-                          _infoRow("Hourly Rate", hourlyRate.isEmpty ? "" : "₹ $hourlyRate"),
-
-                          const SizedBox(height: 20),
-
-                          /// 🔹 BIO
-                          if (bio.isNotEmpty) ...[
-                            _sectionTitle("Bio"),
-                            const SizedBox(height: 6),
-                            Text(
-                              bio,
-                              style: const TextStyle(
-                                fontFamily: "Outfit",
-                                fontSize: 13,
-                                color: ColorCode.white24,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                          ],
-
-                          /// 🔹 SKILLS
-                          if (skills.isNotEmpty) ...[
-                            _sectionTitle("Skills"),
-                            const SizedBox(height: 6),
-                            Text(
-                              skills,
-                              style: const TextStyle(
-                                fontFamily: "Outfit",
-                                fontSize: 13,
-                                color: ColorCode.kWhiteOpacity70,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                          ],
-
-                          /// 🔹 EQUIPMENTS
-                          if (equipments.isNotEmpty) ...[
-                            _sectionTitle("Equipments"),
-                            const SizedBox(height: 6),
-                            Text(
-                              equipments,
-                              style: const TextStyle(
-                                fontFamily: "Outfit",
-                                fontSize: 13,
-                                color: ColorCode.kWhiteOpacity70,
-                              ),
-                            ),
-                          ],
-                          if (featuredImages.isNotEmpty) ...[
-                            _sectionTitle("Featured Work"),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              height: 120,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: featuredImages.length,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                    width: 140,
-                                    margin: const EdgeInsets.only(right: 12),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(14),
-                                      child: Image.file(
-                                        featuredImages[index],
-                                        fit: BoxFit.cover,
+                            if (featuredImages.isNotEmpty) ...[
+                              _sectionTitle("Featured Work"),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                height: 120,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: featuredImages.length,
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      width: 140,
+                                      margin: const EdgeInsets.only(right: 12),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(14),
+                                        child: Image.file(
+                                          featuredImages[index],
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 20),
+                              const SizedBox(height: 20),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

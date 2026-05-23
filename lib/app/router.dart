@@ -263,8 +263,10 @@ final GoRouter appRouter = GoRouter(
           skills: data['skills'] ?? "",
           equipments:
           data['equipments'] ?? "",
-          featuredImages:
-          (data['featuredImages'] as List<File>?) ?? <File>[],
+          // ✅ YAHI FIX HAI - safe cast karo
+          featuredImages: (data['featuredImages'] as List?)
+              ?.map((e) => e as File)
+              .toList() ?? <File>[],
         );
       },
     ),
