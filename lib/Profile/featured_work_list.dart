@@ -15,6 +15,8 @@ import '../app/colors.dart';
 import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/Topmessgae.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../widgets/commonImagePicker.dart';
 import '../widgets/common_uploader.dart';
 import '../widgets/custom_text_field.dart';
@@ -260,7 +262,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
         children: [
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(AppSpacing.s15),
               child: Column(
                 children: [
                   Row(
@@ -280,11 +282,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                     children: [
                       Text(
                         "Featured work",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontFamily: "Unbounded",
-                          fontSize: 16,
-                        ),
+                        style: AppTextStyles.displayLabel16,
                       ),
                     ],
                   ),
@@ -335,7 +333,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           return const Center(
                             child: Text(
                               "No Featured Work",
-                              style: TextStyle(color: AppColors.white24),
+                              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white24),
                             ),
                           );
                         }
@@ -606,8 +604,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
           if (isloading) AppLoader(),
         ],
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(15),
+      bottomNavigationBar: const Padding(
+        padding: EdgeInsets.all(AppSpacing.s15),
 
         child: SizedBox(
           width: double.infinity,
@@ -626,11 +624,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
             child: const Text(
               "Add Featured Works",
-              style: TextStyle(
-                fontFamily: "Unbounded",
-                fontWeight: FontWeight.w500,
-                color: AppColors.black,
-              ),
+              style: AppTextStyles.displayLabel14,
             ),
           ),
         ),
@@ -671,7 +665,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         child: Container(
                           height: 5,
                           width: 40,
-                          margin: const EdgeInsets.only(bottom: 12),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.md),
                           decoration: BoxDecoration(
                             color: AppColors.white24,
                             borderRadius: AppRadii.xsAll,
@@ -1100,10 +1094,10 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
             int totalImages = editingImages.length + tempFeaturedImages.length;
 
             return Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              decoration: const BoxDecoration(
                 color: AppColors.background,
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                   top: Radius.circular(24),
                 ),
               ),
@@ -1117,7 +1111,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       child: Container(
                         height: 4,
                         width: 40,
-                        margin: const EdgeInsets.only(bottom: 12),
+                        margin: const EdgeInsets.only(bottom: AppSpacing.md),
                         decoration: BoxDecoration(
                           color: AppColors.white24,
                           borderRadius: AppRadii.xsAll,
@@ -1131,11 +1125,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       children: [
                         const Text(
                           "Featured Work",
-                          style: TextStyle(
+                          style: AppTextStyles.displayLabel16.copyWith(
                             color: AppColors.white,
-                            fontSize: 16,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w500,
                           ),
                         ),
 
@@ -1151,10 +1142,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                     const Text(
                       "For best results, use PNG, JPG or GIF.",
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.white30,
-                        fontSize: 14,
-                        fontFamily: "Outfit",
                       ),
                     ),
 
@@ -1183,7 +1172,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(AppSpacing.base),
 
                         decoration: BoxDecoration(
                           borderRadius: AppRadii.xxlAll,
@@ -1222,11 +1211,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                       const Text(
                                         "Upload New Image, Video,Or Browse",
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontFamily: "Outfit",
+                                        style: AppTextStyles.bodyLargeStrong.copyWith(
                                           color: AppColors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
 
@@ -1235,11 +1221,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                       const Text(
                                         "Choose a file in a 4:3, 5:4, 9:16,\nor 16:9 aspect ratio.",
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontFamily: "Outfit",
+                                        style: AppTextStyles.bodyCompact.copyWith(
                                           color: AppColors.white30,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w400,
                                         ),
                                       ),
                                     ],
@@ -1478,10 +1461,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                         child: const Text(
                           "Save",
-                          style: TextStyle(
-                            color: AppColors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: AppTextStyles.buttonMedium,
                         ),
                       ),
                     ),
@@ -1513,7 +1493,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(AppSpacing.xl),
                 decoration: const BoxDecoration(
                   color: AppColors.surfaceStats,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -1527,7 +1507,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       child: Container(
                         height: 4,
                         width: 40,
-                        margin: const EdgeInsets.only(bottom: 12),
+                        margin: const EdgeInsets.only(bottom: AppSpacing.md),
                         decoration: BoxDecoration(
                           color: AppColors.white24,
                           borderRadius: AppRadii.xsAll,
@@ -1541,12 +1521,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       children: [
                         const Text(
                           "Add Tag",
-                          style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 16,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: AppTextStyles.displayStrong16,
                         ),
                         IconButton(
                           onPressed: () => context.pop(),
@@ -1559,7 +1534,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                     const Text(
                       "Help people find your work",
-                      style: TextStyle(color: AppColors.white24, fontSize: 13),
+                      style: AppTextStyles.bodyCompact.copyWith(color: AppColors.white24),
                     ),
 
                     const SizedBox(height: 20),
@@ -1570,13 +1545,13 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         Expanded(
                           child: TextField(
                             controller: tagController,
-                            style: const TextStyle(color: AppColors.white),
+                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                             decoration: const InputDecoration(
                               hintText: "Type tag and press + or Enter",
-                              hintStyle: TextStyle(color: AppColors.white24),
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
+                              hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.white24),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.base,
+                                vertical: AppSpacing.smd,
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.all(
@@ -1639,8 +1614,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         children: tempTags.map((tag) {
                           return Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.xs,
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.black,
@@ -1652,9 +1627,8 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                               children: [
                                 Text(
                                   tag,
-                                  style: const TextStyle(
+                                  style: AppTextStyles.bodySmall.copyWith(
                                     color: AppColors.white,
-                                    fontSize: 12,
                                   ),
                                 ),
                                 const SizedBox(width: 6),
@@ -1685,7 +1659,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.goldSoft,
                           foregroundColor: AppColors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.buttonVertical),
                           shape: RoundedRectangleBorder(
                             borderRadius: AppRadii.xlAll,
                           ),
@@ -1712,7 +1686,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         },
                         child: const Text(
                           "Save",
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                          style: AppTextStyles.buttonMedium,
                         ),
                       ),
                     ),

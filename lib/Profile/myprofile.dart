@@ -16,6 +16,8 @@ import '../service/shared_service.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
 import '../app/shadows.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/app_loder.dart';
@@ -257,7 +259,7 @@ class _MyprofileState extends State<Myprofile> {
                 color: AppColors.surfaceCropSheet,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.base),
               child: Column(
                 children: [
                   Center(
@@ -276,11 +278,8 @@ class _MyprofileState extends State<Myprofile> {
                     children: [
                       Text(
                         "Crop your Profile",
-                        style: TextStyle(
+                        style: AppTextStyles.body18Medium.copyWith(
                           color: AppColors.white,
-                          fontSize: 18,
-                          fontFamily: "Outfit",
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
 
@@ -288,7 +287,7 @@ class _MyprofileState extends State<Myprofile> {
                         onTap: () => context.pop(), // ❌ close bottom sheet
                         borderRadius: AppRadii.hugeAll,
                         child: Padding(
-                          padding: EdgeInsets.all(6),
+                          padding: const EdgeInsets.all(AppSpacing.xs),
                           child: Icon(
                             Icons.close,
                             color: AppColors.white,
@@ -363,7 +362,7 @@ class _MyprofileState extends State<Myprofile> {
 
                   /// 🔥 ZOOM SLIDER
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                     child: Row(
                       children: [
                         /// 🔹 LEFT IMAGE ICON
@@ -483,12 +482,7 @@ class _MyprofileState extends State<Myprofile> {
                             )
                           : const Text(
                               "Save",
-                              style: TextStyle(
-                                color: AppColors.black,
-                                fontSize: 14,
-                                fontFamily: "Unbounded",
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: AppTextStyles.displayLabel14,
                             ),
                     ),
                   ),
@@ -960,12 +954,7 @@ class _MyprofileState extends State<Myprofile> {
                       child: Center(
                         child: Text(
                           "My Profile",
-                          style: TextStyle(
-                            color: AppColors.textHeading,
-                            fontSize: 16,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: AppTextStyles.displayLabel16,
                         ),
                       ),
                     ),
@@ -979,7 +968,7 @@ class _MyprofileState extends State<Myprofile> {
                         child: Stack(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(AppSpacing.xxs),
                               decoration: const BoxDecoration(
                                 color: AppColors.white,
                                 shape: BoxShape.circle,
@@ -1057,16 +1046,13 @@ class _MyprofileState extends State<Myprofile> {
                 /// 🔹 USER INFO
                 Text(
                   "${Myprofile_user?.firstName ?? ''} ${Myprofile_user?.lastName ?? ''}",
-                  style: TextStyle(
-                    fontFamily: "Outfit",
+                  style: AppTextStyles.body20Medium.copyWith(
                     color: AppColors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(AppSpacing.sm),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -1077,22 +1063,19 @@ class _MyprofileState extends State<Myprofile> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: AppTextStyles.body14.copyWith(
                             color: AppColors.white60,
-                            fontFamily: "Outfit",
-                            fontSize: 14,
                           ),
                         ),
                       ),
 
                       /// |
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
                         child: Text(
                           "|",
-                          style: TextStyle(
+                          style: AppTextStyles.system14.copyWith(
                             color: AppColors.white60,
-                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -1104,10 +1087,8 @@ class _MyprofileState extends State<Myprofile> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: AppTextStyles.body14.copyWith(
                             color: AppColors.white60,
-                            fontFamily: "Outfit",
-                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -1149,7 +1130,7 @@ class _MyprofileState extends State<Myprofile> {
                 const SizedBox(height: 20),
 
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
                   child: Column(
                     children: [
                       Row(
@@ -1189,7 +1170,7 @@ class _MyprofileState extends State<Myprofile> {
                       /*        Container(
 
                       margin: EdgeInsetsGeometry.only(top: 17),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
                       decoration: BoxDecoration(
                         color: AppColors.softMint, // light green bg
                         borderRadius: AppRadii.hugeAll,
@@ -1222,18 +1203,15 @@ class _MyprofileState extends State<Myprofile> {
                       ),
                     ),*/
                       Padding(
-                        padding: EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(AppSpacing.md),
                         child: Divider(color: AppColors.dividerDark),
                       ),
                       Row(
                         children: [
                           Text(
                             "Social Link",
-                            style: TextStyle(
+                            style: AppTextStyles.displayLabel14.copyWith(
                               color: AppColors.white,
-                              fontFamily: "Unbounded",
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -1242,7 +1220,7 @@ class _MyprofileState extends State<Myprofile> {
                       socialLinks.isEmpty
                           ? const Text(
                               "No social links added",
-                              style: TextStyle(color: AppColors.white24),
+                              style: AppTextStyles.systemDefault,
                             )
                           : Column(
                               children: socialLinks.asMap().entries.map((
@@ -1252,10 +1230,10 @@ class _MyprofileState extends State<Myprofile> {
                                 final item = entry.value;
 
                                 return Container(
-                                  margin: const EdgeInsets.only(bottom: 10),
+                                  margin: const EdgeInsets.only(bottom: AppSpacing.smd),
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 10,
+                                    horizontal: AppSpacing.md,
+                                    vertical: AppSpacing.smd,
                                   ),
                                   decoration: BoxDecoration(
                                     borderRadius: AppRadii.lgAll,
@@ -1284,15 +1262,11 @@ class _MyprofileState extends State<Myprofile> {
                                           children: [
                                             Text(
                                               item["name"]!,
-                                              style: const TextStyle(
-                                                color: AppColors.white,
-                                              ),
+                                              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                                             ),
                                             Text(
                                               item["url"]!,
-                                              style: const TextStyle(
-                                                color: AppColors.white24,
-                                              ),
+                                              style: AppTextStyles.bodySmall.copyWith(color: AppColors.white24),
                                             ),
                                           ],
                                         ),
@@ -1380,7 +1354,7 @@ class _MyprofileState extends State<Myprofile> {
 
                             borderRadius: AppRadii.lgAll,
                             child: Container(
-                              padding: EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(AppSpacing.md),
                               decoration: BoxDecoration(
                                 color: AppColors.primary, // beige
                                 borderRadius: AppRadii.r15All,
@@ -1399,11 +1373,8 @@ class _MyprofileState extends State<Myprofile> {
                         children: [
                           Text(
                             "Portfolio Link",
-                            style: TextStyle(
+                            style: AppTextStyles.displayLabel14.copyWith(
                               color: AppColors.white,
-                              fontFamily: "Unbounded",
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -1412,7 +1383,7 @@ class _MyprofileState extends State<Myprofile> {
                       portfolioLinks.isEmpty
                           ? const Text(
                               "No portfolio links added",
-                              style: TextStyle(color: AppColors.white24),
+                              style: AppTextStyles.systemDefault,
                             )
                           : Column(
                               children: portfolioLinks.asMap().entries.map((
@@ -1422,10 +1393,10 @@ class _MyprofileState extends State<Myprofile> {
                                 final item = entry.value;
 
                                 return Container(
-                                  margin: const EdgeInsets.only(bottom: 10),
+                                  margin: const EdgeInsets.only(bottom: AppSpacing.smd),
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 10,
+                                    horizontal: AppSpacing.md,
+                                    vertical: AppSpacing.smd,
                                   ),
                                   decoration: BoxDecoration(
                                     borderRadius: AppRadii.lgAll,
@@ -1454,15 +1425,11 @@ class _MyprofileState extends State<Myprofile> {
                                           children: [
                                             Text(
                                               item["name"]!,
-                                              style: const TextStyle(
-                                                color: AppColors.white,
-                                              ),
+                                              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                                             ),
                                             Text(
                                               item["url"]!,
-                                              style: const TextStyle(
-                                                color: AppColors.white24,
-                                              ),
+                                              style: AppTextStyles.bodySmall.copyWith(color: AppColors.white24),
                                             ),
                                           ],
                                         ),
@@ -1556,7 +1523,7 @@ class _MyprofileState extends State<Myprofile> {
 
                             borderRadius: AppRadii.lgAll,
                             child: Container(
-                              padding: EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(AppSpacing.md),
                               decoration: BoxDecoration(
                                 color: AppColors.primary, // beige
                                 borderRadius: AppRadii.r15All,
@@ -1584,7 +1551,7 @@ class _MyprofileState extends State<Myprofile> {
         ],
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.base, AppSpacing.smd, AppSpacing.base, AppSpacing.xl),
         color: AppColors.background,
         child: InkWell(
           onTap: _showLogoutBottomSheet,
@@ -1598,12 +1565,7 @@ class _MyprofileState extends State<Myprofile> {
             child: const Center(
               child: Text(
                 "Logout",
-                style: TextStyle(
-                  fontFamily: "Unbounded",
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textHeading,
-                ),
+                style: AppTextStyles.displayLabel14Strong,
               ),
             ),
           ),
@@ -1614,7 +1576,7 @@ class _MyprofileState extends State<Myprofile> {
 
   Widget _skillChip(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.smd, vertical: AppSpacing.dropdownIconInset),
       decoration: BoxDecoration(
         color: AppColors.surfaceMid, // bg color
         borderRadius: AppRadii.mdAll,
@@ -1625,31 +1587,24 @@ class _MyprofileState extends State<Myprofile> {
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          fontFamily: 'Outfit',
-          color: AppColors.white,
-          fontSize: 12,
-        ),
+        style: AppTextStyles.body12,
       ),
     );
   }
 
   Widget _profileMenuCard() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base, vertical: AppSpacing.md),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(AppSpacing.sm),
             child: Row(
               children: [
                 Text(
                   "My Account",
-                  style: TextStyle(
+                  style: AppTextStyles.displayLabel14.copyWith(
                     color: AppColors.white,
-                    fontFamily: "Unbounded",
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -1703,16 +1658,13 @@ class _MyprofileState extends State<Myprofile> {
           ),
 
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(AppSpacing.sm),
             child: Row(
               children: [
                 Text(
                   "Portfolio & Credentials",
-                  style: TextStyle(
+                  style: AppTextStyles.displayLabel14.copyWith(
                     color: AppColors.white,
-                    fontFamily: "Unbounded",
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -1754,21 +1706,18 @@ class _MyprofileState extends State<Myprofile> {
 
           SizedBox(height: 10),
           Padding(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: Divider(color: AppColors.dividerDark),
           ),
 
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(AppSpacing.sm),
             child: Row(
               children: [
                 Text(
                   "Settings",
-                  style: TextStyle(
+                  style: AppTextStyles.displayLabel14.copyWith(
                     color: AppColors.white,
-                    fontFamily: "Unbounded",
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -1815,7 +1764,7 @@ class _MyprofileState extends State<Myprofile> {
       borderRadius: AppRadii.hugeAll,
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base, vertical: AppSpacing.lg),
         child: Row(
           children: [
             Container(
@@ -1845,11 +1794,7 @@ class _MyprofileState extends State<Myprofile> {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  fontFamily: "Outfit",
-                  color: AppColors.white,
-                  fontSize: 14,
-                ),
+                style: AppTextStyles.body14,
               ),
             ),
             // ),
@@ -1866,7 +1811,7 @@ class _MyprofileState extends State<Myprofile> {
 
   Widget _divider() {
     return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
       child: Divider(height: 1, color: AppColors.dividerDark),
     );
   }
@@ -1896,7 +1841,7 @@ class _MyprofileState extends State<Myprofile> {
 
       /// 🔥 INNER DARK CONTAINER
       child: Padding(
-        padding: const EdgeInsets.all(0.6), // 👈 border thickness (0.5px feel)
+        padding: const EdgeInsets.all(AppSpacing.fine), // 👈 border thickness (0.5px feel)
         child: Container(
           decoration: BoxDecoration(
             color: AppColors.surfaceStats,
@@ -1909,7 +1854,7 @@ class _MyprofileState extends State<Myprofile> {
               Positioned(
                 top: -1,
                 child: Container(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(AppSpacing.sm),
                   width: 38,
                   height: 42,
                   decoration: BoxDecoration(
@@ -1934,20 +1879,14 @@ class _MyprofileState extends State<Myprofile> {
                   const SizedBox(height: 20),
                   Text(
                     value,
-                    style: const TextStyle(
-                      fontFamily: "Outfit",
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                    style: AppTextStyles.bodyLargeMedium.copyWith(
                       color: AppColors.white,
                     ),
                   ),
                   const SizedBox(height: 3),
                   Text(
                     title,
-                    style: TextStyle(
-                      fontFamily: "Outfit",
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+                    style: AppTextStyles.body12.copyWith(
                       color: AppColors.white.withOpacity(0.7),
                     ),
                   ),
@@ -1977,7 +1916,7 @@ class _MyprofileState extends State<Myprofile> {
               ),
               child: SingleChildScrollView(
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AppSpacing.xl),
                   decoration: const BoxDecoration(
                     color: AppColors.background,
                     borderRadius: BorderRadius.vertical(
@@ -1992,7 +1931,7 @@ class _MyprofileState extends State<Myprofile> {
                         child: Container(
                           height: 5,
                           width: 40,
-                          margin: const EdgeInsets.only(bottom: 12),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.md),
                           decoration: BoxDecoration(
                             color: AppColors.white24,
                             borderRadius: AppRadii.xsAll,
@@ -2006,12 +1945,7 @@ class _MyprofileState extends State<Myprofile> {
                         children: [
                           const Text(
                             "Add Social Links",
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontSize: 16,
-                              fontFamily: "Unbounded",
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: AppTextStyles.displayLabel16,
                           ),
                           IconButton(
                             onPressed: () => Navigator.pop(context),
@@ -2025,12 +1959,7 @@ class _MyprofileState extends State<Myprofile> {
 
                       const Text(
                         "Add links that showcase your work, recognition,\npersonality and more!",
-                        style: TextStyle(
-                          color: AppColors.white30,
-                          fontSize: 14,
-                          fontFamily: "Outfit",
-                          fontWeight: FontWeight.w400,
-                        ),
+                        style: AppTextStyles.bodyMedium,
                       ),
 
                       const SizedBox(height: 20),
@@ -2095,10 +2024,8 @@ class _MyprofileState extends State<Myprofile> {
                       if (!isEditing && socialLinks.isNotEmpty) ...[
                         Text(
                           "${socialLinks.length}/6",
-                          style: const TextStyle(
+                          style: AppTextStyles.body12.copyWith(
                             color: AppColors.white24,
-                            fontSize: 12,
-                            fontFamily: "Outfit",
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -2108,11 +2035,11 @@ class _MyprofileState extends State<Myprofile> {
                           final item = entry.value;
 
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
-                            ),
+                             margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                             padding: const EdgeInsets.symmetric(
+                               horizontal: AppSpacing.md,
+                               vertical: AppSpacing.smd,
+                             ),
                             decoration: BoxDecoration(
                               borderRadius: AppRadii.lgAll,
                               border: Border.all(color: AppColors.white24),
@@ -2161,11 +2088,7 @@ class _MyprofileState extends State<Myprofile> {
                                 Expanded(
                                   child: Text(
                                     item["name"]!,
-                                    style: const TextStyle(
-                                      color: AppColors.white,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: "Outfit",
-                                    ),
+                                    style: AppTextStyles.body14Medium.copyWith(color: AppColors.white),
                                   ),
                                 ),
 
@@ -2303,10 +2226,7 @@ class _MyprofileState extends State<Myprofile> {
                             },
                             child: const Text(
                               "Save Link",
-                              style: TextStyle(
-                                color: AppColors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: AppTextStyles.buttonMedium,
                             ),
                           ),
                         ),
@@ -2342,11 +2262,7 @@ class _MyprofileState extends State<Myprofile> {
                               const SizedBox(width: 12),
                               const Text(
                                 "Add another link",
-                                style: TextStyle(
-                                  color: AppColors.white30,
-                                  fontSize: 14,
-                                  fontFamily: "Outfit",
-                                ),
+                                style: AppTextStyles.bodyMedium,
                               ),
                             ],
                           ),
@@ -2366,10 +2282,7 @@ class _MyprofileState extends State<Myprofile> {
                             onPressed: saveSocialLinksToApi,
                             child: const Text(
                               "Save",
-                              style: TextStyle(
-                                color: AppColors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: AppTextStyles.buttonMedium,
                             ),
                           ),
                         ),
@@ -2405,7 +2318,7 @@ class _MyprofileState extends State<Myprofile> {
               ),
               child: SingleChildScrollView(
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AppSpacing.xl),
                   decoration: const BoxDecoration(
                     color: AppColors.background,
                     borderRadius: BorderRadius.vertical(
@@ -2421,7 +2334,7 @@ class _MyprofileState extends State<Myprofile> {
                         child: Container(
                           height: 4,
                           width: 40,
-                          margin: const EdgeInsets.only(bottom: 14),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.mld),
                           decoration: BoxDecoration(
                             color: AppColors.white24,
                             borderRadius: AppRadii.xsAll,
@@ -2435,12 +2348,7 @@ class _MyprofileState extends State<Myprofile> {
                         children: [
                           const Text(
                             "Add Portfolio Links",
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontSize: 16,
-                              fontFamily: "Unbounded",
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: AppTextStyles.displayLabel16,
                           ),
                           IconButton(
                             onPressed: () => Navigator.pop(context),
@@ -2454,10 +2362,7 @@ class _MyprofileState extends State<Myprofile> {
                       const SizedBox(height: 6),
                       const Text(
                         "Add YouTube, Vimeo, or Google Drive links to showcase your portfolio.",
-                        style: TextStyle(
-                          color: AppColors.white30,
-                          fontSize: 13,
-                        ),
+                        style: AppTextStyles.system13,
                       ),
                       const SizedBox(height: 20),
 
@@ -2516,10 +2421,8 @@ class _MyprofileState extends State<Myprofile> {
                           portfolioLinks.isNotEmpty) ...[
                         Text(
                           "${portfolioLinks.length}/3",
-                          style: const TextStyle(
+                          style: AppTextStyles.body12.copyWith(
                             color: AppColors.white24,
-                            fontSize: 12,
-                            fontFamily: "Outfit",
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -2527,11 +2430,11 @@ class _MyprofileState extends State<Myprofile> {
                           final index = entry.key;
                           final item = entry.value;
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
-                            ),
+                             margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                             padding: const EdgeInsets.symmetric(
+                               horizontal: AppSpacing.md,
+                               vertical: AppSpacing.smd,
+                             ),
                             decoration: BoxDecoration(
                               borderRadius: AppRadii.lgAll,
                               border: Border.all(color: AppColors.white24),
@@ -2566,10 +2469,8 @@ class _MyprofileState extends State<Myprofile> {
                                 Expanded(
                                   child: Text(
                                     item["name"]!,
-                                    style: const TextStyle(
+                                    style: AppTextStyles.body14Medium.copyWith(
                                       color: AppColors.white,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: "Outfit",
                                     ),
                                   ),
                                 ),
@@ -2755,10 +2656,7 @@ class _MyprofileState extends State<Myprofile> {
                                   )
                                 : const Text(
                                     "Save Link",
-                                    style: TextStyle(
-                                      color: AppColors.black,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: AppTextStyles.buttonMedium,
                                   ),
                           ),
                         ),
@@ -2796,11 +2694,7 @@ class _MyprofileState extends State<Myprofile> {
                               const SizedBox(width: 12),
                               const Text(
                                 "Add another link",
-                                style: TextStyle(
-                                  color: AppColors.white30,
-                                  fontSize: 14,
-                                  fontFamily: "Outfit",
-                                ),
+                                style: AppTextStyles.bodyMedium,
                               ),
                             ],
                           ),
@@ -2822,10 +2716,7 @@ class _MyprofileState extends State<Myprofile> {
                               onPressed: savePortfolioLinksToApi,
                               child: const Text(
                                 "Save",
-                                style: TextStyle(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: AppTextStyles.buttonMedium,
                               ),
                             ),
                           ),
@@ -2849,7 +2740,7 @@ class _MyprofileState extends State<Myprofile> {
       isScrollControlled: true,
       builder: (_) {
         return Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           decoration: const BoxDecoration(
             color: AppColors.surfaceStats,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -2861,7 +2752,7 @@ class _MyprofileState extends State<Myprofile> {
               Container(
                 height: 5,
                 width: 30,
-                margin: EdgeInsets.only(bottom: 16),
+                margin: const EdgeInsets.only(bottom: AppSpacing.base),
                 decoration: BoxDecoration(
                   color: AppColors.white30,
                   borderRadius: AppRadii.r2All,
@@ -2870,11 +2761,8 @@ class _MyprofileState extends State<Myprofile> {
 
               Text(
                 "Logout",
-                style: TextStyle(
+                style: AppTextStyles.displayLabel15Strong.copyWith(
                   color: AppColors.white,
-                  fontSize: 15,
-                  fontFamily: "Unbounded",
-                  fontWeight: FontWeight.w600,
                 ),
               ),
 
@@ -2883,11 +2771,7 @@ class _MyprofileState extends State<Myprofile> {
               /// SUBTITLE
               const Text(
                 "Are you sure you want to log out?",
-                style: TextStyle(
-                  color: AppColors.white30,
-                  fontSize: 14,
-                  fontFamily: "Outfit",
-                ),
+                style: AppTextStyles.bodyMedium,
               ),
               SizedBox(height: 14),
 
@@ -2906,18 +2790,16 @@ class _MyprofileState extends State<Myprofile> {
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: AppColors.white60),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.buttonVertical),
                         shape: RoundedRectangleBorder(
                           borderRadius: AppRadii.xlAll,
                         ),
                       ),
                       child: Text(
                         "Cancel",
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: AppTextStyles.displayLabel14.copyWith(
                           fontWeight: FontWeight.w500,
                           color: AppColors.white,
-                          fontFamily: "Unbounded",
                         ),
                       ),
                     ),
@@ -2936,18 +2818,16 @@ class _MyprofileState extends State<Myprofile> {
 
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        padding: EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.buttonVertical),
                         shape: RoundedRectangleBorder(
                           borderRadius: AppRadii.xlAll,
                         ),
                       ),
                       child: Text(
                         "Yes, Logout",
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: AppTextStyles.displayLabel14.copyWith(
                           fontWeight: FontWeight.w500,
                           color: AppColors.textHeading,
-                          fontFamily: "Unbounded",
                         ),
                       ),
                     ),

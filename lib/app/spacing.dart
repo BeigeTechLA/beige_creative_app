@@ -67,6 +67,23 @@ class AppSpacing {
   /// 32px — Large section gaps
   static const double xxxl = 32;
 
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // COMPONENT OFF-GRID (exact matches, non-standard values)
+  // — Used only where no standard token matches exactly.
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// 5px — Tab-container internal padding (profile details tab bar)
+  static const double s5 = 5;
+
+  /// 25px — Edit-profile button horizontal padding
+  static const double s25 = 25;
+
+  /// 70px — Profile card top inset (avatar overlap offset)
+  static const double profileCardTop = 70;
+
+  /// 50px — Profile card margin top (avatar half-overlap)
+  static const double s50 = 50;
+
   /// 36px — Extra large
   static const double huge = 36;
 
@@ -160,6 +177,7 @@ class AppSpacing {
   static const SizedBox verticalSmd = SizedBox(height: smd);
   static const SizedBox verticalMd = SizedBox(height: md);
   static const SizedBox verticalBase = SizedBox(height: base);
+  static const SizedBox verticalMld = SizedBox(height: mld);
   static const SizedBox verticalXl = SizedBox(height: xl);
   static const SizedBox verticalXxl = SizedBox(height: xxl);
   static const SizedBox verticalXxxl = SizedBox(height: xxxl);

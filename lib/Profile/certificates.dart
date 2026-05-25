@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
@@ -123,7 +125,7 @@ class _CertificatesState extends State<Certificates> {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.all(18.0),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 children: [
                   Row(
@@ -143,11 +145,7 @@ class _CertificatesState extends State<Certificates> {
                     children: [
                       Text(
                         "Certificates",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontFamily: "Unbounded",
-                          fontSize: 16,
-                        ),
+                        style: AppTextStyles.displayLabel16,
                       ),
                     ],
                   ),
@@ -163,10 +161,10 @@ class _CertificatesState extends State<Certificates> {
                           ),
 
                           child: TextField(
-                            style: const TextStyle(color: AppColors.white),
+                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                             decoration: InputDecoration(
                               hintText: "Search",
-                              hintStyle: const TextStyle(
+                              hintStyle: AppTextStyles.bodyMedium.copyWith(
                                 color: AppColors.white24,
                               ),
                               prefixIcon: const Icon(
@@ -201,8 +199,8 @@ class _CertificatesState extends State<Certificates> {
                         final cert = Myprofile_user!.certificateFiles[index];
 
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                          padding: const EdgeInsets.all(AppSpacing.smd),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceShadow,
                             borderRadius: AppRadii.lgAll,
@@ -222,7 +220,7 @@ class _CertificatesState extends State<Certificates> {
                                     /// ✅ ERROR → SVG PLACEHOLDER
                                     errorBuilder: (context, error, stackTrace) {
                                       return Padding(
-                                        padding: const EdgeInsets.all(8.0),
+                                        padding: const EdgeInsets.all(AppSpacing.sm),
                                         child: SvgPicture.asset(
                                           AppAssets.image_holder,
                                           fit: BoxFit.contain,
@@ -241,11 +239,7 @@ class _CertificatesState extends State<Certificates> {
                                   children: [
                                     Text(
                                       cert.filePath.split('/').last,
-                                      style: const TextStyle(
-                                        fontFamily: "Outfit",
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: AppTextStyles.bodyCompactMedium,
                                     ),
 
                                     const SizedBox(height: 4),
@@ -316,9 +310,7 @@ class _CertificatesState extends State<Certificates> {
 
                       child: const Text(
                         "Add New Certificate",
-                        style: TextStyle(
-                          fontFamily: "Unbounded",
-                          fontWeight: FontWeight.w500,
+                        style: AppTextStyles.displayLabel14.copyWith(
                           color: AppColors.black,
                         ),
                       ),
@@ -339,7 +331,7 @@ class _CertificatesState extends State<Certificates> {
       backgroundColor: AppColors.transparent,
       builder: (context) {
         return Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           decoration: const BoxDecoration(
             color: AppColors.surfaceShadow,
             borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
@@ -354,11 +346,7 @@ class _CertificatesState extends State<Certificates> {
                   Center(
                     child: Text(
                       "Upload your File",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: "Unbounded",
-                      ),
+                      style: AppTextStyles.displayStrong16,
                     ),
                   ),
                   InkWell(
@@ -452,7 +440,7 @@ class _CertificatesState extends State<Certificates> {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         child: Row(
           children: [
             SvgPicture.asset(
@@ -464,7 +452,7 @@ class _CertificatesState extends State<Certificates> {
             const SizedBox(width: 12),
             Text(
               title,
-              style: const TextStyle(fontSize: 14, color: AppColors.white),
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
             ),
           ],
         ),
@@ -478,7 +466,7 @@ class _CertificatesState extends State<Certificates> {
       backgroundColor: AppColors.transparent,
       builder: (context) {
         return Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           decoration: const BoxDecoration(
             color: AppColors.surfaceShadow,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -503,7 +491,7 @@ class _CertificatesState extends State<Certificates> {
                     SizedBox(width: 12),
                     Text(
                       "View Details",
-                      style: TextStyle(color: AppColors.white, fontSize: 14),
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                     ),
                   ],
                 ),
@@ -524,7 +512,7 @@ class _CertificatesState extends State<Certificates> {
                     SizedBox(width: 12),
                     Text(
                       "Delete",
-                      style: TextStyle(color: AppColors.error, fontSize: 14),
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error),
                     ),
                   ],
                 ),

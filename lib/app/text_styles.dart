@@ -482,4 +482,39 @@ class AppTextStyles {
     fontWeight: FontWeight.w400,
     height: 1.5,
   );
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // EXTENDED — Profile-details outliers (Phase 2 — Batch 6)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// Unbounded 20 bold — Profile card name heading
+  static const TextStyle displayBold20 = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+  );
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // EXTENDED — Profile-portfolio outliers (Phase 2 — Batch 7)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// Unbounded 14 w600 — Section header bold (logout sheet, profile menu)
+  static const TextStyle displayLabel14Strong = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// Unbounded 15 w600 — Modal title (logout bottom sheet heading)
+  static const TextStyle displayLabel15Strong = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// Unbounded w500 — Button label without explicit size (inherited)
+  static const TextStyle displayLabelW500 = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontWeight: FontWeight.w500,
+  );
 }

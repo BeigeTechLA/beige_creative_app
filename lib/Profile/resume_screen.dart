@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
@@ -122,7 +124,7 @@ Future<void> deleteData(int id) async {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(AppSpacing.md),
               child: Column(
                 children: [
                   Row(
@@ -138,7 +140,7 @@ Future<void> deleteData(int id) async {
 
                   Row(
                     children: [
-                      Text("Resume",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
+                       Text("Resume",style: AppTextStyles.displayLabel16,)
                     ],
                   ),
                   SizedBox(height: 20,),
@@ -154,10 +156,10 @@ Future<void> deleteData(int id) async {
                           ),
 
                           child: TextField(
-                            style: const TextStyle(color: AppColors.white),
-                            decoration: InputDecoration(
-                              hintText: "Search",
-                              hintStyle: const TextStyle(color: AppColors.white24),
+                             style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
+                             decoration: InputDecoration(
+                               hintText: "Search",
+                               hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.white24),
                               prefixIcon: const Icon(Icons.search, color: AppColors.white24),
                               border: InputBorder.none,
                             ),
@@ -186,8 +188,8 @@ Future<void> deleteData(int id) async {
                         final cert = Myprofile_user!.resumeFiles[index];
 
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                          padding: const EdgeInsets.all(AppSpacing.smd),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceShadow,
                             borderRadius: AppRadii.lgAll,
@@ -212,7 +214,7 @@ Future<void> deleteData(int id) async {
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) {
                                       return Padding(
-                                        padding: const EdgeInsets.all(8.0),
+                                        padding: const EdgeInsets.all(AppSpacing.sm),
                                         child: SvgPicture.asset(
                                           AppAssets.image_holder,
                                           fit: BoxFit.contain,
@@ -231,11 +233,8 @@ Future<void> deleteData(int id) async {
                                   CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      cert.filePath.split('/').last, // file name
-
-                                      style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500),
+                                      cert.filePath.split('/').last,
+                                      style: AppTextStyles.bodyCompactMedium,
                                     ),
 
                                     const SizedBox(height: 4),
@@ -303,10 +302,9 @@ Future<void> deleteData(int id) async {
                         },
                         child: const Text(
                           "Add resume",
-                          style: TextStyle(
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.black,
+                          style: AppTextStyles.displayLabel14.copyWith(
+                          color: AppColors.black,
+                        ),
                           ),
                         ),
                       ),
@@ -325,7 +323,7 @@ void openUploadDialog() {
     backgroundColor: AppColors.transparent,
     builder: (context) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         decoration: const BoxDecoration(
           color: AppColors.surfaceShadow,
           borderRadius: BorderRadius.vertical(
@@ -343,10 +341,7 @@ void openUploadDialog() {
                 Center(
                   child:  Text(
                     "Upload your File",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: "Unbounded",
+                    style: AppTextStyles.displayStrong16,
                     ),
                   ),
                 ),
@@ -437,7 +432,7 @@ Widget uploadOption({required String svgPath, required String title, required Vo
   return InkWell(
     onTap: onTap,
     child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       child: Row(
         children: [
           SvgPicture.asset(
@@ -449,9 +444,7 @@ Widget uploadOption({required String svgPath, required String title, required Vo
           const SizedBox(width: 12),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.white,
+            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
             ),
           ),
         ],
@@ -465,7 +458,7 @@ void _openOptions(CrewFile cert) {
     backgroundColor: AppColors.transparent,
     builder: (context) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         decoration: const BoxDecoration(
           color: AppColors.surfaceShadow,
           borderRadius: BorderRadius.vertical(
@@ -497,7 +490,7 @@ void _openOptions(CrewFile cert) {
                   SizedBox(width: 12),
                   Text(
                     "Replace",
-                    style: TextStyle(color:AppColors.white, fontSize: 14),
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                   ),
                 ],
               ),
@@ -523,11 +516,7 @@ void _openOptions(CrewFile cert) {
                   SizedBox(width: 12),
                   Text(
                     "View Details",
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                   ),
                 ],
               ),
@@ -548,7 +537,7 @@ void _openOptions(CrewFile cert) {
                   SizedBox(width: 12),
                   Text(
                     "Delete",
-                    style: TextStyle(color:AppColors.white, fontSize: 14),
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error),
                   ),
                 ],
               ),

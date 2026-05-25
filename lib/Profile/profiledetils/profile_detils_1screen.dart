@@ -9,6 +9,8 @@ import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
+import '../../app/spacing.dart';
+import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class ProfileDetils1screen extends StatefulWidget {
@@ -99,7 +101,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
               children: [
                 /// 🔝 TOP BAR
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                    vertical: AppSpacing.smd,
+                  ),
                   child: Row(
                     children: [
                       InkWell(
@@ -113,16 +118,11 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                         child: Center(
                           child: Text(
                             "Profile Details",
-                            style: TextStyle(
-                              fontFamily: "Unbounded",
-                              color: AppColors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: AppTextStyles.displayLabel16,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 24),
+                      const SizedBox(width: AppSpacing.xxl),
                     ],
                   ),
                 ),
@@ -131,8 +131,11 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
                 /// 🔘 TAB BAR
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                  padding: const EdgeInsets.all(5),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                    vertical: AppSpacing.xxs,
+                  ),
+                  padding: const EdgeInsets.all(AppSpacing.s5),
                   height: 53,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceMid,
@@ -174,12 +177,17 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       children: [
         Container(
           margin: const EdgeInsets.only(
-            top: 50,
-            left: 13,
-            right: 13,
-            bottom: 20,
+            top: AppSpacing.s50,
+            left: AppSpacing.authCardCompactTop,
+            right: AppSpacing.authCardCompactTop,
+            bottom: AppSpacing.xl,
           ),
-          padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.profileCardTop,
+            AppSpacing.xl,
+            AppSpacing.xl,
+          ),
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppColors.surfaceMid,
@@ -188,14 +196,9 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                 Text(
+           Text(
                   "$firstName $lastName",
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "Unbounded"
-                  ),
+                  style: AppTextStyles.displayBold20,
                 ),
 
                 const SizedBox(height: 15),
@@ -275,13 +278,18 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       alignment: Alignment.topCenter,
       children: [
         Container(
-          margin:  EdgeInsets.only(
-            top: 50,
-            left: 13,
-            right: 13,
-            bottom: 20,
+          margin:  const EdgeInsets.only(
+            top: AppSpacing.profileCardTop,
+            left: AppSpacing.authCardCompactTop,
+            right: AppSpacing.authCardCompactTop,
+            bottom: AppSpacing.xl,
           ),
-          padding:  EdgeInsets.fromLTRB(20, 70, 20, 20),
+          padding:  const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.profileCardTop,
+            AppSpacing.xl,
+            AppSpacing.xl,
+          ),
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppColors.surfaceMid,
@@ -292,15 +300,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                 Center(
+                  Center(
                   child: Text(
                     "$firstName $lastName",
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 20,
-                      fontFamily: "Unbounded",
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: AppTextStyles.displayBold20,
                   ),
                 ),
 
@@ -354,12 +357,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
                 const Text(
                   "Skills",
-                  style: TextStyle(
-                      color: AppColors.white,
-                      fontFamily: "Outfit",
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400
-                  ),
+                  style: AppTextStyles.body14,
                 ),
 
                 const SizedBox(height: 8),
@@ -372,7 +370,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                   runSpacing: 10,
                   children: profileData?.skills.map((skill) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.mld,
+                        vertical: AppSpacing.sm,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: AppRadii.smAll,
 
@@ -395,11 +396,8 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
                       child: Text(
                         skill.name,
-                        style: const TextStyle(
+                        style: AppTextStyles.bodyCompact.copyWith(
                           color: AppColors.white,
-                          fontSize: 13,
-                          fontFamily: "Outfit",
-                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     );
@@ -428,12 +426,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                 const SizedBox(height: 20),
                 const Text(
                   "Bio / About",
-                  style:TextStyle(
-                      color: AppColors.white,
-                      fontFamily: "Outfit",
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400
-                  ),
+                  style: AppTextStyles.body14,
                 ),
 
                 const SizedBox(height: 8),
@@ -443,9 +436,8 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                   profileData?.bio.isNotEmpty == true
                       ? profileData!.bio
                       : "-",
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyCompact.copyWith(
                     color: AppColors.white,
-                    fontSize: 13,
                   ),
                 ),
               ],
@@ -504,19 +496,17 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.s25,
+          vertical: AppSpacing.sm,
+        ),
         decoration: BoxDecoration(
           color: AppColors.primary,
           borderRadius: AppRadii.portfolioAll,
         ),
         child: const Text(
           "Edit Profile Details",
-          style: TextStyle(
-            fontSize: 14,
-            fontFamily: "Outfit",
-            color: AppColors.surfaceMid,
-            fontWeight: FontWeight.w500,
-          ),
+          style: AppTextStyles.buttonMedium,
         ),
       ),
     );
@@ -536,19 +526,17 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.s25,
+          vertical: AppSpacing.sm,
+        ),
         decoration: BoxDecoration(
           color: AppColors.primary,
           borderRadius: AppRadii.portfolioAll,
         ),
         child: const Text(
           "Edit Profile Details",
-          style: TextStyle(
-            fontSize: 14,
-            fontFamily: "Outfit",
-            color: AppColors.surfaceMid,
-            fontWeight: FontWeight.w500,
-          ),
+          style: AppTextStyles.body14Medium,
         ),
       ),
     );
@@ -573,13 +561,10 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           alignment: Alignment.center,
           child: Text(
             title,
-            style: TextStyle(
-              fontFamily: "Outfit",
-              fontSize: 14,
+            style: AppTextStyles.body14Medium.copyWith(
               color: isSelected
                   ? AppColors.textHeading
                   : AppColors.white30,
-              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -589,29 +574,19 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
   Widget _buildInfoRow(String title, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: AppSpacing.mld),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: AppColors.white,
-              fontFamily: "Outfit",
-              fontSize: 14,
-              fontWeight: FontWeight.w400
-            ),
+            style: AppTextStyles.body14.copyWith(color: AppColors.white),
           ),
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.end,
-              style: const TextStyle(
-                color: AppColors.white60,
-                  fontFamily: "Outfit",
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400
-              ),
+              style: AppTextStyles.body14.copyWith(color: AppColors.white60),
             ),
           ),
         ],

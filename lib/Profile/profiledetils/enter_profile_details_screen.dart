@@ -9,6 +9,8 @@ import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
+import '../../app/spacing.dart';
+import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/custom_multi_selectfield.dart' show CustomMultiSelectField;
 import '../../widgets/custom_text_field.dart';
@@ -519,7 +521,7 @@ class _EnterProfileDetailsScreenState
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             children: [
 
@@ -547,11 +549,7 @@ class _EnterProfileDetailsScreenState
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Edit Professional Details",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.white,
-                  ),
+                  style: AppTextStyles.headingOutfitLg,
                 ),
               ),
 
@@ -606,7 +604,7 @@ class _EnterProfileDetailsScreenState
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Highlight your creative focus.",
-                  style: TextStyle(color: AppColors.lavenderGrey),
+                  style: AppTextStyles.bodyMedium,
                 ),
               ),
 
@@ -658,7 +656,7 @@ class _EnterProfileDetailsScreenState
 
       /// SAVE BUTTON
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: SizedBox(
           height: 55,
           child: ElevatedButton(
@@ -673,10 +671,7 @@ class _EnterProfileDetailsScreenState
             },
             child: const Text(
               "Save",
-              style: TextStyle(
-                color: AppColors.black,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.buttonMedium,
             ),
           ),
         ),
@@ -697,7 +692,12 @@ class _EnterProfileDetailsScreenState
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.base,
+                AppSpacing.base,
+                AppSpacing.base,
+                AppSpacing.xxl,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -706,7 +706,7 @@ class _EnterProfileDetailsScreenState
                   Container(
                     width: 40,
                     height: 4,
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
                     decoration: BoxDecoration(
                       color: AppColors.white24,
                       borderRadius: AppRadii.xsAll,
@@ -716,11 +716,7 @@ class _EnterProfileDetailsScreenState
                   /// TITLE
                   const Text(
                     "Select Roles",
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTextStyles.bodyLargeMedium,
                   ),
 
                   const SizedBox(height: 12),
@@ -740,12 +736,7 @@ class _EnterProfileDetailsScreenState
 
                           title: Text(
                             role,
-                            style: const TextStyle(
-                              color: AppColors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: "Outfit",
-                            ),
+                            style: AppTextStyles.body14Medium,
                           ),
 
                           activeColor: AppColors.primary,
@@ -804,14 +795,10 @@ class _EnterProfileDetailsScreenState
                           borderRadius: AppRadii.lgAll,
                         ),
                       ),
-                      child: const Text(
-                        "Done",
-                        style: TextStyle(
-                          color: AppColors.textHeading,
-                          fontSize: 15,
-                          fontFamily: "Outfit",
-                        ),
-                      ),
+                       child: const Text(
+                         "Done",
+                         style: AppTextStyles.body15,
+                       ),
                     ),
                   ),
                 ],
@@ -834,7 +821,12 @@ class _EnterProfileDetailsScreenState
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.base,
+                AppSpacing.base,
+                AppSpacing.base,
+                AppSpacing.xxl,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -842,7 +834,7 @@ class _EnterProfileDetailsScreenState
                   Container(
                     width: 40,
                     height: 4,
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
                     decoration: BoxDecoration(
                       color: AppColors.white24,
                       borderRadius: AppRadii.xsAll,
@@ -850,13 +842,9 @@ class _EnterProfileDetailsScreenState
                   ),
 
                   /// TITLE
-                  Text(
+                  const Text(
                     "Select Skills",
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTextStyles.bodyLargeMedium,
                   ),
 
                   const SizedBox(height: 12),
@@ -877,8 +865,7 @@ class _EnterProfileDetailsScreenState
                           checkColor: AppColors.black,
                           title: Text(
                             skill,
-                            style:
-                            const TextStyle(color: AppColors.white),
+                            style: AppTextStyles.bodyMedium,
                           ),
                           onChanged: (checked) {
                             setModalState(() {
@@ -911,13 +898,10 @@ class _EnterProfileDetailsScreenState
                           borderRadius: AppRadii.lgAll,
                         ),
                       ),
-                      child: const Text(
-                        "Done",
-                        style: TextStyle(
-                          color: AppColors.textHeading,
-                          fontSize: 15,
-                        ),
-                      ),
+                       child: const Text(
+                         "Done",
+                         style: AppTextStyles.body15,
+                       ),
                     ),
                   ),
                 ],
@@ -932,9 +916,11 @@ class _EnterProfileDetailsScreenState
     return InputDecoration(
       labelText: title,
       floatingLabelBehavior: FloatingLabelBehavior.always,
-      labelStyle: const TextStyle(color: AppColors.white30),
-      contentPadding:
-      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.lg,
+      ),
+      labelStyle: AppTextStyles.bodyMedium,
       enabledBorder: OutlineInputBorder(
         borderRadius: AppRadii.lgAll,
         borderSide:

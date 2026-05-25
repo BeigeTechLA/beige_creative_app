@@ -297,7 +297,7 @@ import '../../model_class/edit_profile_model.dart';
           children: [
             SafeArea(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(AppSpacing.xl),
                 child: Column(
 
                   children: [
@@ -319,11 +319,7 @@ import '../../model_class/edit_profile_model.dart';
                       children: [
                         Text(
                           "Edit Personal Details",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.white,
-                          ),
+                          style: AppTextStyles.headingOutfitLg,
                         ),
                       ],
                     ),
@@ -404,10 +400,8 @@ import '../../model_class/edit_profile_model.dart';
                                 googleAPIKey: GoogleConfig.placesApiKey,
                                 debounceTime: 600,
                                 isLatLngRequired: true,
-                                textStyle: const TextStyle(
+                                textStyle: AppTextStyles.body15.copyWith(
                                   color: AppColors.white,
-                                  fontFamily: AppTextStyles.fontFamilyBody,
-                                  fontSize: 15,
                                 ),
                                 inputDecoration: const InputDecoration(
                                   filled: true,
@@ -474,12 +468,11 @@ import '../../model_class/edit_profile_model.dart';
                                 ),
                                 child: Text(
                                   "Location*",
-                                  style: TextStyle(
-                                    fontSize: 14,
+                                  style: AppTextStyles.system14.copyWith(
                                     color: locationHighlight
                                         ? AppColors.primary
                                         : AppColors.white60,
-                                     fontFamily: AppTextStyles.fontFamilyBody,
+                                    fontFamily: AppTextStyles.fontFamilyBody,
                                   ),
                                 ),
                               ),
@@ -538,7 +531,7 @@ import '../../model_class/edit_profile_model.dart';
 
 
 
-                    SizedBox(height: 20),
+                    SizedBox(height: AppSpacing.xl),
 
                  /*   /// 🗺️ MAP WITH FIXED HEIGHT
                     if (showMap)
@@ -626,7 +619,7 @@ import '../../model_class/edit_profile_model.dart';
                           );
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(AppSpacing.sm),
                           child: SvgPicture.asset(
                            AppAssets.box_edit,
 
@@ -648,7 +641,7 @@ import '../../model_class/edit_profile_model.dart';
 
         ),
         bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           child: SizedBox(
             height: 55,
             child: ElevatedButton(
@@ -664,10 +657,7 @@ import '../../model_class/edit_profile_model.dart';
               },
               child: const Text(
                 "Save",
-                style: TextStyle(
-                  color: AppColors.black,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTextStyles.buttonMedium,
               ),
             ),
           ),
