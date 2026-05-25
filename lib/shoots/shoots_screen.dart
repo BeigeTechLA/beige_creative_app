@@ -8,6 +8,8 @@ import '../model_class/shoot_count_model.dart';
 import '../Model_Class/shoots_model.dart';
 import '../app/route_names.dart';
 import '../app/colors.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../app/radii.dart';
 import '../app/shadows.dart';
 import 'package:beige_creative_app/app/assets.dart';
@@ -135,8 +137,8 @@ class _ShootsScreenState extends State<ShootsScreen> {
               /// 🔥 TOP BAR
               Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+                  horizontal: AppSpacing.base,
+                  vertical: AppSpacing.md,
                 ),
                 child: Row(
                   children: [
@@ -155,12 +157,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     /// TITLE
                     const Text(
                       "shoots",
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 16,
-                        fontFamily: "Unbounded",
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: AppTextStyles.displayLabel16,
                     ),
 
                     const Spacer(),
@@ -178,7 +175,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 height: 76,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
                   children: [
                     _countCard(
                       "$mypendingRequests",
@@ -207,11 +204,11 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: AppSpacing.s15),
 
               /// 🔥 SEARCH BAR
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: AppSpacing.insetsHBase,
                 child: Container(
                   height: 48,
                   decoration: BoxDecoration(
@@ -221,17 +218,11 @@ class _ShootsScreenState extends State<ShootsScreen> {
                   child: TextField(
                     controller: searchController,
                     onChanged: searchShoots,
-                    style: const TextStyle(
-                      color: AppColors.white,
-                      fontSize: 14,
-                    ),
+                    style: AppTextStyles.system14,
                     cursorColor: AppColors.white,
                     decoration: InputDecoration(
                       hintText: "Search events or crew...",
-                      hintStyle: const TextStyle(
-                        color: AppColors.white,
-                        fontFamily: "Outfit",
-                      ),
+                      hintStyle: AppTextStyles.bodyMedium,
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(13),
                         child: SvgPicture.asset(
@@ -242,18 +233,18 @@ class _ShootsScreenState extends State<ShootsScreen> {
                         ),
                       ),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.mld),
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.xl),
 
               /// 🔥 LIST SECTION
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: AppSpacing.insetsHBase,
                   itemCount: mylist.length,
                   itemBuilder: (context, index) {
                     final shoot = mylist[index];
@@ -273,8 +264,13 @@ class _ShootsScreenState extends State<ShootsScreen> {
     return Container(
       width: 174,
       height: 74,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      padding: const EdgeInsets.fromLTRB(12, 9, 12, 8),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.dropdownIconInset,
+        AppSpacing.md,
+        AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -294,10 +290,8 @@ class _ShootsScreenState extends State<ShootsScreen> {
               children: [
                 Text(
                   number.padLeft(2, "0"),
-                  style: const TextStyle(
-                    color: AppColors.primary,
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 24,
-                    fontFamily: "Outfit",
                     fontWeight: FontWeight.w700,
                     height: 0.95,
                   ),
@@ -306,11 +300,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 13,
-                    fontFamily: "Outfit",
+                  style: AppTextStyles.bodyCompactMedium.copyWith(
                     height: 1.1,
                   ),
                 ),
@@ -371,7 +361,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
       }*/
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: AppSpacing.xl),
       decoration: BoxDecoration(
         color: AppColors.surfaceMid,
         borderRadius: AppRadii.hugeAll,
@@ -409,7 +399,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
           ),
 
           Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(AppSpacing.mld),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -419,8 +409,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                   children: [
                     Text(
                       "ID: ${shoot.id}",
-                      style: TextStyle(
-                        color: AppColors.primary,
+                      style: AppTextStyles.systemDefault.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -435,11 +424,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                       },
                       child: Text(
                         "View Details",
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 12,
-                          fontFamily: "Outfit",
-                          fontWeight: FontWeight.w600,
+                        style: AppTextStyles.bodySmallStrong.copyWith(
                           decoration: TextDecoration.underline,
                         ),
                       ),
@@ -450,63 +435,46 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 /// TITLE
                 Text(
                   shoot.projectName,
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 15,
-                    fontFamily: "Outfit",
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.body15Strong,
                 ),
 
-                const SizedBox(height: 8),
+                AppSpacing.verticalSm,
                 Divider(color: AppColors.dividerDark),
 
                 /// ✅ DATE + TIME + LOCATION (FIXED)
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.calender, width: 14, height: 14),
-                    const SizedBox(width: 6),
+                    AppSpacing.gapHXs,
                     Text(
                       formattedDate, // ✅ FIX
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 10,
-                        fontFamily: "Outfit",
-                      ),
+                      style: AppTextStyles.body10,
                     ),
 
-                    const SizedBox(width: 14),
+                    const SizedBox(width: AppSpacing.mld),
 
                     SvgPicture.asset(AppAssets.time, width: 14, height: 14),
-                    const SizedBox(width: 6),
+                    AppSpacing.gapHXs,
                     Text(
                       formattedTime, // ✅ FIX
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 10,
-                        fontFamily: "Outfit",
-                      ),
+                      style: AppTextStyles.body10,
                     ),
 
-                    const SizedBox(width: 14),
+                    const SizedBox(width: AppSpacing.mld),
 
                     SvgPicture.asset(AppAssets.location, width: 14, height: 14),
-                    const SizedBox(width: 6),
+                    AppSpacing.gapHXs,
                     Expanded(
                       child: Text(
                         shoot.eventLocation,
-                        style: const TextStyle(
-                          color: AppColors.white,
-                          fontSize: 10,
-                          fontFamily: "Outfit",
-                        ),
+                        style: AppTextStyles.body10,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                AppSpacing.verticalMd,
 
                 /// BUTTONS
                 Row(
@@ -540,15 +508,10 @@ class _ShootsScreenState extends State<ShootsScreen> {
                             },
                             child: const Text(
                               "Accept",
-                              style: TextStyle(
-                                fontFamily: "Outfit",
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12,
-                                color: AppColors.success,
-                              ),
+                              style: AppTextStyles.bodySmall,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          AppSpacing.gapHSmd,
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.white,
@@ -567,14 +530,9 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                 extra: {"projectId": shoot.projectId},
                               );
                             },
-                            child: Text(
+                            child: const Text(
                               "Decline",
-                              style: TextStyle(
-                                color: AppColors.error,
-                                fontFamily: "Outfit",
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12,
-                              ),
+                              style: AppTextStyles.bodySmall,
                             ),
                           ),
                         ],
@@ -662,11 +620,11 @@ class _ShootsScreenState extends State<ShootsScreen> {
                     child: Column(
                       children: [
                         /// DRAG HANDLE
-                        const SizedBox(height: 12),
+                        AppSpacing.verticalMd,
                         Container(
                           height: 4,
                           width: 40,
-                          margin: const EdgeInsets.only(bottom: 16),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.base),
                           decoration: BoxDecoration(
                             color: AppColors.white,
                             borderRadius: AppRadii.xsAll,
@@ -675,16 +633,13 @@ class _ShootsScreenState extends State<ShootsScreen> {
 
                         /// HEADER
                         Padding(
-                          padding: const EdgeInsets.only(left: 20, right: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 "Filter",
-                                style: TextStyle(
-                                  color: AppColors.white,
-                                  fontSize: 18,
-                                  fontFamily: "Unbounded",
+                                style: AppTextStyles.titleMedium.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -699,7 +654,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 16),
+                        AppSpacing.verticalBase,
 
                         Divider(
                           thickness: 0.5,
@@ -829,7 +784,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                   ),
 
                                   /// FILTER BY CATEGORY
-                                  const SizedBox(height: 13),
+                                  const SizedBox(height: AppSpacing.authCardCompactTop),
 
                                   /// CLEAR ALL & APPLY BUTTONS
                                   Row(
@@ -851,9 +806,9 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                           },
                                           child: Container(
                                             margin: const EdgeInsets.only(
-                                              left: 12,
+                                              left: AppSpacing.md,
                                             ),
-                                            padding: const EdgeInsets.all(12),
+                                            padding: const EdgeInsets.all(AppSpacing.md),
                                             decoration: BoxDecoration(
                                               borderRadius:
                                                   AppRadii.lgAll,
@@ -863,21 +818,17 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                                     .withOpacity(0.6),
                                               ),
                                             ),
-                                            child: Center(
+                                            child: const Center(
                                               child: Text(
                                                 'Clear All',
-                                                style: TextStyle(
-                                                  color: AppColors.white,
-                                                  fontFamily: 'Unbounded',
-                                                  fontWeight: FontWeight.w500,
-                                                ),
+                                                style: AppTextStyles.displayLabelW500,
                                               ),
                                             ),
                                           ),
                                         ),
                                       ),
 
-                                      const SizedBox(width: 12),
+                                      AppSpacing.gapHMd,
 
                                       /// APPLY
                                       Expanded(
@@ -885,9 +836,9 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                           onTap: () => Navigator.pop(context),
                                           child: Container(
                                             margin: const EdgeInsets.only(
-                                              right: 12,
+                                              right: AppSpacing.md,
                                             ),
-                                            padding: const EdgeInsets.all(12),
+                                            padding: const EdgeInsets.all(AppSpacing.md),
                                             decoration: BoxDecoration(
                                               color: AppColors.primary,
                                               borderRadius:
@@ -901,11 +852,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                             child: const Center(
                                               child: Text(
                                                 'Apply',
-                                                style: TextStyle(
-                                                  fontFamily: 'Unbounded',
-                                                  fontWeight: FontWeight.w500,
-                                                  color: AppColors.onPrimary,
-                                                ),
+                                                style: AppTextStyles.displayLabelW500,
                                               ),
                                             ),
                                           ),
@@ -914,14 +861,14 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                     ],
                                   ),
 
-                                  const SizedBox(height: 20),
+                                  AppSpacing.verticalXl,
                                 ],
                               ),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        AppSpacing.verticalMd,
                       ],
                     ),
                   ),
@@ -984,7 +931,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 child: Center(
                   child: Text(
                     "+$extraCount",
-                    style: TextStyle(
+                    style: AppTextStyles.systemDefault.copyWith(
                       color: AppColors.white,
                       fontSize: avatarSize * 0.35,
                       fontWeight: FontWeight.bold,
@@ -1006,7 +953,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
     bool showDivider = false,
   }) {
     return Padding(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(AppSpacing.smd),
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.onPrimary,
@@ -1019,20 +966,15 @@ class _ShootsScreenState extends State<ShootsScreen> {
               borderRadius: AppRadii.xlAll,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+                  horizontal: AppSpacing.base,
+                  vertical: AppSpacing.mld,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 14,
-                        fontFamily: "Outfit",
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: AppTextStyles.body14Medium,
                     ),
                     Icon(
                       size: 30,
@@ -1068,17 +1010,16 @@ class _ShootsScreenState extends State<ShootsScreen> {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.base,
+          vertical: AppSpacing.smd,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               label,
-              style: TextStyle(
-                color: AppColors.white.withOpacity(0.8),
-                fontSize: 14,
-                fontFamily: "Outfit",
-              ),
+              style: AppTextStyles.bodyMedium,
             ),
             Container(
               width: 25,

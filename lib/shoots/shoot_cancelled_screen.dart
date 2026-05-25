@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:beige_creative_app/app/colors.dart';
 import '../app/radii.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app/route_names.dart';
@@ -81,7 +83,10 @@ class _CancelScreenState extends State<CancelScreen> {
         alignment: Alignment.bottomCenter,
         child: Container(
           height: MediaQuery.of(context).size.height * 0.75,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.lg,
+          ),
           decoration: const BoxDecoration(
             color: AppColors.surfaceMid,
             borderRadius: BorderRadius.vertical(
@@ -106,7 +111,7 @@ class _CancelScreenState extends State<CancelScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                AppSpacing.verticalXxl,
 
                 /// Header
                 Row(
@@ -114,12 +119,7 @@ class _CancelScreenState extends State<CancelScreen> {
                   children: [
                     const Text(
                       "Decline Shoot Request",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: "Unbounded",
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.white,
-                      ),
+                      style: AppTextStyles.displayLabel16,
                     ),
                     InkWell(
                       onTap: () => context.pop(),
@@ -128,37 +128,28 @@ class _CancelScreenState extends State<CancelScreen> {
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                AppSpacing.verticalBase,
 
                 const Text(
                   "Please let us know why you're declining this request.\nThis helps improve future matching.",
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontFamily: "Outfit",
-                    color: AppColors.white60,
-                  ),
+                  style: AppTextStyles.bodyCompact,
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: AppSpacing.lg),
 
                 const Divider(
                   color: AppColors.dividerDark,
                   thickness: 0.8,
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: AppSpacing.lg),
 
                 const Text(
                   "Reason for Declining",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: "Outfit",
-                    color: AppColors.white,
-                  ),
+                  style: AppTextStyles.body14Medium,
                 ),
 
-                const SizedBox(height: 12),
+                AppSpacing.verticalMd,
 
                 /// Reason List
                 Expanded(
@@ -174,8 +165,7 @@ class _CancelScreenState extends State<CancelScreen> {
                             });
                           },
                           child: Padding(
-                            padding:
-                            const EdgeInsets.symmetric(vertical: 10),
+                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.smd),
                             child: Row(
                               children: [
 
@@ -208,15 +198,11 @@ class _CancelScreenState extends State<CancelScreen> {
                                       : null,
                                 ),
 
-                                const SizedBox(width: 14),
+                                const SizedBox(width: AppSpacing.mld),
 
                                 Text(
                                   reason,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: "Outfit",
-                                    color: AppColors.white,
-                                  ),
+                                  style: AppTextStyles.bodyMedium,
                                 ),
                               ],
                             ),
@@ -224,18 +210,14 @@ class _CancelScreenState extends State<CancelScreen> {
                         );
                       }),
 
-                      /// Others TextField
                       AnimatedSwitcher(
                         duration:
                         const Duration(milliseconds: 250),
                         child: isOtherSelected
                             ? Padding(
-                          padding:
-                          const EdgeInsets.only(top: 10),
+                          padding: const EdgeInsets.only(top: AppSpacing.smd),
                           child: Container(
-                            padding:
-                            const EdgeInsets.symmetric(
-                                horizontal: 14),
+                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
                             decoration: BoxDecoration(
                               borderRadius:
                               AppRadii.xlAll,
@@ -248,16 +230,11 @@ class _CancelScreenState extends State<CancelScreen> {
                               controller:
                               commentController,
                               maxLines: 3,
-                              style: const TextStyle(
-                                  color: AppColors.white),
-                              decoration:
-                              const InputDecoration(
+                              style: AppTextStyles.systemDefault,
+                              decoration: const InputDecoration(
                                 hintText:
                                 "Any additional details...",
-                                hintStyle: TextStyle(
-                                  color: AppColors.white24,
-                                  fontSize: 13,
-                                ),
+                                hintStyle: AppTextStyles.system13,
                                 border: InputBorder.none,
                               ),
                             ),
@@ -269,7 +246,7 @@ class _CancelScreenState extends State<CancelScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                AppSpacing.verticalBase,
 
                 /// Buttons
                 Row(
@@ -292,19 +269,13 @@ class _CancelScreenState extends State<CancelScreen> {
                               context.pop(),
                           child: const Text(
                             "Cancel",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: "Unbounded",
-                              fontWeight:
-                              FontWeight.w500,
-                              color: AppColors.white,
-                            ),
+                            style: AppTextStyles.displayLabel14,
                           ),
                         ),
                       ),
                     ),
 
-                    const SizedBox(width: 16),
+                    AppSpacing.gapHBase,
 
                     Expanded(
                       child: SizedBox(
@@ -344,13 +315,7 @@ class _CancelScreenState extends State<CancelScreen> {
 
                           child: const Text(
                             "Decline",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: "Unbounded",
-                              fontWeight:
-                              FontWeight.w500,
-                              color: AppColors.black,
-                            ),
+                            style: AppTextStyles.displayLabel14,
                           ),
                         ),
                       ),
@@ -358,7 +323,7 @@ class _CancelScreenState extends State<CancelScreen> {
                   ],
                 ),
 
-                const SizedBox(height: 10),
+                AppSpacing.verticalSmd,
               ],
             ),
           ),

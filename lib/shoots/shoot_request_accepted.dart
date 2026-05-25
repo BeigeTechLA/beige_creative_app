@@ -4,6 +4,8 @@ import 'package:lottie/lottie.dart';
 
 import '../app/route_names.dart' show RouteNames;
 import '../app/colors.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import 'package:beige_creative_app/app/assets.dart' show AppAssets;
 
 class ShootRequestAccepted extends StatefulWidget {
@@ -49,28 +51,19 @@ class _ShootRequestAcceptedState extends State<ShootRequestAccepted> {
               repeat: false,
             ),
 
-            const SizedBox(height: 24),
+            AppSpacing.verticalXxl,
 
             const Text(
               "Shoot request accepted",
-              style: TextStyle(
-                color: AppColors.primary,
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                fontFamily: "Unbounded",
-              ),
+              style: AppTextStyles.titleMedium,
             ),
 
-            const SizedBox(height: 8),
+            AppSpacing.verticalSm,
 
             const Text(
               "You’ve successfully accepted the shoot.\nCheck your calendar for details.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.white30,
-                fontSize: 14,
-                fontFamily: "Outfit",
-              ),
+              style: AppTextStyles.bodyMedium,
             ),
           ],
         ),
