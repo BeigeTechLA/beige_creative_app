@@ -22,6 +22,9 @@ class AppSpacing {
   /// 2px — Micro spacing (icon-label align)
   static const double xxxs = 2;
 
+  /// 3px — Off-grid micro outlier (badge inset)
+  static const double s3 = 3;
+
   /// 4px — Tiny spacing (inline gaps)
   static const double xxs = 4;
 

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../app/colors.dart';
 
 import '../app/radii.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
 class ViewDetailsScreen extends StatelessWidget {
   final String firstName;
   final String lastName;
@@ -39,14 +41,13 @@ class ViewDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTextStyle(
-      style: const TextStyle(
+      style: AppTextStyles.systemDefault.copyWith(
         decoration: TextDecoration.none,
       ),
       child: Container(
         height: MediaQuery.of(context).size.height * 0.90,
         decoration: const BoxDecoration(
-          
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          borderRadius: AppRadii.topSheet,
         ),
         child: Column(
           children: [
@@ -67,15 +68,13 @@ class ViewDetailsScreen extends StatelessWidget {
       
             /// 🔹 HEADER
             Padding(
-              padding: const EdgeInsets.all(18.0),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Profile Details",
-                    style: TextStyle(
-                      fontFamily: "Unbounded",
-                      fontSize: 14,
+                    style: AppTextStyles.display14.copyWith(
                       color: AppColors.white,
                     ),
                   ),
@@ -95,14 +94,14 @@ class ViewDetailsScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.all(18.0),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-      
+
                       /// 🔥 PROFILE CARD
                       Container(
-                        padding: const EdgeInsets.all(18),
+                        padding: const EdgeInsets.all(AppSpacing.lg),
                         decoration: BoxDecoration(
                           color:AppColors.surfaceMid,
                           borderRadius: AppRadii.xxxlAll,
@@ -132,12 +131,8 @@ class ViewDetailsScreen extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     "$firstName $lastName",
-                                    style: const TextStyle(
-                                      fontFamily: "Outfit",
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.white,
-                                    ),
+                                    style: AppTextStyles.bodyLargeStrong
+                                        .copyWith(color: AppColors.white),
                                   ),
                                 ),
                               ],
@@ -166,39 +161,33 @@ class ViewDetailsScreen extends StatelessWidget {
                               const SizedBox(height: 6),
                               Text(
                                 bio,
-                                style: const TextStyle(
-                                  fontFamily: "Outfit",
-                                  fontSize: 13,
+                                style: AppTextStyles.body13.copyWith(
                                   color: AppColors.white24,
                                 ),
                               ),
                               const SizedBox(height: 20),
                             ],
-      
+
                             /// 🔹 SKILLS
                             if (skills.isNotEmpty) ...[
                               _sectionTitle("Skills"),
                               const SizedBox(height: 6),
                               Text(
                                 skills,
-                                style: const TextStyle(
-                                  fontFamily: "Outfit",
-                                  fontSize: 13,
+                                style: AppTextStyles.body13.copyWith(
                                   color: AppColors.white30,
                                 ),
                               ),
                               const SizedBox(height: 20),
                             ],
-      
+
                             /// 🔹 EQUIPMENTS
                             if (equipments.isNotEmpty) ...[
                               _sectionTitle("Equipments"),
                               const SizedBox(height: 6),
                               Text(
                                 equipments,
-                                style: const TextStyle(
-                                  fontFamily: "Outfit",
-                                  fontSize: 13,
+                                style: AppTextStyles.body13.copyWith(
                                   color: AppColors.white30,
                                 ),
                               ),
@@ -214,7 +203,9 @@ class ViewDetailsScreen extends StatelessWidget {
                                   itemBuilder: (context, index) {
                                     return Container(
                                       width: 140,
-                                      margin: const EdgeInsets.only(right: 12),
+                                      margin: const EdgeInsets.only(
+                                        right: AppSpacing.md,
+                                      ),
                                       child: ClipRRect(
                                         borderRadius: AppRadii.xlAll,
                                         child: Image.file(
@@ -244,12 +235,7 @@ class ViewDetailsScreen extends StatelessWidget {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(
-        fontFamily: "Outfit",
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: AppColors.white,
-      ),
+      style: AppTextStyles.bodyMediumStrong.copyWith(color: AppColors.white),
     );
   }
 
@@ -257,27 +243,20 @@ class ViewDetailsScreen extends StatelessWidget {
     if (value.isEmpty) return const SizedBox();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "$title: ",
-            style: const TextStyle(
-              fontFamily: "Outfit",
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+            style: AppTextStyles.bodyCompactMedium.copyWith(
               color: AppColors.white,
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontFamily: "Outfit",
-                fontSize: 13,
-                color: AppColors.white30,
-              ),
+              style: AppTextStyles.body13.copyWith(color: AppColors.white30),
             ),
           ),
         ],
@@ -288,14 +267,10 @@ class ViewDetailsScreen extends StatelessWidget {
   Widget _infoText(String value) {
     if (value.isEmpty) return const SizedBox();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
       child: Text(
         value,
-        style: const TextStyle(
-          fontFamily: "Outfit",
-          fontSize: 13,
-          color: AppColors.white30,
-        ),
+        style: AppTextStyles.body13.copyWith(color: AppColors.white30),
       ),
     );
   }

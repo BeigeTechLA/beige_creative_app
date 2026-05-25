@@ -11,6 +11,8 @@ import '../../service/api_service.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
 import '../../app/shadows.dart';
+import '../../app/spacing.dart';
+import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/custom_multi_selectfield.dart';
 
@@ -136,13 +138,18 @@ class SignUp2ScreenState
       backgroundColor: AppColors.surfaceCropSheet,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: AppRadii.topHuge,
       ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.base,
+                AppSpacing.base,
+                AppSpacing.base,
+                AppSpacing.xxl,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -151,7 +158,7 @@ class SignUp2ScreenState
                   Container(
                     width: 40,
                     height: 4,
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
                     decoration: BoxDecoration(
                       color: AppColors.white24,
                       borderRadius: AppRadii.xsAll,
@@ -159,12 +166,10 @@ class SignUp2ScreenState
                   ),
 
                   /// TITLE
-                  const Text(
+                  Text(
                     "Select Roles",
-                    style: TextStyle(
+                    style: AppTextStyles.bodyLargeMedium.copyWith(
                       color: AppColors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
 
@@ -181,11 +186,8 @@ class SignUp2ScreenState
                           value: isSelected,
                           title: Text(
                             role,
-                            style: const TextStyle(
+                            style: AppTextStyles.body14Medium.copyWith(
                               color: AppColors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: "Outfit",
                             ),
                           ),
 
@@ -233,12 +235,10 @@ class SignUp2ScreenState
                           borderRadius: AppRadii.lgAll,
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         "Done",
-                        style: TextStyle(
+                        style: AppTextStyles.body15.copyWith(
                           color: AppColors.textHeading,
-                          fontSize: 15,
-                          fontFamily: "Outfit",
                         ),
                       ),
                     ),
@@ -527,14 +527,10 @@ class SignUp2ScreenState
                                     ),
 
                                     /// 📄 STEP COUNT
-                                    const Text(
+                                    Text(
                                       "2/3",
-                                      style: TextStyle(
-                                        color: AppColors.white,
-                                        fontSize: 14,
-                                        fontFamily: "Outfit",
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: AppTextStyles.body14Medium
+                                          .copyWith(color: AppColors.white),
                                     ),
                                   ],
                                 ),
@@ -549,12 +545,8 @@ class SignUp2ScreenState
 
                                     Text(
                                       "Professional Details",
-                                      style: TextStyle(
-                                        fontFamily: "Unbounded",
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.white,
-                                      ),
+                                      style: AppTextStyles.displayStrong16
+                                          .copyWith(color: AppColors.white),
                                     ),
 
                                     SizedBox(height: 10),
@@ -563,9 +555,7 @@ class SignUp2ScreenState
                                       "Create your profile to get discovered by \nproduction teams.",
 
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily: "Outfit",
-                                        fontSize: 14,
+                                      style: AppTextStyles.body14.copyWith(
                                         color: AppColors.white30,
                                       ),
                                     ),
@@ -577,7 +567,9 @@ class SignUp2ScreenState
                                             (index) => Container(
                                           width: 40,
                                           height: 5,
-                                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: AppSpacing.xxs,
+                                          ),
                                           decoration: BoxDecoration(
                                             color: index <= 1
                                                 ? AppColors.primary
@@ -606,8 +598,15 @@ class SignUp2ScreenState
                               /// 🧱 MAIN FORM CONTAINER
                               Container(
                                 width: double.infinity,
-                                padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
-                                margin: const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.fromLTRB(
+                                  AppSpacing.xl,
+                                  100,
+                                  AppSpacing.xl,
+                                  AppSpacing.xl,
+                                ),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.base,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppColors.background,
                                   borderRadius: AppRadii.massiveAll,
@@ -711,7 +710,12 @@ class SignUp2ScreenState
                                     SizedBox(height: 5,),
                                     Row(
                                       children: [
-                                        Text("  Highlight your creative focus.",style: TextStyle(color: AppColors.greyShade737,fontFamily: "Outfit",fontSize: 12),)
+                                        Text(
+                                          "  Highlight your creative focus.",
+                                          style: AppTextStyles.body12.copyWith(
+                                            color: AppColors.greyShade737,
+                                          ),
+                                        ),
                                       ],
                                     ),
 
@@ -816,7 +820,9 @@ class SignUp2ScreenState
                                         /// ⏳ LOADING
                                         if (equipmentLoading)
                                           const Padding(
-                                            padding: EdgeInsets.only(top: 12),
+                                            padding: EdgeInsets.only(
+                                              top: AppSpacing.md,
+                                            ),
                                             child: Center(
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
@@ -829,7 +835,9 @@ class SignUp2ScreenState
                                         /// 📜 AUTOCOMPLETE LIST
                                         if (filteredEquipments.isNotEmpty)
                                           Container(
-                                            margin: const EdgeInsets.only(top: 6),
+                                            margin: const EdgeInsets.only(
+                                              top: AppSpacing.xs,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: AppColors.surfaceCropSheet,
                                               borderRadius: AppRadii.lgAll,
@@ -844,7 +852,12 @@ class SignUp2ScreenState
                                                 return ListTile(
                                                   title: Text(
                                                     item,
-                                                    style: const TextStyle(color: AppColors.white),
+                                                    style: AppTextStyles
+                                                        .systemDefault
+                                                        .copyWith(
+                                                          color:
+                                                              AppColors.white,
+                                                        ),
                                                   ),
                                                   onTap: () {
                                                     setState(() {
@@ -863,7 +876,9 @@ class SignUp2ScreenState
                                         /// 🧩 SELECTED EQUIPMENT CHIPS (NICHE)
                                         if (selectedEquipments.isNotEmpty)
                                           Padding(
-                                            padding: const EdgeInsets.only(top: 12),
+                                            padding: const EdgeInsets.only(
+                                              top: AppSpacing.md,
+                                            ),
                                             child: Wrap(
                                               spacing: 8,
                                               runSpacing: 8,
@@ -871,7 +886,12 @@ class SignUp2ScreenState
                                                 return Chip(
                                                   label: Text(
                                                     item,
-                                                    style: const TextStyle(color: AppColors.white),
+                                                    style: AppTextStyles
+                                                        .systemDefault
+                                                        .copyWith(
+                                                          color:
+                                                              AppColors.white,
+                                                        ),
                                                   ),
                                                   backgroundColor:
                                                   AppColors.textHeading.withOpacity(0.9),
@@ -905,13 +925,12 @@ class SignUp2ScreenState
                                             borderRadius: AppRadii.xlAll,
                                           ),
                                         ),
-                                        child: const Text(
+                                        child: Text(
                                           "Next",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: AppColors.textHeading,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: AppTextStyles.system16Medium
+                                              .copyWith(
+                                                color: AppColors.textHeading,
+                                              ),
                                         ),
                                       ),
                                     ),
@@ -922,13 +941,12 @@ class SignUp2ScreenState
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        const Text(
+                                        Text(
                                           "Already have an account? ",
-                                          style: TextStyle(
-                                            color: AppColors.white60,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: AppTextStyles.body15Medium
+                                              .copyWith(
+                                                color: AppColors.white60,
+                                              ),
                                         ),
                                         InkWell(
                                           onTap: () {
@@ -940,14 +958,14 @@ class SignUp2ScreenState
                                             );*/
                                             context.pushNamed(RouteNames.login);
                                           },
-                                          child: const Text(
+                                          child: Text(
                                             "Login",
-                                            style: TextStyle(
-                                              color: AppColors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w600,
-                                              decoration: TextDecoration.underline,
-                                            ),
+                                            style: AppTextStyles.body15Strong
+                                                .copyWith(
+                                                  color: AppColors.white,
+                                                  decoration: TextDecoration
+                                                      .underline,
+                                                ),
                                           ),
                                         ),
                                       ],
@@ -985,13 +1003,18 @@ class SignUp2ScreenState
       backgroundColor: AppColors.surfaceCropSheet,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: AppRadii.topHuge,
       ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.base,
+                AppSpacing.base,
+                AppSpacing.base,
+                AppSpacing.xxl,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -999,7 +1022,7 @@ class SignUp2ScreenState
                   Container(
                     width: 40,
                     height: 4,
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
                     decoration: BoxDecoration(
                       color: AppColors.white24,
                       borderRadius: AppRadii.xsAll,
@@ -1009,11 +1032,8 @@ class SignUp2ScreenState
                   /// TITLE
                   Text(
                     "Select Skills",
-                    style: TextStyle(
+                    style: AppTextStyles.displayLabel16.copyWith(
                       color: AppColors.white,
-                      fontSize: 16,
-                      fontFamily: "Unbounded",
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
 
@@ -1035,9 +1055,9 @@ class SignUp2ScreenState
                           checkColor: AppColors.black,
                           title: Text(
                             skill,
-                            style:
-                            const TextStyle(color: AppColors.white,fontSize: 14,fontFamily: "Outfit"),
-
+                            style: AppTextStyles.body14.copyWith(
+                              color: AppColors.white,
+                            ),
                           ),
                           onChanged: (checked) {
                             setModalState(() {
@@ -1070,12 +1090,10 @@ class SignUp2ScreenState
                           borderRadius: AppRadii.lgAll,
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         "Done",
-                        style: TextStyle(
+                        style: AppTextStyles.body15.copyWith(
                           color: AppColors.textHeading,
-                          fontSize: 15,
-                          fontFamily: "Outfit"
                         ),
                       ),
                     ),
@@ -1095,9 +1113,13 @@ class SignUp2ScreenState
     return InputDecoration(
       labelText: title,
       floatingLabelBehavior: FloatingLabelBehavior.always,
-      labelStyle: const TextStyle(color: AppColors.white30),
-      contentPadding:
-      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      labelStyle: AppTextStyles.systemDefault.copyWith(
+        color: AppColors.white30,
+      ),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.lg,
+      ),
       enabledBorder: OutlineInputBorder(
         borderRadius: AppRadii.lgAll,
         borderSide:
@@ -1127,8 +1149,11 @@ class SignUp2ScreenState
 
     return Container(
       //padding: const EdgeInsets.all(14),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      margin: EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.smd,
+        vertical: AppSpacing.smd,
+      ),
+      margin: const EdgeInsets.all(AppSpacing.smd),
 
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -1140,7 +1165,7 @@ class SignUp2ScreenState
 
           /// 🔹 TOP ROW (IMAGE + NAME + EMAIL)
           Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(AppSpacing.mld),
             child: Row(
               children: [
                 CircleAvatar(
@@ -1162,10 +1187,7 @@ class SignUp2ScreenState
                     children: [
                       Text(
                         "$firstName $lastName",
-                        style: const TextStyle(
-                          fontFamily: "Outfit",
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                        style: AppTextStyles.body15Strong.copyWith(
                           color: AppColors.black,
                         ),
                       ),
@@ -1173,9 +1195,7 @@ class SignUp2ScreenState
                       Text(
                         email.isEmpty ? "Your Email" : email,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontFamily: "Outfit",
-                          fontSize: 12,
+                        style: AppTextStyles.body12.copyWith(
                           color: AppColors.surfaceMid,
                         ),
                       ),
@@ -1269,12 +1289,9 @@ class SignUp2ScreenState
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       "View Details",
-                      style: TextStyle(
-                        fontFamily: "Outfit",
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                      style: AppTextStyles.bodySmallMedium.copyWith(
                         color: AppColors.primary,
                       ),
                     ),
@@ -1286,7 +1303,9 @@ class SignUp2ScreenState
 
               Container(
                 height: 40,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.base,
+                ),
                 decoration: BoxDecoration(
                   border: Border.all(
                     width:0.5,
@@ -1296,13 +1315,10 @@ class SignUp2ScreenState
                   borderRadius: AppRadii.hugeAll,
                 ),
                 alignment: Alignment.center,
-                child:  Text(
+                child: Text(
                   "${_calculateStep2Progress()}% Completed",
-                  style: TextStyle(
-                    fontFamily: "Outfit",
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.black
+                  style: AppTextStyles.bodySmallMedium.copyWith(
+                    color: AppColors.black,
                   ),
                 ),
               ),

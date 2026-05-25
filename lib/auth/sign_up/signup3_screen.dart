@@ -14,6 +14,8 @@ import '../../service/api_service.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
 import '../../app/shadows.dart';
+import '../../app/spacing.dart';
+import '../../app/text_styles.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/commonFileViewer.dart';
 import '../../widgets/common_uploader.dart';
@@ -395,13 +397,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             ),
 
                             /// 📄 STEP COUNT
-                            const Text(
+                            Text(
                               "3/3",
-                              style: TextStyle(
+                              style: AppTextStyles.body14Medium.copyWith(
                                 color: AppColors.white,
-                                fontSize: 14,
-                                fontFamily: "Outfit",
-                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -416,10 +415,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           children: [
                             Text(
                               "Social Engagement",
-                              style: TextStyle(
-                                fontFamily: "Unbounded",
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                              style: AppTextStyles.displayStrong16.copyWith(
                                 color: AppColors.white,
                               ),
                             ),
@@ -430,9 +426,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               "Complete your profile and connect with \ntop studios and filmmakers.",
 
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: "Outfit",
-                                fontSize: 14,
+                              style: AppTextStyles.body14.copyWith(
                                 color: AppColors.white30,
                               ),
                             ),
@@ -445,7 +439,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   width: 40,
                                   height: 5,
                                   margin: const EdgeInsets.symmetric(
-                                    horizontal: 4,
+                                    horizontal: AppSpacing.xxs,
                                   ),
                                   decoration: BoxDecoration(
                                     color: index <= 2
@@ -473,8 +467,15 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       /// 🧱 MAIN FORM CONTAINER
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.xl,
+                          100,
+                          AppSpacing.xl,
+                          AppSpacing.xl,
+                        ),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.base,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.background,
                           borderRadius: AppRadii.massiveAll,
@@ -495,8 +496,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   final item = entry.value;
 
                                   return Container(
-                                    margin: const EdgeInsets.only(bottom: 8),
-                                    padding: const EdgeInsets.all(3),
+                                    margin: const EdgeInsets.only(
+                                      bottom: AppSpacing.sm,
+                                    ),
+                                    padding: const EdgeInsets.all(
+                                      AppSpacing.s3,
+                                    ),
                                     decoration: BoxDecoration(
                                       borderRadius: AppRadii.xxlAll,
                                       border: Border.all(
@@ -544,10 +549,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         Expanded(
                                           child: Text(
                                             item['name'],
-                                            style: const TextStyle(
-                                              color: AppColors.white,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            style: AppTextStyles.systemSemiBold
+                                                .copyWith(
+                                                  color: AppColors.white,
+                                                ),
                                           ),
                                         ),
 
@@ -605,8 +610,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   final item = entry.value;
 
                                   return Container(
-                                    margin: const EdgeInsets.only(bottom: 8),
-                                    padding: const EdgeInsets.all(3),
+                                    margin: const EdgeInsets.only(
+                                      bottom: AppSpacing.sm,
+                                    ),
+                                    padding: const EdgeInsets.all(
+                                      AppSpacing.s3,
+                                    ),
                                     decoration: BoxDecoration(
                                       borderRadius: AppRadii.xxlAll,
                                       border: Border.all(
@@ -651,10 +660,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         Expanded(
                                           child: Text(
                                             item['name'],
-                                            style: const TextStyle(
-                                              color: AppColors.white,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            style: AppTextStyles.systemSemiBold
+                                                .copyWith(
+                                                  color: AppColors.white,
+                                                ),
                                           ),
                                         ),
 
@@ -708,7 +717,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                             Container(
                               constraints: const BoxConstraints(minHeight: 220),
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(AppSpacing.base),
                               decoration: BoxDecoration(
                                 color: AppColors.background,
                                 borderRadius: AppRadii.xxlAll,
@@ -722,14 +731,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text(
+                                      Text(
                                         "Featured Work",
-                                        style: TextStyle(
-                                          color: AppColors.white,
-                                          fontSize: 14,
-                                          fontFamily: "Outfit",
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        style: AppTextStyles.bodyMediumStrong
+                                            .copyWith(color: AppColors.white),
                                       ),
 
                                       if (featuredProjects.isNotEmpty)
@@ -763,13 +768,13 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                 ),
                                               ),
                                               const SizedBox(width: 6),
-                                              const Text(
+                                              Text(
                                                 "Add another",
-                                                style: TextStyle(
-                                                  color: AppColors.white30,
-                                                  fontSize: 13,
-                                                  fontFamily: "Outfit",
-                                                ),
+                                                style: AppTextStyles.body13
+                                                    .copyWith(
+                                                      color:
+                                                          AppColors.white30,
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -787,28 +792,28 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         height: 150,
                                         width: double.infinity,
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
+                                          borderRadius: AppRadii.lgAll,
                                           border: Border.all(
                                             color: AppColors.white24,
                                           ),
                                         ),
-                                        child: const Center(
+                                        child: Center(
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 Icons.add,
                                                 color: AppColors.white,
                                               ), // 👈 icon
-                                              SizedBox(width: 8),
+                                              const SizedBox(width: 8),
                                               Text(
                                                 "Add",
-                                                style: TextStyle(
-                                                  color: AppColors.white,
-                                                ),
+                                                style: AppTextStyles
+                                                    .systemDefault
+                                                    .copyWith(
+                                                      color: AppColors.white,
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -827,7 +832,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                                         return Container(
                                           margin: const EdgeInsets.only(
-                                            bottom: 16,
+                                            bottom: AppSpacing.base,
                                           ),
                                           height: 190,
                                           child: Stack(
@@ -841,7 +846,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                 itemCount: images.length,
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                      horizontal: 8,
+                                                      horizontal: AppSpacing.sm,
                                                     ),
                                                 itemBuilder: (context, index) {
                                                   return Container(
@@ -852,13 +857,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                         0.75,
                                                     margin:
                                                         const EdgeInsets.only(
-                                                          right: 12,
+                                                          right: AppSpacing.md,
                                                         ),
                                                     child: ClipRRect(
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                            16,
-                                                          ),
+                                                          AppRadii.xxlAll,
                                                       child: Image.file(
                                                         images[index],
                                                         fit: BoxFit.cover,
@@ -899,7 +902,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                         width: 30,
                                                         margin:
                                                             const EdgeInsets.only(
-                                                              right: 6,
+                                                              right: AppSpacing
+                                                                  .xs,
                                                             ),
                                                         decoration:
                                                             BoxDecoration(
@@ -964,8 +968,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                               ),
                                               Padding(
                                                 padding: const EdgeInsets.only(
-                                                  left: 12,
-                                                  top: 8,
+                                                  left: AppSpacing.md,
+                                                  top: AppSpacing.sm,
                                                 ),
                                                 child: Text(
                                                   (projectIndex <
@@ -974,11 +978,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                       ? featuredProjectsTitles[projectIndex]
                                                       : "",
                                                   textAlign: TextAlign.left,
-                                                  style: const TextStyle(
-                                                    color: AppColors.white,
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
+                                                  style: AppTextStyles
+                                                      .system14Strong
+                                                      .copyWith(
+                                                        color:
+                                                            AppColors.white,
+                                                      ),
                                                 ),
                                               ),
                                             ],
@@ -1001,7 +1006,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                               Container(
                                                 width: 140,
                                                 margin: const EdgeInsets.only(
-                                                  right: 10,
+                                                  right: AppSpacing.smd,
                                                 ),
                                                 child: ClipRRect(
                                                   borderRadius: AppRadii.lgAll,
@@ -1054,7 +1059,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             SizedBox(height: 16),
 
                             Container(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(AppSpacing.base),
                               decoration: BoxDecoration(
                                 color: AppColors.background,
                                 borderRadius: AppRadii.xxlAll,
@@ -1068,34 +1073,31 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text(
+                                      Text(
                                         "Upload Certifications",
-                                        style: TextStyle(
-                                          color: AppColors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        style: AppTextStyles.system14Strong
+                                            .copyWith(color: AppColors.white),
                                       ),
 
                                       if (certificateFiles.isNotEmpty)
                                         InkWell(
                                           onTap: _pickCertificate,
                                           child: Row(
-                                            children: const [
-                                              Icon(
+                                            children: [
+                                              const Icon(
                                                 Icons.add,
                                                 size: 18,
                                                 color: AppColors.goldPaleCream,
                                               ),
-                                              SizedBox(width: 4),
+                                              const SizedBox(width: 4),
                                               Text(
                                                 "Add another",
-                                                style: TextStyle(
-                                                  color:
-                                                      AppColors.goldPaleCream,
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
+                                                style: AppTextStyles
+                                                    .bodyCompactMedium
+                                                    .copyWith(
+                                                      color: AppColors
+                                                          .goldPaleCream,
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -1112,19 +1114,18 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       child: Container(
                                         height: 90,
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
+                                          borderRadius: AppRadii.lgAll,
                                           border: Border.all(
                                             color: AppColors.white24,
                                           ),
                                         ),
-                                        child: const Center(
+                                        child: Center(
                                           child: Text(
                                             "Upload",
-                                            style: TextStyle(
-                                              color: AppColors.white,
-                                            ),
+                                            style: AppTextStyles.systemDefault
+                                                .copyWith(
+                                                  color: AppColors.white,
+                                                ),
                                           ),
                                         ),
                                       ),
@@ -1143,11 +1144,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                                           return Container(
                                             margin: const EdgeInsets.only(
-                                              bottom: 10,
+                                              bottom: AppSpacing.smd,
                                             ),
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 10,
+                                              horizontal: AppSpacing.md,
+                                              vertical: AppSpacing.smd,
                                             ),
                                             decoration: BoxDecoration(
                                               color: AppColors.surfaceMid,
@@ -1173,9 +1174,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                      color: AppColors.white,
-                                                    ),
+                                                    style: AppTextStyles
+                                                        .systemDefault
+                                                        .copyWith(
+                                                          color:
+                                                              AppColors.white,
+                                                        ),
                                                   ),
                                                 ),
 
@@ -1223,7 +1227,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             Column(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(
+                                    AppSpacing.base,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.background,
                                     borderRadius: AppRadii.xxlAll,
@@ -1236,13 +1242,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       /// TITLE
-                                      const Text(
+                                      Text(
                                         "Upload Documents",
-                                        style: TextStyle(
-                                          color: AppColors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        style: AppTextStyles.system14Strong
+                                            .copyWith(color: AppColors.white),
                                       ),
 
                                       const SizedBox(height: 12),
@@ -1313,13 +1316,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     borderRadius: AppRadii.xlAll,
                                   ),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   "Create Profile",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontFamily: "Unbounded",
+                                  style: AppTextStyles.displayLabel16.copyWith(
                                     color: AppColors.textHeading,
-                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
@@ -1332,21 +1332,21 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Text(
+                                  Text(
                                     "Already have an account? ",
-                                    style: TextStyle(color: AppColors.white30),
+                                    style: AppTextStyles.systemDefault.copyWith(
+                                      color: AppColors.white30,
+                                    ),
                                   ),
 
                                   InkWell(
                                     onTap: () {
                                       context.pushNamed(RouteNames.login);
                                     },
-                                    child: const Text(
+                                    child: Text(
                                       "Login",
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      style: AppTextStyles.systemSemiBold
+                                          .copyWith(color: AppColors.primary),
                                     ),
                                   ),
                                 ],
@@ -1365,7 +1365,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         right: 0,
                         child: Center(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.base,
+                            ),
                             height: 50,
                             decoration: BoxDecoration(
                               color: AppColors.surfaceMid,
@@ -1393,15 +1395,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                const Text(
+                                Text(
                                   "Tell Us About Yourself & Add Details",
-                                  style: TextStyle(
-                                    fontFamily: "Outfit",
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.white30,
-                                    letterSpacing: 0.2,
-                                  ),
+                                  style: AppTextStyles.body11MediumLetter02
+                                      .copyWith(color: AppColors.white30),
                                 ),
                               ],
                             ),
@@ -1448,11 +1445,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
           /// TEXT
           Text(
             title,
-            style: const TextStyle(
-              color: AppColors.white30,
-              fontSize: 15,
-              fontFamily: "Outfit",
-            ),
+            style: AppTextStyles.body15.copyWith(color: AppColors.white30),
           ),
         ],
       ),
@@ -1486,9 +1479,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                     const SizedBox(width: 8),
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: AppTextStyles.system14.copyWith(
                         color: AppColors.white24,
-                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -1498,7 +1490,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
           )
         /// 🔥 FILE PREVIEW MODE
         : Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.smd,
+            ),
             decoration: BoxDecoration(
               color: AppColors.black,
               borderRadius: AppRadii.lgAll,
@@ -1521,7 +1516,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                     file.path.split('/').last,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.white),
+                    style: AppTextStyles.systemDefault.copyWith(
+                      color: AppColors.white,
+                    ),
                   ),
                 ),
 
@@ -1741,12 +1738,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
               ),
               child: SingleChildScrollView(
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AppSpacing.xl),
                   decoration: const BoxDecoration(
                     color: AppColors.background,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(24),
-                    ),
+                    borderRadius: AppRadii.topMassive,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1756,7 +1751,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         child: Container(
                           height: 5,
                           width: 40,
-                          margin: const EdgeInsets.only(bottom: 12),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.md),
                           decoration: BoxDecoration(
                             color: AppColors.white24,
                             borderRadius: AppRadii.xsAll,
@@ -1768,13 +1763,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             "Add Social Links",
-                            style: TextStyle(
+                            style: AppTextStyles.displayLabel16.copyWith(
                               color: AppColors.white,
-                              fontSize: 16,
-                              fontFamily: "Unbounded",
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           IconButton(
@@ -1787,13 +1779,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         ],
                       ),
 
-                      const Text(
+                      Text(
                         "Add links that showcase your work, recognition,personality and more!",
-                        style: TextStyle(
+                        style: AppTextStyles.body12.copyWith(
                           color: AppColors.white30,
-                          fontSize: 12,
-                          fontFamily: "Outfit",
-                          fontWeight: FontWeight.w400,
                         ),
                       ),
 
@@ -1839,10 +1828,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       if (savedLinks.isNotEmpty) ...[
                         Text(
                           "${savedLinks.length}/6",
-                          style: const TextStyle(
+                          style: AppTextStyles.body12.copyWith(
                             color: AppColors.white24,
-                            fontSize: 12,
-                            fontFamily: "Outfit",
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -1852,10 +1839,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           final item = entry.value;
 
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
+                            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.smd,
                             ),
                             decoration: BoxDecoration(
                               borderRadius: AppRadii.lgAll,
@@ -1908,11 +1895,13 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 Expanded(
                                   child: Text(
                                     item['name'],
-                                    style: const TextStyle(
-                                      color: AppColors.white,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: "Outfit",
-                                    ),
+                                    style: AppTextStyles.systemDefault
+                                        .copyWith(
+                                          color: AppColors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily:
+                                              AppTextStyles.fontFamilyBody,
+                                        ),
                                   ),
                                 ),
 
@@ -2035,11 +2024,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 linkController.clear();
                               });
                             },
-                            child: const Text(
+                            child: Text(
                               "Save Link",
-                              style: TextStyle(
+                              style: AppTextStyles.systemSemiBold.copyWith(
                                 color: AppColors.black,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -2074,12 +2062,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              const Text(
+                              Text(
                                 "Add another link",
-                                style: TextStyle(
+                                style: AppTextStyles.body14.copyWith(
                                   color: AppColors.white30,
-                                  fontSize: 14,
-                                  fontFamily: "Outfit",
                                 ),
                               ),
                             ],
@@ -2098,11 +2084,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               ),
                             ),
                             onPressed: () => Navigator.pop(context),
-                            child: const Text(
+                            child: Text(
                               "Save",
-                              style: TextStyle(
+                              style: AppTextStyles.systemSemiBold.copyWith(
                                 color: AppColors.black,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -2333,12 +2318,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
               ),
               child: SingleChildScrollView(
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AppSpacing.xl),
                   decoration: const BoxDecoration(
                     color: AppColors.surfaceStats,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
+                    borderRadius: AppRadii.topHeader,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -2349,7 +2332,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         child: Container(
                           height: 4,
                           width: 40,
-                          margin: const EdgeInsets.only(bottom: 14),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.mld),
                           decoration: BoxDecoration(
                             color: AppColors.white24,
                             borderRadius: AppRadii.xsAll,
@@ -2361,13 +2344,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             "Add Portfolio Links",
-                            style: TextStyle(
+                            style: AppTextStyles.displayLabel16.copyWith(
                               color: AppColors.white,
-                              fontSize: 16,
-                              fontFamily: "Unbounded",
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           IconButton(
@@ -2382,9 +2362,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                       const SizedBox(height: 6),
 
-                      const Text(
+                      Text(
                         "Add YouTube, Vimeo, or Google Drive links to showcase your portfolio.",
-                        style: TextStyle(color: AppColors.white, fontSize: 13),
+                        style: AppTextStyles.system13.copyWith(
+                          color: AppColors.white,
+                        ),
                       ),
 
                       const SizedBox(height: 20),
@@ -2451,10 +2433,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       if (savedPortfolioLinks.isNotEmpty) ...[
                         Text(
                           "${savedPortfolioLinks.length}/3",
-                          style: const TextStyle(
+                          style: AppTextStyles.body12.copyWith(
                             color: AppColors.white24,
-                            fontSize: 12,
-                            fontFamily: "Outfit",
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -2464,10 +2444,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           final item = entry.value;
 
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
+                            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.smd,
                             ),
                             decoration: BoxDecoration(
                               borderRadius: AppRadii.lgAll,
@@ -2520,11 +2500,13 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 Expanded(
                                   child: Text(
                                     item['name'],
-                                    style: const TextStyle(
-                                      color: AppColors.white,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: "Outfit",
-                                    ),
+                                    style: AppTextStyles.systemDefault
+                                        .copyWith(
+                                          color: AppColors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily:
+                                              AppTextStyles.fontFamilyBody,
+                                        ),
                                   ),
                                 ),
 
@@ -2647,11 +2629,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 portfolioLinkController.clear();
                               });
                             },
-                            child: const Text(
+                            child: Text(
                               "Save Link",
-                              style: TextStyle(
+                              style: AppTextStyles.systemSemiBold.copyWith(
                                 color: AppColors.black,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -2686,12 +2667,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              const Text(
+                              Text(
                                 "Add another link",
-                                style: TextStyle(
+                                style: AppTextStyles.body14.copyWith(
                                   color: AppColors.white30,
-                                  fontSize: 14,
-                                  fontFamily: "Outfit",
                                 ),
                               ),
                             ],
@@ -2711,11 +2690,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               ),
                             ),
                             onPressed: () => Navigator.pop(context),
-                            child: const Text(
+                            child: Text(
                               "Save",
-                              style: TextStyle(
+                              style: AppTextStyles.systemSemiBold.copyWith(
                                 color: AppColors.black,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -2838,10 +2816,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              decoration: const BoxDecoration(
                 color: AppColors.background,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: AppRadii.topMassive,
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -2852,7 +2830,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       child: Container(
                         height: 4,
                         width: 40,
-                        margin: EdgeInsets.only(bottom: 12),
+                        margin: const EdgeInsets.only(bottom: AppSpacing.md),
                         decoration: BoxDecoration(
                           color: AppColors.white24,
                           borderRadius: AppRadii.xsAll,
@@ -2866,11 +2844,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       children: [
                         Text(
                           "Featured Work",
-                          style: TextStyle(
+                          style: AppTextStyles.displayLabel16.copyWith(
                             color: AppColors.white,
-                            fontSize: 16,
-                            fontFamily: "Unbounded ",
-                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         IconButton(
@@ -2882,11 +2857,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                     Text(
                       "For best results, use a PNG, JPG, Video or\nGIF image etc.",
-                      style: TextStyle(
+                      style: AppTextStyles.body14.copyWith(
                         color: AppColors.white30,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: "Outfit",
                       ),
                     ),
 
@@ -2934,7 +2906,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         child: Container(
                           height: 190,
                           width: double.infinity,
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(AppSpacing.base),
                           decoration: BoxDecoration(
                             //    color: AppColors.surfaceStats,
                             borderRadius: AppRadii.xxlAll,
@@ -2942,22 +2914,18 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           child: tempFeaturedImages.isEmpty
                               ? Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
+                                  children: [
+                                    const Icon(
                                       Icons.upload,
                                       color: AppColors.white,
                                       size: 28,
                                     ),
-                                    SizedBox(height: 10),
+                                    const SizedBox(height: 10),
                                     Text(
                                       "Upload new image, video, or browse",
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily: "Outfit",
-                                        color: AppColors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      style: AppTextStyles.bodyMediumStrong
+                                          .copyWith(color: AppColors.white),
                                     ),
                                   ],
                                 )
@@ -3026,9 +2994,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         children: [
                                           /// 🖼 IMAGE
                                           ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
+                                            borderRadius: AppRadii.lgAll,
                                             child: Image.file(
                                               tempFeaturedImages[index],
                                               fit: BoxFit.cover,
@@ -3195,11 +3161,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               Navigator.pop(context);
                             },
 
-                            child: const Text(
+                            child: Text(
                               "Save",
-                              style: TextStyle(
+                              style: AppTextStyles.systemSemiBold.copyWith(
                                 color: AppColors.black,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           );
@@ -3234,10 +3199,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(AppSpacing.xl),
                 decoration: const BoxDecoration(
                   color: AppColors.surfaceStats,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  borderRadius: AppRadii.topMassive,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -3248,7 +3213,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       child: Container(
                         height: 4,
                         width: 40,
-                        margin: const EdgeInsets.only(bottom: 12),
+                        margin: const EdgeInsets.only(bottom: AppSpacing.md),
                         decoration: BoxDecoration(
                           color: AppColors.white24,
                           borderRadius: AppRadii.xsAll,
@@ -3260,13 +3225,10 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           "Add Tag",
-                          style: TextStyle(
+                          style: AppTextStyles.displayStrong16w600.copyWith(
                             color: AppColors.white,
-                            fontSize: 16,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         IconButton(
@@ -3278,9 +3240,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                     const SizedBox(height: 8),
 
-                    const Text(
+                    Text(
                       "Help people find your work",
-                      style: TextStyle(color: AppColors.white, fontSize: 13),
+                      style: AppTextStyles.system13.copyWith(
+                        color: AppColors.white,
+                      ),
                     ),
 
                     const SizedBox(height: 20),
@@ -3291,27 +3255,29 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         Expanded(
                           child: TextField(
                             controller: tagController,
-                            style: const TextStyle(color: AppColors.white),
-                            decoration: const InputDecoration(
+                            style: AppTextStyles.systemDefault.copyWith(
+                              color: AppColors.white,
+                            ),
+                            decoration: InputDecoration(
                               hintText: "Type tag and press + or Enter",
-                              hintStyle: TextStyle(color: AppColors.white24),
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
+                              hintStyle: AppTextStyles.systemDefault.copyWith(
+                                color: AppColors.white24,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.base,
+                                vertical: AppSpacing.mld,
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(12),
-                                ),
-                                borderSide: BorderSide(
+                                borderRadius: AppRadii.lgAll,
+                                borderSide: const BorderSide(
                                   color: AppColors.white24,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(12),
+                                borderRadius: AppRadii.lgAll,
+                                borderSide: const BorderSide(
+                                  color: AppColors.white,
                                 ),
-                                borderSide: BorderSide(color: AppColors.white),
                               ),
                             ),
                             onSubmitted: (value) {
@@ -3373,7 +3339,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               children: [
                                 Text(
                                   tag,
-                                  style: const TextStyle(
+                                  style: AppTextStyles.systemDefault.copyWith(
                                     color: AppColors.white,
                                     fontSize: 12,
                                   ),
@@ -3406,7 +3372,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.goldSoft,
                           foregroundColor: AppColors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.mld,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: AppRadii.xlAll,
                           ),
@@ -3431,9 +3399,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           });
                           Navigator.pop(context);
                         },
-                        child: const Text(
+                        child: Text(
                           "Save",
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                          style: AppTextStyles.systemSemiBold,
                         ),
                       ),
                     ),
@@ -3461,8 +3429,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      margin: EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.smd,
+        vertical: AppSpacing.smd,
+      ),
+      margin: const EdgeInsets.all(AppSpacing.smd),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: AppRadii.xxlAll,
@@ -3497,10 +3468,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                   "$firstName $lastName",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: "Outfit",
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.body15Strong.copyWith(
                     color: AppColors.black,
                   ),
                 ),
@@ -3512,9 +3480,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                   email.isEmpty ? "Your Email" : email,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: "Outfit",
-                    fontSize: 12,
+                  style: AppTextStyles.body12.copyWith(
                     color: AppColors.surfaceMid,
                   ),
                 ),
@@ -3561,12 +3527,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             ),
                             elevation: 0,
                           ),
-                          child: const Text(
+                          child: Text(
                             "View Details",
-                            style: TextStyle(
-                              fontFamily: "Outfit",
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                            style: AppTextStyles.bodySmallMedium.copyWith(
                               color: AppColors.primary,
                             ),
                           ),
@@ -3579,7 +3542,9 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                     /// COMPLETION PERCENT
                     Container(
                       height: 36,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.border,
                         borderRadius: AppRadii.hugeAll,
@@ -3587,10 +3552,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       alignment: Alignment.center,
                       child: Text(
                         "${_calculateStep3Progress()}%Completed",
-                        style: TextStyle(
-                          fontFamily: "Outfit",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        style: AppTextStyles.bodySmallStrong.copyWith(
                           color: AppColors.black,
                         ),
                       ),

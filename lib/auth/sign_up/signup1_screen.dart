@@ -19,6 +19,8 @@ import '../../service/google_config.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
 import '../../app/shadows.dart';
+import '../../app/spacing.dart';
+import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/custom_dropdown.dart';
 import '../../widgets/Topmessgae.dart';
@@ -132,9 +134,9 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
               height: MediaQuery.of(context).size.height * 0.85,
               decoration: const BoxDecoration(
                 color: AppColors.surfaceCropSheet,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: AppRadii.topMassive,
               ),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.base),
               child: Column(
                 children: [
                   Center(
@@ -153,11 +155,8 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                     children: [
                       Text(
                         "Crop your Profile",
-                        style: TextStyle(
+                        style: AppTextStyles.body18Medium.copyWith(
                           color: AppColors.white,
-                          fontSize: 18,
-                          fontFamily: "Outfit",
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
 
@@ -166,7 +165,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                             Navigator.pop(context), // ❌ close bottom sheet
                         borderRadius: AppRadii.hugeAll,
                         child: Padding(
-                          padding: EdgeInsets.all(6),
+                          padding: EdgeInsets.all(AppSpacing.xs),
                           child: Icon(
                             Icons.close,
                             color: AppColors.white,
@@ -239,7 +238,10 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
 
                   /// 🔥 ZOOM SLIDER
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
                     child: Row(
                       children: [
                         /// 🔹 LEFT IMAGE ICON
@@ -322,11 +324,8 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                       },
                       child: Text(
                         "Save",
-                        style: TextStyle(
+                        style: AppTextStyles.displayLabel14.copyWith(
                           color: AppColors.black,
-                          fontSize: 14,
-                          fontFamily: "Unbounded",
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -718,11 +717,8 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                               /// 📄 STEP COUNT
                               Text(
                                 "1/3",
-                                style: TextStyle(
+                                style: AppTextStyles.body14Medium.copyWith(
                                   color: AppColors.white,
-                                  fontSize: 14,
-                                  fontFamily: "Outfit",
-                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -737,10 +733,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                             children: [
                               Text(
                                 "Build your Creative Profile",
-                                style: TextStyle(
-                                  fontFamily: "Unbounded",
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                style: AppTextStyles.displayStrong16.copyWith(
                                   color: AppColors.white,
                                 ),
                               ),
@@ -751,9 +744,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                 "Create your profile to get discovered by\n production teams.",
 
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: "Outfit",
-                                  fontSize: 14,
+                                style: AppTextStyles.body14.copyWith(
                                   color: AppColors.white30,
                                 ),
                               ),
@@ -766,7 +757,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                     width: 40, // 🔥 fixed width
                                     height: 5,
                                     margin: const EdgeInsets.symmetric(
-                                      horizontal: 4,
+                                      horizontal: AppSpacing.xxs,
                                     ),
                                     decoration: BoxDecoration(
                                       color:
@@ -797,12 +788,14 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                         Container(
                           width: double.infinity,
                           padding: EdgeInsets.fromLTRB(
-                            20,
+                            AppSpacing.xl,
                             isPreviewVisible ? 110 : 60,
-                            20,
-                            20,
+                            AppSpacing.xl,
+                            AppSpacing.xl,
                           ),
-                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.base,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.background,
                             borderRadius: AppRadii.massiveAll,
@@ -936,7 +929,9 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                               Stack(
                                 children: [
                                   Container(
-                                    margin: const EdgeInsets.only(top: 10),
+                                    margin: const EdgeInsets.only(
+                                      top: AppSpacing.smd,
+                                    ),
                                     decoration: BoxDecoration(
                                       borderRadius: AppRadii.lgAll,
                                       border: Border.all(
@@ -954,21 +949,21 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                       debounceTime: 600,
                                       isLatLngRequired: true,
 
-                                      textStyle: const TextStyle(
-                                        color: AppColors.white,
-                                        fontSize: 14,
-                                      ),
+                                      textStyle: AppTextStyles.system14
+                                          .copyWith(color: AppColors.white),
 
-                                      inputDecoration: const InputDecoration(
+                                      inputDecoration: InputDecoration(
                                         border: InputBorder.none,
                                         // hintText: "Search location",
-                                        hintStyle: TextStyle(
-                                          color: AppColors.white30,
-                                        ),
-                                        contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 16,
-                                        ),
+                                        hintStyle: AppTextStyles.systemDefault
+                                            .copyWith(
+                                              color: AppColors.white30,
+                                            ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: AppSpacing.base,
+                                              vertical: AppSpacing.base,
+                                            ),
                                       ),
 
                                       getPlaceDetailWithLatLng:
@@ -997,17 +992,15 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                     top: 0,
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
+                                        horizontal: AppSpacing.xs,
                                       ),
                                       color: AppColors.background,
                                       child: Text(
                                         "Location*",
-                                        style: TextStyle(
+                                        style: AppTextStyles.body12.copyWith(
                                           color: locationHighlight
                                               ? AppColors.primary
                                               : AppColors.white60,
-                                          fontSize: 12,
-                                          fontFamily: "Outfit",
                                         ),
                                       ),
                                     ),
@@ -1018,7 +1011,9 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                               /// 🗺️ MAP WITH FIXED HEIGHT
                               if (showMap)
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 10),
+                                  padding: const EdgeInsets.only(
+                                    top: AppSpacing.smd,
+                                  ),
                                   child: SizedBox(
                                     height: 280,
                                     child: ClipRRect(
@@ -1096,9 +1091,8 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                         value: e,
                                         child: Text(
                                           e,
-                                          style: const TextStyle(
-                                            color: AppColors.white,
-                                          ),
+                                          style: AppTextStyles.systemDefault
+                                              .copyWith(color: AppColors.white),
                                         ),
                                       ),
                                     )
@@ -1203,44 +1197,32 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                   Expanded(
                                     child: RichText(
                                       text: TextSpan(
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: AppColors.black,
-                                          height: 1.4, // line spacing perfect
-                                        ),
-                                        children: const [
+                                        style: AppTextStyles.system13Tight
+                                            .copyWith(color: AppColors.black),
+                                        children: [
                                           TextSpan(
                                             text: "I agree to the ",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              color: AppColors.white30,
-                                              fontSize: 13,
-                                              fontFamily:
-                                                  "Outfit", // ⭐ Added Outfit font
-                                            ),
+                                            style: AppTextStyles.body13
+                                                .copyWith(
+                                                  color: AppColors.white30,
+                                                ),
                                           ),
 
                                           TextSpan(
                                             text:
                                                 "Terms & Condition & Privacy Policy",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.white,
-                                              fontSize: 13,
-                                              fontFamily:
-                                                  "Outfit", // ⭐ Added Outfit font
-                                            ),
+                                            style: AppTextStyles.body13Bold
+                                                .copyWith(
+                                                  color: AppColors.white,
+                                                ),
                                           ),
 
                                           TextSpan(
                                             text: "\nset out of this site",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              color: AppColors.white30,
-                                              fontSize: 13,
-                                              fontFamily:
-                                                  "Outfit", // ⭐ Added Outfit font
-                                            ),
+                                            style: AppTextStyles.body13
+                                                .copyWith(
+                                                  color: AppColors.white30,
+                                                ),
                                           ),
                                         ],
                                       ),
@@ -1268,15 +1250,12 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                   ),
                                   child: Text(
                                     "Next",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: "Unbounded",
-                                      color: isFormValid
-                                          ? AppColors.textHeading
-                                          : AppColors.surfaceMid,
-
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: AppTextStyles.displayLabel13
+                                        .copyWith(
+                                          color: isFormValid
+                                              ? AppColors.textHeading
+                                              : AppColors.surfaceMid,
+                                        ),
                                   ),
                                 ),
                               ),
@@ -1294,7 +1273,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                             child: Center(
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
+                                  horizontal: AppSpacing.base,
                                 ),
                                 height: 60,
                                 decoration: BoxDecoration(
@@ -1320,12 +1299,8 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                     SizedBox(width: 10),
                                     Text(
                                       "Tell Us About Yourself & Add Details",
-                                      style: TextStyle(
-                                        fontFamily: "Outfit",
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.disabled,
-                                      ),
+                                      style: AppTextStyles.bodySmallMedium
+                                          .copyWith(color: AppColors.disabled),
                                     ),
                                   ],
                                 ),
@@ -1347,12 +1322,10 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         "Already have an account? ",
-                        style: TextStyle(
+                        style: AppTextStyles.body15Medium.copyWith(
                           color: AppColors.white60,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       InkWell(
@@ -1366,12 +1339,10 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                           context.goNamed(RouteNames.login);
                           // context.goNamed(RouteNames.onboarding);
                         },
-                        child: const Text(
+                        child: Text(
                           "Login",
-                          style: TextStyle(
+                          style: AppTextStyles.body15Strong.copyWith(
                             color: AppColors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
                             decoration: TextDecoration.underline,
                           ),
                         ),
@@ -1394,7 +1365,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
       controller: controller,
       cursorColor: AppColors.white,
 
-      style: const TextStyle(
+      style: AppTextStyles.systemDefault.copyWith(
         color: AppColors.white, // typed text color
       ),
 
@@ -1402,13 +1373,13 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
         labelText: "$title*",
         floatingLabelBehavior: FloatingLabelBehavior.always,
 
-        labelStyle: const TextStyle(
+        labelStyle: AppTextStyles.systemDefault.copyWith(
           color: AppColors.primary, // #1D1D1B 60% opacity
         ),
 
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 18,
+          horizontal: AppSpacing.xl,
+          vertical: AppSpacing.lg,
         ),
 
         /// ⭐ 0.5px BORDER + OPACITY COLOR
@@ -1428,7 +1399,9 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
           ),
         ),
 
-        floatingLabelStyle: const TextStyle(color: AppColors.white30),
+        floatingLabelStyle: AppTextStyles.systemDefault.copyWith(
+          color: AppColors.white30,
+        ),
       ),
     );
   }
@@ -1568,7 +1541,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
 
   Widget _profilePictureCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.base),
       decoration: BoxDecoration(
         borderRadius: AppRadii.xxlAll,
         border: Border.all(color: AppColors.white60, width: 0.5),
@@ -1577,12 +1550,9 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// TITLE
-          const Text(
+          Text(
             "Profile Picture",
-            style: TextStyle(
-              fontSize: 16,
-              fontFamily: "Outfit",
-              fontWeight: FontWeight.w500,
+            style: AppTextStyles.bodyLargeMedium.copyWith(
               color: AppColors.white,
             ),
           ),
@@ -1592,11 +1562,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
           /// SUB TITLE
           Text(
             "Add photo to build connection and trust",
-            style: TextStyle(
-              fontSize: 12,
-              fontFamily: "Outfit",
-              color: AppColors.white30,
-            ),
+            style: AppTextStyles.body12.copyWith(color: AppColors.white30),
           ),
 
           const SizedBox(height: 16),
@@ -1622,8 +1588,8 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                   borderRadius: AppRadii.roundAll,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 10,
+                      vertical: AppSpacing.md,
+                      horizontal: AppSpacing.smd,
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.white,
@@ -1646,11 +1612,8 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                           profileImage == null
                               ? "Upload Profile Picture"
                               : "ReUpload Profile Picture",
-                          style: TextStyle(
-                            fontSize: 12, // 🔹 thoda bada (image jaisa)
-                            fontWeight: FontWeight.w500, // 🔹 bold
+                          style: AppTextStyles.bodySmallMedium.copyWith(
                             color: AppColors.black,
-                            fontFamily: "Outfit",
                           ),
                         ),
                       ],
@@ -1679,8 +1642,11 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          margin: EdgeInsets.all(10),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.smd,
+            vertical: AppSpacing.smd,
+          ),
+          margin: const EdgeInsets.all(AppSpacing.smd),
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: AppRadii.xxlAll,
@@ -1714,10 +1680,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                       children: [
                         Text(
                           "${firstName.isEmpty ? '' : firstName} ${lastName.isEmpty ? '' : lastName}",
-                          style: const TextStyle(
-                            fontFamily: "Outfit",
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                          style: AppTextStyles.body15Strong.copyWith(
                             color: AppColors.black,
                           ),
                         ),
@@ -1725,9 +1688,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                         Text(
                           email.isEmpty ? "Your Email" : email,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontFamily: "Outfit",
-                            fontSize: 12,
+                          style: AppTextStyles.body12.copyWith(
                             color: AppColors.greyShade737,
                           ),
                         ),
@@ -1800,12 +1761,9 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
+                        child: Text(
                           "View Details",
-                          style: TextStyle(
-                            fontFamily: "Outfit",
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                          style: AppTextStyles.bodySmallMedium.copyWith(
                             color: AppColors.primary,
                           ),
                         ),
@@ -1818,7 +1776,9 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                   /// 🔹 30% COMPLETED CONTAINER
                   Container(
                     height: 40,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.base,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.border,
                       borderRadius: AppRadii.hugeAll,
@@ -1826,10 +1786,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                     alignment: Alignment.center,
                     child: Text(
                       "${_calculateCompletion()}% Completed",
-                      style: TextStyle(
-                        fontFamily: "Outfit",
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                      style: AppTextStyles.bodySmallMedium.copyWith(
                         color: AppColors.black,
                       ),
                     ),

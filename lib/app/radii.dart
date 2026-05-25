@@ -144,6 +144,18 @@ class AppRadii {
     topRight: Radius.circular(AppRadii.xl),
   );
 
+  /// Top-only rounding — 24px (modal sheets in signup flow)
+  static const BorderRadius topMassive = BorderRadius.only(
+    topLeft: Radius.circular(AppRadii.massive),
+    topRight: Radius.circular(AppRadii.massive),
+  );
+
+  /// Top-only rounding — 28px (profile/header sheets)
+  static const BorderRadius topHeader = BorderRadius.only(
+    topLeft: Radius.circular(AppRadii.header),
+    topRight: Radius.circular(AppRadii.header),
+  );
+
   /// Bottom-only rounding — 28px
   static const BorderRadius bottomHeader = BorderRadius.only(
     bottomLeft: Radius.circular(AppRadii.header),

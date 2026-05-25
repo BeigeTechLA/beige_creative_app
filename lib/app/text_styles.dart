@@ -302,6 +302,12 @@ class AppTextStyles {
     fontWeight: FontWeight.w500,
   );
 
+  /// Unbounded 14 w400 — Compact display label (default weight)
+  static const TextStyle display14 = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 14,
+  );
+
   /// Unbounded 13 w600 — Tiny display label
   static const TextStyle displayLabel13 = TextStyle(
     fontFamily: fontFamilyDisplay,
@@ -353,6 +359,12 @@ class AppTextStyles {
   /// System/default 14 — no explicit font family or weight.
   static const TextStyle system14 = TextStyle(fontSize: 14);
 
+  /// System/default 14 w600 — no explicit font family.
+  static const TextStyle system14Strong = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+  );
+
   /// System/default 15 w500 — no explicit font family.
   static const TextStyle system15Medium = TextStyle(
     fontSize: 15,
@@ -365,8 +377,67 @@ class AppTextStyles {
     fontWeight: FontWeight.w600,
   );
 
+  /// System/default 16 w500 — no explicit font family.
+  static const TextStyle system16Medium = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+  );
+
   /// System/default semibold — no explicit font family or size.
   static const TextStyle systemSemiBold = TextStyle(
     fontWeight: FontWeight.w600,
+  );
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // EXTENDED — Signup-flow outliers (Phase 2 — Batch 4)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// Outfit 13 w400 — Compact body without explicit line height
+  static const TextStyle body13 = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 13,
+    fontWeight: FontWeight.w400,
+  );
+
+  /// Outfit 13 bold — Compact emphasis (terms accept label)
+  static const TextStyle body13Bold = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 13,
+    fontWeight: FontWeight.bold,
+  );
+
+  /// Outfit 12 w400 — Small body without explicit line height
+  static const TextStyle body12 = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+  );
+
+  /// Outfit 14 w500 — Medium body without letter spacing
+  static const TextStyle body14Medium = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Outfit 11 w500 — Tiny label with 0.2 letter spacing (signup3 helper)
+  static const TextStyle body11MediumLetter02 = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.2,
+  );
+
+  /// Unbounded 16 w600 — Strong display label
+  static const TextStyle displayStrong16w600 = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// System/default 13 height 1.4 — terms paragraph body
+  static const TextStyle system13Tight = TextStyle(
+    fontSize: 13,
+    height: 1.4,
   );
 }
