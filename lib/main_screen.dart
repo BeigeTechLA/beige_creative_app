@@ -18,7 +18,8 @@ import 'ManageAvailability/manage_availability_screen.dart';
 import 'app/route_names.dart';
 import 'file_manager/file_manager_screen.dart';
 import 'app/colors.dart';
-
+import 'app/text_styles.dart';
+import 'app/spacing.dart';
 import 'app/radii.dart';
 import 'app/shadows.dart';
 class Mainscreen extends StatefulWidget {
@@ -208,7 +209,7 @@ Future<void> fetchprofiledata() async {
   }
   Widget _buildInactiveIcon(String path) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: AppSpacing.xxs),
       child: SizedBox(
         width: 44,
         height: 26,
@@ -233,7 +234,7 @@ Future<void> fetchprofiledata() async {
     final artHeight = height ?? 44;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: AppSpacing.xxs),
       child: SizedBox(
         width: artWidth,
         height: 26,
@@ -276,7 +277,7 @@ Future<void> fetchprofiledata() async {
 
             /// 🔹 Profile Section
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.xl),
               child: Column(
                 children: [
                   Row(
@@ -291,7 +292,7 @@ Future<void> fetchprofiledata() async {
                       )
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  AppSpacing.verticalXl,
 
                   InkWell(
                     onTap: () {
@@ -313,7 +314,7 @@ Future<void> fetchprofiledata() async {
                       });
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(AppSpacing.md),
                       decoration: BoxDecoration(
                         color: AppColors.goldSandLight,
                         borderRadius: AppRadii.xxlAll,
@@ -331,7 +332,7 @@ Future<void> fetchprofiledata() async {
                                 ? SvgPicture.asset(AppAssets.User_Circle)
                                 : null,
                           ),
-                          const SizedBox(width: 12),
+                          AppSpacing.gapHMd,
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,20 +340,15 @@ Future<void> fetchprofiledata() async {
                                 Text(
                                   Myprofile_user?.user.name ?? "User...",
 
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    fontFamily: "Outfit",
+                                  style: AppTextStyles.bodyLargeStrong.copyWith(
                                     color: AppColors.black,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                AppSpacing.verticalXxs,
                                  Text(
                                    Myprofile_user?.user.email ?? "email...",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: "Outfit",
-                                    fontWeight: FontWeight.w500,
+                                  style: AppTextStyles.bodySmallMedium.copyWith(
                                     color: AppColors.black,
                                   ),
                                 ),
@@ -456,9 +452,8 @@ Future<void> fetchprofiledata() async {
       ),
       title: Text(
         title,
-        style: const TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           color: AppColors.white,
-          fontFamily: "Outfit",
         ),
       ),
       onTap: () {

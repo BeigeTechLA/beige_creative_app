@@ -17,6 +17,8 @@ import '../app/route_names.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
 import '../app/shadows.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../widgets/common_calendar.dart';
 import '../widgets/date_time.dart';
 import '../widgets/multi_arc_painter.dart';
@@ -374,7 +376,7 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(AppSpacing.mld),
       decoration: BoxDecoration(
         color: bgColor,
         border: Border.all(color: AppColors.white.withOpacity(0.08)),
@@ -401,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen>
               },
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSpacing.mld),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,51 +412,49 @@ class _HomeScreenState extends State<HomeScreen>
                   data['title'],
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.bodyMediumStrong.copyWith(
                     color: AppColors.white,
                   ),
                 ),
                 Divider(color: AppColors.dividerDark, thickness: 0.8),
-                const SizedBox(height: 6),
+                AppSpacing.verticalXs,
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.calender, width: 14, height: 14),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: AppSpacing.s5),
                     Text(
                       data['date'],
-                      style: TextStyle(fontSize: 12, color: AppColors.white),
+                      style: AppTextStyles.body12.copyWith(color: AppColors.white),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                AppSpacing.verticalXs,
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.time, width: 14, height: 14),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: AppSpacing.s5),
                     Text(
                       data['time'],
-                      style: TextStyle(fontSize: 12, color: AppColors.white),
+                      style: AppTextStyles.body12.copyWith(color: AppColors.white),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                AppSpacing.verticalXs,
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.location, width: 14, height: 14),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: AppSpacing.s5),
                     Expanded(
                       child: Text(
                         data['location'],
-                        style: TextStyle(fontSize: 12, color: AppColors.white),
+                        style: AppTextStyles.body12.copyWith(color: AppColors.white),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMd,
                 Row(
                   children: [
                     Expanded(
@@ -473,16 +473,15 @@ class _HomeScreenState extends State<HomeScreen>
                             extra: {"projectId": data['projectId']},
                           );
                         },
-                        child: const Text(
+                        child: Text(
                           "View Details",
-                          style: TextStyle(
+                          style: AppTextStyles.body11.copyWith(
                             color: AppColors.black,
-                            fontSize: 11,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: AppSpacing.xs),
                   ],
                 ),
               ],
