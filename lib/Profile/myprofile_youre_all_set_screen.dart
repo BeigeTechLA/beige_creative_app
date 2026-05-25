@@ -4,34 +4,29 @@ import 'package:lottie/lottie.dart';
 
 import '../app/route_names.dart';
 import '../app/colors.dart';
+import '../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class MyprofileYoureAllSetScreen extends StatefulWidget {
   const MyprofileYoureAllSetScreen({super.key});
 
   @override
-  State<MyprofileYoureAllSetScreen> createState() => _MyprofileYoureAllSetScreenState();
+  State<MyprofileYoureAllSetScreen> createState() =>
+      _MyprofileYoureAllSetScreenState();
 }
 
-class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen> {
+class _MyprofileYoureAllSetScreenState
+    extends State<MyprofileYoureAllSetScreen> {
   @override
   @override
   void initState() {
-
     super.initState();
 
-    Future.delayed(
-      const Duration(seconds: 3),
-          () {
-
-        if (mounted) {
-
-          context.goNamed(
-            RouteNames.login,
-          );
-        }
-      },
-    );
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        context.goNamed(RouteNames.login);
+      }
+    });
   }
 
   @override
@@ -41,36 +36,25 @@ class _MyprofileYoureAllSetScreenState extends State<MyprofileYoureAllSetScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
             /// ✅ SUCCESS LOTTIE
-            Lottie.asset(
-              // "assets/lottie/Untitled file.json",
-              AppAssets.lottie1,
-              height: 180,
-              repeat: false,
-            ),
+            Lottie.asset(AppAssets.lottie1, height: 180, repeat: false),
 
             const SizedBox(height: 24),
 
-            const Text(
+            Text(
               "You're All Set",
-              style: TextStyle(
+              style: AppTextStyles.titleMedium.copyWith(
                 color: AppColors.primary,
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                fontFamily: "Unbounded",
               ),
             ),
 
             const SizedBox(height: 8),
 
-            const Text(
+            Text(
               "Congratulations! Your password has been\nchanged successfully",
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.white30,
-                fontSize: 14,
-                fontFamily: "Outfit",
               ),
             ),
           ],

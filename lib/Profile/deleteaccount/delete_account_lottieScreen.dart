@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../app/route_names.dart';
 import '../../app/colors.dart';
+import '../../app/text_styles.dart';
 
 
 class DeleteAccountLottieScreen extends StatefulWidget {
@@ -50,35 +51,22 @@ class _DeleteAccountLottieScreenState extends State<DeleteAccountLottieScreen> {
 
             const SizedBox(height: 24),
 
-            const Text(
+            Text(
               "Account Deleted",
-              style: TextStyle(
-                color: AppColors.primary,
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                fontFamily: "Unbounded",
-              ),
+              style: AppTextStyles.titleMedium.copyWith(color: AppColors.primary),
             ),
 
             const SizedBox(height: 8),
 
-            const Text(
+            Text(
               "Your account has been successfully.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.white30,
-                fontSize: 14,
-                fontFamily: "Outfit",
-              ),
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white30),
             ),
-            const Text(
+            Text(
               "deleted.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.white30,
-                fontSize: 14,
-                fontFamily: "Outfit",
-              ),
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white30),
             ),
           ],
         ),

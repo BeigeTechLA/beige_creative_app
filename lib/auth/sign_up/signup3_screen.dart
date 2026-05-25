@@ -12,6 +12,8 @@ import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
+import '../../app/radii.dart';
+import '../../app/shadows.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/commonFileViewer.dart';
 import '../../widgets/common_uploader.dart';
@@ -106,9 +108,6 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   final List<String> Portfoliolname = ["Vimeo", "YouTube", "Google Drive"];
 
   final List<String> Portfolioicons = [
-    // "assets/icons/vimeo-icon 1.png",
-    // "assets/icons/YouTube.png",
-    // "assets/icons/Google_Drive.png",
     AppAssets.v,
     AppAssets.youtube,
     AppAssets.googledrive,
@@ -452,7 +451,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     color: index <= 2
                                         ? AppColors.primary
                                         : AppColors.textSubtle,
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: AppRadii.hugeAll,
                                   ),
                                 ),
                               ),
@@ -478,7 +477,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
                           color: AppColors.background,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: AppRadii.massiveAll,
                           border: Border.all(
                             color: AppColors.white.withOpacity(0.06),
                             width: 1,
@@ -499,7 +498,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     margin: const EdgeInsets.only(bottom: 8),
                                     padding: const EdgeInsets.all(3),
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: AppRadii.xxlAll,
                                       border: Border.all(
                                         color: Color(
                                           0xffE8D1AB80,
@@ -516,7 +515,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                           width: 40,
                                           decoration: BoxDecoration(
                                             //color: AppColors.primary.withOpacity(0.15),
-                                            // borderRadius: BorderRadius.circular(12),
+                                            // borderRadius: AppRadii.lgAll,
                                           ),
                                           child:
                                               item['icon'].toString().endsWith(
@@ -609,7 +608,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     margin: const EdgeInsets.only(bottom: 8),
                                     padding: const EdgeInsets.all(3),
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: AppRadii.xxlAll,
                                       border: Border.all(
                                         color: Color(
                                           0xffE8D1AB80,
@@ -625,7 +624,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                           width: 40,
                                           decoration: BoxDecoration(
                                             //color: AppColors.primary.withOpacity(0.15),
-                                            // borderRadius: BorderRadius.circular(12),
+                                            // borderRadius: AppRadii.lgAll,
                                           ),
                                           child:
                                               item['icon'].toString().endsWith(
@@ -712,7 +711,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: AppColors.background,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: AppRadii.xxlAll,
                                 border: Border.all(color: AppColors.white24),
                               ),
                               child: Column(
@@ -754,7 +753,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                 width: 28,
                                                 decoration: const BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  color: AppColors.goldPaleCream,
+                                                  color:
+                                                      AppColors.goldPaleCream,
                                                 ),
                                                 child: const Icon(
                                                   Icons.add,
@@ -766,8 +766,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                               const Text(
                                                 "Add another",
                                                 style: TextStyle(
-                                                  color:
-                                                      AppColors.white30,
+                                                  color: AppColors.white30,
                                                   fontSize: 13,
                                                   fontFamily: "Outfit",
                                                 ),
@@ -904,7 +903,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                             ),
                                                         decoration:
                                                             BoxDecoration(
-                                                              color: AppColors.black
+                                                              color: AppColors
+                                                                  .black
                                                                   .withOpacity(
                                                                     0.8,
                                                                   ),
@@ -943,7 +943,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                         width: 30,
                                                         decoration:
                                                             BoxDecoration(
-                                                              color: AppColors.error
+                                                              color: AppColors
+                                                                  .error
                                                                   .withOpacity(
                                                                     0.8,
                                                                   ),
@@ -1003,8 +1004,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                   right: 10,
                                                 ),
                                                 child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
+                                                  borderRadius: AppRadii.lgAll,
                                                   child: Image.file(
                                                     featuredImages[index],
                                                     fit: BoxFit.cover,
@@ -1031,8 +1031,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                         const BoxDecoration(
                                                           shape:
                                                               BoxShape.circle,
-                                                          color:
-                                                              AppColors.surfaceMid,
+                                                          color: AppColors
+                                                              .surfaceMid,
                                                         ),
                                                     child: const Icon(
                                                       Icons.close,
@@ -1057,7 +1057,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: AppColors.background,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: AppRadii.xxlAll,
                                 border: Border.all(color: AppColors.white24),
                               ),
                               child: Column(
@@ -1091,7 +1091,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                               Text(
                                                 "Add another",
                                                 style: TextStyle(
-                                                  color: AppColors.goldPaleCream,
+                                                  color:
+                                                      AppColors.goldPaleCream,
                                                   fontSize: 13,
                                                   fontWeight: FontWeight.w500,
                                                 ),
@@ -1150,8 +1151,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                             ),
                                             decoration: BoxDecoration(
                                               color: AppColors.surfaceMid,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
+                                              borderRadius: AppRadii.lgAll,
                                               border: Border.all(
                                                 color: AppColors.white24,
                                               ),
@@ -1226,7 +1226,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: AppColors.background,
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: AppRadii.xxlAll,
                                     border: Border.all(
                                       color: AppColors.white24,
                                     ),
@@ -1310,7 +1310,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: AppRadii.xlAll,
                                   ),
                                 ),
                                 child: const Text(
@@ -1334,9 +1334,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 children: [
                                   const Text(
                                     "Already have an account? ",
-                                    style: TextStyle(
-                                      color: AppColors.white30,
-                                    ),
+                                    style: TextStyle(color: AppColors.white30),
                                   ),
 
                                   InkWell(
@@ -1371,18 +1369,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             height: 50,
                             decoration: BoxDecoration(
                               color: AppColors.surfaceMid,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppRadii.lgAll,
                               border: Border.all(
                                 color: AppColors.white.withOpacity(0.12),
                                 width: 1,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.black.withOpacity(0.35),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
+                              boxShadow: AppShadows.ctaDark,
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -1480,7 +1472,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
               height: 110,
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadii.lgAll,
                 border: Border.all(
                   color: AppColors.white24,
                   style: BorderStyle.solid, // dashed jaisa look
@@ -1509,7 +1501,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: AppColors.black,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadii.lgAll,
               border: Border.all(color: AppColors.white24),
             ),
             child: Row(
@@ -1593,7 +1585,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                             margin:  EdgeInsets.only(bottom: 12),
   //                             decoration: BoxDecoration(
   //                               color: AppColors.white24,
-  //                               borderRadius: BorderRadius.circular(4),
+  //                               borderRadius: AppRadii.xsAll,
   //                             ),
   //                           ),
   //                         ),
@@ -1658,7 +1650,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                             style: ElevatedButton.styleFrom(
   //                               backgroundColor: AppColors.primary,
   //                               shape: RoundedRectangleBorder(
-  //                                 borderRadius: BorderRadius.circular(14),
+  //                                 borderRadius: AppRadii.xlAll,
   //                               ),
   //                             ),
   //                             onPressed: () {
@@ -1767,7 +1759,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
                             color: AppColors.white24,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadii.xsAll,
                           ),
                         ),
                       ),
@@ -1866,7 +1858,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppRadii.lgAll,
                               border: Border.all(color: AppColors.white24),
                               color: AppColors.black10,
                             ),
@@ -1880,7 +1872,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       MediaQuery.of(context).size.width *
                                       0.09, // ✅ har screen pe same ratio
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
                                   child: Transform.rotate(
@@ -1928,7 +1920,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   width: 35,
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
 
@@ -1955,7 +1947,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   width: 35,
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
 
@@ -2001,7 +1993,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                               ),
                             ),
                             onPressed: () {
@@ -2102,7 +2094,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                               ),
                             ),
                             onPressed: () => Navigator.pop(context),
@@ -2156,7 +2148,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                     margin: const EdgeInsets.only(bottom: 14),
   //                     decoration: BoxDecoration(
   //                       color: AppColors.white24,
-  //                       borderRadius: BorderRadius.circular(4),
+  //                       borderRadius: AppRadii.xsAll,
   //                     ),
   //                   ),
   //                 ),
@@ -2209,7 +2201,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                         height: 52,
   //                         width: 52,
   //                         decoration: BoxDecoration(
-  //                           borderRadius: BorderRadius.circular(14),
+  //                           borderRadius: AppRadii.xlAll,
   //                           border: Border.all(
   //                             color: selectedPortfolioIndex == index
   //                                 ? AppColors.primary
@@ -2260,11 +2252,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                 //       vertical: 16,
   //                 //     ),
   //                 //     enabledBorder: OutlineInputBorder(
-  //                 //       borderRadius: BorderRadius.circular(14),
+  //                 //       borderRadius: AppRadii.xlAll,
   //                 //       borderSide: const BorderSide(color: AppColors.white24),
   //                 //     ),
   //                 //     focusedBorder: OutlineInputBorder(
-  //                 //       borderRadius: BorderRadius.circular(14),
+  //                 //       borderRadius: AppRadii.xlAll,
   //                 //       borderSide:
   //                 //       BorderSide(color: AppColors.primary),
   //                 //     ),
@@ -2282,7 +2274,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                     style: ElevatedButton.styleFrom(
   //                       backgroundColor: AppColors.goldSoft,
   //                       shape: RoundedRectangleBorder(
-  //                         borderRadius: BorderRadius.circular(14),
+  //                         borderRadius: AppRadii.xlAll,
   //                       ),
   //                     ),
   //                     onPressed: () {
@@ -2360,7 +2352,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           margin: const EdgeInsets.only(bottom: 14),
                           decoration: BoxDecoration(
                             color: AppColors.white24,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadii.xsAll,
                           ),
                         ),
                       ),
@@ -2413,7 +2405,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               height: 52,
                               width: 52,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                                 border: Border.all(
                                   color: selectedPortfolioIndex == index
                                       ? AppColors.primary
@@ -2478,7 +2470,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppRadii.lgAll,
                               border: Border.all(color: AppColors.white24),
                               color: AppColors.textSubtle,
                             ),
@@ -2489,7 +2481,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   width: 35,
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
                                   child: Transform.rotate(
@@ -2541,7 +2533,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   width: 35,
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
@@ -2576,7 +2568,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   width: 35,
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
@@ -2618,7 +2610,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.goldSoft,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                               ),
                             ),
                             onPressed: () {
@@ -2715,7 +2707,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.goldSoft,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                               ),
                             ),
                             onPressed: () => Navigator.pop(context),
@@ -2750,7 +2742,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
     final bool isSelected = selectedSocialIndex == index;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadii.xxlAll,
       onTap: () {
         setModalState(() {
           selectedSocialIndex = index;
@@ -2767,22 +2759,14 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
               ? AppColors.primary.withOpacity(0.2)
               : AppColors.transparent,
 
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.xxlAll,
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.white24,
             width: isSelected ? 1.5 : 0.8,
           ),
 
           /// optional glow
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.35),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [],
+          boxShadow: isSelected ? AppShadows.goldCta : const [],
         ),
         child: Center(
           child: imagePath.endsWith('.svg')
@@ -2828,7 +2812,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
           color: isSelected
               ? AppColors.primary.withOpacity(0.2)
               : AppColors.transparent,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.xxlAll,
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.white24,
           ),
@@ -2871,7 +2855,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         margin: EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: AppColors.white24,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppRadii.xsAll,
                         ),
                       ),
                     ),
@@ -2953,7 +2937,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             //    color: AppColors.surfaceStats,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadii.xxlAll,
                           ),
                           child: tempFeaturedImages.isEmpty
                               ? Column(
@@ -3021,8 +3005,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
+                                              borderRadius: AppRadii.lgAll,
                                               border: Border.all(
                                                 color: AppColors.white24,
                                               ),
@@ -3109,7 +3092,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                     decoration: BoxDecoration(
                                       color: AppColors.black,
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius: AppRadii.hugeAll,
                                       border: Border.all(color: AppColors.white24),
                                     ),
                                     child: Row(
@@ -3133,7 +3116,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                   decoration: BoxDecoration(
                                     color: AppColors.black26,
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: AppRadii.hugeAll,
                                     border: Border.all(color: AppColors.white24),
                                   ),
                                   child: Row(
@@ -3171,7 +3154,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   ? AppColors.primary
                                   : AppColors.lavenderGrey,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                               ),
                             ),
 
@@ -3268,7 +3251,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: AppColors.white24,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppRadii.xsAll,
                         ),
                       ),
                     ),
@@ -3359,7 +3342,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         //     width: 50,
                         //     decoration: BoxDecoration(
                         //       color: AppColors.goldSoft,
-                        //       borderRadius: BorderRadius.circular(12),
+                        //       borderRadius: AppRadii.lgAll,
                         //     ),
                         //     child: const Icon(Icons.add, color: AppColors.black),
                         //   ),
@@ -3382,7 +3365,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.black,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: AppRadii.hugeAll,
                               border: Border.all(color: AppColors.white24),
                             ),
                             child: Row(
@@ -3425,7 +3408,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           foregroundColor: AppColors.black,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: AppRadii.xlAll,
                           ),
                         ),
                         onPressed: () {
@@ -3482,14 +3465,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
       margin: EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withOpacity(0.25),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        borderRadius: AppRadii.xxlAll,
+        boxShadow: AppShadows.card,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -3500,7 +3477,11 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
             backgroundColor: AppColors.border,
             backgroundImage: image != null ? FileImage(image) : null,
             child: image == null
-                ? const Icon(Icons.person, size: 28, color: AppColors.lavenderGrey)
+                ? const Icon(
+                    Icons.person,
+                    size: 28,
+                    color: AppColors.lavenderGrey,
+                  )
                 : null,
           ),
 
@@ -3576,7 +3557,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             backgroundColor: AppColors.black,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: AppRadii.hugeAll,
                             ),
                             elevation: 0,
                           ),
@@ -3601,7 +3582,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: AppColors.border,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadii.hugeAll,
                       ),
                       alignment: Alignment.center,
                       child: Text(

@@ -8,6 +8,7 @@ import '../../model_class/edit_profile_model.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
+import '../../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/custom_multi_selectfield.dart' show CustomMultiSelectField;
 import '../../widgets/custom_text_field.dart';
@@ -664,7 +665,7 @@ class _EnterProfileDetailsScreenState
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),//
+                borderRadius: AppRadii.xlAll,//
               ),
             ),
             onPressed:() {
@@ -708,7 +709,7 @@ class _EnterProfileDetailsScreenState
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: AppColors.white24,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: AppRadii.xsAll,
                     ),
                   ),
 
@@ -758,7 +759,7 @@ class _EnterProfileDetailsScreenState
                           ),
 
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: AppRadii.smAll,
                           ),
 
                           onChanged: (val) {
@@ -800,7 +801,7 @@ class _EnterProfileDetailsScreenState
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.lgAll,
                         ),
                       ),
                       child: const Text(
@@ -844,7 +845,7 @@ class _EnterProfileDetailsScreenState
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: AppColors.white24,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: AppRadii.xsAll,
                     ),
                   ),
 
@@ -907,7 +908,7 @@ class _EnterProfileDetailsScreenState
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.lgAll,
                         ),
                       ),
                       child: const Text(
@@ -935,12 +936,12 @@ class _EnterProfileDetailsScreenState
       contentPadding:
       const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.lgAll,
         borderSide:
         const BorderSide(color: AppColors.white30, width: 0.5),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.lgAll,
         borderSide:
         const BorderSide(color: AppColors.primary, width: 1),
       ),

@@ -3,6 +3,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import '../app/route_names.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
+import '../app/shadows.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/custom_text_field.dart';
 
@@ -101,7 +103,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceMid,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: AppRadii.xlAll,
                       ),
                       child: Row(
                         children: [
@@ -143,17 +145,10 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       width: 45,
                       decoration: BoxDecoration(
                         color:AppColors.surfaceMid,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadii.lgAll,
                         /*border: Border.all(
                           color: AppColors.white.withOpacity(0.06),
                         ),*/
-                       /* boxShadow: [
-                          BoxShadow(
-                            color: AppColors.black.withOpacity(0.25),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],*/
                       ),
                       child: Center(
                         child: SvgPicture.asset(
@@ -243,14 +238,8 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.black.withOpacity(0.25),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
+                      borderRadius: AppRadii.mldAll,
+                      boxShadow: AppShadows.card,
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
@@ -310,7 +299,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
                       color: AppColors.white24,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: AppRadii.mldAll,
                     ),
                   ),
                 ),
@@ -374,7 +363,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                             shape:
                             RoundedRectangleBorder(
                               borderRadius:
-                              BorderRadius.circular(16),
+                              AppRadii.xxlAll,
                             ),
                           ),
                           onPressed: () =>
@@ -409,7 +398,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                             shape:
                             RoundedRectangleBorder(
                               borderRadius:
-                              BorderRadius.circular(16),
+                              AppRadii.xxlAll,
                             ),
                           ),
                           onPressed:
@@ -468,7 +457,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
               color: AppColors.surfaceMid,
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: AppRadii.portfolioCompactAll,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -494,7 +483,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       icon: const Icon(Icons.more_vert, color: AppColors.white),
                       color: AppColors.black,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: AppRadii.xxxlAll,
                       ),
                       onSelected: (value) {
                         if (value == "open") {
@@ -549,7 +538,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: AppColors.circleGradientTop,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadii.hugeAll,
                   ),
                   child: const Text(
                     "Corporate Event",
@@ -610,7 +599,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
                 color: AppColors.surfaceMid,
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: AppRadii.portfolioCompactAll,
               ),
               child: Row(
                 children: const [

@@ -1,4 +1,3 @@
-
 import 'package:beige_creative_app/auth/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -6,6 +5,9 @@ import 'package:flutter_svg/svg.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
+import '../../app/radii.dart';
+import '../../app/spacing.dart';
+import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';
@@ -32,64 +34,57 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   bool isLoading = false;
 
-  Future<void> _fetchForgotPassword()async{
-    if(emailController.text.trim().isEmpty){
+  Future<void> _fetchForgotPassword() async {
+    if (emailController.text.trim().isEmpty) {
       TopMessage.show(context, "Please enter email");
     }
-      if (!isValidEmail(emailController.text.trim())) {
-        print("❌ Invalid Email Format");
-        TopMessage.show(context, "Please enter a valid email address");
+    if (!isValidEmail(emailController.text.trim())) {
+      print("❌ Invalid Email Format");
+      TopMessage.show(context, "Please enter a valid email address");
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await ApiService().postData(
+        ApiEndpoints.forgotpassword,
+        {"email": emailController.text},
+      );
+
+      debugPrint("📩 Api response:: $response");
+
+      if (response == null) {
+        print("❌ Response NULL");
+        TopMessage.show(context, "Server error, please try again");
         return;
       }
+      if (response["error"] == false) {
+        debugPrint("Otp send ::::::");
 
-      setState(() {
-        isLoading=true;
-      });
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return ForgotPasswordOtpScreen(email: emailController.text);
+            },
+          ),
+        );
+      } else {
+        print("❌ Backend Error => ${response['message']}");
 
-
-
-      try{
-        final response= await ApiService().postData(
-            ApiEndpoints.forgotpassword,
-             {
-               "email":emailController.text,
-             });
-
-        debugPrint("📩 Api response:: $response");
-
-            if (response == null) {
-              print("❌ Response NULL");
-              TopMessage.show(context, "Server error, please try again");
-              return;
-            }
-            if(response["error"]==false){
-              debugPrint("Otp send ::::::");
-
-              Navigator.push(context, MaterialPageRoute(builder:(context) {
-                return ForgotPasswordOtpScreen(email: emailController.text,);
-
-              },));
-            }else {
-                    print("❌ Backend Error => ${response['message']}");
-
-                    /// backend ka message show karega
-                    TopMessage.show(
-                      context,
-                      response['message'] ?? "Email not registered",
-                    );
-                  }
-
-      }catch(e){
-        debugPrint("error is::::::::::: $e");
-        TopMessage.show(context, "Something went wrong");
-      }finally{
-        setState(() => isLoading = false);
+        /// backend ka message show karega
+        TopMessage.show(context, response['message'] ?? "Email not registered");
       }
-
+    } catch (e) {
+      debugPrint("error is::::::::::: $e");
+      TopMessage.show(context, "Something went wrong");
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
-
-
-
 
   // Future<void> _fetchForgotPassword() async {
   //
@@ -160,7 +155,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   //   }
   // }
 
-
   bool isValidEmail(String email) {
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -168,17 +162,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return emailRegex.hasMatch(email);
   }
 
-
   bool get isFormValid {
     return emailController.text.trim().isNotEmpty;
   }
-
 
   @override
   void dispose() {
     emailController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -188,16 +181,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           SingleChildScrollView(
             child: Column(
               children: [
-
                 /// 🔝 TOP IMAGE + TITLE SECTION
                 SizedBox(
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.32,
+                  height: MediaQuery.of(context).size.height * 0.32,
                   child: Stack(
                     children: [
-
                       /// 🖼️ BACKGROUND IMAGE
                       Positioned.fill(
                         child: Image.asset(
@@ -213,7 +201,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     )*/
 
-
                       /// 🔙 BACK BUTTON
                       Positioned(
                         top: 50, // 🔥 yaha value adjust kar sakte ho (30–50)
@@ -222,10 +209,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           onTap: () {
                             Navigator.pop(context); // 🔥 screen pop karega
                           },
-                          child: SvgPicture.asset(
-                            AppAssets.back,
-                            height: 24,
-                          ),
+                          child: SvgPicture.asset(AppAssets.back, height: 24),
                         ),
                       ),
 
@@ -234,16 +218,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         alignment: Alignment.center,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
-                          children:  [
-
+                          children: [
                             Text(
                               'Forgot Password',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: AppTextStyles.displayLabel16.copyWith(
                                 color: AppColors.white,
-                                fontSize: 16,
-                                fontFamily: 'Unbounded',
-                                fontWeight: FontWeight.w500,
                               ),
                             ),
 
@@ -252,14 +232,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             Text(
                               'Enter your registered email to receive a reset link.\nWe’ll help you get back into your account quickly.',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: AppTextStyles.body14.copyWith(
                                 color: AppColors.white.withValues(alpha: 0.60),
-                                fontSize: 14,
-                                fontFamily: 'Outfit',
-                                fontWeight: FontWeight.w400,
                                 height: 1.29,
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -273,16 +250,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-
-
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(20, 13,20, 20),
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.xl,
+                          AppSpacing.authCardCompactTop,
+                          AppSpacing.xl,
+                          AppSpacing.xl,
+                        ),
                         // 👈 top extra
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        margin: AppSpacing.authCardMargin,
                         decoration: BoxDecoration(
                           color: AppColors.background,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: AppRadii.massiveAll,
                           border: Border.all(
                             color: AppColors.white.withOpacity(0.06),
                             width: 1,
@@ -290,9 +270,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                         child: Column(
                           children: [
-
                             const SizedBox(height: 12),
-
 
                             CustomInputField(
                               title: "Email ID*",
@@ -310,28 +288,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               height: 50,
                               child: ElevatedButton(
                                 // onPressed: isLoading ? null : _fetchForgotPassword,
-
                                 onPressed: (!isFormValid || isLoading)
                                     ? null
                                     : () {
-
-                                  _fetchForgotPassword();
-                                },
+                                        _fetchForgotPassword();
+                                      },
 
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: isFormValid
                                       ? AppColors.primary
                                       : AppColors.borderGold,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: AppRadii.xlAll,
                                   ),
                                 ),
-                                child:  Text(
+                                child: Text(
                                   "Send OTP",
-                                  style: TextStyle(
-                                    fontFamily: "Unbounded",
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
+                                  style: AppTextStyles.displayLabel13.copyWith(
                                     color: isFormValid
                                         ? AppColors.textHeading
                                         : AppColors.surfaceMid,
@@ -339,55 +312,43 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 ),
                               ),
                             ),
-
-
                           ],
                         ),
                       ),
-
                     ],
                   ),
                 ),
-
 
                 const SizedBox(height: 30),
               ],
             ),
           ),
-
         ],
-
       ),
 
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 "I Remember my Password. ",
-                style: TextStyle(
+                style: AppTextStyles.system15Medium.copyWith(
                   color: AppColors.white60,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
               InkWell(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const Login(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const Login()),
                   );
                 },
-                child: const Text(
+                child: Text(
                   "Login",
-                  style: TextStyle(
+                  style: AppTextStyles.system15Strong.copyWith(
                     color: AppColors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
                     decoration: TextDecoration.underline,
                   ),
                 ),
@@ -398,5 +359,4 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ),
     );
   }
-
 }

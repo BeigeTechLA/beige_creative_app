@@ -2,9 +2,10 @@ import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-
 import '../app/route_names.dart';
 import '../app/colors.dart';
+
+import '../app/radii.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -18,23 +19,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
 
   final List<Map<String, String>> pages = [
-/*    {
-      "image": "assets/Onboding/Frame 2087328917.png",
-      "title": "Book Your Dream\nShoot",
-      "description":
-      "Instantly book creatives for any shoot\nanywhere. 🎥✨",
-    },*/
-    // {
-    //   "image": "assets/Onboding/Group 2087329238.png",
-    //   "title": "Find Video & Photo\nWork",
-    //   "description":
-    //   "Find local photo, video, and editing work.\nBook. Shoot. Earn. 📍⚡",
-    // },
     {
       "image": AppAssets.onboding1,
       "title": "Find Your Next\nCreative Gig",
       "description":
-      "Access shoots, collaborate with brands, and\nmanage your work — all in one place. Shoot. Edit. Earn.📍⚡",
+          "Access shoots, collaborate with brands, and\nmanage your work — all in one place. Shoot. Edit. Earn.📍⚡",
     },
   ];
 
@@ -112,12 +101,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               //         color: _currentPage == index
               //             ? AppColors.white
               //             : AppColors.white60,
-              //         borderRadius: BorderRadius.circular(4),
+              //         borderRadius: AppRadii.xsAll,
               //       ),
               //     ),
               //   ),
               // ),
-
               const SizedBox(height: 30),
 
               /// ---------------- LOGIN BUTTON ----------------
@@ -133,7 +121,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadii.xxlAll,
                       ),
                       elevation: 0,
                     ),
@@ -184,20 +172,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
 
           /// ---------------- SKIP BUTTON ----------------
-        /*  SafeArea(
+          /*  SafeArea(
             child: Align(
               alignment: Alignment.topRight,
               child: Padding(
                 padding: const EdgeInsets.only(top: 20, right: 20),
                 child: GestureDetector(
-                  *//*   onTap: () {
+                  */
+          /*   onTap: () {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (_) => const NewLoginScreen(),
                       ),
                     );
-                  },*//*
+                  },*/
+          /*
                   child: const Text(
                     "Skip",
                     style: TextStyle(

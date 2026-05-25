@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../app/colors.dart';
 
+import '../app/radii.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
+
 class CustomDropdownField extends StatelessWidget {
   final String label;
   final String? value;
@@ -17,7 +21,6 @@ class CustomDropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     // 🔥 CHECK if value selected
     final bool isSelected = value != null && value!.isNotEmpty;
 
@@ -26,44 +29,26 @@ class CustomDropdownField extends StatelessWidget {
       isExpanded: true,
       dropdownColor: AppColors.surfaceStats,
 
-     /* icon: Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: SvgPicture.asset(
-          "assets/svg/drodown.svg",
-          height: 25,
-
-          width: 20,
-          colorFilter: const ColorFilter.mode(
-            AppColors.white,
-            BlendMode.srcIn,
-          ),
-        ),
-      ),*/
-      style: const TextStyle(
-        color: AppColors.white,
-        fontSize: 14,
-      ),
+      style: AppTextStyles.system14.copyWith(color: AppColors.white),
 
       decoration: InputDecoration(
         labelText: "$label*",
         floatingLabelBehavior: FloatingLabelBehavior.always,
 
-        labelStyle: const TextStyle(
-          color: AppColors.white30,
-          fontSize: 13,
-        ),
+        labelStyle: AppTextStyles.system13.copyWith(color: AppColors.white30),
 
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 18,
+          horizontal: AppSpacing.xl,
+          vertical: AppSpacing.lg,
         ),
 
         // 🔥 DEFAULT BORDER
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadii.lgAll,
           borderSide: BorderSide(
             color: isSelected
-                ?  AppColors.textfieldBorderLegacy// ✅ highlight when selected
+                ? AppColors
+                      .textfieldBorderLegacy // ✅ highlight when selected
                 : AppColors.white30,
             width: 0.8,
           ),
@@ -71,7 +56,7 @@ class CustomDropdownField extends StatelessWidget {
 
         // 🔥 FOCUS BORDER (CLICK PE)
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadii.lgAll,
           borderSide: const BorderSide(
             color: AppColors.goldSandPale, // ✅ gold highlight
             width: 1.2,
@@ -80,10 +65,7 @@ class CustomDropdownField extends StatelessWidget {
       ),
 
       items: items.map((item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
+        return DropdownMenuItem<String>(value: item, child: Text(item));
       }).toList(),
 
       onChanged: onChanged,

@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../app/route_names.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart' show AppAssets;
 import '../widgets/Topmessgae.dart';
 import '../widgets/custom_text_field.dart';
@@ -182,12 +185,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
 
                             Text(
                               "Set your new Password",
-                              style: TextStyle(
-                                fontFamily: "Unbounded",
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.white,
-                              ),
+                              style: AppTextStyles.displayStrong16.copyWith(color: AppColors.white),
                             ),
 
                             SizedBox(height: 10),
@@ -195,11 +193,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                             Text(
                               "You're almost done! Set a new password to secure \n your account. Make sure it's strong and unique.",
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: "Outfit",
-                                fontSize: 14,
-                                color: AppColors.white30,
-                              ),
+                              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white30),
                             ),
                             SizedBox(height: 10),
 
@@ -221,12 +215,12 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                       /// 🧱 MAIN FORM CONTAINER
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(20, 36, 20, 20),
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.huge, AppSpacing.xl, AppSpacing.xl),
                         // 👈 top extra
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        margin: AppSpacing.authCardMargin,
                         decoration: BoxDecoration(
                           color: AppColors.background,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: AppRadii.massiveAll,
                           border: Border.all(
                             color: AppColors.white.withOpacity(0.06),
                             width: 1,
@@ -282,7 +276,7 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.borderGold,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: AppRadii.xlAll,
                                   ),
                                 ),
                                 child:  isLoading
@@ -294,14 +288,9 @@ class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen>
                                     color: AppColors.black,
                                   ),
                                 )
-                                    : const Text(
+                                    : Text(
                                   "Save New Password",
-                                  style: TextStyle(
-                                    fontFamily: "Unbounded",
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textHeading,
-                                  ),
+                                  style: AppTextStyles.displayLabel13.copyWith(color: AppColors.textHeading),
                                 ),
                               ),
                             ),

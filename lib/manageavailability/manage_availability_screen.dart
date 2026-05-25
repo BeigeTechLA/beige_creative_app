@@ -5,6 +5,7 @@ import '../app/route_names.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/common_calendar.dart';
 
@@ -147,7 +148,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: AppColors.blueWash,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadii.lgAll,
                 border: Border.all(width: 0.5),
               ),
               child: Row(
@@ -173,14 +174,14 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               margin: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 color: AppColors.surfaceMid,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: AppRadii.xxxlAll,
                 border: Border.all(
                   width: 0.6,
                   color: AppColors.darkCharcoal,
                 ),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: AppRadii.xxxlAll,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -253,7 +254,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadii.lgAll,
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
@@ -314,7 +315,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.surfaceSlate,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadii.hugeAll,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,7 +364,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceSlate,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppRadii.hugeAll,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,7 +389,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     ),
                     const SizedBox(height: 20),
                     InkWell(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadii.hugeAll,
                       onTap: () {
                         // Copy logic here
                       },
@@ -396,7 +397,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                         height: 56,
                         decoration: BoxDecoration(
                           color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.lgAll,
                         ),
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -454,7 +455,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: AppColors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadii.lgAll,
                         border: Border.all(
                           color: AppColors.white30,
                           width: 1,
@@ -480,13 +481,13 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   const SizedBox(width: 12),
                   InkWell(
                     onTap: () {},
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadii.lgAll,
                     child: Container(
                       height: 52,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       decoration: BoxDecoration(
                         color: AppColors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadii.lgAll,
                         border: Border.all(
                           color: AppColors.white24,
                           width: 1,
@@ -518,7 +519,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceMid,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: AppRadii.xxxlAll,
                   ),
                   child: const Center(
                     child: Text(
@@ -593,7 +594,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
             Padding(
               padding: const EdgeInsets.all(16),
               child: InkWell(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadii.hugeAll,
                 onTap: () {
                   /* Navigator.push(
                       context,
@@ -613,7 +614,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   height: 56,
                   decoration: BoxDecoration(
                     color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadii.lgAll,
                   ),
                   child: const Center(
                     child: Text(
@@ -681,13 +682,13 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
       decoration: BoxDecoration(
         color: bgColor,
         border: Border.all(color: AppColors.white.withOpacity(0.08)),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: AppRadii.xxxlAll,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadii.xlAll,
             child: Image.asset(
               data['image'],
               height: 169,
@@ -767,7 +768,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                       btnOpacity,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadii.hugeAll,
                     ),
                   ),
                   onPressed: () {
@@ -807,7 +808,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.surfaceAsh,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadii.xxlAll,
       ),
       child: Row(
         children: [
@@ -815,7 +816,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: AppColors.surfaceFog,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadii.lgAll,
             ),
 
             // child: Icon(icon, color: AppColors.white70, size: 20),

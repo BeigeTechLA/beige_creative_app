@@ -547,7 +547,7 @@ import '../../model_class/edit_profile_model.dart';
                         child: SizedBox(
                           height: 280,
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadii.xxlAll,
                             child: currentLatLng == null
                                 ? const Center(child: CircularProgressIndicator())
                                 :GoogleMap(
@@ -655,7 +655,7 @@ import '../../model_class/edit_profile_model.dart';
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.goldSandPale,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),//
+                  borderRadius: AppRadii.xlAll,//
                 ),
               ),
               onPressed: () {

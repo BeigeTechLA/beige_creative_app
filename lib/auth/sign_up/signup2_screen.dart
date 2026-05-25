@@ -9,6 +9,8 @@ import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
+import '../../app/radii.dart';
+import '../../app/shadows.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/custom_multi_selectfield.dart';
 
@@ -152,7 +154,7 @@ class SignUp2ScreenState
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: AppColors.white24,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: AppRadii.xsAll,
                     ),
                   ),
 
@@ -198,7 +200,7 @@ class SignUp2ScreenState
                           ),
 
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: AppRadii.smAll,
                           ),
 
                           onChanged: (val) {
@@ -228,7 +230,7 @@ class SignUp2ScreenState
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.lgAll,
                         ),
                       ),
                       child: const Text(
@@ -580,7 +582,7 @@ class SignUp2ScreenState
                                             color: index <= 1
                                                 ? AppColors.primary
                                                 : AppColors.textSubtle,
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius: AppRadii.hugeAll,
                                           ),
                                         ),
                                       ),
@@ -608,7 +610,7 @@ class SignUp2ScreenState
                                 margin: const EdgeInsets.symmetric(horizontal: 16),
                                 decoration: BoxDecoration(
                                   color: AppColors.background,
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius: AppRadii.massiveAll,
                                   border: Border.all(
                                     color: AppColors.white.withOpacity(0.06),
                                     width: 1,
@@ -830,7 +832,7 @@ class SignUp2ScreenState
                                             margin: const EdgeInsets.only(top: 6),
                                             decoration: BoxDecoration(
                                               color: AppColors.surfaceCropSheet,
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius: AppRadii.lgAll,
                                               border: Border.all(color: AppColors.white24),
                                             ),
                                             child: ListView.builder(
@@ -900,7 +902,7 @@ class SignUp2ScreenState
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: AppColors.primary,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(14),
+                                            borderRadius: AppRadii.xlAll,
                                           ),
                                         ),
                                         child: const Text(
@@ -1000,7 +1002,7 @@ class SignUp2ScreenState
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: AppColors.white24,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: AppRadii.xsAll,
                     ),
                   ),
 
@@ -1065,7 +1067,7 @@ class SignUp2ScreenState
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.lgAll,
                         ),
                       ),
                       child: const Text(
@@ -1097,12 +1099,12 @@ class SignUp2ScreenState
       contentPadding:
       const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.lgAll,
         borderSide:
         const BorderSide(color: AppColors.white30, width: 0.5),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.lgAll,
         borderSide:
         const BorderSide(color: AppColors.primary, width: 1),
       ),
@@ -1130,14 +1132,8 @@ class SignUp2ScreenState
 
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withOpacity(0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        borderRadius: AppRadii.xxlAll,
+        boxShadow: AppShadows.cardSubtle,
       ),
       child: Column(
         children: [
@@ -1269,7 +1265,7 @@ class SignUp2ScreenState
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.black,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadii.hugeAll,
                       ),
                       elevation: 0,
                     ),
@@ -1297,7 +1293,7 @@ class SignUp2ScreenState
                     color: AppColors.border,
                   ),
                   color: AppColors.border,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppRadii.hugeAll,
                 ),
                 alignment: Alignment.center,
                 child:  Text(

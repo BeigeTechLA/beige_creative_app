@@ -8,6 +8,7 @@ import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
+import '../../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class ProfileDetils1screen extends StatefulWidget {
@@ -135,7 +136,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                   height: 53,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceMid,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: AppRadii.xlAll,
                   ),
                   child: Row(
                     children: [
@@ -182,7 +183,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppColors.surfaceMid,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadii.hugeAll,
           ),
           child: SingleChildScrollView(
             child: Column(
@@ -284,7 +285,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppColors.surfaceMid,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadii.hugeAll,
           ),
           child: SingleChildScrollView(
             child: Column(
@@ -373,7 +374,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: AppRadii.smAll,
 
                         /// 🔥 GRADIENT BORDER EFFECT
                         border: Border.all(
@@ -506,7 +507,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
         decoration: BoxDecoration(
           color: AppColors.primary,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: AppRadii.portfolioAll,
         ),
         child: const Text(
           "Edit Profile Details",
@@ -538,7 +539,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
         decoration: BoxDecoration(
           color: AppColors.primary,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: AppRadii.portfolioAll,
         ),
         child: const Text(
           "Edit Profile Details",
@@ -567,7 +568,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
             color: isSelected
                 ? AppColors.goldSoftSand
                 : AppColors.transparent,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadii.mldAll,
           ),
           alignment: Alignment.center,
           child: Text(

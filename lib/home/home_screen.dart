@@ -1,4 +1,3 @@
-
 import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:beige_creative_app/service/api_service.dart';
 import 'package:beige_creative_app/app/assets.dart';
@@ -16,6 +15,8 @@ import '../Model_Class/myprofile_model.dart';
 
 import '../app/route_names.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
+import '../app/shadows.dart';
 import '../widgets/common_calendar.dart';
 import '../widgets/date_time.dart';
 import '../widgets/multi_arc_painter.dart';
@@ -225,11 +226,9 @@ class _HomeScreenState extends State<HomeScreen>
         setState(() {
           creatordashboarddetaillist = response.data.shoots
               .where(
-                (e) => e.status
-                    .toString()
-                    .trim()
-                    .toLowerCase()
-                    .contains("pending"),
+                (e) => e.status.toString().trim().toLowerCase().contains(
+                  "pending",
+                ),
               )
               .toList();
         });
@@ -354,7 +353,6 @@ class _HomeScreenState extends State<HomeScreen>
       'date': DateFormat('MMM dd, yyyy').format(datum.eventDate),
       'time': '${datum.startTime} - ${datum.endTime}',
       'location': datum.eventLocation,
-      //  'image': 'assets/home/img.png', // placeholder image
     };
   }
 
@@ -380,13 +378,13 @@ class _HomeScreenState extends State<HomeScreen>
       decoration: BoxDecoration(
         color: bgColor,
         border: Border.all(color: AppColors.white.withOpacity(0.08)),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: AppRadii.xxxlAll,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadii.xlAll,
             child: Image.network(
               ApiService().getImageURL(data['image'] ?? ""),
               height: 169,
@@ -465,7 +463,7 @@ class _HomeScreenState extends State<HomeScreen>
                           padding: EdgeInsets.zero,
                           backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: AppRadii.hugeAll,
                           ),
                         ),
                         onPressed: () {
@@ -696,7 +694,7 @@ class _HomeScreenState extends State<HomeScreen>
                       width: 0.6,
                     ),
                     color: AppColors.surfaceMid,
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: AppRadii.portfolioCompactAll,
                   ),
                   child: Column(
                     children: [
@@ -706,8 +704,7 @@ class _HomeScreenState extends State<HomeScreen>
                         count: completedshoots,
                         // percent: "+3% from last month",
                         percentColor: AppColors.success,
-                        iconPath: /*"assets/images/svideo.png",*/
-                            AppAssets.video_icon,
+                        iconPath: AppAssets.video_icon,
                       ),
                       const SizedBox(height: 12),
                       _dashboardCard(
@@ -773,7 +770,7 @@ class _HomeScreenState extends State<HomeScreen>
                            padding: const EdgeInsets.symmetric(horizontal: 10),
                            decoration: BoxDecoration(
                              color: AppColors.transparent,
-                             borderRadius: BorderRadius.circular(12),
+                             borderRadius: AppRadii.lgAll,
                              border: Border.all(
                                color: AppColors.white30,
                                width: 1,
@@ -810,13 +807,13 @@ class _HomeScreenState extends State<HomeScreen>
                          onTap: () {
                            _showFilterBottomSheet();
                          },
-                         borderRadius: BorderRadius.circular(12),
+                         borderRadius: AppRadii.lgAll,
                          child: Container(
                            height: 52,
                            padding: const EdgeInsets.symmetric(horizontal: 18),
                            decoration: BoxDecoration(
                              color: AppColors.transparent,
-                             borderRadius: BorderRadius.circular(12),
+                             borderRadius: AppRadii.lgAll,
                              border: Border.all(
                                color: AppColors.white24,
                                width: 1,
@@ -850,7 +847,7 @@ class _HomeScreenState extends State<HomeScreen>
                        padding: const EdgeInsets.all(20),
                        decoration: BoxDecoration(
                          color: AppColors.surfaceMid,
-                         borderRadius: BorderRadius.circular(18),
+                         borderRadius: AppRadii.xxxlAll,
                        ),
                        child: const Center(
                          child: Text(
@@ -1074,7 +1071,7 @@ class _HomeScreenState extends State<HomeScreen>
                           vertical: 9,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: AppRadii.roundAll,
                         ),
                       ),
 
@@ -1114,11 +1111,11 @@ class _HomeScreenState extends State<HomeScreen>
                 /*Container(
                      decoration: BoxDecoration(
                        color: AppColors.surfaceMid,
-                       borderRadius: BorderRadius.circular(20),
+                       borderRadius: AppRadii.hugeAll,
                        border: Border.all(width: 0.5, color: AppColors.greyMid),
                      ),
                      child: ClipRRect(
-                       borderRadius: BorderRadius.circular(20),
+                       borderRadius: AppRadii.hugeAll,
                        child: Column(
                          children: [
                            Row(
@@ -1157,7 +1154,7 @@ class _HomeScreenState extends State<HomeScreen>
                                  padding: const EdgeInsets.symmetric(horizontal: 19,),
                                  decoration: BoxDecoration(
                                    color: AppColors.white,
-                                   borderRadius: BorderRadius.circular(6),
+                                   borderRadius: AppRadii.smAll,
                                  ),
                                  child: DropdownButtonHideUnderline(
                                    child: DropdownButton<String>(
@@ -1275,14 +1272,14 @@ class _HomeScreenState extends State<HomeScreen>
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.surfaceMid,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: AppRadii.xxxlAll,
                     border: Border.all(
                       width: 0.6,
                       color: AppColors.darkCharcoal,
                     ),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: AppRadii.xxxlAll,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -1355,7 +1352,7 @@ class _HomeScreenState extends State<HomeScreen>
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.white,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: AppRadii.lgAll,
                               ),
                               child: DropdownButtonHideUnderline(
                                 child: DropdownButton<String>(
@@ -1425,7 +1422,7 @@ class _HomeScreenState extends State<HomeScreen>
                         //       padding: const EdgeInsets.symmetric(horizontal: 19,),
                         //       decoration: BoxDecoration(
                         //         color: AppColors.white,
-                        //         borderRadius: BorderRadius.circular(6),
+                        //         borderRadius: AppRadii.smAll,
                         //       ),
                         //       child: DropdownButtonHideUnderline(
                         //         child: DropdownButton<String>(
@@ -1586,7 +1583,7 @@ class _HomeScreenState extends State<HomeScreen>
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.surfaceMid,
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: AppRadii.portfolioCompactAll,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1622,7 +1619,6 @@ class _HomeScreenState extends State<HomeScreen>
                                     )
                                   : Center(
                                       child: SvgPicture.asset(
-                                        // "assets/svg/image_holder.svg",
                                         AppAssets.image_holder,
                                         height: 220,
                                         width: double.infinity,
@@ -1654,7 +1650,7 @@ class _HomeScreenState extends State<HomeScreen>
                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                  decoration: BoxDecoration(
                                    color: AppColors.black.withOpacity(0.6),
-                                   borderRadius: BorderRadius.circular(20),
+                                   borderRadius: AppRadii.hugeAll,
                                  ),
                                  child: const Text(
                                    "10 mins Ago",
@@ -1689,7 +1685,7 @@ class _HomeScreenState extends State<HomeScreen>
                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                                    decoration: BoxDecoration(
                                      color: AppColors.greenMintLight,
-                                     borderRadius: BorderRadius.circular(20),
+                                     borderRadius: AppRadii.hugeAll,
                                    ),
                                    child: Row(
                                      children:  [
@@ -2018,10 +2014,8 @@ class _HomeScreenState extends State<HomeScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
                         color: AppColors.dashboardPanelDark,
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: AppColors.darkCharcoal,
-                        ),
+                        borderRadius: AppRadii.roundAll,
+                        border: Border.all(color: AppColors.darkCharcoal),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
@@ -2064,7 +2058,7 @@ class _HomeScreenState extends State<HomeScreen>
                   padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
                   decoration: BoxDecoration(
                     color: AppColors.dashboardPanelDark,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: AppRadii.massiveAll,
                     border: Border.all(
                       color: AppColors.darkCharcoal,
                       width: 0.6,
@@ -2155,10 +2149,8 @@ class _HomeScreenState extends State<HomeScreen>
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: AppColors.dashboardPanelDark,
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: AppColors.darkCharcoal,
-                        ),
+                        borderRadius: AppRadii.roundAll,
+                        border: Border.all(color: AppColors.darkCharcoal),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -2179,7 +2171,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 color: selectedTab == 0
                                     ? AppColors.goldCream
                                     : AppColors.transparent,
-                                borderRadius: BorderRadius.circular(25),
+                                borderRadius: AppRadii.portfolioAll,
                               ),
                               alignment: Alignment.center,
                               child: Text(
@@ -2211,7 +2203,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 color: selectedTab == 1
                                     ? AppColors.goldCream
                                     : AppColors.transparent,
-                                borderRadius: BorderRadius.circular(25),
+                                borderRadius: AppRadii.portfolioAll,
                               ),
                               alignment: Alignment.center,
                               child: Text(
@@ -2237,7 +2229,7 @@ class _HomeScreenState extends State<HomeScreen>
                   padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
                   decoration: BoxDecoration(
                     color: AppColors.black,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: AppRadii.massiveAll,
                     border: Border.all(
                       color: AppColors.darkCharcoal,
                       width: 0.6,
@@ -2334,15 +2326,13 @@ class _HomeScreenState extends State<HomeScreen>
       padding: EdgeInsetsGeometry.all(3),
       decoration: BoxDecoration(
         color: isAvailable ? AppColors.softMint : AppColors.blueIce,
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: AppRadii.r3All,
       ),
       child: Text(
         textAlign: TextAlign.center,
         event,
         style: TextStyle(
-          color: isAvailable
-              ? AppColors.greenBright
-              : AppColors.blueRoyal,
+          color: isAvailable ? AppColors.greenBright : AppColors.blueRoyal,
           fontSize: 7.79,
           fontFamily: 'Outfit',
           fontWeight: FontWeight.w400,
@@ -2418,7 +2408,7 @@ class _HomeScreenState extends State<HomeScreen>
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
                             color: AppColors.white,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadii.xsAll,
                           ),
                         ),
                         Padding(
@@ -2619,8 +2609,7 @@ class _HomeScreenState extends State<HomeScreen>
                                             ),
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
+                                              borderRadius: AppRadii.lgAll,
                                               border: Border.all(
                                                 width: 0.5,
                                                 color: AppColors.white
@@ -2651,8 +2640,7 @@ class _HomeScreenState extends State<HomeScreen>
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
                                               color: AppColors.primary,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
+                                              borderRadius: AppRadii.lgAll,
                                               border: Border.all(
                                                 width: 0.5,
                                                 color: AppColors.white
@@ -2705,13 +2693,13 @@ class _HomeScreenState extends State<HomeScreen>
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.onPrimary,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.xlAll,
         ),
         child: Column(
           children: [
             InkWell(
               onTap: onTap,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppRadii.xlAll,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -2818,7 +2806,7 @@ class _HomeScreenState extends State<HomeScreen>
           selectedDashboardIndex = index;
         });
       },
-      //  borderRadius: BorderRadius.circular(16),
+      //  borderRadius: AppRadii.xxlAll,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: double.infinity,
@@ -2826,7 +2814,7 @@ class _HomeScreenState extends State<HomeScreen>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : AppColors.transparent,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.xxlAll,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2903,14 +2891,8 @@ class _HomeScreenState extends State<HomeScreen>
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: backgroundColor,
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.black.withOpacity(0.4),
-              blurRadius: 20,
-              offset: const Offset(0, 15),
-            ),
-          ],
+          borderRadius: AppRadii.headerAll,
+          boxShadow: AppShadows.heroOverlay,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2921,7 +2903,7 @@ class _HomeScreenState extends State<HomeScreen>
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: AppRadii.mldAll,
                   ),
                   child: const Icon(
                     Icons.videocam,
@@ -2952,7 +2934,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.goldHoney,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadii.hugeAll,
                   ),
                   child: const Text(
                     "Initiated",
@@ -2967,7 +2949,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadii.hugeAll,
                   ),
                   child: const Text(
                     "Google Meet",
@@ -3003,9 +2985,7 @@ class _HomeScreenState extends State<HomeScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.goldCream,
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadii.roundAll),
               ),
               onPressed: () {},
               child: const Text(
@@ -3032,7 +3012,7 @@ class _HomeScreenState extends State<HomeScreen>
             width: 70,
             padding: const EdgeInsets.symmetric(vertical: 11),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: AppRadii.roundAll,
               border: Border.all(color: color.withOpacity(0.6), width: 1.5),
             ),
             child: Center(

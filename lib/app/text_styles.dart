@@ -185,4 +185,188 @@ class AppTextStyles {
     fontWeight: FontWeight.w500,
     fontStyle: FontStyle.italic,
   );
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // EXTENDED — Tuples harvested from widget literals (Phase 2 sweep)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// Outfit 18 w600 — Section heading in body context (app bar title)
+  static const TextStyle headingOutfitLg = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// Outfit 16 w500 — Emphasised body
+  static const TextStyle bodyLargeMedium = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Outfit 16 w600 — Strong body
+  static const TextStyle bodyLargeStrong = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// Outfit 15 w400 — Body 15
+  static const TextStyle body15 = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 15,
+    fontWeight: FontWeight.w400,
+  );
+
+  /// Outfit 15 w500 — Body 15 medium
+  static const TextStyle body15Medium = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 15,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Outfit 15 w600 — Body 15 bold
+  static const TextStyle body15Strong = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// Outfit 13 w500 — Compact body medium
+  static const TextStyle bodyCompactMedium = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 13,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Outfit 13 w600 — Compact body bold
+  static const TextStyle bodyCompactStrong = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// Outfit 14 w400 — Regular body without explicit line height
+  static const TextStyle body14 = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+  );
+
+  /// Outfit 12 w500 — Small label
+  static const TextStyle bodySmallMedium = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Outfit 12 w600 — Small label bold
+  static const TextStyle bodySmallStrong = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 12,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// Outfit 12 bold — Small bold link
+  static const TextStyle bodySmallBold = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 12,
+    fontWeight: FontWeight.bold,
+  );
+
+  /// Outfit 11 w400 — Tiny body
+  static const TextStyle body11 = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 11,
+    fontWeight: FontWeight.w400,
+  );
+
+  /// Outfit 10 w400 — Micro caption
+  static const TextStyle body10 = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 10,
+    fontWeight: FontWeight.w400,
+  );
+
+  /// Outfit 14 w600 — Body emphasised
+  static const TextStyle bodyMediumStrong = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// Unbounded 14 w500 — Compact display label
+  static const TextStyle displayLabel14 = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Unbounded 13 w600 — Tiny display label
+  static const TextStyle displayLabel13 = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// Unbounded 15 w500 — Mid display label
+  static const TextStyle displayLabel15 = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 15,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Unbounded 16 w500 — Compact auth/screen title
+  static const TextStyle displayLabel16 = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Unbounded 16 bold — Strong display
+  static const TextStyle displayStrong16 = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+  );
+
+  /// Outfit 18 w500 — Medium body 18
+  static const TextStyle body18Medium = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 18,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Outfit 20 w500 — Large display body
+  static const TextStyle body20Medium = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 20,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// System/default inherited text — used when legacy TextStyle had no font tuple.
+  static const TextStyle systemDefault = TextStyle();
+
+  /// System/default 13 — no explicit font family or weight.
+  static const TextStyle system13 = TextStyle(fontSize: 13);
+
+  /// System/default 14 — no explicit font family or weight.
+  static const TextStyle system14 = TextStyle(fontSize: 14);
+
+  /// System/default 15 w500 — no explicit font family.
+  static const TextStyle system15Medium = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// System/default 15 w600 — no explicit font family.
+  static const TextStyle system15Strong = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// System/default semibold — no explicit font family or size.
+  static const TextStyle systemSemiBold = TextStyle(
+    fontWeight: FontWeight.w600,
+  );
 }

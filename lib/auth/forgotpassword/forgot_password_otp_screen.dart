@@ -4,10 +4,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
+import '../../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/Topmessgae.dart';
 import '../resetpassword/reset_password_screen.dart';
@@ -17,11 +19,11 @@ class ForgotPasswordOtpScreen extends StatefulWidget {
   const ForgotPasswordOtpScreen({super.key, required this.email});
 
   @override
-  State<ForgotPasswordOtpScreen> createState() => _ForgotPasswordOtpScreenState();
+  State<ForgotPasswordOtpScreen> createState() =>
+      _ForgotPasswordOtpScreenState();
 }
 
 class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
-
   int seconds = 59;
   Timer? timer;
   bool isOtpFilled = false;
@@ -46,8 +48,10 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
     }
   }
 
-  List<TextEditingController> controllers =
-  List.generate(6, (index) => TextEditingController());
+  List<TextEditingController> controllers = List.generate(
+    6,
+    (index) => TextEditingController(),
+  );
 
   void startTimer() {
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
@@ -80,10 +84,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
     try {
       final response = await ApiService().postData(
         ApiEndpoints.forgotpasswordverifyotp,
-        {
-          "email": widget.email,
-          "otp": enteredOtp,
-        },
+        {"email": widget.email, "otp": enteredOtp},
       );
 
       debugPrint("📩 API RESPONSE => $response");
@@ -99,10 +100,8 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ResetPasswordScreen(
-              email: widget.email,
-              otp: enteredOtp,
-            ),
+            builder: (context) =>
+                ResetPasswordScreen(email: widget.email, otp: enteredOtp),
           ),
         );
       }
@@ -116,11 +115,12 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
           TopMessage.show(context, message.toString());
         }
       }
-
-    }
-    on SocketException {
+    } on SocketException {
       // No internet
-      TopMessage.show(context, "No internet connection. Please check your network.");
+      TopMessage.show(
+        context,
+        "No internet connection. Please check your network.",
+      );
     } on TimeoutException {
       // Server timeout
       TopMessage.show(context, "Request timed out. Please try again.");
@@ -143,9 +143,10 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
     });
 
     try {
-      final response = await ApiService().postData(ApiEndpoints.forgotpassword, {
-        "email": widget.email,
-      });
+      final response = await ApiService().postData(
+        ApiEndpoints.forgotpassword,
+        {"email": widget.email},
+      );
       if (response["error"] == false) {
         debugPrint("Resend OTP Is Sent Successfully");
         debugPrint("🛑Again Successfully Called The Resend OTP API");
@@ -175,13 +176,11 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
           SingleChildScrollView(
             child: Column(
               children: [
-
                 /// 🔝 TOP IMAGE + TITLE SECTION
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.32,
                   child: Stack(
                     children: [
-
                       /// 🔙 BACK BUTTON
                       Positioned(
                         top: 50,
@@ -204,8 +203,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-
-                            // ✅ WAS: TextStyle(fontFamily: "Unbounded", fontSize: 16, fontWeight: FontWeight.bold)
                             Text(
                               "Enter OTP code",
                               style: AppTextStyles.titleSmall.copyWith(
@@ -216,7 +213,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
 
                             const SizedBox(height: 8),
 
-                            // ✅ WAS: TextStyle(fontFamily: "Outfit", fontSize: 14)
                             Text(
                               "Enter 6 digit OTP sent to your\nregistered email ID.",
                               textAlign: TextAlign.center,
@@ -239,11 +235,11 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                     children: [
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: AppSpacing.authCardPadding,
+                        margin: AppSpacing.authCardMargin,
                         decoration: BoxDecoration(
                           color: AppColors.background,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: AppRadii.massiveAll,
                           border: Border.all(
                             color: AppColors.white.withOpacity(0.06),
                             width: 1,
@@ -251,7 +247,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                         ),
                         child: Column(
                           children: [
-
                             const SizedBox(height: 12),
 
                             /// OTP Fields
@@ -260,14 +255,19 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                               children: List.generate(6, (index) {
                                 return Expanded(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.xxs,
+                                    ),
                                     child: Container(
                                       height: 50,
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: AppRadii.lgAll,
                                         border: Border.all(
-                                          color: (focusNodes[index].hasFocus ||
-                                              controllers[index].text.isNotEmpty)
+                                          color:
+                                              (focusNodes[index].hasFocus ||
+                                                  controllers[index]
+                                                      .text
+                                                      .isNotEmpty)
                                               ? AppColors.borderGold
                                               : AppColors.white60,
                                           width: 0.5,
@@ -279,7 +279,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                         textAlign: TextAlign.center,
                                         keyboardType: TextInputType.number,
                                         maxLength: 1,
-                                        // ✅ WAS: TextStyle(fontSize: 19, fontWeight: FontWeight.bold)
                                         style: AppTextStyles.otpDigit.copyWith(
                                           fontSize: 19,
                                         ),
@@ -290,13 +289,16 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                         onChanged: (value) {
                                           setState(() {
                                             isOtpFilled = controllers.every(
-                                                    (c) => c.text.trim().isNotEmpty);
+                                              (c) => c.text.trim().isNotEmpty,
+                                            );
                                           });
                                           if (value.isNotEmpty && index < 5) {
                                             FocusScope.of(context).nextFocus();
                                           }
                                           if (value.isEmpty && index > 0) {
-                                            FocusScope.of(context).previousFocus();
+                                            FocusScope.of(
+                                              context,
+                                            ).previousFocus();
                                           }
                                         },
                                       ),
@@ -312,7 +314,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // ✅ WAS: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)
                                 Text(
                                   seconds == 0
                                       ? "00:00"
@@ -332,7 +333,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                             Wrap(
                               alignment: WrapAlignment.center,
                               children: [
-                                // ✅ WAS: TextStyle(fontFamily: "Outfit", fontSize: 14, fontWeight: FontWeight.w400)
                                 Text(
                                   "Didn't received the code?",
                                   style: AppTextStyles.bodyMedium.copyWith(
@@ -342,7 +342,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                 ),
                                 InkWell(
                                   onTap: seconds == 0 ? _resendOtp : null,
-                                  // ✅ WAS: TextStyle(fontFamily: "Outfit", fontSize: 15, fontWeight: FontWeight.bold)
                                   child: Text(
                                     " Resend the Code",
                                     style: AppTextStyles.linkMedium.copyWith(
@@ -368,10 +367,9 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                       ? AppColors.primary
                                       : AppColors.borderGold,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: AppRadii.xlAll,
                                   ),
                                 ),
-                                // ✅ WAS: TextStyle(fontFamily: "Unbounded", fontSize: 13, fontWeight: FontWeight.w600)
                                 child: Text(
                                   isOtpFilled ? "Submit" : "Continue",
                                   style: AppTextStyles.buttonSmall.copyWith(
@@ -384,7 +382,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                                 ),
                               ),
                             ),
-
                           ],
                         ),
                       ),

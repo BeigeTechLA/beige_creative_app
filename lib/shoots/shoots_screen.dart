@@ -8,6 +8,8 @@ import '../model_class/shoot_count_model.dart';
 import '../Model_Class/shoots_model.dart';
 import '../app/route_names.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
+import '../app/shadows.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/date_time.dart';
 
@@ -214,7 +216,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                   height: 48,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceMid,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: AppRadii.xlAll,
                   ),
                   child: TextField(
                     controller: searchController,
@@ -279,15 +281,9 @@ class _ShootsScreenState extends State<ShootsScreen> {
           end: Alignment.bottomRight,
           colors: [AppColors.shootStatsCardTop, AppColors.shootStatsCardBottom],
         ),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppRadii.xlAll,
         border: Border.all(color: AppColors.shootStatsCardBorder, width: 0.8),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.black12,
-            blurRadius: 12,
-            offset: Offset(0, 6),
-          ),
-        ],
+        boxShadow: AppShadows.cardBlack12,
       ),
       child: Stack(
         children: [
@@ -378,7 +374,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: AppColors.surfaceMid,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadii.hugeAll,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -673,7 +669,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
                             color: AppColors.white,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadii.xsAll,
                           ),
                         ),
 
@@ -860,7 +856,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
                                               borderRadius:
-                                                  BorderRadius.circular(12),
+                                                  AppRadii.lgAll,
                                               border: Border.all(
                                                 width: 0.5,
                                                 color: AppColors.white
@@ -895,7 +891,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                             decoration: BoxDecoration(
                                               color: AppColors.primary,
                                               borderRadius:
-                                                  BorderRadius.circular(12),
+                                                  AppRadii.lgAll,
                                               border: Border.all(
                                                 width: 0.5,
                                                 color: AppColors.white
@@ -1014,13 +1010,13 @@ class _ShootsScreenState extends State<ShootsScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.onPrimary,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.xlAll,
         ),
         child: Column(
           children: [
             InkWell(
               onTap: onTap,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppRadii.xlAll,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,

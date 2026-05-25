@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class CustomDropdown<T> extends StatefulWidget {
@@ -24,7 +27,6 @@ class CustomDropdown<T> extends StatefulWidget {
 }
 
 class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
-
   @override
   Widget build(BuildContext context) {
     bool highlight = widget.value != null;
@@ -33,8 +35,9 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
       value: widget.value,
       dropdownColor: AppColors.surfaceCropSheet,
       icon: Padding(
-        padding: const EdgeInsets.only(right: 9),
-        child: widget.icon ??
+        padding: const EdgeInsets.only(right: AppSpacing.dropdownIconInset),
+        child:
+            widget.icon ??
             SvgPicture.asset(
               AppAssets.dropdown, //  your svg path
               color: AppColors.white,
@@ -42,27 +45,19 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
               height: 24,
             ),
       ),
-      style: const TextStyle(
-        color: AppColors.white,
-        fontFamily: "Outfit",
-        fontSize: 15,
-      ),
+      style: AppTextStyles.body15.copyWith(color: AppColors.white),
       decoration: InputDecoration(
         labelText: widget.label,
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        labelStyle: TextStyle(
-          fontSize: 14,
-          fontFamily: "Outfit",
-          color: highlight
-              ? AppColors.primary
-              : AppColors.white60,
+        labelStyle: AppTextStyles.body14.copyWith(
+          color: highlight ? AppColors.primary : AppColors.white60,
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 18,
+          horizontal: AppSpacing.inputHorizontal,
+          vertical: AppSpacing.lg,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.xlAll,
           borderSide: BorderSide(
             color: highlight
                 ? AppColors.textfieldBorderLegacy
@@ -71,7 +66,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.xlAll,
           borderSide: BorderSide(
             color: highlight
                 ? AppColors.textfieldBorderLegacy

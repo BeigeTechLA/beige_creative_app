@@ -14,13 +14,13 @@ import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../service/shared_service.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
+import '../app/shadows.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/app_loder.dart';
 import '../widgets/common_uploader.dart';
 import '../widgets/custom_text_field.dart';
-
-
 
 class Myprofile extends StatefulWidget {
   const Myprofile({super.key});
@@ -266,7 +266,7 @@ class _MyprofileState extends State<Myprofile> {
                       height: 5,
                       decoration: BoxDecoration(
                         color: AppColors.white30,
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: AppRadii.xxxlAll,
                       ),
                     ),
                   ),
@@ -286,7 +286,7 @@ class _MyprofileState extends State<Myprofile> {
 
                       InkWell(
                         onTap: () => context.pop(), // ❌ close bottom sheet
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadii.hugeAll,
                         child: Padding(
                           padding: EdgeInsets.all(6),
                           child: Icon(
@@ -368,8 +368,6 @@ class _MyprofileState extends State<Myprofile> {
                       children: [
                         /// 🔹 LEFT IMAGE ICON
                         SvgPicture.asset(
-                          /* "assets/svg/crop_image.svg",*/
-                          // 👈 your image
                           AppAssets.Image_zoom,
                           height: 20,
                           width: 20,
@@ -433,7 +431,7 @@ class _MyprofileState extends State<Myprofile> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.lgAll,
                         ),
                         elevation: 0,
                       ),
@@ -674,11 +672,8 @@ class _MyprofileState extends State<Myprofile> {
     );
 
     if (response["error"] == false) {
-
       setState(() {
-        portfolioLinks.removeWhere(
-              (e) => e["id"].toString() == id.toString(),
-        );
+        portfolioLinks.removeWhere((e) => e["id"].toString() == id.toString());
       });
 
       await fetchprofiledata();
@@ -698,25 +693,17 @@ class _MyprofileState extends State<Myprofile> {
     setState(() => isloading = true);
 
     try {
-
       /// 🔥 FORMAT DATA FOR API
-      final List<Map<String, String>> formattedLinks =
-      socialLinks.map((e) {
-        return {
-          "platform": e["name"] ?? "",
-          "url": e["url"] ?? "",
-        };
+      final List<Map<String, String>> formattedLinks = socialLinks.map((e) {
+        return {"platform": e["name"] ?? "", "url": e["url"] ?? ""};
       }).toList();
 
       debugPrint("SOCIAL LINKS PAYLOAD =====> $formattedLinks");
 
       /// 🔥 API CALL
-      final response = await ApiService().postData(
-        ApiEndpoints.editprofile,
-        {
-          "social_media_links": formattedLinks,
-        },
-      );
+      final response = await ApiService().postData(ApiEndpoints.editprofile, {
+        "social_media_links": formattedLinks,
+      });
 
       debugPrint("SOCIAL API RESPONSE =====> $response");
 
@@ -728,29 +715,18 @@ class _MyprofileState extends State<Myprofile> {
       }
 
       if (response["error"] == false) {
-
         // TopMessage.show(context, "Social links updated successfully");
 
         Navigator.pop(context);
-
       } else {
-
-        TopMessage.show(
-          context,
-          response["message"] ?? "Failed to update",
-        );
+        TopMessage.show(context, response["message"] ?? "Failed to update");
       }
-
     } catch (e) {
-
       debugPrint("SOCIAL LINK ERROR =====> $e");
 
       TopMessage.show(context, "Something went wrong");
-
     } finally {
-
       setState(() => isloading = false);
-
     }
   }
 
@@ -824,8 +800,6 @@ class _MyprofileState extends State<Myprofile> {
         return AppAssets.Ball;
     }
   }
-
-
 
   List<Widget> _buildSkillChips(List<String> skills) {
     List<Widget> chips = [];
@@ -919,24 +893,15 @@ class _MyprofileState extends State<Myprofile> {
   ];
 
   final List<String> socialIcons = [
-    // "assets/icons/facbook_iIcon.png",
-    // "assets/icons/ins_icon.png",
-    // "assets/icons/ticktok.png",
-    // "assets/icons/behance.png",
-    // "assets/icons/webside.png",
     AppAssets.facebook,
     AppAssets.insta,
     AppAssets.tiktok,
     AppAssets.be,
-    /*  "assets/svg/Ball.svg"*/
   ];
 
   final List<String> Portfoliolname = ["Vimeo", "YouTube", "Google Drive"];
 
   final List<String> Portfolioicons = [
-    // "assets/icons/vimeo-icon 1.png",
-    // "assets/icons/YouTube.png",
-    // "assets/icons/Google_Drive.png",
     AppAssets.v,
     AppAssets.youtube,
     AppAssets.googledrive,
@@ -1054,7 +1019,7 @@ class _MyprofileState extends State<Myprofile> {
                               child: Material(
                                 color: AppColors.transparent,
                                 child: GestureDetector(
-                                  // borderRadius: BorderRadius.circular(30),
+                                  // borderRadius: AppRadii.roundAll,
                                   onTap: () {
                                     debugPrint("🔥 EDIT CLICKED");
 
@@ -1168,7 +1133,7 @@ class _MyprofileState extends State<Myprofile> {
                   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 10),
                   decoration: BoxDecoration(
                     color:  AppColors.white,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: AppRadii.massiveAll,
                   ),
                   child: const Text(
                     "Edit Profile",
@@ -1227,7 +1192,7 @@ class _MyprofileState extends State<Myprofile> {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppColors.softMint, // light green bg
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadii.hugeAll,
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -1293,7 +1258,7 @@ class _MyprofileState extends State<Myprofile> {
                                     vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     border: Border.all(
                                       color: AppColors.white24,
                                     ),
@@ -1380,7 +1345,7 @@ class _MyprofileState extends State<Myprofile> {
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: AppRadii.xlAll,
                             border: Border.all(color: AppColors.dividerDark),
                           ),
                           child: Row(
@@ -1413,12 +1378,12 @@ class _MyprofileState extends State<Myprofile> {
                               openSocialDialog();
                             },
 
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadii.lgAll,
                             child: Container(
                               padding: EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: AppColors.primary, // beige
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: AppRadii.r15All,
                               ),
                               child: SvgPicture.asset(
                                 AppAssets.myprofile_edit,
@@ -1463,7 +1428,7 @@ class _MyprofileState extends State<Myprofile> {
                                     vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     border: Border.all(
                                       color: AppColors.white24,
                                     ),
@@ -1532,7 +1497,9 @@ class _MyprofileState extends State<Myprofile> {
                                           size: 18,
                                         ),
                                         onPressed: () async {
-                                          final id = int.parse(item["id"].toString());
+                                          final id = int.parse(
+                                            item["id"].toString(),
+                                          );
 
                                           debugPrint("DELETE ID ======> $id");
 
@@ -1554,7 +1521,7 @@ class _MyprofileState extends State<Myprofile> {
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: AppRadii.xlAll,
                             border: Border.all(color: AppColors.dividerDark),
                           ),
                           child: Row(
@@ -1587,12 +1554,12 @@ class _MyprofileState extends State<Myprofile> {
                               openPortfolioDialog();
                             },
 
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadii.lgAll,
                             child: Container(
                               padding: EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: AppColors.primary, // beige
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: AppRadii.r15All,
                               ),
                               child: SvgPicture.asset(
                                 AppAssets.myprofile_edit,
@@ -1621,12 +1588,12 @@ class _MyprofileState extends State<Myprofile> {
         color: AppColors.background,
         child: InkWell(
           onTap: _showLogoutBottomSheet,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.xxlAll,
           child: Container(
             height: 52,
             decoration: BoxDecoration(
               color: AppColors.primary, // beige color
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppRadii.xxlAll,
             ),
             child: const Center(
               child: Text(
@@ -1650,7 +1617,7 @@ class _MyprofileState extends State<Myprofile> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
         color: AppColors.surfaceMid, // bg color
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadii.mdAll,
         border: Border.all(
           color: AppColors.white.withOpacity(0.2), // 20% opacity
           width: 0.5,
@@ -1691,7 +1658,7 @@ class _MyprofileState extends State<Myprofile> {
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceVariant,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadii.hugeAll,
             ),
             child: Column(
               children: [
@@ -1717,7 +1684,7 @@ class _MyprofileState extends State<Myprofile> {
                   ),
                 ),
                 _divider(),
-                _menuRow("assets/profile/Gallery_Wide.png", "Featured Works", onTap: () {
+                _menuRow(AppAssets.gallery, "Featured Works", onTap: () {
                 */
                 /*  Navigator.push(
                     context,
@@ -1728,9 +1695,9 @@ class _MyprofileState extends State<Myprofile> {
                 /*
                 }),
                 _divider(),
-                _menuRow("assets/profile/Icon_Frame.png", "Certificates"),
+                _menuRow(AppAssets.certificates, "Certificates"),
                 _divider(),
-                _menuRow("assets/profile/Document_Text.png", "Resume"),*/
+                _menuRow(AppAssets.resume, "Resume"),*/
               ],
             ),
           ),
@@ -1754,7 +1721,7 @@ class _MyprofileState extends State<Myprofile> {
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceVariant,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadii.hugeAll,
             ),
             child: Column(
               children: [
@@ -1812,7 +1779,7 @@ class _MyprofileState extends State<Myprofile> {
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceVariant,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadii.hugeAll,
             ),
             child: Column(
               children: [
@@ -1831,7 +1798,7 @@ class _MyprofileState extends State<Myprofile> {
 
                 /* _divider(),*/
                 /*        _menuRow(
-                  "assets/Icons/Exit.png",
+                  AppAssets.iconExit,
                   "Logout",
                   onTap: _showLogoutBottomSheet,
                 ),*/
@@ -1845,7 +1812,7 @@ class _MyprofileState extends State<Myprofile> {
 
   Widget _menuRow(String iconPath, String title, {VoidCallback? onTap}) {
     return InkWell(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: AppRadii.hugeAll,
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -1885,11 +1852,6 @@ class _MyprofileState extends State<Myprofile> {
                 ),
               ),
             ),
-            // Image.asset(
-            //   "assets/profile/path9429.png",
-            //   height: 20,
-            //   width: 20,
-            //   color: AppColors.white,
             // ),
             SvgPicture.asset(
               AppAssets.goto, // make sure it's .svg file
@@ -1920,7 +1882,7 @@ class _MyprofileState extends State<Myprofile> {
 
       /// 🌈 GRADIENT BORDER
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.lgAll,
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -1938,7 +1900,7 @@ class _MyprofileState extends State<Myprofile> {
         child: Container(
           decoration: BoxDecoration(
             color: AppColors.surfaceStats,
-            borderRadius: BorderRadius.circular(11.5),
+            borderRadius: AppRadii.statsInnerAll,
           ),
           child: Stack(
             alignment: Alignment.topCenter,
@@ -2033,7 +1995,7 @@ class _MyprofileState extends State<Myprofile> {
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
                             color: AppColors.white24,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadii.xsAll,
                           ),
                         ),
                       ),
@@ -2081,7 +2043,7 @@ class _MyprofileState extends State<Myprofile> {
                         children: List.generate(
                           socialIcons.length,
                           (index) => InkWell(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadii.xxlAll,
                             onTap: () {
                               setInnerState(() {
                                 selectedSocialIndex = index;
@@ -2096,7 +2058,7 @@ class _MyprofileState extends State<Myprofile> {
                                 color: selectedSocialIndex == index
                                     ? AppColors.primary.withOpacity(0.2)
                                     : AppColors.transparent,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: AppRadii.xxlAll,
                                 border: Border.all(
                                   color: selectedSocialIndex == index
                                       ? AppColors.primary
@@ -2106,15 +2068,8 @@ class _MyprofileState extends State<Myprofile> {
                                       : 0.8,
                                 ),
                                 boxShadow: selectedSocialIndex == index
-                                    ? [
-                                        BoxShadow(
-                                          color: AppColors.primary
-                                              .withOpacity(0.35),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ]
-                                    : [],
+                                    ? AppShadows.goldCta
+                                    : const [],
                               ),
                               child: Center(
                                 child: SvgPicture.asset(
@@ -2159,7 +2114,7 @@ class _MyprofileState extends State<Myprofile> {
                               vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppRadii.lgAll,
                               border: Border.all(color: AppColors.white24),
                               color: AppColors.black,
                             ),
@@ -2172,7 +2127,7 @@ class _MyprofileState extends State<Myprofile> {
                                   height:
                                       MediaQuery.of(context).size.width * 0.09,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
                                   child: Transform.rotate(
@@ -2219,7 +2174,7 @@ class _MyprofileState extends State<Myprofile> {
                                   width: 35,
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
@@ -2248,7 +2203,7 @@ class _MyprofileState extends State<Myprofile> {
                                   width: 35,
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
@@ -2295,7 +2250,7 @@ class _MyprofileState extends State<Myprofile> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                               ),
                             ),
                             onPressed: () {
@@ -2405,7 +2360,7 @@ class _MyprofileState extends State<Myprofile> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                               ),
                             ),
                             onPressed: saveSocialLinksToApi,
@@ -2469,7 +2424,7 @@ class _MyprofileState extends State<Myprofile> {
                           margin: const EdgeInsets.only(bottom: 14),
                           decoration: BoxDecoration(
                             color: AppColors.white24,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadii.xsAll,
                           ),
                         ),
                       ),
@@ -2526,7 +2481,7 @@ class _MyprofileState extends State<Myprofile> {
                               height: 52,
                               width: 52,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                                 border: Border.all(
                                   color: selectedPortfolioIndex == index
                                       ? AppColors.primary
@@ -2578,7 +2533,7 @@ class _MyprofileState extends State<Myprofile> {
                               vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppRadii.lgAll,
                               border: Border.all(color: AppColors.white24),
                               color: AppColors.black,
                             ),
@@ -2588,7 +2543,7 @@ class _MyprofileState extends State<Myprofile> {
                                   width: 35,
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
                                   child: Transform.rotate(
@@ -2622,7 +2577,7 @@ class _MyprofileState extends State<Myprofile> {
                                   width: 35,
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
@@ -2657,7 +2612,7 @@ class _MyprofileState extends State<Myprofile> {
                                   width: 35,
                                   height: 35,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: AppRadii.lgAll,
                                     color: AppColors.surfaceMid,
                                   ),
                                   child: IconButton(
@@ -2697,7 +2652,7 @@ class _MyprofileState extends State<Myprofile> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                               ),
                             ),
                             onPressed: isUpdating
@@ -2861,7 +2816,7 @@ class _MyprofileState extends State<Myprofile> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: AppRadii.xlAll,
                                 ),
                               ),
                               onPressed: savePortfolioLinksToApi,
@@ -2909,7 +2864,7 @@ class _MyprofileState extends State<Myprofile> {
                 margin: EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
                   color: AppColors.white30,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: AppRadii.r2All,
                 ),
               ),
 
@@ -2953,7 +2908,7 @@ class _MyprofileState extends State<Myprofile> {
                         side: BorderSide(color: AppColors.white60),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: AppRadii.xlAll,
                         ),
                       ),
                       child: Text(
@@ -2983,7 +2938,7 @@ class _MyprofileState extends State<Myprofile> {
                         backgroundColor: AppColors.primary,
                         padding: EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: AppRadii.xlAll,
                         ),
                       ),
                       child: Text(

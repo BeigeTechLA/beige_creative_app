@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/colors.dart';
 
+import '../app/radii.dart';
 class ViewDetailsScreen extends StatelessWidget {
   final String firstName;
   final String lastName;
@@ -57,7 +58,7 @@ class ViewDetailsScreen extends StatelessWidget {
                 height: 5,
                 decoration: BoxDecoration(
                   color: AppColors.white24,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppRadii.mldAll,
                 ),
               ),
             ),
@@ -104,7 +105,7 @@ class ViewDetailsScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           color:AppColors.surfaceMid,
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: AppRadii.xxxlAll,
                           border: Border.all(color: AppColors.white.withOpacity(0.05)),
                         ),
                         child: Column(
@@ -215,7 +216,7 @@ class ViewDetailsScreen extends StatelessWidget {
                                       width: 140,
                                       margin: const EdgeInsets.only(right: 12),
                                       child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(14),
+                                        borderRadius: AppRadii.xlAll,
                                         child: Image.file(
                                           featuredImages[index],
                                           fit: BoxFit.cover,

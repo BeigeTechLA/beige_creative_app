@@ -1,5 +1,8 @@
 import 'dart:ui';
 import '../app/colors.dart';
+import '../app/radii.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
 import 'package:flutter/material.dart';
 
 class TopMessage {
@@ -11,18 +14,14 @@ class TopMessage {
     overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
-
           /// 🔹 BLUR BACKGROUND
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(
-                sigmaX: 1,//
+                sigmaX: 1, //
                 sigmaY: 1,
-
               ),
-              child: Container(
-                color: AppColors.black.withOpacity(0.8),
-              ),
+              child: Container(color: AppColors.black.withOpacity(0.8)),
             ),
           ),
 
@@ -35,18 +34,16 @@ class TopMessage {
               color: AppColors.transparent,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+                  horizontal: AppSpacing.base,
+                  vertical: AppSpacing.mld,
                 ),
                 decoration: BoxDecoration(
-
                   color: AppColors.errorSurface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color:AppColors.errorAccent),
+                  borderRadius: AppRadii.xlAll,
+                  border: Border.all(color: AppColors.errorAccent),
                 ),
                 child: Row(
                   children: [
-
                     const Icon(
                       Icons.do_not_disturb,
                       color: AppColors.errorAccent,
@@ -57,10 +54,8 @@ class TopMessage {
                     Expanded(
                       child: Text(
                         message,
-                        style: const TextStyle(
-                          fontFamily: "Outfit",
+                        style: AppTextStyles.body11.copyWith(
                           color: AppColors.errorAccent,
-                          fontSize: 11,
                         ),
                       ),
                     ),
@@ -69,10 +64,7 @@ class TopMessage {
                       onTap: () {
                         overlayEntry.remove();
                       },
-                      child: const Icon(
-                        Icons.close,
-                        color: AppColors.white,
-                      ),
+                      child: const Icon(Icons.close, color: AppColors.white),
                     ),
                   ],
                 ),

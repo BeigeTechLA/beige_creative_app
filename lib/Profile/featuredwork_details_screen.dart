@@ -6,6 +6,9 @@ import '../service/api_service.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/app_loder.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class FeaturedWorkDetailsScreen extends StatefulWidget {
@@ -101,31 +104,26 @@ class _FeaturedWorkDetailsScreenState extends State<FeaturedWorkDetailsScreen> {
 
           title: Text(
             widget.title,
-            style: const TextStyle(
-              color: AppColors.white,
-              fontFamily: "Outfit",
-              fontWeight: FontWeight.w600,
-              fontSize: 18,
-            ),
+            style: AppTextStyles.headingOutfitLg.copyWith(color: AppColors.white),
           ),
         ),
 
         body: Stack(
           children: [
             ListView.builder(
-              padding: const EdgeInsets.all(15),
+              padding: const EdgeInsets.all(AppSpacing.s15),
               itemCount: images.length,
 
               itemBuilder: (context, index) {
                 final imageData = images[index];
 
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                  margin: const EdgeInsets.only(bottom: AppSpacing.base),
                   height: 240,
                   width: double.infinity,
 
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadii.hugeAll,
                     color: AppColors.surfaceShadow,
                   ),
 
@@ -133,7 +131,7 @@ class _FeaturedWorkDetailsScreenState extends State<FeaturedWorkDetailsScreen> {
                     children: [
                       /// IMAGE
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadii.hugeAll,
 
                         child: Image.network(
                           "${ApiService.imageURL}${imageData.filePath}",
@@ -151,7 +149,7 @@ class _FeaturedWorkDetailsScreenState extends State<FeaturedWorkDetailsScreen> {
                         child: GestureDetector(
                           onTap: () => deleteImage(index),
                           child: Container(
-                            padding: const EdgeInsets.all(6),
+                            padding: const EdgeInsets.all(AppSpacing.xs),
                             decoration: BoxDecoration(
                               color: AppColors.black.withOpacity(0.5),
                               shape: BoxShape.circle,

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/colors.dart';
 
+import '../app/radii.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
+
 class CustomTextField extends StatefulWidget {
   final String label;
   final String? hint;
@@ -61,8 +65,7 @@ class CustomTextField extends StatefulWidget {
 class _CustomTextFieldState extends State<CustomTextField> {
   late FocusNode _internalFocusNode;
 
-  FocusNode get _effectiveFocusNode =>
-      widget.focusNode ?? _internalFocusNode;
+  FocusNode get _effectiveFocusNode => widget.focusNode ?? _internalFocusNode;
 
   @override
   void initState() {
@@ -79,8 +82,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.focusNode != widget.focusNode) {
-      (oldWidget.focusNode ?? _internalFocusNode)
-          .removeListener(_refresh);
+      (oldWidget.focusNode ?? _internalFocusNode).removeListener(_refresh);
 
       _effectiveFocusNode.addListener(_refresh);
     }
@@ -110,8 +112,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     final bool isFocused = _effectiveFocusNode.hasFocus;
-    final bool hasText =
-        widget.controller?.text.isNotEmpty ?? false;
+    final bool hasText = widget.controller?.text.isNotEmpty ?? false;
 
     final bool highlight = isFocused || hasText;
 
@@ -122,8 +123,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       enabled: widget.enabled,
       autofocus: widget.autofocus,
       onTap: widget.onTap,
-      obscureText:
-      widget.isPassword ? !widget.isVisible : false,
+      obscureText: widget.isPassword ? !widget.isVisible : false,
       keyboardType: widget.keyboardType,
       maxLines: widget.isPassword ? 1 : widget.maxLines,
       maxLength: widget.maxLength,
@@ -138,68 +138,48 @@ class _CustomTextFieldState extends State<CustomTextField> {
       enableSuggestions: !widget.isPassword,
       autocorrect: !widget.isPassword,
 
-      style: const TextStyle(
-        color: AppColors.white,
-        fontFamily: "Outfit",
-        fontSize: 15,
-      ),
+      style: AppTextStyles.body15.copyWith(color: AppColors.white),
 
       decoration: InputDecoration(
         labelText: widget.label,
         hintText: widget.hint,
         errorText: widget.errorText,
 
-        floatingLabelBehavior:
-        FloatingLabelBehavior.always,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
 
-        labelStyle: TextStyle(
-          fontSize: 14,
-          color: highlight
-              ? AppColors.primary
-              : AppColors.white60,
-          fontFamily: "Outfit",
+        labelStyle: AppTextStyles.body14.copyWith(
+          color: highlight ? AppColors.primary : AppColors.white60,
         ),
 
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 18,
+          horizontal: AppSpacing.inputHorizontal,
+          vertical: AppSpacing.lg,
         ),
 
         prefixIcon: widget.prefixIcon,
         suffixIcon: widget.suffixIcon,
 
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadii.lgAll,
           borderSide: BorderSide(
-            color: highlight
-                ? AppColors.borderGold
-                : AppColors.white30,
+            color: highlight ? AppColors.borderGold : AppColors.white30,
             width: 0.5,
           ),
         ),
 
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: AppColors.borderGold,
-            width: 0.5,
-          ),
+          borderRadius: AppRadii.lgAll,
+          borderSide: const BorderSide(color: AppColors.borderGold, width: 0.5),
         ),
 
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: AppColors.error,
-            width: 0.8,
-          ),
+          borderRadius: AppRadii.lgAll,
+          borderSide: const BorderSide(color: AppColors.error, width: 0.8),
         ),
 
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: AppColors.error,
-            width: 0.8,
-          ),
+          borderRadius: AppRadii.lgAll,
+          borderSide: const BorderSide(color: AppColors.error, width: 0.8),
         ),
       ),
     );

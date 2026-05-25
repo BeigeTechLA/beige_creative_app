@@ -12,6 +12,7 @@ import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/commonImagePicker.dart';
@@ -83,11 +84,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
           "🖼 FEATURED WORK COUNT: ${response.data.featuredWorkFiles.length}",
         );
 
-        for (
-          int i = 0;
-          i < response.data.featuredWorkFiles.length;
-          i++
-        ) {
+        for (int i = 0; i < response.data.featuredWorkFiles.length; i++) {
           final item = response.data.featuredWorkFiles[i];
           debugPrint(
             "🖼 ITEM[$i] => filePath: ${item.filePath} | fileType: ${item.fileType} | tag: ${item.tag}",
@@ -272,7 +269,6 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         onTap: () => context.pop(),
                         child: SvgPicture.asset(
                           AppAssets.back,
-                          // "assets/icons/back.png",
                           height: 24,
                           color: AppColors.white,
                         ),
@@ -301,7 +297,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           height: 45,
                           decoration: BoxDecoration(
                             color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadii.lgAll,
                           ),
 
                           child: TextField(
@@ -324,7 +320,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         width: 45,
                         decoration: BoxDecoration(
                           color: AppColors.surfaceVariant,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.lgAll,
                         ),
                         child: const Icon(Icons.tune, color: AppColors.white),
                       )
@@ -396,8 +392,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                         child: Stack(
                                           children: [
                                             ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(18),
+                                              borderRadius: AppRadii.xxxlAll,
 
                                               child: Image.network(
                                                 "${ApiService.imageURL}${images.first.filePath}",
@@ -412,8 +407,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                                       stackTrace,
                                                     ) {
                                                       return Container(
-                                                        color:
-                                                            AppColors.border,
+                                                        color: AppColors.border,
                                                         child: const Center(
                                                           child: Icon(
                                                             Icons.image,
@@ -585,7 +579,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadii.xxlAll,
                         ),
                       ),
 
@@ -623,9 +617,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
 
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: AppRadii.xxlAll),
             ),
 
             onPressed: () {
@@ -682,7 +674,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
                             color: AppColors.white24,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadii.xsAll,
                           ),
                         ),
                       ),
@@ -738,7 +730,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadii.xxlAll,
                             border: Border.all(color: AppColors.white24),
                           ),
 
@@ -787,7 +779,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                     height: 198,
                                     width: 250,
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: AppRadii.mldAll,
                                       image: DecorationImage(
                                         image: FileImage(image),
                                         fit: BoxFit.cover,
@@ -835,7 +827,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: AppColors.surfaceMid,
-                                    borderRadius: BorderRadius.circular(30),
+                                    borderRadius: AppRadii.roundAll,
                                     border: Border.all(color: AppColors.white24),
                                   ),
                                   child: Row(
@@ -881,7 +873,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
+                                borderRadius: AppRadii.roundAll,
                                 border: Border.all(color: AppColors.white24),
                                 color: AppColors.transparent,
                               ),
@@ -916,7 +908,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: AppRadii.xlAll,
                             ),
                           ),
                         onPressed: () {
@@ -976,7 +968,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
                         color: AppColors.white24,
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: AppRadii.xsAll,
                       ),
                     ),
                   ),
@@ -1025,7 +1017,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       hintText: "Type Tag and Press Enter",
                       hintStyle: const TextStyle(color: AppColors.white54),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadii.lgAll,
                       ),
                     ),
 
@@ -1071,7 +1063,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: AppRadii.xlAll,
                         ),
                       ),
                       onPressed: () {
@@ -1128,7 +1120,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: AppColors.white24,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppRadii.xsAll,
                         ),
                       ),
                     ),
@@ -1194,7 +1186,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         padding: const EdgeInsets.all(16),
 
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadii.xxlAll,
                         ),
                         child: totalImages == 0
                             ? GestureDetector(
@@ -1435,7 +1427,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                               : AppColors.lavenderGrey,
 
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: AppRadii.xlAll,
                           ),
                         ),
 
@@ -1538,7 +1530,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: AppColors.white24,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: AppRadii.xsAll,
                         ),
                       ),
                     ),
@@ -1629,7 +1621,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                         //     width: 50,
                         //     decoration: BoxDecoration(
                         //       color: AppColors.goldSoft,
-                        //       borderRadius: BorderRadius.circular(12),
+                        //       borderRadius: AppRadii.lgAll,
                         //     ),
                         //     child: const Icon(Icons.add, color: AppColors.black),
                         //   ),
@@ -1652,7 +1644,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.black,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: AppRadii.hugeAll,
                               border: Border.all(color: AppColors.white24),
                             ),
                             child: Row(
@@ -1695,7 +1687,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           foregroundColor: AppColors.black,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: AppRadii.xlAll,
                           ),
                         ),
                         onPressed: () {

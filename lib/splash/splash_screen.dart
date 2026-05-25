@@ -16,7 +16,6 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-
   late final AnimationController _controller;
 
   @override
@@ -25,29 +24,22 @@ class _SplashScreenState extends State<SplashScreen>
     _controller = AnimationController(vsync: this);
   }
 
-  void _goToNextScreen()async {
+  void _goToNextScreen() async {
+    final prefs = await SharedPreferences.getInstance();
 
-    final prefs=await SharedPreferences.getInstance();
+    final isloggin = prefs.getBool('isLoggedIn') ?? false;
 
-    final isloggin= prefs.getBool('isLoggedIn')?? false;
-
-    if(isloggin){
-
- /*     Navigator.pushReplacement(
+    if (isloggin) {
+      /*     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (_) => Mainscreen(),
         ),
       );*/
       context.goNamed(RouteNames.home);
-    }else{
-
+    } else {
       context.goNamed(RouteNames.onboarding);
     }
-
-
-
-
   }
 
   @override
@@ -58,7 +50,6 @@ class _SplashScreenState extends State<SplashScreen>
         child: Center(
           child: Lottie.asset(
             AppAssets.lottie2,
-          /*  "assets/lottie/Component10.json",*/
             controller: _controller,
             width: 250,
             fit: BoxFit.contain,

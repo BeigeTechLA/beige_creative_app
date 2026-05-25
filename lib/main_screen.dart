@@ -19,6 +19,8 @@ import 'app/route_names.dart';
 import 'file_manager/file_manager_screen.dart';
 import 'app/colors.dart';
 
+import 'app/radii.dart';
+import 'app/shadows.dart';
 class Mainscreen extends StatefulWidget {
   const Mainscreen({super.key});
 
@@ -246,13 +248,7 @@ Future<void> fetchprofiledata() async {
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.white.withOpacity(0.2),
-                    blurRadius: 8,
-                    spreadRadius: 1,
-                  ),
-                ],
+                boxShadow: AppShadows.activeNavGlow,
               ),
             ),
 
@@ -320,7 +316,7 @@ Future<void> fetchprofiledata() async {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: AppColors.goldSandLight,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadii.xxlAll,
                       ),
                       child: Row(
                         children: [

@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
 import '../widgets/custom_dropdown.dart';
 import '../widgets/custom_text_field.dart';
 
@@ -719,7 +720,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                             width: 0.5,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: AppRadii.xsAll,
                           ),
                           value: isAllDay,
                           onChanged: (val) {
@@ -786,7 +787,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                               padding:
                               const EdgeInsets.symmetric(vertical: 14),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: AppRadii.lgAll,
                                 border: Border.all(
                                   color: AppColors.white.withOpacity(0.6),
                                   width: 0.5,
@@ -816,7 +817,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               decoration: BoxDecoration(
                                 color: AppColors.primary,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: AppRadii.lgAll,
                               ),
                               child: Center(
                                 child: Text(
@@ -859,7 +860,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                     onTap: () =>context.pop(),
                     child: Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadii.lgAll,
                         border: Border.all(
                           color: AppColors.white.withOpacity(0.6),
                           width: 0.5,
@@ -891,7 +892,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadii.lgAll,
                       ),
                       child: Center(
                         child: Text(

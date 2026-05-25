@@ -6,6 +6,7 @@ import '../app/route_names.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/new_Textfield.dart';
 
@@ -205,7 +206,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         ? AppColors.primary
                         : AppColors.borderGold,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: AppRadii.xlAll,
                     ),
                   ),
                   child: Text(
@@ -254,7 +255,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
           /// ⭐ 0.5px BORDER + OPACITY COLOR
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadii.lgAll,
             borderSide:  BorderSide(
               color: AppColors.white60, // #1D1D1B99 (60% opacity)
               width: 0.5,                       // 🔥 exact 0.5px
@@ -262,7 +263,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
 
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadii.lgAll,
             borderSide: const BorderSide(
               color: AppColors.white60, // #1D1D1B99 (60% opacity)
               width: 0.5,                          // focus border thicker

@@ -1,4 +1,6 @@
 import 'package:beige_creative_app/app/colors.dart';
+import 'package:beige_creative_app/app/spacing.dart';
+import 'package:beige_creative_app/app/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -117,11 +119,9 @@ class _CommonCalendarState extends State<CommonCalendar>
               alignment: Alignment.center,
               child: Text(
                 days[index],
-                style: TextStyle(
-                  fontFamily: 'Outfit',
+                style: AppTextStyles.body14.copyWith(
                   color: AppColors.white,
                   fontSize: width * 0.034,
-                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
@@ -156,7 +156,7 @@ class _CommonCalendarState extends State<CommonCalendar>
         children: [
           Text(
             "${day.day}",
-            style: TextStyle(
+            style: AppTextStyles.systemDefault.copyWith(
               fontSize: width * 0.045,
               color: isOutside || isStrikethrough
                   ? AppColors.white24
@@ -185,10 +185,12 @@ class _CommonCalendarState extends State<CommonCalendar>
       width: width * 0.155,
       alignment: Alignment.center,
       margin: EdgeInsets.symmetric(
-        horizontal: width * 0.01,
-        vertical: width * 0.005,
+        horizontal: width * AppSpacing.calendarEventMarginHFactor,
+        vertical: width * AppSpacing.calendarEventMarginVFactor,
       ),
-      padding: EdgeInsets.symmetric(horizontal: width * 0.006),
+      padding: EdgeInsets.symmetric(
+        horizontal: width * AppSpacing.calendarEventPaddingHFactor,
+      ),
       decoration: BoxDecoration(
         color: isAvailable ? AppColors.softMint : AppColors.bluePale,
         borderRadius: BorderRadius.circular(width * 0.008),
@@ -198,12 +200,9 @@ class _CommonCalendarState extends State<CommonCalendar>
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
-        style: TextStyle(
-          color: isAvailable
-              ? AppColors.greenForest
-              : AppColors.indigoDeep,
+        style: AppTextStyles.systemSemiBold.copyWith(
+          color: isAvailable ? AppColors.greenForest : AppColors.indigoDeep,
           fontSize: width * 0.021,
-          fontWeight: FontWeight.w600,
         ),
       ),
     );

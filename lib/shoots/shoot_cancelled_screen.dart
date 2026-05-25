@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:beige_creative_app/app/colors.dart';
+import '../app/radii.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app/route_names.dart';
@@ -100,7 +101,7 @@ class _CancelScreenState extends State<CancelScreen> {
                     height: 5,
                     decoration: BoxDecoration(
                       color: AppColors.white24,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadii.hugeAll,
                     ),
                   ),
                 ),
@@ -237,7 +238,7 @@ class _CancelScreenState extends State<CancelScreen> {
                                 horizontal: 14),
                             decoration: BoxDecoration(
                               borderRadius:
-                              BorderRadius.circular(14),
+                              AppRadii.xlAll,
                               border: Border.all(
                                   color: AppColors.white24),
                               color: AppColors.black
@@ -284,7 +285,7 @@ class _CancelScreenState extends State<CancelScreen> {
                             shape:
                             RoundedRectangleBorder(
                               borderRadius:
-                              BorderRadius.circular(16),
+                              AppRadii.xxlAll,
                             ),
                           ),
                           onPressed: () =>
@@ -317,7 +318,7 @@ class _CancelScreenState extends State<CancelScreen> {
                             shape:
                             RoundedRectangleBorder(
                               borderRadius:
-                              BorderRadius.circular(16),
+                              AppRadii.xxlAll,
                             ),
                           ),
                           onPressed:

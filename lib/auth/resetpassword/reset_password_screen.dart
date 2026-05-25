@@ -5,6 +5,9 @@ import 'package:flutter_svg/svg.dart';
 import '../../Profile/myprofile_youre_all_set_screen.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
+import '../../app/radii.dart';
+import '../../app/spacing.dart';
+import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../widgets/Topmessgae.dart';
 import '../../widgets/new_Textfield.dart';
@@ -12,7 +15,11 @@ import '../../widgets/new_Textfield.dart';
 class ResetPasswordScreen extends StatefulWidget {
   final String email;
   final String otp;
-  const ResetPasswordScreen({super.key, required this.email, required this.otp,});
+  const ResetPasswordScreen({
+    super.key,
+    required this.email,
+    required this.otp,
+  });
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -23,11 +30,17 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   bool showConfirmPassword = false;
   bool isLoading = false;
   final TextEditingController newPasswordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
-
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   bool isPasswordFilled = false;
-  void _checkPassword() { setState(() { isPasswordFilled = newPasswordController.text.isNotEmpty && confirmPasswordController.text.isNotEmpty; }); }
+  void _checkPassword() {
+    setState(() {
+      isPasswordFilled =
+          newPasswordController.text.isNotEmpty &&
+          confirmPasswordController.text.isNotEmpty;
+    });
+  }
 
   Future<void> _newpasswrod() async {
     print("📢 Reset Password Clicked");
@@ -58,15 +71,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       print("🚀 RESET PASSWORD API CALL START");
       print("📡 Endpoint => ${ApiEndpoints.restartpassword}");
 
-      final response = await apiService.postData(
-        ApiEndpoints.restartpassword,
-        {
-          "otp": widget.otp, // 🔥 replace with actual OTP if needed
-          "email": widget.email,
-          "new_password": newPasswordController.text.trim(),
-          "confirm_password": confirmPasswordController.text.trim(),
-        },
-      );
+      final response = await apiService.postData(ApiEndpoints.restartpassword, {
+        "otp": widget.otp, // 🔥 replace with actual OTP if needed
+        "email": widget.email,
+        "new_password": newPasswordController.text.trim(),
+        "confirm_password": confirmPasswordController.text.trim(),
+      });
 
       print("📩 API RESPONSE => $response");
 
@@ -82,9 +92,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) => const MyprofileYoureAllSetScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => const MyprofileYoureAllSetScreen()),
         );
       } else {
         print("❌ Reset Failed => ${response['message']}");
@@ -101,13 +109,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     }
   }
 
-
   void _showSnack(String message) {
     TopMessage.show(context, message);
-
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -116,23 +120,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             /// 🔝 TOP IMAGE + TITLE SECTION
             SizedBox(
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.32,
+              height: MediaQuery.of(context).size.height * 0.32,
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Image.asset(
-                      AppAssets.rectangle,
-                      fit: BoxFit.fill,
-                    ),
+                    child: Image.asset(AppAssets.rectangle, fit: BoxFit.fill),
                   ),
-                  /// 🖼️ BACKGROUND IMAGE
 
+                  /// 🖼️ BACKGROUND IMAGE
 
                   /// 🌫️ DARK OVERLAY
                   /*    Positioned.fill(
@@ -145,34 +142,26 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   Positioned(
                     top: 50, // 🔥 yaha value adjust kar sakte ho (30–50)
                     left: 16,
-                    child: InkWell(//
+                    child: InkWell(
+                      //
                       onTap: () {
                         Navigator.pop(context); // 🔥 screen pop karega
                       },
-                      child: SvgPicture.asset(
-                        AppAssets.back,
-                        height: 24,
-
-                      ),
+                      child: SvgPicture.asset(AppAssets.back, height: 24),
                     ),
                   ),
-
 
                   /// 🏷️ TITLE + SUBTITLE (CENTER)
                   Align(
                     alignment: Alignment.center,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children:  [
-
+                      children: [
                         Text(
                           'Secure your Account',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: AppTextStyles.displayLabel16.copyWith(
                             color: AppColors.white,
-                            fontSize: 16,
-                            fontFamily: 'Unbounded',
-                            fontWeight: FontWeight.w500,
                           ),
                         ),
 
@@ -181,11 +170,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         Text(
                           'You\'re almost done! Set a new password\nto secure your account.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: AppTextStyles.body14.copyWith(
                             color: AppColors.white.withValues(alpha: 0.60),
-                            fontSize: 14,
-                            fontFamily: 'Outfit',
-                            fontWeight: FontWeight.w400,
                             height: 1.29,
                           ),
                         ),
@@ -202,16 +188,19 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-
-
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(20, 25 , 20, 20),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.xl,
+                      AppSpacing.authCardTop,
+                      AppSpacing.xl,
+                      AppSpacing.xl,
+                    ),
                     // 👈 top extra
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    margin: AppSpacing.authCardMargin,
                     decoration: BoxDecoration(
                       color: AppColors.background,
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: AppRadii.portfolioCompactAll,
                       border: Border.all(
                         color: AppColors.white.withValues(alpha: 0.10),
                         width: 0.50,
@@ -219,9 +208,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     ),
                     child: Column(
                       children: [
-
                         //   const SizedBox(height: 12),
-
 
                         /*  _buildField(
                           "New Password*",
@@ -246,7 +233,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             });
                           },
                         ),*/
-
                         CustomInputField(
                           title: "New Password*",
                           controller: newPasswordController,
@@ -303,29 +289,26 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           ),
                         ),
 
-
-
                         const SizedBox(height: 20),
                         SizedBox(
                           width: double.infinity,
                           height: 56,
                           child: ElevatedButton(
-                            onPressed: isPasswordFilled && !isLoading ? _newpasswrod : null,
+                            onPressed: isPasswordFilled && !isLoading
+                                ? _newpasswrod
+                                : null,
 
                             style: ElevatedButton.styleFrom(
                               backgroundColor: isPasswordFilled
                                   ? AppColors.primary
                                   : AppColors.borderGold,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: AppRadii.xlAll,
                               ),
                             ),
-                            child:  Text(
+                            child: Text(
                               "Save New Password",
-                              style: TextStyle(
-                                fontFamily: "Unbounded",
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                              style: AppTextStyles.displayLabel13.copyWith(
                                 color: isPasswordFilled
                                     ? AppColors.textHeading
                                     : AppColors.surfaceMid,
@@ -333,97 +316,17 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             ),
                           ),
                         ),
-
-
                       ],
                     ),
                   ),
-
-                  /// 🏷️ FLOATING CHIP (BORDER PE STUCK)
-                  /*          Positioned(
-                    top: -24,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.white.withOpacity(0.12),
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.black.withOpacity(0.35),
-                              blurRadius: 16,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              height: 44,
-                              width: 44,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: AssetImage(
-                                      AppAssets.imageChooseRole2),
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Text(
-                                  "Name : John Smith",
-                                  style: TextStyle(
-                                    fontFamily: "Outfit",
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.black,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  "Email ID: johnsmith4545@gmail.com",
-                                  style: TextStyle(
-                                    fontFamily: "Outfit",
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.black54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-
-
-                        ),
-                      ),
-                    ),
-                  ),*/
                 ],
               ),
             ),
-
 
             const SizedBox(height: 30),
           ],
         ),
       ),
-
-
     );
   }
-
-
-}//
+} //

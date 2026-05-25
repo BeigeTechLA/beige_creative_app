@@ -8,6 +8,7 @@ import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/commonFileViewer.dart';
 import '../widgets/common_uploader.dart';
@@ -20,26 +21,28 @@ class Certificates extends StatefulWidget {
 }
 
 class _CertificatesState extends State<Certificates> {
-
-   bool isloading =true;
+  bool isloading = true;
   // Data? Myprofile_user;
   File? selectedFile;
 
-   Data? Myprofile_user;
+  Data? Myprofile_user;
 
   @override
   void initState() {
     super.initState();
     fetchcertificates();
   }
+
   Future<void> fetchcertificates() async {
     try {
       setState(() {
         isloading = true;
       });
 
-      final rawResponse =
-      await ApiService().postData(ApiEndpoints.profiledetails, {});
+      final rawResponse = await ApiService().postData(
+        ApiEndpoints.profiledetails,
+        {},
+      );
 
       debugPrint("📦 RAW API RESPONSE: $rawResponse");
 
@@ -48,16 +51,12 @@ class _CertificatesState extends State<Certificates> {
       debugPrint("✅ PARSED RESPONSE: ${response.data}");
 
       if (response.error == false) {
-
         /// ✅ SOCIAL LINKS
 
         /// ✅ IMPORTANT CHANGE (USE NESTED USER)
         setState(() {
-
-
           Myprofile_user = response.data;
         });
-
       } else {
         debugPrint("❌ API ERROR: ${response.message}");
       }
@@ -65,14 +64,12 @@ class _CertificatesState extends State<Certificates> {
       debugPrint("❌ EXCEPTION: $e");
     } finally {
       if (mounted) {
-
         setState(() {
           isloading = false;
         });
       }
     }
   }
-
 
   Future<void> _addcertificate() async {
     if (selectedFile == null) {
@@ -105,23 +102,24 @@ class _CertificatesState extends State<Certificates> {
     }
   }
 
-   Future<void> deleteData(int id) async {
-     final response = await ApiService().deleteData(
-       "${ApiEndpoints.delete_allfiles}/$id",
-     );
+  Future<void> deleteData(int id) async {
+    final response = await ApiService().deleteData(
+      "${ApiEndpoints.delete_allfiles}/$id",
+    );
 
-     if (response["error"] == false) {
-       print("✅ Deleted Successfully");
+    if (response["error"] == false) {
+      print("✅ Deleted Successfully");
 
-       fetchcertificates(); // refresh list
-     } else {
-       print("❌ Delete Failed");
-     }
-   }
+      fetchcertificates(); // refresh list
+    } else {
+      print("❌ Delete Failed");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:  SafeArea(
+      body: SafeArea(
         child: Stack(
           children: [
             Padding(
@@ -132,38 +130,49 @@ class _CertificatesState extends State<Certificates> {
                     children: [
                       InkWell(
                         onTap: () => context.pop(),
-                        child:
-                        SvgPicture.asset(
+                        child: SvgPicture.asset(
                           AppAssets.back,
-                        /*  "assets/icons/back.png",*/
-                          height: 24,color: AppColors.white,),
+                          height: 24,
+                          color: AppColors.white,
+                        ),
                       ),
                     ],
                   ),
 
                   Row(
                     children: [
-                      Text("Certificates",style: TextStyle(fontWeight: FontWeight.w500,fontFamily: "Unbounded",fontSize: 16),)
+                      Text(
+                        "Certificates",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontFamily: "Unbounded",
+                          fontSize: 16,
+                        ),
+                      ),
                     ],
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(height: 20),
                   Row(
                     children: [
-
                       Expanded(
                         child: Container(
                           height: 45,
                           decoration: BoxDecoration(
                             color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadii.lgAll,
                           ),
 
                           child: TextField(
                             style: const TextStyle(color: AppColors.white),
                             decoration: InputDecoration(
                               hintText: "Search",
-                              hintStyle: const TextStyle(color: AppColors.white24),
-                              prefixIcon: const Icon(Icons.search, color: AppColors.white24),
+                              hintStyle: const TextStyle(
+                                color: AppColors.white24,
+                              ),
+                              prefixIcon: const Icon(
+                                Icons.search,
+                                color: AppColors.white24,
+                              ),
                               border: InputBorder.none,
                             ),
                           ),
@@ -178,10 +187,10 @@ class _CertificatesState extends State<Certificates> {
                         width: 45,
                         decoration: BoxDecoration(
                           color: AppColors.surfaceVariant,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.lgAll,
                         ),
                         child: const Icon(Icons.tune, color: AppColors.white),
-                      )
+                      ),
                     ],
                   ),
                   Expanded(
@@ -189,7 +198,6 @@ class _CertificatesState extends State<Certificates> {
                       itemCount: Myprofile_user?.certificateFiles.length ?? 0,
 
                       itemBuilder: (context, index) {
-
                         final cert = Myprofile_user!.certificateFiles[index];
 
                         return Container(
@@ -197,14 +205,13 @@ class _CertificatesState extends State<Certificates> {
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceShadow,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadii.lgAll,
                           ),
                           child: Row(
                             children: [
-
                               /// FILE IMAGE
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: AppRadii.smAll,
                                 child: SizedBox(
                                   height: 55,
                                   width: 55,
@@ -217,14 +224,11 @@ class _CertificatesState extends State<Certificates> {
                                       return Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: SvgPicture.asset(
-                                          // "assets/svg/image_holder.svg",
                                           AppAssets.image_holder,
                                           fit: BoxFit.contain,
                                         ),
                                       );
                                     },
-
-
                                   ),
                                 ),
                               ),
@@ -233,15 +237,15 @@ class _CertificatesState extends State<Certificates> {
                               /// DETAILS
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       cert.filePath.split('/').last,
                                       style: const TextStyle(
-                                          fontFamily: "Outfit",
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500),
+                                        fontFamily: "Outfit",
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
 
                                     const SizedBox(height: 4),
@@ -273,8 +277,7 @@ class _CertificatesState extends State<Certificates> {
                                       _openOptions(cert);
                                     },
                                     child: SvgPicture.asset(
-                                      AppAssets
-                                          .more_vert,
+                                      AppAssets.more_vert,
                                       height: 20,
                                       width: 20,
                                     ),
@@ -289,7 +292,7 @@ class _CertificatesState extends State<Certificates> {
                                       fontSize: 11),
                                 )*/
                                 ],
-                              )
+                              ),
                             ],
                           ),
                         );
@@ -300,17 +303,15 @@ class _CertificatesState extends State<Certificates> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadii.xxlAll,
                         ),
                       ),
 
                       onPressed: () {
                         openUploadDialog();
-
                       },
 
                       child: const Text(
@@ -327,11 +328,11 @@ class _CertificatesState extends State<Certificates> {
               ),
             ),
           ],
-
         ),
       ),
     );
   }
+
   void openUploadDialog() {
     showModalBottomSheet(
       context: context,
@@ -341,20 +342,17 @@ class _CertificatesState extends State<Certificates> {
           padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
             color: AppColors.surfaceShadow,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(25),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-
               /// TITLE + CLOSE
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Center(
-                    child:  Text(
+                    child: Text(
                       "Upload your File",
                       style: TextStyle(
                         fontSize: 16,
@@ -366,12 +364,13 @@ class _CertificatesState extends State<Certificates> {
                   InkWell(
                     onTap: () => context.pop(),
                     child: const Icon(Icons.close, color: AppColors.white),
-                  )
+                  ),
                 ],
               ),
 
               const SizedBox(height: 20),
               const Divider(color: AppColors.white24),
+
               /// CAMERA
               uploadOption(
                 svgPath: AppAssets.scanner,
@@ -395,7 +394,6 @@ class _CertificatesState extends State<Certificates> {
               const Divider(color: AppColors.white24),
 
               /// GALLERY
-
               uploadOption(
                 svgPath: AppAssets.gallery,
                 title: "Import from Gallery",
@@ -416,6 +414,7 @@ class _CertificatesState extends State<Certificates> {
                 },
               ),
               const Divider(color: AppColors.white24),
+
               /// FILES
 
               /// FILES
@@ -444,7 +443,12 @@ class _CertificatesState extends State<Certificates> {
       },
     );
   }
-  Widget uploadOption({required String svgPath, required String title, required VoidCallback onTap,}) {
+
+  Widget uploadOption({
+    required String svgPath,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -455,21 +459,19 @@ class _CertificatesState extends State<Certificates> {
               svgPath,
               height: 22,
               width: 22,
-        // optional
+              // optional
             ),
             const SizedBox(width: 12),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.white,
-              ),
+              style: const TextStyle(fontSize: 14, color: AppColors.white),
             ),
           ],
         ),
       ),
     );
   }
+
   void _openOptions(CrewFile cert) {
     showModalBottomSheet(
       context: context,
@@ -479,14 +481,11 @@ class _CertificatesState extends State<Certificates> {
           padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
             color: AppColors.surfaceShadow,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-
               /// VIEW DETAILS
               InkWell(
                 onTap: () {

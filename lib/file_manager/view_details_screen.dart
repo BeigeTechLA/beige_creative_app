@@ -4,6 +4,8 @@ import 'package:flutter_svg/svg.dart';
 
 import '../app/colors.dart';
 
+import '../app/radii.dart';
+import '../app/shadows.dart';
 class ViewDetailsScreen extends StatefulWidget {
   const ViewDetailsScreen({super.key});
 
@@ -170,7 +172,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadii.hugeAll,
               ),
               child: const Text(
                 "Post Production",
@@ -193,15 +195,9 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: AppRadii.massiveAll,
                 border: Border.all(color: AppColors.dividerDark),
-                boxShadow: const [
-                  BoxShadow(
-                    color: AppColors.black10,
-                    blurRadius: 20,
-                    spreadRadius: 2,
-                  ),
-                ],
+                boxShadow: AppShadows.viewerSheet,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

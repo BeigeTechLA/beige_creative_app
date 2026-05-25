@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/colors.dart';
+import '../../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
@@ -203,7 +204,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                     backgroundColor: AppColors.primary,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: AppRadii.xlAll,
                     ),
                   ),
                   child: const Text(

@@ -7,18 +7,19 @@ import 'package:go_router/go_router.dart';
 
 import '../model_class/upcoming_shootview_model.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
 import '../widgets/date_time.dart';
 
 class UpcomingShootViewDetils extends StatefulWidget {
   final int? projectid;
-  const UpcomingShootViewDetils({super.key,  this.projectid});
+  const UpcomingShootViewDetils({super.key, this.projectid});
 
   @override
-  State<UpcomingShootViewDetils> createState() => _UpcomingShootViewDetilsState();
+  State<UpcomingShootViewDetils> createState() =>
+      _UpcomingShootViewDetilsState();
 }
 
 class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
-
   List<String> getProfileImageUrls() {
     if (mydata?.teamMembers == null) return [];
 
@@ -27,11 +28,10 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
         .where((url) => !url.endsWith("/")) // empty remove
         .toList();
   }
-  bool isloading=false;
 
+  bool isloading = false;
 
-
-MyData? mydata;//
+  MyData? mydata; //
   String selectedReason = "";
   bool isOtherSelected = false;
   TextEditingController commentController = TextEditingController();
@@ -40,63 +40,43 @@ MyData? mydata;//
     super.initState();
     fetchupcomingshootview();
     debugPrint("🔥 Project ID received: ${widget.projectid}");
-
   }
-  Future<void>fetchupcomingshootview() async {
 
+  Future<void> fetchupcomingshootview() async {
     try {
-
       if (mounted) {
-
         setState(() {
           isloading = true;
         });
       }
 
-      final url =
-          'creator/project-details/${widget.projectid}';
+      final url = 'creator/project-details/${widget.projectid}';
 
-      debugPrint(
-        "🔥 API URL => $url",
-      );
+      debugPrint("🔥 API URL => $url");
 
-      final rawResponse =
-      await ApiService()
-          .fetchData(url);
+      final rawResponse = await ApiService().fetchData(url);
 
-      debugPrint(
-        "🔥 API RESPONSE => $rawResponse",
-      );
+      debugPrint("🔥 API RESPONSE => $rawResponse");
 
-      final response =
-      Upcomingshootviewmodel
-          .fromJson(rawResponse);
+      final response = Upcomingshootviewmodel.fromJson(rawResponse);
 
       if (response.error == false) {
-
         if (!mounted) return;
 
         setState(() {
-
           mydata = response.data;
 
           isloading = false;
         });
-
       } else {
-
         if (!mounted) return;
 
         setState(() {
           isloading = false;
         });
       }
-
     } catch (e) {
-
-      debugPrint(
-        "UPCOMING DETAILS ERROR: $e",
-      );
+      debugPrint("UPCOMING DETAILS ERROR: $e");
 
       if (!mounted) return;
 
@@ -106,23 +86,15 @@ MyData? mydata;//
     }
   }
 
-
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Stack(
         children: [
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 /// 🔥 TOP IMAGE SECTION
                 Stack(
                   children: [
@@ -131,15 +103,16 @@ MyData? mydata;//
                       height: 330,
                       width: double.infinity,
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(0), // optional
+                        borderRadius: AppRadii.noneAll, // optional
                         child: Image.network(
-                          ApiService().getImageURL(mydata?.project.imageUrl ?? ""),
+                          ApiService().getImageURL(
+                            mydata?.project.imageUrl ?? "",
+                          ),
                           fit: BoxFit.cover,
 
                           /// ❌ error → fallback
                           errorBuilder: (_, _, _) {
                             return SvgPicture.asset(
-                              // "assets/svg/image_holder.svg",
                               AppAssets.image_holder,
                               fit: BoxFit.cover,
                             );
@@ -171,14 +144,11 @@ MyData? mydata;//
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-
                           /// 🔙 BACK BUTTON
                           InkWell(
                             onTap: () => context.pop(),
-                            // child: Image.asset("assets/icons/Reply.png", height: 24,color: AppColors.white,),
                             child: SvgPicture.asset(AppAssets.back),
                           ),
-
                         ],
                       ),
                     ),
@@ -190,7 +160,7 @@ MyData? mydata;//
                       right: 16,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children:  [
+                        children: [
                           Expanded(
                             child: Text(
                               "${mydata?.clientContact.fullName}",
@@ -219,14 +189,10 @@ MyData? mydata;//
                 ),
 
                 _buildInfoCard(),
-
-
-
               ],
             ),
           ),
-          if(isloading)
-            AppLoader()
+          if (isloading) AppLoader(),
         ],
       ),
     );
@@ -242,43 +208,41 @@ MyData? mydata;//
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: AppColors.surfaceMid,
-              borderRadius: BorderRadius.circular(18),
-
+              borderRadius: AppRadii.xxxlAll,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 /// 🔥 TITLE + ID
-
-
                 const SizedBox(height: 16),
 
                 /// 📅 DATE
-                _infoRow(Icons.calendar_today, DateTimeUtils.formatDate("${mydata?.project.eventDate}")),
+                _infoRow(
+                  Icons.calendar_today,
+                  DateTimeUtils.formatDate("${mydata?.project.eventDate}"),
+                ),
                 const SizedBox(height: 10),
 
                 /// ⏰ TIME
                 _infoRow(
                   Icons.access_time,
                   "${DateTimeUtils.formatTime(mydata?.project.startTime ?? "")} - ${DateTimeUtils.formatTime(mydata?.project.endTime ?? "")}",
-                ),                const SizedBox(height: 10),
+                ),
+                const SizedBox(height: 10),
 
                 /// 📍 LOCATION
-                _infoRow(Icons.location_on_outlined,
-                    "${mydata?.project.eventLocation}"),
+                _infoRow(
+                  Icons.location_on_outlined,
+                  "${mydata?.project.eventLocation}",
+                ),
 
                 const SizedBox(height: 18),
-                Divider(
-                  color: AppColors.dividerDark,
-                  thickness: 0.8,
+                Divider(color: AppColors.dividerDark, thickness: 0.8),
 
-                ),
                 /// 🔘 TYPE ROW
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     /// 🔹 LABEL ROW (2 Equal Columns)
                     Row(
                       children: [
@@ -328,18 +292,13 @@ MyData? mydata;//
                     ),
 
                     /// 🔹 DASHED DIVIDER (Proper Style)
-
                   ],
                 ),
 
                 const SizedBox(height: 20),
 
                 /// 🔹 DASHED DIVIDER
-                Divider(
-                  color: AppColors.dividerDark,
-                  thickness: 0.8,
-
-                ),
+                Divider(color: AppColors.dividerDark, thickness: 0.8),
 
                 const SizedBox(height: 20),
 
@@ -348,12 +307,11 @@ MyData? mydata;//
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: AppColors.backgroundOpacity70,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: AppRadii.xlAll,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       const Text(
                         "Shoot Status",
                         style: TextStyle(
@@ -366,7 +324,6 @@ MyData? mydata;//
                       const Divider(
                         color: AppColors.dividerDark,
                         thickness: 0.8,
-
                       ),
                       const SizedBox(height: 14),
 
@@ -399,7 +356,7 @@ MyData? mydata;//
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                           Text(
+                          Text(
                             "Last Updated",
                             style: TextStyle(
                               fontFamily: "Outfit",
@@ -410,7 +367,7 @@ MyData? mydata;//
                           ),
                           Text(
                             DateTimeUtils.formatDateTime(
-                              mydata?.project.lastUpdated?.toString()
+                              mydata?.project.lastUpdated?.toString(),
                             ),
                             style: const TextStyle(
                               fontFamily: "Outfit",
@@ -424,17 +381,13 @@ MyData? mydata;//
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
           const SizedBox(height: 20),
-          Divider(
-            color: AppColors.dividerDark,
-            thickness: 0.8,
-          ),
+          Divider(color: AppColors.dividerDark, thickness: 0.8),
 
-     /*     Row(
+          /*     Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("Team Members",style: TextStyle(color: AppColors.white,fontFamily: "Unbounded",fontWeight: FontWeight.w500,fontSize: 14),),
@@ -474,21 +427,6 @@ MyData? mydata;//
           //   child: Row(
           //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
           //     children: [
-          //       _buildMember(
-          //         name: "Emma Hale",
-          //         role: "Project Manager",
-          //         image: "assets/images/shoot1.png",
-          //       ),
-          //       _buildMember(
-          //         name: "Adam Brooks",
-          //         role: "Production Manager",
-          //         image: "assets/images/shoot2.png",
-          //       ),
-          //       _buildMember(
-          //         name: "Nora Blake",
-          //         role: "Sales Representative",
-          //         image: "assets/images/shoot3.png",
-          //       ),
           //     ],
           //   ),
           // ),
@@ -500,8 +438,15 @@ MyData? mydata;//
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Time & Budget",style: TextStyle(color: AppColors.white,fontFamily: "Unbounded",fontWeight: FontWeight.w500,fontSize: 14),),
-
+              Text(
+                "Time & Budget",
+                style: TextStyle(
+                  color: AppColors.white,
+                  fontFamily: "Unbounded",
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
+              ),
             ],
           ),
           SizedBox(height: 10),
@@ -509,11 +454,10 @@ MyData? mydata;//
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             decoration: BoxDecoration(
               color: AppColors.surfaceMid,
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: AppRadii.portfolioCompactAll,
             ),
             child: Row(
               children: [
-
                 /// 🔹 LEFT ITEM
                 Expanded(
                   child: _budgetCardItem(
@@ -530,8 +474,8 @@ MyData? mydata;//
                   child: _budgetCardItem(
                     icon: Icons.access_time,
                     title: "Total Time Duration",
-                    value: "${mydata?.project.totalTimeDurationHours ?? 0} hours",
-
+                    value:
+                        "${mydata?.project.totalTimeDurationHours ?? 0} hours",
                   ),
                 ),
               ],
@@ -542,18 +486,12 @@ MyData? mydata;//
           /// 🔥 CLIENT CONTACT SECTION
           Container(
             padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-
-              borderRadius: BorderRadius.circular(26),
-            ),
+            decoration: BoxDecoration(borderRadius: AppRadii.r26All),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Divider(
-                  color: AppColors.dividerDark,
-                  thickness: 0.8,
-                ),
-                SizedBox(height: 12,),
+                Divider(color: AppColors.dividerDark, thickness: 0.8),
+                SizedBox(height: 12),
 
                 /// 🔹 TITLE
                 const Text(
@@ -569,10 +507,7 @@ MyData? mydata;//
                 const SizedBox(height: 18),
 
                 _contactItem(
-                  icon: SvgPicture.asset(
-                    AppAssets.person_icons,
-
-                  ),
+                  icon: SvgPicture.asset(AppAssets.person_icons),
                   title: "Contact Name",
                   value: "${mydata?.clientContact.fullName}",
                 ),
@@ -580,20 +515,15 @@ MyData? mydata;//
                 const SizedBox(height: 14),
 
                 _contactItem(
-                  icon: SvgPicture.asset(
-                    AppAssets.Phone_Calling,
-
-                  ),
+                  icon: SvgPicture.asset(AppAssets.Phone_Calling),
                   title: "Contact Number",
-                  value: mydata?.clientContact.phone ?? 'No number found',                ),
+                  value: mydata?.clientContact.phone ?? 'No number found',
+                ),
 
                 const SizedBox(height: 14),
 
                 _contactItem(
-                  icon: SvgPicture.asset(
-                    AppAssets.mail_icon,
-
-                  ),
+                  icon: SvgPicture.asset(AppAssets.mail_icon),
                   title: "Email ID",
                   value: "${mydata?.clientContact.email}",
                 ),
@@ -601,20 +531,16 @@ MyData? mydata;//
                 const SizedBox(height: 24),
 
                 /// 🔹 VIEW TIMELINE
-
-
-
-
                 const SizedBox(height: 24),
 
                 /// 🔹 BUTTON ROW
-         /*       Row(
+                /*       Row(
                   children: [
 
                     /// CANCEL
                     Expanded(
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: AppRadii.xlAll,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -640,7 +566,7 @@ MyData? mydata;//
                           height: 48,
                           decoration: BoxDecoration(
                             color: AppColors.pinkSoft,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: AppRadii.xlAll,
                           ),
                           child: const Center(
                             child: Text(
@@ -662,7 +588,7 @@ MyData? mydata;//
                     /// ACCEPT
                     Expanded(
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: AppRadii.xlAll,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -675,7 +601,7 @@ MyData? mydata;//
                           height: 48,
                           decoration: BoxDecoration(
                             color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: AppRadii.xlAll,
                           ),
                           child: const Center(
                             child: Text(
@@ -698,9 +624,9 @@ MyData? mydata;//
           ),
         ],
       ),
-
     );
   }
+
   Widget _budgetCardItem({
     required IconData icon,
     required String title,
@@ -709,33 +635,28 @@ MyData? mydata;//
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-
         /// ICON BOX
         Container(
           height: 40,
           width: 40,
           decoration: BoxDecoration(
             color: AppColors.primary,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadii.lgAll,
           ),
-          child: Icon(
-            icon,
-            color: AppColors.black,
-            size: 20,
-          ),
+          child: Icon(icon, color: AppColors.black, size: 20),
         ),
 
         const SizedBox(width: 10),
 
         /// TEXT SECTION
-        Expanded(   // 🔥 VERY IMPORTANT
+        Expanded(
+          // 🔥 VERY IMPORTANT
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Text(
                 title,
-                maxLines: 1,                 // 🔥 Prevent overflow
+                maxLines: 1, // 🔥 Prevent overflow
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontFamily: "Outfit",
@@ -762,6 +683,7 @@ MyData? mydata;//
       ],
     );
   }
+
   Widget _infoRow(IconData icon, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -788,10 +710,8 @@ MyData? mydata;//
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.surfaceDim,
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(
-          color: AppColors.primary.withOpacity(0.3),
-        ),
+        borderRadius: AppRadii.portfolioAll,
+        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
       ),
       child: Text(
         text,
@@ -817,7 +737,9 @@ MyData? mydata;//
           CircleAvatar(
             radius: 36,
             backgroundImage: image.isNotEmpty
-                ? NetworkImage(ApiService.imageURL + image) // 👈 base url add kar
+                ? NetworkImage(
+                    ApiService.imageURL + image,
+                  ) // 👈 base url add kar
                 : null,
             child: image.isEmpty
                 ? Icon(Icons.person, color: AppColors.white)
@@ -862,18 +784,15 @@ MyData? mydata;//
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         /// 🔥 BIGGER ICON CONTAINER
         Container(
           height: 52,
           width: 52,
           decoration: BoxDecoration(
             color: AppColors.surfaceMid,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppRadii.xxlAll,
           ),
-          child: Center(
-            child: icon,
-          ),
+          child: Center(child: icon),
         ),
 
         const SizedBox(width: 16),
@@ -920,20 +839,17 @@ MyData? mydata;//
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: const BoxDecoration(
             color: AppColors.surfaceCharcoal,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(30),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
           ),
           child: Column(
             children: [
-
               /// DRAG HANDLE
               Container(
                 width: 40,
                 height: 5,
                 decoration: BoxDecoration(
                   color: AppColors.white24,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppRadii.hugeAll,
                 ),
               ),
 
@@ -968,7 +884,6 @@ MyData? mydata;//
               Expanded(
                 child: ListView(
                   children: [
-
                     timelineStaticItem(
                       icon: Icons.person_outline,
                       title: "Initiated",
@@ -1019,19 +934,15 @@ MyData? mydata;//
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         /// LEFT SIDE
         Column(
           children: [
-
             Container(
               height: 46,
               width: 46,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: active
-                    ? AppColors.primary
-                    : AppColors.surfaceVariant,
+                color: active ? AppColors.primary : AppColors.surfaceVariant,
               ),
               child: Icon(
                 icon,
@@ -1047,10 +958,7 @@ MyData? mydata;//
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 decoration: const BoxDecoration(
                   border: Border(
-                    left: BorderSide(
-                      color: AppColors.white24,
-                      width: 2,
-                    ),
+                    left: BorderSide(color: AppColors.white24, width: 2),
                   ),
                 ),
               ),
@@ -1064,7 +972,6 @@ MyData? mydata;//
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1074,9 +981,7 @@ MyData? mydata;//
                       fontFamily: "Outfit",
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: active
-                          ? AppColors.primary
-                          : AppColors.white,
+                      color: active ? AppColors.primary : AppColors.white,
                     ),
                   ),
                   const Text(
@@ -1109,7 +1014,7 @@ MyData? mydata;//
     );
   }
 
-  void showCancelDialog( context) {
+  void showCancelDialog(context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1122,14 +1027,11 @@ MyData? mydata;//
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
                 color: AppColors.surfaceCharcoal,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(30),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   /// DRAG HANDLE
                   Center(
                     child: Container(
@@ -1137,7 +1039,7 @@ MyData? mydata;//
                       height: 5,
                       decoration: BoxDecoration(
                         color: AppColors.white24,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadii.hugeAll,
                       ),
                     ),
                   ),
@@ -1168,7 +1070,7 @@ MyData? mydata;//
 
                   const Text(
                     "Please let us know why you're declining this request. "
-                        "This helps improve future matching.",
+                    "This helps improve future matching.",
                     style: TextStyle(
                       fontFamily: "Outfit",
                       fontSize: 13,
@@ -1211,12 +1113,15 @@ MyData? mydata;//
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: AppRadii.xlAll,
                               border: Border.all(color: AppColors.white24),
                             ),
                             child: TextField(
                               controller: commentController,
-                              style: const TextStyle(color: AppColors.white, fontSize: 14),
+                              style: const TextStyle(
+                                color: AppColors.white,
+                                fontSize: 14,
+                              ),
                               maxLines: 3,
                               decoration: const InputDecoration(
                                 hintText: "Any additional details..",
@@ -1225,7 +1130,7 @@ MyData? mydata;//
                               ),
                             ),
                           ),
-                        ]
+                        ],
                       ],
                     ),
                   ),
@@ -1234,7 +1139,7 @@ MyData? mydata;//
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: AppRadii.xlAll,
                       border: Border.all(color: AppColors.white24),
                     ),
                     child: TextField(
@@ -1260,7 +1165,7 @@ MyData? mydata;//
                             side: const BorderSide(color: AppColors.white30),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: AppRadii.xlAll,
                             ),
                           ),
                           onPressed: () => Navigator.pop(context),
@@ -1279,7 +1184,7 @@ MyData? mydata;//
                             backgroundColor: AppColors.primary,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: AppRadii.xlAll,
                             ),
                           ),
                           onPressed: () {
@@ -1303,13 +1208,12 @@ MyData? mydata;//
             );
 
             /// RADIO TILE FUNCTION
-
           },
-
         );
       },
     );
   }
+
   Widget _buildReasonTile(String title) {
     bool isSelected = selectedReason == title;
 
@@ -1324,7 +1228,6 @@ MyData? mydata;//
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
-
             /// 🔘 CUSTOM CIRCLE
             Container(
               height: 20,
@@ -1332,23 +1235,21 @@ MyData? mydata;//
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.white24,
+                  color: isSelected ? AppColors.primary : AppColors.white24,
                   width: 2,
                 ),
               ),
               child: isSelected
                   ? Center(
-                child: Container(
-                  height: 10,
-                  width: 10,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.primary,
-                  ),
-                ),
-              )
+                      child: Container(
+                        height: 10,
+                        width: 10,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    )
                   : null,
             ),
 

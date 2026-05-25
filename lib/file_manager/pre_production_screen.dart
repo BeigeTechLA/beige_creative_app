@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app/colors.dart';
+import '../app/radii.dart';
 import 'view_details_screen.dart';
 
 class PreProductionScreen extends StatefulWidget {
@@ -14,8 +15,7 @@ class PreProductionScreen extends StatefulWidget {
 }
 
 class _PreProductionScreenState extends State<PreProductionScreen> {
-
-/*
+  /*
   final FileUploadController files_con = FileUploadController();
 */
 
@@ -27,213 +27,195 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child:
-      Column(
-        children: [
-          Padding(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                InkWell(
-                  onTap: () => context.pop(),
-                  child:/* Image.asset(
-                    "assets/icons/Reply.png",
-                    height: 24,
-                    color: AppColors.white,
-                  ),*/
-                  SvgPicture.asset(AppAssets.back)
-                ),
-                const Spacer(),
-                const Text(
-                  "Pre Production",
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 16,
-                    fontFamily: "Unbounded",
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const Spacer(),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          /// 🔍 SEARCH
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              height: 45,
-              padding:
-              const EdgeInsets.symmetric(horizontal: 14),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceMid,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Row(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
                 children: [
-                  Icon(Icons.search,
-                      color: AppColors.white),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      style: TextStyle(
-                          color: AppColors.white),
-                      decoration: InputDecoration(
-                        hintText: "Search",
-                        hintStyle: TextStyle(
-                            color: AppColors.white30,),
-                        border: InputBorder.none,
-                      ),
+                  InkWell(
+                    onTap: () => context.pop(),
+                    child: SvgPicture.asset(AppAssets.back),
+                  ),
+                  const Spacer(),
+                  const Text(
+                    "Pre Production",
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 16,
+                      fontFamily: "Unbounded",
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
+                  const Spacer(),
                 ],
               ),
             ),
-          ),
 
-          SizedBox(height: 16),
-          Expanded(
-            child: ListView.builder(
+            const SizedBox(height: 16),
+
+            /// 🔍 SEARCH
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: 6,
-              itemBuilder: (context, index) {
-                final bool isPdf = index % 2 == 0;
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 18),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceMid,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                      /// 🔝 File Name Row
-                      Row(
-                        children: [
-                          Icon(
-                            isPdf ? Icons.picture_as_pdf : Icons.description,
-                            color: isPdf ? AppColors.redAccent : AppColors.blue,
-                            size: 18,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            isPdf ? "Example.pdf" : "Example.docx",
-                            style: const TextStyle(
-                              color: AppColors.white,
-                              fontSize: 13,
-                              fontFamily: "Outfit",
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const Spacer(),
-                          const Icon(Icons.more_vert,
-                              color: AppColors.white),
-                        ],
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      /// 📄 Preview Box
-                      Container(
-                        height: 140,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppColors.circleGradientTop,
-                          borderRadius: BorderRadius.circular(16),
+              child: Container(
+                height: 45,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceMid,
+                  borderRadius: AppRadii.lgAll,
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.search, color: AppColors.white),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        style: TextStyle(color: AppColors.white),
+                        decoration: InputDecoration(
+                          hintText: "Search",
+                          hintStyle: TextStyle(color: AppColors.white30),
+                          border: InputBorder.none,
                         ),
-                        child: Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: 6,
+                itemBuilder: (context, index) {
+                  final bool isPdf = index % 2 == 0;
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 18),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceMid,
+                      borderRadius: AppRadii.hugeAll,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        /// 🔝 File Name Row
+                        Row(
+                          children: [
+                            Icon(
+                              isPdf ? Icons.picture_as_pdf : Icons.description,
                               color: isPdf
                                   ? AppColors.redAccent
                                   : AppColors.blue,
-                              borderRadius:
-                              BorderRadius.circular(8),
+                              size: 18,
                             ),
-                            child: Text(
-                              isPdf ? "Pdf" : "Doc",
+                            const SizedBox(width: 8),
+                            Text(
+                              isPdf ? "Example.pdf" : "Example.docx",
                               style: const TextStyle(
                                 color: AppColors.white,
-                                fontSize: 16,
-                                fontWeight:
-                                FontWeight.w600,
+                                fontSize: 13,
+                                fontFamily: "Outfit",
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const Spacer(),
+                            const Icon(Icons.more_vert, color: AppColors.white),
+                          ],
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        /// 📄 Preview Box
+                        Container(
+                          height: 140,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: AppColors.circleGradientTop,
+                            borderRadius: AppRadii.xxlAll,
+                          ),
+                          child: Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isPdf
+                                    ? AppColors.redAccent
+                                    : AppColors.blue,
+                                borderRadius: AppRadii.mdAll,
+                              ),
+                              child: Text(
+                                isPdf ? "Pdf" : "Doc",
+                                style: const TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 14),
+                        const SizedBox(height: 14),
 
-                      const Divider(
-                        color: AppColors.dividerDark,
-                        thickness: 0.8,
-                      ),
+                        const Divider(
+                          color: AppColors.dividerDark,
+                          thickness: 0.8,
+                        ),
 
-                      const SizedBox(height: 8),
+                        const SizedBox(height: 8),
 
-                      /// 👤 Footer Row
-                      const Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 16,
-                            backgroundColor:
-                            AppColors.softLightBlue,
-                            child: Text(
-                              "DP",
-                              style: TextStyle(
-                                color: AppColors.black,
-                                fontSize: 13,
-                                fontWeight:
-                                FontWeight.w600,
+                        /// 👤 Footer Row
+                        const Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor: AppColors.softLightBlue,
+                              child: Text(
+                                "DP",
+                                style: TextStyle(
+                                  color: AppColors.black,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            "Opened 2 hours ago",
-                            style: TextStyle(
-                              color: AppColors.white30,
-                              fontSize: 13,
+                            SizedBox(width: 10),
+                            Text(
+                              "Opened 2 hours ago",
+                              style: TextStyle(
+                                color: AppColors.white30,
+                                fontSize: 13,
+                              ),
                             ),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      )
+          ],
+        ),
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-        ),
+        decoration: const BoxDecoration(color: AppColors.background),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
             /// 🔝 View Shoot Details
             InkWell(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: AppRadii.smAll,
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) =>  ViewDetailsScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => ViewDetailsScreen()),
                 );
               },
               child: Column(
@@ -246,11 +228,10 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
                       color: AppColors.white,
-                      decoration: TextDecoration.underline
+                      decoration: TextDecoration.underline,
                     ),
                   ),
                   const SizedBox(height: 4),
-
                 ],
               ),
             ),
@@ -273,9 +254,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadii.xlAll),
                 ),
                 onPressed: () {
                   showUploadDialog();
@@ -287,6 +266,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
       ),
     );
   }
+
   void showUploadDialog() {
     showModalBottomSheet(
       context: context,
@@ -299,9 +279,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
           ),
           decoration: const BoxDecoration(
             color: AppColors.surfaceStats,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(25),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -309,7 +287,6 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 /// 🔝 Drag line
                 Center(
                   child: Container(
@@ -318,7 +295,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                     margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
                       color: AppColors.white30,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: AppRadii.mldAll,
                     ),
                   ),
                 ),
@@ -338,8 +315,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                     ),
                     InkWell(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.close,
-                          color: AppColors.white),
+                      child: const Icon(Icons.close, color: AppColors.white),
                     ),
                   ],
                 ),
@@ -354,16 +330,12 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                     fontFamily: "Outfit",
                   ),
                 ),
-                Divider(
-                  color: AppColors.dividerDark,
-                  thickness: 0.8,
-
-                ),
+                Divider(color: AppColors.dividerDark, thickness: 0.8),
                 const SizedBox(height: 20),
 
                 /// 📂 Upload Box
                 InkWell(
-               /*   onTap: () async {
+                  /*   onTap: () async {
 
                     final pickedFile = await files_con.pickFile();
 
@@ -380,24 +352,21 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: AppColors.surfaceMid,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.dividerDark,
-                      ),
+                      borderRadius: AppRadii.xxlAll,
+                      border: Border.all(color: AppColors.dividerDark),
                     ),
                     child: Center(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center, // 🔥 vertical center
-                        crossAxisAlignment: CrossAxisAlignment.center, // 🔥 horizontal center
+                        mainAxisAlignment:
+                            MainAxisAlignment.center, // 🔥 vertical center
+                        crossAxisAlignment:
+                            CrossAxisAlignment.center, // 🔥 horizontal center
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Image.asset(
-                            AppAssets.iconUploadFilled,
-                            height: 40,
-                          ),
-                  
+                          Image.asset(AppAssets.iconUploadFilled, height: 40),
+
                           const SizedBox(height: 16),
-                  
+
                           RichText(
                             textAlign: TextAlign.center, // 🔥 text center
                             text: const TextSpan(
@@ -440,15 +409,12 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                         height: 50,
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                                color: AppColors.white24),
+                            side: const BorderSide(color: AppColors.white24),
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(14),
+                              borderRadius: AppRadii.xlAll,
                             ),
                           ),
-                          onPressed: () =>
-                              Navigator.pop(context),
+                          onPressed: () => Navigator.pop(context),
                           child: const Text(
                             "Cancel",
                             style: TextStyle(
@@ -468,11 +434,9 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.zero,
-                            backgroundColor:
-                            AppColors.primary,
+                            backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(14),
+                              borderRadius: AppRadii.xlAll,
                             ),
                           ),
                           onPressed: () {

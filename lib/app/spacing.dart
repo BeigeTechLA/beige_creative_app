@@ -31,14 +31,23 @@ class AppSpacing {
   /// 8px — Small spacing (icon–text gap)
   static const double sm = 8;
 
+  /// 9px — Off-grid dropdown icon inset
+  static const double dropdownIconInset = 9;
+
   /// 10px — Compact padding (list items, chips)
   static const double smd = 10;
 
   /// 12px — Medium compact
   static const double md = 12;
 
+  /// 13px — Compact auth card top inset
+  static const double authCardCompactTop = 13;
+
   /// 14px — Input/button vertical padding
   static const double mld = 14;
+
+  /// 15px — Off-grid outlier (list padding)
+  static const double s15 = 15;
 
   /// 16px — Standard / default spacing (most common)
   static const double base = 16;
@@ -100,6 +109,11 @@ class AppSpacing {
   static const double iconTextGap = 8;
   static const double sectionGap = 24;
   static const double bottomNavHeight = 60;
+
+  // Calendar width-relative factors (strict-match for responsive literals)
+  static const double calendarEventMarginHFactor = 0.01;
+  static const double calendarEventMarginVFactor = 0.005;
+  static const double calendarEventPaddingHFactor = 0.006;
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // CONVENIENCE EDGE INSETS

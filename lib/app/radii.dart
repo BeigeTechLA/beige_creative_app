@@ -83,9 +83,28 @@ class AppRadii {
   static const double full = 999;
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // OUTLIER RAW VALUES (strict-match for one-off literals;
+  // numerical names mark them for future scale collapse)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const double r2 = 2;
+  static const double r3 = 3;
+  static const double r5 = 5;
+  static const double r15 = 15;
+  static const double r26 = 26;
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // CONVENIENCE BORDER RADIUS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+  static final BorderRadius noneAll = BorderRadius.circular(none);
+  static final BorderRadius r2All = BorderRadius.circular(r2);
+  static final BorderRadius r3All = BorderRadius.circular(r3);
+  static final BorderRadius r5All = BorderRadius.circular(r5);
+  static final BorderRadius r15All = BorderRadius.circular(r15);
+  static final BorderRadius r26All = BorderRadius.circular(r26);
+  static final BorderRadius mldAll = BorderRadius.circular(mld);
+  static final BorderRadius headerAll = BorderRadius.circular(header);
   static final BorderRadius xsAll = BorderRadius.circular(xs);
   static final BorderRadius smAll = BorderRadius.circular(sm);
   static final BorderRadius mdAll = BorderRadius.circular(md);

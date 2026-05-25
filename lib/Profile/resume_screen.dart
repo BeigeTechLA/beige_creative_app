@@ -8,6 +8,7 @@ import '../model_class/myprofile_model.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../app/colors.dart';
+import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/commonFileViewer.dart' show CommonFileViewer;
 import '../widgets/common_uploader.dart';
@@ -149,7 +150,7 @@ Future<void> deleteData(int id) async {
                           height: 45,
                           decoration: BoxDecoration(
                             color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadii.lgAll,
                           ),
 
                           child: TextField(
@@ -172,7 +173,7 @@ Future<void> deleteData(int id) async {
                         width: 45,
                         decoration: BoxDecoration(
                           color: AppColors.surfaceVariant,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.lgAll,
                         ),
                         child: const Icon(Icons.tune, color: AppColors.white),
                       )
@@ -189,14 +190,14 @@ Future<void> deleteData(int id) async {
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceShadow,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadii.lgAll,
                           ),
                           child: Row(
                             children: [
 
                               /// FILE IMAGE
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: AppRadii.smAll,
                                 child: SizedBox(
                                   height: 55,
                                   width: 55,
@@ -294,7 +295,7 @@ Future<void> deleteData(int id) async {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadii.xxlAll,
                           ),
                         ),
                         onPressed: () {

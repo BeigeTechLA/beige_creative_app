@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/colors.dart';
+import '../../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
@@ -218,7 +219,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
                     child: Container(
                       height: 60,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadii.lgAll,
 
                         // ⭐ Border color logic
                         border: Border.all(
@@ -318,7 +319,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
                       ? AppColors.primary
                       : AppColors.goldOpacity40,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: AppRadii.xlAll,
                   ),
                 ),
                 child:Text(

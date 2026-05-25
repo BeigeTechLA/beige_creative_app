@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart' show SvgPicture;
 
 import '../app/colors.dart';
+import '../app/radii.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart' show AppAssets;
 
 class CustomMultiSelectField extends StatefulWidget {
@@ -25,13 +28,10 @@ class CustomMultiSelectField extends StatefulWidget {
   });
 
   @override
-  State<CustomMultiSelectField> createState() =>
-      _CustomMultiSelectFieldState();
+  State<CustomMultiSelectField> createState() => _CustomMultiSelectFieldState();
 }
 
-class _CustomMultiSelectFieldState
-    extends State<CustomMultiSelectField> {
-
+class _CustomMultiSelectFieldState extends State<CustomMultiSelectField> {
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -51,14 +51,10 @@ class _CustomMultiSelectFieldState
 
   @override
   Widget build(BuildContext context) {
-
-    bool highlight =
-        _focusNode.hasFocus || widget.hasValue;
+    bool highlight = _focusNode.hasFocus || widget.hasValue;
 
     return GestureDetector(
-
       onTap: () async {
-
         _focusNode.requestFocus();
 
         /// ✅ wait until bottomsheet closes
@@ -68,54 +64,36 @@ class _CustomMultiSelectFieldState
       },
 
       child: AbsorbPointer(
-
         child: TextField(
-
           focusNode: _focusNode,
 
-          style: const TextStyle(
-            color: AppColors.white,
-            fontFamily: "Outfit",
-            fontSize: 15,
-          ),
+          style: AppTextStyles.body15.copyWith(color: AppColors.white),
 
           decoration: InputDecoration(
-
             labelText: widget.label,
 
-            floatingLabelBehavior:
-            FloatingLabelBehavior.always,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
 
-            labelStyle: TextStyle(
-              fontSize: 14,
-              fontFamily: "Outfit",
-              color: highlight
-                  ? AppColors.primary
-                  : AppColors.white60,
+            labelStyle: AppTextStyles.body14.copyWith(
+              color: highlight ? AppColors.primary : AppColors.white60,
             ),
 
-            hintText:
-            widget.hasValue
-                ? widget.value
-                : "Select",
+            hintText: widget.hasValue ? widget.value : "Select",
 
-            hintStyle: TextStyle(
-              color: widget.hasValue
-                  ? AppColors.white
-                  : AppColors.white60,
+            hintStyle: AppTextStyles.systemDefault.copyWith(
+              color: widget.hasValue ? AppColors.white : AppColors.white60,
             ),
 
             /// ✅ PREFIX ICON
             prefixIcon: widget.prefixIcon,
 
-            contentPadding:
-            const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 18,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.inputHorizontal,
+              vertical: AppSpacing.lg,
             ),
 
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppRadii.xlAll,
               borderSide: BorderSide(
                 color: highlight
                     ? AppColors.textfieldBorderLegacy
@@ -125,7 +103,7 @@ class _CustomMultiSelectFieldState
             ),
 
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppRadii.xlAll,
               borderSide: const BorderSide(
                 color: AppColors.textfieldBorderLegacy,
                 width: 1,
@@ -133,7 +111,7 @@ class _CustomMultiSelectFieldState
             ),
 
             suffixIcon: Padding(
-              padding: const EdgeInsets.all(18.0),
+              padding: const EdgeInsets.all(AppSpacing.lg),
 
               child: SvgPicture.asset(
                 AppAssets.dropdown,
