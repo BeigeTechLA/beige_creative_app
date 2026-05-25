@@ -517,4 +517,17 @@ class AppTextStyles {
     fontFamily: fontFamilyDisplay,
     fontWeight: FontWeight.w500,
   );
+
+  /// Unbounded 18 bold — Onboarding hero title
+  static const TextStyle heading18Unbounded = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+  );
+
+  /// Unbounded 14 w400 — Onboarding "Login" button label
+  static const TextStyle bodyMediumStrongUnbounded = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 14,
+  );
 }

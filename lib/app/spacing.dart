@@ -181,6 +181,8 @@ class AppSpacing {
   static const SizedBox verticalMd = SizedBox(height: md);
   static const SizedBox verticalBase = SizedBox(height: base);
   static const SizedBox verticalMld = SizedBox(height: mld);
+  static const SizedBox verticalS15 = SizedBox(height: s15);
+  static const SizedBox verticalLg = SizedBox(height: lg);
   static const SizedBox verticalXl = SizedBox(height: xl);
   static const SizedBox verticalXxl = SizedBox(height: xxl);
   static const SizedBox verticalXxxl = SizedBox(height: xxxl);

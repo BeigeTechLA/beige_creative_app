@@ -300,11 +300,10 @@ Future<void> deleteData(int id) async {
                         onPressed: () {
                           openUploadDialog();
                         },
-                        child: const Text(
+                        child: Text(
                           "Add resume",
                           style: AppTextStyles.displayLabel14.copyWith(
-                          color: AppColors.black,
-                        ),
+                            color: AppColors.black,
                           ),
                         ),
                       ),
@@ -339,10 +338,9 @@ void openUploadDialog() {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Center(
-                  child:  Text(
+                  child: Text(
                     "Upload your File",
                     style: AppTextStyles.displayStrong16,
-                    ),
                   ),
                 ),
                 InkWell(
@@ -445,7 +443,6 @@ Widget uploadOption({required String svgPath, required String title, required Vo
           Text(
             title,
             style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
-            ),
           ),
         ],
       ),
@@ -485,9 +482,9 @@ void _openOptions(CrewFile cert) {
                 }
               },
               child: Row(
-                children: const [
-                  Icon(Icons.refresh, color: AppColors.white),
-                  SizedBox(width: 12),
+                children: [
+                  const Icon(Icons.refresh, color: AppColors.white),
+                  const SizedBox(width: 12),
                   Text(
                     "Replace",
                     style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
@@ -511,9 +508,9 @@ void _openOptions(CrewFile cert) {
                 );
               },
               child: Row(
-                children: const [
-                  Icon(Icons.visibility, color: AppColors.white),
-                  SizedBox(width: 12),
+                children: [
+                  const Icon(Icons.visibility, color: AppColors.white),
+                  const SizedBox(width: 12),
                   Text(
                     "View Details",
                     style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
@@ -532,9 +529,9 @@ void _openOptions(CrewFile cert) {
                  deleteData(cert.crewFilesId); // 👈 ID pass karo
               },
               child: Row(
-                children: const [
-                  Icon(Icons.delete, color: AppColors.error),
-                  SizedBox(width: 12),
+                children: [
+                  const Icon(Icons.delete, color: AppColors.error),
+                  const SizedBox(width: 12),
                   Text(
                     "Delete",
                     style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error),

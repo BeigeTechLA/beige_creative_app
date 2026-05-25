@@ -112,7 +112,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                           const SizedBox(width: 10),
 
                           /// TextField should be Expanded
-                          const Expanded(
+                          Expanded(
                             child: TextField(
                               style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                               decoration: InputDecoration(
@@ -233,7 +233,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       borderRadius: AppRadii.mldAll,
                       boxShadow: AppShadows.card,
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.add, color: AppColors.black, size: 20),
@@ -311,7 +311,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
                 const SizedBox(height: 5),
 
-                const Text(
+                Text(
                   "Create new folder for users",
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.white30,
@@ -350,7 +350,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                           onPressed: () =>
                               context.pop(),
 
-                          child: const Text(
+                          child: Text(
                             "Cancel",
                             style: AppTextStyles.displayLabel14.copyWith(
                               color: AppColors.white,
@@ -383,7 +383,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                           () {
 
                           },
-                          child: const Text(
+                          child: Text(
                             "Create Folder",
                             style: AppTextStyles.displayLabel13.copyWith(
                               color: AppColors.black,
@@ -442,7 +442,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     Icon(Icons.folder,
                         color: AppColors.primary),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       "Lana #123456",
                       style: AppTextStyles.bodyCompactStrong.copyWith(
                         color: AppColors.white,
@@ -491,7 +491,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
                 const SizedBox(height: 8),
 
-                const Text(
+                Text(
                   "02 Files",
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.primary,
@@ -507,7 +507,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     color: AppColors.circleGradientTop,
                     borderRadius: AppRadii.hugeAll,
                   ),
-                  child: const Text(
+                  child: Text(
                     "Corporate Event",
                     style: AppTextStyles.bodySmallMedium.copyWith(
                       color: AppColors.white,
@@ -521,7 +521,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
                 ),
                 Row(
-                  children: const [
+                  children: [
                     CircleAvatar(
                       radius: 16,
                       backgroundColor: AppColors.softLightBlue,
@@ -560,7 +560,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                 borderRadius: AppRadii.portfolioCompactAll,
               ),
               child: Row(
-                children: const [
+                children: [
                   Icon(Icons.folder, color: AppColors.primary),
                   SizedBox(width: 10),
                   Expanded(

@@ -60,7 +60,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                   color: AppColors.surfaceMid,
                   borderRadius: AppRadii.lgAll,
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.search, color: AppColors.white),
                     SizedBox(width: 10),
@@ -161,7 +161,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                         const SizedBox(height: 8),
 
                         /// 👤 Footer Row
-                        const Row(
+                        Row(
                           children: [
                             CircleAvatar(
                               radius: 16,
@@ -209,7 +209,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  Text(
                     "View Shoot Details",
                     style: AppTextStyles.bodyCompact.copyWith(
                       color: AppColors.white,
@@ -229,7 +229,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
               height: 55,
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.upload, color: AppColors.black),
-                label: const Text(
+                label: Text(
                   "Upload Files",
                   style: AppTextStyles.displayLabel14.copyWith(
                     color: AppColors.black,
@@ -300,7 +300,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
 
                 const SizedBox(height: 6),
 
-                const Text(
+                Text(
                   "Files will be uploaded to the folder Lana Guzman",
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.white30,
@@ -345,7 +345,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
 
                           RichText(
                             textAlign: TextAlign.center, // 🔥 text center
-                            text: const TextSpan(
+                            text: TextSpan(
                               children: [
                                 TextSpan(
                                   text: "Drag your files here or ",
@@ -385,7 +385,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                             ),
                           ),
                           onPressed: () => Navigator.pop(context),
-                          child: const Text(
+                          child: Text(
                             "Cancel",
                             style: AppTextStyles.displayLabel14.copyWith(
                               color: AppColors.white,
@@ -411,7 +411,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: const Text(
+                          child: Text(
                             "Upload Files",
                             style: AppTextStyles.displayLabel14.copyWith(
                               color: AppColors.black,

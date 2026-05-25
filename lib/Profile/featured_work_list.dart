@@ -330,7 +330,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       builder: (context) {
                         if (Myprofile_user == null ||
                             Myprofile_user!.featuredWorkFiles.isEmpty) {
-                          return const Center(
+                          return Center(
                             child: Text(
                               "No Featured Work",
                               style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white24),
@@ -604,7 +604,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
           if (isloading) AppLoader(),
         ],
       ),
-      bottomNavigationBar: const Padding(
+      bottomNavigationBar: Padding(
         padding: EdgeInsets.all(AppSpacing.s15),
 
         child: SizedBox(
@@ -1123,7 +1123,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           "Featured Work",
                           style: AppTextStyles.displayLabel16.copyWith(
                             color: AppColors.white,
@@ -1140,7 +1140,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                       ],
                     ),
 
-                    const Text(
+                    Text(
                       "For best results, use PNG, JPG or GIF.",
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.white30,
@@ -1208,7 +1208,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                                       const SizedBox(height: 18),
 
-                                      const Text(
+                                      Text(
                                         "Upload New Image, Video,Or Browse",
                                         textAlign: TextAlign.center,
                                         style: AppTextStyles.bodyLargeStrong.copyWith(
@@ -1218,7 +1218,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                                       const SizedBox(height: 10),
 
-                                      const Text(
+                                      Text(
                                         "Choose a file in a 4:3, 5:4, 9:16,\nor 16:9 aspect ratio.",
                                         textAlign: TextAlign.center,
                                         style: AppTextStyles.bodyCompact.copyWith(
@@ -1532,7 +1532,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                     const SizedBox(height: 8),
 
-                    const Text(
+                    Text(
                       "Help people find your work",
                       style: AppTextStyles.bodyCompact.copyWith(color: AppColors.white24),
                     ),
@@ -1546,7 +1546,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                           child: TextField(
                             controller: tagController,
                             style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintText: "Type tag and press + or Enter",
                               hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.white24),
                               contentPadding: const EdgeInsets.symmetric(

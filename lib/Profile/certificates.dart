@@ -308,7 +308,7 @@ class _CertificatesState extends State<Certificates> {
                         openUploadDialog();
                       },
 
-                      child: const Text(
+                      child: Text(
                         "Add New Certificate",
                         style: AppTextStyles.displayLabel14.copyWith(
                           color: AppColors.black,
@@ -486,9 +486,9 @@ class _CertificatesState extends State<Certificates> {
                   );
                 },
                 child: Row(
-                  children: const [
-                    Icon(Icons.visibility, color: AppColors.white),
-                    SizedBox(width: 12),
+                  children: [
+                    const Icon(Icons.visibility, color: AppColors.white),
+                    const SizedBox(width: 12),
                     Text(
                       "View Details",
                       style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
@@ -507,9 +507,9 @@ class _CertificatesState extends State<Certificates> {
                   deleteData(cert.crewFilesId); // 👈 ID pass karo
                 },
                 child: Row(
-                  children: const [
-                    Icon(Icons.delete, color: AppColors.error),
-                    SizedBox(width: 12),
+                  children: [
+                    const Icon(Icons.delete, color: AppColors.error),
+                    const SizedBox(width: 12),
                     Text(
                       "Delete",
                       style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error),

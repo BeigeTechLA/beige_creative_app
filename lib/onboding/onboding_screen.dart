@@ -2,8 +2,11 @@ import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../app/text_styles.dart';
+import '../app/colors.dart';
+import '../app/radii.dart';
+import '../app/route_names.dart';
 import '../app/spacing.dart';
+import '../app/text_styles.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
