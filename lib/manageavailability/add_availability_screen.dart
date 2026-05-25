@@ -7,6 +7,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../app/colors.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../app/radii.dart';
 import '../widgets/custom_dropdown.dart';
 import '../widgets/custom_text_field.dart';
@@ -318,14 +320,14 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 
               headerBackgroundColor: AppColors.surfaceNearBlack,
 
-              headerHeadlineStyle: TextStyle(
+              headerHeadlineStyle: AppTextStyles.systemDefault.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
                 color: AppColors.white,
               ),
 
-              dayStyle: TextStyle(color: AppColors.white),
-              weekdayStyle: TextStyle(color: AppColors.white70),
+              dayStyle: AppTextStyles.systemDefault.copyWith(color: AppColors.white),
+              weekdayStyle: AppTextStyles.systemDefault.copyWith(color: AppColors.white70),
             ),
           ),
           child: child!,
@@ -415,12 +417,11 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.only(top: AppSpacing.smd),
       child: Align(
-        alignment: Alignment.centerLeft,
         child: Text(
           summaryText,
-          style: const TextStyle(
+          style: AppTextStyles.systemDefault.copyWith(
             color: AppColors.goldSand,
             fontSize: 12,
             fontStyle: FontStyle.italic,
@@ -437,7 +438,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       controller: untilDateController,
       readOnly: true,
       suffixIcon: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(AppSpacing.smd),
         child: SvgPicture.asset(
           AppAssets.mycalender,
           width: 13,
@@ -465,7 +466,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
               });
             },
             child: Container(
-              margin: const EdgeInsets.only(right: 10),
+              margin: const EdgeInsets.only(right: AppSpacing.smd),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 height: 44,
@@ -484,9 +485,8 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                 ),
                 child: Text(
                   day,
-                  style: TextStyle(
+                  style: AppTextStyles.systemSemiBold.copyWith(
                     color: isSelected ? AppColors.black : AppColors.white70,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -507,9 +507,9 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
             children: [
               SvgPicture.asset(AppAssets.info_svg,
                   color: AppColors.orangeBright),
-              const SizedBox(width: 6),
-              const Text("Repeat every day",
-                  style: TextStyle(color: AppColors.orange)),
+              AppSpacing.gapHXs,
+              Text("Repeat every day",
+                  style: AppTextStyles.systemDefault.copyWith(color: AppColors.orange)),
             ],
           ),
           Row(
@@ -522,8 +522,8 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                   });
                 },
               ),
-              const Text("Include Weekends",
-                  style: TextStyle(color: AppColors.white)),
+              Text("Include Weekends",
+                  style: AppTextStyles.systemDefault.copyWith(color: AppColors.white)),
             ],
           ),
           buildUntilDateField(),
@@ -536,11 +536,11 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Repeat on specific weekdays",
-              style: TextStyle(color: AppColors.orange)),
-          const SizedBox(height: 12),
+          Text("Repeat on specific weekdays",
+              style: AppTextStyles.systemDefault.copyWith(color: AppColors.orange)),
+          AppSpacing.verticalMd,
           buildWeekDays(),
-          const SizedBox(height: 12),
+          AppSpacing.verticalMd,
           buildUntilDateField(),
           buildSummaryLine(), // 👈
         ],
@@ -576,7 +576,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 
         onChanged: (_) => setState(() {}),
       ),
-          const SizedBox(height: 12),
+          AppSpacing.verticalMd,
           buildUntilDateField(),
           buildSummaryLine(), // 👈
         ],
@@ -590,10 +590,10 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         child: Column(
           children: [
-            const SizedBox(height: 20),
+            AppSpacing.verticalXl,
 
             Row(
               children: [
@@ -604,30 +604,24 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
               ],
             ),
 
-            const SizedBox(height: 15),
+            AppSpacing.verticalS15,
 
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Add Availability",
-                style: TextStyle(
-                  color: AppColors.white,
-                  fontSize: 16,
-                  fontFamily: "Unbounded",
-                ),
+                style: AppTextStyles.displayLabel16,
               ),
             ),
 
-            Text('Set your availability, time off, or block time for shoots.',style: TextStyle(
-              fontFamily:'Outfit',
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: AppColors.white.withOpacity(0.6),
-
-            ),),
+            Text('Set your availability, time off, or block time for shoots.',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.white.withOpacity(0.6),
+              ),
+            ),
 
 
-            const SizedBox(height: 24),
+            AppSpacing.verticalXxl,
 
             Expanded(
               child: SingleChildScrollView(
@@ -654,7 +648,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       },
                     ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(height: AppSpacing.lg),
 
                     /// DATE
                     CustomTextField(
@@ -662,7 +656,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       controller: dateController,
                       readOnly: true,
                       suffixIcon: Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(AppSpacing.smd),
                         child: SvgPicture.asset(
                             AppAssets.calender,
                         ),
@@ -670,7 +664,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       onTap: () => pickDate(dateController),
                     ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(height: AppSpacing.lg),
 
                     /// TIME
                     if (!isAllDay) ...[
@@ -690,7 +684,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                                   pickTime(startTimeController),
                             ),
                           ),
-                          const SizedBox(width: 14),
+                          AppSpacing.gapHMd,
                           Expanded(
                             child: CustomTextField(
                               label: "End Time",
@@ -707,7 +701,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 18),
+                      AppSpacing.verticalLg,
                     ],
 
                     /// ALL DAY
@@ -729,12 +723,12 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                             });
                           },
                         ),
-                        const Text("All Day",
-                            style: TextStyle(color: AppColors.white)),
+                        Text("All Day",
+                            style: AppTextStyles.systemDefault.copyWith(color: AppColors.white)),
                       ],
                     ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(height: AppSpacing.lg),
 
                     /// RECURRENCE
                     CustomDropdown(
@@ -760,7 +754,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       },
                     ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(height: AppSpacing.lg),
 
                     /// RECURRENCE UI
                     buildRecurrenceUI(),
@@ -847,7 +841,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(18, 10, 18, 20),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.smd, AppSpacing.lg, AppSpacing.xl),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -869,11 +863,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       child: const Center(
                         child: Text(
                           "Cancel",
-                          style: TextStyle(
-                            color: AppColors.white,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: AppTextStyles.displayLabelW500,
                         ),
                       ),
                     ),
@@ -881,7 +871,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                 ),
               ),
 
-              const SizedBox(width: 12),
+              AppSpacing.gapHMd,
 
               /// SAVE BUTTON
               Expanded(
@@ -894,14 +884,10 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                         color: AppColors.primary,
                         borderRadius: AppRadii.lgAll,
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           "Save",
-                          style: TextStyle(
-                            color: AppColors.black,
-                            fontFamily: "Unbounded",
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: AppTextStyles.displayLabelW500,
                         ),
                       ),
                     ),

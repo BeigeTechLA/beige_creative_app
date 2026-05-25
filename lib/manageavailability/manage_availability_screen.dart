@@ -5,6 +5,8 @@ import '../app/route_names.dart';
 import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../app/colors.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/common_calendar.dart';
@@ -117,7 +119,10 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
           children: <Widget>[
             // HEADER
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.base,
+                vertical: AppSpacing.mld,
+              ),
               child: Row(
                 children: [
                   InkWell(
@@ -129,23 +134,18 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   const Spacer(),
                   const Text(
                     "Manage Availability",
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 16,
-                      fontFamily: "Unbounded",
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTextStyles.displayLabel16,
                   ),
                   const Spacer(),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSm,
             // Auto Block Info
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
+              margin: AppSpacing.insetsHBase,
               // padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12, right: 20),
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(AppSpacing.smd),
               decoration: BoxDecoration(
                 color: AppColors.blueWash,
                 borderRadius: AppRadii.lgAll,
@@ -154,24 +154,20 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               child: Row(
                 children: [
                   SvgPicture.asset(AppAssets.info),
-                  const SizedBox(width: 8),
-                  const Expanded(
+                  AppSpacing.gapHSm,
+                  Expanded(
                     child: Text(
                       "Your availability is automatically blocked for confirmed shoots",
-                      style: TextStyle(
-                        fontFamily: 'outfit',
-                        color: AppColors.blueAccent,
-                        fontSize: 12,
-                      ),
+                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.blueAccent),
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
+            AppSpacing.verticalXl,
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
+              margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
               decoration: BoxDecoration(
                 color: AppColors.surfaceMid,
                 borderRadius: AppRadii.xxxlAll,
@@ -215,11 +211,8 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                                     fit: BoxFit.scaleDown,
                                     child: Text(
                                       _getMonthYear(_focusedDay),
-                                      style: const TextStyle(
+                                      style: AppTextStyles.bodyLargeMedium.copyWith(
                                         color: AppColors.white,
-                                        fontSize: 16,
-                                        fontFamily: "Outfit",
-                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ),
@@ -249,8 +242,8 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                         Container(
                           margin: const EdgeInsets.only(right: 8),
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 7,
+                            horizontal: AppSpacing.md,
+                            vertical: 7.0,
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.white,
@@ -266,11 +259,8 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                                 size: 18,
                               ),
                               dropdownColor: AppColors.white,
-                              style: const TextStyle(
+                              style: AppTextStyles.bodySmallMedium.copyWith(
                                 color: AppColors.black,
-                                fontSize: 12,
-                                fontFamily: "Outfit",
-                                fontWeight: FontWeight.w500,
                               ),
                               items: _eventFilterList.map((String value) {
                                 return DropdownMenuItem(
@@ -289,7 +279,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                       ],
                     ),
 
-                    const SizedBox(height: 10), //
+                    AppSpacing.verticalSmd, //
                     // CommonCalendar - BINA KISI EXTRA PADDING/MARGIN KE
                     CommonCalendar(
                       focusedDay: _focusedDay,
@@ -307,12 +297,12 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               ),
             ),
 
-            const SizedBox(height: 20),
+            AppSpacing.verticalXl,
 
             // This Month Stats Section
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.all(16),
+              margin: AppSpacing.insetsHBase,
+              padding: AppSpacing.cardInsets,
               decoration: BoxDecoration(
                 color: AppColors.surfaceSlate,
                 borderRadius: AppRadii.hugeAll,
@@ -320,16 +310,13 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     "This Month",
-                    style: TextStyle(
+                    style: AppTextStyles.headingOutfitLg.copyWith(
                       color: AppColors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: "Outfit",
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.verticalBase,
 
                   _buildStatCard(
                     svgIcon: AppAssets.calender,
@@ -337,7 +324,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     value: "${_getAvailableDaysCount()}",
                   ),
 
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMd,
 
                   _buildStatCard(
                     svgIcon: AppAssets.book_video,
@@ -345,7 +332,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     value: "${_getShootCount()}",
                   ),
 
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMd,
 
                   _buildStatCard(
                     svgIcon: AppAssets.HourglasTime,
@@ -356,7 +343,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               ),
             ),
 
-            const SizedBox(height: 20),
+            AppSpacing.verticalXl,
 
             // Share Availability Section
             /*  Container(
@@ -592,7 +579,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
 
             // Add Availability Button
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.cardInsets,
               child: InkWell(
                 borderRadius: AppRadii.hugeAll,
                 onTap: () {
@@ -616,14 +603,12 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     color: AppColors.primary,
                     borderRadius: AppRadii.lgAll,
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       "Add Availability",
-                      style: TextStyle(
-                        color: AppColors.circleGradientTop,
-                        fontSize: 16,
+                      style: AppTextStyles.displayLabel16.copyWith(
                         fontWeight: FontWeight.w600,
-                        fontFamily: "Unbounded",
+                        color: AppColors.circleGradientTop,
                       ),
                     ),
                   ),
@@ -678,7 +663,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(AppSpacing.mld),
       decoration: BoxDecoration(
         color: bgColor,
         border: Border.all(color: AppColors.white.withOpacity(0.08)),
@@ -704,7 +689,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
               },
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSpacing.mld),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -713,51 +698,58 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   data['title'],
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.system14Strong.copyWith(
                     color: titleColor,
                   ),
                 ),
                 Divider(color: AppColors.dividerDark, thickness: 0.8),
-                const SizedBox(height: 6),
+                AppSpacing.verticalXs,
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.calender, width: 14, height: 14),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 5.0),
                     Text(
                       data['date'],
-                      style: TextStyle(fontSize: 12, color: dateColor),
+                      style: AppTextStyles.systemDefault.copyWith(
+                        fontSize: 12,
+                        color: dateColor,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                AppSpacing.verticalXs,
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.time, width: 14, height: 14),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 5.0),
                     Text(
                       data['time'],
-                      style: TextStyle(fontSize: 12, color: dateColor),
+                      style: AppTextStyles.systemDefault.copyWith(
+                        fontSize: 12,
+                        color: dateColor,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                AppSpacing.verticalXs,
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.location, width: 14, height: 14),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 5.0),
                     Expanded(
                       child: Text(
                         data['location'],
-                        style: TextStyle(fontSize: 12, color: dateColor),
+                        style: AppTextStyles.systemDefault.copyWith(
+                          fontSize: 12,
+                          color: dateColor,
+                        ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMd,
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
@@ -774,9 +766,12 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   onPressed: () {
                     context.pushNamed(RouteNames.upcomingShootDetails);
                   },
-                  child: const Text(
+                  child: Text(
                     "View Details",
-                    style: TextStyle(color: AppColors.black, fontSize: 11),
+                    style: AppTextStyles.systemDefault.copyWith(
+                      color: AppColors.black,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
               ],
@@ -805,7 +800,10 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
     required String svgIcon,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.mld,
+        vertical: AppSpacing.mld,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surfaceAsh,
         borderRadius: AppRadii.xxlAll,
@@ -813,7 +811,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(AppSpacing.smd),
             decoration: BoxDecoration(
               color: AppColors.surfaceFog,
               borderRadius: AppRadii.lgAll,
@@ -828,25 +826,16 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
             ),
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSpacing.mld),
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
-                color: AppColors.white70,
-                fontSize: 14,
-                fontFamily: "Outfit",
-              ),
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white70),
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
-              color: AppColors.goldSand,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              fontFamily: "Outfit",
-            ),
+            style: AppTextStyles.bodyLargeStrong.copyWith(color: AppColors.goldSand),
           ),
         ],
       ),
@@ -865,10 +854,10 @@ class _Legend extends StatelessWidget {
     return Row(
       children: [
         CircleAvatar(radius: 4, backgroundColor: color),
-        const SizedBox(width: 6),
+        AppSpacing.gapHXs,
         Text(
           text,
-          style: const TextStyle(
+          style: AppTextStyles.systemDefault.copyWith(
             color: AppColors.white30,
             fontSize: 12,
           ),
