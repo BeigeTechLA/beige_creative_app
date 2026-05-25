@@ -2,10 +2,8 @@ import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../app/route_names.dart';
-import '../app/colors.dart';
-
-import '../app/radii.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -53,30 +51,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 20),
+                        const SizedBox(height: AppSpacing.xl),
 
                         Text(
                           pages[index]['title']!,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontFamily: "Unbounded",
+                          style: AppTextStyles.heading18Unbounded.copyWith(
                             color: AppColors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        const SizedBox(height: AppSpacing.xs),
 
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
                           child: Text(
                             pages[index]['description']!,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: "Outfit",
+                            style: AppTextStyles.body12.copyWith(
                               color: AppColors.white60,
-                              fontSize: 12,
                             ),
                           ),
                         ),
@@ -86,7 +79,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: AppSpacing.xxxl),
 
               /// ---------------- DOT INDICATOR ----------------
               // Row(
@@ -106,11 +99,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               //     ),
               //   ),
               // ),
-              const SizedBox(height: 30),
+              const SizedBox(height: AppSpacing.xxxl),
 
               /// ---------------- LOGIN BUTTON ----------------
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: SizedBox(
                   width: double.infinity,
                   height: 55,
@@ -125,11 +118,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       "Login",
-                      style: TextStyle(
-                        fontFamily: "Unbounded",
-                        fontSize: 14,
+                      style: AppTextStyles.bodyMediumStrongUnbounded.copyWith(
                         color: AppColors.textHeading,
                       ),
                     ),
@@ -137,28 +128,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
 
               /// ---------------- SIGN UP TEXT ----------------
               GestureDetector(
                 onTap: () {
                   context.pushNamed(RouteNames.signupStep1);
                 },
-                child: const Padding(
-                  padding: EdgeInsets.only(bottom: 20),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xl),
                   child: Text.rich(
                     TextSpan(
                       text: "Don’t have an account? ",
-                      style: TextStyle(
-                        fontFamily: "Outfit",
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.white60,
-                        fontSize: 14,
                       ),
                       children: [
                         TextSpan(
                           text: "Sign Up",
-                          style: TextStyle(
-                            fontFamily: "Outfit",
+                          style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.white,
                             decoration: TextDecoration.underline,
                           ),

@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import '../model_class/upcoming_shootview_model.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../widgets/date_time.dart';
 
 class UpcomingShootViewDetils extends StatefulWidget {
@@ -139,8 +141,8 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                     /// 🔥 TOP ICON ROW
                     Positioned(
                       top: 50,
-                      left: 16,
-                      right: 16,
+                      left: AppSpacing.lg,
+                      right: AppSpacing.lg,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -155,31 +157,25 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
 
                     /// 🔥 TITLE + ID
                     Positioned(
-                      bottom: 20,
-                      left: 16,
-                      right: 16,
+                      bottom: AppSpacing.xl,
+                      left: AppSpacing.lg,
+                      right: AppSpacing.lg,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Text(
                               "${mydata?.clientContact.fullName}",
-                              style: TextStyle(
-                                fontFamily: "Unbounded",
+                              style: AppTextStyles.displayLabel16.copyWith(
                                 color: AppColors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: AppSpacing.xs),
                           Text(
                             "ID: ${mydata?.project.idLabel}",
-                            style: TextStyle(
-                              fontFamily: "Outfit",
+                            style: AppTextStyles.bodyMediumStrong.copyWith(
                               color: AppColors.primary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -201,11 +197,11 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
   /// -------------------- WIDGETS --------------------
   Widget _buildInfoCard() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(AppSpacing.mld),
             decoration: BoxDecoration(
               color: AppColors.surfaceMid,
               borderRadius: AppRadii.xxxlAll,
@@ -214,21 +210,21 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 /// 🔥 TITLE + ID
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.lg),
 
                 /// 📅 DATE
                 _infoRow(
                   Icons.calendar_today,
                   DateTimeUtils.formatDate("${mydata?.project.eventDate}"),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: AppSpacing.xs),
 
                 /// ⏰ TIME
                 _infoRow(
                   Icons.access_time,
                   "${DateTimeUtils.formatTime(mydata?.project.startTime ?? "")} - ${DateTimeUtils.formatTime(mydata?.project.endTime ?? "")}",
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: AppSpacing.xs),
 
                 /// 📍 LOCATION
                 _infoRow(
@@ -236,7 +232,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                   "${mydata?.project.eventLocation}",
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: AppSpacing.mld),
                 Divider(color: AppColors.dividerDark, thickness: 0.8),
 
                 /// 🔘 TYPE ROW
@@ -249,29 +245,23 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                         Expanded(
                           child: Text(
                             "Shoot Type",
-                            style: TextStyle(
-                              fontFamily: "Outfit",
+                            style: AppTextStyles.body12.copyWith(
                               color: AppColors.white30,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ),
                         Expanded(
                           child: Text(
                             "Booking Type",
-                            style: TextStyle(
-                              fontFamily: "Outfit",
+                            style: AppTextStyles.body12.copyWith(
                               color: AppColors.white30,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: AppSpacing.xs),
 
                     /// 🔹 CHIP ROW (2 Equal Columns)
                     Row(
@@ -290,21 +280,19 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                         ),
                       ],
                     ),
-
-                    /// 🔹 DASHED DIVIDER (Proper Style)
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: AppSpacing.xl),
 
                 /// 🔹 DASHED DIVIDER
                 Divider(color: AppColors.dividerDark, thickness: 0.8),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: AppSpacing.xl),
 
                 /// 🔥 SHOOT STATUS BOX
                 Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(AppSpacing.mld),
                   decoration: BoxDecoration(
                     color: AppColors.backgroundOpacity70,
                     borderRadius: AppRadii.xlAll,
@@ -312,68 +300,53 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "Shoot Status",
-                        style: TextStyle(
-                          fontFamily: "Outfit",
-                          fontSize: 14,
+                        style: AppTextStyles.bodyMediumStrong.copyWith(
                           color: AppColors.primary,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const Divider(
                         color: AppColors.dividerDark,
                         thickness: 0.8,
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: AppSpacing.mld),
 
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             "Current Stage",
-                            style: TextStyle(
-                              fontFamily: "Outfit",
-                              fontSize: 12,
+                            style: AppTextStyles.body12.copyWith(
                               color: AppColors.white30,
-                              fontWeight: FontWeight.w400,
                             ),
                           ),
                           Text(
                             "Pre Production",
-                            style: TextStyle(
-                              fontFamily: "Outfit",
-                              fontSize: 12,
+                            style: AppTextStyles.body12.copyWith(
                               color: AppColors.white,
-                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.sm),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             "Last Updated",
-                            style: TextStyle(
-                              fontFamily: "Outfit",
-                              fontSize: 12,
+                            style: AppTextStyles.body12.copyWith(
                               color: AppColors.white30,
-                              fontWeight: FontWeight.w400,
                             ),
                           ),
                           Text(
                             DateTimeUtils.formatDateTime(
                               mydata?.project.lastUpdated?.toString(),
                             ),
-                            style: const TextStyle(
-                              fontFamily: "Outfit",
-                              fontSize: 12,
+                            style: AppTextStyles.body12.copyWith(
                               color: AppColors.white,
-                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ],
@@ -384,7 +357,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           Divider(color: AppColors.dividerDark, thickness: 0.8),
 
           /*     Row(
@@ -434,24 +407,21 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
             color: AppColors.dividerDark,
             thickness: 0.8,
           ),*/
-          SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.xs),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Time & Budget",
-                style: TextStyle(
+                style: AppTextStyles.displayLabel14Strong.copyWith(
                   color: AppColors.white,
-                  fontFamily: "Unbounded",
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.xs),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.mld),
             decoration: BoxDecoration(
               color: AppColors.surfaceMid,
               borderRadius: AppRadii.portfolioCompactAll,
@@ -467,7 +437,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                   ),
                 ),
 
-                const SizedBox(width: 20),
+                const SizedBox(width: AppSpacing.xl),
 
                 /// 🔹 RIGHT ITEM
                 Expanded(
@@ -481,7 +451,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
               ],
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.xs),
 
           /// 🔥 CLIENT CONTACT SECTION
           Container(
@@ -491,20 +461,15 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Divider(color: AppColors.dividerDark, thickness: 0.8),
-                SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
 
                 /// 🔹 TITLE
                 const Text(
                   "Client Contact Information",
-                  style: TextStyle(
-                    fontFamily: "Unbounded",
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.white,
-                  ),
+                  style: AppTextStyles.displayLabel14Strong,
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: AppSpacing.mld),
 
                 _contactItem(
                   icon: SvgPicture.asset(AppAssets.person_icons),
@@ -512,7 +477,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                   value: "${mydata?.clientContact.fullName}",
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSpacing.mld),
 
                 _contactItem(
                   icon: SvgPicture.asset(AppAssets.Phone_Calling),
@@ -520,7 +485,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                   value: mydata?.clientContact.phone ?? 'No number found',
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSpacing.mld),
 
                 _contactItem(
                   icon: SvgPicture.asset(AppAssets.mail_icon),
@@ -528,10 +493,10 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                   value: "${mydata?.clientContact.email}",
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.xxl),
 
                 /// 🔹 VIEW TIMELINE
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.xxl),
 
                 /// 🔹 BUTTON ROW
                 /*       Row(
@@ -646,7 +611,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
           child: Icon(icon, color: AppColors.black, size: 20),
         ),
 
-        const SizedBox(width: 10),
+        const SizedBox(width: AppSpacing.xs),
 
         /// TEXT SECTION
         Expanded(
@@ -658,22 +623,17 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                 title,
                 maxLines: 1, // 🔥 Prevent overflow
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontFamily: "Outfit",
-                  fontSize: 12,
+                style: AppTextStyles.body12.copyWith(
                   fontWeight: FontWeight.w500,
                   color: AppColors.white,
                 ),
               ),
 
-              const SizedBox(height: 4),
+              const SizedBox(height: AppSpacing.xxs),
 
               Text(
                 value,
-                style: TextStyle(
-                  fontFamily: "Outfit",
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
+                style: AppTextStyles.body12.copyWith(
                   color: AppColors.white.withOpacity(0.6),
                 ),
               ),
@@ -689,15 +649,12 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 16, color: AppColors.white60),
-        const SizedBox(width: 10),
+        const SizedBox(width: AppSpacing.xs),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              fontFamily: "Outfit",
+            style: AppTextStyles.body12.copyWith(
               color: AppColors.white30,
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
             ),
           ),
         ),
@@ -707,7 +664,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
 
   Widget _chip(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
       decoration: BoxDecoration(
         color: AppColors.surfaceDim,
         borderRadius: AppRadii.portfolioAll,
@@ -715,10 +672,8 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          fontFamily: "Outfit",
+        style: AppTextStyles.body12.copyWith(
           color: AppColors.primary,
-          fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -745,28 +700,23 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                 ? Icon(Icons.person, color: AppColors.white)
                 : null,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.xs),
           Text(
             name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontFamily: "Outfit",
+            style: AppTextStyles.bodySmallMedium.copyWith(
               color: AppColors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSpacing.xxs),
           Text(
             role,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontFamily: "Outfit",
+            style: AppTextStyles.body11.copyWith(
               color: AppColors.white24,
-              fontSize: 11,
             ),
             textAlign: TextAlign.center,
           ),
@@ -795,7 +745,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
           child: Center(child: icon),
         ),
 
-        const SizedBox(width: 16),
+        const SizedBox(width: AppSpacing.md),
 
         /// 🔹 TEXT SECTION
         Expanded(
@@ -804,20 +754,14 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  fontFamily: "Outfit",
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
+                style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.white30,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: AppSpacing.xxs),
               Text(
                 value,
-                style: const TextStyle(
-                  fontFamily: "Outfit",
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                style: AppTextStyles.bodyMediumStrong.copyWith(
                   color: AppColors.white,
                 ),
               ),
@@ -836,7 +780,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
       builder: (_) {
         return Container(
           height: MediaQuery.of(context).size.height * 0.92,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.xs),
           decoration: const BoxDecoration(
             color: AppColors.surfaceCharcoal,
             borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
@@ -853,7 +797,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.xl),
 
               /// HEADER
               Row(
@@ -861,12 +805,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                 children: [
                   const Text(
                     "Project Timeline",
-                    style: TextStyle(
-                      fontFamily: "Unbounded",
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.white,
-                    ),
+                    style: AppTextStyles.displayLabel16,
                   ),
                   InkWell(
                     onTap: () => Navigator.pop(context),
@@ -875,10 +814,10 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.xl),
               const Divider(color: AppColors.white),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: AppSpacing.xs),
 
               /// TIMELINE LIST
               Expanded(
@@ -955,7 +894,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
               Container(
                 width: 2,
                 height: 60,
-                margin: const EdgeInsets.symmetric(vertical: 4),
+                margin: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
                 decoration: const BoxDecoration(
                   border: Border(
                     left: BorderSide(color: AppColors.white24, width: 2),
@@ -965,7 +904,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
           ],
         ),
 
-        const SizedBox(width: 16),
+        const SizedBox(width: AppSpacing.lg),
 
         /// RIGHT SIDE
         Expanded(
@@ -977,36 +916,25 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontFamily: "Outfit",
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                    style: AppTextStyles.bodyMediumStrong.copyWith(
                       color: active ? AppColors.primary : AppColors.white,
                     ),
                   ),
                   const Text(
                     "Today, 10:34 AM",
-                    style: TextStyle(
-                      fontFamily: "Outfit",
-                      fontSize: 11,
-                      color: AppColors.white54,
-                    ),
+                    style: AppTextStyles.body11,
                   ),
                 ],
               ),
 
-              const SizedBox(height: 6),
+              const SizedBox(height: AppSpacing.xs),
 
               const Text(
                 "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                style: TextStyle(
-                  fontFamily: "Outfit",
-                  fontSize: 12,
-                  color: AppColors.white54,
-                ),
+                style: AppTextStyles.body12,
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.xl),
             ],
           ),
         ),
@@ -1024,7 +952,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
           builder: (context, setState) {
             return Container(
               height: MediaQuery.of(context).size.height * 0.85,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
               decoration: const BoxDecoration(
                 color: AppColors.surfaceCharcoal,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
@@ -1044,7 +972,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
 
                   /// HEADER
                   Row(
@@ -1052,12 +980,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                     children: [
                       const Text(
                         "Cancel Shoot Request",
-                        style: TextStyle(
-                          fontFamily: "Unbounded",
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.white,
-                        ),
+                        style: AppTextStyles.displayLabel16,
                       ),
                       InkWell(
                         onTap: () => Navigator.pop(context),
@@ -1066,36 +989,29 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                     ],
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
 
-                  const Text(
+                  Text(
                     "Please let us know why you're declining this request. "
                     "This helps improve future matching.",
-                    style: TextStyle(
-                      fontFamily: "Outfit",
-                      fontSize: 13,
+                    style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.white30,
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: AppSpacing.s15),
 
                   Divider(color: AppColors.dividerDark),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: AppSpacing.xs),
 
                   /// REASON TITLE
                   const Text(
                     "Reason for Cancelling",
-                    style: TextStyle(
-                      fontFamily: "Outfit",
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.white,
-                    ),
+                    style: AppTextStyles.bodyMediumStrong,
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: AppSpacing.xs),
 
                   /// RADIO LIST
                   Expanded(
@@ -1109,23 +1025,22 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
 
                         /// 👇 SHOW TEXTFIELD ONLY IF OTHERS SELECTED
                         if (isOtherSelected) ...[
-                          const SizedBox(height: 16),
+                          const SizedBox(height: AppSpacing.lg),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
                             decoration: BoxDecoration(
                               borderRadius: AppRadii.xlAll,
                               border: Border.all(color: AppColors.white24),
                             ),
                             child: TextField(
                               controller: commentController,
-                              style: const TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 color: AppColors.white,
-                                fontSize: 14,
                               ),
                               maxLines: 3,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 hintText: "Any additional details..",
-                                hintStyle: TextStyle(color: AppColors.white24),
+                                hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.white24),
                                 border: InputBorder.none,
                               ),
                             ),
@@ -1137,24 +1052,24 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
 
                   /// COMMENT FIELD
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
                     decoration: BoxDecoration(
                       borderRadius: AppRadii.xlAll,
                       border: Border.all(color: AppColors.white24),
                     ),
                     child: TextField(
                       controller: commentController,
-                      style: const TextStyle(color: AppColors.white),
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                       maxLines: 2,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: "Any additional details..",
-                        hintStyle: TextStyle(color: AppColors.white24),
+                        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.white24),
                         border: InputBorder.none,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 18),
+                  const SizedBox(height: AppSpacing.mld),
 
                   /// BUTTONS
                   Row(
@@ -1163,26 +1078,26 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: AppColors.white30),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.mld),
                             shape: RoundedRectangleBorder(
                               borderRadius: AppRadii.xlAll,
                             ),
                           ),
                           onPressed: () => Navigator.pop(context),
-                          child: const Text(
+                          child: Text(
                             "Cancel",
-                            style: TextStyle(color: AppColors.white),
+                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                           ),
                         ),
                       ),
 
-                      const SizedBox(width: 14),
+                      const SizedBox(width: AppSpacing.mld),
 
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.mld),
                             shape: RoundedRectangleBorder(
                               borderRadius: AppRadii.xlAll,
                             ),
@@ -1190,11 +1105,10 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: const Text(
+                          child: Text(
                             "Decline",
-                            style: TextStyle(
+                            style: AppTextStyles.bodyMediumStrong.copyWith(
                               color: AppColors.black,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -1202,7 +1116,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
                 ],
               ),
             );
@@ -1225,7 +1139,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
         });
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         child: Row(
           children: [
             /// 🔘 CUSTOM CIRCLE
@@ -1253,15 +1167,12 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                   : null,
             ),
 
-            const SizedBox(width: 14),
+            const SizedBox(width: AppSpacing.mld),
 
             /// 📝 TEXT
             Text(
               title,
-              style: TextStyle(
-                fontFamily: "Outfit",
-                fontSize: 14, // 👈 proper size
-                fontWeight: FontWeight.w400,
+              style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.white,
               ),
             ),
