@@ -4,7 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../app/route_names.dart';
 import '../app/colors.dart';
-
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../app/radii.dart';
 
 class PostProductionScreen extends StatefulWidget {
@@ -24,7 +25,10 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
           children: [
             /// 🔝 HEADER
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.base,
+                vertical: AppSpacing.md,
+              ),
               child: Row(
                 children: [
                   InkWell(
@@ -34,26 +38,21 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
                   const Spacer(),
                   const Text(
                     "Lana #123456",
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 16,
-                      fontFamily: "Unbounded",
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTextStyles.displayLabel16,
                   ),
                   const Spacer(),
                 ],
               ),
             ),
 
-            const SizedBox(height: 16),
+            AppSpacing.verticalBase,
 
             /// 🔍 SEARCH
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: AppSpacing.insetsHBase,
               child: Container(
                 height: 45,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceMid,
                   borderRadius: AppRadii.lgAll,
@@ -61,13 +60,13 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
                 child: const Row(
                   children: [
                     Icon(Icons.search, color: AppColors.white54),
-                    SizedBox(width: 10),
+                    AppSpacing.gapHSmd,
                     Expanded(
                       child: TextField(
-                        style: TextStyle(color: AppColors.white),
+                        style: AppTextStyles.systemDefault,
                         decoration: InputDecoration(
                           hintText: "Search",
-                          hintStyle: TextStyle(color: AppColors.white38),
+                          hintStyle: AppTextStyles.systemDefault,
                           border: InputBorder.none,
                         ),
                       ),
@@ -77,12 +76,12 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            AppSpacing.verticalBase,
 
             /// 📄 LIST
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: AppSpacing.insetsHBase,
                 itemCount: 20,
                 itemBuilder: (context, index) {
                   return InkWell(
@@ -91,8 +90,8 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
                       context.pushNamed(RouteNames.preProduction);
                     },
                     child: Container(
-                      margin: const EdgeInsets.only(bottom: 14),
-                      padding: const EdgeInsets.all(22),
+                      margin: const EdgeInsets.only(bottom: AppSpacing.mld),
+                      padding: const EdgeInsets.all(AppSpacing.s22),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceMid,
                         borderRadius: AppRadii.portfolioCompactAll,
@@ -103,38 +102,29 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
                           Row(
                             children: const [
                               Icon(Icons.folder, color: AppColors.primary),
-                              SizedBox(width: 8),
+                              AppSpacing.gapHSm,
                               Text(
                                 "Lana #123456",
-                                style: TextStyle(
-                                  color: AppColors.white,
-                                  fontSize: 13,
-                                  fontFamily: "Outfit",
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: AppTextStyles.bodyCompactStrong,
                               ),
                               Spacer(),
                               Icon(Icons.more_vert, color: AppColors.white),
                             ],
                           ),
 
-                          const SizedBox(height: 8),
+                          AppSpacing.verticalSm,
 
                           const Text(
                             "02 Files",
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 12,
-                              fontFamily: "Outfit",
-                            ),
+                            style: AppTextStyles.bodySmall,
                           ),
 
-                          const SizedBox(height: 8),
+                          AppSpacing.verticalSm,
 
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.smd,
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.circleGradientTop,
@@ -142,11 +132,7 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
                             ),
                             child: const Text(
                               "Corporate Event",
-                              style: TextStyle(
-                                color: AppColors.white,
-                                fontSize: 12,
-                                fontFamily: "Outfit",
-                              ),
+                              style: AppTextStyles.bodySmall,
                             ),
                           ),
 
@@ -162,16 +148,13 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
                                 backgroundColor: AppColors.softLightBlue,
                                 child: Text(
                                   "DP",
-                                  style: TextStyle(color: AppColors.black),
+                                  style: AppTextStyles.systemDefault,
                                 ),
                               ),
-                              SizedBox(width: 10),
+                              AppSpacing.gapHSmd,
                               Text(
                                 "Opened 2 hours ago",
-                                style: TextStyle(
-                                  color: AppColors.white30,
-                                  fontSize: 14,
-                                ),
+                                style: AppTextStyles.system14,
                               ),
                             ],
                           ),

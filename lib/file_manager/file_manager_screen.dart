@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import '../app/route_names.dart';
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
 import '../app/shadows.dart';
@@ -52,7 +54,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
             /// 🔝 HEADER
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base, vertical: AppSpacing.md),
               child: Row(
                 children: [
 
@@ -76,12 +78,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                   /// TITLE
                   const Text(
                     "File Manager",
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 16,
-                      fontFamily: "Unbounded",
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTextStyles.displayLabel16,
                   ),
 
                   const Spacer(),
@@ -92,7 +89,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
             /// 🔍 SEARCH BAR
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
               child: Row(
                 children: [
 
@@ -100,7 +97,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                   Expanded(
                     child: Container(
                       height: 50,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceMid,
                         borderRadius: AppRadii.xlAll,
@@ -117,10 +114,10 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                           /// TextField should be Expanded
                           const Expanded(
                             child: TextField(
-                              style: TextStyle(color: AppColors.white),
+                              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                               decoration: InputDecoration(
                                 hintText: "Search File, User...",
-                                hintStyle: TextStyle(color: AppColors.white38),
+                                hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.white38),
                                 border: InputBorder.none,
                               ),
                             ),
@@ -184,18 +181,13 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       width: 3,
                       color: AppColors.primary,
                     ),
-                    insets: const EdgeInsets.symmetric(horizontal: 25),
+                    insets: const EdgeInsets.symmetric(horizontal: AppSpacing.s25),
                   ),
 
                   labelColor: AppColors.primary,
                   unselectedLabelColor: AppColors.white30,
 
-                  labelStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: "Outfit",
-
-                  ),
+                  labelStyle: AppTextStyles.body14Medium,
 
 
                   tabs: const [
@@ -226,7 +218,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
             ),
             /// 👇 Bottom Button
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.base),
               child: Center(
                 child: InkWell(
 
@@ -235,7 +227,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                   },
                   child: Container(
                     height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       borderRadius: AppRadii.mldAll,
@@ -248,11 +240,8 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                         SizedBox(width: 8),
                         Text(
                           "Add / Create",
-                          style: TextStyle(
+                          style: AppTextStyles.body14Medium.copyWith(
                             color: AppColors.textHeading,
-                            fontSize: 14,
-                            fontFamily: "Outfit",
-                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -285,7 +274,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.xl),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,7 +285,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                   child: Container(
                     height: 4,
                     width: 40,
-                    margin: const EdgeInsets.only(bottom: 20),
+                    margin: const EdgeInsets.only(bottom: AppSpacing.xl),
                     decoration: BoxDecoration(
                       color: AppColors.white24,
                       borderRadius: AppRadii.mldAll,
@@ -310,12 +299,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                   children: [
                     const Text(
                       "Create Folder",
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 16,
-                        fontFamily: "Unbounded",
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: AppTextStyles.displayLabel16,
                     ),
 
                     InkWell(
@@ -329,11 +313,8 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
                 const Text(
                   "Create new folder for users",
-                  style: TextStyle(
+                  style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.white30,
-                    fontSize: 12,
-                    fontFamily: "Outfit",
-                    fontWeight: FontWeight.w400,
                   ),
                 ),
 
@@ -371,11 +352,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
                           child: const Text(
                             "Cancel",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: "Unbounded",
-                              fontWeight:
-                              FontWeight.w500,
+                            style: AppTextStyles.displayLabel14.copyWith(
                               color: AppColors.white,
                             ),
                           ),
@@ -391,7 +368,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                         child: ElevatedButton(
                           style:
                           ElevatedButton.styleFrom(
-                            padding: EdgeInsets.all(0),
+                            padding: EdgeInsets.zero,
                             backgroundColor:
                             AppColors.primary,
                             elevation: 0,
@@ -408,11 +385,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                           },
                           child: const Text(
                             "Create Folder",
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontFamily: "Unbounded",
-                              fontWeight:
-                              FontWeight.w500,
+                            style: AppTextStyles.displayLabel13.copyWith(
                               color: AppColors.black,
                             ),
                           ),
@@ -433,7 +406,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
   Widget _fileList() {
     if(loding){
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
       itemCount: 20,
       itemBuilder: (context, index) {
         return InkWell(
@@ -453,8 +426,8 @@ class _FileManagerScreenState extends State<FileManagerScreen>
             );
           },
           child: Container(
-            margin: const EdgeInsets.only(bottom: 14),
-            padding: const EdgeInsets.all(22),
+            margin: const EdgeInsets.only(bottom: AppSpacing.mld),
+            padding: const EdgeInsets.all(AppSpacing.s22),
             decoration: BoxDecoration(
               color: AppColors.surfaceMid,
               borderRadius: AppRadii.portfolioCompactAll,
@@ -471,11 +444,8 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                     const SizedBox(width: 8),
                     const Text(
                       "Lana #123456",
-                      style: TextStyle(
+                      style: AppTextStyles.bodyCompactStrong.copyWith(
                         color: AppColors.white,
-                        fontSize: 13,
-                        fontFamily: "Outfit",
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const Spacer(),
@@ -523,11 +493,8 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
                 const Text(
                   "02 Files",
-                  style: TextStyle(
+                  style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.primary,
-                    fontSize: 12,
-                    fontFamily: "Outfit",
-                    fontWeight: FontWeight.w400,
                   ),
                 ),
 
@@ -535,18 +502,15 @@ class _FileManagerScreenState extends State<FileManagerScreen>
 
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 10),
+                      horizontal: AppSpacing.md, vertical: AppSpacing.smd),
                   decoration: BoxDecoration(
                     color: AppColors.circleGradientTop,
                     borderRadius: AppRadii.hugeAll,
                   ),
                   child: const Text(
                     "Corporate Event",
-                    style: TextStyle(
+                    style: AppTextStyles.bodySmallMedium.copyWith(
                       color: AppColors.white,
-                      fontSize: 12,
-                      fontFamily: "Outfit",
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -562,21 +526,15 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       radius: 16,
                       backgroundColor: AppColors.softLightBlue,
                       child: Text("DP",
-            style: TextStyle(
-          color: AppColors.black,
-          fontSize: 16,
-          fontFamily: "Outfit",
-          fontWeight: FontWeight.w500,
-          ),)
+            style: AppTextStyles.bodyLargeMedium.copyWith(
+              color: AppColors.black,
+            ),)
                     ),
                     SizedBox(width: 10),
                     Text(
                       "Opened 2 hours ago",
-                      style: TextStyle(
+                      style: AppTextStyles.bodyLargeMedium.copyWith(
                         color: AppColors.white30,
-                        fontSize: 16,
-                        fontFamily: "Outfit",
-                        fontWeight: FontWeight.w500,
                       ),
                     )
                   ],
@@ -589,14 +547,14 @@ class _FileManagerScreenState extends State<FileManagerScreen>
     );
   } else {
       return ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
         itemCount: 20,
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () {},
             child: Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.all(22),
+              margin: const EdgeInsets.only(bottom: AppSpacing.mld),
+              padding: const EdgeInsets.all(AppSpacing.s22),
               decoration: BoxDecoration(
                 color: AppColors.surfaceMid,
                 borderRadius: AppRadii.portfolioCompactAll,
@@ -608,7 +566,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                   Expanded(
                     child: Text(
                       "Lana #123456",
-                      style: TextStyle(color: AppColors.white),
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                     ),
                   ),
                   Icon(Icons.more_vert, color: AppColors.white),
@@ -638,9 +596,8 @@ class _FileManagerScreenState extends State<FileManagerScreen>
           const SizedBox(width: 10),
           Text(
             text,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               color: isDelete ? AppColors.error : AppColors.white,
-              fontFamily: "Outfit",
             ),
           ),
         ],

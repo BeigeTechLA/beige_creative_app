@@ -78,6 +78,9 @@ class AppSpacing {
   /// 25px — Edit-profile button horizontal padding
   static const double s25 = 25;
 
+  /// 22px — Folder card interior padding
+  static const double s22 = 22;
+
   /// 70px — Profile card top inset (avatar overlap offset)
   static const double profileCardTop = 70;
 

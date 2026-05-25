@@ -2,7 +2,8 @@ import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
 import 'view_details_screen.dart';
@@ -30,7 +31,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base, vertical: AppSpacing.md),
               child: Row(
                 children: [
                   InkWell(
@@ -40,12 +41,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                   const Spacer(),
                   const Text(
                     "Pre Production",
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 16,
-                      fontFamily: "Unbounded",
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTextStyles.displayLabel16,
                   ),
                   const Spacer(),
                 ],
@@ -56,10 +52,10 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
 
             /// 🔍 SEARCH
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
               child: Container(
                 height: 45,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceMid,
                   borderRadius: AppRadii.lgAll,
@@ -70,10 +66,10 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                     SizedBox(width: 10),
                     Expanded(
                       child: TextField(
-                        style: TextStyle(color: AppColors.white),
+                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
                         decoration: InputDecoration(
                           hintText: "Search",
-                          hintStyle: TextStyle(color: AppColors.white30),
+                          hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.white30),
                           border: InputBorder.none,
                         ),
                       ),
@@ -86,14 +82,14 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
             SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
                 itemCount: 6,
                 itemBuilder: (context, index) {
                   final bool isPdf = index % 2 == 0;
 
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 18),
-                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+                    padding: const EdgeInsets.all(AppSpacing.base),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceMid,
                       borderRadius: AppRadii.hugeAll,
@@ -114,11 +110,8 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                             const SizedBox(width: 8),
                             Text(
                               isPdf ? "Example.pdf" : "Example.docx",
-                              style: const TextStyle(
+                              style: AppTextStyles.bodyCompactMedium.copyWith(
                                 color: AppColors.white,
-                                fontSize: 13,
-                                fontFamily: "Outfit",
-                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             const Spacer(),
@@ -139,8 +132,8 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                           child: Center(
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
+                                horizontal: AppSpacing.base,
+                                vertical: AppSpacing.sm,
                               ),
                               decoration: BoxDecoration(
                                 color: isPdf
@@ -150,10 +143,8 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                               ),
                               child: Text(
                                 isPdf ? "Pdf" : "Doc",
-                                style: const TextStyle(
+                                style: AppTextStyles.bodyLargeStrong.copyWith(
                                   color: AppColors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -177,19 +168,16 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                               backgroundColor: AppColors.softLightBlue,
                               child: Text(
                                 "DP",
-                                style: TextStyle(
+                                style: AppTextStyles.bodyCompactStrong.copyWith(
                                   color: AppColors.black,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
                             SizedBox(width: 10),
                             Text(
                               "Opened 2 hours ago",
-                              style: TextStyle(
+                              style: AppTextStyles.bodyCompact.copyWith(
                                 color: AppColors.white30,
-                                fontSize: 13,
                               ),
                             ),
                           ],
@@ -204,7 +192,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.base, AppSpacing.smd, AppSpacing.base, AppSpacing.xl),
         decoration: const BoxDecoration(color: AppColors.background),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -223,10 +211,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                 children: [
                   const Text(
                     "View Shoot Details",
-                    style: TextStyle(
-                      fontFamily: "Outfit",
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
+                    style: AppTextStyles.bodyCompact.copyWith(
                       color: AppColors.white,
                       decoration: TextDecoration.underline,
                     ),
@@ -246,10 +231,8 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                 icon: const Icon(Icons.upload, color: AppColors.black),
                 label: const Text(
                   "Upload Files",
-                  style: TextStyle(
+                  style: AppTextStyles.displayLabel14.copyWith(
                     color: AppColors.black,
-                    fontFamily: "Unbounded",
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -282,7 +265,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.xl),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +275,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                   child: Container(
                     height: 5,
                     width: 40,
-                    margin: const EdgeInsets.only(bottom: 20),
+                    margin: const EdgeInsets.only(bottom: AppSpacing.xl),
                     decoration: BoxDecoration(
                       color: AppColors.white30,
                       borderRadius: AppRadii.mldAll,
@@ -306,12 +289,7 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                   children: [
                     const Text(
                       "Upload Files",
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 16,
-                        fontFamily: "Unbounded",
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: AppTextStyles.displayLabel16,
                     ),
                     InkWell(
                       onTap: () => Navigator.pop(context),
@@ -324,10 +302,8 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
 
                 const Text(
                   "Files will be uploaded to the folder Lana Guzman",
-                  style: TextStyle(
+                  style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.white30,
-                    fontSize: 12,
-                    fontFamily: "Outfit",
                   ),
                 ),
                 Divider(color: AppColors.dividerDark, thickness: 0.8),
@@ -373,21 +349,15 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                               children: [
                                 TextSpan(
                                   text: "Drag your files here or ",
-                                  style: TextStyle(
+                                  style: AppTextStyles.bodyLargeMedium.copyWith(
                                     color: AppColors.white,
-                                    fontSize: 16,
-                                    fontFamily: "Outfit",
-                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 TextSpan(
                                   text: "Browse",
-                                  style: TextStyle(
+                                  style: AppTextStyles.bodyLargeMedium.copyWith(
                                     color: AppColors.primary,
-                                    fontSize: 16,
-                                    fontFamily: "Outfit",
                                     decoration: TextDecoration.underline,
-                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],
@@ -417,9 +387,8 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                           onPressed: () => Navigator.pop(context),
                           child: const Text(
                             "Cancel",
-                            style: TextStyle(
+                            style: AppTextStyles.displayLabel14.copyWith(
                               color: AppColors.white,
-                              fontFamily: "Unbounded",
                             ),
                           ),
                         ),
@@ -444,9 +413,8 @@ class _PreProductionScreenState extends State<PreProductionScreen> {
                           },
                           child: const Text(
                             "Upload Files",
-                            style: TextStyle(
+                            style: AppTextStyles.displayLabel14.copyWith(
                               color: AppColors.black,
-                              fontFamily: "Unbounded",
                             ),
                           ),
                         ),

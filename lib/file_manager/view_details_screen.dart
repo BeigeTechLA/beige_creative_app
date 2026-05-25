@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../app/colors.dart';
-
+import '../app/text_styles.dart';
+import '../app/spacing.dart';
 import '../app/radii.dart';
 import '../app/shadows.dart';
 class ViewDetailsScreen extends StatefulWidget {
@@ -43,7 +44,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                 /// 🔹 BACK BUTTON
                 Positioned(
                   top: 90,
-                  left: 16,
+                  left: AppSpacing.base,
                   child:  InkWell(
                     onTap: () => Navigator.pop(context),
 
@@ -61,12 +62,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                   child: Center(
                     child: Text(
                       "Shoot Details",
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 14,
-                        fontFamily: "Outfit",
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: AppTextStyles.bodyMedium,
                     ),
                   ),
                 ),
@@ -104,12 +100,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                             child: const Center(
                               child: Text(
                                 "L#1",
-                                style: TextStyle(
-                                  color: AppColors.white,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "Unbounded",
-                                ),
+                                style: AppTextStyles.displayMedium,
                               ),
                             ),
                           ),
@@ -139,16 +130,12 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
               ],
             ),
         
-            SizedBox(height: 60,),
+            const SizedBox(height: AppSpacing.bottomNavHeight),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+              children: const [
                 Text("Lana #123456",
-                  style: TextStyle(
-                    fontFamily: "Outfit",
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500
-                  ),
+                  style: AppTextStyles.body20Medium,
                 )
               ],
             ),
@@ -158,41 +145,31 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
               child: Text(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
                 textAlign: TextAlign.center,
-                style: TextStyle(
-        
-                  color: AppColors.white60,
-                  fontSize: 14,
-                  fontFamily: "Outfit",
-                ),
+                style: AppTextStyles.bodyMedium,
               ),
             ),
         
-            const SizedBox(height: 18),
+            const SizedBox(height: AppSpacing.lg),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl, vertical: AppSpacing.sm),
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: AppRadii.hugeAll,
               ),
               child: const Text(
                 "Post Production",
-                style: TextStyle(
-                  color: AppColors.purpleDeep,
-                  fontSize: 13,
-                  fontFamily: "Outfit",
-                  fontWeight: FontWeight.w500,
-                ),
+                style: AppTextStyles.bodyCompactMedium,
               ),
             ),
-            SizedBox(height: 18),
-            Divider(
+            const SizedBox(height: AppSpacing.lg),
+            const Divider(
               color: AppColors.dividerDark,
               thickness: 0.8,
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: AppSpacing.lg),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 18),
-              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              padding: const EdgeInsets.all(AppSpacing.xl),
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant,
                 borderRadius: AppRadii.massiveAll,
@@ -208,16 +185,11 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
         
                     child: const Text(
                       "Shoot Details",
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: "Outfit",
-                      ),
+                      style: AppTextStyles.body15Strong,
                     ),
                   ),
         
-                  const SizedBox(height: 18),
+                  const SizedBox(height: AppSpacing.lg),
         
                   _buildDetailRow("Shoot Date", "Jan 16, 2026"),
                   _buildDetailRow("Time", "11:30 PM · 11 Hours"),
@@ -241,7 +213,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
         bool isLink = false,
       }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: AppSpacing.mld),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -251,30 +223,25 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
             width: 110,
             child: Text(
               title,
-              style: const TextStyle(
-                color: AppColors.white60,
-                fontSize: 13,
-                fontFamily: "Outfit",
-              ),
+              style: AppTextStyles.bodyCompact,
             ),
           ),
 
           const Text(
             ":  ",
-            style: TextStyle(color: AppColors.white60),
+            style: AppTextStyles.systemDefault,
           ),
 
           /// Right Value
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
+              style: AppTextStyles.system13.copyWith(
                 color: isGreen
                     ? AppColors.greenAccent
                     : isLink
                     ? AppColors.borderGold
                     : AppColors.white,
-                fontSize: 13,
                 fontWeight: FontWeight.w500,
                 decoration:
                 isLink ? TextDecoration.underline : TextDecoration.none,
