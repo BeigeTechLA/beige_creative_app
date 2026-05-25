@@ -7,6 +7,8 @@ import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
 import '../widgets/Topmessgae.dart';
 import '../widgets/new_Textfield.dart';
 
@@ -123,7 +125,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.s15,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -146,10 +151,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                       Text(
                         "Change your Password",//
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontFamily: "Unbounded",
-                          fontWeight: FontWeight.w500,
+                        style: AppTextStyles.displayLabel16.copyWith(
                           color: AppColors.white,
                         ),
                       ),
@@ -163,10 +165,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             textAlign: TextAlign.left,
                             softWrap: true,
                             maxLines: 3,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontFamily: "Outfit",
-                              fontWeight: FontWeight.w400,
+                            style: AppTextStyles.body13.copyWith(
                               color: AppColors.white60,
                             ),
                           );
@@ -211,13 +210,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ),
                   child: Text(
                     "Send OTP",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: "Unbounded",
+                    style: AppTextStyles.displayLabel14.copyWith(
                       color: isEmailFilled
                           ? AppColors.textHeading
                           : AppColors.surfaceMid,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -244,13 +240,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           labelText: "Email ID*",
           floatingLabelBehavior: FloatingLabelBehavior.always,
 
-          labelStyle: const TextStyle(
+          labelStyle: AppTextStyles.systemDefault.copyWith(
             color: AppColors.white, // #1D1D1B 60% opacity
           ),
 
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 18,
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.lg,
           ),
 
           /// ⭐ 0.5px BORDER + OPACITY COLOR
@@ -270,7 +266,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             ),
           ),
 
-          floatingLabelStyle: const TextStyle(
+          floatingLabelStyle: AppTextStyles.systemDefault.copyWith(
             color: AppColors.white60,
           ),)
 

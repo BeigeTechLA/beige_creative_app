@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart' show GoRouterHelper;
 import '../../app/colors.dart';
+import '../app/radii.dart';
 import '../app/route_names.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
 
 
 class AppPreferences extends StatefulWidget {
@@ -22,7 +25,7 @@ class _AppPreferencesState extends State<AppPreferences> {
 
       body: SafeArea(
         child: Padding(
-          padding:  EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.base),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -42,10 +45,7 @@ class _AppPreferencesState extends State<AppPreferences> {
               /// 🏷 TITLE
               Text(
                 "App Preferences",
-                style: TextStyle(
-                  fontFamily: "Unbounded",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                style: AppTextStyles.displayStrong16w600.copyWith(
                   color: AppColors.white,
                 ),
               ),
@@ -59,9 +59,9 @@ class _AppPreferencesState extends State<AppPreferences> {
 
                   /// 🌙 DARK MODE
                   Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(12)
-                    ),
+                    padding: const EdgeInsets.all(AppSpacing.smd),
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadii.lgAll,
                       color: AppColors.surfaceMid,
                     ),
                     child: Row(
@@ -81,9 +81,8 @@ class _AppPreferencesState extends State<AppPreferences> {
                             const SizedBox(width: 10),
                             Text(
                               "Dark Mode",
-                              style: TextStyle(
+                              style: AppTextStyles.system14.copyWith(
                                 color: AppColors.white,
-                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -110,9 +109,9 @@ class _AppPreferencesState extends State<AppPreferences> {
                       );
                     },
                     child: Container(
-                      padding: EdgeInsets.all(20),
-                      decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(12)
-                      ),
+                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      decoration: BoxDecoration(
+                        borderRadius: AppRadii.lgAll,
                         color: AppColors.surfaceMid,
                       ),
                       child: Row(
@@ -132,9 +131,8 @@ class _AppPreferencesState extends State<AppPreferences> {
                               const SizedBox(width: 10),
                               Text(
                                 "Delete Account",
-                                style: TextStyle(
+                                style: AppTextStyles.system14.copyWith(
                                   color: AppColors.white,
-                                  fontSize: 14,
                                 ),
                               ),
                             ],
@@ -157,9 +155,9 @@ class _AppPreferencesState extends State<AppPreferences> {
 
                   /// ℹ APP VERSION
                   Container(
-                    padding: EdgeInsets.all(20),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(12)
-                    ),
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadii.lgAll,
                       color: AppColors.surfaceMid,
                     ),
                     child: Row(
@@ -176,9 +174,8 @@ class _AppPreferencesState extends State<AppPreferences> {
                         const SizedBox(width: 10),
                         Text(
                           "App Version V1.0",
-                          style: TextStyle(
+                          style: AppTextStyles.system13.copyWith(
                             color: AppColors.white24,
-                            fontSize: 13,
                           ),
                         ),
                       ],

@@ -440,4 +440,46 @@ class AppTextStyles {
     fontSize: 13,
     height: 1.4,
   );
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // EXTENDED — Profile-account outliers (Phase 2 — Batch 5)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// System/default 15 bold — Underlined CTA (resend OTP)
+  static const TextStyle system15Bold = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.bold,
+  );
+
+  /// System/default 16 w600 — Strong body (OTP placeholder)
+  static const TextStyle system16Strong = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// System/default 18 w600 — OTP digit (filled state)
+  static const TextStyle system18Strong = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// System/default 19 bold — Big OTP digit
+  static const TextStyle system19Bold = TextStyle(
+    fontSize: 19,
+    fontWeight: FontWeight.bold,
+  );
+
+  /// System/default 20 bold — Hero OTP heading
+  static const TextStyle system20Bold = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+  );
+
+  /// Outfit 14 w400 height 1.5 — Relaxed body (delete-account copy)
+  static const TextStyle body14LineRelaxed = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    height: 1.5,
+  );
 }

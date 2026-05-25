@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/colors.dart';
 import '../../app/radii.dart';
+import '../../app/spacing.dart';
+import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
@@ -167,7 +169,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
     return Scaffold(
       body: SafeArea(child:
       Padding(
-        padding:  EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.base),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -187,10 +189,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
             /// 🏷 TITLE
             Text(
               "Delete Account",
-              style: TextStyle(
-                fontFamily: "Unbounded",
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.displayStrong16w600.copyWith(
                 color: AppColors.white,
               ),
             ),
@@ -200,13 +199,8 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
 
             Text(
               "Please note this is permanent and can't be undone. To confirm deleting your account, please enter your Email ID below.",
-
-              style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.white30,
-                  height: 1.5,
-                  fontWeight: FontWeight.w400,
-                  fontFamily: "Outfit"
+              style: AppTextStyles.body14LineRelaxed.copyWith(
+                color: AppColors.white30,
               ),
             ),
             const SizedBox(height: 20),
@@ -215,7 +209,9 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
               children: List.generate(6, (index) {
                 return Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xxs,
+                    ),
                     child: Container(
                       height: 60,
                       decoration: BoxDecoration(
@@ -236,10 +232,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
                         maxLength: 1,
-                        style: const TextStyle(
-                          fontSize: 19,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: AppTextStyles.system19Bold,
                         decoration: const InputDecoration(
                           counterText: "",
                           border: InputBorder.none,
@@ -271,9 +264,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
               children: [
                 Text(
                   "00:${seconds.toString().padLeft(2, '0')}",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.system16Strong.copyWith(
                     color: AppColors.white60,
                   ),
                 ),
@@ -289,10 +280,8 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
                   onTap: seconds == 0 ? _resendOtp : null,
                   child: Text(
                     "Resend OTP",
-                    style: TextStyle(
+                    style: AppTextStyles.system15Bold.copyWith(
                       color: AppColors.white60,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
                       decoration: TextDecoration.underline,
                       decorationThickness: 1.5,
                     ),
@@ -322,11 +311,9 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
                     borderRadius: AppRadii.xlAll,
                   ),
                 ),
-                child:Text(
+                child: Text(
                   "Continue",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.system18Strong.copyWith(
                     color: isOtpFilled
                         ? AppColors.textHeading
                         : AppColors.black,

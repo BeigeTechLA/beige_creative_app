@@ -10,6 +10,8 @@ import '../service/api_endpoints.dart';
 import '../service/api_service.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
+import '../app/spacing.dart';
+import '../app/text_styles.dart';
 import '../widgets/Topmessgae.dart';
 
 class ProfileOtpScreen extends StatefulWidget {
@@ -176,7 +178,10 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.s15,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -193,18 +198,16 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
 
                       Text(
                         "Enter OTP code",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                        style: AppTextStyles.system20Bold.copyWith(
                           color: AppColors.white,
                         ),
                       ),
 
                       const SizedBox(height: 6),
 
-                      const Text(
+                      Text(
                         "Enter 6 digit OTP sent to your registered email ID\nreset your password.",
-                        style: TextStyle(
+                        style: AppTextStyles.systemDefault.copyWith(
                           fontSize: 12,
                           color: AppColors.white60,
                         ),
@@ -219,7 +222,7 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
                           return Expanded(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
+                                horizontal: AppSpacing.xxs,
                               ),
                               child: Container(
                                 height: 60,
@@ -243,10 +246,7 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
                                   textAlign: TextAlign.center,
                                   keyboardType: TextInputType.number,
                                   maxLength: 1,
-                                  style: const TextStyle(
-                                    fontSize: 19,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: AppTextStyles.system19Bold,
                                   decoration: const InputDecoration(
                                     counterText: "",
                                     border: InputBorder.none,
@@ -280,10 +280,7 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
                             seconds == 0
                                 ? "00:00"
                                 : "00:${seconds.toString().padLeft(2, '0')}",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: "Outfit",
+                            style: AppTextStyles.bodyLargeStrong.copyWith(
                               color: AppColors.white60,
                             ),
                           ),
@@ -303,10 +300,8 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
                     onTap: seconds == 0 ? _resendOtp : null,
                     child: Text(
                       "Resend OTP",
-                      style: TextStyle(
+                      style: AppTextStyles.system15Bold.copyWith(
                         color: seconds == 0 ? AppColors.white : AppColors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
                       ),
                     ),
@@ -329,9 +324,7 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
                   ),
                   child: Text(
                     "Continue",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.system18Strong.copyWith(
                       color: isOtpFilled
                           ? AppColors.textHeading
                           : AppColors.black38,

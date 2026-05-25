@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/colors.dart';
 import '../../app/radii.dart';
+import '../../app/spacing.dart';
+import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
@@ -89,7 +91,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
     return Scaffold(
       body: SafeArea(
           child:Padding(
-            padding:  EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.base),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -114,10 +116,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                 /// 🏷 TITLE
                 Text(
                   "Delete Account",
-                  style: TextStyle(
-                    fontFamily: "Unbounded",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.displayStrong16w600.copyWith(
                     color: AppColors.white,
                   ),
                 ),
@@ -127,18 +126,14 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
                 Text(
                   "This action will permanently delete your account and all associated data. If you need help or have questions, please contact us at support@beige.com",
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.white30,
-                      height: 1.5,
-                      fontWeight: FontWeight.w400,
-                      fontFamily: "Outfit"
+                  style: AppTextStyles.body14LineRelaxed.copyWith(
+                    color: AppColors.white30,
                   ),
                 ),
 
                 SizedBox(height: 20),
                 Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AppSpacing.xl),
 
                   decoration: BoxDecoration(color: AppColors.surfaceMid),
 
@@ -146,25 +141,20 @@ class _DeleteAccountState extends State<DeleteAccount> {
                     children: [
                       Row(
                         children: [
-                          Text("Why do you wish to leave Beige?",
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.white,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "Outfit"
-                            ),),
+                          Text(
+                            "Why do you wish to leave Beige?",
+                            style: AppTextStyles.body14Medium.copyWith(
+                              color: AppColors.white,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
 
                       Text(
                         "Please let us know the reason for deleting your account.",
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.white30,
-                            fontFamily: "Outfit",
-                            fontWeight: FontWeight.w400
-
+                        style: AppTextStyles.body12.copyWith(
+                          color: AppColors.white30,
                         ),
                       ),
 
@@ -180,7 +170,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
           )
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.base),
         decoration: BoxDecoration(
           // color:  AppColors.surfaceStats,
         ),
@@ -207,12 +197,9 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       borderRadius: AppRadii.xlAll,
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Continue",
-                    style: TextStyle(
-                      fontFamily: "Unbounded",
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                    style: AppTextStyles.displayLabel14.copyWith(
                       color: AppColors.textHeading,
                     ),
                   ),
@@ -237,7 +224,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
         });
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.smd),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -274,10 +261,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
             Expanded(
               child: Text(
                 reason,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: "Outfit",
-                  fontWeight: FontWeight.w400,
+                style: AppTextStyles.body14.copyWith(
                   color: AppColors.white30,
                 ),
               ),
