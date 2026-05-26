@@ -153,13 +153,22 @@ class AppColors {
   static const Color black = Color(0xFF000000);
   static const Color black87 = Color(0xDD000000);
   static const Color black54 = Color(0x8A000000);
+  static const Color black40 = Color(0x66000000);
   static const Color black38 = Color(0x61000000);
+  static const Color black35 = Color(0x59000000);
   static const Color black70 = Color(0xB2000000);
   static const Color black26 = Color(0x42000000);
+  static const Color black25 = Color(0x40000000);
+  static const Color black20 = Color(0x33000000);
   static const Color black16 = Color(0x29000000);
+  static const Color black15 = Color(0x26000000);
   static const Color black12 = Color(0x1F000000);
   static const Color black10 = Color(0x1A000000);
   static const Color black36 = Color(0x5C000000);
+  static const Color black30 = Color(0x4D000000);
+
+  /// Primary gold at 35% alpha — gold CTA glow
+  static const Color primaryAlpha35 = Color(0x59E8D1AB);
 
   // — Brand opacities —
   static const Color backgroundOpacity70 = Color(0xB21D1D1B);

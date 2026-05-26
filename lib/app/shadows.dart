@@ -14,48 +14,48 @@ class AppShadows {
   static const List<BoxShadow> none = [];
 
   /// Subtle shadow — cards on dark surfaces
-  static List<BoxShadow> get sm => [
+  static const List<BoxShadow> sm = [
     BoxShadow(
-      color: AppColors.black.withValues(alpha: 0.15),
+      color: AppColors.black15,
       blurRadius: 4,
-      offset: const Offset(0, 1),
+      offset: Offset(0, 1),
     ),
   ];
 
   /// Medium shadow — elevated cards, dropdowns
-  static List<BoxShadow> get md => [
+  static const List<BoxShadow> md = [
     BoxShadow(
-      color: AppColors.black.withValues(alpha: 0.2),
+      color: AppColors.black20,
       blurRadius: 8,
-      offset: const Offset(0, 2),
+      offset: Offset(0, 2),
     ),
     BoxShadow(
-      color: AppColors.black.withValues(alpha: 0.1),
+      color: AppColors.black10,
       blurRadius: 4,
-      offset: const Offset(0, 1),
+      offset: Offset(0, 1),
     ),
   ];
 
   /// Large shadow — modals, bottom sheets
-  static List<BoxShadow> get lg => [
+  static const List<BoxShadow> lg = [
     BoxShadow(
-      color: AppColors.black.withValues(alpha: 0.25),
+      color: AppColors.black25,
       blurRadius: 16,
-      offset: const Offset(0, 4),
+      offset: Offset(0, 4),
     ),
     BoxShadow(
-      color: AppColors.black.withValues(alpha: 0.1),
+      color: AppColors.black10,
       blurRadius: 6,
-      offset: const Offset(0, 2),
+      offset: Offset(0, 2),
     ),
   ];
 
   /// Extra large shadow — floating elements
-  static List<BoxShadow> get xl => [
+  static const List<BoxShadow> xl = [
     BoxShadow(
-      color: AppColors.black.withValues(alpha: 0.3),
+      color: AppColors.black30,
       blurRadius: 24,
-      offset: const Offset(0, 8),
+      offset: Offset(0, 8),
     ),
   ];
 
@@ -64,56 +64,56 @@ class AppShadows {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   /// Active bottom-nav indicator glow — white 0.2, blur 8, spread 1
-  static List<BoxShadow> get activeNavGlow => [
+  static const List<BoxShadow> activeNavGlow = [
     BoxShadow(
-      color: AppColors.white.withValues(alpha: 0.2),
+      color: AppColors.white20,
       blurRadius: 8,
       spreadRadius: 1,
     ),
   ];
 
   /// Dark CTA button shadow — black 0.35, blur 16, offset (0,8)
-  static List<BoxShadow> get ctaDark => [
+  static const List<BoxShadow> ctaDark = [
     BoxShadow(
-      color: AppColors.black.withValues(alpha: 0.35),
+      color: AppColors.black35,
       blurRadius: 16,
-      offset: const Offset(0, 8),
+      offset: Offset(0, 8),
     ),
   ];
 
   /// Hero overlay drop shadow — black 0.4, blur 20, offset (0,15)
-  static List<BoxShadow> get heroOverlay => [
+  static const List<BoxShadow> heroOverlay = [
     BoxShadow(
-      color: AppColors.black.withValues(alpha: 0.4),
+      color: AppColors.black40,
       blurRadius: 20,
-      offset: const Offset(0, 15),
+      offset: Offset(0, 15),
     ),
   ];
 
   /// Gold CTA highlight — primary 0.35, blur 8, offset (0,4)
-  static List<BoxShadow> get goldCta => [
+  static const List<BoxShadow> goldCta = [
     BoxShadow(
-      color: AppColors.primary.withValues(alpha: 0.35),
+      color: AppColors.primaryAlpha35,
       blurRadius: 8,
-      offset: const Offset(0, 4),
+      offset: Offset(0, 4),
     ),
   ];
 
   /// Card shadow (standard) — black 0.25, blur 12, offset (0,6)
-  static List<BoxShadow> get card => [
+  static const List<BoxShadow> card = [
     BoxShadow(
-      color: AppColors.black.withValues(alpha: 0.25),
+      color: AppColors.black25,
       blurRadius: 12,
-      offset: const Offset(0, 6),
+      offset: Offset(0, 6),
     ),
   ];
 
   /// Card shadow (subtle) — black 0.15, blur 12, offset (0,6)
-  static List<BoxShadow> get cardSubtle => [
+  static const List<BoxShadow> cardSubtle = [
     BoxShadow(
-      color: AppColors.black.withValues(alpha: 0.15),
+      color: AppColors.black15,
       blurRadius: 12,
-      offset: const Offset(0, 6),
+      offset: Offset(0, 6),
     ),
   ];
 
