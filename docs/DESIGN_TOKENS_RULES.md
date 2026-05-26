@@ -127,3 +127,4 @@ Stopping new violations from landing is the cheap part — `./tool/check_design_
 |---------|------|-------|
 | 1.0 | 2026-05-23 | Initial rules + checklist |
 | 1.1 | 2026-05-26 | Phase A: removed ColorCode rule (class deleted); added `no-with-opacity` locked gate; wired `tool/check_design_tokens.sh` for automated enforcement. |
+| 1.2 | 2026-05-26 | Phases B + D + E closed. Four additional gates passing under `--strict`: `no-inline-text-style`, `no-raw-edge-insets`, `no-raw-font-family`, `no-raw-radius-only`. `no-raw-sized-box-literal` (377) and `no-raw-duration` (28) remain — Phase C deferred. |

@@ -1,9 +1,11 @@
 # Design Tokens — Completion Plan
 
-> **Status:** Pending — supersedes the "Done" claims in `DESIGN_TOKENS_BATCH_EXECUTION_PLAN.md` for batches 11/12.
+> **Status:** Phases A, B, D, E executed (2026-05-26). Phase C deferred by
+> request. Phase F closing-out underway. See [Final state](#final-state) at
+> the bottom for actual deliverables.
 > **Created:** 2026-05-26
-> **Owner:** TBD
-> **Companion:** `DESIGN_TOKENS_BATCH_EXECUTION_PLAN.md`, `DESIGN_TOKENS_MIGRATION.md`, `DESIGN_TOKENS_RULES.md`
+> **Companion:** `DESIGN_TOKENS_BATCH_EXECUTION_PLAN.md` (superseded),
+> `DESIGN_TOKENS_MIGRATION.md`, `DESIGN_TOKENS_RULES.md`
 > **Scope:** Finish the unfinished migration, add enforcement, extend coverage, clean the tokens themselves, then unlock the deferred ThemeData fields. **Light mode is explicitly out of scope** — app stays dark-only per `CLAUDE.md`.
 
 ---
@@ -426,8 +428,80 @@ rg -n "ColorCode" lib -g "*.dart"
 
 ---
 
+## Final state
+
+Executed 2026-05-26 across 11 commits on `improvments-phase1`. Phase C was
+explicitly deferred mid-execution at the user's request. Phase E was scoped
+down to textTheme + dividerTheme.
+
+### What shipped
+
+| Phase | Status | Commit |
+|---|---|---|
+| A.2 — drop ColorCode references | shipped | `9f0f9e6` |
+| A.3 — `withOpacity` → `withValues` (72 sites) | shipped | `e1ae373` |
+| A.1 — `tool/check_design_tokens.sh` + plan doc | shipped | `2764fa5` |
+| B.3 — partial-corner BorderRadius helpers + 35 callers | shipped | `75d623e` |
+| B.1 — `home_screen.dart` full migration + dead `_meetingCard` removed | shipped | `7a7516e` |
+| B.2 — remaining feature screens (10 sites across 6 files) | shipped | `0eda8e7` |
+| C.1 / C.2 / C.3 — SizedBox / Duration / Icon size sweeps | **deferred** | — |
+| D.1 — numeric outlier tokens renamed (13 spacing + 5 radii) | shipped | `dd28394` |
+| D.2 — `system*` → `inherit*` text styles (88 sites) | shipped | `689d6ac` |
+| D.3 — `AppShadows` getters → const (10 lists + 7 new AppColors alphas) | shipped | `2607106` |
+| E — textTheme + dividerTheme (scoped subset) | shipped | `6731700` |
+| F — gate verification + doc closeout | this commit | — |
+
+### Final gate state
+
+Locked categories (all 0 ✓):
+
+| Gate | Count |
+|---|---:|
+| `no-raw-color-literal` | 0 |
+| `no-material-colors` | 0 |
+| `no-colorcode` | 0 |
+| `no-inline-box-shadow` | 0 |
+| `no-raw-asset-string` | 0 |
+| `no-raw-border-radius` | 0 |
+| `no-with-opacity` | 0 |
+
+Strict categories (Phase C scope — deferred):
+
+| Gate | Count |
+|---|---:|
+| `no-inline-text-style` | 0 |
+| `no-raw-edge-insets` | 0 |
+| `no-raw-font-family` | 0 |
+| `no-raw-radius-only` | 0 |
+| `no-raw-sized-box-literal` | **377** |
+| `no-raw-duration` | **28** |
+
+`flutter analyze`: no errors introduced by token work; 310 pre-existing
+issues unchanged (mostly `non_constant_identifier_names`, `avoid_print`,
+`use_build_context_synchronously`, and one missing-asset-directory
+warning).
+
+### Follow-ups (when picked up later)
+
+1. **Phase C** — `SizedBox` (377) and `Duration` (28) sweeps. Tokens
+   already exist in `AppSpacing` / `AppDurations`; the work is
+   mechanical sed across the codebase plus a few new outlier tokens.
+   See the C.1 / C.2 / C.3 sections above.
+2. **Phase E remainder** — `inputDecorationTheme`, `cardTheme`,
+   `bottomSheetTheme`, `dialogTheme`, `chipTheme`. Each is one PR with
+   a screenshot diff. The deferred-fields comment block in
+   `lib/app/theme.dart` is the live punch list.
+3. **`custom_lint` Dart plugin** — replace the grep-based gate script
+   with an analyzer plugin so violations surface in the IDE. See
+   `DESIGN_TOKENS_RULES.md` → Automated enforcement.
+4. **Pubspec assets warning** — `assets/profile/` declared but
+   missing; unrelated to tokens but worth cleaning up.
+
+---
+
 ## Changelog
 
 | Version | Date | Notes |
 |---|---|---|
 | 1.0 | 2026-05-26 | Initial completion plan covering Phases A–F |
+| 1.1 | 2026-05-26 | Phase A/B/D/E executed; Phase C deferred; Phase E narrowed to textTheme + dividerTheme. Final state recorded above. |
