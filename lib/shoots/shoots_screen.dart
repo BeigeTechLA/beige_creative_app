@@ -204,7 +204,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 ),
               ),
 
-              const SizedBox(height: AppSpacing.s15),
+              const SizedBox(height: AppSpacing.cardCompactInset),
 
               /// 🔥 SEARCH BAR
               Padding(
@@ -224,7 +224,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                       hintText: "Search events or crew...",
                       hintStyle: AppTextStyles.bodyMedium,
                       prefixIcon: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.authCardCompactTop),
+                        padding: const EdgeInsets.all(AppSpacing.inlineNudge),
                         child: SvgPicture.asset(
                           AppAssets.search_icon,
                           width: 14,
@@ -762,7 +762,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                   ),
 
                                   /// FILTER BY CATEGORY
-                                  const SizedBox(height: AppSpacing.authCardCompactTop),
+                                  const SizedBox(height: AppSpacing.inlineNudge),
 
                                   /// CLEAR ALL & APPLY BUTTONS
                                   Row(

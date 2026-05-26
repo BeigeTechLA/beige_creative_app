@@ -111,7 +111,7 @@ class _FeaturedWorkDetailsScreenState extends State<FeaturedWorkDetailsScreen> {
         body: Stack(
           children: [
             ListView.builder(
-              padding: const EdgeInsets.all(AppSpacing.s15),
+              padding: const EdgeInsets.all(AppSpacing.cardCompactInset),
               itemCount: images.length,
 
               itemBuilder: (context, index) {

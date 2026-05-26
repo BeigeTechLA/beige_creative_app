@@ -135,7 +135,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
                     horizontal: AppSpacing.xl,
                     vertical: AppSpacing.xxs,
                   ),
-                  padding: const EdgeInsets.all(AppSpacing.s5),
+                  padding: const EdgeInsets.all(AppSpacing.tabInnerPad),
                   height: 53,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceMid,
@@ -177,9 +177,9 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       children: [
         Container(
           margin: const EdgeInsets.only(
-            top: AppSpacing.s50,
-            left: AppSpacing.authCardCompactTop,
-            right: AppSpacing.authCardCompactTop,
+            top: AppSpacing.avatarOverlapTop,
+            left: AppSpacing.inlineNudge,
+            right: AppSpacing.inlineNudge,
             bottom: AppSpacing.xl,
           ),
           padding: const EdgeInsets.fromLTRB(
@@ -280,8 +280,8 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
         Container(
           margin:  const EdgeInsets.only(
             top: AppSpacing.profileCardTop,
-            left: AppSpacing.authCardCompactTop,
-            right: AppSpacing.authCardCompactTop,
+            left: AppSpacing.inlineNudge,
+            right: AppSpacing.inlineNudge,
             bottom: AppSpacing.xl,
           ),
           padding:  const EdgeInsets.fromLTRB(
@@ -497,7 +497,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s25,
+          horizontal: AppSpacing.editProfileBtnH,
           vertical: AppSpacing.sm,
         ),
         decoration: BoxDecoration(
@@ -527,7 +527,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s25,
+          horizontal: AppSpacing.editProfileBtnH,
           vertical: AppSpacing.sm,
         ),
         decoration: BoxDecoration(

@@ -254,7 +254,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.fromLTRB(
                           AppSpacing.xl,
-                          AppSpacing.authCardCompactTop,
+                          AppSpacing.inlineNudge,
                           AppSpacing.xl,
                           AppSpacing.xl,
                         ),

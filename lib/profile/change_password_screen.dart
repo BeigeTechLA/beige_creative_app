@@ -127,7 +127,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.xl,
-            vertical: AppSpacing.s15,
+            vertical: AppSpacing.cardCompactInset,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

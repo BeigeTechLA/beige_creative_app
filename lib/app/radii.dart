@@ -83,26 +83,36 @@ class AppRadii {
   static const double full = 999;
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // OUTLIER RAW VALUES (strict-match for one-off literals;
-  // numerical names mark them for future scale collapse)
+  // OUTLIER VALUES (named by their canonical use site)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const double r2 = 2;
-  static const double r3 = 3;
-  static const double r5 = 5;
-  static const double r15 = 15;
-  static const double r26 = 26;
+  /// 2 — Hairline corner radius (myprofile inline cell)
+  static const double nano = 2;
+
+  /// 3 — Calendar event-label corner radius
+  static const double eventLabel = 3;
+
+  /// 5 — Signup fine chip corner radius
+  static const double signupChip = 5;
+
+  /// 15 — Compact card / featured tag corner radius
+  static const double compactCard = 15;
+
+  /// 26 — Client-contact section card corner radius
+  static const double clientContact = 26;
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // CONVENIENCE BORDER RADIUS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   static final BorderRadius noneAll = BorderRadius.circular(none);
-  static final BorderRadius r2All = BorderRadius.circular(r2);
-  static final BorderRadius r3All = BorderRadius.circular(r3);
-  static final BorderRadius r5All = BorderRadius.circular(r5);
-  static final BorderRadius r15All = BorderRadius.circular(r15);
-  static final BorderRadius r26All = BorderRadius.circular(r26);
+  static final BorderRadius nanoAll = BorderRadius.circular(nano);
+  static final BorderRadius eventLabelAll = BorderRadius.circular(eventLabel);
+  static final BorderRadius signupChipAll = BorderRadius.circular(signupChip);
+  static final BorderRadius compactCardAll = BorderRadius.circular(compactCard);
+  static final BorderRadius clientContactAll = BorderRadius.circular(
+    clientContact,
+  );
   static final BorderRadius mldAll = BorderRadius.circular(mld);
   static final BorderRadius headerAll = BorderRadius.circular(header);
   static final BorderRadius xsAll = BorderRadius.circular(xs);

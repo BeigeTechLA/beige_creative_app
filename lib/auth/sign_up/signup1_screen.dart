@@ -1179,7 +1179,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                         color: savePassword
                                             ? AppColors.primary
                                             : AppColors.transparent,
-                                        borderRadius: AppRadii.r5All,
+                                        borderRadius: AppRadii.signupChipAll,
                                         border: Border.all(
                                           color: AppColors.white30,
                                         ),

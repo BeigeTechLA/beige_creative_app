@@ -138,7 +138,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
             ),
         
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.s30),
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.sectionGapLg),
               child: Text(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
                 textAlign: TextAlign.center,

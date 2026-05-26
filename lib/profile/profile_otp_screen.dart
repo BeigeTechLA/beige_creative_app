@@ -180,7 +180,7 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.xl,
-            vertical: AppSpacing.s15,
+            vertical: AppSpacing.cardCompactInset,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

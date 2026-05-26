@@ -500,7 +500,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       bottom: AppSpacing.sm,
                                     ),
                                     padding: const EdgeInsets.all(
-                                      AppSpacing.s3,
+                                      AppSpacing.microInset,
                                     ),
                                     decoration: BoxDecoration(
                                       borderRadius: AppRadii.xxlAll,
@@ -614,7 +614,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       bottom: AppSpacing.sm,
                                     ),
                                     padding: const EdgeInsets.all(
-                                      AppSpacing.s3,
+                                      AppSpacing.microInset,
                                     ),
                                     decoration: BoxDecoration(
                                       borderRadius: AppRadii.xxlAll,

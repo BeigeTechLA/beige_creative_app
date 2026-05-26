@@ -181,7 +181,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                       width: 3,
                       color: AppColors.primary,
                     ),
-                    insets: const EdgeInsets.symmetric(horizontal: AppSpacing.s25),
+                    insets: const EdgeInsets.symmetric(horizontal: AppSpacing.editProfileBtnH),
                   ),
 
                   labelColor: AppColors.primary,
@@ -425,7 +425,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: AppSpacing.mld),
-            padding: const EdgeInsets.all(AppSpacing.s22),
+            padding: const EdgeInsets.all(AppSpacing.folderCardInset),
             decoration: BoxDecoration(
               color: AppColors.surfaceMid,
               borderRadius: AppRadii.portfolioCompactAll,
@@ -552,7 +552,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
             onTap: () {},
             child: Container(
               margin: const EdgeInsets.only(bottom: AppSpacing.mld),
-              padding: const EdgeInsets.all(AppSpacing.s22),
+              padding: const EdgeInsets.all(AppSpacing.folderCardInset),
               decoration: BoxDecoration(
                 color: AppColors.surfaceMid,
                 borderRadius: AppRadii.portfolioCompactAll,

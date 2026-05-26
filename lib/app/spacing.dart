@@ -22,8 +22,8 @@ class AppSpacing {
   /// 2px — Micro spacing (icon-label align)
   static const double xxxs = 2;
 
-  /// 3px — Off-grid micro outlier (badge inset)
-  static const double s3 = 3;
+  /// 3px — Event-label micro inset (calendar chips, signup3 badges)
+  static const double microInset = 3;
 
   /// 4px — Tiny spacing (inline gaps)
   static const double xxs = 4;
@@ -34,20 +34,17 @@ class AppSpacing {
   /// 8px — Small spacing (icon–text gap)
   static const double sm = 8;
 
-  /// 9px — Off-grid dropdown icon inset
+  /// 9px — Dropdown icon / Availability "Add" button inset
   static const double dropdownIconInset = 9;
 
-  /// 7px — Off-grid dropdown padding
-  static const double s7 = 7;
+  /// 7px — Dropdown vertical padding
+  static const double dropdownPadV = 7;
 
-  /// 11px — Off-grid status item vertical
-  static const double s11 = 11;
+  /// 11px — Status-item vertical padding
+  static const double statusItemPadV = 11;
 
-  /// 9px — Off-grid button vertical (Availability "Add" button)
-  static const double s9 = 9;
-
-  /// 17px — Off-grid spacer (home dashboard divider)
-  static const double s17 = 17;
+  /// 17px — Dashboard divider gap
+  static const double dashboardDividerGap = 17;
 
   /// 10px — Compact padding (list items, chips)
   static const double smd = 10;
@@ -55,14 +52,14 @@ class AppSpacing {
   /// 12px — Medium compact
   static const double md = 12;
 
-  /// 13px — Compact auth card top inset
-  static const double authCardCompactTop = 13;
+  /// 13px — Inline compact nudge (auth card top, shoots padding, profile)
+  static const double inlineNudge = 13;
 
   /// 14px — Input/button vertical padding
   static const double mld = 14;
 
-  /// 15px — Off-grid outlier (list padding)
-  static const double s15 = 15;
+  /// 15px — Card compact inset (featured / profile / change_password)
+  static const double cardCompactInset = 15;
 
   /// 16px — Standard / default spacing (most common)
   static const double base = 16;
@@ -81,29 +78,29 @@ class AppSpacing {
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // COMPONENT OFF-GRID (exact matches, non-standard values)
-  // — Used only where no standard token matches exactly.
+  // — Named by canonical use site.
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   /// 5px — Tab-container internal padding (profile details tab bar)
-  static const double s5 = 5;
+  static const double tabInnerPad = 5;
 
-  /// 25px — Edit-profile button horizontal padding
-  static const double s25 = 25;
+  /// 25px — Edit-profile / file-manager button horizontal padding
+  static const double editProfileBtnH = 25;
 
   /// 28px — Status-item vertical gap (home dashboard)
-  static const double huge28 = 28;
+  static const double statusGap = 28;
 
-  /// 30px — Spacer outlier (home dashboard section gap)
-  static const double s30 = 30;
+  /// 30px — Larger section gap (home dashboard, view-details horiz)
+  static const double sectionGapLg = 30;
 
   /// 22px — Folder card interior padding
-  static const double s22 = 22;
+  static const double folderCardInset = 22;
 
   /// 70px — Profile card top inset (avatar overlap offset)
   static const double profileCardTop = 70;
 
   /// 50px — Profile card margin top (avatar half-overlap)
-  static const double s50 = 50;
+  static const double avatarOverlapTop = 50;
 
   /// 36px — Extra large
   static const double huge = 36;
@@ -199,7 +196,9 @@ class AppSpacing {
   static const SizedBox verticalMd = SizedBox(height: md);
   static const SizedBox verticalBase = SizedBox(height: base);
   static const SizedBox verticalMld = SizedBox(height: mld);
-  static const SizedBox verticalS15 = SizedBox(height: s15);
+  static const SizedBox verticalCardCompact = SizedBox(
+    height: cardCompactInset,
+  );
   static const SizedBox verticalLg = SizedBox(height: lg);
   static const SizedBox verticalXl = SizedBox(height: xl);
   static const SizedBox verticalXxl = SizedBox(height: xxl);

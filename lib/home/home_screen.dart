@@ -420,7 +420,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.calender, width: 14, height: 14),
-                    const SizedBox(width: AppSpacing.s5),
+                    const SizedBox(width: AppSpacing.tabInnerPad),
                     Text(
                       data['date'],
                       style: AppTextStyles.body12.copyWith(color: AppColors.white),
@@ -431,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.time, width: 14, height: 14),
-                    const SizedBox(width: AppSpacing.s5),
+                    const SizedBox(width: AppSpacing.tabInnerPad),
                     Text(
                       data['time'],
                       style: AppTextStyles.body12.copyWith(color: AppColors.white),
@@ -442,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.location, width: 14, height: 14),
-                    const SizedBox(width: AppSpacing.s5),
+                    const SizedBox(width: AppSpacing.tabInnerPad),
                     Expanded(
                       child: Text(
                         data['location'],
@@ -739,7 +739,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ],
                   ),
-                  SizedBox(height: AppSpacing.s30),
+                  SizedBox(height: AppSpacing.sectionGapLg),
 
                   /*    const SizedBox(),*/
 
@@ -1039,7 +1039,7 @@ class _HomeScreenState extends State<HomeScreen>
                       );
                     },
                   ),
-                  const SizedBox(height: AppSpacing.s17),
+                  const SizedBox(height: AppSpacing.dashboardDividerGap),
                   Divider(color: AppColors.dividerDark, thickness: 0.8),
                 ],
 
@@ -1059,7 +1059,7 @@ class _HomeScreenState extends State<HomeScreen>
                         backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(
                           horizontal: AppSpacing.base,
-                          vertical: AppSpacing.s9,
+                          vertical: AppSpacing.dropdownIconInset,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: AppRadii.roundAll,
@@ -1332,7 +1332,7 @@ class _HomeScreenState extends State<HomeScreen>
                               margin: const EdgeInsets.only(right: AppSpacing.sm),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: AppSpacing.md,
-                                vertical: AppSpacing.s7,
+                                vertical: AppSpacing.dropdownPadV,
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.white,
@@ -2059,7 +2059,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.huge28),
+                      const SizedBox(height: AppSpacing.statusGap),
                       _statusItem(
                         "$sucessfullshoots",
                         "Successful shoots",
@@ -2232,7 +2232,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.huge28),
+                      const SizedBox(height: AppSpacing.statusGap),
                       _statusItem(
                         "$acceptphotographyShoots",
                         "Photography shoots",
@@ -2271,11 +2271,11 @@ class _HomeScreenState extends State<HomeScreen>
     final isAvailable = event == "Available";
     return Container(
       width: double.infinity,
-      margin: const EdgeInsetsGeometry.all(AppSpacing.s3),
-      padding: const EdgeInsetsGeometry.all(AppSpacing.s3),
+      margin: const EdgeInsetsGeometry.all(AppSpacing.microInset),
+      padding: const EdgeInsetsGeometry.all(AppSpacing.microInset),
       decoration: BoxDecoration(
         color: isAvailable ? AppColors.softMint : AppColors.blueIce,
-        borderRadius: AppRadii.r3All,
+        borderRadius: AppRadii.eventLabelAll,
       ),
       child: Text(
         textAlign: TextAlign.center,
@@ -2520,7 +2520,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         : [],
                                   ),
                                   const SizedBox(
-                                    height: AppSpacing.authCardCompactTop,
+                                    height: AppSpacing.inlineNudge,
                                   ),
                                   Row(
                                     children: [
@@ -2771,7 +2771,7 @@ class _HomeScreenState extends State<HomeScreen>
                         : AppColors.textTertiary,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.s9),
+                const SizedBox(height: AppSpacing.dropdownIconInset),
                 Text(
                   count.toString(),
                   style: AppTextStyles.body22w700.copyWith(
@@ -2818,13 +2818,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _statusItem(String count, String label, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s11),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.statusItemPadV),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             width: 70,
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.s11),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.statusItemPadV),
             decoration: BoxDecoration(
               borderRadius: AppRadii.roundAll,
               border: Border.all(

@@ -91,7 +91,7 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
                     },
                     child: Container(
                       margin: const EdgeInsets.only(bottom: AppSpacing.mld),
-                      padding: const EdgeInsets.all(AppSpacing.s22),
+                      padding: const EdgeInsets.all(AppSpacing.folderCardInset),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceMid,
                         borderRadius: AppRadii.portfolioCompactAll,

@@ -456,7 +456,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
           /// 🔥 CLIENT CONTACT SECTION
           Container(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(borderRadius: AppRadii.r26All),
+            decoration: BoxDecoration(borderRadius: AppRadii.clientContactAll),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -999,7 +999,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                     ),
                   ),
 
-                  const SizedBox(height: AppSpacing.s15),
+                  const SizedBox(height: AppSpacing.cardCompactInset),
 
                   Divider(color: AppColors.dividerDark),
 

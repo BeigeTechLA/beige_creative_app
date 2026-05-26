@@ -587,7 +587,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
               ],
             ),
 
-            AppSpacing.verticalS15,
+            AppSpacing.verticalCardCompact,
 
             const Align(
               alignment: Alignment.centerLeft,

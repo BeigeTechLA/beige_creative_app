@@ -262,7 +262,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
         children: [
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.s15),
+              padding: const EdgeInsets.all(AppSpacing.cardCompactInset),
               child: Column(
                 children: [
                   Row(
@@ -603,7 +603,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(AppSpacing.s15),
+        padding: EdgeInsets.all(AppSpacing.cardCompactInset),
 
         child: SizedBox(
           width: double.infinity,

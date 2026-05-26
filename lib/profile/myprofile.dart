@@ -1354,7 +1354,7 @@ class _MyprofileState extends State<Myprofile> {
                               padding: const EdgeInsets.all(AppSpacing.md),
                               decoration: BoxDecoration(
                                 color: AppColors.primary, // beige
-                                borderRadius: AppRadii.r15All,
+                                borderRadius: AppRadii.compactCardAll,
                               ),
                               child: SvgPicture.asset(
                                 AppAssets.myprofile_edit,
@@ -1523,7 +1523,7 @@ class _MyprofileState extends State<Myprofile> {
                               padding: const EdgeInsets.all(AppSpacing.md),
                               decoration: BoxDecoration(
                                 color: AppColors.primary, // beige
-                                borderRadius: AppRadii.r15All,
+                                borderRadius: AppRadii.compactCardAll,
                               ),
                               child: SvgPicture.asset(
                                 AppAssets.myprofile_edit,
@@ -2746,7 +2746,7 @@ class _MyprofileState extends State<Myprofile> {
                 margin: const EdgeInsets.only(bottom: AppSpacing.base),
                 decoration: BoxDecoration(
                   color: AppColors.white30,
-                  borderRadius: AppRadii.r2All,
+                  borderRadius: AppRadii.nanoAll,
                 ),
               ),
 
