@@ -361,10 +361,10 @@ class AppColors {
   static const Color greenAccent = Color(0xFF00E676);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // BRIDGED FROM ColorCode (legacy palette consolidation)
+  // PALETTE EXTENSIONS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  /// 0xFFD6C3A1 — Soft gold-sand (ColorCode.soft)
+  /// 0xFFD6C3A1 — Soft gold-sand
   static const Color goldSoftSand = Color(0xFFD6C3A1);
 
   /// 0xFF333333 — Dark grey
