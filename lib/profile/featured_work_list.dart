@@ -382,9 +382,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                                         decoration: BoxDecoration(
                                           color: AppColors.surfaceShadow,
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
+                                          borderRadius: AppRadii.hugeAll,
                                         ),
 
                                         child: Stack(
@@ -652,7 +650,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                 padding: const EdgeInsets.all(20),
                 decoration: const BoxDecoration(
                   color: AppColors.background,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  borderRadius: AppRadii.topMassive,
                 ),
 
                 child: SingleChildScrollView(
@@ -946,7 +944,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
                 color: AppColors.background,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: AppRadii.topMassive,
               ),
 
               child: Column(
@@ -1097,9 +1095,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
               padding: const EdgeInsets.all(AppSpacing.xl),
               decoration: const BoxDecoration(
                 color: AppColors.background,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(24),
-                ),
+                borderRadius: AppRadii.topMassive,
               ),
 
               child: SingleChildScrollView(
@@ -1164,7 +1160,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                     /// ✅ IMAGE SECTION
                     DottedBorder(
                       options: RoundedRectDottedBorderOptions(
-                        radius: const Radius.circular(16),
+                        radius: AppRadii.radiusXxl,
                         color: AppColors.white24,
                         strokeWidth: 1,
                         dashPattern: [4, 4],
@@ -1266,10 +1262,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-
+                                            borderRadius: AppRadii.lgAll,
                                             border: Border.all(
                                               color: AppColors.white24,
                                             ),
@@ -1293,10 +1286,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                       return Stack(
                                         children: [
                                           ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-
+                                            borderRadius: AppRadii.lgAll,
                                             child: Image.network(
                                               "${ApiService.imageURL}${image.filePath}",
                                               fit: BoxFit.cover,
@@ -1345,10 +1335,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                     return Stack(
                                       children: [
                                         ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-
+                                          borderRadius: AppRadii.lgAll,
                                           child: Image.file(
                                             tempFeaturedImages[localIndex],
                                             fit: BoxFit.cover,
@@ -1496,7 +1483,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                 padding: const EdgeInsets.all(AppSpacing.xl),
                 decoration: const BoxDecoration(
                   color: AppColors.surfaceStats,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  borderRadius: AppRadii.topMassive,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -1554,17 +1541,13 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                 vertical: AppSpacing.smd,
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(12),
-                                ),
+                                borderRadius: AppRadii.lgAll,
                                 borderSide: BorderSide(
                                   color: AppColors.white24,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(12),
-                                ),
+                                borderRadius: AppRadii.lgAll,
                                 borderSide: BorderSide(color: AppColors.white),
                               ),
                             ),

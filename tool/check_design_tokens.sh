@@ -24,15 +24,18 @@ run_gate() {
   local pattern="$2"
   local extra_exclude_regex="${3:-}"
 
+  # Skip commented-out lines (whitespace + //)
   local hits
   if [[ -n "$extra_exclude_regex" ]]; then
     hits=$(grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
            | grep -v "lib/app/" \
+           | grep -vE ':[[:space:]]*//' \
            | grep -vE "$extra_exclude_regex" \
            | wc -l | tr -d ' ')
   else
     hits=$(grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
            | grep -v "lib/app/" \
+           | grep -vE ':[[:space:]]*//' \
            | wc -l | tr -d ' ')
   fi
 
@@ -41,11 +44,13 @@ run_gate() {
     if [[ -n "$extra_exclude_regex" ]]; then
       grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
         | grep -v "lib/app/" \
+        | grep -vE ':[[:space:]]*//' \
         | grep -vE "$extra_exclude_regex" \
         | head -10 | sed 's/^/    /'
     else
       grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
         | grep -v "lib/app/" \
+        | grep -vE ':[[:space:]]*//' \
         | head -10 | sed 's/^/    /'
     fi
     [[ "$hits" -gt 10 ]] && echo "    ... and $((hits - 10)) more"
@@ -65,11 +70,13 @@ report_gate() {
   if [[ -n "$extra_exclude_regex" ]]; then
     hits=$(grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
            | grep -v "lib/app/" \
+           | grep -vE ':[[:space:]]*//' \
            | grep -vE "$extra_exclude_regex" \
            | wc -l | tr -d ' ')
   else
     hits=$(grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
            | grep -v "lib/app/" \
+           | grep -vE ':[[:space:]]*//' \
            | wc -l | tr -d ' ')
   fi
   printf "  %-22s %s\n" "$label" "$hits"

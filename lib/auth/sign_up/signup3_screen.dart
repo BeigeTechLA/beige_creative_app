@@ -2898,7 +2898,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                       },
                       child: DottedBorder(
                         options: RoundedRectDottedBorderOptions(
-                          radius: const Radius.circular(16),
+                          radius: AppRadii.radiusXxl,
                           color: AppColors.white24,
                           strokeWidth: 1,
                           dashPattern: [4, 4],

@@ -269,9 +269,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
           ),
           decoration: const BoxDecoration(
             color: AppColors.surfaceStats,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(25),
-            ),
+            borderRadius: AppRadii.topPortfolio,
           ),
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.xl),

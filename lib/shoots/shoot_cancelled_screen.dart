@@ -89,9 +89,7 @@ class _CancelScreenState extends State<CancelScreen> {
           ),
           decoration: const BoxDecoration(
             color: AppColors.surfaceMid,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(28),
-            ),
+            borderRadius: AppRadii.topHeader,
           ),
           child: SafeArea(
             top: false,

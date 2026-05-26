@@ -325,9 +325,7 @@ void openUploadDialog() {
         padding: const EdgeInsets.all(AppSpacing.xl),
         decoration: const BoxDecoration(
           color: AppColors.surfaceShadow,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(25),
-          ),
+          borderRadius: AppRadii.topPortfolio,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -458,9 +456,7 @@ void _openOptions(CrewFile cert) {
         padding: const EdgeInsets.all(AppSpacing.xl),
         decoration: const BoxDecoration(
           color: AppColors.surfaceShadow,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(20),
-          ),
+          borderRadius: AppRadii.topHuge,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -257,7 +257,7 @@ class _MyprofileState extends State<Myprofile> {
               height: MediaQuery.of(context).size.height * 0.85,
               decoration: const BoxDecoration(
                 color: AppColors.surfaceCropSheet,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                borderRadius: AppRadii.topRound,
               ),
               padding: const EdgeInsets.all(AppSpacing.base),
               child: Column(
@@ -918,10 +918,7 @@ class _MyprofileState extends State<Myprofile> {
                       width: double.infinity,
                       height: 200,
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(28),
-                          bottomRight: Radius.circular(28),
-                        ),
+                        borderRadius: AppRadii.bottomHeader,
                         child: SvgPicture.asset(
                           AppAssets.rectangle_profile,
                           fit: BoxFit.fill,
@@ -1859,9 +1856,7 @@ class _MyprofileState extends State<Myprofile> {
                   height: 42,
                   decoration: BoxDecoration(
                     color: AppColors.primary,
-                    borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(14),
-                    ),
+                    borderRadius: AppRadii.bottomXl,
                   ),
                   child: SvgPicture.asset(
                     icon,
@@ -1919,9 +1914,7 @@ class _MyprofileState extends State<Myprofile> {
                   padding: const EdgeInsets.all(AppSpacing.xl),
                   decoration: const BoxDecoration(
                     color: AppColors.background,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(24),
-                    ),
+                    borderRadius: AppRadii.topMassive,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -2321,9 +2314,7 @@ class _MyprofileState extends State<Myprofile> {
                   padding: const EdgeInsets.all(AppSpacing.xl),
                   decoration: const BoxDecoration(
                     color: AppColors.background,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
+                    borderRadius: AppRadii.topHeader,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -2743,7 +2734,7 @@ class _MyprofileState extends State<Myprofile> {
           padding: const EdgeInsets.all(AppSpacing.xl),
           decoration: const BoxDecoration(
             color: AppColors.surfaceStats,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: AppRadii.topMassive,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

@@ -783,7 +783,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.xs),
           decoration: const BoxDecoration(
             color: AppColors.surfaceCharcoal,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            borderRadius: AppRadii.topRound,
           ),
           child: Column(
             children: [
@@ -955,7 +955,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
               decoration: const BoxDecoration(
                 color: AppColors.surfaceCharcoal,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                borderRadius: AppRadii.topRound,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -564,10 +564,7 @@ class _HomeScreenState extends State<HomeScreen>
             width: double.infinity,
             decoration: const BoxDecoration(
               color: AppColors.surfaceMid,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(40),
-                bottomRight: Radius.circular(40),
-              ),
+              borderRadius: AppRadii.bottomPillSm,
             ),
             child: SafeArea(
               bottom: false,
@@ -1589,9 +1586,7 @@ class _HomeScreenState extends State<HomeScreen>
                         Stack(
                           children: [
                             ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(22),
-                              ),
+                              borderRadius: AppRadii.topPortfolioCompact,
                               child:
                                   data?.shootTypeImageUrl != null &&
                                       data!.shootTypeImageUrl.isNotEmpty
@@ -1627,9 +1622,7 @@ class _HomeScreenState extends State<HomeScreen>
                             Positioned.fill(
                               child: Container(
                                 decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(22),
-                                  ),
+                                  borderRadius: AppRadii.topPortfolioCompact,
                                   gradient: LinearGradient(
                                     begin: Alignment.bottomCenter,
                                     end: Alignment.topCenter,
@@ -2393,9 +2386,7 @@ class _HomeScreenState extends State<HomeScreen>
                   child: Container(
                     decoration: const BoxDecoration(
                       color: AppColors.surfaceMid,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(24),
-                      ),
+                      borderRadius: AppRadii.topMassive,
                     ),
                     child: Column(
                       children: [

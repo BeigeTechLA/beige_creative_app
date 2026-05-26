@@ -351,7 +351,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
         children: [
           /// IMAGE
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: AppRadii.topHuge,
             child: SizedBox(
               height: 180,
               width: double.infinity,
@@ -593,9 +593,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                   child: Container(
                     decoration: const BoxDecoration(
                       color: AppColors.surfaceMid,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(24),
-                      ),
+                      borderRadius: AppRadii.topMassive,
                     ),
                     child: Column(
                       children: [

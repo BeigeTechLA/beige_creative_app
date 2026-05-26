@@ -686,7 +686,7 @@ class _EnterProfileDetailsScreenState
       backgroundColor:  AppColors.background,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: AppRadii.topHuge,
       ),
       builder: (context) {
         return StatefulBuilder(
@@ -815,7 +815,7 @@ class _EnterProfileDetailsScreenState
       backgroundColor: AppColors.surfaceCropSheet,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: AppRadii.topHuge,
       ),
       builder: (context) {
         return StatefulBuilder(

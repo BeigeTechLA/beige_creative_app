@@ -30,10 +30,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                   width: double.infinity,
                   height: 200,
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(28),
-                      bottomRight: Radius.circular(28),
-                    ),
+                    borderRadius: AppRadii.bottomHeader,
                     child: Image.asset(
                       AppAssets.rectangle,
                       fit: BoxFit.fill,

@@ -167,4 +167,39 @@ class AppRadii {
     bottomLeft: Radius.circular(AppRadii.pillSm),
     bottomRight: Radius.circular(AppRadii.pillSm),
   );
+
+  /// Top-only rounding — 22px (portfolio-compact sheets)
+  static const BorderRadius topPortfolioCompact = BorderRadius.only(
+    topLeft: Radius.circular(AppRadii.portfolioCompact),
+    topRight: Radius.circular(AppRadii.portfolioCompact),
+  );
+
+  /// Top-only rounding — 25px (portfolio sheets)
+  static const BorderRadius topPortfolio = BorderRadius.only(
+    topLeft: Radius.circular(AppRadii.portfolio),
+    topRight: Radius.circular(AppRadii.portfolio),
+  );
+
+  /// Top-only rounding — 30px (round sheets)
+  static const BorderRadius topRound = BorderRadius.only(
+    topLeft: Radius.circular(AppRadii.round),
+    topRight: Radius.circular(AppRadii.round),
+  );
+
+  /// Bottom-only rounding — 14px
+  static const BorderRadius bottomXl = BorderRadius.only(
+    bottomLeft: Radius.circular(AppRadii.xl),
+    bottomRight: Radius.circular(AppRadii.xl),
+  );
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // STANDALONE Radius constants
+  // — For widgets that take a Radius (not BorderRadius), e.g. DottedBorder.
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// 12 — Radius for lg corners
+  static const Radius radiusLg = Radius.circular(lg);
+
+  /// 16 — Radius for xxl corners
+  static const Radius radiusXxl = Radius.circular(xxl);
 }
