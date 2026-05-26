@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'colors.dart';
+import 'text_styles.dart';
 
 /// Centralized [ThemeData] configuration for the Beige app.
 ///
@@ -71,14 +72,46 @@ class AppTheme {
         ),
       ),
 
+      // ━━━ TEXT THEME ━━━
+      // Maps AppTextStyles onto the Material TextTheme slots so widgets
+      // that inherit (AppBar title, ListTile, SnackBar, Tooltip,
+      // PopupMenuItem, etc.) pick up our typography without an explicit
+      // `style:`. Widgets that pass an explicit style override these
+      // anyway, so this is additive.
+      textTheme: const TextTheme(
+        displayLarge: AppTextStyles.displayLarge,
+        displayMedium: AppTextStyles.displayMedium,
+        displaySmall: AppTextStyles.displaySmall,
+        headlineLarge: AppTextStyles.displayMedium,
+        headlineMedium: AppTextStyles.displaySmall,
+        headlineSmall: AppTextStyles.titleLarge,
+        titleLarge: AppTextStyles.titleLarge,
+        titleMedium: AppTextStyles.titleMedium,
+        titleSmall: AppTextStyles.titleSmall,
+        bodyLarge: AppTextStyles.bodyLarge,
+        bodyMedium: AppTextStyles.bodyMedium,
+        bodySmall: AppTextStyles.bodySmall,
+        labelLarge: AppTextStyles.labelLarge,
+        labelMedium: AppTextStyles.labelMedium,
+        labelSmall: AppTextStyles.labelSmall,
+      ),
+
+      // ━━━ DIVIDER THEME ━━━
+      // Sets the default colour so bare Divider() / VerticalDivider()
+      // inherit the dark-mode divider tint. Existing call sites that
+      // pass a `color:` argument are unaffected.
+      dividerTheme: const DividerThemeData(
+        color: AppColors.dividerDark,
+      ),
+
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // PHASE 2 — Deferred fields (enable individually with screenshot diff)
+      // PHASE E (remaining) — Deferred fields (enable individually with
+      // screenshot diff)
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       //
       // useMaterial3: true,
       // brightness: Brightness.dark,
       // fontFamily: AppTextStyles.fontFamilyBody,
-      // textTheme: ...,
       // inputDecorationTheme: ...,
       // cardTheme: ...,
       // bottomNavigationBarTheme: ...,
@@ -86,7 +119,6 @@ class AppTheme {
       // bottomSheetTheme: ...,
       // snackBarTheme: ...,
       // chipTheme: ...,
-      // dividerTheme: ...,
       // switchTheme: ...,
       // checkboxTheme: ...,
       // radioTheme: ...,
