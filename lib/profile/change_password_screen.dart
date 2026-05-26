@@ -240,7 +240,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           labelText: "Email ID*",
           floatingLabelBehavior: FloatingLabelBehavior.always,
 
-          labelStyle: AppTextStyles.systemDefault.copyWith(
+          labelStyle: AppTextStyles.inherit.copyWith(
             color: AppColors.white, // #1D1D1B 60% opacity
           ),
 
@@ -266,7 +266,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             ),
           ),
 
-          floatingLabelStyle: AppTextStyles.systemDefault.copyWith(
+          floatingLabelStyle: AppTextStyles.inherit.copyWith(
             color: AppColors.white60,
           ),)
 

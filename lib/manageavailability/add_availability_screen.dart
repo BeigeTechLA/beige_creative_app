@@ -307,14 +307,14 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 
               headerBackgroundColor: AppColors.surfaceNearBlack,
 
-              headerHeadlineStyle: AppTextStyles.systemDefault.copyWith(
+              headerHeadlineStyle: AppTextStyles.inherit.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
                 color: AppColors.white,
               ),
 
-              dayStyle: AppTextStyles.systemDefault.copyWith(color: AppColors.white),
-              weekdayStyle: AppTextStyles.systemDefault.copyWith(color: AppColors.white70),
+              dayStyle: AppTextStyles.inherit.copyWith(color: AppColors.white),
+              weekdayStyle: AppTextStyles.inherit.copyWith(color: AppColors.white70),
             ),
           ),
           child: child!,
@@ -404,7 +404,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       child: Align(
         child: Text(
           summaryText,
-          style: AppTextStyles.systemDefault.copyWith(
+          style: AppTextStyles.inherit.copyWith(
             color: AppColors.goldSand,
             fontSize: 12,
             fontStyle: FontStyle.italic,
@@ -468,7 +468,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                 ),
                 child: Text(
                   day,
-                  style: AppTextStyles.systemSemiBold.copyWith(
+                  style: AppTextStyles.inheritSemiBold.copyWith(
                     color: isSelected ? AppColors.black : AppColors.white70,
                   ),
                 ),
@@ -492,7 +492,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                   color: AppColors.orangeBright),
               AppSpacing.gapHXs,
               Text("Repeat every day",
-                  style: AppTextStyles.systemDefault.copyWith(color: AppColors.orange)),
+                  style: AppTextStyles.inherit.copyWith(color: AppColors.orange)),
             ],
           ),
           Row(
@@ -506,7 +506,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                 },
               ),
               Text("Include Weekends",
-                  style: AppTextStyles.systemDefault.copyWith(color: AppColors.white)),
+                  style: AppTextStyles.inherit.copyWith(color: AppColors.white)),
             ],
           ),
           buildUntilDateField(),
@@ -520,7 +520,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text("Repeat on specific weekdays",
-              style: AppTextStyles.systemDefault.copyWith(color: AppColors.orange)),
+              style: AppTextStyles.inherit.copyWith(color: AppColors.orange)),
           AppSpacing.verticalMd,
           buildWeekDays(),
           AppSpacing.verticalMd,
@@ -621,7 +621,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                         value: e,
                         child: Text(
                           e,
-                          style: AppTextStyles.systemDefault.copyWith(
+                          style: AppTextStyles.inherit.copyWith(
                             color: AppColors.white,
                           ),
                         ),
@@ -710,7 +710,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                           },
                         ),
                         Text("All Day",
-                            style: AppTextStyles.systemDefault.copyWith(color: AppColors.white)),
+                            style: AppTextStyles.inherit.copyWith(color: AppColors.white)),
                       ],
                     ),
 
@@ -725,7 +725,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                         value: e,
                         child: Text(
                           e,
-                          style: AppTextStyles.systemDefault.copyWith(
+                          style: AppTextStyles.inherit.copyWith(
                             color: AppColors.white,
                           ),
                         ),

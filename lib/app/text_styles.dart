@@ -350,41 +350,49 @@ class AppTextStyles {
     fontWeight: FontWeight.w500,
   );
 
-  /// System/default inherited text — used when legacy TextStyle had no font tuple.
-  static const TextStyle systemDefault = TextStyle();
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // INHERIT — Styles with no explicit fontFamily.
+  // Render whatever font the surrounding DefaultTextStyle / theme
+  // supplies. Use these only where the original widget code
+  // intentionally omitted a fontFamily; everywhere else prefer
+  // body* / display* tokens.
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  /// System/default 13 — no explicit font family or weight.
-  static const TextStyle system13 = TextStyle(fontSize: 13);
+  /// No size, no family, no weight — pure inherit.
+  static const TextStyle inherit = TextStyle();
 
-  /// System/default 14 — no explicit font family or weight.
-  static const TextStyle system14 = TextStyle(fontSize: 14);
+  /// Inherited family, size 13.
+  static const TextStyle inherit13 = TextStyle(fontSize: 13);
 
-  /// System/default 14 w600 — no explicit font family.
-  static const TextStyle system14Strong = TextStyle(
+  /// Inherited family, size 14.
+  static const TextStyle inherit14 = TextStyle(fontSize: 14);
+
+  /// Inherited family, size 14 w600.
+  static const TextStyle inherit14Strong = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w600,
   );
 
-  /// System/default 15 w500 — no explicit font family.
-  static const TextStyle system15Medium = TextStyle(
+  /// Inherited family, size 15 w500.
+  static const TextStyle inherit15Medium = TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.w500,
   );
 
-  /// System/default 15 w600 — no explicit font family.
-  static const TextStyle system15Strong = TextStyle(
+  /// Inherited family, size 15 w600.
+  static const TextStyle inherit15Strong = TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.w600,
   );
 
-  /// System/default 16 w500 — no explicit font family.
-  static const TextStyle system16Medium = TextStyle(
+  /// Inherited family, size 16 w500.
+  static const TextStyle inherit16Medium = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w500,
   );
 
-  /// System/default semibold — no explicit font family or size.
-  static const TextStyle systemSemiBold = TextStyle(
+  /// Inherited family + size, weight w600.
+  static const TextStyle inheritSemiBold = TextStyle(
     fontWeight: FontWeight.w600,
   );
 
@@ -435,8 +443,8 @@ class AppTextStyles {
     fontWeight: FontWeight.w600,
   );
 
-  /// System/default 13 height 1.4 — terms paragraph body
-  static const TextStyle system13Tight = TextStyle(
+  /// Inherited family, size 13, line-height 1.4 — terms paragraph body.
+  static const TextStyle inherit13Tight = TextStyle(
     fontSize: 13,
     height: 1.4,
   );
@@ -445,32 +453,32 @@ class AppTextStyles {
   // EXTENDED — Profile-account outliers (Phase 2 — Batch 5)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  /// System/default 15 bold — Underlined CTA (resend OTP)
-  static const TextStyle system15Bold = TextStyle(
+  /// Inherited family, size 15 bold — Underlined CTA (resend OTP).
+  static const TextStyle inherit15Bold = TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.bold,
   );
 
-  /// System/default 16 w600 — Strong body (OTP placeholder)
-  static const TextStyle system16Strong = TextStyle(
+  /// Inherited family, size 16 w600 — Strong body (OTP placeholder).
+  static const TextStyle inherit16Strong = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
   );
 
-  /// System/default 18 w600 — OTP digit (filled state)
-  static const TextStyle system18Strong = TextStyle(
+  /// Inherited family, size 18 w600 — OTP digit (filled state).
+  static const TextStyle inherit18Strong = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w600,
   );
 
-  /// System/default 19 bold — Big OTP digit
-  static const TextStyle system19Bold = TextStyle(
+  /// Inherited family, size 19 bold — Big OTP digit.
+  static const TextStyle inherit19Bold = TextStyle(
     fontSize: 19,
     fontWeight: FontWeight.bold,
   );
 
-  /// System/default 20 bold — Hero OTP heading
-  static const TextStyle system20Bold = TextStyle(
+  /// Inherited family, size 20 bold — Hero OTP heading.
+  static const TextStyle inherit20Bold = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold,
   );

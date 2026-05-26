@@ -228,11 +228,11 @@ class _CancelScreenState extends State<CancelScreen> {
                               controller:
                               commentController,
                               maxLines: 3,
-                              style: AppTextStyles.systemDefault,
+                              style: AppTextStyles.inherit,
                               decoration: const InputDecoration(
                                 hintText:
                                 "Any additional details...",
-                                hintStyle: AppTextStyles.system13,
+                                hintStyle: AppTextStyles.inherit13,
                                 border: InputBorder.none,
                               ),
                             ),

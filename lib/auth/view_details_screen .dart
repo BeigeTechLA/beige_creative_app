@@ -41,7 +41,7 @@ class ViewDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTextStyle(
-      style: AppTextStyles.systemDefault.copyWith(
+      style: AppTextStyles.inherit.copyWith(
         decoration: TextDecoration.none,
       ),
       child: Container(

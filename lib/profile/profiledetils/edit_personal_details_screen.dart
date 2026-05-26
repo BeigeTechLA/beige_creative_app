@@ -468,7 +468,7 @@ import '../../model_class/edit_profile_model.dart';
                                 ),
                                 child: Text(
                                   "Location*",
-                                  style: AppTextStyles.system14.copyWith(
+                                  style: AppTextStyles.inherit14.copyWith(
                                     color: locationHighlight
                                         ? AppColors.primary
                                         : AppColors.white60,

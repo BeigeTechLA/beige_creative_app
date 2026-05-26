@@ -218,7 +218,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                   child: TextField(
                     controller: searchController,
                     onChanged: searchShoots,
-                    style: AppTextStyles.system14,
+                    style: AppTextStyles.inherit14,
                     cursorColor: AppColors.white,
                     decoration: InputDecoration(
                       hintText: "Search events or crew...",
@@ -389,7 +389,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                   children: [
                     Text(
                       "ID: ${shoot.id}",
-                      style: AppTextStyles.systemDefault.copyWith(
+                      style: AppTextStyles.inherit.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -909,7 +909,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                 child: Center(
                   child: Text(
                     "+$extraCount",
-                    style: AppTextStyles.systemDefault.copyWith(
+                    style: AppTextStyles.inherit.copyWith(
                       color: AppColors.white,
                       fontSize: avatarSize * 0.35,
                       fontWeight: FontWeight.bold,

@@ -63,10 +63,10 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
                     AppSpacing.gapHSmd,
                     Expanded(
                       child: TextField(
-                        style: AppTextStyles.systemDefault,
+                        style: AppTextStyles.inherit,
                         decoration: InputDecoration(
                           hintText: "Search",
-                          hintStyle: AppTextStyles.systemDefault,
+                          hintStyle: AppTextStyles.inherit,
                           border: InputBorder.none,
                         ),
                       ),
@@ -148,13 +148,13 @@ class _PostProductionScreenState extends State<PostProductionScreen> {
                                 backgroundColor: AppColors.softLightBlue,
                                 child: Text(
                                   "DP",
-                                  style: AppTextStyles.systemDefault,
+                                  style: AppTextStyles.inherit,
                                 ),
                               ),
                               AppSpacing.gapHSmd,
                               Text(
                                 "Opened 2 hours ago",
-                                style: AppTextStyles.system14,
+                                style: AppTextStyles.inherit14,
                               ),
                             ],
                           ),

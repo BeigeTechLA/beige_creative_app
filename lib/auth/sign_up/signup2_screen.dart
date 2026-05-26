@@ -853,7 +853,7 @@ class SignUp2ScreenState
                                                   title: Text(
                                                     item,
                                                     style: AppTextStyles
-                                                        .systemDefault
+                                                        .inherit
                                                         .copyWith(
                                                           color:
                                                               AppColors.white,
@@ -887,7 +887,7 @@ class SignUp2ScreenState
                                                   label: Text(
                                                     item,
                                                     style: AppTextStyles
-                                                        .systemDefault
+                                                        .inherit
                                                         .copyWith(
                                                           color:
                                                               AppColors.white,
@@ -927,7 +927,7 @@ class SignUp2ScreenState
                                         ),
                                         child: Text(
                                           "Next",
-                                          style: AppTextStyles.system16Medium
+                                          style: AppTextStyles.inherit16Medium
                                               .copyWith(
                                                 color: AppColors.textHeading,
                                               ),
@@ -1113,7 +1113,7 @@ class SignUp2ScreenState
     return InputDecoration(
       labelText: title,
       floatingLabelBehavior: FloatingLabelBehavior.always,
-      labelStyle: AppTextStyles.systemDefault.copyWith(
+      labelStyle: AppTextStyles.inherit.copyWith(
         color: AppColors.white30,
       ),
       contentPadding: const EdgeInsets.symmetric(

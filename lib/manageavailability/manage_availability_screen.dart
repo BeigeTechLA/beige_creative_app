@@ -681,7 +681,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   data['title'],
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.system14Strong.copyWith(
+                  style: AppTextStyles.inherit14Strong.copyWith(
                     color: titleColor,
                   ),
                 ),
@@ -693,7 +693,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     const SizedBox(width: 5.0),
                     Text(
                       data['date'],
-                      style: AppTextStyles.systemDefault.copyWith(
+                      style: AppTextStyles.inherit.copyWith(
                         fontSize: 12,
                         color: dateColor,
                       ),
@@ -707,7 +707,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     const SizedBox(width: 5.0),
                     Text(
                       data['time'],
-                      style: AppTextStyles.systemDefault.copyWith(
+                      style: AppTextStyles.inherit.copyWith(
                         fontSize: 12,
                         color: dateColor,
                       ),
@@ -722,7 +722,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                     Expanded(
                       child: Text(
                         data['location'],
-                        style: AppTextStyles.systemDefault.copyWith(
+                        style: AppTextStyles.inherit.copyWith(
                           fontSize: 12,
                           color: dateColor,
                         ),
@@ -751,7 +751,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                   },
                   child: Text(
                     "View Details",
-                    style: AppTextStyles.systemDefault.copyWith(
+                    style: AppTextStyles.inherit.copyWith(
                       color: AppColors.black,
                       fontSize: 11,
                     ),
@@ -840,7 +840,7 @@ class _Legend extends StatelessWidget {
         AppSpacing.gapHXs,
         Text(
           text,
-          style: AppTextStyles.systemDefault.copyWith(
+          style: AppTextStyles.inherit.copyWith(
             color: AppColors.white30,
             fontSize: 12,
           ),

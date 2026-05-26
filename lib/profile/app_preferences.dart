@@ -81,7 +81,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                             const SizedBox(width: 10),
                             Text(
                               "Dark Mode",
-                              style: AppTextStyles.system14.copyWith(
+                              style: AppTextStyles.inherit14.copyWith(
                                 color: AppColors.white,
                               ),
                             ),
@@ -131,7 +131,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                               const SizedBox(width: 10),
                               Text(
                                 "Delete Account",
-                                style: AppTextStyles.system14.copyWith(
+                                style: AppTextStyles.inherit14.copyWith(
                                   color: AppColors.white,
                                 ),
                               ),
@@ -174,7 +174,7 @@ class _AppPreferencesState extends State<AppPreferences> {
                         const SizedBox(width: 10),
                         Text(
                           "App Version V1.0",
-                          style: AppTextStyles.system13.copyWith(
+                          style: AppTextStyles.inherit13.copyWith(
                             color: AppColors.white24,
                           ),
                         ),

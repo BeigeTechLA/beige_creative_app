@@ -1071,7 +1071,7 @@ class _MyprofileState extends State<Myprofile> {
                         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
                         child: Text(
                           "|",
-                          style: AppTextStyles.system14.copyWith(
+                          style: AppTextStyles.inherit14.copyWith(
                             color: AppColors.white60,
                           ),
                         ),
@@ -1217,7 +1217,7 @@ class _MyprofileState extends State<Myprofile> {
                       socialLinks.isEmpty
                           ? const Text(
                               "No social links added",
-                              style: AppTextStyles.systemDefault,
+                              style: AppTextStyles.inherit,
                             )
                           : Column(
                               children: socialLinks.asMap().entries.map((
@@ -1380,7 +1380,7 @@ class _MyprofileState extends State<Myprofile> {
                       portfolioLinks.isEmpty
                           ? const Text(
                               "No portfolio links added",
-                              style: AppTextStyles.systemDefault,
+                              style: AppTextStyles.inherit,
                             )
                           : Column(
                               children: portfolioLinks.asMap().entries.map((
@@ -2353,7 +2353,7 @@ class _MyprofileState extends State<Myprofile> {
                       const SizedBox(height: 6),
                       const Text(
                         "Add YouTube, Vimeo, or Google Drive links to showcase your portfolio.",
-                        style: AppTextStyles.system13,
+                        style: AppTextStyles.inherit13,
                       ),
                       const SizedBox(height: 20),
 

@@ -156,7 +156,7 @@ class _CommonCalendarState extends State<CommonCalendar>
         children: [
           Text(
             "${day.day}",
-            style: AppTextStyles.systemDefault.copyWith(
+            style: AppTextStyles.inherit.copyWith(
               fontSize: width * 0.045,
               color: isOutside || isStrikethrough
                   ? AppColors.white24
@@ -200,7 +200,7 @@ class _CommonCalendarState extends State<CommonCalendar>
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
-        style: AppTextStyles.systemSemiBold.copyWith(
+        style: AppTextStyles.inheritSemiBold.copyWith(
           color: isAvailable ? AppColors.greenForest : AppColors.indigoDeep,
           fontSize: width * 0.021,
         ),

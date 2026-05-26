@@ -226,14 +226,14 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
 
           const Text(
             ":  ",
-            style: AppTextStyles.systemDefault,
+            style: AppTextStyles.inherit,
           ),
 
           /// Right Value
           Expanded(
             child: Text(
               value,
-              style: AppTextStyles.system13.copyWith(
+              style: AppTextStyles.inherit13.copyWith(
                 color: isGreen
                     ? AppColors.greenAccent
                     : isLink

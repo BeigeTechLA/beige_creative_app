@@ -549,7 +549,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         Expanded(
                                           child: Text(
                                             item['name'],
-                                            style: AppTextStyles.systemSemiBold
+                                            style: AppTextStyles.inheritSemiBold
                                                 .copyWith(
                                                   color: AppColors.white,
                                                 ),
@@ -660,7 +660,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         Expanded(
                                           child: Text(
                                             item['name'],
-                                            style: AppTextStyles.systemSemiBold
+                                            style: AppTextStyles.inheritSemiBold
                                                 .copyWith(
                                                   color: AppColors.white,
                                                 ),
@@ -810,7 +810,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                               Text(
                                                 "Add",
                                                 style: AppTextStyles
-                                                    .systemDefault
+                                                    .inherit
                                                     .copyWith(
                                                       color: AppColors.white,
                                                     ),
@@ -979,7 +979,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                       : "",
                                                   textAlign: TextAlign.left,
                                                   style: AppTextStyles
-                                                      .system14Strong
+                                                      .inherit14Strong
                                                       .copyWith(
                                                         color:
                                                             AppColors.white,
@@ -1075,7 +1075,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     children: [
                                       Text(
                                         "Upload Certifications",
-                                        style: AppTextStyles.system14Strong
+                                        style: AppTextStyles.inherit14Strong
                                             .copyWith(color: AppColors.white),
                                       ),
 
@@ -1122,7 +1122,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                         child: Center(
                                           child: Text(
                                             "Upload",
-                                            style: AppTextStyles.systemDefault
+                                            style: AppTextStyles.inherit
                                                 .copyWith(
                                                   color: AppColors.white,
                                                 ),
@@ -1175,7 +1175,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: AppTextStyles
-                                                        .systemDefault
+                                                        .inherit
                                                         .copyWith(
                                                           color:
                                                               AppColors.white,
@@ -1244,7 +1244,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       /// TITLE
                                       Text(
                                         "Upload Documents",
-                                        style: AppTextStyles.system14Strong
+                                        style: AppTextStyles.inherit14Strong
                                             .copyWith(color: AppColors.white),
                                       ),
 
@@ -1334,7 +1334,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 children: [
                                   Text(
                                     "Already have an account? ",
-                                    style: AppTextStyles.systemDefault.copyWith(
+                                    style: AppTextStyles.inherit.copyWith(
                                       color: AppColors.white30,
                                     ),
                                   ),
@@ -1345,7 +1345,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                     },
                                     child: Text(
                                       "Login",
-                                      style: AppTextStyles.systemSemiBold
+                                      style: AppTextStyles.inheritSemiBold
                                           .copyWith(color: AppColors.primary),
                                     ),
                                   ),
@@ -1479,7 +1479,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                     const SizedBox(width: 8),
                     Text(
                       label,
-                      style: AppTextStyles.system14.copyWith(
+                      style: AppTextStyles.inherit14.copyWith(
                         color: AppColors.white24,
                       ),
                     ),
@@ -1516,7 +1516,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                     file.path.split('/').last,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.systemDefault.copyWith(
+                    style: AppTextStyles.inherit.copyWith(
                       color: AppColors.white,
                     ),
                   ),
@@ -1895,7 +1895,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 Expanded(
                                   child: Text(
                                     item['name'],
-                                    style: AppTextStyles.systemDefault
+                                    style: AppTextStyles.inherit
                                         .copyWith(
                                           color: AppColors.white,
                                           fontWeight: FontWeight.w500,
@@ -2026,7 +2026,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             },
                             child: Text(
                               "Save Link",
-                              style: AppTextStyles.systemSemiBold.copyWith(
+                              style: AppTextStyles.inheritSemiBold.copyWith(
                                 color: AppColors.black,
                               ),
                             ),
@@ -2086,7 +2086,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             onPressed: () => Navigator.pop(context),
                             child: Text(
                               "Save",
-                              style: AppTextStyles.systemSemiBold.copyWith(
+                              style: AppTextStyles.inheritSemiBold.copyWith(
                                 color: AppColors.black,
                               ),
                             ),
@@ -2364,7 +2364,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                       Text(
                         "Add YouTube, Vimeo, or Google Drive links to showcase your portfolio.",
-                        style: AppTextStyles.system13.copyWith(
+                        style: AppTextStyles.inherit13.copyWith(
                           color: AppColors.white,
                         ),
                       ),
@@ -2500,7 +2500,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                 Expanded(
                                   child: Text(
                                     item['name'],
-                                    style: AppTextStyles.systemDefault
+                                    style: AppTextStyles.inherit
                                         .copyWith(
                                           color: AppColors.white,
                                           fontWeight: FontWeight.w500,
@@ -2631,7 +2631,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             },
                             child: Text(
                               "Save Link",
-                              style: AppTextStyles.systemSemiBold.copyWith(
+                              style: AppTextStyles.inheritSemiBold.copyWith(
                                 color: AppColors.black,
                               ),
                             ),
@@ -2692,7 +2692,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                             onPressed: () => Navigator.pop(context),
                             child: Text(
                               "Save",
-                              style: AppTextStyles.systemSemiBold.copyWith(
+                              style: AppTextStyles.inheritSemiBold.copyWith(
                                 color: AppColors.black,
                               ),
                             ),
@@ -3163,7 +3163,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                             child: Text(
                               "Save",
-                              style: AppTextStyles.systemSemiBold.copyWith(
+                              style: AppTextStyles.inheritSemiBold.copyWith(
                                 color: AppColors.black,
                               ),
                             ),
@@ -3242,7 +3242,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
 
                     Text(
                       "Help people find your work",
-                      style: AppTextStyles.system13.copyWith(
+                      style: AppTextStyles.inherit13.copyWith(
                         color: AppColors.white,
                       ),
                     ),
@@ -3255,12 +3255,12 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         Expanded(
                           child: TextField(
                             controller: tagController,
-                            style: AppTextStyles.systemDefault.copyWith(
+                            style: AppTextStyles.inherit.copyWith(
                               color: AppColors.white,
                             ),
                             decoration: InputDecoration(
                               hintText: "Type tag and press + or Enter",
-                              hintStyle: AppTextStyles.systemDefault.copyWith(
+                              hintStyle: AppTextStyles.inherit.copyWith(
                                 color: AppColors.white24,
                               ),
                               contentPadding: const EdgeInsets.symmetric(
@@ -3339,7 +3339,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               children: [
                                 Text(
                                   tag,
-                                  style: AppTextStyles.systemDefault.copyWith(
+                                  style: AppTextStyles.inherit.copyWith(
                                     color: AppColors.white,
                                     fontSize: 12,
                                   ),
@@ -3401,7 +3401,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                         },
                         child: Text(
                           "Save",
-                          style: AppTextStyles.systemSemiBold,
+                          style: AppTextStyles.inheritSemiBold,
                         ),
                       ),
                     ),

@@ -352,7 +352,7 @@ class _LoginState extends State<Login> {
           children: [
             Text(
               "Don’t have an account? ",
-              style: AppTextStyles.system15Medium.copyWith(
+              style: AppTextStyles.inherit15Medium.copyWith(
                 color: AppColors.white60,
               ),
             ),
@@ -368,7 +368,7 @@ class _LoginState extends State<Login> {
               },
               child: Text(
                 "Sign Up",
-                style: AppTextStyles.system15Strong.copyWith(
+                style: AppTextStyles.inherit15Strong.copyWith(
                   color: AppColors.white,
                   decoration: TextDecoration.underline,
                 ),

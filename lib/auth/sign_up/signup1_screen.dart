@@ -949,13 +949,13 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                       debounceTime: 600,
                                       isLatLngRequired: true,
 
-                                      textStyle: AppTextStyles.system14
+                                      textStyle: AppTextStyles.inherit14
                                           .copyWith(color: AppColors.white),
 
                                       inputDecoration: InputDecoration(
                                         border: InputBorder.none,
                                         // hintText: "Search location",
-                                        hintStyle: AppTextStyles.systemDefault
+                                        hintStyle: AppTextStyles.inherit
                                             .copyWith(
                                               color: AppColors.white30,
                                             ),
@@ -1091,7 +1091,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                         value: e,
                                         child: Text(
                                           e,
-                                          style: AppTextStyles.systemDefault
+                                          style: AppTextStyles.inherit
                                               .copyWith(color: AppColors.white),
                                         ),
                                       ),
@@ -1197,7 +1197,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                   Expanded(
                                     child: RichText(
                                       text: TextSpan(
-                                        style: AppTextStyles.system13Tight
+                                        style: AppTextStyles.inherit13Tight
                                             .copyWith(color: AppColors.black),
                                         children: [
                                           TextSpan(
@@ -1365,7 +1365,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
       controller: controller,
       cursorColor: AppColors.white,
 
-      style: AppTextStyles.systemDefault.copyWith(
+      style: AppTextStyles.inherit.copyWith(
         color: AppColors.white, // typed text color
       ),
 
@@ -1373,7 +1373,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
         labelText: "$title*",
         floatingLabelBehavior: FloatingLabelBehavior.always,
 
-        labelStyle: AppTextStyles.systemDefault.copyWith(
+        labelStyle: AppTextStyles.inherit.copyWith(
           color: AppColors.primary, // #1D1D1B 60% opacity
         ),
 
@@ -1399,7 +1399,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
           ),
         ),
 
-        floatingLabelStyle: AppTextStyles.systemDefault.copyWith(
+        floatingLabelStyle: AppTextStyles.inherit.copyWith(
           color: AppColors.white30,
         ),
       ),

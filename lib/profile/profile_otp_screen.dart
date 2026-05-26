@@ -198,7 +198,7 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
 
                       Text(
                         "Enter OTP code",
-                        style: AppTextStyles.system20Bold.copyWith(
+                        style: AppTextStyles.inherit20Bold.copyWith(
                           color: AppColors.white,
                         ),
                       ),
@@ -207,7 +207,7 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
 
                       Text(
                         "Enter 6 digit OTP sent to your registered email ID\nreset your password.",
-                        style: AppTextStyles.systemDefault.copyWith(
+                        style: AppTextStyles.inherit.copyWith(
                           fontSize: 12,
                           color: AppColors.white60,
                         ),
@@ -246,7 +246,7 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
                                   textAlign: TextAlign.center,
                                   keyboardType: TextInputType.number,
                                   maxLength: 1,
-                                  style: AppTextStyles.system19Bold,
+                                  style: AppTextStyles.inherit19Bold,
                                   decoration: const InputDecoration(
                                     counterText: "",
                                     border: InputBorder.none,
@@ -300,7 +300,7 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
                     onTap: seconds == 0 ? _resendOtp : null,
                     child: Text(
                       "Resend OTP",
-                      style: AppTextStyles.system15Bold.copyWith(
+                      style: AppTextStyles.inherit15Bold.copyWith(
                         color: seconds == 0 ? AppColors.white : AppColors.white,
                         decoration: TextDecoration.underline,
                       ),
@@ -324,7 +324,7 @@ class _ProfileOtpScreenState extends State<ProfileOtpScreen> {
                   ),
                   child: Text(
                     "Continue",
-                    style: AppTextStyles.system18Strong.copyWith(
+                    style: AppTextStyles.inherit18Strong.copyWith(
                       color: isOtpFilled
                           ? AppColors.textHeading
                           : AppColors.black38,

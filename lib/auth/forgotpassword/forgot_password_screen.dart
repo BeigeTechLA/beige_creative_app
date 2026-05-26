@@ -334,7 +334,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             children: [
               Text(
                 "I Remember my Password. ",
-                style: AppTextStyles.system15Medium.copyWith(
+                style: AppTextStyles.inherit15Medium.copyWith(
                   color: AppColors.white60,
                 ),
               ),
@@ -347,7 +347,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 },
                 child: Text(
                   "Login",
-                  style: AppTextStyles.system15Strong.copyWith(
+                  style: AppTextStyles.inherit15Strong.copyWith(
                     color: AppColors.white,
                     decoration: TextDecoration.underline,
                   ),

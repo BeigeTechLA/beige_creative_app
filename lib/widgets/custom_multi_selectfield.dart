@@ -80,7 +80,7 @@ class _CustomMultiSelectFieldState extends State<CustomMultiSelectField> {
 
             hintText: widget.hasValue ? widget.value : "Select",
 
-            hintStyle: AppTextStyles.systemDefault.copyWith(
+            hintStyle: AppTextStyles.inherit.copyWith(
               color: widget.hasValue ? AppColors.white : AppColors.white60,
             ),
 

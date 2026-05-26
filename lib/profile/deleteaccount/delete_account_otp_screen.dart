@@ -232,7 +232,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
                         maxLength: 1,
-                        style: AppTextStyles.system19Bold,
+                        style: AppTextStyles.inherit19Bold,
                         decoration: const InputDecoration(
                           counterText: "",
                           border: InputBorder.none,
@@ -264,7 +264,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
               children: [
                 Text(
                   "00:${seconds.toString().padLeft(2, '0')}",
-                  style: AppTextStyles.system16Strong.copyWith(
+                  style: AppTextStyles.inherit16Strong.copyWith(
                     color: AppColors.white60,
                   ),
                 ),
@@ -280,7 +280,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
                   onTap: seconds == 0 ? _resendOtp : null,
                   child: Text(
                     "Resend OTP",
-                    style: AppTextStyles.system15Bold.copyWith(
+                    style: AppTextStyles.inherit15Bold.copyWith(
                       color: AppColors.white60,
                       decoration: TextDecoration.underline,
                       decorationThickness: 1.5,
@@ -313,7 +313,7 @@ class _DeleteAccountOtpScreenState extends State<DeleteAccountOtpScreen> {
                 ),
                 child: Text(
                   "Continue",
-                  style: AppTextStyles.system18Strong.copyWith(
+                  style: AppTextStyles.inherit18Strong.copyWith(
                     color: isOtpFilled
                         ? AppColors.textHeading
                         : AppColors.black,

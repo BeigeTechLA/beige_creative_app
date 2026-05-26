@@ -29,13 +29,13 @@ class CustomDropdownField extends StatelessWidget {
       isExpanded: true,
       dropdownColor: AppColors.surfaceStats,
 
-      style: AppTextStyles.system14.copyWith(color: AppColors.white),
+      style: AppTextStyles.inherit14.copyWith(color: AppColors.white),
 
       decoration: InputDecoration(
         labelText: "$label*",
         floatingLabelBehavior: FloatingLabelBehavior.always,
 
-        labelStyle: AppTextStyles.system13.copyWith(color: AppColors.white30),
+        labelStyle: AppTextStyles.inherit13.copyWith(color: AppColors.white30),
 
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.xl,
