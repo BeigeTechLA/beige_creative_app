@@ -223,7 +223,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
 
                         // RIGHT SIDE dropdown
                         Container(
-                          margin: const EdgeInsets.only(right: 8),
+                          margin: const EdgeInsets.only(right: AppSpacing.sm),
                           padding: const EdgeInsets.symmetric(
                             horizontal: AppSpacing.md,
                             vertical: 7.0,

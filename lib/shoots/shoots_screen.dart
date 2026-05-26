@@ -224,7 +224,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                       hintText: "Search events or crew...",
                       hintStyle: AppTextStyles.bodyMedium,
                       prefixIcon: Padding(
-                        padding: const EdgeInsets.all(13),
+                        padding: const EdgeInsets.all(AppSpacing.authCardCompactTop),
                         child: SvgPicture.asset(
                           AppAssets.search_icon,
                           width: 14,

@@ -378,7 +378,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                       Container(
                                         height: 250,
                                         width: double.infinity,
-                                        padding: const EdgeInsets.all(12),
+                                        padding: const EdgeInsets.all(AppSpacing.md),
 
                                         decoration: BoxDecoration(
                                           color: AppColors.surfaceShadow,
@@ -467,7 +467,9 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                                                   Container(
                                                     padding:
-                                                        const EdgeInsets.all(8),
+                                                        const EdgeInsets.all(
+                                                          AppSpacing.sm,
+                                                        ),
                                                     decoration: BoxDecoration(
                                                       color: AppColors.black
                                                           .withValues(alpha: 0.5),
@@ -508,14 +510,12 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                                       /// LEFT SIDE TITLE
                                                       Text(
                                                         title,
-                                                        style: const TextStyle(
-                                                          color:
-                                                              AppColors.white,
-                                                          fontSize: 18,
-                                                          fontFamily: "Outfit",
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
+                                                        style: AppTextStyles
+                                                            .headingOutfitLg
+                                                            .copyWith(
+                                                              color: AppColors
+                                                                  .white,
+                                                            ),
                                                       ),
 
                                                       /// RIGHT SIDE ICON

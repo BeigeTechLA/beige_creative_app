@@ -75,7 +75,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
         
                         /// 🔵 Main Circle
                         Container(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(AppSpacing.xxs),
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
@@ -138,7 +138,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
             ),
         
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.s30),
               child: Text(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
                 textAlign: TextAlign.center,

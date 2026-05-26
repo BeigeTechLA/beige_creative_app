@@ -619,9 +619,12 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       items: abc
                           .map((e) => DropdownMenuItem(
                         value: e,
-                        child: Text(e,
-                            style: const TextStyle(
-                                color: AppColors.white)),
+                        child: Text(
+                          e,
+                          style: AppTextStyles.systemDefault.copyWith(
+                            color: AppColors.white,
+                          ),
+                        ),
                       ))
                           .toList(),
                       onChanged: (val) {
@@ -720,9 +723,12 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       items: recurence
                           .map((e) => DropdownMenuItem(
                         value: e,
-                        child: Text(e,
-                            style: const TextStyle(
-                                color: AppColors.white)),
+                        child: Text(
+                          e,
+                          style: AppTextStyles.systemDefault.copyWith(
+                            color: AppColors.white,
+                          ),
+                        ),
                       ))
                           .toList(),
                       onChanged: (val) {

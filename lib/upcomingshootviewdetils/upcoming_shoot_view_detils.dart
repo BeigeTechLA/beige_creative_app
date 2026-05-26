@@ -455,7 +455,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
 
           /// 🔥 CLIENT CONTACT SECTION
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(borderRadius: AppRadii.r26All),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
