@@ -15,8 +15,8 @@ import '../Model_Class/myprofile_model.dart';
 
 import '../app/route_names.dart';
 import '../app/colors.dart';
+import '../app/durations.dart';
 import '../app/radii.dart';
-import '../app/shadows.dart';
 import '../app/text_styles.dart';
 import '../app/spacing.dart';
 import '../widgets/common_calendar.dart';
@@ -569,7 +569,12 @@ class _HomeScreenState extends State<HomeScreen>
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.xl,
+                  AppSpacing.md,
+                  AppSpacing.xl,
+                  AppSpacing.xl,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -596,10 +601,7 @@ class _HomeScreenState extends State<HomeScreen>
                         Expanded(
                           child: Text(
                             "Welcome Back, ${Myprofile_user?.firstName ?? 'User..'}",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: "Outfit",
-                              fontWeight: FontWeight.w500,
+                            style: AppTextStyles.bodyLargeMedium.copyWith(
                               color: AppColors.white,
                             ),
                           ),
@@ -663,7 +665,10 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xl,
+              vertical: AppSpacing.lg,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -671,18 +676,15 @@ class _HomeScreenState extends State<HomeScreen>
                   children: [
                     Text(
                       "Your Dashboard",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: "Unbounded",
-                        fontWeight: FontWeight.w500,
+                      style: AppTextStyles.displayLabel14.copyWith(
                         color: AppColors.white,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.verticalBase,
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.base),
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: AppColors.darkCharcoal,
@@ -701,7 +703,7 @@ class _HomeScreenState extends State<HomeScreen>
                         percentColor: AppColors.success,
                         iconPath: AppAssets.video_icon,
                       ),
-                      const SizedBox(height: 12),
+                      AppSpacing.verticalMd,
                       _dashboardCard(
                         index: 1,
                         title: "Upcoming shoots",
@@ -710,7 +712,7 @@ class _HomeScreenState extends State<HomeScreen>
                         percentColor: AppColors.success,
                         iconPath: AppAssets.calendar_icon,
                       ),
-                      const SizedBox(height: 12),
+                      AppSpacing.verticalMd,
                       _dashboardCard(
                         index: 2,
                         title: "Pending Requests",
@@ -722,25 +724,22 @@ class _HomeScreenState extends State<HomeScreen>
                     ],
                   ),
                 ),
-                SizedBox(height: 14),
+                AppSpacing.verticalMld,
                 Divider(color: AppColors.dividerDark),
-                SizedBox(height: 14),
+                AppSpacing.verticalMld,
                 if (upcomingshootslist.isNotEmpty) ...[
                   Row(
                     children: [
                       Text(
                         "Upcoming Shoots ",
 
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: "Unbounded",
-                          fontWeight: FontWeight.w500,
+                        style: AppTextStyles.displayLabel14.copyWith(
                           color: AppColors.white,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 30),
+                  SizedBox(height: AppSpacing.s30),
 
                   /*    const SizedBox(),*/
 
@@ -1040,21 +1039,18 @@ class _HomeScreenState extends State<HomeScreen>
                       );
                     },
                   ),
-                  const SizedBox(height: 17),
+                  const SizedBox(height: AppSpacing.s17),
                   Divider(color: AppColors.dividerDark, thickness: 0.8),
                 ],
 
                 // ========================================================================
-                const SizedBox(height: 14),
+                AppSpacing.verticalMld,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       "Availability",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: "Unbounded",
-                        fontWeight: FontWeight.w500,
+                      style: AppTextStyles.displayLabel15.copyWith(
                         color: AppColors.white,
                       ),
                     ),
@@ -1062,8 +1058,8 @@ class _HomeScreenState extends State<HomeScreen>
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 9,
+                          horizontal: AppSpacing.base,
+                          vertical: AppSpacing.s9,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: AppRadii.roundAll,
@@ -1090,19 +1086,16 @@ class _HomeScreenState extends State<HomeScreen>
                         size: 18,
                         color: AppColors.black,
                       ),
-                      label: const Text(
+                      label: Text(
                         "Add",
-                        style: TextStyle(
-                          fontFamily: "Outfit",
+                        style: AppTextStyles.bodySmallBold.copyWith(
                           color: AppColors.black,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                AppSpacing.verticalSmd,
                 /*Container(
                      decoration: BoxDecoration(
                        color: AppColors.surfaceMid,
@@ -1308,12 +1301,8 @@ class _HomeScreenState extends State<HomeScreen>
                                         fit: BoxFit.scaleDown,
                                         child: Text(
                                           getMonthYear(_focusedDay),
-                                          style: const TextStyle(
-                                            color: AppColors.white,
-                                            fontSize: 16,
-                                            fontFamily: "Outfit",
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: AppTextStyles.bodyLargeMedium
+                                              .copyWith(color: AppColors.white),
                                         ),
                                       ),
                                     ),
@@ -1340,10 +1329,10 @@ class _HomeScreenState extends State<HomeScreen>
 
                             // RIGHT SIDE (dropdown)
                             Container(
-                              margin: const EdgeInsets.only(right: 8),
+                              margin: const EdgeInsets.only(right: AppSpacing.sm),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 7,
+                                horizontal: AppSpacing.md,
+                                vertical: AppSpacing.s7,
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.white,
@@ -1359,11 +1348,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     size: 18,
                                   ),
                                   dropdownColor: AppColors.white,
-                                  style: const TextStyle(
+                                  style: AppTextStyles.bodySmallMedium.copyWith(
                                     color: AppColors.black,
-                                    fontSize: 12,
-                                    fontFamily: "Outfit",
-                                    fontWeight: FontWeight.w500,
                                   ),
                                   items: eventList.map((String value) {
                                     return DropdownMenuItem(
@@ -1530,19 +1516,16 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMd,
                 Divider(color: AppColors.dividerDark, thickness: 0.8),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMd,
                 if (creatordashboarddetaillist.isNotEmpty) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         "shoots",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontFamily: "Unbounded",
-                          fontWeight: FontWeight.w500,
+                        style: AppTextStyles.displayLabel16.copyWith(
                           color: AppColors.white,
                         ),
                       ),
@@ -1697,7 +1680,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(AppSpacing.base),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1708,15 +1691,11 @@ class _HomeScreenState extends State<HomeScreen>
                                   Expanded(
                                     child: Text(
                                       data?.projectName ?? "",
-                                      style: TextStyle(
-                                        fontFamily: "Outfit",
-                                        color: AppColors.white, //
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: AppTextStyles.body15Medium
+                                          .copyWith(color: AppColors.white),
                                     ),
                                   ),
-                                  SizedBox(width: 8),
+                                  AppSpacing.gapHSm,
                                   GestureDetector(
                                     /*onTap: () => Navigator.push(context, MaterialPageRoute(builder:(context) => UpcomingShootViewDetils(
                                        projectid: data?.projectId ?? 0,
@@ -1729,13 +1708,12 @@ class _HomeScreenState extends State<HomeScreen>
                                     },
                                     child: Text(
                                       "View Details",
-                                      style: TextStyle(
-                                        fontFamily: "Outfit",
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.primary,
-                                        fontSize: 12,
-                                        decoration: TextDecoration.underline,
-                                      ),
+                                      style: AppTextStyles.bodySmallStrong
+                                          .copyWith(
+                                            color: AppColors.primary,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
                                     ),
                                   ),
                                 ],
@@ -1744,10 +1722,10 @@ class _HomeScreenState extends State<HomeScreen>
                                 color: AppColors.dividerDark,
                                 thickness: 0.8,
                               ),
-                              const SizedBox(height: 12),
+                              AppSpacing.verticalMd,
                               Wrap(
-                                spacing: 14,
-                                runSpacing: 8,
+                                spacing: AppSpacing.mld,
+                                runSpacing: AppSpacing.sm,
                                 children: [
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -1762,11 +1740,8 @@ class _HomeScreenState extends State<HomeScreen>
                                         DateTimeUtils.formatDateValue(
                                           data?.eventDate,
                                         ),
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: "Outfit",
+                                        style: AppTextStyles.body10.copyWith(
                                           color: AppColors.white,
-                                          fontSize: 10,
                                         ),
                                       ),
                                     ],
@@ -1782,11 +1757,8 @@ class _HomeScreenState extends State<HomeScreen>
                                       SizedBox(width: 6),
                                       Text(
                                         "${DateTimeUtils.formatTime(data?.startTime)} - ${DateTimeUtils.formatTime(data?.endTime)}",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: "Outfit",
+                                        style: AppTextStyles.body10.copyWith(
                                           color: AppColors.white,
-                                          fontSize: 10,
                                         ),
                                       ),
                                     ],
@@ -1804,18 +1776,15 @@ class _HomeScreenState extends State<HomeScreen>
                                         data?.eventLocation ?? "",
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: "Outfit",
+                                        style: AppTextStyles.body10.copyWith(
                                           color: AppColors.white,
-                                          fontSize: 10,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 18),
+                              AppSpacing.verticalLg,
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -1854,15 +1823,13 @@ class _HomeScreenState extends State<HomeScreen>
                                                     true
                                                 ? data!.cta!.primary
                                                 : "Accept",
-                                            style: const TextStyle(
-                                              color: AppColors.success,
-                                              fontFamily: "Outfit",
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12,
-                                            ),
+                                            style: AppTextStyles.bodySmallStrong
+                                                .copyWith(
+                                                  color: AppColors.success,
+                                                ),
                                           ),
                                         ),
-                                        const SizedBox(width: 10),
+                                        AppSpacing.gapHSmd,
                                         ElevatedButton(
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: AppColors.white,
@@ -1888,12 +1855,10 @@ class _HomeScreenState extends State<HomeScreen>
                                                     true
                                                 ? data!.cta!.secondary
                                                 : "Reject",
-                                            style: const TextStyle(
-                                              color: AppColors.error,
-                                              fontFamily: "Outfit",
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12,
-                                            ),
+                                            style: AppTextStyles.bodySmallStrong
+                                                .copyWith(
+                                                  color: AppColors.error,
+                                                ),
                                           ),
                                         ),
                                       ],
@@ -1906,10 +1871,10 @@ class _HomeScreenState extends State<HomeScreen>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMd,
                   Divider(color: AppColors.dividerDark, thickness: 0.8),
                 ],
-                SizedBox(height: 12),
+                AppSpacing.verticalMd,
                 /*    Row(
                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                      children: [
@@ -1987,22 +1952,21 @@ class _HomeScreenState extends State<HomeScreen>
                    ),
                    const SizedBox(height: 14),*/
                 // Divider(color: AppColors.dividerDark, thickness: 0.8),
-                const SizedBox(height: 14),
+                AppSpacing.verticalMld,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       "Shoot Status",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: "Unbounded",
+                      style: AppTextStyles.displayLabel15.copyWith(
                         color: AppColors.white,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     Container(
                       height: 38,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.mld,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.dashboardPanelDark,
                         borderRadius: AppRadii.roundAll,
@@ -2017,11 +1981,8 @@ class _HomeScreenState extends State<HomeScreen>
                             color: AppColors.white24,
                             size: 20,
                           ),
-                          style: const TextStyle(
+                          style: AppTextStyles.body14Medium.copyWith(
                             color: AppColors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: "Outfit",
                           ),
                           items: ["Week", "Month", "Year"]
                               .map(
@@ -2044,9 +2005,14 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.verticalBase,
                 Container(
-                  padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.dashboardPanelDark,
                     borderRadius: AppRadii.massiveAll,
@@ -2082,21 +2048,18 @@ class _HomeScreenState extends State<HomeScreen>
                                 children: [
                                   Text(
                                     "${sucessfullshoots + pendingshoots + rejectedshoots + shootrequest}",
-                                    style: const TextStyle(
+                                    style: AppTextStyles.body26Bold.copyWith(
                                       color: AppColors.goldCream,
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: "Outfit",
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  AppSpacing.verticalXxs,
                                 ],
                               ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: AppSpacing.huge28),
                       _statusItem(
                         "$sucessfullshoots",
                         "Successful shoots",
@@ -2120,24 +2083,21 @@ class _HomeScreenState extends State<HomeScreen>
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.verticalBase,
                 Divider(color: AppColors.dividerDark, thickness: 0.8),
-                const SizedBox(height: 16),
+                AppSpacing.verticalBase,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       "Shoot Categories",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: "Unbounded",
+                      style: AppTextStyles.displayLabel15.copyWith(
                         color: AppColors.white,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     Container(
                       height: 38,
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(AppSpacing.xxs),
                       decoration: BoxDecoration(
                         color: AppColors.dashboardPanelDark,
                         borderRadius: AppRadii.roundAll,
@@ -2154,9 +2114,9 @@ class _HomeScreenState extends State<HomeScreen>
                               fetchShootCategories("photo"); // 🔥 ADD
                             },
                             child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
+                              duration: AppDurations.fast250,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
+                                horizontal: AppSpacing.lg,
                               ),
                               decoration: BoxDecoration(
                                 color: selectedTab == 0
@@ -2167,14 +2127,12 @@ class _HomeScreenState extends State<HomeScreen>
                               alignment: Alignment.center,
                               child: Text(
                                 "Photo",
-                                style: TextStyle(
-                                  color: selectedTab == 0
-                                      ? AppColors.black
-                                      : AppColors.white30,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: "Outfit",
-                                ),
+                                style: AppTextStyles.bodyCompactMedium
+                                    .copyWith(
+                                      color: selectedTab == 0
+                                          ? AppColors.black
+                                          : AppColors.white30,
+                                    ),
                               ),
                             ),
                           ),
@@ -2186,9 +2144,9 @@ class _HomeScreenState extends State<HomeScreen>
                               fetchShootCategories("video"); // 🔥 ADD
                             },
                             child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
+                              duration: AppDurations.fast250,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
+                                horizontal: AppSpacing.lg,
                               ),
                               decoration: BoxDecoration(
                                 color: selectedTab == 1
@@ -2199,14 +2157,12 @@ class _HomeScreenState extends State<HomeScreen>
                               alignment: Alignment.center,
                               child: Text(
                                 "Video",
-                                style: TextStyle(
-                                  color: selectedTab == 1
-                                      ? AppColors.black
-                                      : AppColors.white30,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: "Outfit",
-                                ),
+                                style: AppTextStyles.bodyCompactMedium
+                                    .copyWith(
+                                      color: selectedTab == 1
+                                          ? AppColors.black
+                                          : AppColors.white30,
+                                    ),
                               ),
                             ),
                           ),
@@ -2215,9 +2171,14 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                AppSpacing.verticalMld,
                 Container(
-                  padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.black,
                     borderRadius: AppRadii.massiveAll,
@@ -2260,21 +2221,18 @@ class _HomeScreenState extends State<HomeScreen>
                                     //                                     selectedTab == 0?
                                     //                                     acceptphotographyShoots.toString()
                                     //                                     :.toString(),
-                                    style: const TextStyle(
+                                    style: AppTextStyles.body26Bold.copyWith(
                                       color: AppColors.goldCream,
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: "Outfit",
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  AppSpacing.verticalXxs,
                                 ],
                               ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: AppSpacing.huge28),
                       _statusItem(
                         "$acceptphotographyShoots",
                         "Photography shoots",
@@ -2313,8 +2271,8 @@ class _HomeScreenState extends State<HomeScreen>
     final isAvailable = event == "Available";
     return Container(
       width: double.infinity,
-      margin: EdgeInsetsGeometry.all(3),
-      padding: EdgeInsetsGeometry.all(3),
+      margin: const EdgeInsetsGeometry.all(AppSpacing.s3),
+      padding: const EdgeInsetsGeometry.all(AppSpacing.s3),
       decoration: BoxDecoration(
         color: isAvailable ? AppColors.softMint : AppColors.blueIce,
         borderRadius: AppRadii.r3All,
@@ -2322,11 +2280,8 @@ class _HomeScreenState extends State<HomeScreen>
       child: Text(
         textAlign: TextAlign.center,
         event,
-        style: TextStyle(
+        style: AppTextStyles.eventLabelMicro.copyWith(
           color: isAvailable ? AppColors.greenBright : AppColors.blueRoyal,
-          fontSize: 7.79,
-          fontFamily: 'Outfit',
-          fontWeight: FontWeight.w400,
         ),
       ),
     );
@@ -2390,28 +2345,25 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                     child: Column(
                       children: [
-                        const SizedBox(height: 12),
+                        AppSpacing.verticalMd,
                         Container(
                           height: 4,
                           width: 40,
-                          margin: const EdgeInsets.only(bottom: 16),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.base),
                           decoration: BoxDecoration(
                             color: AppColors.white,
                             borderRadius: AppRadii.xsAll,
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left: 20, right: 20),
+                          padding: AppSpacing.insetsHXl,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 "Filter",
-                                style: TextStyle(
+                                style: AppTextStyles.displayHeading18.copyWith(
                                   color: AppColors.white,
-                                  fontSize: 18,
-                                  fontFamily: "Unbounded",
-                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                               GestureDetector(
@@ -2424,7 +2376,7 @@ class _HomeScreenState extends State<HomeScreen>
                             ],
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        AppSpacing.verticalBase,
                         Divider(
                           thickness: 0.5,
                           color: AppColors.white.withValues(alpha: 0.3),
@@ -2438,7 +2390,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 if (sheetController.size < 0.95) {
                                   sheetController.animateTo(
                                     0.95,
-                                    duration: const Duration(milliseconds: 300),
+                                    duration: AppDurations.normal,
                                     curve: Curves.easeInOut,
                                   );
                                 }
@@ -2458,9 +2410,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       if (isDateExpanded) {
                                         sheetController.animateTo(
                                           0.95,
-                                          duration: const Duration(
-                                            milliseconds: 300,
-                                          ),
+                                          duration: AppDurations.normal,
                                           curve: Curves.easeInOut,
                                         );
                                       }
@@ -2489,9 +2439,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       if (isStatusExpanded) {
                                         sheetController.animateTo(
                                           0.95,
-                                          duration: const Duration(
-                                            milliseconds: 300,
-                                          ),
+                                          duration: AppDurations.normal,
                                           curve: Curves.easeInOut,
                                         );
                                       }
@@ -2521,9 +2469,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       if (isCategoryExpanded) {
                                         sheetController.animateTo(
                                           0.95,
-                                          duration: const Duration(
-                                            milliseconds: 300,
-                                          ),
+                                          duration: AppDurations.normal,
                                           curve: Curves.easeInOut,
                                         );
                                       }
@@ -2553,9 +2499,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       if (isTypeExpanded) {
                                         sheetController.animateTo(
                                           0.95,
-                                          duration: const Duration(
-                                            milliseconds: 300,
-                                          ),
+                                          duration: AppDurations.normal,
                                           curve: Curves.easeInOut,
                                         );
                                       }
@@ -2575,7 +2519,9 @@ class _HomeScreenState extends State<HomeScreen>
                                               .toList()
                                         : [],
                                   ),
-                                  const SizedBox(height: 13),
+                                  const SizedBox(
+                                    height: AppSpacing.authCardCompactTop,
+                                  ),
                                   Row(
                                     children: [
                                       Expanded(
@@ -2594,9 +2540,11 @@ class _HomeScreenState extends State<HomeScreen>
                                           },
                                           child: Container(
                                             margin: const EdgeInsets.only(
-                                              left: 12,
+                                              left: AppSpacing.md,
                                             ),
-                                            padding: const EdgeInsets.all(12),
+                                            padding: const EdgeInsets.all(
+                                              AppSpacing.md,
+                                            ),
                                             decoration: BoxDecoration(
                                               borderRadius: AppRadii.lgAll,
                                               border: Border.all(
@@ -2608,25 +2556,27 @@ class _HomeScreenState extends State<HomeScreen>
                                             child: Center(
                                               child: Text(
                                                 'Clear All',
-                                                style: TextStyle(
-                                                  color: AppColors.white,
-                                                  fontFamily: 'Unbounded',
-                                                  fontWeight: FontWeight.w500,
-                                                ),
+                                                style: AppTextStyles
+                                                    .displayLabelW500
+                                                    .copyWith(
+                                                      color: AppColors.white,
+                                                    ),
                                               ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 12),
+                                      AppSpacing.gapHMd,
                                       Expanded(
                                         child: GestureDetector(
                                           onTap: () => Navigator.pop(context),
                                           child: Container(
                                             margin: const EdgeInsets.only(
-                                              right: 12,
+                                              right: AppSpacing.md,
                                             ),
-                                            padding: const EdgeInsets.all(12),
+                                            padding: const EdgeInsets.all(
+                                              AppSpacing.md,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: AppColors.primary,
                                               borderRadius: AppRadii.lgAll,
@@ -2636,14 +2586,15 @@ class _HomeScreenState extends State<HomeScreen>
                                                     .withValues(alpha: 0.6),
                                               ),
                                             ),
-                                            child: const Center(
+                                            child: Center(
                                               child: Text(
                                                 'Apply',
-                                                style: TextStyle(
-                                                  fontFamily: 'Unbounded',
-                                                  fontWeight: FontWeight.w500,
-                                                  color: AppColors.onPrimary,
-                                                ),
+                                                style: AppTextStyles
+                                                    .displayLabelW500
+                                                    .copyWith(
+                                                      color:
+                                                          AppColors.onPrimary,
+                                                    ),
                                               ),
                                             ),
                                           ),
@@ -2651,13 +2602,13 @@ class _HomeScreenState extends State<HomeScreen>
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 20),
+                                  AppSpacing.verticalXl,
                                 ],
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        AppSpacing.verticalMd,
                       ],
                     ),
                   ),
@@ -2678,7 +2629,7 @@ class _HomeScreenState extends State<HomeScreen>
     bool showDivider = false,
   }) {
     return Padding(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(AppSpacing.smd),
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.onPrimary,
@@ -2691,19 +2642,16 @@ class _HomeScreenState extends State<HomeScreen>
               borderRadius: AppRadii.xlAll,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+                  horizontal: AppSpacing.base,
+                  vertical: AppSpacing.mld,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: AppTextStyles.body14Medium.copyWith(
                         color: AppColors.white,
-                        fontSize: 14,
-                        fontFamily: "Outfit",
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     Icon(
@@ -2724,7 +2672,7 @@ class _HomeScreenState extends State<HomeScreen>
                   )
                 : SizedBox(),
             if (children.isNotEmpty) ...children,
-            if (children.isNotEmpty) const SizedBox(height: 6),
+            if (children.isNotEmpty) AppSpacing.verticalXs,
           ],
         ),
       ),
@@ -2739,16 +2687,17 @@ class _HomeScreenState extends State<HomeScreen>
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.base,
+          vertical: AppSpacing.smd,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.body14.copyWith(
                 color: AppColors.white.withValues(alpha: 0.8),
-                fontSize: 14,
-                fontFamily: "Outfit",
               ),
             ),
             Container(
@@ -2800,7 +2749,10 @@ class _HomeScreenState extends State<HomeScreen>
         duration: const Duration(milliseconds: 250),
         width: double.infinity,
         constraints: const BoxConstraints(minHeight: 86),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.base,
+          vertical: AppSpacing.mld,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : AppColors.transparent,
           borderRadius: AppRadii.xxlAll,
@@ -2813,26 +2765,20 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: "Outfit",
-                    fontWeight: FontWeight.w500,
+                  style: AppTextStyles.bodySmallMedium.copyWith(
                     color: isSelected
                         ? AppColors.black
                         : AppColors.textTertiary,
                   ),
                 ),
-                const SizedBox(height: 9),
+                const SizedBox(height: AppSpacing.s9),
                 Text(
                   count.toString(),
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: "Outfit",
+                  style: AppTextStyles.body22w700.copyWith(
                     color: isSelected ? AppColors.black : AppColors.white,
                   ),
                 ),
-                const SizedBox(height: 4),
+                AppSpacing.verticalXxs,
                 /*     Text(
                   percent,
                   style: TextStyle(
@@ -2869,164 +2815,40 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _meetingCard({
-    double opacity = 1,
-    Color backgroundColor = AppColors.surfaceVariant,
-  }) {
-    return Opacity(
-      opacity: opacity,
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.92,
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: AppRadii.headerAll,
-          boxShadow: AppShadows.heroOverlay,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: AppRadii.mldAll,
-                  ),
-                  child: const Icon(
-                    Icons.videocam,
-                    color: AppColors.white,
-                    size: 18,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                const Text(
-                  "Pre-Production Kickoff",
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Divider(color: AppColors.white),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.goldHoney,
-                    borderRadius: AppRadii.hugeAll,
-                  ),
-                  child: const Text(
-                    "Initiated",
-                    style: TextStyle(color: AppColors.orange, fontSize: 12),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: AppRadii.hugeAll,
-                  ),
-                  child: const Text(
-                    "Google Meet",
-                    style: TextStyle(color: AppColors.black, fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            const Row(
-              children: [
-                Icon(Icons.calendar_today, size: 14, color: AppColors.white24),
-                SizedBox(width: 8),
-                Text(
-                  "16 Jun, 2024",
-                  style: TextStyle(color: AppColors.white24, fontSize: 12),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Row(
-              children: [
-                Icon(Icons.access_time, size: 14, color: AppColors.white24),
-                SizedBox(width: 8),
-                Text(
-                  "10:00 PM to 13:00 PM",
-                  style: TextStyle(color: AppColors.white24, fontSize: 12),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.goldCream,
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: AppRadii.roundAll),
-              ),
-              onPressed: () {},
-              child: const Text(
-                "Join Meeting",
-                style: TextStyle(
-                  color: AppColors.black,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _statusItem(String count, String label, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 11),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s11),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             width: 70,
-            padding: const EdgeInsets.symmetric(vertical: 11),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.s11),
             decoration: BoxDecoration(
               borderRadius: AppRadii.roundAll,
-              border: Border.all(color: color.withValues(alpha: 0.6), width: 1.5),
+              border: Border.all(
+                color: color.withValues(alpha: 0.6),
+                width: 1.5,
+              ),
             ),
             child: Center(
               child: Text(
                 count,
-                style: const TextStyle(
+                style: AppTextStyles.bodyMediumStrong.copyWith(
                   color: AppColors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: "Outfit",
                 ),
               ),
             ),
           ),
           Flexible(
             child: Padding(
-              padding: const EdgeInsets.only(left: 24),
+              padding: const EdgeInsets.only(left: AppSpacing.xxl),
               child: Text(
                 label,
                 textAlign: TextAlign.right,
-                style: const TextStyle(
+                style: AppTextStyles.body13.copyWith(
                   color: AppColors.textTertiary,
-                  fontSize: 13,
-                  fontFamily: "Outfit",
-                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),

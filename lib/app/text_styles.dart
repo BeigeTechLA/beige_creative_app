@@ -530,4 +530,36 @@ class AppTextStyles {
     fontFamily: fontFamilyDisplay,
     fontSize: 14,
   );
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // EXTENDED — Home dashboard outliers (Phase B — Batch 11 re-run)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// Outfit 26 bold — Arc chart center total
+  static const TextStyle body26Bold = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 26,
+    fontWeight: FontWeight.bold,
+  );
+
+  /// Unbounded 18 w600 — Filter sheet heading
+  static const TextStyle displayHeading18 = TextStyle(
+    fontFamily: fontFamilyDisplay,
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+  );
+
+  /// Outfit 22 w700 — Dashboard card large count
+  static const TextStyle body22w700 = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+  );
+
+  /// Outfit 7.79 w400 — Micro event label inside calendar cell
+  static const TextStyle eventLabelMicro = TextStyle(
+    fontFamily: fontFamilyBody,
+    fontSize: 7.79,
+    fontWeight: FontWeight.w400,
+  );
 }

@@ -11,6 +11,9 @@ class AppDurations {
   /// 200ms — Fast transitions (icon swaps, button state changes)
   static const Duration fast = Duration(milliseconds: 200);
 
+  /// 250ms — Tab swap animations
+  static const Duration fast250 = Duration(milliseconds: 250);
+
   /// 300ms — Standard transitions (page fades, card reveals)
   static const Duration normal = Duration(milliseconds: 300);
 

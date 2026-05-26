@@ -37,6 +37,18 @@ class AppSpacing {
   /// 9px — Off-grid dropdown icon inset
   static const double dropdownIconInset = 9;
 
+  /// 7px — Off-grid dropdown padding
+  static const double s7 = 7;
+
+  /// 11px — Off-grid status item vertical
+  static const double s11 = 11;
+
+  /// 9px — Off-grid button vertical (Availability "Add" button)
+  static const double s9 = 9;
+
+  /// 17px — Off-grid spacer (home dashboard divider)
+  static const double s17 = 17;
+
   /// 10px — Compact padding (list items, chips)
   static const double smd = 10;
 
@@ -77,6 +89,12 @@ class AppSpacing {
 
   /// 25px — Edit-profile button horizontal padding
   static const double s25 = 25;
+
+  /// 28px — Status-item vertical gap (home dashboard)
+  static const double huge28 = 28;
+
+  /// 30px — Spacer outlier (home dashboard section gap)
+  static const double s30 = 30;
 
   /// 22px — Folder card interior padding
   static const double s22 = 22;

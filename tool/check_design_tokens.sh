@@ -18,24 +18,58 @@ GREEN=$'\033[0;32m'
 YELLOW=$'\033[0;33m'
 NC=$'\033[0m'
 
+# Drop grep -rn output lines that fall inside Dart /* ... */ block comments.
+# Reads block-comment state from the actual files, not the matched lines.
+strip_block_comments() {
+  awk -F: '
+    function scan_file(file,    line, n, i, m, d, in_block) {
+      n = 0
+      in_block = 0
+      while ((getline line < file) > 0) {
+        n++
+        i = 1
+        m = length(line)
+        commented[file SUBSEP n] = in_block
+        while (i <= m) {
+          d = substr(line, i, 2)
+          if (!in_block && d == "/*") { in_block = 1; i += 2; continue }
+          if ( in_block && d == "*/") { in_block = 0; i += 2; continue }
+          if (!in_block && d == "//") { break }
+          i++
+        }
+      }
+      close(file)
+      scanned[file] = 1
+    }
+    {
+      file = $1
+      lineno = $2 + 0
+      if (!(file in scanned)) scan_file(file)
+      if (commented[file SUBSEP lineno] != 1) print $0
+    }
+  '
+}
+
 # Args: gate_name, regex, [extra_grep_filter_regex_to_exclude]
 run_gate() {
   local name="$1"
   local pattern="$2"
   local extra_exclude_regex="${3:-}"
 
-  # Skip commented-out lines (whitespace + //)
+  # Skip commented-out lines (// and /* ... */ blocks)
   local hits
   if [[ -n "$extra_exclude_regex" ]]; then
     hits=$(grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
            | grep -v "lib/app/" \
            | grep -vE ':[[:space:]]*//' \
+           | strip_block_comments \
            | grep -vE "$extra_exclude_regex" \
            | wc -l | tr -d ' ')
   else
     hits=$(grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
            | grep -v "lib/app/" \
            | grep -vE ':[[:space:]]*//' \
+           | strip_block_comments \
            | wc -l | tr -d ' ')
   fi
 
@@ -45,12 +79,14 @@ run_gate() {
       grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
         | grep -v "lib/app/" \
         | grep -vE ':[[:space:]]*//' \
+        | strip_block_comments \
         | grep -vE "$extra_exclude_regex" \
         | head -10 | sed 's/^/    /'
     else
       grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
         | grep -v "lib/app/" \
         | grep -vE ':[[:space:]]*//' \
+        | strip_block_comments \
         | head -10 | sed 's/^/    /'
     fi
     [[ "$hits" -gt 10 ]] && echo "    ... and $((hits - 10)) more"
@@ -71,12 +107,14 @@ report_gate() {
     hits=$(grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
            | grep -v "lib/app/" \
            | grep -vE ':[[:space:]]*//' \
+           | strip_block_comments \
            | grep -vE "$extra_exclude_regex" \
            | wc -l | tr -d ' ')
   else
     hits=$(grep -rnE "$pattern" lib --include="*.dart" 2>/dev/null \
            | grep -v "lib/app/" \
            | grep -vE ':[[:space:]]*//' \
+           | strip_block_comments \
            | wc -l | tr -d ' ')
   fi
   printf "  %-22s %s\n" "$label" "$hits"
@@ -102,8 +140,8 @@ echo ""
 if [[ "$STRICT" == "--strict" ]]; then
   echo "${YELLOW}STRICT${NC} (pending gates — enforced)"
   echo "─────────────────"
-  run_gate "no-inline-text-style"     'TextStyle\('
-  run_gate "no-raw-edge-insets"       'EdgeInsets\.(all|symmetric|only|fromLTRB)\([^)]*[0-9]'
+  run_gate "no-inline-text-style"     '(^|[^a-zA-Z])TextStyle\('
+  run_gate "no-raw-edge-insets"       'EdgeInsets\.(all|symmetric|only|fromLTRB)\(([^)]*[^a-zA-Z0-9_.])?[0-9]'
   run_gate "no-raw-font-family"       "fontFamily:[[:space:]]*['\"]"
   run_gate "no-raw-radius-only"       'Radius\.circular\([0-9]'
   run_gate "no-raw-sized-box-literal" 'SizedBox\([[:space:]]*(width|height):[[:space:]]*[0-9]'
@@ -111,8 +149,8 @@ if [[ "$STRICT" == "--strict" ]]; then
 else
   echo "${YELLOW}PENDING${NC} (report only — pass --strict to enforce)"
   echo "─────────────────"
-  report_gate "inline TextStyle"  'TextStyle\('
-  report_gate "raw EdgeInsets"    'EdgeInsets\.(all|symmetric|only|fromLTRB)\([^)]*[0-9]'
+  report_gate "inline TextStyle"  '(^|[^a-zA-Z])TextStyle\('
+  report_gate "raw EdgeInsets"    'EdgeInsets\.(all|symmetric|only|fromLTRB)\(([^)]*[^a-zA-Z0-9_.])?[0-9]'
   report_gate "raw fontFamily"    "fontFamily:[[:space:]]*['\"]"
   report_gate "raw Radius.only"   'Radius\.circular\([0-9]'
   report_gate "raw SizedBox"      'SizedBox\([[:space:]]*(width|height):[[:space:]]*[0-9]'
