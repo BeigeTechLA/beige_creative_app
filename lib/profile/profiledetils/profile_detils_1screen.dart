@@ -379,7 +379,7 @@ class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
 
                         /// 🔥 GRADIENT BORDER EFFECT
                         border: Border.all(
-                          color: AppColors.white.withOpacity(0.08),
+                          color: AppColors.white.withValues(alpha: 0.08),
                           width: 1,
                         ),
 

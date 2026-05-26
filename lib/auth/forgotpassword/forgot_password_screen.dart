@@ -197,7 +197,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       /// 🌫️ DARK OVERLAY
                       /*    Positioned.fill(
                       child: Container(
-                        color: AppColors.black.withOpacity(0.55),
+                        color: AppColors.black.withValues(alpha: 0.55),
                       ),
                     )*/
 
@@ -264,7 +264,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           color: AppColors.background,
                           borderRadius: AppRadii.massiveAll,
                           border: Border.all(
-                            color: AppColors.white.withOpacity(0.06),
+                            color: AppColors.white.withValues(alpha: 0.06),
                             width: 1,
                           ),
                         ),

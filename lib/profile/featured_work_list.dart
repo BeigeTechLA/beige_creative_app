@@ -454,7 +454,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                                           ),
                                                       decoration: BoxDecoration(
                                                         color: AppColors.black
-                                                            .withOpacity(0.5),
+                                                            .withValues(alpha: 0.5),
                                                         shape: BoxShape.circle,
                                                       ),
                                                       child: const Icon(
@@ -472,7 +472,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
                                                         const EdgeInsets.all(8),
                                                     decoration: BoxDecoration(
                                                       color: AppColors.black
-                                                          .withOpacity(0.5),
+                                                          .withValues(alpha: 0.5),
                                                       shape: BoxShape.circle,
                                                     ),
                                                     child: GestureDetector(
@@ -1322,7 +1322,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                                                 decoration: BoxDecoration(
                                                   color: AppColors.black
-                                                      .withOpacity(0.7),
+                                                      .withValues(alpha: 0.7),
                                                   shape: BoxShape.circle,
                                                 ),
 
@@ -1376,7 +1376,7 @@ class _FeaturedWorkListState extends State<FeaturedWorkList> {
 
                                               decoration: BoxDecoration(
                                                 color: AppColors.black
-                                                    .withOpacity(0.7),
+                                                    .withValues(alpha: 0.7),
                                                 shape: BoxShape.circle,
                                               ),
 

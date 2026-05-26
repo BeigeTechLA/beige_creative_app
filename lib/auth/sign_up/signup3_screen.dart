@@ -480,7 +480,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                           color: AppColors.background,
                           borderRadius: AppRadii.massiveAll,
                           border: Border.all(
-                            color: AppColors.white.withOpacity(0.06),
+                            color: AppColors.white.withValues(alpha: 0.06),
                             width: 1,
                           ),
                         ),
@@ -507,7 +507,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       border: Border.all(
                                         color: Color(
                                           0xffE8D1AB80,
-                                        ).withOpacity(0.5),
+                                        ).withValues(alpha: 0.5),
                                         width: 0.5,
                                       ),
                                       color: AppColors.black,
@@ -519,7 +519,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                           // height: 20,
                                           width: 40,
                                           decoration: BoxDecoration(
-                                            //color: AppColors.primary.withOpacity(0.15),
+                                            //color: AppColors.primary.withValues(alpha: 0.15),
                                             // borderRadius: AppRadii.lgAll,
                                           ),
                                           child:
@@ -621,7 +621,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       border: Border.all(
                                         color: Color(
                                           0xffE8D1AB80,
-                                        ).withOpacity(0.5),
+                                        ).withValues(alpha: 0.5),
                                         width: 0.5,
                                       ),
                                       color: AppColors.textSubtle,
@@ -632,7 +632,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                           // height: 20,
                                           width: 40,
                                           decoration: BoxDecoration(
-                                            //color: AppColors.primary.withOpacity(0.15),
+                                            //color: AppColors.primary.withValues(alpha: 0.15),
                                             // borderRadius: AppRadii.lgAll,
                                           ),
                                           child:
@@ -909,8 +909,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                             BoxDecoration(
                                                               color: AppColors
                                                                   .black
-                                                                  .withOpacity(
-                                                                    0.8,
+                                                                  .withValues(
+                                                                    alpha: 0.8,
                                                                   ),
                                                               shape: BoxShape
                                                                   .circle,
@@ -949,8 +949,8 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                             BoxDecoration(
                                                               color: AppColors
                                                                   .error
-                                                                  .withOpacity(
-                                                                    0.8,
+                                                                  .withValues(
+                                                                    alpha: 0.8,
                                                                   ),
                                                               shape: BoxShape
                                                                   .circle,
@@ -1373,7 +1373,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                               color: AppColors.surfaceMid,
                               borderRadius: AppRadii.lgAll,
                               border: Border.all(
-                                color: AppColors.white.withOpacity(0.12),
+                                color: AppColors.white.withValues(alpha: 0.12),
                                 width: 1,
                               ),
                               boxShadow: AppShadows.ctaDark,
@@ -1385,7 +1385,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                   height: 28,
                                   width: 28,
                                   decoration: BoxDecoration(
-                                    color: AppColors.white.withOpacity(0.08),
+                                    color: AppColors.white.withValues(alpha: 0.08),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -2193,7 +2193,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
   //                                 : AppColors.white24,
   //                           ),
   //                           color: selectedPortfolioIndex == index
-  //                               ? AppColors.primary.withOpacity(0.15)
+  //                               ? AppColors.primary.withValues(alpha: 0.15)
   //                               : AppColors.transparent,
   //                         ),
   //                         child: Center(
@@ -2394,7 +2394,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                       : AppColors.white24,
                                 ),
                                 color: selectedPortfolioIndex == index
-                                    ? AppColors.primary.withOpacity(0.15)
+                                    ? AppColors.primary.withValues(alpha: 0.15)
                                     : AppColors.transparent,
                               ),
                               child: Center(
@@ -2734,7 +2734,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
         decoration: BoxDecoration(
           /// ✅ BACKGROUND COLOR CHANGE HERE
           color: isSelected
-              ? AppColors.primary.withOpacity(0.2)
+              ? AppColors.primary.withValues(alpha: 0.2)
               : AppColors.transparent,
 
           borderRadius: AppRadii.xxlAll,
@@ -2788,7 +2788,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
         width: 52,
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withOpacity(0.2)
+              ? AppColors.primary.withValues(alpha: 0.2)
               : AppColors.transparent,
           borderRadius: AppRadii.xxlAll,
           border: Border.all(
@@ -3020,7 +3020,7 @@ class SignUp3ScreenState extends State<SignUp3Screen> {
                                                 width: 24,
                                                 decoration: BoxDecoration(
                                                   color: AppColors.black
-                                                      .withOpacity(0.7),
+                                                      .withValues(alpha: 0.7),
                                                   shape: BoxShape.circle,
                                                 ),
                                                 child: const Icon(

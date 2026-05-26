@@ -77,7 +77,7 @@ class _CancelScreenState extends State<CancelScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.black.withOpacity(0.4),
+      backgroundColor: AppColors.black.withValues(alpha: 0.4),
       resizeToAvoidBottomInset: true,
       body: Align(
         alignment: Alignment.bottomCenter,
@@ -224,7 +224,7 @@ class _CancelScreenState extends State<CancelScreen> {
                               border: Border.all(
                                   color: AppColors.white24),
                               color: AppColors.black
-                                  .withOpacity(0.2),
+                                  .withValues(alpha: 0.2),
                             ),
                             child: TextField(
                               controller:

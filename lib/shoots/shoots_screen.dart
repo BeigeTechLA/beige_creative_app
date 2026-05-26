@@ -638,7 +638,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
 
                         Divider(
                           thickness: 0.5,
-                          color: AppColors.white.withOpacity(0.3),
+                          color: AppColors.white.withValues(alpha: 0.3),
                         ),
 
                         /// SCROLLABLE CONTENT
@@ -795,7 +795,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                               border: Border.all(
                                                 width: 0.5,
                                                 color: AppColors.white
-                                                    .withOpacity(0.6),
+                                                    .withValues(alpha: 0.6),
                                               ),
                                             ),
                                             child: const Center(
@@ -826,7 +826,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                               border: Border.all(
                                                 width: 0.5,
                                                 color: AppColors.white
-                                                    .withOpacity(0.6),
+                                                    .withValues(alpha: 0.6),
                                               ),
                                             ),
                                             child: const Center(
@@ -971,7 +971,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
             isExpanded && showDivider
                 ? Divider(
                     thickness: 0.5,
-                    color: AppColors.white.withOpacity(0.3),
+                    color: AppColors.white.withValues(alpha: 0.3),
                   )
                 : SizedBox(),
             if (children.isNotEmpty) ...children,

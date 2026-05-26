@@ -599,7 +599,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 
             Text('Set your availability, time off, or block time for shoots.',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.white.withOpacity(0.6),
+                color: AppColors.white.withValues(alpha: 0.6),
               ),
             ),
 
@@ -693,7 +693,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                         Checkbox(
                           activeColor: AppColors.goldSand,
                           side: BorderSide(
-                            color: AppColors.white.withOpacity(0.6),
+                            color: AppColors.white.withValues(alpha: 0.6),
                             width: 0.5,
                           ),
                           shape: RoundedRectangleBorder(
@@ -766,7 +766,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                               decoration: BoxDecoration(
                                 borderRadius: AppRadii.lgAll,
                                 border: Border.all(
-                                  color: AppColors.white.withOpacity(0.6),
+                                  color: AppColors.white.withValues(alpha: 0.6),
                                   width: 0.5,
                                 ),
                               ),
@@ -839,7 +839,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
                       decoration: BoxDecoration(
                         borderRadius: AppRadii.lgAll,
                         border: Border.all(
-                          color: AppColors.white.withOpacity(0.6),
+                          color: AppColors.white.withValues(alpha: 0.6),
                           width: 0.5,
                         ),
                       ),

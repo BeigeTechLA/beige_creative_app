@@ -21,7 +21,7 @@ class TopMessage {
                 sigmaX: 1, //
                 sigmaY: 1,
               ),
-              child: Container(color: AppColors.black.withOpacity(0.8)),
+              child: Container(color: AppColors.black.withValues(alpha: 0.8)),
             ),
           ),
 

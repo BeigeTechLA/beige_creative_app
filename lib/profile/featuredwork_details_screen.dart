@@ -151,7 +151,7 @@ class _FeaturedWorkDetailsScreenState extends State<FeaturedWorkDetailsScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(AppSpacing.xs),
                             decoration: BoxDecoration(
-                              color: AppColors.black.withOpacity(0.5),
+                              color: AppColors.black.withValues(alpha: 0.5),
                               shape: BoxShape.circle,
                             ),
 

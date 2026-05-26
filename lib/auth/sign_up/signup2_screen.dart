@@ -611,7 +611,7 @@ class SignUp2ScreenState
                                   color: AppColors.background,
                                   borderRadius: AppRadii.massiveAll,
                                   border: Border.all(
-                                    color: AppColors.white.withOpacity(0.06),
+                                    color: AppColors.white.withValues(alpha: 0.06),
                                     width: 1,
                                   ),
                                 ),
@@ -761,7 +761,7 @@ class SignUp2ScreenState
                               style:  TextStyle(color: AppColors.white),
                             ),
                             backgroundColor:
-                            AppColors.textHeading.withOpacity(0.9),
+                            AppColors.textHeading.withValues(alpha: 0.9),
                             deleteIconColor: AppColors.white,
                             onDeleted: () {
                               setState(() {
@@ -894,7 +894,7 @@ class SignUp2ScreenState
                                                         ),
                                                   ),
                                                   backgroundColor:
-                                                  AppColors.textHeading.withOpacity(0.9),
+                                                  AppColors.textHeading.withValues(alpha: 0.9),
                                                   deleteIconColor: AppColors.white,
                                                   onDeleted: () {
                                                     setState(() {

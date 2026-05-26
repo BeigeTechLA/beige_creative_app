@@ -378,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen>
       padding: const EdgeInsets.all(AppSpacing.mld),
       decoration: BoxDecoration(
         color: bgColor,
-        border: Border.all(color: AppColors.white.withOpacity(0.08)),
+        border: Border.all(color: AppColors.white.withValues(alpha: 0.08)),
         borderRadius: AppRadii.xxxlAll,
       ),
       child: Row(
@@ -1647,7 +1647,7 @@ class _HomeScreenState extends State<HomeScreen>
                                child: Container(
                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                  decoration: BoxDecoration(
-                                   color: AppColors.black.withOpacity(0.6),
+                                   color: AppColors.black.withValues(alpha: 0.6),
                                    borderRadius: AppRadii.hugeAll,
                                  ),
                                  child: const Text(
@@ -1666,7 +1666,7 @@ class _HomeScreenState extends State<HomeScreen>
                                  height: 38,
                                  width: 38,
                                  decoration: BoxDecoration(
-                                   color: AppColors.white.withOpacity(0.2),
+                                   color: AppColors.white.withValues(alpha: 0.2),
                                    shape: BoxShape.circle,
                                  ),
                                  child: const Icon(
@@ -1954,7 +1954,7 @@ class _HomeScreenState extends State<HomeScreen>
                              scale: currentIndex == 0 ? 0.85 : 0.95,
                              child: _meetingCard(
                                opacity: 0.3,
-                               backgroundColor: AppColors.white.withOpacity(0.03),
+                               backgroundColor: AppColors.white.withValues(alpha: 0.03),
                              ),
                            ),
                          ),
@@ -1967,7 +1967,7 @@ class _HomeScreenState extends State<HomeScreen>
                              scale: currentIndex == 0 ? 0.92 : 0.85,
                              child: _meetingCard(
                                opacity: 0.6,
-                               backgroundColor: AppColors.white.withOpacity(0.05),
+                               backgroundColor: AppColors.white.withValues(alpha: 0.05),
                              ),
                            ),
                          ),
@@ -2436,7 +2436,7 @@ class _HomeScreenState extends State<HomeScreen>
                         const SizedBox(height: 16),
                         Divider(
                           thickness: 0.5,
-                          color: AppColors.white.withOpacity(0.3),
+                          color: AppColors.white.withValues(alpha: 0.3),
                         ),
                         Expanded(
                           child: NotificationListener<ScrollNotification>(
@@ -2611,7 +2611,7 @@ class _HomeScreenState extends State<HomeScreen>
                                               border: Border.all(
                                                 width: 0.5,
                                                 color: AppColors.white
-                                                    .withOpacity(0.6),
+                                                    .withValues(alpha: 0.6),
                                               ),
                                             ),
                                             child: Center(
@@ -2642,7 +2642,7 @@ class _HomeScreenState extends State<HomeScreen>
                                               border: Border.all(
                                                 width: 0.5,
                                                 color: AppColors.white
-                                                    .withOpacity(0.6),
+                                                    .withValues(alpha: 0.6),
                                               ),
                                             ),
                                             child: const Center(
@@ -2729,7 +2729,7 @@ class _HomeScreenState extends State<HomeScreen>
             isExpanded && showDivider
                 ? Divider(
                     thickness: 0.5,
-                    color: AppColors.white.withOpacity(0.3),
+                    color: AppColors.white.withValues(alpha: 0.3),
                   )
                 : SizedBox(),
             if (children.isNotEmpty) ...children,
@@ -2755,7 +2755,7 @@ class _HomeScreenState extends State<HomeScreen>
             Text(
               label,
               style: TextStyle(
-                color: AppColors.white.withOpacity(0.8),
+                color: AppColors.white.withValues(alpha: 0.8),
                 fontSize: 14,
                 fontFamily: "Outfit",
               ),
@@ -3011,7 +3011,7 @@ class _HomeScreenState extends State<HomeScreen>
             padding: const EdgeInsets.symmetric(vertical: 11),
             decoration: BoxDecoration(
               borderRadius: AppRadii.roundAll,
-              border: Border.all(color: color.withOpacity(0.6), width: 1.5),
+              border: Border.all(color: color.withValues(alpha: 0.6), width: 1.5),
             ),
             child: Center(
               child: Text(

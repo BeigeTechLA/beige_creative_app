@@ -370,7 +370,7 @@ class _MyprofileState extends State<Myprofile> {
                           AppAssets.Image_zoom,
                           height: 20,
                           width: 20,
-                          /*  color: AppColors.white.withOpacity(0.7), */
+                          /*  color: AppColors.white.withValues(alpha: 0.7), */
                           // optional
                         ),
 
@@ -388,8 +388,8 @@ class _MyprofileState extends State<Myprofile> {
                                 overlayRadius: 14,
                               ),
                               activeTrackColor: AppColors.primary,
-                              inactiveTrackColor: AppColors.white.withOpacity(
-                                0.3,
+                              inactiveTrackColor: AppColors.white.withValues(
+                                alpha: 0.3,
                               ),
                               thumbColor: AppColors.primary,
                             ),
@@ -413,7 +413,7 @@ class _MyprofileState extends State<Myprofile> {
                           // 👈 your image
                           height: 26,
                           width: 26,
-                          /*  color: AppColors.white.withOpacity(0.7), */
+                          /*  color: AppColors.white.withValues(alpha: 0.7), */
                           // optional
                         ),
                       ],
@@ -1581,7 +1581,7 @@ class _MyprofileState extends State<Myprofile> {
         color: AppColors.surfaceMid, // bg color
         borderRadius: AppRadii.mdAll,
         border: Border.all(
-          color: AppColors.white.withOpacity(0.2), // 20% opacity
+          color: AppColors.white.withValues(alpha: 0.2), // 20% opacity
           width: 0.5,
         ),
       ),
@@ -1832,9 +1832,9 @@ class _MyprofileState extends State<Myprofile> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.primary.withOpacity(0.40),
-            AppColors.primary.withOpacity(0.04),
-            AppColors.primary.withOpacity(0.28),
+            AppColors.primary.withValues(alpha: 0.40),
+            AppColors.primary.withValues(alpha: 0.04),
+            AppColors.primary.withValues(alpha: 0.28),
           ],
         ),
       ),
@@ -1887,7 +1887,7 @@ class _MyprofileState extends State<Myprofile> {
                   Text(
                     title,
                     style: AppTextStyles.body12.copyWith(
-                      color: AppColors.white.withOpacity(0.7),
+                      color: AppColors.white.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -1985,7 +1985,7 @@ class _MyprofileState extends State<Myprofile> {
                               width: 52,
                               decoration: BoxDecoration(
                                 color: selectedSocialIndex == index
-                                    ? AppColors.primary.withOpacity(0.2)
+                                    ? AppColors.primary.withValues(alpha: 0.2)
                                     : AppColors.transparent,
                                 borderRadius: AppRadii.xxlAll,
                                 border: Border.all(
@@ -2393,7 +2393,7 @@ class _MyprofileState extends State<Myprofile> {
                                       : AppColors.white24,
                                 ),
                                 color: selectedPortfolioIndex == index
-                                    ? AppColors.primary.withOpacity(0.15)
+                                    ? AppColors.primary.withValues(alpha: 0.15)
                                     : AppColors.transparent,
                               ),
                               child: Center(

@@ -131,8 +131,8 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            AppColors.black.withOpacity(0.3),
-                            AppColors.black.withOpacity(0.8),
+                            AppColors.black.withValues(alpha: 0.3),
+                            AppColors.black.withValues(alpha: 0.8),
                           ],
                         ),
                       ),
@@ -634,7 +634,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
               Text(
                 value,
                 style: AppTextStyles.body12.copyWith(
-                  color: AppColors.white.withOpacity(0.6),
+                  color: AppColors.white.withValues(alpha: 0.6),
                 ),
               ),
             ],
@@ -668,7 +668,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
       decoration: BoxDecoration(
         color: AppColors.surfaceDim,
         borderRadius: AppRadii.portfolioAll,
-        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Text(
         text,

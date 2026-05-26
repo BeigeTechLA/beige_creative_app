@@ -264,8 +264,8 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                 overlayRadius: 14,
                               ),
                               activeTrackColor: AppColors.primary,
-                              inactiveTrackColor: AppColors.white.withOpacity(
-                                0.3,
+                              inactiveTrackColor: AppColors.white.withValues(
+                                alpha: 0.3,
                               ),
                               thumbColor: AppColors.primary,
                             ),
@@ -800,7 +800,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                             color: AppColors.background,
                             borderRadius: AppRadii.massiveAll,
                             border: Border.all(
-                              color: AppColors.white.withOpacity(0.06),
+                              color: AppColors.white.withValues(alpha: 0.06),
                               width: 1,
                             ),
                           ),
@@ -1280,7 +1280,7 @@ class SignUp1ScreenState extends State<SignUp1Screen> {
                                   color: AppColors.background,
                                   borderRadius: AppRadii.lgAll,
                                   border: Border.all(
-                                    color: AppColors.white.withOpacity(0.12),
+                                    color: AppColors.white.withValues(alpha: 0.12),
                                     width: 1,
                                   ),
                                   boxShadow: AppShadows.ctaDark,
@@ -1809,7 +1809,7 @@ class CircleHolePainter extends CustomPainter {
     /// dark overlay
     canvas.drawRect(
       Offset.zero & size,
-      Paint()..color = AppColors.black.withOpacity(0.6),
+      Paint()..color = AppColors.black.withValues(alpha: 0.6),
     );
 
     /// clear circle

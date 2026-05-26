@@ -241,7 +241,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                           color: AppColors.background,
                           borderRadius: AppRadii.massiveAll,
                           border: Border.all(
-                            color: AppColors.white.withOpacity(0.06),
+                            color: AppColors.white.withValues(alpha: 0.06),
                             width: 1,
                           ),
                         ),

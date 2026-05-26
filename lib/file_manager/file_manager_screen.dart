@@ -144,7 +144,7 @@ class _FileManagerScreenState extends State<FileManagerScreen>
                         color:AppColors.surfaceMid,
                         borderRadius: AppRadii.lgAll,
                         /*border: Border.all(
-                          color: AppColors.white.withOpacity(0.06),
+                          color: AppColors.white.withValues(alpha: 0.06),
                         ),*/
                       ),
                       child: Center(

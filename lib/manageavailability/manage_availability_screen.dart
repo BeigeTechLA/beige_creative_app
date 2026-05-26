@@ -649,7 +649,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
       padding: const EdgeInsets.all(AppSpacing.mld),
       decoration: BoxDecoration(
         color: bgColor,
-        border: Border.all(color: AppColors.white.withOpacity(0.08)),
+        border: Border.all(color: AppColors.white.withValues(alpha: 0.08)),
         borderRadius: AppRadii.xxxlAll,
       ),
       child: Row(
@@ -739,8 +739,8 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                       horizontal: 20,
                       vertical: 8,
                     ),
-                    backgroundColor: AppColors.primary.withOpacity(
-                      btnOpacity,
+                    backgroundColor: AppColors.primary.withValues(
+                      alpha: btnOpacity,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: AppRadii.hugeAll,

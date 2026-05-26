@@ -105,7 +105,7 @@ class ViewDetailsScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color:AppColors.surfaceMid,
                           borderRadius: AppRadii.xxxlAll,
-                          border: Border.all(color: AppColors.white.withOpacity(0.05)),
+                          border: Border.all(color: AppColors.white.withValues(alpha: 0.05)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
