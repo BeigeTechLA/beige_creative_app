@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import '../utility/date_time_utils.dart';
 import '../app/colors.dart';
 import '../app/text_styles.dart';
 import '../app/spacing.dart';
@@ -114,14 +114,10 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       /// DATE FORMAT
       String formattedDate = "";
 
-      try {
-        final parsedDate =
-        DateFormat("dd/MM/yyyy").parse(dateController.text);
-
-        formattedDate =
-            DateFormat("yyyy-MM-dd").format(parsedDate);
-
-      } catch (e) {
+      final parsedDate = DateTimeUtils.parseDatePickerInput(dateController.text);
+      if (parsedDate != null) {
+        formattedDate = DateTimeUtils.formatApiDate(parsedDate);
+      } else {
         formattedDate = dateController.text;
       }
 
@@ -129,17 +125,11 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       String recurrenceUntil = "";
 
       if (untilDateController.text.isNotEmpty) {
-        try {
-          final parsedUntil =
-          DateFormat("dd/MM/yyyy")
-              .parse(untilDateController.text);
-
-          recurrenceUntil =
-              DateFormat("yyyy-MM-dd").format(parsedUntil);
-
-        } catch (e) {
-          recurrenceUntil = "";
-        }
+        final parsedUntil =
+            DateTimeUtils.parseDatePickerInput(untilDateController.text);
+        recurrenceUntil = parsedUntil != null
+            ? DateTimeUtils.formatApiDate(parsedUntil)
+            : "";
       }
 
       /// PAYLOAD
@@ -251,12 +241,9 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
       },
     );
 
-    if (picked != null) {//
-      final now = DateTime.now();
-      final dt = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
-
+    if (picked != null) {
       setState(() {
-        controller.text = DateFormat("hh:mm a").format(dt);
+        controller.text = DateTimeUtils.formatTimeOfDay12Hour(picked);
       });
     }
   }
@@ -337,7 +324,7 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
 
     if (picked != null) {
       setState(() {
-        controller.text = DateFormat("dd/MM/yyyy").format(picked);
+        controller.text = DateTimeUtils.formatDatePickerInput(picked);
       });
     }
   }
@@ -367,14 +354,10 @@ class _AddAvailabilityScreenState extends State<AddAvailabilityScreen> {
     String formattedUntil = "";
 
     if (untilDate.isNotEmpty) {
-      try {
-        final parsed =
-        DateFormat("dd/MM/yyyy").parse(untilDate);
-
-        formattedUntil =
-            DateFormat("MMMM d, yyyy").format(parsed);
-
-      } catch (_) {}
+      final parsed = DateTimeUtils.parseDatePickerInput(untilDate);
+      if (parsed != null) {
+        formattedUntil = DateTimeUtils.formatFullMonthDate(parsed);
+      }
     }
 
     String summaryText = "";

@@ -10,6 +10,7 @@ import '../app/spacing.dart';
 import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../widgets/common_calendar.dart';
+import '../utility/date_time_utils.dart';
 
 class ManageAvailabilityScreen extends StatefulWidget {
   const ManageAvailabilityScreen({super.key});
@@ -91,24 +92,6 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
       // Agar dono false hai → kuch mat dikhao
     });
     setState(() {});
-  }
-
-  String _getMonthYear(DateTime date) {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    return "${months[date.month - 1]} ${date.year}";
   }
 
   @override
@@ -210,7 +193,7 @@ class _ManageAvailabilityScreenState extends State<ManageAvailabilityScreen>
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
-                                      _getMonthYear(_focusedDay),
+                                      DateTimeUtils.formatFullMonthYear(_focusedDay),
                                       style: AppTextStyles.bodyLargeMedium.copyWith(
                                         color: AppColors.white,
                                       ),

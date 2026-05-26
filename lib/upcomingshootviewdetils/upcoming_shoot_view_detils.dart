@@ -10,7 +10,7 @@ import '../app/colors.dart';
 import '../app/radii.dart';
 import '../app/text_styles.dart';
 import '../app/spacing.dart';
-import '../widgets/date_time.dart';
+import '../utility/date_time_utils.dart';
 
 class UpcomingShootViewDetils extends StatefulWidget {
   final int? projectid;
@@ -342,7 +342,7 @@ class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
                             ),
                           ),
                           Text(
-                            DateTimeUtils.formatDateTime(
+                            DateTimeUtils.formatReadableDateTime(
                               mydata?.project.lastUpdated?.toString(),
                             ),
                             style: AppTextStyles.body12.copyWith(

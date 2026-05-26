@@ -13,7 +13,7 @@ import '../app/spacing.dart';
 import '../app/radii.dart';
 import '../app/shadows.dart';
 import 'package:beige_creative_app/app/assets.dart';
-import '../widgets/date_time.dart';
+import '../utility/date_time_utils.dart';
 
 class ShootsScreen extends StatefulWidget {
   const ShootsScreen({super.key});
@@ -336,29 +336,9 @@ class _ShootsScreenState extends State<ShootsScreen> {
 
   /// 🔥 SHOOT CARD
   Widget _shootCard(BuildContext context, Shoot shoot) {
-    String formattedDate = DateTimeUtils.formatDate(
-      shoot.eventDate.toIso8601String(),
-    );
+    String formattedDate = DateTimeUtils.formatDateValue(shoot.eventDate);
     String formattedTime =
         "${DateTimeUtils.formatTime(shoot.startTime)} - ${DateTimeUtils.formatTime(shoot.endTime)}";
-    /* try {
-        /// ✅ DATE FIX (NO PARSE)
-        if (project?.eventDate != null) {
-          formattedDate =
-              DateFormat('MMM dd, yyyy').format(project!.eventDate);
-        }
-
-        /// ✅ TIME FIX (same rahega)
-        if (project?.startTime != null && project?.endTime != null) {
-          final start = DateFormat("HH:mm:ss").parse(project!.startTime!);
-          final end = DateFormat("HH:mm:ss").parse(project.endTime!);
-
-          formattedTime =
-          "${DateFormat('hh:mm a').format(start)} - ${DateFormat('hh:mm a').format(end)}";
-        }
-      } catch (e) {
-        debugPrint("Date format error: $e");
-      }*/
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.xl),

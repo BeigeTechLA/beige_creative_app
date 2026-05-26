@@ -4,7 +4,7 @@ import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import '../utility/date_time_utils.dart';
 import '../model_class/create_dashboard_details_model.dart';
 import '../Model_Class/crewstatus_model.dart';
 import '../Model_Class/dashboard_count_model.dart';
@@ -20,7 +20,6 @@ import '../app/shadows.dart';
 import '../app/text_styles.dart';
 import '../app/spacing.dart';
 import '../widgets/common_calendar.dart';
-import '../widgets/date_time.dart';
 import '../widgets/multi_arc_painter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -342,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen>
   DateTime _focusedDay = DateTime.now();
 
   String getMonthYear(DateTime date) {
-    return DateFormat('MMMM yyyy').format(date);
+    return DateTimeUtils.formatFullMonthYear(date);
   }
 
   // Helper to convert upcomingdatum to a map for card display
@@ -352,7 +351,7 @@ class _HomeScreenState extends State<HomeScreen>
       'projectId': datum.projectId, // 👈 ye add karo
 
       'title': datum.projectName,
-      'date': DateFormat('MMM dd, yyyy').format(datum.eventDate),
+      'date': DateTimeUtils.formatReadableDate(datum.eventDate.toIso8601String()),
       'time': '${datum.startTime} - ${datum.endTime}',
       'location': datum.eventLocation,
     };
@@ -1767,8 +1766,8 @@ class _HomeScreenState extends State<HomeScreen>
                                       ),
                                       SizedBox(width: 6),
                                       Text(
-                                        DateTimeUtils.formatDate(
-                                          data?.eventDate.toIso8601String(),
+                                        DateTimeUtils.formatDateValue(
+                                          data?.eventDate,
                                         ),
                                         style: TextStyle(
                                           fontWeight: FontWeight.w400,
