@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
+import '../../service/prefs_service.dart';
 import '../../service/shared_service.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
@@ -97,11 +97,11 @@ class _LoginState extends State<Login> {
       /// ✅ SAVE LOGIN DATA
       await SharedService.setLoginDetails(response);
 
-      final prefs = await SharedPreferences.getInstance();
-
       if (savePassword) {
-        await prefs.setString("email", email);
-        await prefs.setString("password", password);
+        await PrefsService.setSavedLoginEmail(email);
+        await PrefsService.setSavedLoginPassword(password);
+      } else {
+        await PrefsService.clearSavedLogin();
       }
 
       /// ✅ SUCCESS NAVIGATION
@@ -147,26 +147,10 @@ class _LoginState extends State<Login> {
     return emailRegex.hasMatch(email);
   }
 
-  Future<void> _loadSavedLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    String? savedEmail = prefs.getString("email");
-    String? savedPassword = prefs.getString("password");
-
-    if (savedEmail != null && savedPassword != null) {
-      emailController.text = savedEmail;
-      passwordController.text = savedPassword;
-
-      setState(() {
-        savePassword = true;
-      });
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _loadSavedCredentials(); //
+    _loadSavedCredentials();
 
     emailController.addListener(_updateUI);
     passwordController.addListener(_updateUI);
@@ -176,25 +160,11 @@ class _LoginState extends State<Login> {
     setState(() {});
   }
 
-  void _checkSavedEmail(String email) async {
-    final prefs = await SharedPreferences.getInstance();
-
-    String savedEmail = prefs.getString("email") ?? "";
-    String savedPassword = prefs.getString("password") ?? "";
-
-    if (email.trim() == savedEmail.trim() && savedPassword.isNotEmpty) {
-      setState(() {
-        passwordController.text = savedPassword;
-      });
-    }
-  }
-
   Future<void> _loadSavedCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
+    final String? savedEmail = PrefsService.savedLoginEmail;
+    final String? savedPassword = await PrefsService.getSavedLoginPassword();
 
-    String? savedEmail = prefs.getString("email");
-    String? savedPassword = prefs.getString("password");
-
+    if (!mounted) return;
     if (savedEmail != null && savedPassword != null) {
       emailController.text = savedEmail;
       passwordController.text = savedPassword;

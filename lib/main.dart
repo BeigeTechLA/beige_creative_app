@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 
 import 'app/router.dart';
 import 'app/theme.dart';
 import 'config/env.dart';
+import 'service/prefs_service.dart';
 
 Future<void> startApp(Environment environment) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   Env.init(environment);
 
-  final prefs = await SharedPreferences.getInstance();
+  await PrefsService.init();
 
-  bool isLoggedIn =
-      prefs.getBool('isLoggedIn') ?? false;
+  final bool isLoggedIn = PrefsService.isLoggedIn;
 
   runApp(
     MyApp(

@@ -2,10 +2,10 @@ import 'package:beige_creative_app/app/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app/route_names.dart';
 import '../app/colors.dart';
+import '../service/prefs_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -24,12 +24,10 @@ class _SplashScreenState extends State<SplashScreen>
     _controller = AnimationController(vsync: this);
   }
 
-  void _goToNextScreen() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _goToNextScreen() {
+    final bool isLoggedIn = PrefsService.isLoggedIn;
 
-    final isloggin = prefs.getBool('isLoggedIn') ?? false;
-
-    if (isloggin) {
+    if (isLoggedIn) {
       /*     Navigator.pushReplacement(
         context,
         MaterialPageRoute(

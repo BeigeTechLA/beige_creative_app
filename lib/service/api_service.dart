@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/env.dart';
+import 'prefs_service.dart';
 
  // Make sure AppConfig.apiUrl is correctly set
 
@@ -25,8 +25,7 @@ class ApiService {
 
 
   Future<Map<String, String>> createAuthorizationHeader() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    final token = PrefsService.token;
 
     if (token != null && token.isNotEmpty) {
       // print('🔐 Sending token: $token');
@@ -112,13 +111,6 @@ class ApiService {
     }
   }
 
-
-
-
-  static Future<String?> getFolder() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('folder');  // folder stored while login
-  }
 
 
 
@@ -327,8 +319,7 @@ class ApiService {
       Map<String, String> fields,
       File? imageFile,
       ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString("token") ?? "";
+    final token = PrefsService.token ?? "";
 
     Dio dio = Dio();
 
