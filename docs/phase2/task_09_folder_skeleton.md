@@ -1,12 +1,12 @@
 # Task 2.09 — Folder skeleton
 
-**Phase:** 2 · **Status:** 🔴 Not Started · **Est:** 1h
+**Phase:** 2 · **Status:** 🟢 Completed · **Est:** 1h
 
 | Field | Value |
 |---|---|
-| Owner | — |
-| Started | — |
-| Completed | — |
+| Owner | Antigravity |
+| Started | 2026-05-27 |
+| Completed | 2026-05-27 |
 | PR | — |
 | Branch | `migration/phase2/folder-skeleton` |
 
@@ -28,15 +28,15 @@ Create the empty target folder structure so Phase 3 can land foundations and Pha
 - `lib/dummy/`
 
 ## Steps
-- [ ] `mkdir -p` each directory
-- [ ] Add `.gitkeep` to each leaf empty dir
-- [ ] Verify `flutter analyze` still clean (no new files mean no analyzer change)
-- [ ] Update `CLAUDE.md` "Folder layout" section to call out the new layout (existing layout doc shows legacy)
+- [x] `mkdir -p` each directory
+- [x] Add `.gitkeep` to each leaf empty dir
+- [x] Verify `flutter analyze` still clean (no new files mean no analyzer change)
+- [x] Update `CLAUDE.md` "Folder layout" section to call out the new layout (existing layout doc shows legacy)
 
 ## Acceptance
-- [ ] All directories above exist in the working tree
-- [ ] Each empty dir contains a `.gitkeep`
-- [ ] Build still succeeds (no source touched)
+- [x] All directories above exist in the working tree
+- [x] Each empty dir contains a `.gitkeep`
+- [x] Build still succeeds (no source touched)
 
 ## Notes
 Pure infra — should land in <1h. Phase 3 and Phase 4 fill these folders incrementally; nothing migrates in this task.

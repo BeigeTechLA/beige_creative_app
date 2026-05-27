@@ -1,12 +1,12 @@
 # Task 2.03 — Security hotfixes
 
-**Phase:** 2 · **Status:** 🔴 Not Started · **Est:** 3h · **Priority:** 🔥 Critical
+**Phase:** 2 · **Status:** 🟢 Completed · **Est:** 3h · **Priority:** 🔥 Critical
 
 | Field | Value |
 |---|---|
-| Owner | — |
-| Started | — |
-| Completed | — |
+| Owner | Antigravity |
+| Started | 2026-05-27 |
+| Completed | 2026-05-27 |
 | PR | — |
 | Branch | `migration/phase2/security-hotfix` |
 
@@ -26,18 +26,18 @@ Close three production-grade security holes immediately: plaintext password pers
 - `ios/Runner/Info.plist` — verify no `NSAllowsArbitraryLoads` true
 
 ## Steps
-- [ ] Delete the `prefs.setString('password', ...)` line from login flow
-- [ ] Replace `print('Bearer ...')` with nothing (or `debugPrint` of a non-secret diagnostic)
-- [ ] Audit `grep -rn "token\|Bearer\|password" lib/ | grep -iE "print|log"` to catch other leak sites
-- [ ] Set `usesCleartextTraffic="false"` in Android manifest
-- [ ] Verify iOS ATS in `Info.plist` has no opt-out
-- [ ] Manual smoke: login still works, no token in `adb logcat`
+- [x] Delete the `prefs.setString('password', ...)` line from login flow
+- [x] Replace `print('Bearer ...')` with nothing (or `debugPrint` of a non-secret diagnostic)
+- [x] Audit `grep -rn "token\|Bearer\|password" lib/ | grep -iE "print|log"` to catch other leak sites
+- [x] Set `usesCleartextTraffic="false"` in Android manifest
+- [x] Verify iOS ATS in `Info.plist` has no opt-out
+- [x] Manual smoke: login still works, no token in `adb logcat`
 
 ## Acceptance
-- [ ] `grep -rn "password" lib/auth/login/login.dart | grep -i prefs` returns nothing
-- [ ] `grep -rn "Bearer" lib/service/api_service.dart lib/profile/myprofile.dart | grep -i print` returns nothing
-- [ ] `flutter run --flavor dev` shows no token in console during a login
-- [ ] App still authenticates successfully
+- [x] `grep -rn "password" lib/auth/login/login.dart | grep -i prefs` returns nothing
+- [x] `grep -rn "Bearer" lib/service/api_service.dart lib/profile/myprofile.dart | grep -i print` returns nothing
+- [x] `flutter run --flavor dev` shows no token in console during a login
+- [x] App still authenticates successfully
 
 ## Notes
 Rotation of leaked credentials (Maps key, Stripe pk_test) is in [Task 2.05](task_05_secrets_dart_define.md). This task fixes only the in-source bugs; the rotation is out-of-repo work at vendor consoles.

@@ -1,12 +1,12 @@
 # Task 2.01 — Finish folder renames
 
-**Phase:** 2 · **Status:** 🔴 Not Started · **Est:** 4h
+**Phase:** 2 · **Status:** 🟢 Completed · **Est:** 4h
 
 | Field | Value |
 |---|---|
-| Owner | — |
-| Started | — |
-| Completed | — |
+| Owner | Antigravity |
+| Started | 2026-05-27 |
+| Completed | 2026-05-27 |
 | PR | — |
 | Branch | `migration/phase2/folder-renames` |
 
@@ -28,18 +28,18 @@ Finish the three remaining mixed-case folder renames and rename the file with a 
 - any other import call sites surfaced by `flutter analyze`
 
 ## Steps
-- [ ] `git mv` each folder/file (preserves history)
-- [ ] Class rename inside files: `OnbodingScreen` → `OnboardingScreen`, `UpcomingShootViewDetils` → `UpcomingShootViewDetails`
-- [ ] Update all import paths across `lib/`
-- [ ] Update `RouteNames` constants if class names change
-- [ ] Run `flutter analyze` → fix any broken refs
-- [ ] Run `flutter run --flavor dev -t lib/main_dev.dart` → smoke test splash → onboarding flow
+- [x] `git mv` each folder/file (preserves history)
+- [x] Class rename inside files: `OnbodingScreen` → `OnboardingScreen`, `UpcomingShootViewDetils` → `UpcomingShootViewDetails`
+- [x] Update all import paths across `lib/`
+- [x] Update `RouteNames` constants if class names change
+- [x] Run `flutter analyze` → fix any broken refs
+- [x] Run `flutter run --flavor dev -t lib/main_dev.dart` → smoke test splash → onboarding flow
 
 ## Acceptance
-- [ ] `flutter analyze` zero new errors
-- [ ] `flutter build apk --flavor dev -t lib/main_dev.dart --debug` succeeds
-- [ ] `grep -r "onboding\|manageavailability\|upcomingshootviewdetils" lib/` returns nothing
-- [ ] App launches and reaches MainScreen
+- [x] `flutter analyze` zero new errors
+- [x] `flutter build apk --flavor dev -t lib/main_dev.dart --debug` succeeds
+- [x] `grep -r "onboding\|manageavailability\|upcomingshootviewdetils" lib/` returns nothing
+- [x] App launches and reaches MainScreen
 
 ## Notes
 Class typos `Onboding` and `Detils` are intentionally fixed here since the file rename forces touching them anyway. Keep the visible navigation flow unchanged — this is structural only.

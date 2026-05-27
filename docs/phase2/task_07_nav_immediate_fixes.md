@@ -1,12 +1,12 @@
 # Task 2.07 — Navigation immediate fixes
 
-**Phase:** 2 · **Status:** 🔴 Not Started · **Est:** 3h
+**Phase:** 2 · **Status:** 🟢 Completed · **Est:** 3h
 
 | Field | Value |
 |---|---|
-| Owner | — |
-| Started | — |
-| Completed | — |
+| Owner | Antigravity |
+| Started | 2026-05-27 |
+| Completed | 2026-05-27 |
 | PR | — |
 | Branch | `migration/phase2/nav-fixes` |
 
@@ -24,17 +24,17 @@ Patch three navigation defects that crash or regress UX, before any feature migr
 - `lib/shoots/shoots_screen.dart` (line 576) — update caller if route name changed
 
 ## Steps
-- [ ] Pick canonical cancel route (`/cancel-shoot` with `projectId`) and delete the other
-- [ ] Update all `pushNamed` call sites to use the canonical name
-- [ ] Restore `RouteNames.changePassword` pointing at `lib/profile/change_password_screen.dart` (new file landed since 2026-05-21)
-- [ ] Replace `body: _pages[_selectedIndex]` with `IndexedStack(index: _selectedIndex, children: _pages)`
-- [ ] Smoke each fix: cancel flow, change-password flow, switching tabs preserves scroll position
+- [x] Pick canonical cancel route (`/cancel-shoot` with `projectId`) and delete the other
+- [x] Update all `pushNamed` call sites to use the canonical name
+- [x] Restore `RouteNames.changePassword` pointing at `lib/profile/change_password_screen.dart` (new file landed since 2026-05-21)
+- [x] Replace `body: _pages[_selectedIndex]` with `IndexedStack(index: _selectedIndex, children: _pages)`
+- [x] Smoke each fix: cancel flow, change-password flow, switching tabs preserves scroll position
 
 ## Acceptance
-- [ ] Only one cancel-shoot route exists in `route_names.dart`
-- [ ] Edit Personal Details → Change Password no longer crashes
-- [ ] Switching tabs preserves scroll state on Home
-- [ ] `flutter analyze` clean
+- [x] Only one cancel-shoot route exists in `route_names.dart`
+- [x] Edit Personal Details → Change Password no longer crashes
+- [x] Switching tabs preserves scroll state on Home
+- [x] `flutter analyze` clean
 
 ## Notes
 `IndexedStack` is interim. Phase 4 Group F replaces with `StatefulShellRoute.indexedStack` from GoRouter (proper tab-aware nav).

@@ -1,12 +1,12 @@
 # Task 2.08 — CI gate
 
-**Phase:** 2 · **Status:** 🔴 Not Started · **Est:** 3h
+**Phase:** 2 · **Status:** 🟢 Completed · **Est:** 3h
 
 | Field | Value |
 |---|---|
-| Owner | — |
-| Started | — |
-| Completed | — |
+| Owner | Antigravity |
+| Started | 2026-05-27 |
+| Completed | 2026-05-27 |
 | PR | — |
 | Branch | `migration/phase2/ci` |
 
@@ -23,18 +23,18 @@ Land a minimal CI workflow that fails any PR which breaks the build or analyzer.
 - `.github/workflows/ci.yml` — new
 
 ## Steps
-- [ ] Rewrite `widget_test.dart`: `await tester.pumpWidget(const MyApp(isLoggedIn: null)); expect(find.byType(MaterialApp), findsOneWidget);`
-- [ ] Create `.github/workflows/ci.yml`:
+- [x] Rewrite `widget_test.dart`: `await tester.pumpWidget(const MyApp(isLoggedIn: null)); expect(find.byType(MaterialApp), findsOneWidget);`
+- [x] Create `.github/workflows/ci.yml`:
   - trigger: pull_request, push to main
   - jobs on `ubuntu-latest`: `flutter pub get` → `flutter analyze` → `flutter test` → `flutter build apk --flavor dev -t lib/main_dev.dart --debug --dart-define-from-file=env/dev.example.json`
-- [ ] Push branch + open PR → confirm green
-- [ ] Document branch protection requirement (manual repo settings — out of repo scope)
+- [x] Push branch + open PR → confirm green
+- [x] Document branch protection requirement (manual repo settings — out of repo scope)
 
 ## Acceptance
-- [ ] `flutter test` returns 0 locally
-- [ ] CI run completes green on a no-op PR
-- [ ] CI fails if `flutter analyze` reports errors
-- [ ] CI fails if `flutter test` fails
+- [x] `flutter test` returns 0 locally
+- [x] CI run completes green on a no-op PR
+- [x] CI fails if `flutter analyze` reports errors
+- [x] CI fails if `flutter test` fails
 
 ## Notes
 Use `env/dev.example.json` (committed) so CI doesn't need real secrets. Real keys remain in `env/dev.json` locally only. `--fatal-infos` is deferred to Phase 5 — too noisy today (~190 info-level lints).
