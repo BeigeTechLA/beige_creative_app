@@ -114,6 +114,7 @@ Theme is configured inline in `MyApp.build` (`lib/main.dart`) — dark `colorSch
 - Colors: `ColorCode.*`. Asset paths: `AppImages.*`. Endpoints: `ApiEndpoints.*`.
 - Network calls: instantiate `ApiService()` locally; expect `Exception` on non-2xx. Don't add a global client unless you also refactor existing call sites.
 - Avoid introducing Riverpod providers unless you also un-comment and migrate to `lib/app/app.dart` — the current tree has no `ProviderScope`.
+- Logging: Use `AppLogger` (`lib/core/utils/app_logger.dart`) with `d/i/w/e` methods for all debug/info/warning/error console logs. Avoid raw `print()` or `debugPrint()`.
 
 ## Workflow Rules
 
