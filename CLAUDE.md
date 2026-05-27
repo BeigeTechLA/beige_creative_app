@@ -80,9 +80,15 @@ All endpoint paths are centralized in `lib/service/api_endpoints.dart` (`ApiEndp
 
 ### Feature folder layout
 
-Top-level under `lib/`: `splash/`, `onboding/` (sic), `auth/`, `Home/` (capitalized!), `Shoots/`, `file_manager/`, `messages/`, `manageavailability/`, `Profile/`, `UpcomingShootViewdetils/` (sic), `widgets/` (shared), `model_class/`, `service/`, `config/`, `utility/`, `app/`.
+Top-level folders under `lib/` are fully cased in consistent `lowercase_snake_case`: `splash/`, `onboarding/`, `auth/`, `home/`, `shoots/`, `file_manager/`, `messages/`, `manage_availability/`, `profile/`, `upcoming_shoot_view_details/`, `widgets/` (shared), `model_class/`, `service/`, `config/`, `utility/`, `app/`.
 
-**Casing is inconsistent and the imports rely on it.** Examples in the codebase: `import '../Home/home_screen.dart'`, `import '../Profile/myprofile.dart'`, `import 'Model_Class/myprofile_model.dart'` vs the actual folder `model_class/`. macOS HFS+/APFS is case-insensitive by default so this works locally, but it will break case-sensitive filesystems (Linux CI, some Docker images). Match the on-disk casing exactly when adding imports, and prefer lower_snake_case for any new folder.
+Additionally, the target clean architecture skeleton has been scaffolded for Phase 3 and Phase 4 target structure:
+- `lib/core/` — `network/exceptions/`, `network/interceptors/`, `firebase/`, `providers/`, `utils/`, `extensions/`, `session/`
+- `lib/features/` — (feature modules)
+- `lib/shared/` — `widgets/`, `layouts/`
+- `lib/dummy/` — (mock/stub providers)
+
+All imports have been updated to exact matching lowercase casing, satisfying case-sensitive filesystems.
 
 `model_class/` holds DTOs with hand-written `fromJson` constructors (no `json_serializable`). When changing an API response shape, update the model manually.
 
