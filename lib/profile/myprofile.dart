@@ -605,8 +605,11 @@ class _MyprofileState extends State<Myprofile> {
 
       final url = "${ApiService().baseUrl}creator/profile/upload-profile-photo";
 
-      debugPrint("🌐 API URL: $url");
-      debugPrint("🔑 Headers: $headers");
+      final sanitizedHeaders = Map<String, dynamic>.from(headers);
+      if (sanitizedHeaders.containsKey('Authorization')) {
+        sanitizedHeaders['Authorization'] = 'Bearer [MASKED]';
+      }
+      debugPrint("🔑 Headers: $sanitizedHeaders");
 
       final response = await dio.post(
         url,
