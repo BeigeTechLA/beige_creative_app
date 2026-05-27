@@ -12,11 +12,11 @@ Flutter app `beige_creative_app` (BEIGE) — crew-side mobile client for a creat
 # Install deps (run after pulling, after pubspec.yaml changes, after switching branches)
 flutter pub get
 
-# Run — pass --flavor AND -t. Android product flavors (dev/prod) and iOS schemes
+# Run — pass --flavor, --dart-define-from-file AND -t. Android product flavors (dev/prod) and iOS schemes
 # (dev/prod) live in the native projects; Dart entrypoint still selected via -t.
 # Bundle ids: dev = com.app.cpbiege.dev, prod = com.app.cpbiege.
-flutter run --flavor dev  -t lib/main_dev.dart
-flutter run --flavor prod -t lib/main_prod.dart
+flutter run --flavor dev  --dart-define-from-file=env/dev.json -t lib/main_dev.dart
+flutter run --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart
 
 # Lint / static analysis
 flutter analyze
@@ -26,10 +26,10 @@ flutter test                              # all
 flutter test test/widget_test.dart        # single file
 flutter test --name "pattern"             # filter by test name
 
-# Release builds — always pass --flavor + -t
-flutter build apk       --flavor prod -t lib/main_prod.dart --release
-flutter build appbundle --flavor prod -t lib/main_prod.dart --release
-flutter build ios       --flavor prod -t lib/main_prod.dart --release
+# Release builds — always pass --flavor + --dart-define-from-file + -t
+flutter build apk       --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart --release
+flutter build appbundle --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart --release
+flutter build ios       --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart --release
 ```
 
 iOS/macOS: `Podfile`s under `ios/` and `macos/` are gitignored — `flutter pub get` regenerates them. If pods misbehave after a dep change, `cd ios && pod install --repo-update`.
