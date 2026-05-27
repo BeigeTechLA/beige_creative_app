@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BEIGE Creative App — Code Audit Report</title>
+<style>
+  :root {
+    --bg: #1D1D1B;
+    --bg-2: #262624;
+    --bg-3: #2A2A2A;
+    --line: rgba(255,255,255,.08);
+    --line-strong: rgba(255,255,255,.16);
+    --text: #F5F1E8;
+    --text-dim: rgba(245,241,232,.62);
+    --text-faint: rgba(245,241,232,.38);
+    --gold: #E8D1AB;
+    --gold-soft: #D6B98C;
+    --gold-deep: #D4A14D;
+    --cream: #ECE1CE;
+    --red: #FF6B6B;
+    --red-bg: rgba(255,107,107,.10);
+    --orange: #FFB84D;
+    --orange-bg: rgba(255,184,77,.10);
+    --yellow: #FFE066;
+    --yellow-bg: rgba(255,224,102,.10);
+    --green: #6BCB77;
+    --green-bg: rgba(107,203,119,.10);
+    --shadow: 0 8px 30px rgba(0,0,0,.25);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.5; }
+  a { color: var(--gold); text-decoration: none; border-bottom: 1px solid rgba(232,209,171,.3); }
+  a:hover { border-bottom-color: var(--gold); }
+  code, pre { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .82em; }
+  code { background: var(--bg-3); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--cream); }
+  pre { background: #111; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px 16px; overflow-x: auto; color: var(--cream); }
+  h1, h2, h3, h4 { font-family: "Unbounded", "Outfit", sans-serif; font-weight: 600; letter-spacing: -.02em; margin: 0; }
+  h1 { font-size: 2.4rem; line-height: 1.1; }
+  h2 { font-size: 1.5rem; margin: 0 0 .5rem; }
+  h3 { font-size: 1.1rem; margin: 0 0 .25rem; color: var(--gold); }
+  h4 { font-size: .95rem; margin: 0 0 .25rem; color: var(--text); }
+  p { margin: .35rem 0; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    padding: 48px 40px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, #2A2A2A 0%, #1D1D1B 100%);
+    border: 1px solid var(--line-strong);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at top right, rgba(232,209,171,.18) 0%, transparent 60%),
+      radial-gradient(ellipse at bottom left, rgba(212,161,77,.10) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-grid { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; }
+  .eyebrow { color: var(--gold); text-transform: uppercase; letter-spacing: .18em; font-size: .72rem; font-weight: 600; margin-bottom: 12px; }
+  .hero-title { font-size: 2.6rem; line-height: 1.05; }
+  .hero-sub { color: var(--text-dim); margin-top: 14px; max-width: 680px; }
+  .hero-meta { display: flex; gap: 18px; margin-top: 24px; flex-wrap: wrap; }
+  .hero-meta-item { font-size: .8rem; color: var(--text-dim); }
+  .hero-meta-item b { color: var(--text); font-weight: 600; }
+
+  .big-score {
+    text-align: right; min-width: 220px;
+  }
+  .big-score .score-num {
+    font-family: "Unbounded", sans-serif; font-weight: 600;
+    font-size: 5.2rem; line-height: 1; color: var(--gold);
+    display: block; letter-spacing: -.04em;
+  }
+  .big-score .score-out { color: var(--text-dim); font-size: 1.1rem; }
+  .big-score .score-label { color: var(--text-dim); text-transform: uppercase; letter-spacing: .15em; font-size: .68rem; margin-top: 8px; }
+  .verdict-pill { display: inline-block; padding: 6px 14px; border-radius: 999px; font-size: .78rem; font-weight: 600; letter-spacing: .04em; background: var(--red-bg); color: var(--red); border: 1px solid rgba(255,107,107,.3); margin-top: 12px; }
+
+  /* CRITICAL BANNER */
+  .alert {
+    margin: 24px 0;
+    padding: 18px 22px;
+    background: var(--red-bg);
+    border: 1px solid rgba(255,107,107,.35);
+    border-left: 4px solid var(--red);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .alert .alert-icon { font-size: 1.4rem; line-height: 1; }
+  .alert b { color: var(--red); }
+  .alert p { margin: 0; font-size: .95rem; }
+
+  /* SECTION */
+  section { margin-top: 48px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+  .section-head h2 { color: var(--text); }
+  .section-head .section-sub { color: var(--text-faint); font-size: .85rem; }
+
+  /* SCORE GRID */
+  .score-grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+  .score-card {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    transition: border-color .2s, transform .2s;
+  }
+  .score-card:hover { border-color: var(--gold-soft); transform: translateY(-1px); }
+  .score-card .area { font-size: .72rem; text-transform: uppercase; letter-spacing: .14em; color: var(--text-faint); }
+  .score-card .name { font-family: "Unbounded", sans-serif; font-weight: 500; margin-top: 6px; font-size: 1.02rem; }
+  .score-card .bar { height: 6px; background: var(--bg-3); border-radius: 999px; margin: 14px 0 10px; overflow: hidden; }
+  .score-card .bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-deep), var(--gold)); border-radius: 999px; }
+  .score-card .score-line { display: flex; justify-content: space-between; align-items: baseline; }
+  .score-card .score-line b { font-family: "Unbounded", sans-serif; font-weight: 600; font-size: 1.4rem; color: var(--gold); }
+  .score-card .score-line span { color: var(--text-faint); font-size: .82rem; }
+  .score-card .sev { display: inline-block; margin-top: 8px; font-size: .72rem; padding: 2px 8px; border-radius: 999px; }
+  .sev.high { background: var(--red-bg); color: var(--red); }
+  .sev.med { background: var(--orange-bg); color: var(--orange); }
+  .sev.low { background: var(--yellow-bg); color: var(--yellow); }
+  .sev.ok { background: var(--green-bg); color: var(--green); }
+
+  /* SEVERITY BAR */
+  .sev-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; }
+  .sev-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 18px; }
+  .sev-card .label { color: var(--text-faint); font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; }
+  .sev-card .count { font-family: "Unbounded", sans-serif; font-weight: 600; font-size: 2.2rem; line-height: 1.1; margin-top: 6px; }
+  .sev-card.high .count { color: var(--red); }
+  .sev-card.med .count { color: var(--orange); }
+  .sev-card.low .count { color: var(--yellow); }
+  .sev-card.total .count { color: var(--cream); }
+
+  /* TWO-COL */
+  .two-col { display: grid; grid-template-columns: 1.1fr .9fr; gap: 24px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } .sev-row { grid-template-columns: 1fr 1fr; } .hero-grid { grid-template-columns: 1fr; } .big-score { text-align: left; } }
+
+  /* CARD */
+  .card { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 24px; }
+  .card + .card { margin-top: 16px; }
+  .card h3 { margin-bottom: 8px; }
+  .card .sub { color: var(--text-faint); font-size: .82rem; margin-bottom: 16px; }
+  .card ul { margin: 0; padding-left: 18px; }
+  .card li { margin: 6px 0; color: var(--text-dim); }
+  .card li b { color: var(--text); }
+
+  /* AREA CARDS */
+  .area-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 800px) { .area-grid { grid-template-columns: 1fr; } }
+  .area-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; transition: border-color .2s; }
+  .area-card:hover { border-color: var(--gold-soft); }
+  .area-card .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+  .area-card .num { font-family: "Unbounded", sans-serif; font-size: .8rem; color: var(--gold); }
+  .area-card h3 { color: var(--text); font-size: 1.08rem; }
+  .area-card .score-mini { font-family: "Unbounded", sans-serif; font-weight: 600; color: var(--gold); font-size: 1.2rem; }
+  .area-card .verdict { color: var(--text-dim); font-size: .9rem; margin: 8px 0 12px; }
+  .area-card .findings { font-size: .85rem; color: var(--text-dim); }
+  .area-card .findings ul { margin: 8px 0 0; padding-left: 18px; }
+  .area-card .findings li { margin: 4px 0; }
+  .area-card .findings li code { font-size: .76rem; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--text-faint); font-weight: 500; text-transform: uppercase; font-size: .72rem; letter-spacing: .12em; }
+  td.num-cell { font-family: "Unbounded", sans-serif; font-weight: 600; color: var(--gold); width: 36px; }
+  .chip { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .7rem; letter-spacing: .04em; }
+  .chip.s { background: var(--green-bg); color: var(--green); }
+  .chip.m { background: var(--orange-bg); color: var(--orange); }
+  .chip.l { background: var(--red-bg); color: var(--red); }
+
+  /* ROADMAP */
+  .roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .roadmap { grid-template-columns: 1fr; } }
+  .phase {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    position: relative;
+  }
+  .phase::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+    background: linear-gradient(90deg, var(--gold-deep), var(--gold));
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .phase h3 { color: var(--gold); font-size: 1rem; }
+  .phase .timeline { color: var(--text-faint); font-size: .78rem; text-transform: uppercase; letter-spacing: .12em; margin-top: 4px; }
+  .phase .effort { display: inline-block; margin-top: 10px; font-size: .72rem; padding: 2px 8px; border-radius: 999px; background: var(--bg-3); color: var(--cream); }
+  .phase ul { margin: 14px 0 0; padding-left: 18px; }
+  .phase li { color: var(--text-dim); margin: 6px 0; font-size: .88rem; }
+  .phase .metric { margin-top: 16px; padding: 12px; background: rgba(232,209,171,.06); border-left: 2px solid var(--gold); border-radius: 0 6px 6px 0; font-size: .82rem; color: var(--text-dim); }
+  .phase .metric b { color: var(--gold); }
+
+  /* GATE */
+  .gate { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  .gate .progress { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+  .gate .progress .pct { font-family: "Unbounded", sans-serif; font-size: 2rem; font-weight: 600; color: var(--red); }
+  .gate .progress .pct-bar { flex: 1; height: 8px; background: var(--bg-3); border-radius: 999px; overflow: hidden; }
+  .gate .progress .pct-bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--red), var(--orange)); width: 0%; border-radius: 999px; }
+  .gate ul { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: 30px; }
+  @media (max-width: 800px) { .gate ul { columns: 1; } }
+  .gate li { padding: 8px 0 8px 28px; position: relative; border-bottom: 1px dashed var(--line); break-inside: avoid; font-size: .88rem; color: var(--text-dim); }
+  .gate li::before {
+    content: ""; position: absolute; left: 0; top: 11px;
+    width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--text-faint);
+  }
+
+  /* CALLOUT */
+  .callout { background: rgba(232,209,171,.05); border: 1px solid rgba(232,209,171,.18); border-radius: var(--radius); padding: 22px; margin-top: 18px; }
+  .callout h3 { color: var(--gold); }
+
+  /* STRENGTHS */
+  .strengths { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .strength-card { background: var(--bg-2); border: 1px solid var(--line); border-left: 3px solid var(--green); border-radius: var(--radius-sm); padding: 14px 16px; }
+  .strength-card .tag { color: var(--green); font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; }
+  .strength-card h4 { margin: 4px 0 6px; font-size: .98rem; }
+  .strength-card p { color: var(--text-dim); font-size: .85rem; margin: 0; }
+  .strength-card code { font-size: .76rem; }
+
+  /* FILES LIST */
+  .docs-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .docs-list a {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--bg-3); border: 1px solid var(--line);
+    color: var(--cream); font-size: .8rem; border-bottom: 1px solid var(--line);
+  }
+  .docs-list a:hover { border-color: var(--gold); color: var(--gold); }
+
+  footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--text-faint); font-size: .82rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow">Mobile Code Audit · 2026</div>
+      <h1 class="hero-title">BEIGE Creative App<br><span style="color:var(--gold);">Production Readiness Report</span></h1>
+      <p class="hero-sub">A 10-area senior-engineer audit of the Flutter codebase covering architecture, state management, structure, code quality, performance, security, scalability, flavouring, testing, and dependencies — synthesised into a CTO-ready action plan.</p>
+      <div class="hero-meta">
+        <div class="hero-meta-item"><b>Project</b> · beige_creative_app</div>
+        <div class="hero-meta-item"><b>Stack</b> · Flutter ≥3.27 · Dart 3.10.4</div>
+        <div class="hero-meta-item"><b>Files audited</b> · 85 .dart + build config</div>
+        <div class="hero-meta-item"><b>Issues raised</b> · 77 (38 high · 28 medium · 11 low)</div>
+      </div>
+    </div>
+    <div class="big-score">
+      <span class="score-num">2</span>
+      <span class="score-out">/ 10</span>
+      <div class="score-label">Overall Rating</div>
+      <div class="verdict-pill">⚠ Not Production-Ready</div>
+    </div>
+  </div>
+</div>
+
+<!-- CRITICAL ALERT -->
+<div class="alert">
+  <div class="alert-icon">🔒</div>
+  <div>
+    <b>CRITICAL security finding.</b>
+    <p>Plaintext user password persisted to <code>SharedPreferences</code> (<code>lib/auth/login/login.dart:111</code>) alongside the Bearer token (<code>lib/service/shared_service.dart:27</code>). Both leak to <code>logcat</code> via <code>debugPrint(headers)</code> at <code>lib/service/api_service.dart:346</code> and <code>lib/Profile/myprofile.dart:601</code>. A single <code>adb backup</code> or rooted-device dump enables full account takeover and cross-service credential stuffing. <b>Fix this week — no architectural prerequisite blocks it.</b></p>
+  </div>
+</div>
+
+<!-- EXEC SUMMARY -->
+<section>
+  <div class="section-head">
+    <h2>Executive Summary</h2>
+    <span class="section-sub">For CTO / engineering leadership</span>
+  </div>
+  <div class="card">
+    <p>The codebase is <b>not production-ready</b>. A single root cause — 41 <code>StatefulWidget</code>s talking directly to a concrete <code>ApiService</code> instantiated 58 times across <code>lib/</code>, with no domain layer, no DI, no tests, and no CI — generates downstream failures in every other audited area.</p>
+    <p><b>Biggest single risk:</b> the device persists the user's plaintext password and Bearer token in <code>SharedPreferences</code>, and both are written to log output. A single device-side credential extraction yields full account takeover.</p>
+    <p><b>Biggest strength:</b> the team picked correct primitives — <code>go_router</code> across 32 sites, modern widget APIs, broad <code>const</code> discipline (1,438 sites), compile-time env split, centralised <code>ApiEndpoints</code> and <code>ColorCode</code> tokens. The foundation supports the rewrite without re-platforming.</p>
+    <p style="margin-top:14px;color:var(--gold);"><b>This week:</b> stop persisting the password · migrate tokens to <code>flutter_secure_storage</code> · remove the two <code>debugPrint(headers)</code> sites · stand up GitHub Actions running <code>flutter analyze</code> + <code>flutter test</code> per PR.</p>
+  </div>
+</section>
+
+<!-- SCORES -->
+<section>
+  <div class="section-head">
+    <h2>Audit Coverage</h2>
+    <span class="section-sub">10 areas · scored 1–10</span>
+  </div>
+  <div class="score-grid">
+
+    <div class="score-card">
+      <div class="area">#1 · Architecture</div>
+      <div class="name">Pattern · Layering · DI</div>
+      <div class="bar"><span style="width:20%"></span></div>
+      <div class="score-line"><b>2</b><span>/ 10</span></div>
+      <span class="sev high">🔴 High</span>
+    </div>
+
+    <div class="score-card">
+      <div class="area">#2 · State Management</div>
+      <div class="name">setState · Lifecycle</div>
+      <div class="bar"><span style="width:20%"></span></div>
+      <div class="score-line"><b>2</b><span>/ 10</span></div>
+      <span class="sev high">🔴 High</span>
+    </div>
+
+    <div class="score-card">
+      <div class="area">#3 · Project Structure</div>
+      <div class="name">Folders · Naming · Modularity</div>
+      <div class="bar"><span style="width:20%"></span></div>
+      <div class="score-line"><b>2</b><span>/ 10</span></div>
+      <span class="sev high">🔴 High</span>
+    </div>
+
+    <div class="score-card">
+      <div class="area">#4 · Code Quality</div>
+      <div class="name">God files · Dead code · Logs</div>
+      <div class="bar"><span style="width:30%"></span></div>
+      <div class="score-line"><b>3</b><span>/ 10</span></div>
+      <span class="sev high">🔴 High</span>
+    </div>
+
+    <div class="score-card">
+      <div class="area">#5 · Performance</div>
+      <div class="name">Rebuilds · Images · Caching</div>
+      <div class="bar"><span style="width:30%"></span></div>
+      <div class="score-line"><b>3</b><span>/ 10</span></div>
+      <span class="sev high">🔴 High</span>
+    </div>
+
+    <div class="score-card" style="border-color: rgba(255,107,107,.4);">
+      <div class="area">#6 · Security</div>
+      <div class="name">Secrets · Storage · Hardening</div>
+      <div class="bar"><span style="width:10%; background: linear-gradient(90deg, #FF3B3B, var(--red));"></span></div>
+      <div class="score-line"><b style="color:var(--red);">CRIT</b><span>risk</span></div>
+      <span class="sev high">🔴 Critical</span>
+    </div>
+
+    <div class="score-card">
+      <div class="area">#7 · Scalability</div>
+      <div class="name">10× users · 2× features · 3× team</div>
+      <div class="bar"><span style="width:20%"></span></div>
+      <div class="score-line"><b>2</b><span>/ 10</span></div>
+      <span class="sev high">🔴 High</span>
+    </div>
+
+    <div class="score-card">
+      <div class="area">#8 · Flavouring & Env</div>
+      <div class="name">dev / staging / prod</div>
+      <div class="bar"><span style="width:30%"></span></div>
+      <div class="score-line"><b>3</b><span>/ 10</span></div>
+      <span class="sev high">🔴 High</span>
+    </div>
+
+    <div class="score-card">
+      <div class="area">#9 · Testing</div>
+      <div class="name">Coverage · Testability</div>
+      <div class="bar"><span style="width:10%"></span></div>
+      <div class="score-line"><b>1</b><span>/ 10</span></div>
+      <span class="sev high">🔴 High</span>
+    </div>
+
+    <div class="score-card">
+      <div class="area">#10 · Dependencies</div>
+      <div class="name">Versions · Unused · Gaps</div>
+      <div class="bar"><span style="width:30%"></span></div>
+      <div class="score-line"><b>3</b><span>/ 10</span></div>
+      <span class="sev high">🔴 High</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- SEVERITY -->
+<section>
+  <div class="section-head">
+    <h2>Severity Summary</h2>
+    <span class="section-sub">77 issues across 10 areas</span>
+  </div>
+  <div class="sev-row">
+    <div class="sev-card high"><div class="label">🔴 High</div><div class="count">38</div></div>
+    <div class="sev-card med"><div class="label">🟠 Medium</div><div class="count">28</div></div>
+    <div class="sev-card low"><div class="label">🟡 Low</div><div class="count">11</div></div>
+    <div class="sev-card total"><div class="label">Total</div><div class="count">77</div></div>
+  </div>
+</section>
+
+<!-- STRENGTHS -->
+<section>
+  <div class="section-head">
+    <h2>Strengths to Preserve</h2>
+    <span class="section-sub">Foundations the rewrite will build on</span>
+  </div>
+  <div class="strengths">
+    <div class="strength-card">
+      <div class="tag">✓ Routing</div>
+      <h4>go_router across 32 files</h4>
+      <p>Single <code>GoRouter</code> in <code>lib/app/router.dart</code> · name constants in <code>route_names.dart</code>. Most refactor-friendly surface.</p>
+    </div>
+    <div class="strength-card">
+      <div class="tag">✓ Network registry</div>
+      <h4>Centralised endpoints</h4>
+      <p><code>lib/service/api_endpoints.dart</code> — natural seam for an interceptor-based <code>ApiClient</code>.</p>
+    </div>
+    <div class="strength-card">
+      <div class="tag">✓ Design tokens</div>
+      <h4>ColorCode + AppImages</h4>
+      <p>Palette and asset paths centralised; 21+ files consume <code>AppImages</code>. Tokens are live, not aspirational.</p>
+    </div>
+    <div class="strength-card">
+      <div class="tag">✓ Env split</div>
+      <h4>main_dev.dart · main_prod.dart</h4>
+      <p>Compile-time environment selection with no <code>kDebugMode</code> smell.</p>
+    </div>
+    <div class="strength-card">
+      <div class="tag">✓ Modern API</div>
+      <h4>No deprecated widgets</h4>
+      <p>0 <code>WillPopScope</code>, 0 <code>RaisedButton</code>, 0 <code>+</code> string concat. 1,438 <code>const</code> sites.</p>
+    </div>
+    <div class="strength-card">
+      <div class="tag">✓ Android flavors</div>
+      <h4>dev + prod productFlavors</h4>
+      <p>Declared with <code>applicationIdSuffix</code> for dev — side-by-side install on Android works today.</p>
+    </div>
+    <div class="strength-card">
+      <div class="tag">✓ Attack surface</div>
+      <h4>No deep links · no WebView</h4>
+      <p>Only the default <code>MAIN/LAUNCHER</code> intent filter; zero <code>flutter_inappwebview</code> usage.</p>
+    </div>
+    <div class="strength-card">
+      <div class="tag">✓ Picker hygiene</div>
+      <h4>imageQuality: 80 cap</h4>
+      <p><code>lib/widgets/commonImagePicker.dart:10, 22</code> — bandwidth + decoded-bitmap win already in place.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AREA CARDS -->
+<section>
+  <div class="section-head">
+    <h2>Findings by Area</h2>
+    <span class="section-sub">One card per audit area · evidence with file:line</span>
+  </div>
+  <div class="area-grid">
+
+    <div class="area-card">
+      <div class="head"><div><span class="num">#1 / 10</span><h3>Architecture</h3></div><div class="score-mini">2/10</div></div>
+      <p class="verdict">Pattern: <b>none</b>. Flat screens + static service. No domain. No DI. Riverpod dependency is dead — only reference is block-commented in <code>lib/app/app.dart</code>.</p>
+      <div class="findings">
+        <ul>
+          <li>58 <code>ApiService()</code> instantiations from widget state</li>
+          <li>Zero <code>abstract class</code> declarations in <code>lib/</code></li>
+          <li>4 hard-coded endpoint strings bypass <code>ApiEndpoints</code></li>
+          <li><code>SharedService.logout()</code> calls <code>prefs.clear()</code> — nukes all keys</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="area-card">
+      <div class="head"><div><span class="num">#2 / 10</span><h3>State Management</h3></div><div class="score-mini">2/10</div></div>
+      <p class="verdict">Raw <code>setState</code>. 41 StatefulWidgets · 8 <code>dispose()</code> overrides · 58 TextEditingControllers. Most leak.</p>
+      <div class="findings">
+        <ul>
+          <li>266 <code>setState</code> calls / 35 <code>mounted</code> guards (~87% unguarded)</li>
+          <li><code>fetchprofiledata</code> duplicated in <code>main_screen.dart:50-87</code> and <code>home_screen.dart:83-124</code></li>
+          <li>7 parallel fetchers fire-and-forget in <code>home_screen.dart:314-322</code></li>
+          <li>Empty catch swallows: <code>shoots_screen.dart:88-90</code>, <code>login.dart:140</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="area-card">
+      <div class="head"><div><span class="num">#3 / 10</span><h3>Project Structure</h3></div><div class="score-mini">2/10</div></div>
+      <p class="verdict">Onboarding friction <b>HIGH</b>. Mixed casing, dead scaffolding, name collisions. New mid-level dev: 2–3 weeks to first PR.</p>
+      <div class="findings">
+        <ul>
+          <li>5 classes named <code>Data</code> collide in <code>lib/model_class/</code></li>
+          <li><code>Model_Class/</code> vs <code>model_class/</code> case-mismatched imports — Linux CI breaks</li>
+          <li><code>lib/auth/view_details_screen .dart</code> — literal space in filename</li>
+          <li>Two parallel token systems (<code>ColorCode</code> live vs <code>AppColors</code> dead)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="area-card">
+      <div class="head"><div><span class="num">#4 / 10</span><h3>Code Quality</h3></div><div class="score-mini">3/10</div></div>
+      <p class="verdict">Modern API discipline ✓. But god files, dead code, log spam compound.</p>
+      <div class="findings">
+        <ul>
+          <li>God files: <code>signup3_screen.dart</code> 3,465 · <code>home_screen.dart</code> 2,902 · <code>myprofile.dart</code> 2,834</li>
+          <li>60+ multiline <code>/* */</code> dead-code blocks; 104 single-line commented lines</li>
+          <li>242 <code>print</code>/<code>debugPrint</code> calls in <code>lib/</code></li>
+          <li>3 confirmed empty catches; 43 catch-only-print blocks</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="area-card">
+      <div class="head"><div><span class="num">#5 / 10</span><h3>Performance</h3></div><div class="score-mini">3/10</div></div>
+      <p class="verdict">Janky on low-end. Always-on Gaussian blur · uncached images · no debounce · no Future.wait.</p>
+      <div class="findings">
+        <ul>
+          <li><code>BackdropFilter(sigmaX:80, sigmaY:70)</code> permanent on bottom nav — 4–6ms/frame</li>
+          <li>12 <code>Image.network</code> sites, 0 <code>CachedNetworkImage</code> (dep installed)</li>
+          <li>Search filter without debounce at <code>shoots_screen.dart:247</code></li>
+          <li>No pagination, no cache, no request dedup, no compute()</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="area-card" style="border-color: rgba(255,107,107,.35);">
+      <div class="head"><div><span class="num">#6 / 10</span><h3 style="color:var(--red);">Security · CRITICAL</h3></div><div class="score-mini" style="color:var(--red);">CRIT</div></div>
+      <p class="verdict">Plaintext password on disk. Token in logs. Cleartext traffic. Debug-keystore release. No obfuscation.</p>
+      <div class="findings">
+        <ul>
+          <li><b>Plaintext password</b> in <code>SharedPreferences</code> @ <code>login.dart:111</code></li>
+          <li>Bearer token logged @ <code>api_service.dart:346</code>, <code>myprofile.dart:601</code></li>
+          <li>Google Maps key committed twice (<code>google_config.dart:3</code> + <code>AndroidManifest.xml:24</code>)</li>
+          <li><code>usesCleartextTraffic="true"</code> · no <code>key.properties</code> · no R8 · no pinning · no timeouts · iOS lacks <code>NS*UsageDescription</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="area-card">
+      <div class="head"><div><span class="num">#7 / 10</span><h3>Scalability</h3></div><div class="score-mini">2/10</div></div>
+      <p class="verdict">All three growth axes fail on first scale event.</p>
+      <div class="findings">
+        <ul>
+          <li>No CI at all (no <code>.github/</code>, no Fastfile, no Makefile)</li>
+          <li>No retry/backoff, no feature flags, no remote config</li>
+          <li>Default Flutter template <code>README.md</code>; no <code>CONTRIBUTING.md</code> / <code>ARCHITECTURE.md</code></li>
+          <li>Adding a feature touches 6 shared files; <code>router.dart</code> = merge hotspot</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="area-card">
+      <div class="head"><div><span class="num">#8 / 10</span><h3>Flavouring & Env</h3></div><div class="score-mini">3/10</div></div>
+      <p class="verdict">Basic. Dart entry-point and Android flavor are independent axes. iOS has no flavor.</p>
+      <div class="findings">
+        <ul>
+          <li><code>--flavor prod -t lib/main_dev.dart</code> ships prod-branded app hitting dev API — nothing catches it</li>
+          <li>iOS: only <code>Runner</code> scheme · only default xcconfig · no per-flavor bundle ID</li>
+          <li>No <code>--dart-define</code>, no <code>.env</code> files, <code>flutter_dotenv</code> declared with 0 imports</li>
+          <li>Stripe prod = <code>'PLACE_HOLDER_LIVE_STRIPE_KEY'</code> literal</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="area-card">
+      <div class="head"><div><span class="num">#9 / 10</span><h3>Testing</h3></div><div class="score-mini">1/10</div></div>
+      <p class="verdict">0% coverage. Lone test file does not compile. Code is largely untestable.</p>
+      <div class="findings">
+        <ul>
+          <li><code>test/widget_test.dart</code> is unmodified Flutter counter template</li>
+          <li>0 mocking library (<code>mocktail</code>/<code>mockito</code> absent from <code>pubspec.yaml</code>)</li>
+          <li>0 <code>abstract class</code> → no mocking seam for <code>ApiService</code></li>
+          <li>11 direct <code>DateTime.now()</code>/<code>Random()</code> sites — non-deterministic</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="area-card">
+      <div class="head"><div><span class="num">#10 / 10</span><h3>Dependencies</h3></div><div class="score-mini">3/10</div></div>
+      <p class="verdict">5 of 25 direct deps have 0 imports. Critical categories missing.</p>
+      <div class="findings">
+        <ul>
+          <li>Unused: <code>flutter_stripe</code>, <code>flutter_dotenv</code>, <code>image_cropper</code>, <code>photo_view</code>, <code>cached_network_image</code> (12 sites should use it)</li>
+          <li>Redundant: <code>http</code> + <code>dio</code> for HTTP</li>
+          <li>Missing: <code>flutter_secure_storage</code>, <code>sentry_flutter</code>, <code>connectivity_plus</code>, <code>mocktail</code>, <code>build_runner</code></li>
+          <li><code>flutter_riverpod</code> declared, 1 import — inside a fully commented file</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- TOP 10 -->
+<section>
+  <div class="section-head">
+    <h2>Top 10 Actions · Priority Ordered</h2>
+    <span class="section-sub">Impact-to-effort ranking · S/M/L effort chips</span>
+  </div>
+  <div class="card" style="padding:8px 8px;">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Action</th><th>Area</th><th>Effort</th><th>Why Now</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="num-cell">1</td>
+          <td><b>Stop persisting password</b> (<code>login.dart:111</code>); migrate token to <code>flutter_secure_storage</code></td>
+          <td>Security</td>
+          <td><span class="chip s">S · &lt;1d</span></td>
+          <td>Closes account-takeover via SharedPreferences extraction. Trivial fix; no prerequisite.</td>
+        </tr>
+        <tr>
+          <td class="num-cell">2</td>
+          <td><b>Remove <code>debugPrint(headers)</code></b> at <code>api_service.dart:346</code> + <code>myprofile.dart:601</code>; gate logging behind release-no-op <code>AppLogger</code></td>
+          <td>Security · Quality</td>
+          <td><span class="chip s">S · 1d</span></td>
+          <td>Stops Bearer-token leakage to logcat. Mechanical sweep over 242 sites.</td>
+        </tr>
+        <tr>
+          <td class="num-cell">3</td>
+          <td><b>Stand up GitHub Actions</b>: <code>flutter analyze</code> + <code>flutter test</code> + <code>flutter build apk --debug</code> per PR on a Linux runner</td>
+          <td>Scale · Test</td>
+          <td><span class="chip s">S · 1d</span></td>
+          <td>Every later fix becomes enforceable. Surfaces casing/import drift. Coverage trackable.</td>
+        </tr>
+        <tr>
+          <td class="num-cell">4</td>
+          <td><b>Normalise folder + file casing</b> to <code>snake_case</code>; fix <code>Model_Class/</code> imports; rename <code>Topmessgae</code>, <code>app_loder</code>, <code>onboding</code>, <code>imges_icons</code>, the literal-space filename</td>
+          <td>Structure</td>
+          <td><span class="chip s">S · 1d</span></td>
+          <td>Unblocks Linux CI. Removes 7+ case-mismatch hotspots.</td>
+        </tr>
+        <tr>
+          <td class="num-cell">5</td>
+          <td><b>Move secrets to <code>--dart-define-from-file</code></b> (Maps × 2 entries, Stripe dev + prod); rotate the leaked Google Maps key</td>
+          <td>Security · Flavor</td>
+          <td><span class="chip m">M · 1d</span></td>
+          <td>Closes cleartext-secret leak. Per-environment keys. Required before any public APK.</td>
+        </tr>
+        <tr>
+          <td class="num-cell">6</td>
+          <td><b>Migrate 12 <code>Image.network</code> sites</b> to <code>CachedNetworkImage</code> with <code>memCacheWidth</code>/<code>memCacheHeight</code></td>
+          <td>Performance</td>
+          <td><span class="chip s">S · 25min</span></td>
+          <td>Halves bitmap memory; eliminates re-download on scroll; activates a paid-for dep.</td>
+        </tr>
+        <tr>
+          <td class="num-cell">7</td>
+          <td><b>Introduce <code>core/network/ApiClient</code></b> behind Riverpod provider; ban <code>ApiService()</code> from features; add timeouts + retry + auth interceptor + 30s cache + in-flight dedup</td>
+          <td>Architecture · Scale · Perf</td>
+          <td><span class="chip l">L · 1wk</span></td>
+          <td>Single seam for every cross-cutting network concern. Unlocks tests, mocking, pagination.</td>
+        </tr>
+        <tr>
+          <td class="num-cell">8</td>
+          <td><b>Replace <code>SharedService</code></b> static class with <code>SessionStore</code> interface (behind <code>flutter_secure_storage</code>); replace <code>prefs.clear()</code> with key-scoped removal</td>
+          <td>Architecture · Security</td>
+          <td><span class="chip m">M · 1-2d</span></td>
+          <td>Per-key control; testable; future feature prefs survive logout. Pairs with #1 and #7.</td>
+        </tr>
+        <tr>
+          <td class="num-cell">9</td>
+          <td><b>Split the 4 largest screens</b> (signup3 3,465 · home 2,902 · myprofile 2,834 · signup1 1,959) into controllers + sub-widgets; add <code>dispose()</code> coverage for every TextEditingController</td>
+          <td>Architecture · State · Quality</td>
+          <td><span class="chip l">L · 2wks</span></td>
+          <td>Eliminates the largest merge-conflict targets · 50+ TEC leaks · 87% unguarded async <code>setState</code>.</td>
+        </tr>
+        <tr>
+          <td class="num-cell">10</td>
+          <td><b>Replace <code>widget_test.dart</code></b> template with compiling smoke test + first <code>core/validation/email_test.dart</code>; add <code>mocktail</code> + <code>pump_app</code> helper</td>
+          <td>Test</td>
+          <td><span class="chip m">M · 1d</span></td>
+          <td>Restores <code>flutter test</code> as a CI gate. Establishes pattern future PRs copy.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section>
+  <div class="section-head">
+    <h2>Migration Roadmap</h2>
+    <span class="section-sub">Quick wins → Structural → Architectural alignment</span>
+  </div>
+  <div class="roadmap">
+
+    <div class="phase">
+      <h3>Phase 1 · Quick Wins</h3>
+      <div class="timeline">Week 1 · 5 dev-days</div>
+      <span class="effort">Low effort · high signal</span>
+      <ul>
+        <li>Stop password persistence · adopt <code>flutter_secure_storage</code></li>
+        <li>Remove <code>debugPrint(headers)</code>; introduce <code>AppLogger</code></li>
+        <li>GitHub Actions CI (Linux runner)</li>
+        <li>Normalise <code>snake_case</code> across <code>lib/</code> + assets</li>
+        <li>Move 4 secrets to <code>--dart-define-from-file</code>; rotate Maps key</li>
+        <li>Migrate 12 <code>Image.network</code> → <code>CachedNetworkImage</code></li>
+        <li>Remove <code>BackdropFilter</code> from bottom nav</li>
+      </ul>
+      <div class="metric"><b>Success:</b> <code>flutter analyze --fatal-infos</code> passes on Linux · 0 cleartext API keys in <code>git ls-files</code> · ≥30% reduction in scroll-frame cost on image screens</div>
+    </div>
+
+    <div class="phase">
+      <h3>Phase 2 · Structural</h3>
+      <div class="timeline">Month 1 · 4 weeks</div>
+      <span class="effort">Medium effort · platform-level</span>
+      <ul>
+        <li><code>ApiClient</code> + interceptors (auth · retry · logging · cache)</li>
+        <li><code>SessionStore</code> abstraction; un-comment <code>lib/app/app.dart</code> + wire <code>ProviderScope</code></li>
+        <li>Extract validation · format · role-mapping helpers into <code>core/</code></li>
+        <li>Replace <code>flutter_dotenv</code> with <code>--dart-define-from-file</code></li>
+        <li>Drop <code>http</code>; consolidate on Dio</li>
+        <li>Add <code>mocktail</code> · <code>sentry_flutter</code> · <code>connectivity_plus</code> · <code>dio_smart_retry</code></li>
+        <li>iOS schemes + xcconfig + <code>NS*UsageDescription</code></li>
+        <li>Manifest hardening: <code>allowBackup="false"</code> · <code>usesCleartextTraffic="false"</code> · <code>networkSecurityConfig</code></li>
+        <li>Release keystore + R8 + <code>--obfuscate --split-debug-info</code></li>
+      </ul>
+      <div class="metric"><b>Success:</b> 0 direct <code>ApiService()</code> in <code>lib/features/</code> · iOS side-loads dev + prod · Sentry receives crashes · <code>flutter test --coverage</code> ≥30% on <code>core/</code></div>
+    </div>
+
+    <div class="phase">
+      <h3>Phase 3 · Architectural</h3>
+      <div class="timeline">Quarter 1 · 10–12 weeks</div>
+      <span class="effort">High effort · feature-by-feature</span>
+      <ul>
+        <li>Feature migration to <code>features/&lt;x&gt;/{data,domain,presentation}</code></li>
+        <li>Split 4 god screens into controllers + sub-widgets</li>
+        <li>Replace all <code>setState</code> with Riverpod controllers + <code>AsyncValue&lt;T&gt;</code></li>
+        <li>Server + client pagination on shoots/dashboard/upcoming</li>
+        <li>Barrel files per feature; public-API surface</li>
+        <li><code>freezed</code> + <code>json_serializable</code> for new DTOs</li>
+        <li>Certificate pinning · feature flag / remote config</li>
+        <li><code>ARCHITECTURE.md</code> · <code>CONTRIBUTING.md</code> · <code>intl</code> + <code>.arb</code></li>
+      </ul>
+      <div class="metric"><b>Success:</b> 0 files in <code>presentation/screens/</code> &gt;300 lines · 0 <code>setState</code> in features · controller-test coverage ≥60% · new feature affects ≤2 shared files · 99.5% crash-free</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROD GATE -->
+<section>
+  <div class="section-head">
+    <h2>Production Readiness Gate</h2>
+    <span class="section-sub">Must be satisfied before safe public release</span>
+  </div>
+  <div class="gate">
+    <div class="progress">
+      <div class="pct">0 / 16</div>
+      <div class="pct-bar"><span style="width:0%"></span></div>
+      <div style="color: var(--text-faint); font-size: .85rem;">Items satisfied today</div>
+    </div>
+    <ul>
+      <li><code>flutter_secure_storage</code> adopted; token migrated off plain <code>SharedPreferences</code>; password persistence removed</li>
+      <li>All secrets via <code>--dart-define-from-file</code> + <code>manifestPlaceholders</code>; leaked keys rotated; vendor-console restrictions configured</li>
+      <li>All <code>debugPrint(headers/$token)</code> removed; logging gated behind release no-op</li>
+      <li><code>usesCleartextTraffic="false"</code>; <code>networkSecurityConfig</code> set; <code>allowBackup="false"</code></li>
+      <li>Real release keystore + <code>key.properties</code> in CI secret; release builds Play-uploadable</li>
+      <li>R8 / minification on; <code>--obfuscate --split-debug-info</code> per release; symbols stored</li>
+      <li>Dio timeouts (connect/receive/send) · retry/backoff interceptor · certificate pinning</li>
+      <li>iOS <code>Info.plist</code> declares <code>NSPhotoLibraryUsageDescription</code> · <code>NSCameraUsageDescription</code> · <code>NSLocationWhenInUseUsageDescription</code></li>
+      <li>iOS schemes for dev/prod (or staging too); bundle IDs distinct; side-by-side install verified</li>
+      <li><code>flutter_stripe</code> initialised at boot if checkout ships; prod <code>pk_live_…</code> confirmed real</li>
+      <li>Sentry receives release crashes with symbolicated stack traces</li>
+      <li>GitHub Actions runs <code>flutter analyze --fatal-infos</code> + <code>flutter test --coverage</code> per PR</li>
+      <li><code>test/widget_test.dart</code> template replaced; ≥10 controller/validation tests passing</li>
+      <li><code>Image.network</code> migrated to <code>CachedNetworkImage</code> with explicit decode sizes</li>
+      <li>Folder + file casing normalised to <code>snake_case</code>; Linux runner build passes</li>
+      <li><code>ARCHITECTURE.md</code> + <code>CONTRIBUTING.md</code> published; template <code>README.md</code> replaced</li>
+    </ul>
+  </div>
+</section>
+
+<!-- TRACEABILITY -->
+<section>
+  <div class="section-head">
+    <h2>Underlying Phase Reports</h2>
+    <span class="section-sub">Every finding in this summary is traceable</span>
+  </div>
+  <div class="card">
+    <p style="color: var(--text-dim);">All 11 source documents live under <code>docs/</code>. Click to open the raw Markdown.</p>
+    <div class="docs-list">
+      <a href="AUDIT_MAP.md">AUDIT_MAP</a>
+      <a href="AUDIT_ARCH.md">AUDIT_ARCH · #1</a>
+      <a href="AUDIT_STATE.md">AUDIT_STATE · #2</a>
+      <a href="AUDIT_STRUCT.md">AUDIT_STRUCT · #3</a>
+      <a href="AUDIT_QUALITY.md">AUDIT_QUALITY · #4</a>
+      <a href="AUDIT_PERF.md">AUDIT_PERF · #5</a>
+      <a href="AUDIT_SEC.md">AUDIT_SEC · #6</a>
+      <a href="AUDIT_SCALE.md">AUDIT_SCALE · #7</a>
+      <a href="AUDIT_FLAVOR.md">AUDIT_FLAVOR · #8</a>
+      <a href="AUDIT_TEST.md">AUDIT_TEST · #9</a>
+      <a href="AUDIT_DEPS.md">AUDIT_DEPS · #10</a>
+      <a href="AUDIT_REPORT.md">AUDIT_REPORT · Synthesis</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Senior Flutter Architect audit · 2026-05-20 · All findings traceable to <code>docs/AUDIT_*.md</code>
+</footer>
+
+</div>
+</body>
+</html>
