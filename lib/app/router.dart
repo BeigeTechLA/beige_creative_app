@@ -4,26 +4,26 @@ import 'dart:io';
 
 import 'package:go_router/go_router.dart';
 
-import '../ManageAvailability/add_availability_screen.dart';
-import '../Profile/ProfileDetils/edit_personal_details_screen.dart';
-import '../Profile/ProfileDetils/enter_profile_details_screen.dart';
-import '../Profile/ProfileDetils/profile_detils_1screen.dart';
-import '../Profile/app_preferences.dart';
-import '../Profile/certificates.dart';
-import '../Profile/change_password_screen.dart';
-import '../Profile/deleteaccount/delete_account.dart';
-import '../Profile/deleteaccount/delete_account_lottieScreen.dart';
-import '../Profile/deleteaccount/delete_account_otp_screen.dart';
-import '../Profile/featured_work_list.dart';
-import '../Profile/featuredwork_details_screen.dart';
-import '../Profile/myprofile.dart';
-import '../Profile/myprofile_youre_all_set_screen.dart';
-import '../Profile/profile_new_passwrod_screen.dart';
-import '../Profile/profile_otp_screen.dart';
-import '../Profile/resume_screen.dart';
-import '../Shoots/shoot_cancelled_lotties_screen.dart';
-import '../Shoots/shoot_cancelled_screen.dart';
-import '../UpcomingShootViewdetils/upcoming_shoot_view_detils.dart';
+import '../manage_availability/add_availability_screen.dart';
+import '../profile/profile_details/edit_personal_details_screen.dart';
+import '../profile/profile_details/enter_profile_details_screen.dart';
+import '../profile/profile_details/profile_details_1_screen.dart';
+import '../profile/app_preferences.dart';
+import '../profile/certificates.dart';
+import '../profile/change_password_screen.dart';
+import '../profile/deleteaccount/delete_account.dart';
+import '../profile/deleteaccount/delete_account_lottie_screen.dart';
+import '../profile/deleteaccount/delete_account_otp_screen.dart';
+import '../profile/featured_work_list.dart';
+import '../profile/featuredwork_details_screen.dart';
+import '../profile/myprofile.dart';
+import '../profile/myprofile_youre_all_set_screen.dart';
+import '../profile/profile_new_password_screen.dart';
+import '../profile/profile_otp_screen.dart';
+import '../profile/resume_screen.dart';
+import '../shoots/shoot_cancelled_lotties_screen.dart';
+import '../shoots/shoot_cancelled_screen.dart';
+import '../upcoming_shoot_view_details/upcoming_shoot_view_details.dart';
 /// AUTH
 import '../auth/login/login.dart';
 import '../auth/sign_up/signup1_screen.dart';
@@ -34,18 +34,18 @@ import '../file_manager/post_production_screen.dart';
 import '../file_manager/pre_production_screen.dart';
 /// SPLASH + ONBOARDING
 import '../splash/splash_screen.dart';
-import '../onboding/onboding_screen.dart';
+import '../onboarding/onboarding_screen.dart';
 
 /// FORGOT PASSWORD
-import '../auth/ForgotPassword/forgot_password_screen.dart';
-import '../auth/ForgotPassword/forgot_password_otp_screen.dart';
+import '../auth/forgotpassword/forgot_password_screen.dart';
+import '../auth/forgotpassword/forgot_password_otp_screen.dart';
 import '../auth/resetpassword/reset_password_screen.dart';
 
 /// MAIN
 import '../main_screen.dart';
 
 /// PROFILE
-import '../auth/view_details_screen .dart';
+import '../auth/view_details_screen.dart';
 
 /// ROUTES
 import 'route_names.dart';
@@ -185,7 +185,7 @@ final GoRouter appRouter = GoRouter(
         final data =
         state.extra as Map<String, dynamic>;
 
-        return UpcomingShootViewDetils(
+        return UpcomingShootViewDetails(
           projectid: data["projectId"],
         );
       },
@@ -287,14 +287,7 @@ final GoRouter appRouter = GoRouter(
         return const ShootCancelledLottiesScreen();
       },
     ),
- /*   GoRoute(
-      path: '/change-password',
-      name: RouteNames.changePassword,
-      builder: (context, state) {
 
-        return const ();
-      },
-    ),*/
 
     GoRoute(
       path: '/edit-personal-details',
@@ -317,7 +310,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: "/profile-details",
       name: RouteNames.profileDetails,
-      builder: (context, state) => const ProfileDetils1screen(),
+      builder: (context, state) => const ProfileDetails1Screen(),
     ),
 
     GoRoute(
@@ -368,11 +361,7 @@ final GoRouter appRouter = GoRouter(
       },
     ),
 
-    GoRoute(
-      path: "/shoot-Cancel",
-      name: RouteNames.shootCancel,
-      builder: (context, state) => const CancelScreen(),
-    ),
+
 
     GoRoute(
       path: '/post-production',
@@ -420,7 +409,7 @@ final GoRouter appRouter = GoRouter(
         final data =
             state.extra as Map<String, dynamic>? ?? {};
 
-        return MyprofileNewPasswrodScreen(
+        return MyprofileNewPasswordScreen(
           email: data['email'] ?? '',
           otp: data['otp'] ?? '',
         );

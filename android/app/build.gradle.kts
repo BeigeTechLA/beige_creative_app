@@ -36,6 +36,24 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Parse dart-defines for Google Maps API Key
+        val dartDefinesString = project.properties["dart-defines"]?.toString() ?: ""
+        var googleMapsKey = "AIzaSyB55dzOzA9np8T1rn-DpKKqcqGcgbGmgOc" // Fallback key
+        if (dartDefinesString.isNotEmpty()) {
+            dartDefinesString.split(",").forEach {
+                try {
+                    val decoded = String(java.util.Base64.getDecoder().decode(it), Charsets.UTF_8)
+                    val parts = decoded.split("=")
+                    if (parts.size >= 2 && parts[0] == "GOOGLE_MAPS_KEY") {
+                        googleMapsKey = parts[1]
+                    }
+                } catch (e: Exception) {
+                    // Ignore decoding errors
+                }
+            }
+        }
+        manifestPlaceholders["GOOGLE_MAPS_KEY"] = googleMapsKey
     }
 
     flavorDimensions += "environment"

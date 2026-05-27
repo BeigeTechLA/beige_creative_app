@@ -68,8 +68,6 @@ class RouteNames {
       "profile-password-success";
   static const shootCancelotties =
       "shoot-cancellooties";
-  static const shootCancel =
-      "shoot-cancel";
 
   ///// ------file manager -----\\\\\\\
   static const postProduction =

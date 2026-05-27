@@ -16,11 +16,11 @@ import '../../app/radii.dart';
 import '../../app/shadows.dart';
 import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
-import '../../widgets/Topmessgae.dart';
-import '../../widgets/commonFileViewer.dart';
+import '../../widgets/top_message.dart';
+import '../../widgets/common_file_viewer.dart';
 import '../../widgets/common_uploader.dart';
 import '../../widgets/custom_text_field.dart';
-import '../view_details_screen .dart';
+import '../view_details_screen.dart';
 
 class SignUp3Screen extends StatefulWidget {
   final int? crewMemberId;

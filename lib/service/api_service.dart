@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 import '../config/env.dart';
+import '../core/utils/app_logger.dart';
 import 'prefs_service.dart';
 
  // Make sure AppConfig.apiUrl is correctly set
@@ -34,7 +35,7 @@ class ApiService {
         'Authorization': 'Bearer $token',
       };
     } else {
-      print('🚫 No token found!');
+      AppLogger.w('🚫 No token found!');
       return {
         'Content-Type': 'application/json',
       };
@@ -331,25 +332,29 @@ class ApiService {
     };
 
     // 🔥 FULL DEBUG START
-    debugPrint("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    debugPrint("🌍 FULL URL => $fullUrl");
-    debugPrint("🧾 HEADERS => ${dio.options.headers}");
-    debugPrint("📦 FIELDS => $fields");
+    AppLogger.d("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    AppLogger.d("🌍 FULL URL => $fullUrl");
+    final sanitizedHeaders = Map<String, dynamic>.from(dio.options.headers);
+    if (sanitizedHeaders.containsKey('Authorization')) {
+      sanitizedHeaders['Authorization'] = 'Bearer [MASKED]';
+    }
+    AppLogger.d("🧾 HEADERS => $sanitizedHeaders");
+    AppLogger.d("📦 FIELDS => $fields");
 
     if (imageFile != null) {
       final fileSize = imageFile.lengthSync();
-      debugPrint("📸 FILE PATH => ${imageFile.path}");
-      debugPrint("📸 FILE NAME => ${imageFile.path.split('/').last}");
-      debugPrint("📸 FILE SIZE => ${(fileSize / 1024).toStringAsFixed(2)} KB");
+      AppLogger.d("📸 FILE PATH => ${imageFile.path}");
+      AppLogger.d("📸 FILE NAME => ${imageFile.path.split('/').last}");
+      AppLogger.d("📸 FILE SIZE => ${(fileSize / 1024).toStringAsFixed(2)} KB");
 
       if (fileSize > 2000000) {
-        debugPrint("⚠️ WARNING: FILE SIZE > 2MB (May cause 413 error)");
+        AppLogger.w("⚠️ WARNING: FILE SIZE > 2MB (May cause 413 error)");
       }
     } else {
-      debugPrint("📸 NO FILE ATTACHED");
+      AppLogger.d("📸 NO FILE ATTACHED");
     }
 
-    debugPrint("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    AppLogger.d("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     // 🔥 FULL DEBUG END
 
     FormData formData = FormData.fromMap({

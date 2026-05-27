@@ -12,7 +12,7 @@ import '../app/spacing.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
-import '../widgets/commonFileViewer.dart';
+import '../widgets/common_file_viewer.dart';
 import '../widgets/common_uploader.dart';
 
 class Certificates extends StatefulWidget {

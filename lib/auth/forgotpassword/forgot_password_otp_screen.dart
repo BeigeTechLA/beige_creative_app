@@ -11,7 +11,7 @@ import '../../service/api_service.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
-import '../../widgets/Topmessgae.dart';
+import '../../widgets/top_message.dart';
 import '../resetpassword/reset_password_screen.dart';
 
 class ForgotPasswordOtpScreen extends StatefulWidget {

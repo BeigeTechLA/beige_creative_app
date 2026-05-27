@@ -12,7 +12,7 @@ import '../app/colors.dart';
 import '../app/radii.dart';
 import '../app/spacing.dart';
 import '../app/text_styles.dart';
-import '../widgets/Topmessgae.dart';
+import '../widgets/top_message.dart';
 
 class ProfileOtpScreen extends StatefulWidget {
   final String email;

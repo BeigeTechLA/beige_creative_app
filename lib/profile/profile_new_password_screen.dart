@@ -8,19 +8,19 @@ import '../app/radii.dart';
 import '../app/spacing.dart';
 import '../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart' show AppAssets;
-import '../widgets/Topmessgae.dart';
+import '../widgets/top_message.dart';
 import '../widgets/custom_text_field.dart';
 
-class MyprofileNewPasswrodScreen extends StatefulWidget {
+class MyprofileNewPasswordScreen extends StatefulWidget {
   final String email;
   final String otp;
-  const MyprofileNewPasswrodScreen({super.key, required this.email, required this.otp});
+  const MyprofileNewPasswordScreen({super.key, required this.email, required this.otp});
 
   @override
-  State<MyprofileNewPasswrodScreen> createState() => _MyprofileNewPasswrodScreenState();
+  State<MyprofileNewPasswordScreen> createState() => _MyprofileNewPasswordScreenState();
 }
 
-class _MyprofileNewPasswrodScreenState extends State<MyprofileNewPasswrodScreen> {
+class _MyprofileNewPasswordScreenState extends State<MyprofileNewPasswordScreen> {
 
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();

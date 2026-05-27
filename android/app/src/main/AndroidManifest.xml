@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:name="${applicationName}"
         android:icon="@mipmap/cp_app_icon"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="false">
 
         <!-- ✅ Notice: NO closing > until the last attribute -->
 
@@ -21,7 +21,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyB55dzOzA9np8T1rn-DpKKqcqGcgbGmgOc"/>
+            android:value="${GOOGLE_MAPS_KEY}"/>
 
         <activity
             android:name=".MainActivity"

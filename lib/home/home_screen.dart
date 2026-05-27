@@ -6,12 +6,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../utility/date_time_utils.dart';
 import '../model_class/create_dashboard_details_model.dart';
-import '../Model_Class/crewstatus_model.dart';
-import '../Model_Class/dashboard_count_model.dart';
-import '../Model_Class/upcoming_shoots_model.dart';
-import '../Model_Class/myprofile_model.dart' as profile;
+import '../model_class/crewstatus_model.dart';
+import '../model_class/dashboard_count_model.dart';
+import '../model_class/upcoming_shoots_model.dart';
+import '../model_class/myprofile_model.dart' as profile;
 
-import '../Model_Class/myprofile_model.dart';
+import '../model_class/myprofile_model.dart';
 
 import '../app/route_names.dart';
 import '../app/colors.dart';

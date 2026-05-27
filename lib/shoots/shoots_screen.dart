@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import '../model_class/shoot_count_model.dart';
-import '../Model_Class/shoots_model.dart';
+import '../model_class/shoots_model.dart';
 import '../app/route_names.dart';
 import '../app/colors.dart';
 import '../app/text_styles.dart';
@@ -505,7 +505,7 @@ class _ShootsScreenState extends State<ShootsScreen> {
                                   ),
                                 );*/
                               context.pushNamed(
-                                RouteNames.shootCancel,
+                                RouteNames.cancelShoot,
 
                                 extra: {"projectId": shoot.projectId},
                               );

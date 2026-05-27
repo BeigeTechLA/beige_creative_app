@@ -2,15 +2,15 @@ import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../Profile/myprofile_youre_all_set_screen.dart';
+import '../../profile/myprofile_youre_all_set_screen.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
 import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
-import '../../widgets/Topmessgae.dart';
-import '../../widgets/new_Textfield.dart';
+import '../../widgets/top_message.dart';
+import '../../widgets/new_text_field.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String email;

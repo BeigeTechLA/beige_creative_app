@@ -12,7 +12,7 @@ import 'package:beige_creative_app/app/assets.dart';
 import '../../app/route_names.dart';
 import '../../service/api_endpoints.dart';
 import '../../service/api_service.dart';
-import '../../widgets/Topmessgae.dart';
+import '../../widgets/top_message.dart';
 
 
 class DeleteAccountOtpScreen extends StatefulWidget {

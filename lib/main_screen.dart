@@ -9,12 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-import 'Home/home_screen.dart';
-import 'Model_Class/myprofile_model.dart';
+import 'home/home_screen.dart';
+import 'model_class/myprofile_model.dart';
 
-import 'Shoots/shoots_screen.dart';
-import 'Messages/messages_screen.dart';
-import 'ManageAvailability/manage_availability_screen.dart';
+import 'shoots/shoots_screen.dart';
+import 'messages/messages_screen.dart';
+import 'manage_availability/manage_availability_screen.dart';
 import 'app/route_names.dart';
 import 'file_manager/file_manager_screen.dart';
 import 'app/colors.dart';
@@ -109,13 +109,10 @@ Future<void> fetchprofiledata() async {
       // drawerEnableOpenDragGesture: true,
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
 
-      /// 🔥 IndexedStack = state safe
-  /*    body: IndexedStack(
+      body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
       ),
-*/
-      body: _pages[_selectedIndex],
       bottomNavigationBar: _buildBottomBar(),
     );
   }

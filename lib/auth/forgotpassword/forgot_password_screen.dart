@@ -9,8 +9,8 @@ import '../../app/radii.dart';
 import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
-import '../../widgets/Topmessgae.dart';
-import '../../widgets/new_Textfield.dart';
+import '../../widgets/top_message.dart';
+import '../../widgets/new_text_field.dart';
 import 'forgot_password_otp_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {

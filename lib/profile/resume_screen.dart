@@ -12,7 +12,7 @@ import '../app/spacing.dart';
 import '../app/colors.dart';
 import '../app/radii.dart';
 import 'package:beige_creative_app/app/assets.dart';
-import '../widgets/commonFileViewer.dart' show CommonFileViewer;
+import '../widgets/common_file_viewer.dart' show CommonFileViewer;
 import '../widgets/common_uploader.dart';
 
 class Resume extends StatefulWidget {

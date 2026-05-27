@@ -13,14 +13,14 @@ import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
-class ProfileDetils1screen extends StatefulWidget {
-  const ProfileDetils1screen({super.key});
+class ProfileDetails1Screen extends StatefulWidget {
+  const ProfileDetails1Screen({super.key});
 
   @override
-  State<ProfileDetils1screen> createState() => _ProfileDetils1screenState();
+  State<ProfileDetails1Screen> createState() => _ProfileDetails1ScreenState();
 }
 
-class _ProfileDetils1screenState extends State<ProfileDetils1screen> {
+class _ProfileDetails1ScreenState extends State<ProfileDetails1Screen> {
   // String getPrimaryRole(String? role) {
   //   switch (role) {
   //     case "1": return "Videographer";

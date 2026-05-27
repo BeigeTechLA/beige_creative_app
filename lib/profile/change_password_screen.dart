@@ -9,8 +9,8 @@ import '../app/colors.dart';
 import '../app/radii.dart';
 import '../app/spacing.dart';
 import '../app/text_styles.dart';
-import '../widgets/Topmessgae.dart';
-import '../widgets/new_Textfield.dart';
+import '../widgets/top_message.dart';
+import '../widgets/new_text_field.dart';
 
 
 class ChangePasswordScreen extends StatefulWidget {

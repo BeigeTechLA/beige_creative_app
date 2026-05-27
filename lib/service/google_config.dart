@@ -1,6 +1,7 @@
+import '../config/env.dart';
+
 class GoogleConfig {
-  static const String placesApiKey =
-      "AIzaSyB55dzOzA9np8T1rn-DpKKqcqGcgbGmgOc";
+  static const String placesApiKey = Env.googleMapsKey;
 
   static const double defaultZoom = 14.0;
 

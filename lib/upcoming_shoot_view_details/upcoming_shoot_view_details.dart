@@ -12,16 +12,16 @@ import '../app/text_styles.dart';
 import '../app/spacing.dart';
 import '../utility/date_time_utils.dart';
 
-class UpcomingShootViewDetils extends StatefulWidget {
+class UpcomingShootViewDetails extends StatefulWidget {
   final int? projectid;
-  const UpcomingShootViewDetils({super.key, this.projectid});
+  const UpcomingShootViewDetails({super.key, this.projectid});
 
   @override
-  State<UpcomingShootViewDetils> createState() =>
-      _UpcomingShootViewDetilsState();
+  State<UpcomingShootViewDetails> createState() =>
+      _UpcomingShootViewDetailsState();
 }
 
-class _UpcomingShootViewDetilsState extends State<UpcomingShootViewDetils> {
+class _UpcomingShootViewDetailsState extends State<UpcomingShootViewDetails> {
   List<String> getProfileImageUrls() {
     if (mydata?.teamMembers == null) return [];
 
