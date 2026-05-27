@@ -43,7 +43,7 @@ iOS/macOS: `Podfile`s under `ios/` and `macos/` are gitignored — `flutter pub 
 - `lib/main_dev.dart` → `startApp(Environment.dev)`
 - `lib/main_prod.dart` → `startApp(Environment.prod)`
 
-`startApp` calls `Env.init(...)` (`lib/config/env.dart`), which sets `Env.apiUrl`, `Env.imageUrl`, `Env.stripePublishableKey` as static fields read everywhere downstream. URLs are **hardcoded** in `env.dart` — `flutter_dotenv` is a dependency but no `.env` is loaded. To change a backend URL, edit `lib/config/env.dart`. The prod Stripe key is currently a placeholder string.
+`startApp` calls `Env.init(...)` (`lib/config/env.dart`), which sets `Env.apiUrl` and `Env.imageUrl` as static fields read everywhere downstream. Sensitive keys (`Env.googleMapsKey`, `Env.stripePublishableKey`) are loaded dynamically using `const String.fromEnvironment()` via `--dart-define-from-file=env/<flavor>.json`. to change non-sensitive backend URLs, edit `lib/config/env.dart`.
 
 `startApp` also reads `isLoggedIn` from `SharedPreferences` before `runApp`, then `MaterialApp.router` mounts `appRouter`. The router's `initialLocation` is `/splash` regardless of login state — the splash screen is responsible for routing onward (do not assume `isLoggedIn` gates the initial route at the router level).
 
