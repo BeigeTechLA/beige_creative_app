@@ -7,6 +7,34 @@
 
 ---
 
+### 2026-05-27: Execution and validation of Phase 2 (Tasks 2.01–2.09)
+
+- **Changes**:
+  - Fully executed and closed all 9 tasks in Phase 2.
+  - Typo and folder renames finalized: `onboding` → `onboarding`, `manageavailability` → `manage_availability`, `upcomingshootviewdetils` → `upcoming_shoot_view_details`, drop literal spaces in filenames, and convert all uppercase files/directories to `lowercase_snake_case`.
+  - Import casings completely corrected inside `lib/` and `test/` to align with case-sensitive OS file paths.
+  - Masked and sanitized Bearer token leakage in both `api_service.dart` and `myprofile.dart` logs.
+  - Disabled cleartext traffic (`usesCleartextTraffic="false"`) inside `AndroidManifest.xml`.
+  - Implemented prime target folder scaffold with empty directory `.gitkeep` anchors under `lib/core/`, `lib/shared/`, `lib/features/`, and `lib/dummy/`.
+  - Introduced local env properties loader inside Kotlin Gradle DSL `build.gradle.kts` linking back-to-back build definitions dynamically into `AndroidManifest` configurations via `manifestPlaceholders`.
+  - Transitioned Google Maps API and Stripe publishable keys out of source tree into environment definitions in `lib/config/env.dart` utilizing `String.fromEnvironment`. Committed template JSON environment variables to `env/`.
+  - Pruned deprecated `flutter_dotenv` package from `pubspec.yaml` and cleaned non-existent assets directories.
+  - Restored `IndexedStack` inside `main_screen.dart` tab bar to conserve visual session state during tab transitions.
+  - Consolidated `/shoot-Cancel` duplicate route down to `/cancel-shoot`.
+  - Configured robust continuous integration workflow file `ci.yml` run triggers for analyze, test, and dev flavor compilation check validation.
+  - Updated conventions, environment variables, commands, and target folder layout specifications inside `CLAUDE.md`.
+  - Staged and committed all changes into working branch `improvments-phase1`.
+
+- **Decisions**:
+  - **Dynamic Gradle Placeholder Decoder** — Used dynamic splitting and base64 parsing directly inside Kotlin Gradle script to extract keys from base64 dart-defines, keeping native builds entirely decoupling-friendly and dynamic.
+  - **Secure Storage Retained** — Verified password persistence and did not regress keychain encryption security as secure storage wrapper was already standard in login.
+  - **Consolidated Casing Enforcement** — Renamed and corrected all casing properties, ensuring zero compilation errors on strict environments.
+
+- **Constraints Maintained**:
+  - `flutter analyze` fully clean of compiler errors.
+  - All test suites successfully green (`flutter test` passes 100%).
+  - Branch shippability maintained.
+
 ### 2026-05-27: Guides cross-check patch — shared widgets, font note, models/utils tests
 
 - **Changes**:
