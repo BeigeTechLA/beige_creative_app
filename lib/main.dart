@@ -7,6 +7,7 @@ import 'config/env.dart';
 import 'core/firebase/firebase_service.dart';
 import 'core/providers/auth_state_provider.dart';
 import 'core/providers/core_providers.dart';
+import 'core/providers/onboarding_seen_provider.dart';
 import 'core/session/prefs_session_store.dart';
 import 'core/session/secure_session_store.dart';
 import 'core/session/session_migration.dart';
@@ -37,6 +38,8 @@ Future<void> startApp(Environment environment) async {
   SharedService.bind(session);
 
   final initialAuth = PrefsService.isLoggedIn;
+  final initialOnboardingSeen =
+      prefs.getBool(PrefsSessionStore.onboardingSeenKey) ?? false;
 
   runApp(
     ProviderScope(
@@ -44,6 +47,7 @@ Future<void> startApp(Environment environment) async {
         sharedPreferencesProvider.overrideWith((_) async => prefs),
         sessionStoreProvider.overrideWithValue(session),
         authStateProvider.overrideWith((_) => initialAuth),
+        onboardingSeenProvider.overrideWith((_) => initialOnboardingSeen),
       ],
       child: const App(),
     ),

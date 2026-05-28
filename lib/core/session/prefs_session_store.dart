@@ -11,6 +11,9 @@ import 'session_store.dart';
 class PrefsSessionStore implements PrefsSessionBackend {
   static const String _kUser = 'session_user_snapshot';
   static const String _kLastLoginAt = 'session_last_login_at';
+  static const String _kOnboardingSeen = 'session_onboarding_seen';
+
+  static String get onboardingSeenKey => _kOnboardingSeen;
 
   final SharedPreferences _prefs;
 
@@ -56,5 +59,15 @@ class PrefsSessionStore implements PrefsSessionBackend {
   @override
   Future<void> clearLastLoginAt() async {
     await _prefs.remove(_kLastLoginAt);
+  }
+
+  @override
+  Future<bool> readOnboardingSeen() async {
+    return _prefs.getBool(_kOnboardingSeen) ?? false;
+  }
+
+  @override
+  Future<void> writeOnboardingSeen(bool seen) async {
+    await _prefs.setBool(_kOnboardingSeen, seen);
   }
 }

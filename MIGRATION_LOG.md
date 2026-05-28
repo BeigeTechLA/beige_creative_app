@@ -7,6 +7,78 @@
 
 ---
 
+### 2026-05-28: Phase 4 Task 4.02 — Group A · Onboarding migration (pilot, closes Group A)
+
+- **Changes**:
+  - Created feature folder `lib/features/onboarding/presentation/` with 3 files:
+    - `providers/onboarding_state.dart` — `OnboardingState{currentPage, pageCount, seen}` + `copyWith`, derived `isLastPage`.
+    - `providers/onboarding_notifier.dart` — `OnboardingNotifier extends AutoDisposeNotifier<OnboardingState>`. Methods: `configurePageCount(int)`, `setPage(int)` (with bounds check), `markSeen()` (idempotent; flips `onboardingSeenProvider` AND persists via `SessionStore`).
+    - `screens/onboarding_screen.dart` — `ConsumerStatefulWidget`. `PageController` stays in widget; index goes through the notifier. Login/Sign-up CTAs both call `markSeen()` then `context.pushNamed(...)`.
+  - Extended `SessionStore` interface with `readOnboardingSeen()` / `writeOnboardingSeen(bool)`. `PrefsSessionStore` implements them under key `session_onboarding_seen`. `PrefsSessionBackend` contract extended.
+  - Created `lib/core/providers/onboarding_seen_provider.dart` — `StateProvider<bool>(false)`. Sync mirror for the `GoRouter.redirect:` callback (which can't await `SessionStore`).
+  - Updated `lib/app/router.dart`:
+    - Import the new screen path; import the new provider.
+    - Redirect rule added: `!isAuth && hasSeenOnboarding && loc == '/onboarding' → /login`.
+    - Existing authed-on-auth-flow redirect now includes `/onboarding` (authed shouldn't see onboarding either).
+  - Updated `lib/features/splash/presentation/screens/splash_screen.dart` — on animation complete, `if (authed) → home else if (seen) → login else → onboarding`.
+  - Updated `lib/main.dart` — override `onboardingSeenProvider` from `prefs.getBool(PrefsSessionStore.onboardingSeenKey) ?? false`. Exposed `onboardingSeenKey` as a public static on `PrefsSessionStore`.
+  - Deleted `lib/onboarding/onboarding_screen.dart` + empty dir.
+  - Added `test/features/onboarding/presentation/screens/onboarding_screen_test.dart` — 3 cases: render smoke, Login tap persists + navigates to stub route, notifier `setPage` bounds-checking. Uses a local `MaterialApp.router(GoRouter(...))` harness so `pushNamed` doesn't throw. All passing.
+
+- **Decisions**:
+  - **`onboardingSeenProvider` as sync `StateProvider<bool>`, mirroring async `SessionStore`** — same pattern as `authStateProvider` (Task 3.17). Redirect needs sync access; persistence is async; sync mirror flipped explicitly in the mutation path.
+  - **`PrefsSessionStore.onboardingSeenKey` exposed as a public static** so `main.dart` can read the same key without `await`ing `SessionStore.readOnboardingSeen()`. Cold-boot path: `prefs.getBool(key)` is sync because `SharedPreferences` is already resolved.
+  - **Session-store extension bundled into this task** — spec named onboarding-seen flag as part of 4.02. Splitting it into its own task would have been busywork (single consumer, trivial surface).
+  - **`PageController` stays in widget**, not the notifier — controllers are widget-lifecycle bound and would leak if held in a provider. Notifier holds the integer index that the dot indicator / page count UI reads.
+  - **Both Login and Sign-up CTAs call `markSeen()`** — entering either flow counts as "user has completed orientation". Cleaner than a separate "skip" button (which the original code had commented out).
+  - **`MaterialApp.router` test harness** — `MaterialApp(home: ...)` lacks a router so `pushNamed` throws. Built a minimal in-test `GoRouter` with 3 stub routes. Reusable pattern for any Phase 4 widget test that triggers navigation.
+  - **`Text.rich`'s "Sign Up" inner `TextSpan` doesn't match `find.text('Sign Up')`** — `find.text` matches `Text` widgets by data. Test asserts presence of the `GestureDetector` instead. Future Phase 4 tests with rich-text CTAs should use `find.byTooltip`/`find.byKey` or assert the gesture region directly.
+  - **Stayed on `improvments-phase1` branch** — consistent with prior phases.
+
+- **Pilot calibration (Group A actuals):**
+  - 4.01 Splash (72 LOC): ~15 min.
+  - 4.02 Onboarding (198 LOC + session-store extension + redirect wiring): ~25 min.
+  - **Combined Group A: ~40 min vs. 2-day budget.** ~96× faster than estimate.
+  - **Re-baseline decision:** keep Group B-E budgets as posted until first non-trivial repository-bound feature (4.03 Messages — repository + stream-vs-polling decision). God-widget tasks remain categorically different — their estimates should not be reduced based on Group A actuals alone.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 300 issues (net **-1** from baseline — legacy onboarding had 1 deprecation lint that's now gone).
+  - `flutter test` → 30/30 passing (was 27; added 3 onboarding cases).
+  - Router redirect logic compiles + reachable through `_AuthRefreshNotifier`. `onboardingSeenProvider` change doesn't yet trigger redirect re-eval — currently only `authStateProvider` does. Acceptable for now (sign-up flow flips both providers in sequence; if a future feature flips only `onboardingSeen`, extend the notifier to listen to both).
+
+---
+
+### 2026-05-28: Phase 4 Task 4.01 — Group A · Splash migration (pilot)
+
+- **Changes**:
+  - Created feature folder `lib/features/splash/presentation/` with 3 files:
+    - `providers/splash_state.dart` — immutable `SplashState{animationDone}` + `copyWith`.
+    - `providers/splash_notifier.dart` — `SplashNotifier extends AutoDisposeNotifier<SplashState>` with idempotent `markAnimationComplete()`.
+    - `screens/splash_screen.dart` — `ConsumerStatefulWidget` with `TickerProviderStateMixin` (vsync requirement for `AnimationController`). Lottie unchanged. On completion calls `notifier.markAnimationComplete()`. `ref.listen<SplashState>` watches and dispatches `context.goNamed(authStateProvider ? home : onboarding)`.
+  - Updated `lib/app/router.dart` import (`splash/splash_screen.dart` → `features/splash/presentation/screens/splash_screen.dart`).
+  - Deleted legacy `lib/splash/splash_screen.dart` + empty dir.
+  - Added `test/features/splash/presentation/screens/splash_screen_test.dart` — widget render smoke + notifier state-transition unit. Both passing.
+
+- **Decisions**:
+  - **Auth read via `authStateProvider`, not `PrefsService.isLoggedIn`** — pilot establishes the rule that screens consume the Riverpod-exposed auth state, not the legacy static. `PrefsService` stays alive (Phase 4 has more callers) but features migrate one-by-one.
+  - **`AutoDisposeNotifier`** — splash is a single-mount destination; state shouldn't persist across navigations. App-lifetime providers stay reserved for `core_providers.dart`.
+  - **`ref.listen` for the navigation side-effect, not `Future.then(...).whenComplete()` directly** — keeps the screen build path declarative. The notifier mediates so a future feature flag / A-B test of post-splash routing can swap the navigation logic without touching the widget tree.
+  - **`ConsumerStatefulWidget`, not `ConsumerWidget`** — vsync requires a `State` (`TickerProviderStateMixin`). No `setState` calls anywhere — controller writes don't trigger rebuilds; the navigation effect runs from `ref.listen` callback.
+  - **Notifier unit test uses `ProviderContainer` directly**, not via `pumpProviderApp` — `AutoDisposeNotifier` cannot be instantiated raw (`LateInitializationError` on `_element`). `ProviderContainer` with `addTearDown(container.dispose)` is the canonical pattern.
+  - **Stayed on `improvments-phase1` branch** — consistent with prior phases.
+
+- **Pilot calibration (Group A actuals):**
+  - **Wall-clock: ~15 minutes** for a 72-LOC presentation-only screen.
+  - **Decision:** Group A unit 2 (onboarding) likely similar scale; can be aggressive. Groups B–E god-widget tasks (Myprofile / HomeScreen / SignUp3) are categorically different — keep their `.a` decompose + `.b` migrate estimates until their actuals land.
+  - **Pattern fixed for Phase 4 leaf screens** documented in `docs/phase4/task_01_groupA_splash.md` Notes.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 301 issues = baseline.
+  - `flutter test` → 27/27 passing (was 25; added 2 splash cases).
+  - Router redirect still owns the auth safety net per Task 3.17.
+
+---
+
 ### 2026-05-28: Phase 3 Task 3.20 — Shared design-system widgets
 
 - **Changes**:

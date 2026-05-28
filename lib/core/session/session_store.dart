@@ -28,6 +28,11 @@ abstract class SessionStore {
   Future<DateTime?> readLastLoginAt();
   Future<void> writeLastLoginAt(DateTime when);
 
+  /// `true` once the user finishes the onboarding flow. Persisted so the
+  /// router redirect can bypass onboarding on subsequent cold starts.
+  Future<bool> readOnboardingSeen();
+  Future<void> writeOnboardingSeen(bool seen);
+
   /// True iff a non-empty token is in secure storage. Single source of truth
   /// for "logged in" — `isLoggedIn` flags in prefs are advisory only.
   Future<bool> isLoggedIn();
@@ -138,6 +143,12 @@ class CompositeSessionStore implements SessionStore {
       _prefs.writeLastLoginAt(when);
 
   @override
+  Future<bool> readOnboardingSeen() => _prefs.readOnboardingSeen();
+  @override
+  Future<void> writeOnboardingSeen(bool seen) =>
+      _prefs.writeOnboardingSeen(seen);
+
+  @override
   Future<bool> isLoggedIn() async {
     final token = await _secure.readToken();
     return token != null && token.isNotEmpty;
@@ -173,4 +184,6 @@ abstract class PrefsSessionBackend {
   Future<DateTime?> readLastLoginAt();
   Future<void> writeLastLoginAt(DateTime when);
   Future<void> clearLastLoginAt();
+  Future<bool> readOnboardingSeen();
+  Future<void> writeOnboardingSeen(bool seen);
 }

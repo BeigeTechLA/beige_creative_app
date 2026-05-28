@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/firebase/app_analytics_observer.dart';
 import '../core/providers/auth_state_provider.dart';
+import '../core/providers/onboarding_seen_provider.dart';
 import '../manage_availability/add_availability_screen.dart';
 import '../profile/profile_details/edit_personal_details_screen.dart';
 import '../profile/profile_details/enter_profile_details_screen.dart';
@@ -37,8 +38,8 @@ import '../file_manager/post_production_screen.dart';
 import '../file_manager/pre_production_screen.dart';
 
 /// SPLASH + ONBOARDING
-import '../splash/splash_screen.dart';
-import '../onboarding/onboarding_screen.dart';
+import '../features/splash/presentation/screens/splash_screen.dart';
+import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 
 /// FORGOT PASSWORD
 import '../auth/forgotpassword/forgot_password_screen.dart';
@@ -80,15 +81,22 @@ final routerProvider = Provider<GoRouter>((ref) {
     observers: [AppAnalyticsObserver()],
     redirect: (context, state) {
       final isAuth = ref.read(authStateProvider);
+      final hasSeenOnboarding = ref.read(onboardingSeenProvider);
       final loc = state.matchedLocation;
       final isPublic = _publicRoutes.contains(loc);
 
       // Unauthed user touching a protected route → /login.
       if (!isAuth && !isPublic) return '/login';
 
+      // Onboarding skipped once seen — bounce to /login.
+      if (!isAuth && hasSeenOnboarding && loc == '/onboarding') {
+        return '/login';
+      }
+
       // Authed user on /login or sign-up flow → /home.
       if (isAuth &&
           (loc == '/login' ||
+              loc == '/onboarding' ||
               loc.startsWith('/signup-step') ||
               loc == '/forgot-password' ||
               loc == '/forgot-otp' ||
