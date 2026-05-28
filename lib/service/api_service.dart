@@ -1,223 +1,218 @@
-
-import 'dart:convert';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 
 import '../config/env.dart';
+import '../core/network/dio_client.dart';
+import '../core/network/interceptors/auth_interceptor.dart';
+import '../core/network/interceptors/error_interceptor.dart';
+import '../core/network/interceptors/logging_interceptor.dart';
+import '../core/network/interceptors/retry_interceptor.dart';
 import '../core/utils/app_logger.dart';
 import 'prefs_service.dart';
 
- // Make sure AppConfig.apiUrl is correctly set
-
+/// Legacy facade. Internals now run through `DioClient` + the canonical
+/// interceptor chain. Public signatures are unchanged so the 68 existing
+/// call sites compile without edits — Phase 4 migrates them feature-by-feature.
+///
+/// **Auth token** is no longer injected per-call here — `AuthInterceptor` handles
+/// it via `PrefsService.token`. `createAuthorizationHeader()` has been removed.
 class ApiService {
-/*
-  final String _baseUrl = AppConfig.apiUrl;
-  String get baseUrl => _baseUrl;
+  static DioClient? _client;
 
-  static String imageURL = AppConfig.imageUrl; // Using image URL from AppConfig
-*/
+  /// Lazily-built shared `DioClient` reused across all `ApiService()` instances.
+  /// Interceptor chain: `Auth → Retry → Error → Logging` (dev only).
+  static DioClient _ensureClient() {
+    final existing = _client;
+    if (existing != null) return existing;
+    final client = DioClient();
+    client.attachInterceptors([
+      AuthInterceptor(
+        tokenReader: () async => PrefsService.token,
+      ),
+      RetryInterceptor(dio: client.dio),
+      ErrorInterceptor(),
+      if (kDebugMode) LoggingInterceptor(),
+    ]);
+    _client = client;
+    return client;
+  }
+
+  Dio get _dio => _ensureClient().dio;
 
   final String _baseUrl = Env.apiUrl;
   String get baseUrl => _baseUrl;
 
   static String imageURL = Env.imageUrl;
 
+  String getImageURL(String imagePath) => imageURL + imagePath;
 
-  Future<Map<String, String>> createAuthorizationHeader() async {
-    final token = PrefsService.token;
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Generic REST verbs (return decoded JSON — Map or List)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    if (token != null && token.isNotEmpty) {
-      // print('🔐 Sending token: $token');
-      return {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
-    } else {
-      AppLogger.w('🚫 No token found!');
-      return {
-        'Content-Type': 'application/json',
-      };
-    }
-  }
-
-  fetchData(String url) async {
-    final headers = await createAuthorizationHeader();
-
-    final response =
-    await http.get(Uri.parse(_baseUrl + url), headers: headers);
-
-    // final response = await http.get(Uri.parse(_baseUrl + url));
-
-    if (response.statusCode == 200) {
-
-      // If the server returns a 200 OK response, parse the JSON.
-      return json.decode(response.body);
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
+  Future<dynamic> fetchData(String url) async {
+    try {
+      final response = await _dio.get<dynamic>(url);
+      if (_isSuccess(response.statusCode)) return response.data;
+      throw Exception('Failed to load data');
+    } on DioException catch (e) {
+      AppLogger.e('GET $url failed: ${e.response?.statusCode}', e);
       throw Exception('Failed to load data');
     }
   }
 
-
-
-  postData(String url, Map<String, dynamic> data) async {
-    final headers = await createAuthorizationHeader();
-
-    final response = await http.post(
-      Uri.parse(_baseUrl + url),
-      headers: headers,
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final bodyRes = json.decode(response.body);
-      return bodyRes;
-    } else {
+  Future<dynamic> postData(String url, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post<dynamic>(url, data: data);
+      if (_isSuccess(response.statusCode)) return response.data;
+      throw Exception('Failed to post data');
+    } on DioException catch (e) {
+      AppLogger.e('POST $url failed: ${e.response?.statusCode}', e);
       throw Exception('Failed to post data');
     }
   }
 
   Future<Map<String, dynamic>> putData(
-      String url, Map<String, dynamic> data) async {
-    final headers = await createAuthorizationHeader();
-
-    final response = await http.put(
-      Uri.parse(_baseUrl + url),
-      headers: headers,
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 204) {
-      return json.decode(response.body);
-    } else {
+    String url,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _dio.put<dynamic>(url, data: data);
+      if (_isSuccess(response.statusCode)) {
+        final body = response.data;
+        if (body is Map<String, dynamic>) return body;
+        return <String, dynamic>{};
+      }
+      throw Exception('Failed to update data');
+    } on DioException catch (e) {
+      AppLogger.e('PUT $url failed: ${e.response?.statusCode}', e);
       throw Exception('Failed to update data');
     }
   }
 
-  deleteData(String url) async {
-    final headers = await createAuthorizationHeader();
-
-    final response = await http.delete(
-      Uri.parse(_baseUrl + url),
-      headers: headers,
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 204) {
-      return json.decode(response.body);
-    } else {
+  Future<dynamic> deleteData(String url) async {
+    try {
+      final response = await _dio.delete<dynamic>(url);
+      if (_isSuccess(response.statusCode)) return response.data;
+      throw Exception('Failed to delete data');
+    } on DioException catch (e) {
+      AppLogger.e('DELETE $url failed: ${e.response?.statusCode}', e);
       throw Exception('Failed to delete data');
     }
   }
 
+  /// Same as [postData] — preserved for the existing caller surface.
+  Future<dynamic> postDataraw(String url, Map<String, dynamic> data) =>
+      postData(url, data);
 
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // Multipart variants — auth applied via interceptor (was bypassed in Step 3).
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-
-  Future<dynamic> postMultipartData(
-      String url,
-      Map<String, String> fields,
-      File? file,
-      ) async {
+  /// Profile-photo upload. Sends file as `profile_photo`.
+  Future<dynamic> postMultipart(
+    String url,
+    Map<String, String> fields,
+    File? imageFile,
+  ) async {
+    final formData = FormData.fromMap({
+      ...fields,
+      if (imageFile != null)
+        'profile_photo': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: imageFile.path.split('/').last,
+        ),
+    });
     try {
-      var uri = Uri.parse(baseUrl + url);
+      final response = await _dio.post<dynamic>(url, data: formData);
+      return response.data;
+    } on DioException catch (e) {
+      AppLogger.e('postMultipart $url failed: ${e.response?.statusCode}', e);
+      rethrow;
+    }
+  }
 
-      var request = http.MultipartRequest('POST', uri);
-
-      /// ✅ GET TOKEN PROPERLY
-      final headers = await createAuthorizationHeader();
-
-      /// ❌ REMOVE JSON CONTENT TYPE
-      headers.remove('Content-Type');
-
-      request.headers.addAll(headers);
-
-      /// ✅ ADD FIELDS
-      request.fields.addAll(fields);
-
-      /// ✅ ADD FILE (MAIN FIX)
-      if (file != null) {
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'files[]', // 🔥 IMPORTANT (API expects this)
+  /// Generic single-file upload. Sends file as `files[]`.
+  Future<dynamic> postMultipartData(
+    String url,
+    Map<String, String> fields,
+    File? file,
+  ) async {
+    final formData = FormData.fromMap(fields);
+    if (file != null) {
+      formData.files.add(
+        MapEntry(
+          'files[]',
+          await MultipartFile.fromFile(
             file.path,
             filename: file.path.split('/').last,
           ),
-        );
-
-        debugPrint("📁 FILE => ${file.path}");
-      }
-
-      /// 🔥 SEND REQUEST
-      var response = await request.send();
-
-      var responseBody = await response.stream.bytesToString();
-
-      debugPrint("📥 RESPONSE => $responseBody");
-
-      return jsonDecode(responseBody);
-
-    } catch (e) {
-      debugPrint("🔥 MULTIPART ERROR => $e");
-      return null;
+        ),
+      );
     }
-  }
-  Future<dynamic> postMultipartDataMultiple(
-      String url,
-      Map<String, String> fields,
-      List<File> files,
-      ) async {
     try {
-      var uri = Uri.parse(baseUrl + url);
-      var request = http.MultipartRequest('POST', uri);
-
-      final headers = await createAuthorizationHeader();
-      headers.remove('Content-Type');
-      request.headers.addAll(headers);
-
-      request.fields.addAll(fields);
-
-      // ✅ LOOP — saari images pass hongi
-      for (int i = 0; i < files.length; i++) {
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'files[]',
-            files[i].path,
-            filename: files[i].path.split('/').last,
-          ),
-        );
-        debugPrint("📁 FILE[$i] => ${files[i].path.split('/').last}");
-      }
-
-      var response = await request.send();
-      var responseBody = await response.stream.bytesToString();
-      debugPrint("📥 RESPONSE => $responseBody");
-
-      return jsonDecode(responseBody);
-    } catch (e) {
-      debugPrint("🔥 MULTIPART ERROR => $e");
+      final response = await _dio.post<dynamic>(url, data: formData);
+      return response.data;
+    } on DioException catch (e) {
+      AppLogger.e(
+        'postMultipartData $url failed: ${e.response?.statusCode}',
+        e,
+      );
       return null;
     }
   }
+
+  /// Multi-file upload. All files sent under `files[]`.
+  Future<dynamic> postMultipartDataMultiple(
+    String url,
+    Map<String, String> fields,
+    List<File> files,
+  ) async {
+    final formData = FormData.fromMap(fields);
+    for (final file in files) {
+      formData.files.add(
+        MapEntry(
+          'files[]',
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split('/').last,
+          ),
+        ),
+      );
+    }
+    try {
+      final response = await _dio.post<dynamic>(url, data: formData);
+      return response.data;
+    } on DioException catch (e) {
+      AppLogger.e(
+        'postMultipartDataMultiple $url failed: ${e.response?.statusCode}',
+        e,
+      );
+      return null;
+    }
+  }
+
+  /// Registration step 3 — composite upload of resume + portfolio +
+  /// certifications (multi) + recent work media (with paired index).
+  /// Now goes through the shared client (auth interceptor applies — fixes the
+  /// legacy bug where Step 3 bypassed auth entirely).
   Future<dynamic> postMultipartStep3(
-      String url, {
-        required Map<String, String> fields,
-        File? resume,
-        File? portfolio,
-        List<File>? certificates,
-        List<File>? recentWorks,
-        List<int>? recentWorkIndexes,
-      }) async {
-    final dio = Dio();
+    String url, {
+    required Map<String, String> fields,
+    File? resume,
+    File? portfolio,
+    List<File>? certificates,
+    List<File>? recentWorks,
+    List<int>? recentWorkIndexes,
+  }) async {
+    final formData = FormData.fromMap(fields);
 
-    FormData formData = FormData.fromMap(fields);
-
-    /// 📄 resume
     if (resume != null) {
       formData.files.add(
         MapEntry(
-          "resume",
+          'resume',
           await MultipartFile.fromFile(
             resume.path,
             filename: resume.path.split('/').last,
@@ -226,11 +221,10 @@ class ApiService {
       );
     }
 
-    /// 📁 Portfolio
     if (portfolio != null) {
       formData.files.add(
         MapEntry(
-          "portfolio",
+          'portfolio',
           await MultipartFile.fromFile(
             portfolio.path,
             filename: portfolio.path.split('/').last,
@@ -239,12 +233,11 @@ class ApiService {
       );
     }
 
-    /// 📜 Certification files (MULTIPLE)
     if (certificates != null) {
       for (final file in certificates) {
         formData.files.add(
           MapEntry(
-            "certifications",
+            'certifications',
             await MultipartFile.fromFile(
               file.path,
               filename: file.path.split('/').last,
@@ -254,141 +247,30 @@ class ApiService {
       }
     }
 
-    /// 🎬 Recent Work Media + Index
     if (recentWorks != null && recentWorkIndexes != null) {
-      for (int i = 0; i < recentWorks.length; i++) {
+      for (var i = 0; i < recentWorks.length; i++) {
         formData.files.add(
           MapEntry(
-            "recent_work_media",
+            'recent_work_media',
             await MultipartFile.fromFile(
               recentWorks[i].path,
               filename: recentWorks[i].path.split('/').last,
             ),
           ),
         );
-
         formData.fields.add(
           MapEntry(
-            "recent_work_media_index",
+            'recent_work_media_index',
             recentWorkIndexes[i].toString(),
           ),
         );
       }
     }
 
-    final response = await dio.post(
-      url,
-      data: formData,
-      options: Options(
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      ),
-    );
-
+    final response = await _dio.post<dynamic>(url, data: formData);
     return response.data;
   }
 
-
-
-  String  getImageURL(String imagePath) {
-    return imageURL + imagePath;
-  }
-
-
-  postDataraw(String url, Map<String, dynamic> data) async {
-    final headers = await createAuthorizationHeader();
-
-    final response = await http.post(
-      Uri.parse(_baseUrl + url),
-      headers: headers,
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final bodyRes = json.decode(response.body);
-      return bodyRes;
-    } else {
-      throw Exception('Failed to post data');
-    }
-  }
-
-
-  /// 📌 WORKING MULTIPART POST
-  Future<dynamic> postMultipart(
-      String url,
-      Map<String, String> fields,
-      File? imageFile,
-      ) async {
-    final token = PrefsService.token ?? "";
-
-    Dio dio = Dio();
-
-    final fullUrl = _baseUrl + url;
-
-    dio.options.headers = {
-      "Accept": "application/json",
-      "Authorization": "Bearer $token",
-    };
-
-    // 🔥 FULL DEBUG START
-    AppLogger.d("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    AppLogger.d("🌍 FULL URL => $fullUrl");
-    final sanitizedHeaders = Map<String, dynamic>.from(dio.options.headers);
-    if (sanitizedHeaders.containsKey('Authorization')) {
-      sanitizedHeaders['Authorization'] = 'Bearer [MASKED]';
-    }
-    AppLogger.d("🧾 HEADERS => $sanitizedHeaders");
-    AppLogger.d("📦 FIELDS => $fields");
-
-    if (imageFile != null) {
-      final fileSize = imageFile.lengthSync();
-      AppLogger.d("📸 FILE PATH => ${imageFile.path}");
-      AppLogger.d("📸 FILE NAME => ${imageFile.path.split('/').last}");
-      AppLogger.d("📸 FILE SIZE => ${(fileSize / 1024).toStringAsFixed(2)} KB");
-
-      if (fileSize > 2000000) {
-        AppLogger.w("⚠️ WARNING: FILE SIZE > 2MB (May cause 413 error)");
-      }
-    } else {
-      AppLogger.d("📸 NO FILE ATTACHED");
-    }
-
-    AppLogger.d("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    // 🔥 FULL DEBUG END
-
-    FormData formData = FormData.fromMap({
-      ...fields,
-      if (imageFile != null)
-        "profile_photo": await MultipartFile.fromFile(
-          imageFile.path,
-          filename: imageFile.path.split('/').last,
-        ),
-    });
-
-    try {
-      final response = await dio.post(
-        fullUrl,
-        data: formData,
-      );
-
-      debugPrint("✅ RESPONSE STATUS => ${response.statusCode}");
-      debugPrint("✅ RESPONSE DATA => ${response.data}");
-
-      return response.data;
-    } on DioException catch (e) {
-      debugPrint("❌ ERROR STATUS => ${e.response?.statusCode}");
-      debugPrint("❌ ERROR DATA => ${e.response?.data}");
-      rethrow;
-    }
-  }
-
-
-
-
-
-/// Simple GET request
-
-
-
+  static bool _isSuccess(int? status) =>
+      status != null && status >= 200 && status < 300;
 }

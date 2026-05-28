@@ -1,6 +1,6 @@
 # Task 3.08 — `ApiResponse<T>` wrapper
 
-**Phase:** 3 · **Status:** 🔴 Not Started · **Est:** 1h
+**Phase:** 3 · **Status:** ✅ Completed · **Est:** 1h
 
 | Field | Value |
 |---|---|
@@ -18,13 +18,13 @@ Generic envelope to normalize the Beige API shape (`{error: bool, message: Strin
 - `lib/core/network/api_response.dart`
 
 ## Steps
-- [ ] Define `ApiResponse<T>` with `bool error`, `String? message`, `T? data`
-- [ ] Add `factory ApiResponse.fromJson(Map<String, dynamic>, T Function(dynamic))`
-- [ ] Add `_assertNoError()` helper for repositories to check the `error: true` pattern
+- [x] Defined `ApiResponse<T>` with `bool error`, `String? message`, `T? data` (all final, const constructor).
+- [x] Added `factory ApiResponse.fromJson(Map<String, dynamic>, T Function(dynamic))` that defensively parses `error` (defaults to false if non-bool) and skips `dataParser` when `data` is null.
+- [x] Added `assertNoError()` (public — repositories call it directly after parsing) that throws `ServerException(message: …)`; thrown exception is caught by `ExceptionHandler.guardAsync` and converted to `Either.Left`.
 
 ## Acceptance
-- [ ] Compiles, exports cleanly
-- [ ] Documented with one-line usage example
+- [x] Compiles — `flutter analyze lib/core/network/api_response.dart` → No issues found.
+- [x] Documented — class-level dartdoc has a 5-line usage example (`fromJson` + `assertNoError` + return `data!`).
 
 ## Notes
 Trivial primitive. Lives in front of `ExceptionHandler.guardAsync` — repositories call `_assertNoError(json)` after the Dio call.

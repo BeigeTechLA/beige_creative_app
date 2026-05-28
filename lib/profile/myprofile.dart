@@ -592,45 +592,18 @@ class _MyprofileState extends State<Myprofile> {
       debugPrint("📁 Path: $filePath");
       debugPrint("📄 FileName: $fileName");
 
-      FormData formData = FormData.fromMap({
-        "crew_member_id": Myprofile_user?.crewMemberId, //
-        "profile_photo": await MultipartFile.fromFile(
-          filePath,
-          filename: fileName,
-        ),
-      });
-
-      final dio = Dio();
-      final headers = await ApiService().createAuthorizationHeader();
-
-      final url = "${ApiService().baseUrl}creator/profile/upload-profile-photo";
-
-      final sanitizedHeaders = Map<String, dynamic>.from(headers);
-      if (sanitizedHeaders.containsKey('Authorization')) {
-        sanitizedHeaders['Authorization'] = 'Bearer [MASKED]';
-      }
-      debugPrint("🔑 Headers: $sanitizedHeaders");
-
-      final response = await dio.post(
-        url,
-        data: formData,
-        options: Options(
-          headers: {
-            ...headers,
-            "Accept": "application/json",
-            "Content-Type": "multipart/form-data",
+      try {
+        final response = await ApiService().postMultipart(
+          'creator/profile/upload-profile-photo',
+          {
+            'crew_member_id': Myprofile_user?.crewMemberId?.toString() ?? '',
           },
-        ),
-      );
-
-      debugPrint("✅ RESPONSE STATUS: ${response.statusCode}");
-      debugPrint("📦 RESPONSE DATA: ${response.data}");
-
-      if (response.statusCode == 200) {
-        debugPrint("🎉 IMAGE UPLOAD SUCCESS");
+          File(filePath),
+        );
+        debugPrint("📦 RESPONSE DATA: $response");
         await fetchprofiledata();
-      } else {
-        debugPrint("❌ Upload failed with status: ${response.statusCode}");
+      } catch (e) {
+        debugPrint("❌ Upload error: $e");
       }
     } catch (e) {
       debugPrint("❌ Upload error: $e");

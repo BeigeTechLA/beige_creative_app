@@ -1,6 +1,6 @@
 # Task 3.15 — Resurrect `lib/app/app.dart` + `ProviderScope`
 
-**Phase:** 3 · **Status:** 🔴 Not Started · **Est:** 3h
+**Phase:** 3 · **Status:** ✅ Completed · **Est:** 3h
 
 | Field | Value |
 |---|---|
@@ -20,17 +20,17 @@ Switch the live app root from the plain `MyApp` `StatelessWidget` to a `Consumer
 - `lib/main_dev.dart` / `lib/main_prod.dart` — unchanged (still call `startApp(Environment.x)`)
 
 ## Steps
-- [ ] Move `MaterialApp.router` into `App.build`
-- [ ] Wrap with `ProviderScope` in `startApp`
-- [ ] Drop `MyApp(isLoggedIn:)` constructor parameter
-- [ ] Verify both flavors boot
-- [ ] Update `test/widget_test.dart` to pump `App` instead of `MyApp`
+- [x] `MaterialApp.router` moved into `App.build` (`ConsumerWidget` at `lib/app/app.dart`).
+- [x] `ProviderScope` mounted in `startApp` with overrides for `sharedPreferencesProvider` (resolved `SharedPreferences`) and `sessionStoreProvider` (live `CompositeSessionStore`).
+- [x] `MyApp(isLoggedIn:)` deleted — class removed entirely. Auth boot branching now owned by router redirect (Task 3.17 hook point).
+- [ ] Both-flavor boot — **not run** (no device/simulator here). Static analysis + widget smoke green; flavor-specific code paths unchanged.
+- [x] `test/widget_test.dart` rewritten — pumps `ProviderScope(...App())` with mock `SharedPreferences` + fake `SecureSessionBackend`. Passing.
 
 ## Acceptance
-- [ ] `flutter analyze` clean
-- [ ] App boots on both flavors
-- [ ] `widget_test.dart` still green
-- [ ] `lib/app/app.dart` has no commented-out blocks (per `MIGRATION_RULES.md` §10)
+- [x] `flutter analyze lib/app/app.dart lib/main.dart test/widget_test.dart` → No issues found. Full analyze → 301 (baseline + 2 deprecation infos on `SharedService` from Task 3.14).
+- [ ] App boots both flavors — not verified in this env (no device).
+- [x] `widget_test.dart` → green (1/1).
+- [x] No commented-out blocks in `lib/app/app.dart` (was a `/* … */` placeholder pre-task; now real code).
 
 ## Notes
 Splash continues to be the entry route; the redirect set up in Task 3.17 handles the logged-in-vs-out branching now.

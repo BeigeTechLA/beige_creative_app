@@ -1,6 +1,6 @@
 # Task 3.16 — `pumpProviderApp` test helper
 
-**Phase:** 3 · **Status:** 🔴 Not Started · **Est:** 1h
+**Phase:** 3 · **Status:** ✅ Completed · **Est:** 1h
 
 | Field | Value |
 |---|---|
@@ -18,13 +18,14 @@ Minimal helper that pumps a widget inside `ProviderScope` with override support,
 - `test/helpers/pump_app.dart`
 
 ## Steps
-- [ ] Extension on `WidgetTester` with `pumpProviderApp(Widget, {List<Override> overrides})`
-- [ ] Wraps in `ProviderScope(overrides: ...) > MaterialApp(home: widget)`
-- [ ] One smoke test demonstrating override of `dioClientProvider`
+- [x] Extension on `WidgetTester` at `test/helpers/pump_app.dart` — `pumpProviderApp(Widget, {List<Override> overrides, ThemeData? theme})`.
+- [x] Wraps in `ProviderScope(overrides: ...) > MaterialApp(home: Directionality(...))`. `Directionality` belt-and-suspenders for leaf widgets that read `Directionality.of(context)`.
+- [x] Smoke test at `test/helpers/pump_app_test.dart` — overrides `dioClientProvider` with `DioClient.withDio(Dio(BaseOptions(baseUrl: 'https://override.example/')))` and asserts the consumer reads the overridden baseUrl. Passing.
 
 ## Acceptance
-- [ ] `flutter test test/helpers/pump_app.dart` (or the smoke test that uses it) passes
-- [ ] Importable from any future test file
+- [x] `flutter test test/helpers/pump_app_test.dart` → 1/1 passing.
+- [x] `flutter test` (full suite) → 14/14 passing.
+- [x] Importable from any future test via `import 'package:.../test/helpers/pump_app.dart';` — extension method visible after import.
 
 ## Notes
 Full `mocks.dart` + `test_data.dart` are Phase 6.01 — this task lands only the minimum needed to widget-test the splash + onboarding pilot.

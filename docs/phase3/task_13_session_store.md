@@ -1,6 +1,6 @@
 # Task 3.13 — `SessionStore` interface + impls
 
-**Phase:** 3 · **Status:** 🔴 Not Started · **Est:** 4h
+**Phase:** 3 · **Status:** ✅ Completed · **Est:** 4h
 
 | Field | Value |
 |---|---|
@@ -20,16 +20,18 @@ Replace static `SharedService` with a dependency-injectable `SessionStore`. Secr
 - `lib/core/session/prefs_session_store.dart` — `SharedPreferences` backend for non-secrets
 
 ## Steps
-- [ ] Interface: `Future<String?> readToken()`, `Future<void> writeToken(String)`, `Future<void> clearToken()`, `Future<UserSnapshot?> readUser()`, ...
-- [ ] `SecureSessionStore`: implements token + refresh storage
-- [ ] `PrefsSessionStore`: implements `isLoggedIn`, `lastLoginAt`, non-secret user snapshot fields
-- [ ] Unit tests on storage round-trip (basic)
-- [ ] Provider for each registered in `core_providers.dart` (Task 3.11)
+- [x] Interface `SessionStore` (composite) at `lib/core/session/session_store.dart` — `readToken/writeToken/clearToken`, `readRefreshToken/writeRefreshToken/clearRefreshToken`, `readUser/writeUser/clearUser`, `readLastLoginAt/writeLastLoginAt`, `isLoggedIn`, `clearSession`. Plus value type `UserSnapshot` (id, name, email, role, userType, profileImageUrl with `fromJson`/`toJson`).
+- [x] `SecureSessionStore` (`lib/core/session/secure_session_store.dart`) implements `SecureSessionBackend` — token + refresh via `flutter_secure_storage` (Keychain / EncryptedSharedPreferences).
+- [x] `PrefsSessionStore` (`lib/core/session/prefs_session_store.dart`) implements `PrefsSessionBackend` — user snapshot + lastLoginAt via `SharedPreferences`.
+- [x] `CompositeSessionStore implements SessionStore` (in `session_store.dart`) wires both backends. Accepts public structural contracts `SecureSessionBackend` + `PrefsSessionBackend` so test fakes plug in without touching real Keychain.
+- [x] Round-trip unit test at `test/core/session/session_store_test.dart` — 6 cases: token CRUD, refresh CRUD, user JSON round-trip, lastLoginAt round-trip, `isLoggedIn` reflects token (incl. empty=false), `clearSession` wipes everything. **All passing.**
+- [x] Provider already wired in `core_providers.dart` (Task 3.11) — `sessionStoreProvider` returns `SessionStore`; will be overridden with `CompositeSessionStore(...)` in `startApp` (Task 3.15) and in `pumpProviderApp` (Task 3.16).
 
 ## Acceptance
-- [ ] `flutter analyze` clean
-- [ ] Round-trip test passes
-- [ ] No call sites touched yet — this lands the primitive only
+- [x] `flutter analyze lib/core/session/ lib/core/providers/` → No issues found.
+- [x] `flutter analyze` (full) → 299 issues (within baseline).
+- [x] Round-trip test: 6/6 passing. Full suite: 13/13 passing.
+- [x] No production call sites touched. Legacy `SharedService` + `PrefsService` + `SecureStorageService` remain in place — Task 3.14 migrates them.
 
 ## Notes
 Migration of token from prefs → keychain runs in [Task 3.14](task_14_session_migration_shim.md). This task only lands the abstraction.

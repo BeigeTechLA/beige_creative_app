@@ -1,48 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-
-import 'app/router.dart';
-import 'app/theme.dart';
+import 'app/app.dart';
 import 'config/env.dart';
+import 'core/firebase/firebase_service.dart';
+import 'core/providers/auth_state_provider.dart';
+import 'core/providers/core_providers.dart';
+import 'core/session/prefs_session_store.dart';
+import 'core/session/secure_session_store.dart';
+import 'core/session/session_migration.dart';
+import 'core/session/session_store.dart';
 import 'service/prefs_service.dart';
+import 'service/shared_service.dart';
 
 Future<void> startApp(Environment environment) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   Env.init(environment);
 
+  // Boot Firebase first so any subsequent crash inside startup itself is
+  // captured by Crashlytics. Tolerant of missing config (dev pre-flutterfire).
+  await FirebaseService.initialize(environment);
+
   await PrefsService.init();
 
-  final bool isLoggedIn = PrefsService.isLoggedIn;
+  // Wire SessionStore + run one-time legacy-token migration before any
+  // network call so AuthInterceptor sees a consistent token source.
+  final prefs = await SharedPreferences.getInstance();
+  final SessionStore session = CompositeSessionStore(
+    secure: SecureSessionStore(),
+    prefs: PrefsSessionStore(prefs),
+  );
+  await SessionMigration.runOnce(prefs: prefs, session: session);
+  // ignore: deprecated_member_use_from_same_package
+  SharedService.bind(session);
+
+  final initialAuth = PrefsService.isLoggedIn;
 
   runApp(
-    MyApp(
-      isLoggedIn: isLoggedIn,
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWith((_) async => prefs),
+        sessionStoreProvider.overrideWithValue(session),
+        authStateProvider.overrideWith((_) => initialAuth),
+      ],
+      child: const App(),
     ),
   );
-}
-
-class MyApp extends StatelessWidget {
-
-  final bool isLoggedIn;
-
-  const MyApp({
-    super.key,
-    required this.isLoggedIn,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-
-    return MaterialApp.router(
-
-      debugShowCheckedModeBanner: false,
-
-      title: 'BEIGE',
-
-      routerConfig: appRouter,
-
-      theme: AppTheme.dark(),
-    );
-  }
 }

@@ -1,6 +1,6 @@
 # Task 3.11 — `core_providers.dart`
 
-**Phase:** 3 · **Status:** 🔴 Not Started · **Est:** 2h
+**Phase:** 3 · **Status:** ✅ Completed · **Est:** 2h
 
 | Field | Value |
 |---|---|
@@ -18,15 +18,15 @@ Wire app-wide providers: `dioClientProvider`, `sharedPreferencesProvider`, `conn
 - `lib/core/providers/core_providers.dart`
 
 ## Steps
-- [ ] `sharedPreferencesProvider` — `FutureProvider<SharedPreferences>` overridden in `runApp` after `getInstance`
-- [ ] `sessionStoreProvider` — `Provider<SessionStore>` (concrete after Task 3.13)
-- [ ] `dioClientProvider` — `Provider<DioClient>` consuming `sessionStoreProvider`
-- [ ] `connectivityProvider` — `StreamProvider<ConnectivityResult>` (used later by offline banner)
+- [x] `sharedPreferencesProvider` — `FutureProvider<SharedPreferences>` that throws `UnimplementedError` until overridden with the resolved `SharedPreferences.getInstance()` future in `startApp` / `pumpProviderApp`.
+- [x] `sessionStoreProvider` — `Provider<SessionStore>` that throws until overridden. Concrete impl lands in Task 3.13. Abstract interface added as a stub at `lib/core/session/session_store.dart` (`readToken`, `writeToken`, `clearSession`) so this provider has a real type to expose.
+- [x] `dioClientProvider` — `Provider<DioClient>` that builds `DioClient`, attaches the canonical interceptor chain `Auth → Retry → Error → Logging` (dev-only). Auth uses `session.readToken` + `session.clearSession` as callbacks.
+- [x] `connectivityProvider` — `StreamProvider<List<ConnectivityResult>>` matching `connectivity_plus ^6.x` semantics (the device can have multiple active transports).
 
 ## Acceptance
-- [ ] `flutter analyze` clean
-- [ ] Provider graph compiles with no circular dependency
-- [ ] Smoke test in `pumpProviderApp` (Task 3.16) overrides each cleanly
+- [x] `flutter analyze lib/core/providers/ lib/core/session/` → No issues found.
+- [x] No circular dependency — `dioClient` → `session`, `session` self-contained; `prefs` independent; `connectivity` independent.
+- [ ] Smoke test in `pumpProviderApp` — lands in Task 3.16. Each override point already defined.
 
 ## Notes
 Don't `.autoDispose` any of these — they're singletons. Per `MIGRATION_RULES.md` §3.10.

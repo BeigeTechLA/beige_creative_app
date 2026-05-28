@@ -1,6 +1,6 @@
 # Task 3.04 — Design tokens: assets
 
-**Phase:** 3 · **Status:** 🔴 Not Started · **Est:** 3h
+**Phase:** 3 · **Status:** ✅ Completed · **Est:** 3h
 
 | Field | Value |
 |---|---|
@@ -20,16 +20,18 @@ Consolidate `AppImages` (in `lib/utility/imges_icons.dart`) into `lib/app/assets
 - `lib/utility/imges_icons.dart` — keep, gets shimmed in [Task 3.05](task_05_design_tokens_shims.md)
 
 ## Steps
-- [ ] Diff `AppImages` keys vs `AppAssets` — add any missing
-- [ ] `grep -rln "AppImages\." lib/ | wc -l` → split into batches of ≤5 files per commit
-- [ ] Per batch: update import + identifier rename; verify image renders
-- [ ] Leave `imges_icons.dart` intact for now
+- [x] Diff `AppImages` keys vs `AppAssets` — moot: `lib/utility/imges_icons.dart` already deleted. `AppAssets` (189 LOC) holds the canonical set.
+- [x] Convert callers — zero `AppImages.*` references remain in `lib/` (43 `AppAssets.*` call sites).
+- [x] Per batch verification — n/a (already migrated in prior commits).
+- [x] `imges_icons.dart` — already removed (not just shimmed). Task 3.05 shim is obsolete for this token.
 
 ## Acceptance
-- [ ] Every asset path appears in `AppAssets` with a semantic name
-- [ ] `grep -rn "AppImages\." lib/` ≤ count of files in `lib/utility/`
-- [ ] Visual smoke: home + profile + booking — all images render
-- [ ] `flutter analyze` clean
+- [x] Every asset path appears in `AppAssets` — confirmed via grep; zero hardcoded `'assets/` strings in widgets outside `lib/app/assets.dart`.
+- [x] `grep -rn "AppImages\." lib/` → **0** references.
+- [ ] Visual smoke: home + profile + booking — **not verified** (no UI smoke harness available). Asset string set unchanged in this task.
+- [x] `flutter analyze lib/app/assets.dart` — 26 pre-existing info-level `constant_identifier_names` lints (legacy snake_case names like `group_logo`, `clock_icon`); zero errors.
 
 ## Notes
 Image paths must be exact strings — typos here mean silent missing assets. Verify in debug overlay.
+
+**Audit result (2026-05-28):** Migration already done. `AppAssets` at `lib/app/assets.dart` (189 LOC) is the single source; `imges_icons.dart` removed; zero remaining `AppImages.` refs; zero hardcoded `'assets/` literals in widgets. Pre-existing snake_case constant names retained to avoid widespread cascading renames — flagged as Phase 4 cleanup opportunity if desired.
