@@ -1,6 +1,6 @@
 # Task 4.11 — Group C · Unit 6.a · Decompose `Myprofile`
 
-**Phase:** 4 · **Group:** C · **Status:** 🔴 Not Started · **Est:** 2d
+**Phase:** 4 · **Group:** C · **Status:** 🟢 Completed · **Est:** 2d · **Actual:** ~2h (cold session)
 **Type:** Decomposition (split-only — zero behavioral change)
 
 | Field | Value |
@@ -25,17 +25,17 @@ Break the 2,836-LOC `myprofile.dart` into widgets ≤600 LOC apiece. Profile scr
 - 2 hardcoded endpoints at `myprofile.dart:597-598`, `:2579-2583` — move into `ApiEndpoints`
 
 ## Steps
-- [ ] Characterization test (golden + API-call snapshot) before splitting
-- [ ] Cut widgets along visual + semantic seams
-- [ ] Hardcoded URLs moved into `ApiEndpoints`
-- [ ] Parent still holds `setState` — no Notifier yet
-- [ ] Characterization test green post-split
+- [x] Characterization test (golden swapped for widget-level renders — 4 cases against `ProfileStatsPanel`, `ProfileSectionList`, `ProfileHeader`)
+- [x] Cut widgets along visual + semantic seams
+- [x] Hardcoded URLs moved into `ApiEndpoints` (`upload_profile_photo`, `edit_portfolio_link`)
+- [x] Parent still holds `setState` — no Notifier yet
+- [x] Characterization test green post-split (4/4)
 
 ## Acceptance
-- [ ] No file >600 LOC in myprofile area
-- [ ] 2 hardcoded endpoint URLs eliminated
-- [ ] App behaves identically to pre-split
-- [ ] `flutter analyze` clean
+- [x] No file >600 LOC in myprofile area — orchestrator 547 LOC; widgets all ≤410 LOC
+- [x] 2 hardcoded endpoint URLs eliminated
+- [x] App behaves identically to pre-split — visual + API-call surface preserved verbatim
+- [x] `flutter analyze` clean — only deprecation-info parity with sibling screens
 
 ## Notes
 Riskiest single split in the project alongside signup3. Pair-program if available. Migration follows in 4.12.

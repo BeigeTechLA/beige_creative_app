@@ -9,14 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-import 'home/home_screen.dart';
+import 'features/home/presentation/screens/home_screen.dart';
 import 'model_class/myprofile_model.dart';
 
-import 'shoots/shoots_screen.dart';
-import 'messages/messages_screen.dart';
-import 'manage_availability/manage_availability_screen.dart';
+import 'features/shoots/presentation/screens/shoots_screen.dart';
+import 'features/messages/presentation/screens/messages_screen.dart';
+import 'features/availability/presentation/screens/manage_availability_screen.dart';
 import 'app/route_names.dart';
-import 'file_manager/file_manager_screen.dart';
+import 'features/file_manager/presentation/screens/file_manager_screen.dart';
 import 'app/colors.dart';
 import 'app/text_styles.dart';
 import 'app/spacing.dart';

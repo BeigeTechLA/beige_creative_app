@@ -2,7 +2,7 @@ import 'package:beige_creative_app/service/api_endpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../profile/myprofile_youre_all_set_screen.dart';
+import '../../features/profile/presentation/screens/profile_youre_all_set_screen.dart';
 import '../../service/api_service.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
@@ -92,7 +92,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const MyprofileYoureAllSetScreen()),
+          MaterialPageRoute(builder: (_) => const ProfileYoureAllSetScreen()),
         );
       } else {
         print("❌ Reset Failed => ${response['message']}");

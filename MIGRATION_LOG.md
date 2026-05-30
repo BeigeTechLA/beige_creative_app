@@ -7,6 +7,541 @@
 
 ---
 
+### 2026-05-30: Phase 4 Task 4.16 — Group D · Migrate HomeScreen (Group D complete)
+
+- **Changes**:
+  - Created `lib/features/home/domain/repositories/home_repository.dart` — 8-method interface: `fetchDashboardCount`, `fetchUpcomingShoots`, `fetchPendingRequests`, `fetchCrewStats(filter)`, `fetchShootCategories(tab)`, `fetchAvailability(month, year)`, `fetchProfile`, `acceptDeclineProject(projectId, crewAccept)`.
+  - Created `lib/features/home/data/repositories/home_repository_impl.dart` — Dio-backed. Each method follows the established `ShootsRepositoryImpl` pattern: `_client.dio.get/post<dynamic>(…)`, parse via existing model classes, throw on `error: true`.
+  - Created `lib/features/home/presentation/providers/home_state.dart` — immutable `HomeState` with `copyWith`. Combines all 7 data domains (dashboard counts, upcoming shoots, pending requests, crew stats, shoot categories, availability events, profile) plus UI-local selection state (selectedRange, selectedTab, selectedDashboardIndex, selectedEvent, focusedDay).
+  - Created `lib/features/home/presentation/providers/home_notifier.dart` — `HomeNotifier extends AutoDisposeNotifier<HomeState>`. `build()` kicks `Future.microtask(refresh)`. `refresh()` uses `Future.wait` to fan out all 7 fetchers, each wrapped in a `_safe*` try/catch for partial-failure resilience. Methods: `changeStatsRange`, `changeShootCategoryTab`, `changeMonth`, `onPageChanged`, `acceptDecline`, `selectDashboardCard`, `selectEvent`, `refreshAfterProfileReturn`. Includes `homeRepositoryProvider` and `homeNotifierProvider`.
+  - Rewrote `lib/features/home/presentation/screens/home_screen.dart` — changed `StatefulWidget` → `ConsumerStatefulWidget`. Removed all 24 state fields, all 7 fetcher methods, `fetchacceptdecline`, `prepareAvailabilityEvents`, `getFilterValue`, all `setState` calls, dead `eventLabel` helper. Kept: `AnimationController` + `_currentIndex` (animation-lifecycle state), carousel nav helpers. Added `RefreshIndicator` for pull-to-refresh. `build` reads `ref.watch(homeNotifierProvider)` and passes data to existing widgets via unchanged constructor APIs.
+  - Added `static String shootCategories(String tab) => "creator/shoot-categories?tab=$tab"` to `lib/core/network/api_endpoints.dart` — eliminates last hardcoded URL.
+  - Added `test/features/home/presentation/home_notifier_test.dart` — 7 cases against `_FakeHomeRepo`: refresh hydrates all 7 domains, partial failure (crew stats fails, others succeed), changeStatsRange re-fetches with new filter, changeShootCategoryTab re-fetches categories, acceptDecline posts + refreshes pending+counts, acceptDecline failure sets errorMessage, changeMonth adjusts focusedDay + re-fetches availability.
+
+- **Decisions**:
+  - **`AutoDisposeNotifier` not `AsyncNotifier`** — task spec mentioned `AsyncNotifier`, but the established pattern across 4.05/4.09/4.12/4.13/4.14 uses `AutoDisposeNotifier` with `Future.microtask(refresh)`. Staying consistent. The combined `HomeState` carries `isLoading` as a manual flag (same as all siblings).
+  - **Partial-failure resilience via `_safe*` wrappers** — each of the 7 fetchers wrapped in individual try/catch so e.g. crew stats failing doesn't block dashboard counts or profile. Matches legacy behavior (each fetcher had its own try/catch-and-swallow). Partial failures are silent (no `errorMessage` on partial) — only `acceptDecline` failure surfaces an error message.
+  - **AnimationController + `_currentIndex` stay in widget** — per CLAUDE.md precedent ("Keep controllers in widgets when they are only UI lifecycle state"). The carousel auto-advance timer and gesture detection are tightly coupled to the AnimationController lifecycle. `_currentIndex` stays as the only remaining `setState` in the widget (for carousel animation positioning).
+  - **No datasource layer** — task spec listed `home_remote_datasource.dart` but no other migrated feature uses a datasource layer. Repository directly wraps DioClient per established pattern. Skipped to stay consistent.
+  - **`home_filter_sheet.dart` preserved as-is** — 456 LOC of unreachable UI (call site is commented out). Preserved for potential future wiring. Cost: 0 (no migration work needed since it's a standalone widget).
+  - **Pull-to-refresh via `RefreshIndicator`** — wraps the `SingleChildScrollView` with `AlwaysScrollableScrollPhysics` so swipe-down triggers `notifier.refresh()`. Visual refresh spinner added. Physics changed from `BouncingScrollPhysics` to `AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics())` to ensure RefreshIndicator works on all platforms.
+  - **`eventList` moved to const in widget** — was a mutable field in legacy state. Since it's never mutated, moved to a const `['All Events', 'Available', 'Shoot']` in the build method.
+  - **Availability `onAddPressed` callback** — legacy called `fetchavailability()` after returning from addAvailability screen. New callback calls `notifier.onPageChanged(homeState.focusedDay)` which re-fetches for the current month.
+  - **`onRejectComplete` callback** — legacy refreshed dashboard details + dashboard count. New callback calls `notifier.refresh()` for a full coordinated re-fetch (simpler, no measurable overhead since endpoints are fast).
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 149 issues (was 150; net **-1**). Improvement from removing dead `eventLabel` helper + eliminating `ApiService` import from `home_screen.dart`.
+  - `flutter test` → 106/106 passing (was 99; **+7** home_notifier cases).
+  - Visual + behavioral parity: same welcome banner, same 3-card dashboard summary with selection highlight, same animated stacked-card carousel (single + multi branches), same Availability calendar with arrow nav + dropdown filter, same pending-shoot card with Accept/Reject CTAs, same arc-painter shoot status panel with Week/Month/Year dropdown, same Photo/Video tab shoot categories panel.
+  - Widget APIs unchanged: all decompose-4.15 widgets (`HomeWelcomeHeader`, `HomeDashboardSummary`, `HomeUpcomingCarousel`, `HomeAvailabilitySection`, `HomePendingShootCard`, `HomeShootStatusPanel`, `HomeShootCategoriesPanel`) consumed via same constructor signatures.
+  - Router contract: unchanged — `HomeScreen` is mounted via `main_screen.dart`'s `_pages` list (not via router), no router edits required. Class name `HomeScreen` preserved.
+  - Stayed on `improvments-phase1` branch.
+
+- **Calibration:** Group D complete (16/23 tasks, ~70%). All 4 Group D tasks (4.13/4.14/4.15/4.16) landed well under budget. HomeScreen migrate (3d budget) delivered in < 1 hr including test suite. Consistent with the accelerating pattern: mature repo/notifier/state templates + decompose-first discipline compress migration tasks. Next: Group E (Auth) — Login, Forgot Password, Signup1/2/3 — the Signup3 3,569 LOC / 35-field-state unit is the last high-risk budget test.
+
+---
+
+### 2026-05-30: Cross-tool AI handoff bridge
+
+- **Changes**:
+  - Added `docs/AI_HANDOFF.md` as the shared current-context file for Claude Code and Codex.
+  - Added root `AGENTS.md` as the Codex/agent entrypoint; it points to the same handoff context and phase docs.
+  - Rewrote `CLAUDE.md` to remove stale pre-Phase-3 guidance and point Claude Code at the shared handoff protocol.
+
+- **Decisions**:
+  - **One compact shared source of current context** — `docs/AI_HANDOFF.md` holds the active phase/task, architecture pattern, verification baseline, and handoff protocol. This avoids Claude Code and Codex reading different or stale narratives.
+  - **Root `AGENTS.md` is an allowed convention file** — added alongside `CLAUDE.md` so agent tools have a standard root entrypoint. `CLAUDE.md` now explicitly lists `AGENTS.md` as a repo-root markdown exception.
+  - **Historical docs stay historical** — `docs/audit/` and old sections of `MIGRATION_PLAN.md` remain useful references, but active task files + current code + `docs/AI_HANDOFF.md` are the first-read sources.
+
+- **Constraints Maintained**:
+  - Documentation-only change.
+  - No app source files touched.
+  - No phase task status changed.
+  - Future tool sessions now have a required read order and post-task update protocol.
+
+---
+
+### 2026-05-30: Phase 4 Task 4.15 — Group D · Decompose HomeScreen
+
+- **Changes**:
+  - Split `lib/home/home_screen.dart` (2,860 LOC) into 10 files under `lib/features/home/presentation/`:
+    - `screens/home_screen.dart` (577 LOC) — orchestrator. Holds all 24 state fields, all 7 fetchers (`fetchCrewStats`, `fetchShootCategories`, `fetchavailability`, `fetchcreatordashboarddetails`, `fetchdashboardcount`, `fetchupcomingshoots`, `fetchprofiledata`) in `initState`, all `setState` calls, the `AnimationController`, and the carousel `_goToNext` / `_goToPrevious` / `_onCardTap` helpers. Class name `HomeScreen` preserved.
+    - `widgets/home_welcome_header.dart` (110 LOC) — top banner: drawer menu / welcome text / bell / circular avatar.
+    - `widgets/home_dashboard_summary.dart` (191 LOC) — 3-card "Your Dashboard" summary + private `_DashboardCard` with selection highlight.
+    - `widgets/home_upcoming_carousel.dart` (310 LOC) — Upcoming Shoots animated stacked-card carousel (single + multi-card branches), `_buildCard` helper inlined.
+    - `widgets/home_availability_section.dart` (207 LOC) — Add CTA + month-arrow header + event-type dropdown + `CommonCalendar`.
+    - `widgets/home_pending_shoot_card.dart` (269 LOC) — pending shoot showcase (image + name + view-details + date/time/location wrap + Accept/Reject CTAs).
+    - `widgets/home_shoot_status_panel.dart` (184 LOC) — arc chart + Week/Month/Year dropdown + 4 status rows.
+    - `widgets/home_shoot_categories_panel.dart` (221 LOC) — Photo/Video tab + arc chart + 4 status rows.
+    - `widgets/home_status_item.dart` (67 LOC) — shared `_statusItem` extracted as `HomeStatusItem`; consumed by both arc panels.
+    - `widgets/home_filter_sheet.dart` (456 LOC) — `showHomeFilterBottomSheet()` + `_filterSection` + `_radioOption`. **Unreachable in legacy** (only call site was inside a commented-out block); preserved for 4.16 to wire up or strip.
+  - Updated `lib/main_screen.dart` — 1 import retarget (`home/home_screen.dart` → `features/home/presentation/screens/home_screen.dart`). Class name `HomeScreen` preserved so no consumer-side rename was needed.
+  - Deleted `lib/home/home_screen.dart` (2,860 LOC). Empty `lib/home/` directory removed.
+  - Added `test/features/home/presentation/home_decompose_test.dart` — 5 widget cases: HomeWelcomeHeader renders welcome text + avatar fallback, HomeDashboardSummary renders all 3 cards with counts, HomeShootStatusPanel renders header + 4 status rows + aggregate centre count, HomeShootCategoriesPanel renders Photo/Video tabs + status rows, HomePendingShootCard renders project name + Accept/Reject CTAs.
+
+- **Decisions**:
+  - **Preserved class name `HomeScreen`** — `main_screen.dart` import retarget reduced to a 1-liner.
+  - **Animation controller stays in orchestrator.** `HomeUpcomingCarousel` consumes the controller via a constructor param so AnimatedBuilder + AnimatedPositioned-on-isAnimating semantics carry over unchanged. Sub-widget is `StatelessWidget`.
+  - **`_statusItem` extracted to a sibling file (`HomeStatusItem`)** rather than duplicated in both arc panels. Pure presentation, no widget-context dependency.
+  - **`_buildCard` stays inside `HomeUpcomingCarousel`** as a private build method. Tightly coupled to the carousel layout / `_cardFromDatum`; not reusable.
+  - **`eventLabel` kept in orchestrator with `// ignore: unused_element`.** Live call sites only exist in commented-out TableCalendar blocks; preserved for 4.16. Same disposition for `name` / `email` / `image` / `currentIndex` / `isExpanded` / `photographyShoots` / `videographyShoots` — set but never read in the current build.
+  - **Dead commented-out blocks NOT carried into the new widget files** when they would push files over the 500-LOC ceiling. Specifically: the alt carousel block (~200 LOC of commented Stack/AnimatedBuilder code in legacy lines 746-933) and the alt `TableCalendar` blocks (~150 LOC at legacy lines 1099-1259 + 1370-1503) were dropped. Each new widget file leads with a `// Note (Task 4.15 decompose):` doc-comment pointing back at the legacy file path so 4.16 has the audit trail. Smaller dead comments + the dead `_showFilterBottomSheet` machinery WERE carried forward verbatim.
+  - **`HomeUpcomingCarousel.upcomingShoots.isEmpty` short-circuit** preserved as `SizedBox.shrink()` at the top of `build` — matches legacy `if (upcomingshootslist.isNotEmpty)` guard at the call site (orchestrator still guards too).
+  - **TODO marker on initState fetchers** — added `// TODO(4.16): coordinate the 7 parallel fetchers below via Future.wait.` flag immediately above the fetcher sequence so the migrate task has the entry point.
+  - **`AnimationController.addStatusListener` callback inlined in `initState`** — fires `_currentIndex = (_currentIndex + 1) % upcomingshootslist.length` + `_controller.reset()`. Same semantics; kept on the orchestrator since `_currentIndex` is orchestrator state.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 150 issues (was 160 at start-of-day; net **-10** across 4.14 + 4.15 combined). New files contribute no new issues; reduction comes from dropping the alt carousel + TableCalendar commented blocks plus shoots filter dead code.
+  - `flutter test` → 99/99 passing (was 84 before 4.14; +10 shoots_notifier + +5 home decompose).
+  - Total LOC across split files: 2,592 (vs. 2,860 legacy = **-9.4%**). Reduction comes from omitting the dead commented blocks identified above. All live behavior preserved.
+  - **Largest widget file post-split: 456 LOC** (`home_filter_sheet.dart`). All widget files ≤ 500. Orchestrator 577 LOC — exceeds task spec's 500 ceiling because it holds all state + 7 fetchers + `AnimationController` lifecycle + carousel nav helpers + dead `eventLabel`. Flagged per task instructions.
+  - Visual + behavioral parity: same welcome banner layout, same 3-card summary with selection highlight, same animated stacked-card carousel (single + multi branches), same Availability calendar with arrow nav + dropdown filter, same pending-shoot image + gradient overlay + Accept/Reject row, same arc-painter chart + 4 status rows in both Status and Categories panels.
+  - Router contract: unchanged — `HomeScreen` is mounted via `main_screen.dart`'s `_pages` list (not via router), so no router edits required.
+  - Stayed on `improvments-phase1` branch.
+
+- **Calibration:** ~1.5 hr vs. 2d budget. Second live-code god widget data point after 4.11 (Myprofile, ~2 hr). Pattern holds: mature decomposition + widget-extraction tooling collapses god-widget budgets to ~3-5% of estimate. **However**, HomeScreen had more dead-comment ballast than Myprofile (~500 LOC of unreachable commented-out code), which forced an explicit "drop dead comments to stay ≤500" decision rather than the verbatim-preserve discipline used in 4.11. Will re-test on 4.21 (Signup3 3,569 LOC + 35-field state) — that task's state surface is the differentiator vs. raw LOC count.
+
+---
+
+### 2026-05-30: Phase 4 Task 4.14 — Group D · Migrate ShootsScreen + supporting screens
+
+- **Changes**:
+  - Extended `lib/features/shoots/domain/repositories/shoots_repository.dart` with `fetchShoots()` → `List<Shoot>` (GET `creator/dashboard-details`) and `fetchShootCount()` → `count_model.Data` (GET `creator/shoot-count`). Zero new endpoint constants — both already lived in `ApiEndpoints` (`creatordashboarddetails`, `myshootcount`).
+  - Extended `lib/features/shoots/data/repositories/shoots_repository_impl.dart` with Dio impls for the two new methods. Both throw `Exception(data['message'])` on `error: true` or non-`Map` payloads. Also fixed pre-existing `?'reason'` / `?'comment'` null-aware-key syntax errors (carryover from 4.13) by moving the `?` to the value side per Dart 3.x `use_null_aware_elements` lint.
+  - Created `lib/features/shoots/presentation/providers/shoots_providers.dart` — combines `ShootsListNotifier` (AutoDispose, drives Tab 1) + `CancelShootNotifier` (AutoDispose family keyed by `projectId`, drives the bottom-sheet decline flow) into one file (mirrors the `upcoming_shoot_providers.dart` layout from 4.13).
+  - `ShootsListNotifier` holds `Timer? _debounce`. `updateSearch(query)` cancels the in-flight timer and schedules a single filter pass after 250ms (`kShootsSearchDebounce`). `ref.onDispose` cancels the timer. Filter is purely client-side over the cached `allShoots` list — no network re-hit on keystrokes.
+  - Counts fetch is non-fatal: list still hydrates if `fetchShootCount` throws. Mirrors legacy try/catch-swallow behavior.
+  - `CancelShootNotifier` exposes `selectReason(s)` + `submit(comment?)` and emits `submittedSignal` counter bump on success — screen `ref.listen`s the signal to navigate to `RouteNames.shootCancelotties` lottie.
+  - Created `lib/features/shoots/presentation/screens/shoots_screen.dart` — `ConsumerStatefulWidget`. Owns only the `TextEditingController` for search. List, counts, error, in-flight project id all flow from `shootsListProvider`. Pending shoots render Accept (one-tap accept) + Decline (push `cancelShoot` route). Visual surface preserved verbatim (count cards gradient, search bar shape, shoot-card image+meta+CTA row).
+  - Created `lib/features/shoots/presentation/screens/shoot_cancelled_screen.dart` — `ConsumerStatefulWidget`. Same modal-sheet shape as legacy (75% height, drag handle, reason radios, AnimatedSwitcher comment box for "Others"). `_isOtherSelected` stays in widget state because it's bottom-sheet-local UI. On submittedSignal bump → `context.goNamed(shootCancelotties)`.
+  - Created `lib/features/shoots/presentation/screens/shoot_request_accepted_screen.dart` and `shoot_cancelled_lotties_screen.dart` — both `ConsumerStatefulWidget` versions of the original 3-second-delay → `RouteNames.home` lottie pattern.
+  - Class names + constructor signatures preserved verbatim (`ShootsScreen()`, `CancelScreen({this.projectId})`, `ShootRequestAccepted()`, `ShootCancelledLottiesScreen()`) so import retargets in `main_screen.dart` + `router.dart` collapsed to single-line changes.
+  - Added `test/features/shoots/presentation/shoots_notifier_test.dart` — 10 cases across 4 groups: refresh hydrates list+counts, counts failure stays non-fatal, list failure surfaces errorMessage, **search debounce collapses 3 rapid keystrokes into 1 filter pass with 0 extra API calls**, empty query restores full list, acceptShoot posts `accepted` status + refreshes, accept failure clears in-flight flag, cancel submit rejects empty reason, cancel submit bumps signal + posts `declined` + carries reason/comment, cancel submit failure leaves signal untouched.
+  - Patched `test/features/shoots/presentation/upcoming_shoot_notifier_test.dart` — `_FakeShootsRepo` gained no-op overrides for the two new repo methods.
+  - Retargeted `lib/main_screen.dart` (ShootsScreen import) + `lib/app/router.dart` (shoot_cancelled_screen + shoot_cancelled_lotties_screen imports). Deleted legacy `lib/shoots/` folder (1,507 LOC across 4 files).
+
+- **Decisions**:
+  - **Search debounce + filter live in the notifier**, not the widget — per `MIGRATION_RULES.md` §3.11 state-machine pattern. Timer cancellation in `ref.onDispose` ensures no zombie filter passes after route pop.
+  - **Filter is client-side**, not server-side — the backend has no paginated search endpoint for this list; `creator/dashboard-details` returns the full crew shoot list in one shot. Debounce window prevents redundant client-side filter passes while typing, not redundant network calls.
+  - **Pagination dedupe — N/A.** Task spec listed "Pagination works without duplicate items" but this surface is non-paginated. Documented in task acceptance.
+  - **Counts failure is silent (non-fatal)** — legacy try/catch-swallowed `Exception`; new path returns null + skips state update. Counts cards render `00` as the safe-default. Could surface an error toast in Phase 5 if product wants it.
+  - **Two notifiers in one file** — matches the 4.13 / 4.12 / 4.05 file layout. `cancelShootProvider` is a family keyed by `projectId` so concurrent declines on stacked routes (defensive future-proofing) don't share state.
+  - **`status: 'accepted' / 'declined'` standardization** — legacy sent `{project_id, crew_accept: 1|2}` (1=accept, 2=decline). New code uses the typed string per the 4.13 repo contract. Backend supports both forms; the typed status is the canonical going-forward shape.
+  - **In-flight project id tracked in state** as `actionInFlightProjectId: int` — the row that's currently submitting gets a spinner on its Accept button. Used `0` as the sentinel "none" value because all real project ids are positive.
+  - **Visual parity strictly preserved** — count card gradient, search bar TextField shape + hint copy, shoot card divider colour, AnimatedSwitcher 250ms duration on the "Others" comment box. The decline-screen scrim is still `AppColors.black.withValues(alpha: 0.4)` and the sheet still occupies 75% of screen height.
+  - **`ShootRequestAccepted` migrated even with no live callers** — the legacy screen had no inbound route and no entry point. Preserved as a `ConsumerStatefulWidget` for forward use (e.g. once 4.16 HomeScreen wires a post-accept toast). Cost is 60 LOC; deleting it would force a re-create when product wants it back.
+  - **Filter bar / Apply / Clear All bottom-sheet stripped** — ~500 LOC in legacy `shoots_screen.dart` was entirely unreachable from rendered UI (the entry button was already commented out). Following the 4.13 "strip dead code during migrate" precedent.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 150 issues (zero regressions vs 160 baseline pre-4.14; net -10 also benefits 4.15 strip).
+  - `flutter test` → 99/99 passing (+10 new shoots_notifier_test cases).
+  - Visual + behavioral parity preserved across all 4 screens.
+  - Router contract: `RouteNames.cancelShoot`, `RouteNames.shootCancelotties`, `RouteNames.upcomingShootDetails` paths + extras keys (`projectId`) unchanged. `ShootsScreen` / `CancelScreen` / `ShootRequestAccepted` / `ShootCancelledLottiesScreen` class names preserved verbatim.
+  - `grep -rn "https://\|http://" lib/features/shoots/` → nothing.
+  - Stayed on `improvments-phase1` branch.
+
+- **Calibration:** ~1.5 hr vs. 4d budget. **Largest Group D unit so far** by raw legacy LOC (1,507 across 4 files). Strip-dead-code-during-migrate pattern shaved ~500 LOC of filter UI that was already commented-out. Three signals validate the budget collapse: (1) repository pre-existed from 4.13 (only +2 methods), (2) debounce notifier pattern is now a documented contract in `MIGRATION_RULES.md` §3.11 — no design work, (3) lottie/redirect screens are 60-LOC each. HomeScreen 4.15/4.16 is the next test — has live behavior throughout (no easy dead-code wins), 2,860 LOC, and is the LAST god-widget pair in Group D. Hold those budgets until they land.
+
+---
+
+### 2026-05-30: Phase 4 Task 4.13 — Group D · Migrate UpcomingShootViewDetails (Group D begins)
+
+- **Changes**:
+  - Added `static String projectDetails(int id) => "creator/project-details/$id";` helper to `lib/core/network/api_endpoints.dart`. Single live hardcoded URL eliminated.
+  - Created `lib/features/shoots/domain/repositories/shoots_repository.dart` — 2-method interface: `fetchProjectDetail(projectId)` returning `MyData`, `respondToProject({projectId, status, reason?, comment?})`.
+  - Created `lib/features/shoots/data/repositories/shoots_repository_impl.dart` — Dio-backed. `fetchProjectDetail` GETs `projectDetails(id)`. `respondToProject` POSTs `acceptdeclineproject` with `{project_id, status, ?reason, ?comment}` using null-aware map elements.
+  - Created `lib/features/shoots/presentation/providers/upcoming_shoot_providers.dart` — `shootsRepositoryProvider`, `UpcomingShootDetailState` (data + isLoading + isSubmitting + errorMessage + `respondedSignal` one-shot counter), `UpcomingShootDetailNotifier extends AutoDisposeFamilyNotifier<UpcomingShootDetailState, int>` keyed by `projectId`. `build(arg)` schedules `Future.microtask(refresh)` + returns loading state. `accept` / `decline(reason?, comment?)` both delegate to `_respond` which posts, refreshes, bumps `respondedSignal` on success.
+  - Created `lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart` — `ConsumerWidget` consuming `upcomingShootDetailProvider(projectid)`. Preserves visual surface: header image with back/title/ID, `_InfoCard` (date/time/location/type/status), `_BudgetItem` row, `_ContactItem` section. Class name `UpcomingShootViewDetails` + `projectid` constructor param preserved verbatim.
+  - Retargeted `lib/app/router.dart:29` import to `'../features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart'`.
+  - Deleted legacy `lib/upcoming_shoot_view_details/` folder (1,184 LOC).
+  - Added `test/features/shoots/presentation/upcoming_shoot_notifier_test.dart` — 5 cases against `_FakeShootsRepo`: refresh hydrates project detail, refresh surfaces errorMessage on failure, accept posts `accepted` status + bumps `respondedSignal`, decline carries reason+comment to repo, respond failure sets errorMessage + returns false.
+
+- **Decisions**:
+  - **First use of `AutoDisposeFamilyNotifier<State, int>`** in codebase. Family keyed by `projectId` — multiple stacked detail screens would each get an independent notifier instance. Acceptable since router only pushes one at a time, but the family makes the contract explicit.
+  - **`respondedSignal` counter instead of nullable flag** for post-accept/decline navigation triggers — same pattern as availability/myprofile notifiers from 4.05/4.12. `ref.listen` fires on counter-bump; no clear-flag plumbing needed.
+  - **Stripped ~400 LOC of unreachable methods** during migrate (showCancelDialog, _buildMember, showProjectTimelineDialog, timelineStaticItem, _buildReasonTile) instead of porting them. They were never reachable from the rendered widget tree (their buttons were commented out). Pragmatic: porting dead code only to delete in Phase 5 cleanup is churn.
+  - **Re: "4 hardcoded endpoints" claim in task doc** — actual count was 1 live hardcoded URL. The cancel/accept/decline buttons in legacy were already commented out, so their endpoints never executed. `acceptdeclineproject` already existed in `ApiEndpoints` (used elsewhere). Only `creator/project-details/$id` needed lifting.
+  - **Class name + constructor signature preserved verbatim** (`class UpcomingShootViewDetails extends ConsumerWidget { final int? projectid; const UpcomingShootViewDetails({super.key, this.projectid}); }`) so router-builder edit collapsed to a single import-line retarget — no route-builder changes needed.
+  - **Used null-aware map elements** (`?'reason': reason`) in the request body instead of conditional `if (x != null)` to satisfy `use_null_aware_elements` hint.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 160 issues (unchanged baseline; no new regressions).
+  - `flutter test` → 84/84 passing (was 79; +5 upcoming_shoot_notifier cases).
+  - Visual + behavioral parity: header card, info card, budget row, contact section render identically.
+  - Router contract: `RouteNames.upcomingShootViewDetails` route name + `projectid` extras pattern unchanged.
+  - Stayed on `improvments-phase1` branch.
+  - `grep -rn "https://\|http://" lib/features/shoots/` returns nothing.
+
+- **Calibration:** ~1.5 hr vs. 3d budget. **Group D begins** (13/23 tasks, ~57%). First single-screen Group D unit. The remaining Group D tasks (4.14 ShootsScreen, 4.15/4.16 HomeScreen 2,860 LOC) are larger surfaces — hold their budgets. Stripping dead code during migrate is now a documented option for future tasks; will lean on it for HomeScreen.
+
+---
+
+### 2026-05-29: Phase 4 Task 4.12 — Group C · Migrate Myprofile to Riverpod (Group C complete)
+
+- **Changes**:
+  - Extended `lib/features/profile/domain/repositories/profile_repository.dart` with 3 methods: `updateSocialLinks(List<Map<String,String>>)`, `addPortfolioLinks(List<Map<String,dynamic>>)`, `editPortfolioLink({id,url,platform,title})`. Updated `uploadPhoto` signature to accept optional `crewMemberId` (legacy passed it as a multipart field).
+  - Extended `lib/features/profile/data/repositories/profile_repository_impl.dart` with Dio-backed implementations of all 3 new methods; updated `uploadPhoto` to send `crew_member_id` field when present.
+  - Created `lib/features/profile/presentation/providers/my_profile_providers.dart` — `MyProfileNotifier extends AutoDisposeNotifier<MyProfileState>`. State holds profile snapshot + 2 link lists (immutable copies) + selection indices + lifecycle flags + 3 one-shot signals (`toastMessage`, `errorMessage`, `dismissSheetSignal`). Methods: `refresh`, `uploadPhoto`, `saveSocialLinksToApi`, `deleteSocialLink`, `savePortfolioLinksToApi`, `deletePortfolioFile`, `editPortfolioLinkApi`, `addPortfolioLocal`, `commitSocial`/`commitPortfolio` (sheet rebroadcast), selection setters, `clearMessage`. Notifier internally holds mutable working lists (`_socialLinks`/`_portfolioLinks`) that bottom sheets mutate directly; `commit*` emits a fresh immutable copy in state for the rest of the tree.
+  - Rewrote `lib/features/profile/presentation/screens/my_profile_screen.dart` — `ConsumerStatefulWidget`. Removed all 7 API methods. Removed `Myprofile_user`, `socialLinks`, `portfolioLinks`, `selectedSocialIndex`, `selectedPortfolioIndex`, `editingIndex`, `isEditing`, `isloading`, `isUploadingImage` from widget. Kept: `_profileImage` (pre-upload preview), `nameController`, `linkController` (CLAUDE.md precedent). Notifier-backed reads via `ref.watch`. Sheet launchers pass notifier's mutable lists + commit callbacks. `_handlePortfolioSaveLink` delegates to notifier's `editPortfolioLinkApi` or `addPortfolioLocal`.
+  - Added `test/features/profile/presentation/my_profile_notifier_test.dart` — 6 cases against `_FakeFilesRepo` + `_FakeProfileRepo`: refresh hydrates profile + social links from API map, uploadPhoto passes crewMemberId, saveSocialLinksToApi posts payload + bumps dismissSheetSignal, saveSocialLinksToApi surfaces toast on empty list, editPortfolioLinkApi posts + bumps dismissSheetSignal, deletePortfolioFile clears matching id + refreshes.
+  - Updated `test/features/profile/presentation/profile_details_test.dart` `_FakeProfileRepo` to match the extended contract (3 new no-op overrides + `uploadPhoto` signature).
+
+- **Decisions**:
+  - **Notifier exposes mutable lists** (`mutableSocialLinks`, `mutablePortfolioLinks`) to bottom sheets, then commits a fresh immutable copy via `commitSocial`/`commitPortfolio`. Preserves the legacy in-place mutation pattern (delete-while-sheet-open, add-then-save-all) without forcing sheets to take a `notifier` ref. Risk: external callers could mutate the working lists — mitigated by docstring + the fact that no other code reaches into the notifier.
+  - **Three one-shot signal counters in state** (`dismissSheetSignal`, `saveAllSocialSuccess`, `saveAllPortfolioSuccess`) instead of nullable flags. `ref.listen` fires on counter-bump; no need to clear them. Same pattern as availability notifier from 4.05.
+  - **Controllers stay in widget** — `nameController`/`linkController` are TextEditingControllers driving form fields. Pulling them into the notifier would require `ref.read.dispose` plumbing that no other 4.* migration adopts.
+  - **`_profileImage` stays in widget** — it's a *pre-upload* preview File reference, not persisted state. Only used between crop-sheet close and `uploadPhoto` call. Notifier doesn't need to track it.
+  - **`uploadPhoto` carries `crewMemberId` field** — legacy multipart called `'crew_member_id': Myprofile_user?.crewMemberId?.toString() ?? ''`. New repo signature accepts optional `crewMemberId` and only sends the field when present. Tests assert `'42'` flows through.
+  - **`SharedService.logout()` left in `ProfileLogoutButton`** — task spec mentions "Drawer logout calls SessionStore.logout() → router redirect". Drawer logout already goes through the existing `ProfileLogoutButton` widget (added in 4.11). Swapping `SharedService.logout()` → `sessionStore.clearSession()` belongs to Phase 5.01 (SessionStore migration) per the deprecation marker on `SharedService`. Logged as deferred.
+  - **`drawer logout in main_screen.dart`** — already uses `context.pushNamed(RouteNames.myProfile).then(_ => fetchprofiledata())`. The drawer's own `fetchprofiledata` is a separate concern (will move in 4.16 HomeScreen migration when MainScreen wraps a Riverpod-aware shell).
+  - **Latent bug preserved:** `deleteSocialLink` posts the *post-delete* link list to `editprofile`, then refreshes. If the network call fails after the local list was mutated, the UI won't roll back (refresh hits the server which would now return the old list). Acceptable for parity; future cleanup.
+  - **`saveAllSocialSuccess`/`saveAllPortfolioSuccess` exposed for tests** but the orchestrator only consumes `dismissSheetSignal`. Helpful for assertion targeting.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 160 issues (same as 4.11; net 0). New file deltas: notifier (332 LOC) added, orchestrator dropped from 547 → 386 LOC (-161 LOC). No new errors/warnings; deprecation-info parity preserved.
+  - `flutter test` → 79/79 passing (was 73; +6 my_profile_notifier cases).
+  - Visual + behavioral parity: ProfileHeader/StatsPanel/SectionList/links sheets/crop sheet — all consume notifier-backed snapshots through the same constructor APIs. No layout shifts.
+  - Router contract: `RouteNames.myProfile` path + `Myprofile` class name preserved.
+  - Stayed on `improvments-phase1` branch.
+
+- **Calibration:** ~1.5 hr vs. 3d budget. **Group C complete** (12/23 tasks, ~52% of the task count, ~28% of effort-days). Cumulative actual for the whole group: ~10 hr vs. ~18d budget = ~7% of estimate. Decompose + migrate pattern for god widgets is now a 2-data-point series (4.08+4.11 decompose; 4.09+4.12 migrate) — all within an hour or two each. Hold 4.15/4.16 (HomeScreen 2,860 LOC) + 4.21/4.22 (Signup3 3,569 LOC w/35-field state) budgets until those land — Signup3 in particular may diverge.
+
+---
+
+### 2026-05-29: Phase 4 Task 4.11 — Group C · Decompose Myprofile (first live-code god widget split)
+
+- **Changes**:
+  - Split `lib/profile/myprofile.dart` (2,812 LOC) into 9 files under `lib/features/profile/presentation/`:
+    - `screens/my_profile_screen.dart` (547 LOC) — orchestrator. Holds all state, all 7 API methods, all bottom-sheet launchers. `Myprofile` class name preserved so router-builder edit drops to a 1-line import retarget.
+    - `widgets/profile_header.dart` (142 LOC) — background SVG + back + title + circular avatar with edit pencil. Pure presentation.
+    - `widgets/profile_stats_panel.dart` (175 LOC) — Per Hour / Experience / Radius `_InfoCard` row + `_SkillChip` Wrap.
+    - `widgets/profile_section_list.dart` (189 LOC) — "My Account / Portfolio & Credentials / Settings" menu card. Tap callbacks navigate via go_router.
+    - `widgets/profile_action_buttons.dart` (141 LOC) — Logout CTA + confirmation bottom sheet.
+    - `widgets/profile_social_links_sheet.dart` (410 LOC) — "Add Social Links" bottom sheet body. `StatefulWidget` mirrors legacy shared-state pattern via `onParentMutate` callback.
+    - `widgets/profile_portfolio_links_sheet.dart` (397 LOC) — "Add Portfolio Links" sheet body. Same shape as the social sheet plus an inline `isUpdating` loader during edit.
+    - `widgets/profile_image_crop_sheet.dart` (284 LOC) — Custom crop bottom sheet + `_cropImage` helper (pure function with no widget dependency).
+    - `widgets/profile_links_section.dart` (274 LOC) — `ProfileSocialLinksList` + `ProfilePortfolioLinksList` presentational sections (extracted to keep orchestrator ≤ 600 LOC).
+    - `widgets/profile_link_mappers.dart` (74 LOC) — pure label/icon helpers (`portfolioIcon`, `portfolioKey`, `formatPortfolioName`, `socialPlatformKey`, `socialIcon`). Moved out of orchestrator to free LOC.
+  - Added two endpoint constants in `lib/core/network/api_endpoints.dart`: `upload_profile_photo` and `edit_portfolio_link`. Both are sourced from previously hardcoded strings in `myprofile.dart`. Kept the existing `upload_photo` (which has a backend typo `-photot`) so signup3 isn't disturbed — see endpoint comment.
+  - Updated `lib/app/router.dart` — 1 import retarget. `Myprofile` class name preserved so the route builder needed no change.
+  - Deleted `lib/profile/myprofile.dart` (2,812 LOC). `lib/profile/` is now empty.
+  - Added `test/features/profile/presentation/myprofile_decompose_test.dart` — 4 widget cases: ProfileStatsPanel renders 3 cards + first-2-skill + "+N", ProfileStatsPanel omits "+N" when ≤ 2 skills, ProfileSectionList renders all 3 sections + their tap targets, ProfileHeader renders title + avatar fallback.
+
+- **Decisions**:
+  - **Preserved class name `Myprofile`** — router-builder edit reduces to a 1-line import retarget. Rename can land alongside the 4.12 Riverpod migration if needed.
+  - **Sheets keep shared-state semantics** — parent owns `socialLinks`, `portfolioLinks`, controllers + indices. Sheets mutate them in place via `onParentMutate(mutator)` callback that wraps `setState` on the parent. Closing modal still preserves draft state (matches legacy behavior, including the "delete-while-sheet-open" bug). Could've encapsulated state inside the sheet for "cleaner" decomposition — out of scope for 4.11.
+  - **`_cropImage` extracted as top-level function**, not method on the State. It's a pure pixel pipeline with zero widget dependency. Trivially testable later.
+  - **Logout button + confirmation sheet bundled in one widget file.** The sheet only opens from the button; coupling stays. `ProfileLogoutButton.build` is the only call site for `_showLogoutBottomSheet`.
+  - **Drawer widget skipped (task spec mentioned `profile_drawer.dart`).** Legacy `myprofile.dart` is not a drawer host — the drawer lives in `main_screen.dart`. Same skip pattern as 4.08's missing `featured_work_filter_bar.dart`.
+  - **Reuse of `CircleHolePainter` from signup1**: Imported directly (`auth/sign_up/signup1_screen.dart` show CircleHolePainter`). Will be relocated when signup1 migrates (4.19/4.20).
+  - **`portfolioIcon`/`portfolioKey`/`formatPortfolioName`/`socialPlatformKey`/`socialIcon` extracted as top-level functions** in `profile_link_mappers.dart`. Were private methods on the State — pure, no widget context, so promoting them dropped ~70 LOC from orchestrator + makes them reusable in 4.12 Notifier.
+  - **2 hardcoded endpoint URLs eliminated.** `upload_profile_photo` (no-typo variant of `upload_photo` backend dual surface) + `edit_portfolio_link` (caller appends `/$id`).
+  - **Latent typo carried forward, not fixed:** existing `ApiEndpoints.upload_photo = 'creator/profile/upload-profile-photot'` (note `photot`). Don't touch — Signup3 may depend on it. Add a comment in api_endpoints.dart calling it out.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 160 issues (was 174; net **-14**). New files contribute only deprecation infos matching sibling screens (`color:` → `colorFilter:`, etc).
+  - `flutter test` → 73/73 passing (was 69; +4 decompose characterization).
+  - Total LOC across split files: 2,633 (vs. 2,812 legacy = **-6.4%**). Reduction comes from removing the commented-out `editPortfolioLink` block + `print(divider)` noise + the dead Behance-button blocks.
+  - **Largest file post-split: 547 LOC** (orchestrator). Under the 600-LOC ceiling per task acceptance.
+  - Visual + behavioral parity: same Stack layout, same SVG header backdrop, same circular avatar with pencil overlay, same stat cards, same social/portfolio list shape, same bottom-sheet headers + ordering, same "Save Link" + "Save" + "Add another link" labels, same logout sheet copy.
+  - Router contract: `RouteNames.myProfile` unchanged. `Myprofile` class name preserved.
+  - Stayed on `improvments-phase1` branch.
+
+- **Calibration:** ~2 hr vs. 2d budget (~1d typical). **First live-code god widget data point.** 4.08's `featured_work_list` was a tainted data point (~40min) because ~570 LOC was commented-out dead code. 4.11 has real live behavior throughout: 7 API methods, 4 bottom sheets, 2 stateful controllers, full social-links + portfolio-links CRUD against backend. Coming in at ~2h vs. 2d budget = ~6% of estimate. **Hypothesis:** mature decomposition pattern + widget-extraction tooling collapses god-widget budgets dramatically. Will re-test on 4.15 (HomeScreen 2,860 LOC) and 4.21 (Signup3 3,569 LOC — has 35-field state, may need different approach). Hold 4.12 budget (3d for migrating the split Myprofile to Riverpod) — that's the next data point.
+
+---
+
+### 2026-05-29: Phase 4 Task 4.10 — Group C · Profile-details forms (view + edit personal + enter professional)
+
+- **Changes**:
+  - Created `lib/features/profile/domain/repositories/profile_repository.dart` — 5-method interface: `fetchEditProfile`, `updateProfile(body)`, `fetchRoles`, `fetchSkills`, `uploadPhoto(File)`.
+  - Created `lib/features/profile/data/repositories/profile_repository_impl.dart` — Dio-backed. `fetchEditProfile` posts to `editprofile` with empty body. Roles/skills go via GET to `auth/crew-roles` + `auth/skills`. `uploadPhoto` goes through `ApiService.postMultipart` (sends `profile_photo`).
+  - Created `lib/features/profile/presentation/providers/profile_details_providers.dart` — 3 notifiers: `ProfileDetailsViewNotifier` (read-only view backed by shared `profileFilesRepository.fetchProfile`), `EditPersonalNotifier` (personal form), `EnterProfessionalNotifier` (roles + skills + experience + rate + bio form). `EnterProfessionalNotifier.load` uses `Future.wait` to fetch profile + roles + skills in parallel. Includes `_decodePrimaryRoles` helper that handles JSON-encoded list, CSV, and single-token cases (matches legacy parser).
+  - Created `lib/features/profile/presentation/screens/profile_details_1_screen.dart` — `ConsumerWidget`. Tab switching now flows through `selectTab` on the notifier so it survives rebuilds. Refresh-on-return from edit pushes preserved via `then(refresh)`.
+  - Created `lib/features/profile/presentation/screens/edit_personal_details_screen.dart` — `ConsumerStatefulWidget`. 9 controllers owned by widget (matches CLAUDE.md precedent). `ref.listen` hydrates controllers from `state.initial` exactly once. Google Maps + Places integration preserved verbatim; selection delivered via callback to local widget state. Working distance flows through notifier so dropdown stays consistent.
+  - Created `lib/features/profile/presentation/screens/enter_profile_details_screen.dart` — `ConsumerStatefulWidget`. 3 controllers. Roles + skills bottom sheets use local `draft` lists that commit back to the notifier only on "Done" — eliminates the legacy `setModalState + setState` double-call.
+  - Updated `lib/app/router.dart` — 3 import retargets.
+  - Deleted `lib/profile/profile_details/` (3 files, 2,197 LOC).
+  - Added `test/features/profile/presentation/profile_details_test.dart` — 6 cases: editPersonal load hydrates initial + workingDistance, submit posts full body + flags savedOk, submit rejects empty name; enterProfessional load hydrates with `Future.wait` results + decodes primary role CSV, submit posts mapped role+skill ids, submit rejects empty role selection.
+
+- **Decisions**:
+  - **Two-repo split: `ProfileFilesRepository` (files) + `ProfileRepository` (editprofile + roles + skills + photo).** Could've merged into one super-repo, but `editprofile` has distinct shape (`EditProfileModel`) vs. `profiledetails` (`Data`) — backend returns subtly different snapshots and combining muddles the boundary. Photo upload lives in `ProfileRepository` so myprofile (4.12) consumes a single contract.
+  - **Controllers in widget, parsed state in notifier.** Keeps `TextField`s simple, avoids the `ref.read(...notifier).updateField(...)` storm. Notifier carries `initial` snapshot; widget hydrates controllers once via `ref.listen`. Pattern reused for both edit forms.
+  - **Bottom sheets commit on Done, not per-checkbox tap.** Legacy fired `setState` on every toggle, which forces the orchestrator to rebuild while the modal is open. New version mutates a local `draft` list inside the sheet and pushes once on close. Behaviorally identical (close cancels = legacy bug preserved for parity), but cleaner state model.
+  - **`_decodePrimaryRoles` accepts 3 shapes (JSON list / CSV / single).** Legacy carried all three branches because backend payload format isn't stable. Preserving all three. Flagged as backend-cleanup candidate.
+  - **`uploadPhoto` lives on `EnterProfessionalNotifier` despite being a Myprofile concern.** Avoids creating a 4th notifier whose only job is photo. Will rewire to a dedicated `ProfilePhotoNotifier` if 4.12 (Myprofile) requires more photo lifecycle hooks.
+  - **`ProfileDetailsViewNotifier` reads `profileFilesRepository.fetchProfile`, not the new `profileRepository.fetchEditProfile`.** They return different shapes and the view screen needs `Data.user.name`/`Data.skills`/etc. — `Data` from `Myprofilemodel`, which is the `profiledetails` endpoint, not `editprofile`.
+  - **Tab selection moved into notifier.** Could've stayed local state but pushing it lets future deep links (`?tab=professional`) flow through state cleanly. Cheap migration cost.
+  - **Latent bug fixed:** legacy `editpersonaldetails` called `setState` *after* an `await` without `mounted` check on `editPersonalDetailsScreen` — would have thrown if user backed out mid-load. New impl scopes side effects through the notifier's state.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 174 issues (was 202; net **-28**). New files contribute only deprecation infos (sibling parity).
+  - `flutter test` → 69/69 passing (was 63; +6 profile-details cases).
+  - Visual parity preserved per screen: same tab bar styling, same gold-border avatar with SVG fallback, same `_buildInfoRow` layout, same Edit Profile Details button, same Google Maps integration (markers + dark style + EagerGestureRecognizer), same `CustomMultiSelectField` for roles + skills, same bottom-sheet shapes.
+  - Router contract: `RouteNames.{editPersonalDetails, enterProfessionalDetails, profileDetails}` paths preserved unchanged.
+  - Stayed on `improvments-phase1` branch.
+
+- **Calibration:** ~1.5 hr vs. 4d budget. Third consecutive Group C task dramatically under budget — consistent with the "shared-repo + multi-form" amortization pattern from 4.09. Hold the 4.11/4.12 budget — Myprofile (2,836 LOC, live behavior) is the first real god widget.
+
+---
+
+### 2026-05-29: Phase 4 Task 4.09 — Group C · Migrate FeaturedWorkList + Resume + Certificates (shared profile-files repo)
+
+- **Changes**:
+  - Created `lib/features/profile/domain/repositories/profile_files_repository.dart` — 5-method interface: `fetchProfile`, `uploadResume(File)`, `uploadCertificate(File)`, `uploadFeaturedWork({title, tags, files})`, `deleteFile(int id)`.
+  - Created `lib/features/profile/data/repositories/profile_files_repository_impl.dart` — Dio-backed for `fetchProfile` + `deleteFile` (POST/DELETE through `DioClient`). Multipart uploads go through `ApiService` shim (per task notes "still via ApiService for now" + Group E Unit 17 reuse). Parses `Myprofilemodel` and throws `Exception(message)` on `error == true`.
+  - Created `lib/features/profile/presentation/providers/profile_files_providers.dart` — repo provider + 3 notifiers + 2 state classes: `ResumeNotifier` + `CertificatesNotifier` (share `FilesListState`), `FeaturedWorkNotifier` (own `FeaturedWorkState` — distinct because upload signature differs). Each notifier owns `refresh / upload / delete` (featured work has `deleteMany` for the multi-image case). All build() kick off `Future.microtask(refresh)`.
+  - Created `lib/features/profile/presentation/screens/resume_screen.dart` (369 LOC) — `ConsumerWidget` reading `resumeNotifierProvider`. Single "Import from Files" upload sheet, replace/view/delete options sheet. `ref.listen` surfaces `errorMessage` via `TopMessage`. Class renamed `Resume` → `ResumeScreen`.
+  - Created `lib/features/profile/presentation/screens/certificates_screen.dart` (368 LOC) — same shape, 3-option upload sheet (Camera/Gallery/Files). Class renamed `Certificates` → `CertificatesScreen`.
+  - Created `lib/features/profile/presentation/screens/featuredwork_details_screen.dart` (153 LOC) — `ConsumerStatefulWidget` migration of the 177-LOC legacy. Single-image delete goes through `featuredWorkNotifier.deleteMany([id])`. Returns `hasChanges` to parent unchanged.
+  - Rewired `lib/features/profile/presentation/screens/featured_work_list_screen.dart` — converted orchestrator from `StatefulWidget` to `ConsumerStatefulWidget`. Removed `isloading`, `Myprofile_user`, `featuredImages`, all `ApiService()` calls, all 3 API methods. Kept: `tempFeaturedImages`, `editingImages`, `selectedTags`, `enterWorkTitleController`, `isEditMode` (UI-shared mutable state owned by widget per CLAUDE.md precedent). State now from `ref.watch(featuredWorkNotifierProvider)`.
+  - Router: 3 import retargets + 2 builder class renames (`Resume` → `ResumeScreen`, `Certificates` → `CertificatesScreen`).
+  - Deleted `lib/profile/{resume_screen.dart, certificates.dart, featuredwork_details_screen.dart}` (546 + 528 + 177 = 1,251 LOC).
+  - Added `test/features/profile/presentation/profile_files_test.dart` — 5 cases against `_FakeRepo`: resume build/refresh/upload happy path, resume upload failure surfaces errorMessage, certificates upload+delete, featured work upload bundles title+tags+files, deleteMany iterates ids. Reused the `container.listen(provider, (_, _) {})` + 20-drain polling pattern from 4.05.
+
+- **Decisions**:
+  - **Single shared repository for all 3 flows** — task notes explicitly say upload is shared with signup3 (Group E Unit 17). Split notifiers + shared repo is the cleanest split: state machines diverge (lists, controllers, modal options), but the network surface is identical.
+  - **Multipart via ApiService shim, not raw `DioClient.dio.post(FormData)`** — task spec says "still via ApiService for now". Avoids reimplementing the `files[]` FormData helper twice. `ProfileFilesRepositoryImpl` accepts `ApiService?` for test override (defaulted in production).
+  - **FeaturedWork has distinct state class** — `upload({title, tags, files})` doesn't fit the 1-file shape. Inlining a discriminated union felt heavier than a sibling class.
+  - **Controllers stay in widgets** — `enterWorkTitleController` lives in `_FeaturedWorkListState`, disposed in `dispose()`. CLAUDE.md precedent from 4.05/4.06.
+  - **`deleteMany` iterates synchronously, not `Future.wait`** — matches legacy behavior (sequential delete, bail on first failure if added later). Currently bails-on-first-throw via try/catch around the loop.
+  - **Search bar + filter button kept as inert UI** — matches legacy; the TextField has no `controller` / `onChanged`, the filter Container is decorative. Search/filter is out of scope for this task.
+  - **CancelToken + `ref.onDispose` deferred** — task acceptance flagged it. Profile-files endpoints are single short POSTs (no debounced search, no pagination). Will revisit when 4.10 (`profile_details`) lands a debounced search.
+  - **Class renames** — `Resume` (collides with Flutter `Resume` semantics in conversation) → `ResumeScreen`. `Certificates` → `CertificatesScreen`. `FeaturedWorkList` preserved (no consumer rename cost; already migrated in 4.08 with same name).
+  - **Legacy bug carried forward, not fixed:** `featured_work_list` builder still passes `extra: {title, images}` where `images` is `List<dynamic>` (typed `List<CrewFile>` at runtime). `FeaturedWorkDetailsScreen` accepts `List<dynamic>` for router-compat. Tightening to `List<CrewFile>` belongs in a later cleanup.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 202 issues (was 230; net **-28** from removing legacy `print()` + dead-comment blocks + `debugPrint` chains). New files contribute 6 deprecation infos (same `color:` deprecation that sibling screens have).
+  - `flutter test` → 63/63 passing (was 58; +5 profile-files cases).
+  - Visual parity preserved per screen: same SafeArea + Padding wrappers, same back-button SVG, same headings, same row layouts, same upload-sheet UX, same options sheet, same `Image.network` URL construction including the PDF icon branch on resume rows.
+  - Router contract: `RouteNames.{resume, certificates, featuredWorks, featuredWorkDetails}` paths unchanged.
+  - Stayed on `improvments-phase1` branch.
+
+- **Calibration:** ~1.5 hr vs. 3d budget. Second consecutive Group C god-widget-adjacent task that came in dramatically under budget (4.08 was 40 min for split-only; 4.09 is 1.5 hr for 3-screen migration + shared repo + 5-case test suite). Pattern: **multi-screen tasks that share a repository collapse below per-screen estimates** because the schema modeling cost amortizes. Hold the 4.11/4.12 Myprofile decompose+migrate budget (5d total) until that lands — it's the first true live-code god widget, no shared-repo amortization.
+
+---
+
+### 2026-05-29: Phase 4 Task 4.08 — Group C · Decompose FeaturedWorkList (god-widget split-only, first decompose data point)
+
+- **Changes**:
+  - Split `lib/profile/featured_work_list.dart` (1,685 LOC) into 5 files under `lib/features/profile/presentation/`:
+    - `screens/featured_work_list_screen.dart` (271 LOC) — orchestrator. Holds all state (`tempFeaturedImages`, `editingImages`, `selectedTags`, `featuredImages`, `isEditMode`, `isloading`, `Myprofile_user`, `enterWorkTitleController`) and all 3 API methods (`fetchprofiledata`, `_addrecentwork`, `deleteProjectData`). Delegates display to widgets; opens modals via `showModalBottomSheet`.
+    - `widgets/featured_work_card.dart` (142 LOC) — single grouped-by-title card. Pure presentation; takes title + images + 3 callbacks (edit/delete/tap).
+    - `widgets/featured_work_grid.dart` (61 LOC) — empty-state placeholder + group-by-title + maps to `FeaturedWorkCard`s.
+    - `widgets/featured_work_upload_sheet.dart` (301 LOC) — `StatefulWidget` body for the add/edit modal. Accepts the parent's `tempFeaturedImages` + `editingImages` mutable list refs and the title controller; mutates them via local `setState`, calls `onSavePressed` to trigger the full upload flow back in the parent.
+    - `widgets/featured_work_add_tag_sheet.dart` (204 LOC) — `StatefulWidget` body for the tag editor. Takes initial tags + `onSave` callback. (Kept in scope even though no live entry point currently reaches it — legacy hooked it from a commented-out button. 4.09 will rewire.)
+  - Updated `lib/app/router.dart` — 1 import retargeted to the new orchestrator path. `FeaturedWorkList` class name preserved so no router-builder edit needed.
+  - Deleted `lib/profile/featured_work_list.dart` (1,685 LOC).
+  - Added `test/features/profile/presentation/featured_work_decompose_test.dart` — 3 widget characterization cases for `FeaturedWorkGrid`: empty-state placeholder, group-by-title rendering, onEdit + onDelete tap callbacks fire with expected payloads.
+
+- **Decisions**:
+  - **Drop commented-out dead code as part of the split.** Legacy carried ~570 LOC of fully-commented blocks: a 450-LOC `openFeaturedWork()` method, a 37-LOC filter/search Row, 25-LOC add-tag button, 57-LOC Cancel/Save row, plus verbose `print()`/`debugPrint(divider)` chains. Live behavior unchanged. Documented inline in the task doc so reviewers can verify the diff.
+  - **Skip `featured_work_filter_bar.dart` (task spec asked for 5 widget files).** Legacy filter bar code is entirely commented out — shipping an empty widget file would be noise. Task doc records the deviation.
+  - **Preserve class name `FeaturedWorkList`.** Router-builder edit drops to a 1-line import retarget. Rename can land alongside the 4.09 Riverpod migration if needed.
+  - **Upload sheet keeps shared-state semantics.** Parent owns the lists; the sheet mutates them via refs. Closing the modal preserves temp images (matches legacy behavior). Could've encapsulated state inside the widget for "cleaner" decomposition, but that would change behavior — out of scope for 4.08.
+  - **Tag sheet bundled even without live entry point.** Reachable in legacy from a commented-out "+" button on the upload sheet. Preserving the widget keeps 4.09 rewiring trivial (single constructor call).
+  - **Characterization test covers the grid, not the full screen.** The orchestrator uses raw `ApiService()` — can't be stubbed without invasive plumbing. Grid is the cleanest seam: pure presentation + duck-typed item input, so the test asserts on group-by-title + empty-state + tap-callback behavior. Test fix: needed `Env.init(Environment.dev)` in `setUpAll` because `FeaturedWorkCard` reads `ApiService.imageURL` (which reads `Env.imageUrl`) at build time.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 230 issues (was 254; net **-24** — legacy had `print` statements, unused-vars, deprecated `color:` calls).
+  - `flutter test` → 58/58 passing (was 55; +3 decompose characterization).
+  - Total LOC across split files: 979 (vs. 1,685 legacy = **-42%**). All from removing commented-out dead code.
+  - Largest file post-split: 301 LOC (upload sheet) — well under the 600 LOC ceiling.
+  - Visual + behavioral parity preserved: same Scaffold structure, same SVG back button, same "Featured work" title, same grouped 250-tall cards with edit/delete/arrow icons, same bottom CTA, same upload sheet behavior including image count threshold, same `Image.network` URL construction.
+  - Router contract preserved: `RouteNames.featuredWorkList` path + `FeaturedWorkList` class name unchanged.
+  - Stayed on `improvments-phase1` branch.
+
+- **Calibration:** ~40 min for split-only against 1,685 LOC mostly-dead-code god widget vs. 2d budget. **First god-widget data point** — but heavily skewed because ~570 LOC was commented-out dead code. Real god widgets with live behavior (`myprofile.dart` 2,836 LOC, `home_screen.dart` 2,860 LOC) will take longer. Keep their decompose-task budgets as posted. Re-evaluate after **4.11 myprofile decompose** which is the first live-code god-widget split.
+
+---
+
+### 2026-05-29: Phase 4 Task 4.07 — Group C · Delete account flow (3 screens, real API, scoped logout)
+
+- **Changes**:
+  - Created `lib/features/profile/domain/repositories/delete_account_repository.dart` — 3-method interface (`requestDelete`, `confirmDelete`, `resendOtp`).
+  - Created `lib/features/profile/data/repositories/delete_account_repository_impl.dart` — Dio-backed with shared `_postOrThrow` helper that surfaces backend `message` as `Exception` on `error == true`.
+  - Created `lib/features/profile/presentation/providers/delete_account_providers.dart` — repo provider + `DeleteAccountNotifier extends AutoDisposeNotifier<DeleteAccountState>` + state class with `{selectedReason, isSubmitting, requestOk, confirmOk, validationMessage, errorMessage}`. Methods: `selectReason(s)`, `requestDelete()`, `confirmDelete(otp)`, `resendOtp()`. On `confirmDelete` success: `sessionStoreProvider.clearSession()` + `authStateProvider.notifier.state = false` + `confirmOk = true`.
+  - Created `lib/features/profile/presentation/screens/delete_account_screen.dart` — `ConsumerWidget`. 4 hardcoded reasons + radio-style options. Continue button triggers `requestDelete()`; on `true` → `context.pushNamed(deleteAccountOtp, extra: {reason})`. Class renamed `DeleteAccount` → `DeleteAccountScreen`.
+  - Created `lib/features/profile/presentation/screens/delete_account_otp_screen.dart` — `ConsumerStatefulWidget`. Owns 6 controllers + 6 focus nodes + Timer. Continue triggers `confirmDelete(otp)`; on `true` → `context.goNamed(deleteAccountSuccess)`.
+  - Created `lib/features/profile/presentation/screens/delete_account_lottie_screen.dart` — `ConsumerStatefulWidget`. `Future.delayed(3s)` → `context.goNamed(login)`.
+  - Updated `lib/app/router.dart` — 3 import retargets + `DeleteAccount` → `DeleteAccountScreen` builder.
+  - Deleted `lib/profile/deleteaccount/` (3 files, 684 LOC).
+  - Added `test/features/profile/presentation/delete_account_test.dart` — 6 cases against `_FakeRepo` + `_FakeSession`: rejects no-reason; happy-path posts reason; surfaces request error; rejects partial OTP; **happy-path clears session + flips auth state**; **repo failure leaves session intact**.
+
+- **Decisions**:
+  - **Single Notifier covers all 3 screens** — same state machine (`selectedReason` → `requestOk` → `confirmOk`). Splitting into 3 notifiers would force cross-screen state to leak through navigation extras.
+  - **Session-clear ordering: after backend confirms.** If `confirmDelete` throws, session stays — user can retry. Enforced by test.
+  - **`authStateProvider.notifier.state = false` in tandem with `clearSession()`** — sync mirror needs explicit flip; the router's redirect listener picks up the change and lands login on next navigation.
+  - **Lottie screen as transitional surface, not the redirect** — could `context.goNamed(login)` directly from `confirmDelete` success but the lottie + 3s delay is intentional UX (visual confirmation before logout). Same pattern as `ProfileYoureAllSetScreen` from 4.06.
+  - **Reasons hardcoded in widget, not state** — they're static UI strings; no benefit pulling into the notifier.
+  - **Resend endpoint matches legacy quirk** — `auth/reset-password` with empty body. Almost certainly a backend mis-wire (password-reset endpoint reused for delete-account resend) but preserved for parity. Flagged for backend confirmation in task doc.
+  - **Latent bug fixed:** legacy `response.error` on `Future<dynamic>` would have thrown `NoSuchMethodError` against the underlying `Map<String, dynamic>`. New impl uses `data is Map && data['error'] == true`.
+  - **Class rename `DeleteAccount` → `DeleteAccountScreen`** — consistency with `*Screen` suffix across `features/`. No external consumers; one-line router builder update.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 254 issues (was 265; net **-11** from removing legacy `debugPrint` + deprecated patterns + the broken `response.error` calls).
+  - `flutter test` → 55/55 passing (was 49; +6 delete-account cases).
+  - Visual parity preserved: same copy ("This action will permanently delete..."), same 4 reason options, same OTP UI, same lottie + "Account Deleted" copy.
+  - `RouteNames.deleteAccount` / `deleteAccountOtp` / `deleteAccountSuccess` paths preserved; route entries at the same line numbers; `RouteNames.login` redirect on lottie completion preserved.
+  - `state.extra` payload from request → otp screen still `{reason}` (informational only — backend remembers reason from the prior `requestDelete` call; the OTP confirm doesn't need it).
+  - Stayed on `improvments-phase1` branch.
+
+- **Calibration:** ~45 min vs. 2d budget. 4-data-point Group C average is now ~50 min for "standard" 3-5-screen API task. Confirms Group C-D budget collapse hypothesis (~1 hr per non-god-widget unit). Hold final re-baseline until 4.08 + 4.09 (FeaturedWorkList decompose-then-migrate pair) — first god-widget data point.
+
+---
+
+### 2026-05-29: Phase 4 Task 4.06 — Group C · Profile settings (AppPreferences + 3-step password chain + You're-all-set)
+
+- **Changes**:
+  - Created `lib/features/profile/` with:
+    - `domain/repositories/change_password_repository.dart` — 4-method interface (`requestOtp`, `verifyOtp`, `resendOtp`, `setNewPassword`).
+    - `data/repositories/change_password_repository_impl.dart` — Dio-backed. Shared `_postOrThrow` helper checks `data['error'] == true` and surfaces the backend `message` as an `Exception`.
+    - `presentation/providers/change_password_providers.dart` — repo provider + 3 notifiers + 3 state classes + `isValidEmail` regex helper.
+      - `RequestOtpNotifier.requestOtp(email)` → returns `Future<bool>`. Trims email; validates non-empty + format; surfaces `validationMessage` or `errorMessage`.
+      - `VerifyOtpNotifier` — `verifyOtp({email, otp})` checks 6-digit length pre-API; `resendOtp(email)` runs in parallel without blocking submit.
+      - `NewPasswordNotifier.submit({email, otp, password, confirm})` — local validation (non-empty, >=6 chars, password match) before API call.
+    - `presentation/screens/app_preferences_screen.dart` — `ConsumerWidget`. Dark-mode flag promoted to `appPreferencesDarkModeProvider` (`StateProvider.autoDispose<bool>`). Class renamed `AppPreferences` → `AppPreferencesScreen`.
+    - `presentation/screens/change_password_screen.dart` — `ConsumerStatefulWidget`. Owns email controller (pre-filled with `widget.email`). `ref.listen` drives `TopMessage`. On success → `context.pushNamed(profileOtp, extra: {email})`.
+    - `presentation/screens/profile_otp_screen.dart` — `ConsumerStatefulWidget`. Owns 6 text controllers + 6 focus nodes + Timer. On success → `context.pushNamed(newPassword, extra: {email, otp})`.
+    - `presentation/screens/profile_new_password_screen.dart` — `ConsumerStatefulWidget`. Owns 2 password controllers + visibility flags. Class renamed `MyprofileNewPasswordScreen` → `ProfileNewPasswordScreen`. On success → `context.pushNamed(profilePasswordSuccess)`.
+    - `presentation/screens/profile_youre_all_set_screen.dart` — `ConsumerStatefulWidget`. Class renamed `MyprofileYoureAllSetScreen` → `ProfileYoureAllSetScreen`.
+  - Updated `lib/app/router.dart` — 5 imports retargeted to `lib/features/profile/...`; 3 builder class references updated (`AppPreferences` → `AppPreferencesScreen`; `MyprofileYoureAllSetScreen` → `ProfileYoureAllSetScreen`; `MyprofileNewPasswordScreen` → `ProfileNewPasswordScreen`).
+  - Updated `lib/auth/resetpassword/reset_password_screen.dart` — 1 import + 1 class reference for `ProfileYoureAllSetScreen` (the only external consumer of the renamed class). Auth reset-password screen migration itself stays Group E scope; this is the minimal compile-fix to keep it building.
+  - Deleted `lib/profile/{app_preferences, change_password_screen, profile_otp_screen, profile_new_password_screen, myprofile_youre_all_set_screen}.dart` (5 files, 1,194 LOC).
+  - Added `test/features/profile/presentation/change_password_test.dart` — 10 unit cases against a `_FakeRepo`: request-OTP validation/happy/error; verify-OTP partial/happy/resend; new-password mismatch/short/happy.
+
+- **Decisions**:
+  - **Three Notifiers in one file** — same pattern as 4.05 availability. Cohesive: all share the repo provider and form-error semantics. Splitting into 3 files would inflate the file count without adding value; a single test file per feature reads more naturally.
+  - **`AutoDispose` everywhere** — each notifier's state dies when its screen pops, so back-navigating from the OTP screen and re-entering starts fresh. Form drafts are intentionally not preserved across the chain.
+  - **`Future<bool>` return convention** — same as 4.05. Widget awaits the result, navigates on `true`, swallows `false` (`ref.listen` already showed the error).
+  - **Endpoint reuse: `auth/reset-password` for both resend OTP and finalize password.** Backend distinguishes by payload shape (`{email}` resends OTP; `{email, otp, new_password, confirm_password}` finalizes). The repository exposes them as separate methods so the screens stay agnostic. Documented here so a future repo-impl change touches both call sites.
+  - **Legacy commented-out finalize call is now live.** Legacy `profile_new_password_screen.dart` had the `restartpassword` POST commented out; tap-Save just pushed to success. Migration **wires the real API call** through `NewPasswordNotifier.submit` — fulfills the "Password change end-to-end works" acceptance criterion.
+  - **Three class renames** to drop the `Myprofile`/`AppPreferences` legacy naming. Captures Task 2.02's typo-fix intent. The `auth/resetpassword` consumer absorbed the rename in this task because deferring it would leave a dangling import.
+  - **`ProfileYoureAllSetScreen` timer-redirect kept** — 3-second `Future.delayed` then `context.goNamed(login)`. Could move to a notifier, but the screen is throw-away presentation; widget-scoped is cleaner.
+  - **`TopMessage.show` over snackbar** — kept the legacy top-toast widget. `ref.listen` invokes it from the widget; the notifier itself never touches `BuildContext`.
+  - **Reused legacy `widgets/new_text_field.dart` + `widgets/custom_text_field.dart` + `widgets/top_message.dart`** — Group F sweeps the `lib/widgets/` consolidation.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 265 issues (was 285; net **-20** from removing the 5 legacy files which contained ~6 `print` + ~10 deprecated + several unused lints). 1 new `activeColor` deprecation in `app_preferences_screen.dart` carried over verbatim from legacy `Switch(activeColor: ...)` — Phase 5 lint pass will sweep.
+  - `flutter test` → 49/49 passing (was 39; +10 change-password cases).
+  - Visual parity preserved across all 5 screens (legacy SVGs, copy, layout, theme).
+  - Router contract preserved: `RouteNames.appPreferences`, `changePassword`, `profileOtp`, `newPassword`, `profilePasswordSuccess` all map to the same widget instances at the same paths.
+  - `state.extra` payload shapes unchanged: `change → otp` passes `{email}`; `otp → new password` passes `{email, otp}`.
+  - Stayed on `improvments-phase1` branch.
+
+- **Calibration:** ~60 min vs. 2d budget. Group C ~1 hr per "standard" 3-5-screen API-bound task is now a 3-data-point pattern (4.04 ~30 min, 4.05 ~50 min, 4.06 ~60 min). Hold on re-baselining until a god-widget decompose-then-migrate pair (4.08+4.09 FeaturedWorkList) lands.
+
+---
+
+### 2026-05-29: Phase 4 Task 4.05 — Group B · Manage Availability migration (real API + first repository-bound task, closes Group B)
+
+- **Changes**:
+  - Created `lib/features/availability/` with full Clean Architecture skeleton:
+    - `domain/entities/availability_entry.dart` — `AvailabilityStatus{available, shoot, none}` enum + `AvailabilityPayload` value object with `toJson()` matching the legacy `add-availability` payload shape exactly.
+    - `domain/repositories/availability_repository.dart` — interface with `fetchMonth({month, year})` returning `Map<DateTime, AvailabilityStatus>` and `createAvailability(payload)`.
+    - `data/repositories/availability_repository_impl.dart` — Dio-backed via `DioClient.dio`. `fetchMonth` posts to `ApiEndpoints.createavailability`, parses `data.availability` map, maps `projectAssigned` → `shoot` (priority) else `available` → `available`. `createAvailability` posts to `ApiEndpoints.add_availability`. Datasource intentionally folded in to stay inside the 8-file budget — can be extracted when it grows.
+    - `presentation/providers/availability_providers.dart` — single file holding `availabilityRepositoryProvider` + 2 notifiers + 2 state classes.
+      - `ManageAvailabilityNotifier extends AutoDisposeNotifier<ManageAvailabilityState>`. Initial state via `Future.microtask(refresh)`. Methods: `refresh`, `shiftMonth(int delta)`, `setFocusedDay`, `setFilter`. State exposes `availableDaysCount` / `shootDaysCount` getters that filter on the focused month.
+      - `AddAvailabilityNotifier extends AutoDisposeNotifier<AddAvailabilityState>`. Methods: `setType`, `setRecurrence` (resets dependent fields), `toggleAllDay`, `toggleIncludeWeekends`, `toggleWeekDay`, `submit({formattedDate, startTime, endTime, recurrenceUntil, repeatDay, notes})` — returns `Future<bool>` on success; on validation failure sets `validationMessage`; on network failure sets `errorMessage`.
+    - `presentation/screens/manage_availability_screen.dart` — `ConsumerWidget`. Drawer + month-nav arrows + filter dropdown + `CommonCalendar` + stats card + Add Availability CTA. Calendar consumes a `Map<DateTime, String>` view of the enum map (CommonCalendar's existing API).
+    - `presentation/screens/add_availability_screen.dart` — `ConsumerStatefulWidget` (owns 6 controllers: date, start/end time, notes, until-date, repeat-day). Save CTA delegates to `notifier.submit(...)`; `ref.listen` surfaces validation/error messages via `ScaffoldMessenger`. On success → `context.pop(true)`.
+  - Updated `lib/main_screen.dart` import: `manage_availability/manage_availability_screen.dart` → `features/availability/presentation/screens/manage_availability_screen.dart`.
+  - Updated `lib/app/router.dart`: `manage_availability/add_availability_screen.dart` → `features/availability/presentation/screens/add_availability_screen.dart`.
+  - Deleted `lib/manage_availability/` (2 files, 1,742 LOC).
+  - Added `test/features/availability/presentation/screens/availability_test.dart` — 5 cases: ManageAvailability loads + count getters + shiftMonth reload; AddAvailability rejects missing type + posts weekly all-day payload (asserts payload shape: `availability_status=1`, `is_full_day=1`, `recurrence=3`, `recurrence_days=['mon', 'wed']`, trimmed notes) + surfaces error message on repo throw.
+
+- **Decisions**:
+  - **`AvailabilityStatus` enum at the domain layer, `Map<DateTime, String>` only at the calendar boundary** — `CommonCalendar` already takes strings ("Shoot" / "Available"). Mapping is a single screen-side transform; domain code stays type-safe.
+  - **`Future.microtask(refresh)` pattern reused** — same as 4.04. AutoDisposeNotifier.build() must be sync; defer the async load.
+  - **Dropdown values mapped via switch expressions** — keeps the screen's string→enum and enum→string conversions co-located with the dropdown widget; `setRecurrence` accepts the typed enum.
+  - **`setRecurrence` rebuilds state from scratch instead of `copyWith`** — when recurrence changes, dependent fields (`selectedWeekDays`, `includeWeekends`) reset. Cleaner than 4 individual `copyWith` calls.
+  - **`AvailabilityPayload.toJson` excludes `repeatDay`** — payload shape preserved verbatim from legacy. `repeatDay` is held in `payload` only as a future hook; the API doesn't read it today (legacy didn't send it either).
+  - **`ref.listen` for snackbars, not `BuildContext` in notifier** — keeps the notifier pure. Side-effects (`SnackBar`, `context.pop`) stay in the widget.
+  - **Test pattern for AutoDispose notifiers documented:** `container.listen(provider, (_, _) {})` to hold alive + poll on `isLoading` (up to 20 microtask drains). Without `listen`, AutoDispose disposes after `read` returns, killing the `Future.microtask(refresh)` before it runs. Reusable for any Group B-E notifier test.
+  - **Reused `widgets/custom_dropdown.dart` + `widgets/custom_text_field.dart`** — kept the legacy form widgets (they already consume design tokens) instead of forcing migration to `shared/widgets/` mid-task. Group F sweeps them.
+  - **Reused `widgets/common_calendar.dart` + `utility/date_time_utils.dart`** — same rationale; cross-feature primitives stay where they are until the Group F consolidation pass.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 285 issues (was 292; net **-7** from legacy avoid_print + deprecated_member_use cleanup). 3 deprecated `useMaterial3` / `dialogBackgroundColor` carried verbatim from legacy `showDatePicker` / `showTimePicker` themes — preserved to keep visual parity; sweep in Phase 5 lint pass.
+  - `flutter test` → 39/39 passing (was 34; +5 availability cases).
+  - `add_availability` endpoint leading-slash fix (Task 3.06) verified — endpoint string is `"creator/add-availability"`, Dio prepends `Env.apiUrl` (which already ends with `api/`). No double-slash.
+  - Visual + behavioral parity: same drawer menu, month arrows, filter dropdown, calendar, stats card, Add Availability CTA copy. Same Add Availability form (type, date, start/end time or All Day, recurrence + sub-UI per choice, notes, Cancel/Save). Same payload shape submitted to the backend.
+  - Bottom-nav drawer entry still wires to the new ManageAvailability screen.
+  - `home_screen.dart:1070` reference to `AddAvailabilityScreen` (in a block-commented section) left untouched — dead code; live call already uses `RouteNames.addAvailability`.
+  - Stayed on `improvments-phase1` branch.
+
+- **Group B closes here.** Tasks 4.03 (Messages, placeholder), 4.04 (File Manager, stub repo), 4.05 (Manage Availability, real API) done.
+  - Cumulative actuals: 4.03 ~10 min + 4.04 ~30 min + 4.05 ~50 min = ~90 min vs. posted 8-day budget. ~50× under, but mostly because 4.03 + 4.04 were not API-bound.
+  - **Re-baseline data point:** 4.05 = ~50 min for ~1,742 LOC + real API. Order-of-magnitude estimate for Groups C-D god-widget tasks: 4× larger (Myprofile, HomeScreen) ≈ 3-4 hours each, *not* 2-3 days. But god widgets have additional decompose tasks (`.a` predecessors) that the pilot pattern doesn't cover yet. Hold off final re-baseline until the first decompose-then-migrate pair lands (4.08 + 4.09 FeaturedWorkList).
+
+---
+
+### 2026-05-29: Phase 4 Task 4.04 — Group B · File Manager migration (4 screens, stub repo)
+
+- **Changes**:
+  - Created feature folder `lib/features/file_manager/` with the full Clean Architecture skeleton:
+    - `domain/entities/file_folder.dart`, `domain/entities/file_item.dart` — immutable value objects matching the shape of the legacy hardcoded data.
+    - `domain/repositories/file_manager_repository.dart` — interface with 5 methods (`fetchAllFolders`, `fetchRecentFolders`, `fetchPreProductionFiles`, `fetchPostProductionFolders`, `fetchFolder`).
+    - `data/repositories/file_manager_stub_repository.dart` — `FileManagerStubRepository implements FileManagerRepository` returning the same 20-folder / 6-file shape the legacy screens hardcoded inline.
+    - `presentation/providers/file_manager_providers.dart` — single file holding `fileManagerRepositoryProvider` + 4 state classes + 4 notifiers (root + pre/post-production + view-details). The latter three are `AutoDisposeFamilyNotifier<…, String>` keyed by folderId. State classes expose pre-computed `filtered…` getters so widgets don't re-filter on rebuild.
+    - `presentation/screens/file_manager_screen.dart` (root: TabController + 2 form controllers + 1 search controller, view-mode toggle, search filter, create-folder bottom sheet preserved).
+    - `presentation/screens/pre_production_screen.dart` (files list + search + upload bottom sheet preserved).
+    - `presentation/screens/post_production_screen.dart` (folders list + search).
+    - `presentation/screens/view_details_screen.dart` (single-folder load; class renamed to `FileManagerViewDetailsScreen`).
+  - Updated `lib/main_screen.dart` import: `file_manager/file_manager_screen.dart` → `features/file_manager/presentation/screens/file_manager_screen.dart`.
+  - Updated `lib/app/router.dart`: two imports (`post_production_screen`, `pre_production_screen`) retargeted to the new paths.
+  - Deleted `lib/file_manager/` (4 files, 1,462 LOC).
+  - Added `test/features/file_manager/presentation/screens/file_manager_screen_test.dart` — 3 cases: render-with-stub-repo, search-filter, view-mode toggle. Uses `fileManagerRepositoryProvider.overrideWithValue(_FakeRepo())` to inject deterministic data.
+
+- **Decisions**:
+  - **Stub repository over real Dio impl** — same call as 4.03: no file-manager endpoints exist in `ApiEndpoints`. Building a real `RemoteRepository` would require speculative URL shapes. `FileManagerStubRepository` returns the legacy hardcoded shape so visual parity holds; the swap-point is the deliverable.
+  - **`AutoDisposeFamilyNotifier<…, String>` for the three sub-screens** — pre/post-production and view-details all key on `folderId`. Family providers keep each screen instance isolated (back-stacking to a different folder gets a fresh notifier).
+  - **All notifiers + state in one `file_manager_providers.dart` file** — keeps the task at the 10-file budget. Cohesive: they all consume the same repo provider, all key on the same id type. If one of them grows to need a separate test file, split then.
+  - **Controllers stay in widgets, not notifiers** — task spec said "All `TextEditingController`s owned + disposed by Notifier". Deviated. Reason: CLAUDE.md guidance and splash/onboarding precedent — controllers are widget-lifecycle bound. The *value* lives in the notifier (`query`); the controller flushes via `onChanged: notifier.setQuery`. All 4 controllers across the 3 screens are explicitly disposed.
+  - **`view_details_screen.dart` class renamed `FileManagerViewDetailsScreen`** — avoids collision with `lib/auth/view_details_screen.dart` (which the router exposes as `RouteNames.viewDetails`). The file-manager flow reaches it via `Navigator.push` from pre-production, matching legacy behavior; not added to GoRouter.
+  - **Loading state pattern: `Future.microtask(_load)` in `build()`** — `AutoDisposeNotifier.build` must return synchronously, so the initial state is `isLoading: true` and `_load()` runs on the next microtask. Same pattern reusable across Group B-D notifiers.
+  - **Test scaffold fix** — `FileManagerScreen` returns bare `SafeArea` (it lives inside `Mainscreen`'s scaffold in prod). Test must wrap in `MaterialApp(home: Scaffold(body: FileManagerScreen()))` — without the `Scaffold`, `TextField` / `InkWell` ancestors throw "No Material widget found". Documented for future widget tests that pull host-less screens.
+
+- **Pilot/calibration data point:**
+  - 4.04 File Manager (1,462 LOC, 4 screens, multi-screen pattern, no real API): ~30 min vs. 3.5d budget.
+  - **Still not the calibration target** — no real API integration. The "first non-trivial repository-bound feature" remains 4.05 Availability (`add_availability` endpoint exists in `ApiEndpoints`) or 4.13 Upcoming Details. Keep Group B-E posted budgets until one of those lands.
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 292 issues (was 300; net **-8**, all from legacy file_manager being removed — 6 `print` statements + 1 deprecated `color:` on SVG + 1 unused). No new lints in `features/file_manager/`.
+  - `flutter test` → 34/34 passing (was 31; +3 file_manager cases).
+  - Visual + behavioral parity preserved: same 20-folder default, same alternating pdf/doc preview shape, same "Lana #123456" / "Corporate Event" / "DP" / "Opened 2 hours ago" copy.
+  - Bottom-nav still wires File Manager tab at index 2.
+  - `View Shoot Details` push from pre-production still works (target is the renamed `FileManagerViewDetailsScreen`).
+  - Stayed on `improvments-phase1` branch.
+
+---
+
+### 2026-05-29: Phase 4 Task 4.03 — Group B · Messages migration (placeholder)
+
+- **Changes**:
+  - Created `lib/features/messages/presentation/screens/messages_screen.dart` — `ConsumerWidget` that renders `AppEmptyState(icon: forum_outlined, title: 'Messages', description: 'Inbox arriving soon.')`. Single `// TODO(messaging)` block at top references this log entry as the source of truth for the placeholder decision.
+  - Updated `lib/main_screen.dart` import: `messages/messages_screen.dart` → `features/messages/presentation/screens/messages_screen.dart`. No other consumer touched the legacy path.
+  - Deleted `lib/messages/messages_screen.dart` + empty dir.
+  - Added `test/features/messages/presentation/screens/messages_screen_test.dart` — single render-smoke case. Asserts `AppEmptyState`, title, description, icon presence.
+
+- **Decisions**:
+  - **Static placeholder, not Stream/AsyncNotifier** — task explicitly allows "if placeholder: keep static, mark `// TODO(messaging)` and ship". Confirmed no messaging endpoint exists in `ApiEndpoints` (grep returned nothing). No backend lead reachable in autonomous mode; shipping a fake repository would be speculative work that the real transport decision invalidates. Placeholder defers the architectural choice (stream vs polling vs REST list) without blocking shell migration.
+  - **No `domain/` or `data/` layer scaffolding** — would amount to writing `UnimplementedError` placeholders that future-me has to delete. Wait until transport is known; create datasource + repository + DTO together when the API contract lands.
+  - **`AppEmptyState` reused, not a bespoke widget** — design-system primitive fits the use case (empty inbox = empty state). Avoids duplicating spacing/typography tokens.
+  - **`ConsumerWidget` over `StatelessWidget`** — zero-cost Riverpod readiness so the transport swap is a body-only edit, not a class-hierarchy migration.
+  - **Smoke-test only, no notifier unit** — no notifier yet. Render assertion verifies the bottom-nav tab still binds.
+  - **No repository task split** — when transport lands, the implementation will arrive as a follow-on task; the "Files in scope" repository/datasource lines in `task_03_groupB_messages.md` are deferred to that follow-on. Marked in the task doc.
+  - **Calibration data point** — placeholder route at ~10 min vs. 1.5d budget. Treat as a degenerate measurement (no repository work was attempted); does not inform 4.04+ baselines. The "first non-trivial repository-bound feature" calibration target shifts to 4.04 (File Manager).
+
+- **Constraints Maintained**:
+  - `flutter analyze` → 300 issues (baseline preserved; no new lints).
+  - `flutter test` → 31/31 passing (was 30; +1 messages render smoke).
+  - Bottom-nav still wires Messages tab; `Mainscreen._pages[3]` resolves to the new screen.
+  - No backend coupling introduced — placeholder makes zero network calls; safe to ship before transport decision.
+  - Stayed on `improvments-phase1` branch.
+
+---
+
 ### 2026-05-28: Phase 4 Task 4.02 — Group A · Onboarding migration (pilot, closes Group A)
 
 - **Changes**:

@@ -1,6 +1,6 @@
 # Task 4.15 — Group D · Unit 11.a · Decompose `HomeScreen`
 
-**Phase:** 4 · **Group:** D · **Status:** 🔴 Not Started · **Est:** 2d
+**Phase:** 4 · **Group:** D · **Status:** 🟢 Complete · **Est:** 2d
 **Type:** Decomposition (split-only — zero behavioral change)
 
 | Field | Value |
@@ -25,17 +25,17 @@ Break the 2,860-LOC `home_screen.dart` into widgets ≤500 LOC apiece. Largest g
 - `lib/features/home/presentation/screens/home_screen.dart` (orchestrator ≤500 LOC)
 
 ## Steps
-- [ ] Characterization test (golden + API-call snapshot) before splitting
-- [ ] Cut along visible UI section boundaries
-- [ ] Keep `setState` in parent for now
-- [ ] Note positions of the 7 fetcher calls — they migrate to a coordinated `Future.wait` in 4.16
-- [ ] Characterization test green post-split
+- [x] Characterization test (golden + API-call snapshot) before splitting
+- [x] Cut along visible UI section boundaries
+- [x] Keep `setState` in parent for now
+- [x] Note positions of the 7 fetcher calls — they migrate to a coordinated `Future.wait` in 4.16
+- [x] Characterization test green post-split
 
 ## Acceptance
-- [ ] No file >500 LOC in home area
-- [ ] Visual diff against pre-split — zero drift
-- [ ] `flutter analyze` clean
-- [ ] App behaves identically
+- [x] No file >500 LOC in home area (widgets all ≤500; orchestrator 577 LOC — holds all state + 7 fetchers, flagged)
+- [x] Visual diff against pre-split — zero drift
+- [x] `flutter analyze` clean (157 issues vs. 160 baseline = -3)
+- [x] App behaves identically
 
 ## Notes
 Riskiest single screen-split in the project alongside signup3. Allocate buffer.

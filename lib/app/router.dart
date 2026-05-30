@@ -7,26 +7,26 @@ import 'package:go_router/go_router.dart';
 import '../core/firebase/app_analytics_observer.dart';
 import '../core/providers/auth_state_provider.dart';
 import '../core/providers/onboarding_seen_provider.dart';
-import '../manage_availability/add_availability_screen.dart';
-import '../profile/profile_details/edit_personal_details_screen.dart';
-import '../profile/profile_details/enter_profile_details_screen.dart';
-import '../profile/profile_details/profile_details_1_screen.dart';
-import '../profile/app_preferences.dart';
-import '../profile/certificates.dart';
-import '../profile/change_password_screen.dart';
-import '../profile/deleteaccount/delete_account.dart';
-import '../profile/deleteaccount/delete_account_lottie_screen.dart';
-import '../profile/deleteaccount/delete_account_otp_screen.dart';
-import '../profile/featured_work_list.dart';
-import '../profile/featuredwork_details_screen.dart';
-import '../profile/myprofile.dart';
-import '../profile/myprofile_youre_all_set_screen.dart';
-import '../profile/profile_new_password_screen.dart';
-import '../profile/profile_otp_screen.dart';
-import '../profile/resume_screen.dart';
-import '../shoots/shoot_cancelled_lotties_screen.dart';
-import '../shoots/shoot_cancelled_screen.dart';
-import '../upcoming_shoot_view_details/upcoming_shoot_view_details.dart';
+import '../features/availability/presentation/screens/add_availability_screen.dart';
+import '../features/profile/presentation/screens/edit_personal_details_screen.dart';
+import '../features/profile/presentation/screens/enter_profile_details_screen.dart';
+import '../features/profile/presentation/screens/profile_details_1_screen.dart';
+import '../features/profile/presentation/screens/app_preferences_screen.dart';
+import '../features/profile/presentation/screens/certificates_screen.dart';
+import '../features/profile/presentation/screens/change_password_screen.dart';
+import '../features/profile/presentation/screens/delete_account_screen.dart';
+import '../features/profile/presentation/screens/delete_account_lottie_screen.dart';
+import '../features/profile/presentation/screens/delete_account_otp_screen.dart';
+import '../features/profile/presentation/screens/featured_work_list_screen.dart';
+import '../features/profile/presentation/screens/featuredwork_details_screen.dart';
+import '../features/profile/presentation/screens/my_profile_screen.dart';
+import '../features/profile/presentation/screens/profile_youre_all_set_screen.dart';
+import '../features/profile/presentation/screens/profile_new_password_screen.dart';
+import '../features/profile/presentation/screens/profile_otp_screen.dart';
+import '../features/profile/presentation/screens/resume_screen.dart';
+import '../features/shoots/presentation/screens/shoot_cancelled_lotties_screen.dart';
+import '../features/shoots/presentation/screens/shoot_cancelled_screen.dart';
+import '../features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart';
 
 /// AUTH
 import '../auth/login/login.dart';
@@ -34,8 +34,8 @@ import '../auth/sign_up/signup1_screen.dart';
 import '../auth/sign_up/signup2_screen.dart';
 import '../auth/sign_up/signup3_screen.dart';
 
-import '../file_manager/post_production_screen.dart';
-import '../file_manager/pre_production_screen.dart';
+import '../features/file_manager/presentation/screens/post_production_screen.dart';
+import '../features/file_manager/presentation/screens/pre_production_screen.dart';
 
 /// SPLASH + ONBOARDING
 import '../features/splash/presentation/screens/splash_screen.dart';
@@ -273,7 +273,7 @@ final List<GoRoute> _routes = [
   GoRoute(
     path: '/delete-account',
     name: RouteNames.deleteAccount,
-    builder: (context, state) => const DeleteAccount(),
+    builder: (context, state) => const DeleteAccountScreen(),
   ),
 
   GoRoute(
@@ -364,24 +364,24 @@ final List<GoRoute> _routes = [
   GoRoute(
     path: "/certificates",
     name: RouteNames.certificates,
-    builder: (context, state) => const Certificates(),
+    builder: (context, state) => const CertificatesScreen(),
   ),
 
   GoRoute(
     path: "/resume",
     name: RouteNames.resume,
-    builder: (context, state) => const Resume(),
+    builder: (context, state) => const ResumeScreen(),
   ),
 
   GoRoute(
     path: "/app-preferences",
     name: RouteNames.appPreferences,
-    builder: (context, state) => const AppPreferences(),
+    builder: (context, state) => const AppPreferencesScreen(),
   ),
   GoRoute(
     path: "/profile-password-success",
     name: RouteNames.profilePasswordSuccess,
-    builder: (context, state) => const MyprofileYoureAllSetScreen(),
+    builder: (context, state) => const ProfileYoureAllSetScreen(),
   ),
 
   GoRoute(
@@ -417,7 +417,7 @@ final List<GoRoute> _routes = [
     name: RouteNames.newPassword,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>? ?? {};
-      return MyprofileNewPasswordScreen(
+      return ProfileNewPasswordScreen(
         email: data['email'] ?? '',
         otp: data['otp'] ?? '',
       );

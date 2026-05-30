@@ -1,6 +1,6 @@
 # Phase 4 — Feature Migration
 
-**Overall status:** 🔴 Not Started · 0 / 23 tasks done · **Est:** 58 effort-days
+**Overall status:** 🟡 In Progress · 16 / 23 tasks done · **Est:** 58 effort-days
 **Calibration:** re-baseline Groups B–E after Group A (pilot) ships and yields actuals.
 
 | Field | Value |
@@ -17,37 +17,37 @@
 
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
-| [4.01](task_01_groupA_splash.md) | Unit 1 — `SplashScreen` migration | 🔴 | 4 | 1d |
-| [4.02](task_02_groupA_onboarding.md) | Unit 2 — `OnboardingScreen` migration | 🔴 | 4 | 1d |
+| [4.01](task_01_groupA_splash.md) | Unit 1 — `SplashScreen` migration | 🟢 | 4 | 1d |
+| [4.02](task_02_groupA_onboarding.md) | Unit 2 — `OnboardingScreen` migration | 🟢 | 4 | 1d |
 
 ## Group B — Low-API tabs (8 days)
 
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
-| [4.03](task_03_groupB_messages.md) | Unit 3 — `MessagesScreen` (decide stream/polling first) | 🔴 | 4 | 1.5d |
-| [4.04](task_04_groupB_file_manager.md) | Unit 4 — `FileManagerScreen` + 3 sub-screens | 🔴 | 8 | 3.5d |
-| [4.05](task_05_groupB_availability.md) | Unit 5 — `ManageAvailability` + `AddAvailability` | 🔴 | 6 | 3d |
+| [4.03](task_03_groupB_messages.md) | Unit 3 — `MessagesScreen` (placeholder; transport deferred) | 🟢 | 4 | 1.5d |
+| [4.04](task_04_groupB_file_manager.md) | Unit 4 — `FileManagerScreen` + 3 sub-screens | 🟢 | 10 | 3.5d |
+| [4.05](task_05_groupB_availability.md) | Unit 5 — `ManageAvailability` + `AddAvailability` | 🟢 | 7 | 3d |
 
 ## Group C — Profile (18 days)
 
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
-| [4.06](task_06_groupC_settings.md) | Unit 9 — Profile settings (`AppPreferences`, password chain, You're-all-set) | 🔴 | 7 | 2d |
-| [4.07](task_07_groupC_delete_account.md) | Unit 10 — Delete account flow (3 screens) | 🔴 | 6 | 2d |
-| [4.08](task_08_groupC_featured_work_decompose.md) | Unit 7.a — Decompose `FeaturedWorkList` (1,685 LOC) | 🔴 | 5–8 | 2d |
-| [4.09](task_09_groupC_featured_work_migrate.md) | Unit 7.b — Migrate `FeaturedWorkList` + `Resume` + `Certificates` | 🔴 | 8 | 3d |
-| [4.10](task_10_groupC_profile_details.md) | Unit 8 — Profile-details forms (3 screens) | 🔴 | 7 | 4d |
-| [4.11](task_11_groupC_myprofile_decompose.md) | Unit 6.a — Decompose `Myprofile` (2,836 LOC) | 🔴 | 6–10 | 2d |
-| [4.12](task_12_groupC_myprofile_migrate.md) | Unit 6.b — Migrate `Myprofile` | 🔴 | 8 | 3d |
+| [4.06](task_06_groupC_settings.md) | Unit 9 — Profile settings (`AppPreferences`, password chain, You're-all-set) | 🟢 | 10 | 2d |
+| [4.07](task_07_groupC_delete_account.md) | Unit 10 — Delete account flow (3 screens) | 🟢 | 7 | 2d |
+| [4.08](task_08_groupC_featured_work_decompose.md) | Unit 7.a — Decompose `FeaturedWorkList` (1,685 LOC) | 🟢 | 6 | 2d |
+| [4.09](task_09_groupC_featured_work_migrate.md) | Unit 7.b — Migrate `FeaturedWorkList` + `Resume` + `Certificates` | 🟢 | 8 | 3d |
+| [4.10](task_10_groupC_profile_details.md) | Unit 8 — Profile-details forms (3 screens) | 🟢 | 7 | 4d |
+| [4.11](task_11_groupC_myprofile_decompose.md) | Unit 6.a — Decompose `Myprofile` (2,836 LOC) | 🟢 | 6–10 | 2d |
+| [4.12](task_12_groupC_myprofile_migrate.md) | Unit 6.b — Migrate `Myprofile` | 🟢 | 8 | 3d |
 
 ## Group D — Home + Shoots + Upcoming Details (12 days)
 
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
-| [4.13](task_13_groupD_upcoming_details.md) | Unit 13 — `UpcomingShootViewDetils` + fix 4 hardcoded endpoints | 🔴 | 6 | 3d |
-| [4.14](task_14_groupD_shoots.md) | Unit 12 — `ShootsScreen` + 3 supporting screens (debounce search) | 🔴 | 8 | 4d |
-| [4.15](task_15_groupD_home_decompose.md) | Unit 11.a — Decompose `HomeScreen` (2,860 LOC) | 🔴 | 6–10 | 2d |
-| [4.16](task_16_groupD_home_migrate.md) | Unit 11.b — Migrate `HomeScreen` (coordinate 7 fetchers via `Future.wait`) | 🔴 | 8 | 3d |
+| [4.13](task_13_groupD_upcoming_details.md) | Unit 13 — `UpcomingShootViewDetils` + fix 4 hardcoded endpoints | 🟢 | 6 | 3d |
+| [4.14](task_14_groupD_shoots.md) | Unit 12 — `ShootsScreen` + 3 supporting screens (debounce search) | 🟢 | 8 | 4d |
+| [4.15](task_15_groupD_home_decompose.md) | Unit 11.a — Decompose `HomeScreen` (2,860 LOC) | 🟢 | 6–10 | 2d |
+| [4.16](task_16_groupD_home_migrate.md) | Unit 11.b — Migrate `HomeScreen` (coordinate 7 fetchers via `Future.wait`) | 🟢 | 8 | 3d |
 
 ## Group E — Auth (14 days)
 

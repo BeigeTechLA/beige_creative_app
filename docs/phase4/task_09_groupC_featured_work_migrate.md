@@ -1,6 +1,6 @@
 # Task 4.09 — Group C · Unit 7.b · Migrate FeaturedWorkList + Resume + Certificates
 
-**Phase:** 4 · **Group:** C · **Status:** 🔴 Not Started · **Est:** 3d
+**Phase:** 4 · **Group:** C · **Status:** 🟢 Completed · **Est:** 3d · **Actual:** ~1.5h (cold session)
 
 | Field | Value |
 |---|---|
@@ -24,16 +24,16 @@ Migrate the post-split FeaturedWorkList (+ FeaturedWorkDetails 177 LOC), Resume 
 - `lib/features/profile/presentation/screens/certificates_screen.dart`
 
 ## Steps
-- [ ] Notifiers fetch + paginate + upload
-- [ ] Image upload uses `postMultipart` (still via `ApiService` shim for now)
-- [ ] `CancelToken` + `ref.onDispose` on each search/list provider
-- [ ] Widget tests for upload happy path
+- [x] Notifiers fetch + paginate + upload
+- [x] Image upload uses `postMultipart` (still via `ApiService` shim for now)
+- [ ] `CancelToken` + `ref.onDispose` on each search/list provider — deferred; profileFiles endpoints are single short POSTs, no search/pagination yet
+- [x] Widget tests for upload happy path
 
 ## Acceptance
-- [ ] All 4 screens migrated
-- [ ] Upload works (resume PDF, certificates, featured work media)
-- [ ] No `TextEditingController` leaks
-- [ ] `flutter analyze` clean
+- [x] All 4 screens migrated
+- [x] Upload works (resume PDF, certificates, featured work media) — verified via notifier tests
+- [x] No `TextEditingController` leaks — only FeaturedWorkList retains controller, disposed in `dispose()`
+- [x] `flutter analyze` clean — no new errors/warnings; deprecation infos parity with sibling screens
 
 ## Notes
 Image / file upload is shared with signup3 (Group E Unit 17). Keep the upload helper generic so it can be reused there.

@@ -14,6 +14,9 @@ class ApiEndpoints {
   static const String restartpassword = "auth/reset-password";
 
   static const String upcomingshoots = "creator/upcoming-accepted-project";
+  /// Project detail by id. Caller supplies the id. (Hardcoded in
+  /// upcoming_shoot_view_details.dart pre-migration.)
+  static String projectDetails(int id) => "creator/project-details/$id";
   static const String creatordashboarddetails = "creator/dashboard-details";
   static const String createavailability = "creator/availability";
   static const String shootstatus = "creator/get-crew-stats";
@@ -30,6 +33,13 @@ class ApiEndpoints {
   ///My profile
 
   static const String upload_photo = "creator/profile/upload-profile-photot";
+  /// Live profile-photo upload endpoint used by Myprofile. Backend exposes
+  /// both this URL and the typo'd [upload_photo] — preserve as-is until the
+  /// backend de-dupes. (Hardcoded in myprofile.dart pre-decompose.)
+  static const String upload_profile_photo =
+      "creator/profile/upload-profile-photo";
+  /// Caller appends `/$id`. (Hardcoded in myprofile.dart pre-decompose.)
+  static const String edit_portfolio_link = "creator/profile/edit-portfolio-link";
   static const String upload_Featured_Works =
       "creator/profile/files/recent_work";
   static const String upload_certifications =
@@ -37,6 +47,9 @@ class ApiEndpoints {
   static const String delete_allfiles = "creator/profile-file";
   static const String upload_resume = "creator/profile/files/resume";
   static const String upload_recent_work = "creator/profile/files/recent_work";
+
+  static String shootCategories(String tab) =>
+      "creator/shoot-categories?tab=$tab";
 
   static const String accountDeleted = 'auth/user/delete-account/request';
   static const String account_deleted_otp = 'auth/user/delete-account/confirm';
