@@ -22,7 +22,7 @@ class _FakeShootsRepo implements ShootsRepository {
   bool throwOnRespond = false;
 
   List<Shoot> shoots = const [];
-  count_model.Data counts = count_model.Data(
+  count_model.ShootCountData counts = count_model.ShootCountData(
     completedShoots: 0,
     pendingRequests: 0,
     confirmedRequests: 0,
@@ -37,7 +37,7 @@ class _FakeShootsRepo implements ShootsRepository {
   }
 
   @override
-  Future<count_model.Data> fetchShootCount() async {
+  Future<count_model.ShootCountData> fetchShootCount() async {
     fetchCountCount++;
     if (throwOnFetchCount) throw Exception('boom');
     return counts;
@@ -122,7 +122,7 @@ void main() {
     test('hydrates shoots + counts on build', () async {
       final repo = _FakeShootsRepo()
         ..shoots = [_shoot(id: 1, projectId: 100), _shoot(id: 2, projectId: 200)]
-        ..counts = count_model.Data(
+        ..counts = count_model.ShootCountData(
           completedShoots: 3,
           pendingRequests: 2,
           confirmedRequests: 4,

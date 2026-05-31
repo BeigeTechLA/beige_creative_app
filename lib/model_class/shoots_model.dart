@@ -6,7 +6,7 @@ ShootsModel shootsModelFromJson(String str) =>
 class ShootsModel {
   final bool error;
   final String message;
-  final Data data;
+  final ShootsData data;
 
   ShootsModel({
     required this.error,
@@ -18,18 +18,18 @@ class ShootsModel {
     return ShootsModel(
       error: json["error"] ?? false,
       message: json["message"] ?? "",
-      data: Data.fromJson(json["data"] ?? {}),
+      data: ShootsData.fromJson(json["data"] ?? {}),
     );
   }
 }
 
-class Data {
+class ShootsData {
   final List<Shoot> shoots;
 
-  Data({required this.shoots});
+  ShootsData({required this.shoots});
 
-  factory Data.fromJson(Map<String, dynamic> json) {
-    return Data(
+  factory ShootsData.fromJson(Map<String, dynamic> json) {
+    return ShootsData(
       shoots: json["shoots"] != null
           ? List<Shoot>.from(
           json["shoots"].map((x) => Shoot.fromJson(x)))

@@ -24,9 +24,9 @@ class _FakeRepo implements ProfileFilesRepository {
   bool throwOnFetch = false;
   bool throwOnUpload = false;
 
-  Data _data() {
-    final base = Data.fromJson(const {});
-    return Data(
+  MyProfileData _data() {
+    final base = MyProfileData.fromJson(const {});
+    return MyProfileData(
       stats: base.stats,
       equipmentOwnership: base.equipmentOwnership,
       bio: base.bio,
@@ -55,7 +55,7 @@ class _FakeRepo implements ProfileFilesRepository {
   }
 
   @override
-  Future<Data> fetchProfile() async {
+  Future<MyProfileData> fetchProfile() async {
     fetchCount++;
     if (throwOnFetch) throw Exception('fetch failed');
     return _data();

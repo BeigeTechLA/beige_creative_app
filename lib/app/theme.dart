@@ -104,24 +104,10 @@ class AppTheme {
         color: AppColors.dividerDark,
       ),
 
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      // PHASE E (remaining) — Deferred fields (enable individually with
-      // screenshot diff)
-      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      //
-      // useMaterial3: true,
-      // brightness: Brightness.dark,
-      // fontFamily: AppTextStyles.fontFamilyBody,
-      // inputDecorationTheme: ...,
-      // cardTheme: ...,
-      // bottomNavigationBarTheme: ...,
-      // dialogTheme: ...,
-      // bottomSheetTheme: ...,
-      // snackBarTheme: ...,
-      // chipTheme: ...,
-      // switchTheme: ...,
-      // checkboxTheme: ...,
-      // radioTheme: ...,
+      // Remaining ThemeData fields (useMaterial3, inputDecorationTheme,
+      // cardTheme, bottomSheetTheme, snackBarTheme, chipTheme, etc.) are
+      // intentionally not set here. They get enabled one-at-a-time alongside
+      // dual-mode work so each can be screenshot-diffed in isolation.
     );
   }
 

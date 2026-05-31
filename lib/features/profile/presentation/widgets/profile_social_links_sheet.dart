@@ -210,7 +210,10 @@ class _ProfileSocialLinksSheetState extends State<ProfileSocialLinksSheet> {
                           item['icon']!,
                           width: 20,
                           height: 20,
-                          color: AppColors.white,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white,
+                            BlendMode.srcIn,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(

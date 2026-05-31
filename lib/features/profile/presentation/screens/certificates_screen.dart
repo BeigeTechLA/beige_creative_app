@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,7 +10,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/myprofile_model.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../../../../shared/widgets/common_file_viewer.dart';
 import '../../../../shared/widgets/common_uploader.dart';
@@ -46,7 +47,10 @@ class CertificatesScreen extends ConsumerWidget {
                         child: SvgPicture.asset(
                           AppAssets.back,
                           height: 24,
-                          color: AppColors.white,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                     ],
@@ -220,7 +224,7 @@ class CertificatesScreen extends ConsumerWidget {
                   sheetCtx.pop();
                   CommonFileViewer.open(
                     context: context,
-                    filePath: '${ApiService.imageURL}${cert.filePath}',
+                    filePath: '${Env.imageUrl}${cert.filePath}',
                     isNetwork: true,
                   );
                 },
@@ -287,10 +291,10 @@ class _CertificateRow extends StatelessWidget {
             child: SizedBox(
               height: 55,
               width: 55,
-              child: Image.network(
-                '${ApiService.imageURL}${cert.filePath}',
+              child: CachedNetworkImage(
+                imageUrl: '${Env.imageUrl}${cert.filePath}',
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
+                errorWidget: (context, url, error) {
                   return Padding(
                     padding: const EdgeInsets.all(AppSpacing.sm),
                     child: SvgPicture.asset(

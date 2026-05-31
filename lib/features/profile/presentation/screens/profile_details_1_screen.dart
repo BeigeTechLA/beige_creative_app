@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,7 +11,7 @@ import '../../../../app/route_names.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/myprofile_model.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../providers/profile_details_providers.dart';
 
@@ -152,7 +153,7 @@ class _Tab extends StatelessWidget {
 }
 
 class _PersonalCard extends StatelessWidget {
-  final Data? profile;
+  final MyProfileData? profile;
   final VoidCallback onEdit;
 
   const _PersonalCard({required this.profile, required this.onEdit});
@@ -221,7 +222,7 @@ class _PersonalCard extends StatelessWidget {
 }
 
 class _ProfessionalCard extends StatelessWidget {
-  final Data? profile;
+  final MyProfileData? profile;
   final VoidCallback onEdit;
 
   const _ProfessionalCard({required this.profile, required this.onEdit});
@@ -369,18 +370,21 @@ class _Avatar extends StatelessWidget {
         ),
       ),
       child: ClipOval(
-        child: Image.network(
-          profileImageUrl.isNotEmpty
-              ? '${ApiService.imageURL}$profileImageUrl'
-              : '',
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) {
-            return SvgPicture.asset(
-              AppAssets.User_Circle,
-              fit: BoxFit.cover,
-            );
-          },
-        ),
+        child: profileImageUrl.isNotEmpty
+            ? CachedNetworkImage(
+                imageUrl: '${Env.imageUrl}$profileImageUrl',
+                fit: BoxFit.cover,
+                errorWidget: (_, _, _) {
+                  return SvgPicture.asset(
+                    AppAssets.User_Circle,
+                    fit: BoxFit.cover,
+                  );
+                },
+              )
+            : SvgPicture.asset(
+                AppAssets.User_Circle,
+                fit: BoxFit.cover,
+              ),
       ),
     );
   }

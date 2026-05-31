@@ -153,7 +153,10 @@ class _SocialRow extends StatelessWidget {
             item['icon']!,
             height: 20,
             width: 20,
-            color: AppColors.white,
+            colorFilter: const ColorFilter.mode(
+              AppColors.white,
+              BlendMode.srcIn,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -217,7 +220,10 @@ class _PortfolioRow extends StatelessWidget {
             item['icon']!,
             height: 20,
             width: 20,
-            color: AppColors.primary,
+            colorFilter: const ColorFilter.mode(
+              AppColors.primary,
+              BlendMode.srcIn,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(

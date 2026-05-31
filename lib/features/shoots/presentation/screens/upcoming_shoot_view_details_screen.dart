@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,7 +9,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -47,10 +48,11 @@ class UpcomingShootViewDetails extends ConsumerWidget {
                       width: double.infinity,
                       child: ClipRRect(
                         borderRadius: AppRadii.noneAll,
-                        child: Image.network(
-                          '${ApiService.imageURL}${mydata?.project.imageUrl ?? ''}',
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              '${Env.imageUrl}${mydata?.project.imageUrl ?? ''}',
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) {
+                          errorWidget: (_, _, _) {
                             return SvgPicture.asset(
                               AppAssets.image_holder,
                               fit: BoxFit.cover,

@@ -5,9 +5,6 @@ class GoogleConfig {
 
   static const double defaultZoom = 14.0;
 
-  static final RegExp plusCodeRegex =
-  RegExp(r'^[A-Z0-9]{4,}\+[A-Z0-9]{2,}$');
-
   static const String darkMapStyle = '''
   [
     {"elementType":"geometry","stylers":[{"color":"#212121"}]},

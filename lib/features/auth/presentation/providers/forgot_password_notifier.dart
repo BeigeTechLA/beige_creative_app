@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/validators.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'forgot_password_state.dart';
@@ -9,9 +10,6 @@ import 'forgot_password_state.dart';
 final forgotPasswordRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepositoryImpl(ref.read(dioClientProvider)),
 );
-
-final _emailRegex =
-    RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
 
 class ForgotPasswordNotifier extends AutoDisposeNotifier<ForgotPasswordState> {
   @override
@@ -23,7 +21,7 @@ class ForgotPasswordNotifier extends AutoDisposeNotifier<ForgotPasswordState> {
       state = state.copyWith(errorMessage: 'Please enter email');
       return false;
     }
-    if (!_emailRegex.hasMatch(trimmed)) {
+    if (!isValidEmail(trimmed)) {
       state = state.copyWith(
         errorMessage: 'Please enter a valid email address',
       );

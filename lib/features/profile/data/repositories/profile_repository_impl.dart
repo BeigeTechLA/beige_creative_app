@@ -1,17 +1,16 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../model_class/edit_profile_model.dart';
-import '../../../../service/api_service.dart';
 import '../../domain/repositories/profile_repository.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   final DioClient _client;
-  final ApiService _multipartShim;
 
-  ProfileRepositoryImpl(this._client, {ApiService? multipartShim})
-      : _multipartShim = multipartShim ?? ApiService();
+  ProfileRepositoryImpl(this._client);
 
   @override
   Future<EditProfileModel> fetchEditProfile() async {
@@ -77,20 +76,27 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<String> uploadPhoto(File file, {String? crewMemberId}) async {
     final fields = <String, String>{};
     if (crewMemberId != null) fields['crew_member_id'] = crewMemberId;
-    final response = await _multipartShim.postMultipart(
+    final formData = FormData.fromMap({
+      ...fields,
+      'profile_photo': await MultipartFile.fromFile(
+        file.path,
+        filename: file.path.split('/').last,
+      ),
+    });
+    final response = await _client.dio.post<dynamic>(
       ApiEndpoints.upload_profile_photo,
-      fields,
-      file,
+      data: formData,
     );
-    if (response is Map && response['error'] == false) {
-      final data = response['data'];
+    final body = response.data;
+    if (body is Map && body['error'] == false) {
+      final data = body['data'];
       if (data is Map) {
         return data['profile_image_url']?.toString() ?? '';
       }
       return '';
     }
     throw Exception(
-      (response is Map ? response['message'] : null) ?? 'Photo upload failed',
+      (body is Map ? body['message'] : null) ?? 'Photo upload failed',
     );
   }
 

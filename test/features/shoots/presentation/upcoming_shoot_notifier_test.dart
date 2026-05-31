@@ -74,7 +74,7 @@ class _FakeShootsRepo implements ShootsRepository {
   Future<List<Shoot>> fetchShoots() async => <Shoot>[];
 
   @override
-  Future<count_model.Data> fetchShootCount() async => count_model.Data(
+  Future<count_model.ShootCountData> fetchShootCount() async => count_model.ShootCountData(
         completedShoots: 0,
         pendingRequests: 0,
         confirmedRequests: 0,

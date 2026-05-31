@@ -13,7 +13,6 @@ import 'core/session/secure_session_store.dart';
 import 'core/session/session_migration.dart';
 import 'core/session/session_store.dart';
 import 'service/prefs_service.dart';
-import 'service/shared_service.dart';
 
 Future<void> startApp(Environment environment) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,8 +33,6 @@ Future<void> startApp(Environment environment) async {
     prefs: PrefsSessionStore(prefs),
   );
   await SessionMigration.runOnce(prefs: prefs, session: session);
-  // ignore: deprecated_member_use_from_same_package
-  SharedService.bind(session);
 
   final initialAuth = PrefsService.isLoggedIn;
   final initialOnboardingSeen =

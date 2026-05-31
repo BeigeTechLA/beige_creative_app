@@ -9,15 +9,15 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../providers/shoots_providers.dart';
 
-class CancelScreen extends ConsumerStatefulWidget {
+class ShootCancelledScreen extends ConsumerStatefulWidget {
   final int? projectId;
-  const CancelScreen({super.key, this.projectId});
+  const ShootCancelledScreen({super.key, this.projectId});
 
   @override
-  ConsumerState<CancelScreen> createState() => _CancelScreenState();
+  ConsumerState<ShootCancelledScreen> createState() => _ShootCancelledScreenState();
 }
 
-class _CancelScreenState extends ConsumerState<CancelScreen> {
+class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
   final TextEditingController _commentController = TextEditingController();
   bool _isOtherSelected = false;
 

@@ -1,6 +1,7 @@
 import 'dart:io';
 import '../../app/colors.dart';
 import 'package:beige_creative_app/app/assets.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:open_file/open_file.dart';
@@ -34,16 +35,16 @@ class CommonFileViewer {
             body: Center(
               child: InteractiveViewer(
                 child: isNetwork
-                    ? Image.network(
-                  filePath,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) {
-                    return SvgPicture.asset(
-                    AppAssets.image_holder,
-                      height: 150,
-                    );
-                  },
-                )
+                    ? CachedNetworkImage(
+                        imageUrl: filePath,
+                        fit: BoxFit.contain,
+                        errorWidget: (_, _, _) {
+                          return SvgPicture.asset(
+                            AppAssets.image_holder,
+                            height: 150,
+                          );
+                        },
+                      )
                     : Image.file(File(filePath)),
               ),
             ),
@@ -55,7 +56,7 @@ class CommonFileViewer {
 
       if (isNetwork) {
         try {
-          print("⬇️ Downloading file...");
+          debugPrint("⬇️ Downloading file...");
 
           final dir = await getTemporaryDirectory();
           final fileName = filePath.split('/').last;
@@ -63,12 +64,13 @@ class CommonFileViewer {
 
           await Dio().download(filePath, savePath);
 
-          print("✅ Downloaded: $savePath");
+          debugPrint("✅ Downloaded: $savePath");
 
           OpenFile.open(savePath);
         } catch (e) {
-          print("❌ Download error: $e");
+          debugPrint("❌ Download error: $e");
 
+          if (!context.mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Failed to open file"),

@@ -21,9 +21,9 @@ class _FakeFilesRepo implements ProfileFilesRepository {
   List<CrewFile> featured = const [];
   List<CrewFile> portfolio = const [];
 
-  Data _data() {
-    final base = Data.fromJson(const {});
-    return Data(
+  MyProfileData _data() {
+    final base = MyProfileData.fromJson(const {});
+    return MyProfileData(
       stats: base.stats,
       equipmentOwnership: base.equipmentOwnership,
       bio: 'sample bio',
@@ -55,7 +55,7 @@ class _FakeFilesRepo implements ProfileFilesRepository {
   }
 
   @override
-  Future<Data> fetchProfile() async {
+  Future<MyProfileData> fetchProfile() async {
     fetchCount++;
     return _data();
   }

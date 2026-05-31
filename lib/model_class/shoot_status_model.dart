@@ -1,24 +1,24 @@
 import 'dart:convert';
 
-class Shootstatusmodel {
+class ShootStatusModel {
   final bool error;
   final String message;
-  final shootstatusdata data;
+  final ShootStatusData data;
 
-  Shootstatusmodel({
+  ShootStatusModel({
     required this.error,
     required this.message,
     required this.data,
   });
 
-  factory Shootstatusmodel.fromRawJson(String str) => Shootstatusmodel.fromJson(json.decode(str));
+  factory ShootStatusModel.fromRawJson(String str) => ShootStatusModel.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory Shootstatusmodel.fromJson(Map<String, dynamic> json) => Shootstatusmodel(
+  factory ShootStatusModel.fromJson(Map<String, dynamic> json) => ShootStatusModel(
     error: json["error"],
     message: json["message"],
-    data: shootstatusdata.fromJson(json["data"]),
+    data: ShootStatusData.fromJson(json["data"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -28,7 +28,7 @@ class Shootstatusmodel {
   };
 }
 
-class shootstatusdata {
+class ShootStatusData {
   final int completedShoots;
   final int pendingShoots;
   final int rejectedShoots;
@@ -36,7 +36,7 @@ class shootstatusdata {
   final int photographyShoots;
   final int videographyShoots;
 
-  shootstatusdata({
+  ShootStatusData({
     required this.completedShoots,
     required this.pendingShoots,
     required this.rejectedShoots,
@@ -45,11 +45,11 @@ class shootstatusdata {
     required this.videographyShoots,
   });
 
-  factory shootstatusdata.fromRawJson(String str) => shootstatusdata.fromJson(json.decode(str));
+  factory ShootStatusData.fromRawJson(String str) => ShootStatusData.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory shootstatusdata.fromJson(Map<String, dynamic> json) => shootstatusdata(
+  factory ShootStatusData.fromJson(Map<String, dynamic> json) => ShootStatusData(
     completedShoots: json["completedShoots"],
     pendingShoots: json["pendingShoots"],
     rejectedShoots: json["rejectedShoots"],

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +10,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 
 /// Header strip + circular avatar with edit pencil.
 /// Pure presentation; parent owns `_profileImage` + `profileImageUrl` + tap
@@ -93,8 +94,9 @@ class ProfileHeader extends StatelessWidget {
                               fit: BoxFit.cover,
                             )
                           : profileImageUrl.isNotEmpty
-                              ? Image.network(
-                                  '${ApiService.imageURL}$profileImageUrl',
+                              ? CachedNetworkImage(
+                                  imageUrl:
+                                      '${Env.imageUrl}$profileImageUrl',
                                   width: 96,
                                   height: 96,
                                   fit: BoxFit.cover,

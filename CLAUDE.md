@@ -9,8 +9,8 @@ tools.
 Before planning or editing, read these in order:
 
 1. `docs/AI_HANDOFF.md` — current shared context for Claude Code + Codex.
-2. `docs/phase4/README.md` — active sprint board.
-3. The current task file under `docs/phase4/`.
+2. `docs/phase5/README.md` — active sprint board.
+3. The current task file under `docs/phase5/`.
 4. The latest relevant entries in `MIGRATION_LOG.md`.
 5. The files you are about to edit.
 
@@ -28,7 +28,7 @@ Current migration state:
 - Phase 2 complete.
 - Phase 3 complete.
 - Phase 4 complete; `23 / 23` tasks done.
-- Phase 5 not started — first task `5.01` (`ApiService` retirement + `service/` cleanup).
+- Phase 5 complete; `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31 (shim deletion, dep prune of `http` + `flutter_stripe` + `image_cropper` + `photo_view`, `CachedNetworkImage` migration, comment hygiene, `--fatal-infos` lint promotion, standardization, naming polish, router split). Next: Phase 6 (testing).
 
 Riverpod is wired. Do not follow older notes that say ProviderScope/Riverpod is
 unused. `startApp` mounts `ProviderScope`, overrides shared dependencies, and
@@ -57,9 +57,8 @@ flutter build ios       --flavor prod --dart-define-from-file=env/prod.json -t l
 - Router: `routerProvider` in `lib/app/router.dart`.
 - Routing: use named GoRouter routes via `context.goNamed` / `context.pushNamed`.
 - Route arguments: use `state.extra` as `Map<String, dynamic>` unless a task explicitly changes this.
-- Network: new feature work goes through repositories and `dioClientProvider`.
-- `ApiService` is a legacy Dio-backed facade kept until Phase 5. Do not add new screen-level `ApiService()` calls.
-- Session: use `SessionStore` via `sessionStoreProvider`; `SharedService` is a deprecated shim.
+- Network: all feature work goes through repositories and `dioClientProvider`. Image URLs use `Env.imageUrl`. Multipart uploads use `_client.dio.post(url, data: FormData...)`.
+- Session: use `SessionStore` via `sessionStoreProvider`. Legacy `ApiService` + `SharedService` shims deleted in 5.01 — do not reintroduce.
 - Design tokens: use `AppColors`, `AppTextStyles`, `AppSpacing`, `AppRadii`, `AppShadows`, `AppDurations`, `AppAssets`.
 - Feature code lives under `lib/features/<feature>/{data,domain,presentation}`.
 - Shared reusable UI lives under `lib/shared/widgets/`; legacy `lib/widgets/` is cleaned up in Phase 4.23.

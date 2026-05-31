@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -6,7 +7,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 
 /// Top welcome banner — drawer menu icon, "Welcome Back, [name]", bell, avatar.
 /// Pure presentation. Orchestrator owns the profile + tap callback.
@@ -85,8 +86,8 @@ class HomeWelcomeHeader extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 20,
                       backgroundImage: profileImageUrl.isNotEmpty
-                          ? NetworkImage(
-                              "${ApiService.imageURL}$profileImageUrl",
+                          ? CachedNetworkImageProvider(
+                              "${Env.imageUrl}$profileImageUrl",
                             )
                           : null,
                       child: profileImageUrl.isEmpty

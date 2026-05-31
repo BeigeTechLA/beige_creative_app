@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/validators.dart';
 import '../../../../service/prefs_service.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -11,9 +12,6 @@ import 'login_state.dart';
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepositoryImpl(ref.read(dioClientProvider)),
 );
-
-final _emailRegex =
-    RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
 
 class LoginNotifier extends AutoDisposeNotifier<LoginState> {
   @override
@@ -56,7 +54,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       state = state.copyWith(errorMessage: 'Please enter your email address');
       return;
     }
-    if (!_emailRegex.hasMatch(trimmedEmail)) {
+    if (!isValidEmail(trimmedEmail)) {
       state = state.copyWith(errorMessage: 'Please enter a valid email address');
       return;
     }

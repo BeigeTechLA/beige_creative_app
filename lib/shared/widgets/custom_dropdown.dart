@@ -32,15 +32,19 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
     bool highlight = widget.value != null;
 
     return DropdownButtonFormField<T>(
-      value: widget.value,
+      key: ValueKey(widget.value),
+      initialValue: widget.value,
       dropdownColor: AppColors.surfaceCropSheet,
       icon: Padding(
         padding: const EdgeInsets.only(right: AppSpacing.dropdownIconInset),
         child:
             widget.icon ??
             SvgPicture.asset(
-              AppAssets.dropdown, //  your svg path
-              color: AppColors.white,
+              AppAssets.dropdown,
+              colorFilter: const ColorFilter.mode(
+                AppColors.white,
+                BlendMode.srcIn,
+              ),
               width: 24,
               height: 24,
             ),

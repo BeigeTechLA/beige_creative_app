@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,7 +10,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 
@@ -224,8 +225,8 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
               children: [
                 ClipRRect(
                   borderRadius: AppRadii.lgAll,
-                  child: Image.network(
-                    '${ApiService.imageURL}${image.filePath}',
+                  child: CachedNetworkImage(
+                    imageUrl: '${Env.imageUrl}${image.filePath}',
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,

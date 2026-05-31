@@ -53,9 +53,10 @@ class _AddAvailabilityScreenState
       initialEntryMode: DatePickerEntryMode.calendarOnly,
       helpText: '',
       builder: (ctx, child) => Theme(
-        data: ThemeData.dark().copyWith(
-          useMaterial3: true,
-          dialogBackgroundColor: AppColors.surfaceGradientDark,
+        data: ThemeData.dark(useMaterial3: true).copyWith(
+          dialogTheme: const DialogThemeData(
+            backgroundColor: AppColors.surfaceGradientDark,
+          ),
           colorScheme: const ColorScheme.dark(
             primary: AppColors.goldSand,
             onPrimary: AppColors.black,
@@ -91,7 +92,9 @@ class _AddAvailabilityScreenState
       initialTime: TimeOfDay.now(),
       builder: (ctx, child) => Theme(
         data: ThemeData.dark().copyWith(
-          dialogBackgroundColor: AppColors.surfaceGradientDark,
+          dialogTheme: const DialogThemeData(
+            backgroundColor: AppColors.surfaceGradientDark,
+          ),
           colorScheme: const ColorScheme.dark(
             primary: AppColors.goldSand,
             onPrimary: AppColors.white,

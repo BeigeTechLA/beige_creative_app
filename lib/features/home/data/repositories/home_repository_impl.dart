@@ -13,7 +13,7 @@ class HomeRepositoryImpl implements HomeRepository {
   const HomeRepositoryImpl(this._client);
 
   @override
-  Future<dashboard.Data> fetchDashboardCount() async {
+  Future<dashboard.DashboardCountData> fetchDashboardCount() async {
     final response =
         await _client.dio.get<dynamic>(ApiEndpoints.dashboardcount);
     final data = response.data;
@@ -23,11 +23,11 @@ class HomeRepositoryImpl implements HomeRepository {
     if (data['error'] == true) {
       throw Exception(data['message'] ?? 'Failed to load dashboard count');
     }
-    return dashboard.Dashboardcountmodel.fromJson(data).data;
+    return dashboard.DashboardCountModel.fromJson(data).data;
   }
 
   @override
-  Future<List<upcomingdatum>> fetchUpcomingShoots() async {
+  Future<List<UpcomingShootDatum>> fetchUpcomingShoots() async {
     final response =
         await _client.dio.get<dynamic>(ApiEndpoints.upcomingshoots);
     final data = response.data;
@@ -37,7 +37,7 @@ class HomeRepositoryImpl implements HomeRepository {
     if (data['error'] == true) {
       throw Exception(data['message'] ?? 'Failed to load upcoming shoots');
     }
-    return Upcomingshootsmodel.fromJson(data).data;
+    return UpcomingShootsModel.fromJson(data).data;
   }
 
   @override
@@ -51,7 +51,7 @@ class HomeRepositoryImpl implements HomeRepository {
     if (data['error'] == true) {
       throw Exception(data['message'] ?? 'Failed to load dashboard details');
     }
-    final model = Creatordashboarddetailsmodel.fromJson(data);
+    final model = CreatorDashboardDetailsModel.fromJson(data);
     return model.data.shoots
         .where(
           (e) => e.status.toString().trim().toLowerCase().contains('pending'),
@@ -109,7 +109,7 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  Future<profile.Data> fetchProfile() async {
+  Future<profile.MyProfileData> fetchProfile() async {
     final response = await _client.dio.post<dynamic>(
       ApiEndpoints.profiledetails,
       data: {},
@@ -118,7 +118,7 @@ class HomeRepositoryImpl implements HomeRepository {
     if (data is! Map<String, dynamic>) {
       throw Exception('Profile returned unexpected payload');
     }
-    final model = profile.Myprofilemodel.fromJson(data);
+    final model = profile.MyProfileModel.fromJson(data);
     if (model.error == true) {
       throw Exception(model.message);
     }

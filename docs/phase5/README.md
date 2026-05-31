@@ -1,6 +1,6 @@
 # Phase 5 — Cleanup
 
-**Overall status:** 🔴 Not Started · 0 / 8 tasks done · **Est:** 7 effort-days
+**Overall status:** 🟢 Completed · 8 / 8 tasks done · **Est:** 7 effort-days
 
 | Field | Value |
 |---|---|
@@ -16,14 +16,14 @@
 
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
-| [5.01](task_01_delete_shims.md) | Delete `api_service.dart`, `shared_service.dart`, design re-exports | 🔴 | 5–10 | 0.5d |
-| [5.02](task_02_dep_prune.md) | Drop `http`, `flutter_stripe` (if unused), `image_cropper`, `photo_view` | 🔴 | 2 | 0.5d |
-| [5.03](task_03_cached_network_image.md) | Migrate 12 `Image.network` sites to `CachedNetworkImage` | 🔴 | ~10 | 1d |
-| [5.04](task_04_comment_hygiene.md) | Remove 60+ block comments + 104 dead lines + resolved TODO markers | 🔴 | many | 1d |
-| [5.05](task_05_lint_fatal_infos.md) | Promote `--fatal-infos` in CI + fix punch list | 🔴 | many | 1d |
-| [5.06](task_06_standardization.md) | Standardize date/time helpers, analytics names, asset literals | 🔴 | ~10 | 1d |
-| [5.07](task_07_naming_polish.md) | Rename 5 colliding `Data` classes; audit `_screen.dart` suffix | 🔴 | ~10 | 0.5d |
-| [5.08](task_08_router_final.md) | Router split if >400 LOC + typed params + optional deep links | 🔴 | 5–8 | 1.5d |
+| [5.01](task_01_delete_shims.md) | Delete `api_service.dart`, `shared_service.dart`, design re-exports | 🟢 | 16 | 0.5d |
+| [5.02](task_02_dep_prune.md) | Drop `http`, `flutter_stripe` (if unused), `image_cropper`, `photo_view` | 🟢 | 1 | 0.5d |
+| [5.03](task_03_cached_network_image.md) | Migrate 12 `Image.network` sites to `CachedNetworkImage` | 🟢 | 13 | 1d |
+| [5.04](task_04_comment_hygiene.md) | Remove 60+ block comments + 104 dead lines + resolved TODO markers | 🟢 | 6 | 1d |
+| [5.05](task_05_lint_fatal_infos.md) | Promote `--fatal-infos` in CI + fix punch list | 🟢 | 9 | 1d |
+| [5.06](task_06_standardization.md) | Standardize date/time helpers, analytics names, asset literals | 🟢 | 7 | 1d |
+| [5.07](task_07_naming_polish.md) | Rename 5 colliding `Data` classes; audit `_screen.dart` suffix | 🟢 | 29 | 0.5d |
+| [5.08](task_08_router_final.md) | Router split if >400 LOC + typed params + optional deep links | 🟢 | 6 | 1.5d |
 
 ---
 

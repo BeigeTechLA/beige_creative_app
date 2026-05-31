@@ -25,7 +25,8 @@ class CustomDropdownField extends StatelessWidget {
     final bool isSelected = value != null && value!.isNotEmpty;
 
     return DropdownButtonFormField<String>(
-      value: value,
+      key: ValueKey(value),
+      initialValue: value,
       isExpanded: true,
       dropdownColor: AppColors.surfaceStats,
 

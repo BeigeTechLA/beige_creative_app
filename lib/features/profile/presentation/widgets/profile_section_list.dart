@@ -156,7 +156,10 @@ class _MenuRow extends StatelessWidget {
                   iconPath,
                   width: 22,
                   height: 22,
-                  color: AppColors.white,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.white,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ),

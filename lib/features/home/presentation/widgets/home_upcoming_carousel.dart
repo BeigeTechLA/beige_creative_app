@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +10,7 @@ import '../../../../app/route_names.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/upcoming_shoots_model.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
 
 /// "Upcoming Shoots" stacked-card carousel. Renders 1 card when there is a
@@ -24,7 +25,7 @@ import '../../../../utility/date_time_utils.dart';
 /// alternate Stack layout). It was unreachable code; not carried over —
 /// Task 4.16 will formally close that out.
 class HomeUpcomingCarousel extends StatelessWidget {
-  final List<upcomingdatum> upcomingShoots;
+  final List<UpcomingShootDatum> upcomingShoots;
   final int currentIndex;
   final AnimationController controller;
   final VoidCallback onCardTap;
@@ -41,8 +42,8 @@ class HomeUpcomingCarousel extends StatelessWidget {
     required this.onSwipePrevious,
   });
 
-  // Helper to convert upcomingdatum to a map for card display.
-  static Map<String, dynamic> _cardFromDatum(upcomingdatum datum) {
+  // Helper to convert UpcomingShootDatum to a map for card display.
+  static Map<String, dynamic> _cardFromDatum(UpcomingShootDatum datum) {
     return {
       'image': datum.shootTypeImageUrl,
       'projectId': datum.projectId,
@@ -200,14 +201,12 @@ class HomeUpcomingCarousel extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: AppRadii.xlAll,
-            child: Image.network(
-              ApiService().getImageURL(data['image'] ?? ""),
+            child: CachedNetworkImage(
+              imageUrl: Env.imageUrl + ((data['image'] ?? '') as String),
               height: 169,
               width: 117,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                // ignore: avoid_print
-                print("IMAGE ERROR: ${data['image']}");
+              errorWidget: (context, url, error) {
                 return SvgPicture.asset(
                   AppAssets.image_holder,
                   height: 169,

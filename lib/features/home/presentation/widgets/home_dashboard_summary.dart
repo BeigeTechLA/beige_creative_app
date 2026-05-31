@@ -118,7 +118,6 @@ class _DashboardCard extends StatelessWidget {
     final bool isSelected = selectedIndex == index;
     return GestureDetector(
       onTap: () => onSelect(index),
-      //  borderRadius: AppRadii.xxlAll,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: double.infinity,
@@ -153,13 +152,6 @@ class _DashboardCard extends StatelessWidget {
                   ),
                 ),
                 AppSpacing.verticalXxs,
-                /*     Text(
-                  percent,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isSelected ? AppColors.success : percentColor,
-                  ),
-                ),*/
               ],
             ),
             CircleAvatar(
@@ -176,12 +168,6 @@ class _DashboardCard extends StatelessWidget {
                   BlendMode.srcIn,
                 ),
               ),
-              // child: SvgPicture.asset(
-              //   iconPath,
-              //   width: 16,
-              //   height: 16,
-              //   color: isSelected ? AppColors.white : AppColors.white70,
-              // ),
             ),
           ],
         ),

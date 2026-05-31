@@ -23,7 +23,7 @@ final profileRepositoryProvider = Provider<ProfileRepository>(
 
 @immutable
 class ProfileDetailsViewState {
-  final Data? profile;
+  final MyProfileData? profile;
   final bool isLoading;
   final String? errorMessage;
   final int selectedTab;
@@ -36,7 +36,7 @@ class ProfileDetailsViewState {
   });
 
   ProfileDetailsViewState copyWith({
-    Data? profile,
+    MyProfileData? profile,
     bool? isLoading,
     String? errorMessage,
     int? selectedTab,

@@ -65,7 +65,7 @@ class SignUp3SavedLinkRow extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: AppRadii.xxlAll,
         border: Border.all(
-          color: const Color(0xffE8D1AB80).withValues(alpha: 0.5),
+          color: const Color(0xE8D1AB80).withValues(alpha: 0.5),
           width: 0.5,
         ),
         color: backgroundColor,

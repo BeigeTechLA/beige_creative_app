@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,55 +5,19 @@ import 'package:go_router/go_router.dart';
 import '../core/firebase/app_analytics_observer.dart';
 import '../core/providers/auth_state_provider.dart';
 import '../core/providers/onboarding_seen_provider.dart';
-import '../features/availability/presentation/screens/add_availability_screen.dart';
+import '../features/availability/presentation/routes/availability_routes.dart';
 import '../features/availability/presentation/screens/manage_availability_screen.dart';
+import '../features/auth/presentation/routes/auth_routes.dart';
+import '../features/file_manager/presentation/routes/file_manager_routes.dart';
 import '../features/file_manager/presentation/screens/file_manager_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/messages/presentation/screens/messages_screen.dart';
-import '../features/shoots/presentation/screens/shoots_screen.dart';
-import '../shared/layouts/app_shell.dart';
-import '../features/profile/presentation/screens/edit_personal_details_screen.dart';
-import '../features/profile/presentation/screens/enter_profile_details_screen.dart';
-import '../features/profile/presentation/screens/profile_details_1_screen.dart';
-import '../features/profile/presentation/screens/app_preferences_screen.dart';
-import '../features/profile/presentation/screens/certificates_screen.dart';
-import '../features/profile/presentation/screens/change_password_screen.dart';
-import '../features/profile/presentation/screens/delete_account_screen.dart';
-import '../features/profile/presentation/screens/delete_account_lottie_screen.dart';
-import '../features/profile/presentation/screens/delete_account_otp_screen.dart';
-import '../features/profile/presentation/screens/featured_work_list_screen.dart';
-import '../features/profile/presentation/screens/featuredwork_details_screen.dart';
-import '../features/profile/presentation/screens/my_profile_screen.dart';
-import '../features/profile/presentation/screens/profile_youre_all_set_screen.dart';
-import '../features/profile/presentation/screens/profile_new_password_screen.dart';
-import '../features/profile/presentation/screens/profile_otp_screen.dart';
-import '../features/profile/presentation/screens/resume_screen.dart';
-import '../features/shoots/presentation/screens/shoot_cancelled_lotties_screen.dart';
-import '../features/shoots/presentation/screens/shoot_cancelled_screen.dart';
-import '../features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart';
-
-/// AUTH
-import '../features/auth/presentation/screens/login_screen.dart';
-import '../features/auth/presentation/screens/signup1_screen.dart';
-import '../features/auth/presentation/screens/signup2_screen.dart';
-import '../features/auth/presentation/screens/signup3_screen.dart';
-
-import '../features/file_manager/presentation/screens/post_production_screen.dart';
-import '../features/file_manager/presentation/screens/pre_production_screen.dart';
-
-/// SPLASH + ONBOARDING
-import '../features/splash/presentation/screens/splash_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
-
-/// FORGOT PASSWORD
-import '../features/auth/presentation/screens/forgot_password_screen.dart';
-import '../features/auth/presentation/screens/forgot_password_otp_screen.dart';
-import '../features/auth/presentation/screens/reset_password_screen.dart';
-
-/// PROFILE
-import '../features/auth/presentation/screens/view_details_screen.dart';
-
-/// ROUTES
+import '../features/profile/presentation/routes/profile_routes.dart';
+import '../features/shoots/presentation/routes/shoots_routes.dart';
+import '../features/shoots/presentation/screens/shoots_screen.dart';
+import '../features/splash/presentation/screens/splash_screen.dart';
+import '../shared/layouts/app_shell.dart';
 import 'route_names.dart';
 
 /// Public routes — reachable while unauthenticated.
@@ -129,110 +91,21 @@ class _AuthRefreshNotifier extends ChangeNotifier {
   }
 }
 
+/// Composed route tree. Entry-point routes (splash, onboarding) + the
+/// 5-tab `StatefulShellRoute` stay inline because they describe the app's
+/// global lifecycle. Everything else lives in per-feature `*_routes.dart`
+/// fragment files and is spread in below.
 final List<RouteBase> _routes = [
-  /// ───────────────── SPLASH ─────────────────
   GoRoute(
     path: '/splash',
     name: RouteNames.splash,
     builder: (context, state) => const SplashScreen(),
   ),
-
-  /// ───────────────── ONBOARDING ─────────────────
   GoRoute(
     path: '/onboarding',
     name: RouteNames.onboarding,
     builder: (context, state) => const OnboardingScreen(),
   ),
-
-  /// ───────────────── LOGIN ─────────────────
-  GoRoute(
-    path: '/login',
-    name: RouteNames.login,
-    builder: (context, state) => const LoginScreen(),
-  ),
-
-  /// ───────────────── SIGNUP STEP 1 ─────────────────
-  GoRoute(
-    path: '/signup-step-1',
-    name: RouteNames.signupStep1,
-    builder: (context, state) => const SignUp1Screen(),
-  ),
-
-  /// ───────────────── SIGNUP STEP 2 ─────────────────
-  GoRoute(
-    path: '/signup-step-2',
-    name: RouteNames.signupStep2,
-    builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
-      return SignUp2Screen(
-        crewMemberId: data['crewMemberId'],
-        profileImage: data['profileImage'],
-        email: data['email'],
-        firstName: data['firstName'],
-        lastName: data['lastName'],
-        location: data['location'],
-        workingDistance: data['workingDistance'],
-        step1Progress: data['step1Progress'] ?? 0,
-      );
-    },
-  ),
-
-  /// ───────────────── SIGNUP STEP 3 ─────────────────
-  GoRoute(
-    path: '/signup-step-3',
-    name: RouteNames.signupStep3,
-    builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
-      return SignUp3Screen(
-        crewMemberId: data['crewMemberId'],
-        profileImage: data['profileImage'],
-        email: data['email'],
-        firstName: data['firstName'],
-        lastName: data['lastName'],
-        location: data['location'],
-        workingDistance: data['workingDistance'],
-        primaryRole: data['primaryRole'] ?? "",
-        experience: data['experience'] ?? "",
-        hourlyRate: data['hourlyRate'] ?? "",
-        bio: data['bio'] ?? "",
-        skills: data['skills'] ?? "",
-        equipments: data['equipments'] ?? "",
-        step2Progress: data['step2Progress'] ?? 0,
-      );
-    },
-  ),
-
-  /// ───────────────── FORGOT PASSWORD ─────────────────
-  GoRoute(
-    path: '/forgot-password',
-    name: RouteNames.forgotPassword,
-    builder: (context, state) => const ForgotPasswordScreen(),
-  ),
-
-  /// ───────────────── OTP ─────────────────
-  GoRoute(
-    path: '/forgot-otp',
-    name: RouteNames.forgotOtp,
-    builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
-      return ForgotPasswordOtpScreen(email: data['email'] ?? '');
-    },
-  ),
-
-  /// ───────────────── RESET PASSWORD ─────────────────
-  GoRoute(
-    path: '/reset-password',
-    name: RouteNames.resetPassword,
-    builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
-      return ResetPasswordScreen(
-        email: data['email'] ?? '',
-        otp: data['otp'] ?? '',
-      );
-    },
-  ),
-
-  /// ───────────────── SHELL (5 root tabs) ─────────────────
   StatefulShellRoute.indexedStack(
     builder: (context, state, navigationShell) =>
         AppShell(shell: navigationShell),
@@ -284,182 +157,9 @@ final List<RouteBase> _routes = [
       ),
     ],
   ),
-
-  GoRoute(
-    path: '/upcoming-shoot-details',
-    name: RouteNames.upcomingShootDetails,
-    builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>;
-      return UpcomingShootViewDetails(projectid: data["projectId"]);
-    },
-  ),
-
-  GoRoute(
-    path: '/cancel-shoot',
-    name: RouteNames.cancelShoot,
-    builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>;
-      return CancelScreen(projectId: data["projectId"]);
-    },
-  ),
-
-  GoRoute(
-    path: '/add-availability',
-    name: RouteNames.addAvailability,
-    builder: (context, state) => AddAvailabilityScreen(),
-  ),
-
-  GoRoute(
-    path: '/delete-account',
-    name: RouteNames.deleteAccount,
-    builder: (context, state) => const DeleteAccountScreen(),
-  ),
-
-  GoRoute(
-    path: '/delete-account-otp',
-    name: RouteNames.deleteAccountOtp,
-    builder: (context, state) => const DeleteAccountOtpScreen(),
-  ),
-  GoRoute(
-    path: '/delete-account-success',
-    name: RouteNames.deleteAccountSuccess,
-    builder: (context, state) => const DeleteAccountLottieScreen(),
-  ),
-
-  /// ───────────────── MY PROFILE ─────────────────
-  GoRoute(
-    path: '/view-details',
-    name: RouteNames.viewDetails,
-    builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
-      return ViewDetailsScreen(
-        firstName: data['firstName'] ?? "",
-        lastName: data['lastName'] ?? "",
-        email: data['email'] ?? "",
-        location: data['location'] ?? "",
-        profileImage: data['profileImage'],
-        workingDistance: data['workingDistance'] ?? "",
-        primaryRole: data['primaryRole'] ?? "",
-        experience: data['experience'] ?? "",
-        hourlyRate: data['hourlyRate'] ?? "",
-        bio: data['bio'] ?? "",
-        skills: data['skills'] ?? "",
-        equipments: data['equipments'] ?? "",
-        featuredImages: (data['featuredImages'] as List?)
-                ?.map((e) => e as File)
-                .toList() ??
-            <File>[],
-      );
-    },
-  ),
-
-  GoRoute(
-    path: '/my-profile',
-    name: RouteNames.myProfile,
-    builder: (context, state) => const Myprofile(),
-  ),
-  GoRoute(
-    path: '/shoot-cancelotties',
-    name: RouteNames.shootCancelotties,
-    builder: (context, state) => const ShootCancelledLottiesScreen(),
-  ),
-
-  GoRoute(
-    path: '/edit-personal-details',
-    name: RouteNames.editPersonalDetails,
-    builder: (context, state) => const EditPersonalDetailsScreen(),
-  ),
-
-  GoRoute(
-    path: '/enter-professional-details',
-    name: RouteNames.enterProfessionalDetails,
-    builder: (context, state) => const EnterProfileDetailsScreen(),
-  ),
-
-  GoRoute(
-    path: "/profile-details",
-    name: RouteNames.profileDetails,
-    builder: (context, state) => const ProfileDetails1Screen(),
-  ),
-
-  GoRoute(
-    path: "/featured-works",
-    name: RouteNames.featuredWorks,
-    builder: (context, state) => const FeaturedWorkList(),
-  ),
-
-  GoRoute(
-    path: '/featured-work-details',
-    name: RouteNames.featuredWorkDetails,
-    builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>;
-      return FeaturedWorkDetailsScreen(
-        title: data["title"],
-        images: data["images"],
-      );
-    },
-  ),
-
-  GoRoute(
-    path: "/certificates",
-    name: RouteNames.certificates,
-    builder: (context, state) => const CertificatesScreen(),
-  ),
-
-  GoRoute(
-    path: "/resume",
-    name: RouteNames.resume,
-    builder: (context, state) => const ResumeScreen(),
-  ),
-
-  GoRoute(
-    path: "/app-preferences",
-    name: RouteNames.appPreferences,
-    builder: (context, state) => const AppPreferencesScreen(),
-  ),
-  GoRoute(
-    path: "/profile-password-success",
-    name: RouteNames.profilePasswordSuccess,
-    builder: (context, state) => const ProfileYoureAllSetScreen(),
-  ),
-
-  GoRoute(
-    path: '/post-production',
-    name: RouteNames.postProduction,
-    builder: (context, state) => const PostProductionScreen(),
-  ),
-  GoRoute(
-    path: '/pre-production',
-    name: RouteNames.preProduction,
-    builder: (context, state) => const PreProductionScreen(),
-  ),
-  GoRoute(
-    name: RouteNames.changePassword,
-    path: '/change-password',
-    builder: (context, state) {
-      final email = state.extra as String;
-      return ChangePasswordScreen(email: email);
-    },
-  ),
-
-  GoRoute(
-    name: RouteNames.profileOtp,
-    path: '/profile-otp',
-    builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
-      return ProfileOtpScreen(email: data['email'] ?? '');
-    },
-  ),
-
-  GoRoute(
-    path: '/new-password',
-    name: RouteNames.newPassword,
-    builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
-      return ProfileNewPasswordScreen(
-        email: data['email'] ?? '',
-        otp: data['otp'] ?? '',
-      );
-    },
-  ),
+  ...authRoutes,
+  ...profileRoutes,
+  ...shootsRoutes,
+  ...availabilityRoutes,
+  ...fileManagerRoutes,
 ];

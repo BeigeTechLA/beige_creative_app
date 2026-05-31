@@ -457,7 +457,8 @@ class AppColors {
   /// 0xFF2DC497 — Arc chart green
   static const Color arcGreen = Color(0xFF2DC497);
 
-  /// 0xFFE8D1AB80 — Textfield border (legacy 40-bit value, masks to 0xE8D1AB80)
-  static const Color textfieldBorderLegacy = Color(0xFFE8D1AB80);
+  /// 0xE8D1AB80 — Textfield border (legacy value, was 0xFFE8D1AB80 before
+  /// strict 8-digit-hex lint promotion in Phase 5.05; high byte truncated.
+  static const Color textfieldBorderLegacy = Color(0xE8D1AB80);
 }
 

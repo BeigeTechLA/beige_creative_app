@@ -1,21 +1,21 @@
 import 'dart:convert';
 
-class Upcomingshootviewmodel {
+class UpcomingShootViewModel {
   final bool error;
   final String message;
   final MyData data;
 
-  Upcomingshootviewmodel({
+  UpcomingShootViewModel({
     required this.error,
     required this.message,
     required this.data,
   });
 
-  factory Upcomingshootviewmodel.fromRawJson(String str) => Upcomingshootviewmodel.fromJson(json.decode(str));
+  factory UpcomingShootViewModel.fromRawJson(String str) => UpcomingShootViewModel.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory Upcomingshootviewmodel.fromJson(Map<String, dynamic> json) => Upcomingshootviewmodel(
+  factory UpcomingShootViewModel.fromJson(Map<String, dynamic> json) => UpcomingShootViewModel(
     error: json["error"],
     message: json["message"],
     data: MyData.fromJson(json["data"]),

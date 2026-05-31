@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -8,7 +9,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/myprofile_model.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/profile_files_providers.dart';
@@ -65,10 +66,11 @@ class _FeaturedWorkDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
         Navigator.pop(context, hasChanges);
-        return false;
       },
       child: Scaffold(
         appBar: AppBar(
@@ -80,7 +82,10 @@ class _FeaturedWorkDetailsScreenState
               AppAssets.back,
               height: 18,
               width: 18,
-              color: AppColors.white,
+              colorFilter: const ColorFilter.mode(
+                AppColors.white,
+                BlendMode.srcIn,
+              ),
             ),
           ),
           title: Text(
@@ -108,8 +113,8 @@ class _FeaturedWorkDetailsScreenState
                     children: [
                       ClipRRect(
                         borderRadius: AppRadii.hugeAll,
-                        child: Image.network(
-                          '${ApiService.imageURL}${imageData.filePath}',
+                        child: CachedNetworkImage(
+                          imageUrl: '${Env.imageUrl}${imageData.filePath}',
                           width: double.infinity,
                           height: double.infinity,
                           fit: BoxFit.cover,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +10,7 @@ import '../../../../app/route_names.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/create_dashboard_details_model.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
 
 /// Pending shoot showcase card (image, project name, view-details link,
@@ -64,12 +65,12 @@ class HomePendingShootCard extends StatelessWidget {
                   ClipRRect(
                     borderRadius: AppRadii.topPortfolioCompact,
                     child: data.shootTypeImageUrl.isNotEmpty
-                        ? Image.network(
-                            ApiService().getImageURL(data.shootTypeImageUrl),
+                        ? CachedNetworkImage(
+                            imageUrl: Env.imageUrl + data.shootTypeImageUrl,
                             height: 220,
                             width: double.infinity,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
+                            errorWidget: (context, url, error) {
                               return Center(
                                 child: SvgPicture.asset(
                                   AppAssets.image_holder,

@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/validators.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../widgets/signup3_constants.dart';
@@ -13,9 +14,6 @@ import 'signup_state.dart';
 final signupRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepositoryImpl(ref.read(dioClientProvider)),
 );
-
-final _emailRegex =
-    RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
 
 /// Shared across SignUp1 + SignUp2 (and forward into SignUp3). Plain
 /// `NotifierProvider` (not auto-dispose) so accumulated state survives
@@ -96,7 +94,7 @@ class SignupNotifier extends Notifier<SignupState> {
       );
       return false;
     }
-    if (!_emailRegex.hasMatch(email.trim())) {
+    if (!isValidEmail(email)) {
       state = state.copyWith(
         errorMessage: 'Please enter a valid email address',
       );

@@ -115,7 +115,10 @@ class _CustomMultiSelectFieldState extends State<CustomMultiSelectField> {
 
               child: SvgPicture.asset(
                 AppAssets.dropdown,
-                color: AppColors.white,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.white,
+                  BlendMode.srcIn,
+                ),
                 width: 24,
                 height: 24,
               ),

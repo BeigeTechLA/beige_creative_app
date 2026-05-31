@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -6,7 +7,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 
 /// Single grouped-by-title featured-work card with edit / delete / arrow CTAs.
 ///
@@ -48,12 +49,12 @@ class FeaturedWorkCard extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: AppRadii.xxxlAll,
-                  child: Image.network(
-                    '${ApiService.imageURL}${images.first.filePath}',
+                  child: CachedNetworkImage(
+                    imageUrl: '${Env.imageUrl}${images.first.filePath}',
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
+                    errorWidget: (context, url, error) {
                       return Container(
                         color: AppColors.border,
                         child: const Center(

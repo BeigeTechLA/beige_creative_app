@@ -215,7 +215,10 @@ class _ProfilePortfolioLinksSheetState
                           item['icon']!,
                           height: 20,
                           width: 20,
-                          color: AppColors.primary,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.primary,
+                            BlendMode.srcIn,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(

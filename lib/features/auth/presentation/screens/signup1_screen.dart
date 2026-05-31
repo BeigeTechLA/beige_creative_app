@@ -12,6 +12,7 @@ import '../../../../app/route_names.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../core/utils/validators.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../../../shared/widgets/app_loader.dart' show AppLoader;
 import '../../../../shared/widgets/common_uploader.dart';
@@ -45,9 +46,6 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
   GoogleMapController? mapController;
   bool showPassword = false;
   bool showConfirmPassword = false;
-
-  bool _isPlusCode(String value) =>
-      RegExp(r'^[A-Z0-9]{4,}\+[A-Z0-9]{2,}$').hasMatch(value);
 
   bool get isFormValid =>
       passwordController.text.isNotEmpty &&
@@ -146,7 +144,7 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
       if (placemarks.isNotEmpty) {
         final p = placemarks.first;
         final parts = <String>[
-          if (p.name != null && !_isPlusCode(p.name!)) p.name!,
+          if (p.name != null && !isPlusCode(p.name!)) p.name!,
           if (p.subLocality != null) p.subLocality!,
           if (p.locality != null) p.locality!,
           if (p.administrativeArea != null) p.administrativeArea!,

@@ -1,29 +1,29 @@
 
-class Creatordashboarddetailsmodel {
+class CreatorDashboardDetailsModel {
   final bool error;
   final String message;
-  final Data data;
+  final CreatorDashboardData data;
 
-  Creatordashboarddetailsmodel({
+  CreatorDashboardDetailsModel({
     required this.error,
     required this.message,
     required this.data,
   });
 
-  factory Creatordashboarddetailsmodel.fromJson(Map<String, dynamic> json) =>
-      Creatordashboarddetailsmodel(
+  factory CreatorDashboardDetailsModel.fromJson(Map<String, dynamic> json) =>
+      CreatorDashboardDetailsModel(
         error: json["error"],
         message: json["message"],
-        data: Data.fromJson(json["data"]),
+        data: CreatorDashboardData.fromJson(json["data"]),
       );
 }
 
-class Data {
+class CreatorDashboardData {
   final List<PendingRequestCard> shoots;
 
-  Data({required this.shoots});
+  CreatorDashboardData({required this.shoots});
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
+  factory CreatorDashboardData.fromJson(Map<String, dynamic> json) => CreatorDashboardData(
     shoots: json["shoots"] != null
         ? List<PendingRequestCard>.from(
             json["shoots"].map((x) => PendingRequestCard.fromJson(x)),

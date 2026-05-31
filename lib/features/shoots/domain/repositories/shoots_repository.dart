@@ -23,5 +23,5 @@ abstract class ShootsRepository {
 
   /// GET `creator/shoot-count`. Returns aggregate counters used by the four
   /// stat cards at the top of ShootsScreen.
-  Future<count_model.Data> fetchShootCount();
+  Future<count_model.ShootCountData> fetchShootCount();
 }

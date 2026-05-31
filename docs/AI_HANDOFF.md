@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-05-31.
+Last updated: 2026-05-31 (post-5.08 — Phase 5 complete).
 
 ## Read Order
 
@@ -22,10 +22,10 @@ Every AI session should read:
 - Phase 2: complete. Folder casing, security hotfixes, env secrets, CI, and target folders are done.
 - Phase 3: complete. Foundations are in place.
 - Phase 4: **complete**. `23 / 23` tasks done.
-- Phase 5: not started — first task `5.01` (`ApiService` retirement + `service/` cleanup).
+- Phase 5: **complete** — `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31 (shim deletion, dep prune, `CachedNetworkImage` migration, comment hygiene, `--fatal-infos` lint promotion, standardization, naming polish, router split). Next: Phase 6 (testing).
 - Phase 6: not started.
 
-No active Phase 4 task. Next phase entry-point is `docs/phase5/` once that board is opened.
+Active Phase 5 entry-point: `docs/phase5/README.md`.
 
 ## Current Architecture
 
@@ -33,9 +33,9 @@ No active Phase 4 task. Next phase entry-point is `docs/phase5/` once that board
 - `startApp` initializes `Env`, Firebase, prefs, `SessionStore`, and mounts `ProviderScope`.
 - Root widget: `lib/app/app.dart`.
 - Router: `routerProvider` in `lib/app/router.dart`.
-- Session: `SessionStore` via `sessionStoreProvider`; `SharedService` is a deprecated shim.
+- Session: `SessionStore` via `sessionStoreProvider`. `SharedService` shim deleted in 5.01.
 - Network: `DioClient` via `dioClientProvider`, with Auth, Retry, Error, and Logging interceptors.
-- Legacy facade: `lib/service/api_service.dart` remains until Phase 5, but new migrated feature code should use repositories and `DioClient`.
+- Legacy `ApiService` facade deleted in 5.01. All call sites now use `Env.imageUrl` for image URL construction and `_client.dio` directly for multipart uploads.
 - Design tokens: `AppColors`, `AppTextStyles`, `AppSpacing`, `AppRadii`, `AppShadows`, `AppDurations`, `AppAssets`.
 - Feature modules: `lib/features/<feature>/{data,domain,presentation}`.
 
@@ -71,10 +71,17 @@ Group D is complete. Home now uses:
 
 ## Verification Baseline
 
-Most recent check (post-4.23, end of Phase 4):
+Most recent check (post-5.08):
 
-- `flutter analyze`: 82 issues, mostly legacy warnings/infos; no compile errors observed.
+- `flutter analyze --fatal-infos`: 0 issues. CI now enforces this on every PR.
 - `flutter test`: 145/145 passing.
+- `pubspec.yaml`: 4 deps dropped in 5.02 (`http`, `flutter_stripe`, `image_cropper`, `photo_view`). 9 packages removed from resolution.
+- All network image sites now use `CachedNetworkImage` / `CachedNetworkImageProvider` (5.03).
+- `lib/` is comment-clean: 0 `/* */` blocks; only 1 scoped `TODO(messaging)` remaining. `lib/service/config.dart` deleted (unused `AppConfig`).
+- Lint set locked: `flutter_lints: ^6.0.0` base. `camel_case_types` re-enabled (default). `constant_identifier_names` permanently disabled with documented WHY (asset/API constants mirror server-side snake_case).
+- Validation regex consolidated (5.06): `lib/core/utils/validators.dart` owns `kEmailPattern` / `kPlusCodePattern` + `isValidEmail` / `isPlusCode`.
+- Model class names normalized (5.07): inner `Data` classes are now feature-prefixed (`DashboardCountData`, `ShootCountData`, `CreatorDashboardData`, `MyProfileData`, `ShootsData`); all model wrappers are PascalCase (`MyProfileModel`, `ShootStatusModel`, `UpcomingShootsModel`, `UpcomingShootDatum`, `UpcomingShootViewModel`); `CancelScreen` → `ShootCancelledScreen`.
+- Router split (5.08): `lib/app/router.dart` is now a 165-LOC orchestrator. Feature routes live in `lib/features/<feature>/presentation/routes/<feature>_routes.dart` and are spread into the root route list. Splash + onboarding + the 5-tab `StatefulShellRoute` stay inline (global lifecycle). Deep-link/typed-param wiring deferred.
 
 Do not assume this remains current after further edits; rerun checks after changes.
 

@@ -176,10 +176,6 @@ class HomeShootCategoriesPanel extends StatelessWidget {
                             selectedTab == 0
                                 ? categoryPhotoTotal.toString()
                                 : categoryVideoTotal.toString(),
-                            //      Text(
-                            //                                     selectedTab == 0?
-                            //                                     acceptphotographyShoots.toString()
-                            //                                     :.toString(),
                             style: AppTextStyles.body26Bold.copyWith(
                               color: AppColors.goldCream,
                             ),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,7 +12,7 @@ import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/shoots_model.dart';
-import '../../../../service/api_service.dart';
+import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../providers/shoots_providers.dart';
@@ -290,8 +291,8 @@ class _ShootCard extends StatelessWidget {
               height: 180,
               width: double.infinity,
               child: shoot.shootTypeImageUrl.isNotEmpty
-                  ? Image.network(
-                      ApiService().getImageURL(shoot.shootTypeImageUrl),
+                  ? CachedNetworkImage(
+                      imageUrl: Env.imageUrl + shoot.shootTypeImageUrl,
                       height: 180,
                       width: double.infinity,
                       fit: BoxFit.cover,

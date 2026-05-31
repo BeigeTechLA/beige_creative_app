@@ -1,21 +1,20 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../model_class/myprofile_model.dart';
-import '../../../../service/api_service.dart';
 import '../../domain/repositories/profile_files_repository.dart';
 
 class ProfileFilesRepositoryImpl implements ProfileFilesRepository {
   final DioClient _client;
-  final ApiService _multipartShim;
 
-  ProfileFilesRepositoryImpl(this._client, {ApiService? multipartShim})
-      : _multipartShim = multipartShim ?? ApiService();
+  ProfileFilesRepositoryImpl(this._client);
 
   @override
-  Future<Data> fetchProfile() async {
+  Future<MyProfileData> fetchProfile() async {
     final response =
         await _client.dio.post<dynamic>(ApiEndpoints.profiledetails, data: {});
     final data = response.data;
@@ -25,7 +24,7 @@ class ProfileFilesRepositoryImpl implements ProfileFilesRepository {
     if (data['error'] == true) {
       throw Exception(data['message'] ?? 'Profile fetch failed');
     }
-    return Myprofilemodel.fromJson(data).data;
+    return MyProfileModel.fromJson(data).data;
   }
 
   @override
@@ -44,17 +43,29 @@ class ProfileFilesRepositoryImpl implements ProfileFilesRepository {
     required List<String> tags,
     required List<File> files,
   }) async {
-    final response = await _multipartShim.postMultipartDataMultiple(
+    final formData = FormData.fromMap({
+      'title': title,
+      'tag': jsonEncode(tags),
+    });
+    for (final file in files) {
+      formData.files.add(
+        MapEntry(
+          'files[]',
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split('/').last,
+          ),
+        ),
+      );
+    }
+    final response = await _client.dio.post<dynamic>(
       ApiEndpoints.upload_recent_work,
-      {
-        'title': title,
-        'tag': jsonEncode(tags),
-      },
-      files,
+      data: formData,
     );
-    if (response == null || response is! Map || response['error'] != false) {
+    final body = response.data;
+    if (body is! Map || body['error'] != false) {
       throw Exception(
-        (response is Map ? response['message'] : null) ?? 'Upload failed',
+        (body is Map ? body['message'] : null) ?? 'Upload failed',
       );
     }
   }
@@ -71,10 +82,21 @@ class ProfileFilesRepositoryImpl implements ProfileFilesRepository {
   }
 
   Future<void> _multipartUpload(String path, File file) async {
-    final response = await _multipartShim.postMultipartData(path, {}, file);
-    if (response == null || response is! Map || response['error'] != false) {
+    final formData = FormData.fromMap({});
+    formData.files.add(
+      MapEntry(
+        'files[]',
+        await MultipartFile.fromFile(
+          file.path,
+          filename: file.path.split('/').last,
+        ),
+      ),
+    );
+    final response = await _client.dio.post<dynamic>(path, data: formData);
+    final body = response.data;
+    if (body is! Map || body['error'] != false) {
       throw Exception(
-        (response is Map ? response['message'] : null) ?? 'Upload failed',
+        (body is Map ? body['message'] : null) ?? 'Upload failed',
       );
     }
   }

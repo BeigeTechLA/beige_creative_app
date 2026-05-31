@@ -23,7 +23,7 @@ class ShootsListState {
   final List<Shoot> visibleShoots;
 
   final String searchQuery;
-  final count_model.Data? counts;
+  final count_model.ShootCountData? counts;
   final bool isLoading;
   final String? errorMessage;
   final int actionInFlightProjectId;
@@ -42,7 +42,7 @@ class ShootsListState {
     List<Shoot>? allShoots,
     List<Shoot>? visibleShoots,
     String? searchQuery,
-    count_model.Data? counts,
+    count_model.ShootCountData? counts,
     bool? isLoading,
     String? errorMessage,
     int? actionInFlightProjectId,
@@ -101,7 +101,7 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
     }
   }
 
-  Future<count_model.Data?> _safeFetchCounts(ShootsRepository repo) async {
+  Future<count_model.ShootCountData?> _safeFetchCounts(ShootsRepository repo) async {
     try {
       return await repo.fetchShootCount();
     } catch (e, st) {
@@ -171,7 +171,7 @@ final shootsListProvider =
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Cancel-shoot flow (modal bottom sheet — `CancelScreen` / `RouteNames.cancelShoot`).
+// Cancel-shoot flow (modal bottom sheet — `ShootCancelledScreen` / `RouteNames.cancelShoot`).
 // ─────────────────────────────────────────────────────────────────────────────
 
 @immutable

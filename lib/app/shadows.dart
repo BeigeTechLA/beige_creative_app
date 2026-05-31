@@ -143,22 +143,4 @@ class AppShadows {
       spreadRadius: 2,
     ),
   ];
-
-/*  /// Gold glow — for highlighted/accent containers
-  static List<BoxShadow> get goldGlow => [
-    BoxShadow(
-      color: AppColors.primary.withValues(alpha: 0.2),
-      blurRadius: 12,
-      offset: const Offset(0, 2),
-    ),
-  ];
-
-  /// Soft drop shadow
-  static List<BoxShadow> get soft => [
-    const BoxShadow(
-      color: AppColors.shadow,
-      blurRadius: 8,
-      offset: Offset(0, 2),
-    ),
-  ];*/
 }

@@ -1,24 +1,24 @@
 import 'dart:convert';
 
-class Dashboardcountmodel {
+class DashboardCountModel {
   final bool error;
   final String message;
-  final Data data;
+  final DashboardCountData data;
 
-  Dashboardcountmodel({
+  DashboardCountModel({
     required this.error,
     required this.message,
     required this.data,
   });
 
-  factory Dashboardcountmodel.fromRawJson(String str) => Dashboardcountmodel.fromJson(json.decode(str));
+  factory DashboardCountModel.fromRawJson(String str) => DashboardCountModel.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory Dashboardcountmodel.fromJson(Map<String, dynamic> json) => Dashboardcountmodel(
+  factory DashboardCountModel.fromJson(Map<String, dynamic> json) => DashboardCountModel(
     error: json["error"],
     message: json["message"],
-    data: Data.fromJson(json["data"]),
+    data: DashboardCountData.fromJson(json["data"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -30,24 +30,24 @@ class Dashboardcountmodel {
   void operator [](String other) {}
 }
 
-class Data {
+class DashboardCountData {
   final int completedShoots;
   final int upcomingShoots;
   final int pendingRequests;
   final int equipmentRequests;
 
-  Data({
+  DashboardCountData({
     required this.completedShoots,
     required this.upcomingShoots,
     required this.pendingRequests,
     required this.equipmentRequests,
   });
 
-  factory Data.fromRawJson(String str) => Data.fromJson(json.decode(str));
+  factory DashboardCountData.fromRawJson(String str) => DashboardCountData.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
+  factory DashboardCountData.fromJson(Map<String, dynamic> json) => DashboardCountData(
     completedShoots: json["completedShoots"],
     upcomingShoots: json["upcomingShoots"],
     pendingRequests: json["pendingRequests"],

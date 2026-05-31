@@ -153,6 +153,7 @@ class SignUp1Form extends StatelessWidget {
                           target: currentLatLng!,
                           zoom: 14,
                         ),
+                        style: _darkMapStyle,
                         myLocationEnabled: true,
                         myLocationButtonEnabled: true,
                         zoomControlsEnabled: true,
@@ -162,10 +163,7 @@ class SignUp1Form extends StatelessWidget {
                             () => EagerGestureRecognizer(),
                           ),
                         },
-                        onMapCreated: (controller) {
-                          onMapCreated(controller);
-                          controller.setMapStyle(_darkMapStyle);
-                        },
+                        onMapCreated: onMapCreated,
                         markers: {
                           Marker(
                             markerId: const MarkerId("selected"),
@@ -183,7 +181,10 @@ class SignUp1Form extends StatelessWidget {
           value: selectedDistance,
           icon: SvgPicture.asset(
             AppAssets.dropdown,
-            color: AppColors.white,
+            colorFilter: const ColorFilter.mode(
+              AppColors.white,
+              BlendMode.srcIn,
+            ),
           ),
           items: _distances
               .map(

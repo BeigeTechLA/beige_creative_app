@@ -11,7 +11,7 @@ import 'profile_files_providers.dart' show profileFilesRepositoryProvider;
 
 @immutable
 class MyProfileState {
-  final Data? profile;
+  final MyProfileData? profile;
   final List<Map<String, String>> socialLinks;
   final List<Map<String, String>> portfolioLinks;
   final int selectedSocialIndex;
@@ -44,7 +44,7 @@ class MyProfileState {
   });
 
   MyProfileState copyWith({
-    Data? profile,
+    MyProfileData? profile,
     List<Map<String, String>>? socialLinks,
     List<Map<String, String>>? portfolioLinks,
     int? selectedSocialIndex,

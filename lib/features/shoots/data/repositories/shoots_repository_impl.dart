@@ -21,7 +21,7 @@ class ShootsRepositoryImpl implements ShootsRepository {
     if (data['error'] == true) {
       throw Exception(data['message'] ?? 'Failed to load project');
     }
-    return Upcomingshootviewmodel.fromJson(data).data;
+    return UpcomingShootViewModel.fromJson(data).data;
   }
 
   @override
@@ -60,7 +60,7 @@ class ShootsRepositoryImpl implements ShootsRepository {
   }
 
   @override
-  Future<count_model.Data> fetchShootCount() async {
+  Future<count_model.ShootCountData> fetchShootCount() async {
     final response =
         await _client.dio.get<dynamic>(ApiEndpoints.myshootcount);
     final data = response.data;
@@ -70,6 +70,6 @@ class ShootsRepositoryImpl implements ShootsRepository {
     if (data['error'] == true) {
       throw Exception(data['message'] ?? 'Failed to load shoot count');
     }
-    return count_model.Shootcountmodel.fromJson(data).data;
+    return count_model.ShootCountModel.fromJson(data).data;
   }
 }

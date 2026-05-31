@@ -78,7 +78,7 @@ class AppPreferencesScreen extends ConsumerWidget {
                         ),
                         Switch(
                           value: isDarkMode,
-                          activeColor: AppColors.arcYellow,
+                          activeThumbColor: AppColors.arcYellow,
                           onChanged: (value) => ref
                               .read(appPreferencesDarkModeProvider.notifier)
                               .state = value,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
@@ -6,14 +7,15 @@ import '../../../../app/radii.dart';
 import '../../../../app/route_names.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../service/shared_service.dart';
+import '../../../../core/providers/auth_state_provider.dart';
+import '../../../../core/providers/core_providers.dart';
 
 /// Logout button at the bottom of the profile + the confirmation bottom sheet.
-class ProfileLogoutButton extends StatelessWidget {
+class ProfileLogoutButton extends ConsumerWidget {
   const ProfileLogoutButton({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.base,
@@ -23,7 +25,7 @@ class ProfileLogoutButton extends StatelessWidget {
       ),
       color: AppColors.background,
       child: InkWell(
-        onTap: () => _showLogoutBottomSheet(context),
+        onTap: () => _showLogoutBottomSheet(context, ref),
         borderRadius: AppRadii.xxlAll,
         child: Container(
           height: 52,
@@ -42,7 +44,7 @@ class ProfileLogoutButton extends StatelessWidget {
     );
   }
 
-  void _showLogoutBottomSheet(BuildContext context) {
+  void _showLogoutBottomSheet(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.transparent,
@@ -106,7 +108,8 @@ class ProfileLogoutButton extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        await SharedService.logout();
+                        await ref.read(sessionStoreProvider).clearSession();
+                        ref.read(authStateProvider.notifier).state = false;
                         if (context.mounted) {
                           context.goNamed(RouteNames.login);
                         }

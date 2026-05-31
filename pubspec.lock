@@ -494,14 +494,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
-  flutter_stripe:
-    dependency: "direct main"
-    description:
-      name: flutter_stripe
-      sha256: "03ec6f6af8d53dcced0534d2b52840ac4331d9320870c4167957133b2aa45194"
-      url: "https://pub.dev"
-    source: hosted
-    version: "12.6.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -705,7 +697,7 @@ packages:
     source: hosted
     version: "0.15.6"
   http:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
@@ -728,30 +720,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
-  image_cropper:
-    dependency: "direct main"
-    description:
-      name: image_cropper
-      sha256: d104cc1f90b0d38ac309f7ec240b8f55f2c6e76d1bfae05e23917bfea631e725
-      url: "https://pub.dev"
-    source: hosted
-    version: "10.0.0+1"
-  image_cropper_for_web:
-    dependency: transitive
-    description:
-      name: image_cropper_for_web
-      sha256: fd81ebe36f636576094377aab32673c4e5d1609b32dec16fad98d2b71f1250a9
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.1.0"
-  image_cropper_platform_interface:
-    dependency: transitive
-    description:
-      name: image_cropper_platform_interface
-      sha256: "2d8db8f4b638e448fa89a1e77cd8f053b4547472bd3ae073169e86626d03afef"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.2.0"
   image_picker:
     dependency: "direct main"
     description:
@@ -1104,14 +1072,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.2"
-  photo_view:
-    dependency: "direct main"
-    description:
-      name: photo_view
-      sha256: "1fc3d970a91295fbd1364296575f854c9863f225505c28c46e0a03e48960c75e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.15.0"
   platform:
     dependency: transitive
     description:
@@ -1373,30 +1333,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
-  stripe_android:
-    dependency: transitive
-    description:
-      name: stripe_android
-      sha256: "596b2c2f18b6be571a99ef3dffe812ee7c99e134753234fd9110964b48e206c9"
-      url: "https://pub.dev"
-    source: hosted
-    version: "12.6.0"
-  stripe_ios:
-    dependency: transitive
-    description:
-      name: stripe_ios
-      sha256: e228c8e8a2e16770bd043a7f93ec26f559763188110dd81baf1aa146a3fd28ab
-      url: "https://pub.dev"
-    source: hosted
-    version: "12.6.0"
-  stripe_platform_interface:
-    dependency: transitive
-    description:
-      name: stripe_platform_interface
-      sha256: fddc7f83f38674358faa67064695397641957923b9c730eda8bdc8acc477f9f6
-      url: "https://pub.dev"
-    source: hosted
-    version: "12.6.0"
   synchronized:
     dependency: transitive
     description:

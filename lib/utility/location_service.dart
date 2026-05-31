@@ -52,11 +52,13 @@ class LocationService {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Enable location permission from settings"),
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Enable location permission from settings"),
+          ),
+        );
+      }
       await Geolocator.openAppSettings();
       return null;
     }

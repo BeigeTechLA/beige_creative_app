@@ -141,7 +141,10 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
                         child: SvgPicture.asset(
                           AppAssets.back,
                           height: 24,
-                          color: AppColors.white,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                     ],

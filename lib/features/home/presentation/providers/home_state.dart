@@ -16,7 +16,7 @@ class HomeState {
   final int pendingRequests;
 
   // ── Upcoming shoots carousel ──
-  final List<upcomingdatum> upcomingShootsList;
+  final List<UpcomingShootDatum> upcomingShootsList;
 
   // ── Pending requests (dashboard-details filtered to 'pending') ──
   final List<PendingRequestCard> pendingRequestCards;
@@ -43,7 +43,7 @@ class HomeState {
   final Map<DateTime, String> events;
 
   // ── Profile ──
-  final profile.Data? profileData;
+  final profile.MyProfileData? profileData;
 
   // ── Lifecycle ──
   final bool isLoading;
@@ -91,7 +91,7 @@ class HomeState {
     int? completedShoots,
     int? upcomingShoots,
     int? pendingRequests,
-    List<upcomingdatum>? upcomingShootsList,
+    List<UpcomingShootDatum>? upcomingShootsList,
     List<PendingRequestCard>? pendingRequestCards,
     int? successfulShoots,
     int? pendingShootsCount,
@@ -108,7 +108,7 @@ class HomeState {
     int? requestPhoto,
     int? requestVideo,
     Map<DateTime, String>? events,
-    profile.Data? profileData,
+    profile.MyProfileData? profileData,
     bool? isLoading,
     String? errorMessage,
     bool clearError = false,

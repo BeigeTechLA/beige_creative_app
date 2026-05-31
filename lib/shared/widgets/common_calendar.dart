@@ -52,7 +52,6 @@ class _CommonCalendarState extends State<CommonCalendar>
                 curve: Curves.easeInOut,
                 alignment: Alignment.topCenter,
                 child: SizedBox(
-                  // height: cellHeight * rowCount,
                   child: TableCalendar(
                     daysOfWeekVisible: false,
                     firstDay: DateTime(2020),

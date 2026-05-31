@@ -1,24 +1,24 @@
 import 'dart:convert';
 
-class Upcomingshootsmodel {
+class UpcomingShootsModel {
   final bool error;
   final String message;
-  final List<upcomingdatum> data;
+  final List<UpcomingShootDatum> data;
 
-  Upcomingshootsmodel({
+  UpcomingShootsModel({
     required this.error,
     required this.message,
     required this.data,
   });
 
-  factory Upcomingshootsmodel.fromRawJson(String str) => Upcomingshootsmodel.fromJson(json.decode(str));
+  factory UpcomingShootsModel.fromRawJson(String str) => UpcomingShootsModel.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory Upcomingshootsmodel.fromJson(Map<String, dynamic> json) => Upcomingshootsmodel(
+  factory UpcomingShootsModel.fromJson(Map<String, dynamic> json) => UpcomingShootsModel(
     error: json["error"],
     message: json["message"],
-    data: List<upcomingdatum>.from(json["data"].map((x) => upcomingdatum.fromJson(x))),
+    data: List<UpcomingShootDatum>.from(json["data"].map((x) => UpcomingShootDatum.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -28,7 +28,7 @@ class Upcomingshootsmodel {
   };
 }
 
-class upcomingdatum {
+class UpcomingShootDatum {
   final String shootType;
   final String shootTypeImageUrl;
   final int projectId;
@@ -40,7 +40,7 @@ class upcomingdatum {
   final dynamic budget;
   final bool isCompleted;
 
-  upcomingdatum({
+  UpcomingShootDatum({
     required this.shootType,
     required this.shootTypeImageUrl,
     required this.projectId,
@@ -53,11 +53,11 @@ class upcomingdatum {
     required this.isCompleted,
   });
 
-  factory upcomingdatum.fromRawJson(String str) => upcomingdatum.fromJson(json.decode(str));
+  factory UpcomingShootDatum.fromRawJson(String str) => UpcomingShootDatum.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory upcomingdatum.fromJson(Map<String, dynamic> json) => upcomingdatum(
+  factory UpcomingShootDatum.fromJson(Map<String, dynamic> json) => UpcomingShootDatum(
     shootType: json["shoot_type"] ?? "",
     shootTypeImageUrl: json["shoot_type_image_url"] ?? "",
     projectId: json["project_id"],

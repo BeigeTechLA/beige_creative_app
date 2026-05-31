@@ -6,7 +6,7 @@ import '../../../../model_class/myprofile_model.dart';
 /// featured work). Image upload is also reused by the signup3 flow per Group E
 /// Unit 17 — keep multipart helpers generic.
 abstract class ProfileFilesRepository {
-  Future<Data> fetchProfile();
+  Future<MyProfileData> fetchProfile();
 
   Future<void> uploadResume(File file);
 

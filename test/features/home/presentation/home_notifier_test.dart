@@ -15,13 +15,13 @@ import 'package:flutter_test/flutter_test.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _FakeHomeRepo implements HomeRepository {
-  dashboard.Data? dashboardCountResult;
-  List<upcomingdatum>? upcomingShoots;
+  dashboard.DashboardCountData? dashboardCountResult;
+  List<UpcomingShootDatum>? upcomingShoots;
   List<PendingRequestCard>? pendingRequests;
   CrewStatsData? crewStatsResult;
   Map<String, dynamic>? shootCategoriesResult;
   Map<String, dynamic>? availabilityResult;
-  profile.Data? profileResult;
+  profile.MyProfileData? profileResult;
 
   bool shouldFailCrewStats = false;
   bool shouldFailAcceptDecline = false;
@@ -34,13 +34,13 @@ class _FakeHomeRepo implements HomeRepository {
   int? lastAcceptCrewAccept;
 
   @override
-  Future<dashboard.Data> fetchDashboardCount() async {
+  Future<dashboard.DashboardCountData> fetchDashboardCount() async {
     if (dashboardCountResult == null) throw Exception('no data');
     return dashboardCountResult!;
   }
 
   @override
-  Future<List<upcomingdatum>> fetchUpcomingShoots() async {
+  Future<List<UpcomingShootDatum>> fetchUpcomingShoots() async {
     return upcomingShoots ?? [];
   }
 
@@ -71,7 +71,7 @@ class _FakeHomeRepo implements HomeRepository {
   }
 
   @override
-  Future<profile.Data> fetchProfile() async {
+  Future<profile.MyProfileData> fetchProfile() async {
     if (profileResult == null) throw Exception('no profile');
     return profileResult!;
   }
@@ -88,12 +88,12 @@ class _FakeHomeRepo implements HomeRepository {
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-dashboard.Data _makeDashboardCount({
+dashboard.DashboardCountData _makeDashboardCount({
   int completed = 5,
   int upcoming = 3,
   int pending = 2,
 }) =>
-    dashboard.Dashboardcountmodel.fromJson({
+    dashboard.DashboardCountModel.fromJson({
       'error': false,
       'message': 'ok',
       'data': {

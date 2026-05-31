@@ -106,8 +106,8 @@ class _ProfileImageCropSheetState extends State<ProfileImageCropSheet> {
                           child: Transform(
                             alignment: Alignment.center,
                             transform: Matrix4.identity()
-                              ..translate(offset.dx, offset.dy)
-                              ..scale(scale),
+                              ..translateByDouble(offset.dx, offset.dy, 0, 1)
+                              ..scaleByDouble(scale, scale, 1, 1),
                             child: Image.file(
                               widget.imageFile,
                               width: 340,

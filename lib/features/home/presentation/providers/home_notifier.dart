@@ -61,13 +61,13 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       _safeFetchProfile(repo), // 6
     ]);
 
-    final counts = results[0] as dashboard.Data?;
-    final upcoming = results[1] as List<upcomingdatum>?;
+    final counts = results[0] as dashboard.DashboardCountData?;
+    final upcoming = results[1] as List<UpcomingShootDatum>?;
     final pending = results[2] as List<PendingRequestCard>?;
     final stats = results[3] as CrewStatsData?;
     final categories = results[4] as Map<String, dynamic>?;
     final availability = results[5] as Map<String, dynamic>?;
-    final profileData = results[6] as profile.Data?;
+    final profileData = results[6] as profile.MyProfileData?;
 
     state = state.copyWith(
       // Dashboard counts
@@ -244,7 +244,7 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
 
   // ── Safe wrappers (partial-failure resilient) ───────────────────────────
 
-  Future<dashboard.Data?> _safeFetchDashboardCount(HomeRepository repo) async {
+  Future<dashboard.DashboardCountData?> _safeFetchDashboardCount(HomeRepository repo) async {
     try {
       return await repo.fetchDashboardCount();
     } catch (e, st) {
@@ -253,7 +253,7 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     }
   }
 
-  Future<List<upcomingdatum>?> _safeFetchUpcomingShoots(
+  Future<List<UpcomingShootDatum>?> _safeFetchUpcomingShoots(
     HomeRepository repo,
   ) async {
     try {
@@ -312,7 +312,7 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     }
   }
 
-  Future<profile.Data?> _safeFetchProfile(HomeRepository repo) async {
+  Future<profile.MyProfileData?> _safeFetchProfile(HomeRepository repo) async {
     try {
       return await repo.fetchProfile();
     } catch (e, st) {

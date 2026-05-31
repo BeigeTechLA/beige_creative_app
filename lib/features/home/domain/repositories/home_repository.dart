@@ -10,10 +10,10 @@ import '../../../../model_class/upcoming_shoots_model.dart';
 /// inlined in the pre-migration `HomeScreen`. See Task 4.16 for context.
 abstract class HomeRepository {
   /// GET `creator/dashboard-count`.
-  Future<dashboard.Data> fetchDashboardCount();
+  Future<dashboard.DashboardCountData> fetchDashboardCount();
 
   /// GET `creator/upcoming-accepted-project`.
-  Future<List<upcomingdatum>> fetchUpcomingShoots();
+  Future<List<UpcomingShootDatum>> fetchUpcomingShoots();
 
   /// GET `creator/dashboard-details` — returns only pending-status shoots.
   Future<List<PendingRequestCard>> fetchPendingRequests();
@@ -29,7 +29,7 @@ abstract class HomeRepository {
   Future<Map<String, dynamic>> fetchAvailability(int month, int year);
 
   /// POST `creator/get-profile-detail`.
-  Future<profile.Data> fetchProfile();
+  Future<profile.MyProfileData> fetchProfile();
 
   /// POST `creator/accept-project` with `{project_id, crew_accept}`.
   Future<void> acceptDeclineProject(int projectId, int crewAccept);

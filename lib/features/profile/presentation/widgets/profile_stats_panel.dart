@@ -119,7 +119,10 @@ class _InfoCard extends StatelessWidget {
                   ),
                   child: SvgPicture.asset(
                     icon,
-                    color: AppColors.black,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.black,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
               ),

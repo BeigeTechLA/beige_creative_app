@@ -24,31 +24,31 @@ class CrewFile {
   );
 }
 
-class Myprofilemodel {
+class MyProfileModel {
   final bool error;
   final int code;
   final String message;
-  final Data data;
+  final MyProfileData data;
 
-  Myprofilemodel({
+  MyProfileModel({
     required this.error,
     required this.code,
     required this.message,
     required this.data,
   });
 
-  factory Myprofilemodel.fromRawJson(String str) =>
-      Myprofilemodel.fromJson(json.decode(str));
+  factory MyProfileModel.fromRawJson(String str) =>
+      MyProfileModel.fromJson(json.decode(str));
 
-  factory Myprofilemodel.fromJson(Map<String, dynamic> json) => Myprofilemodel(
+  factory MyProfileModel.fromJson(Map<String, dynamic> json) => MyProfileModel(
     error: json["error"] ?? false,
     code: json["code"] ?? 0,
     message: json["message"] ?? "",
-    data: Data.fromJson(json["data"] ?? {}),
+    data: MyProfileData.fromJson(json["data"] ?? {}),
   );
 }
 
-class Data {
+class MyProfileData {
   final Map<String, dynamic> stats;
   final List<dynamic> equipmentOwnership;
   final String bio;
@@ -74,7 +74,7 @@ class Data {
   final String profileImageUrl;
   final User user; // nested
 
-  Data({
+  MyProfileData({
     required this.crewMemberId,
     required this.firstName,
     required this.lastName,
@@ -101,7 +101,7 @@ class Data {
     required this.profileImageUrl,
   });
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
+  factory MyProfileData.fromJson(Map<String, dynamic> json) => MyProfileData(
     stats: json["stats"] ?? {},
     availability: json["availability"],
     equipmentOwnership: json["equipment_ownership"] ?? [],
@@ -156,7 +156,7 @@ class Data {
           final parsed = jsonDecode(raw);
           if (parsed is List) {
             return Map<String, dynamic>.fromEntries(
-              (parsed as List).map((e) => MapEntry(
+              parsed.map((e) => MapEntry(
                 e["platform"]?.toString() ?? "",
                 e["url"]?.toString() ?? "",
               )),
@@ -262,7 +262,7 @@ class User {
           final parsed = jsonDecode(raw);
           if (parsed is List) {
             return Map<String, dynamic>.fromEntries(
-              (parsed as List).map((e) => MapEntry(
+              parsed.map((e) => MapEntry(
                 e["platform"]?.toString() ?? "",
                 e["url"]?.toString() ?? "",
               )),

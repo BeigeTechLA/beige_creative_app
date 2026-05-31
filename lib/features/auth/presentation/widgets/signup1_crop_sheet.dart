@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
@@ -110,8 +109,8 @@ class _SignUp1CropSheetState extends State<_SignUp1CropSheet> {
                         child: Transform(
                           alignment: Alignment.center,
                           transform: Matrix4.identity()
-                            ..translate(offset.dx, offset.dy)
-                            ..scale(scale),
+                            ..translateByDouble(offset.dx, offset.dy, 0, 1)
+                            ..scaleByDouble(scale, scale, 1, 1),
                           child: Image.file(
                             widget.imageFile,
                             fit: BoxFit.cover,
@@ -183,7 +182,7 @@ class _SignUp1CropSheetState extends State<_SignUp1CropSheet> {
               onPressed: () async {
                 final cropped =
                     await cropSignUp1Image(widget.imageFile, scale, offset);
-                if (!mounted) return;
+                if (!context.mounted) return;
                 Navigator.pop(context, cropped);
               },
               child: Text(

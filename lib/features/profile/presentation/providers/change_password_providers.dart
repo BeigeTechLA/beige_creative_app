@@ -3,17 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/validators.dart';
 import '../../data/repositories/change_password_repository_impl.dart';
 import '../../domain/repositories/change_password_repository.dart';
 
 final changePasswordRepositoryProvider = Provider<ChangePasswordRepository>(
   (ref) => ChangePasswordRepositoryImpl(ref.read(dioClientProvider)),
 );
-
-bool isValidEmail(String email) {
-  return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$')
-      .hasMatch(email);
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Step 1 — request OTP from the change-password screen.
