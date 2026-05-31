@@ -5,7 +5,7 @@ import '../../../../app/durations.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../widgets/multi_arc_painter.dart';
+import '../../../../shared/widgets/multi_arc_painter.dart';
 import 'home_status_item.dart';
 
 /// "Shoot Categories" arc panel — Photo / Video tabs + 4-arc chart +

@@ -11,7 +11,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/myprofile_model.dart';
 import '../../../../service/api_service.dart';
-import '../../../../widgets/app_loder.dart';
+import '../../../../shared/widgets/app_loader.dart';
 import '../providers/profile_details_providers.dart';
 
 class ProfileDetails1Screen extends ConsumerWidget {

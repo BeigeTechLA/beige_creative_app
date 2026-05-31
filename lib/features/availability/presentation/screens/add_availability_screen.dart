@@ -10,8 +10,8 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../utility/date_time_utils.dart';
-import '../../../../widgets/custom_dropdown.dart';
-import '../../../../widgets/custom_text_field.dart';
+import '../../../../shared/widgets/custom_dropdown.dart';
+import '../../../../shared/widgets/custom_text_field.dart';
 import '../providers/availability_providers.dart';
 
 class AddAvailabilityScreen extends ConsumerStatefulWidget {

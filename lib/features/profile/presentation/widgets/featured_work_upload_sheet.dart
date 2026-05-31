@@ -10,8 +10,8 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../service/api_service.dart';
-import '../../../../widgets/common_uploader.dart';
-import '../../../../widgets/custom_text_field.dart';
+import '../../../../shared/widgets/common_uploader.dart';
+import '../../../../shared/widgets/custom_text_field.dart';
 
 /// Bottom-sheet body for adding / editing featured work. State is shared with
 /// the parent screen — the parent owns the title controller and the two

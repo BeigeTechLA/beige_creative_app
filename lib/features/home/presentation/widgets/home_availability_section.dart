@@ -7,7 +7,7 @@ import '../../../../app/route_names.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../utility/date_time_utils.dart';
-import '../../../../widgets/common_calendar.dart';
+import '../../../../shared/widgets/common_calendar.dart';
 
 /// "Availability" section — Add button, month-arrow header, event-type
 /// dropdown, and embedded [CommonCalendar].

@@ -9,8 +9,8 @@ import '../../../../app/radii.dart';
 import '../../../../app/route_names.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../widgets/custom_text_field.dart';
-import '../../../../widgets/top_message.dart';
+import '../../../../shared/widgets/custom_text_field.dart';
+import '../../../../shared/widgets/top_message.dart';
 import '../providers/change_password_providers.dart';
 
 class ProfileNewPasswordScreen extends ConsumerStatefulWidget {

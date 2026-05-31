@@ -6,7 +6,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../widgets/custom_text_field.dart';
+import '../../../../shared/widgets/custom_text_field.dart';
 
 typedef SocialLinkChange = void Function(VoidCallback mutator);
 

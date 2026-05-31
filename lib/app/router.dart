@@ -8,6 +8,12 @@ import '../core/firebase/app_analytics_observer.dart';
 import '../core/providers/auth_state_provider.dart';
 import '../core/providers/onboarding_seen_provider.dart';
 import '../features/availability/presentation/screens/add_availability_screen.dart';
+import '../features/availability/presentation/screens/manage_availability_screen.dart';
+import '../features/file_manager/presentation/screens/file_manager_screen.dart';
+import '../features/home/presentation/screens/home_screen.dart';
+import '../features/messages/presentation/screens/messages_screen.dart';
+import '../features/shoots/presentation/screens/shoots_screen.dart';
+import '../shared/layouts/app_shell.dart';
 import '../features/profile/presentation/screens/edit_personal_details_screen.dart';
 import '../features/profile/presentation/screens/enter_profile_details_screen.dart';
 import '../features/profile/presentation/screens/profile_details_1_screen.dart';
@@ -29,10 +35,10 @@ import '../features/shoots/presentation/screens/shoot_cancelled_screen.dart';
 import '../features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart';
 
 /// AUTH
-import '../auth/login/login.dart';
-import '../auth/sign_up/signup1_screen.dart';
-import '../auth/sign_up/signup2_screen.dart';
-import '../auth/sign_up/signup3_screen.dart';
+import '../features/auth/presentation/screens/login_screen.dart';
+import '../features/auth/presentation/screens/signup1_screen.dart';
+import '../features/auth/presentation/screens/signup2_screen.dart';
+import '../features/auth/presentation/screens/signup3_screen.dart';
 
 import '../features/file_manager/presentation/screens/post_production_screen.dart';
 import '../features/file_manager/presentation/screens/pre_production_screen.dart';
@@ -42,15 +48,12 @@ import '../features/splash/presentation/screens/splash_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 
 /// FORGOT PASSWORD
-import '../auth/forgotpassword/forgot_password_screen.dart';
-import '../auth/forgotpassword/forgot_password_otp_screen.dart';
-import '../auth/resetpassword/reset_password_screen.dart';
-
-/// MAIN
-import '../main_screen.dart';
+import '../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../features/auth/presentation/screens/forgot_password_otp_screen.dart';
+import '../features/auth/presentation/screens/reset_password_screen.dart';
 
 /// PROFILE
-import '../auth/view_details_screen.dart';
+import '../features/auth/presentation/screens/view_details_screen.dart';
 
 /// ROUTES
 import 'route_names.dart';
@@ -109,16 +112,6 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-/// Backwards-compatibility alias — older code paths that haven't been
-/// migrated to `ref.watch(routerProvider)` reach for this constant. Built
-/// without Riverpod overrides, so its redirect always sees `false` for
-/// auth state. New consumers should use `routerProvider` directly.
-final GoRouter appRouter = GoRouter(
-  initialLocation: '/splash',
-  observers: [AppAnalyticsObserver()],
-  routes: _routes,
-);
-
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(this._ref) {
     _sub = _ref.listen<bool>(
@@ -136,7 +129,7 @@ class _AuthRefreshNotifier extends ChangeNotifier {
   }
 }
 
-final List<GoRoute> _routes = [
+final List<RouteBase> _routes = [
   /// ───────────────── SPLASH ─────────────────
   GoRoute(
     path: '/splash',
@@ -155,7 +148,7 @@ final List<GoRoute> _routes = [
   GoRoute(
     path: '/login',
     name: RouteNames.login,
-    builder: (context, state) => const Login(),
+    builder: (context, state) => const LoginScreen(),
   ),
 
   /// ───────────────── SIGNUP STEP 1 ─────────────────
@@ -239,11 +232,57 @@ final List<GoRoute> _routes = [
     },
   ),
 
-  /// ───────────────── HOME ─────────────────
-  GoRoute(
-    path: '/home',
-    name: RouteNames.home,
-    builder: (context, state) => const Mainscreen(),
+  /// ───────────────── SHELL (5 root tabs) ─────────────────
+  StatefulShellRoute.indexedStack(
+    builder: (context, state, navigationShell) =>
+        AppShell(shell: navigationShell),
+    branches: [
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: '/home',
+            name: RouteNames.home,
+            builder: (context, state) => const HomeScreen(),
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: '/shoots',
+            name: RouteNames.shoots,
+            builder: (context, state) => const ShootsScreen(),
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: '/files',
+            name: RouteNames.files,
+            builder: (context, state) => const FileManagerScreen(),
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: '/messages',
+            name: RouteNames.messages,
+            builder: (context, state) => const MessagesScreen(),
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: '/manage-availability',
+            name: RouteNames.manageAvailability,
+            builder: (context, state) => const ManageAvailabilityScreen(),
+          ),
+        ],
+      ),
+    ],
   ),
 
   GoRoute(

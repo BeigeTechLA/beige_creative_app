@@ -10,7 +10,7 @@ import '../../../../app/route_names.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../widgets/custom_text_field.dart';
+import '../../../../shared/widgets/custom_text_field.dart';
 import '../../domain/entities/file_folder.dart';
 import '../providers/file_manager_providers.dart';
 

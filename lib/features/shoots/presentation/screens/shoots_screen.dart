@@ -13,7 +13,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../model_class/shoots_model.dart';
 import '../../../../service/api_service.dart';
 import '../../../../utility/date_time_utils.dart';
-import '../../../../widgets/app_loder.dart';
+import '../../../../shared/widgets/app_loader.dart';
 import '../providers/shoots_providers.dart';
 
 class ShootsScreen extends ConsumerStatefulWidget {

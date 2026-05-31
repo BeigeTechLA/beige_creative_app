@@ -9,8 +9,8 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/myprofile_model.dart';
 import '../../../../service/api_service.dart';
-import '../../../../widgets/app_loder.dart';
-import '../../../../widgets/top_message.dart';
+import '../../../../shared/widgets/app_loader.dart';
+import '../../../../shared/widgets/top_message.dart';
 import '../providers/profile_files_providers.dart';
 
 class FeaturedWorkDetailsScreen extends ConsumerStatefulWidget {

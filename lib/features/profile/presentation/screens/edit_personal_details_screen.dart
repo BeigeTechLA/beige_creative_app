@@ -16,9 +16,9 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../service/google_config.dart';
 import '../../../../utility/location_service.dart';
-import '../../../../widgets/custom_dropdown_field.dart';
-import '../../../../widgets/custom_text_field.dart';
-import '../../../../widgets/top_message.dart';
+import '../../../../shared/widgets/custom_dropdown_field.dart';
+import '../../../../shared/widgets/custom_text_field.dart';
+import '../../../../shared/widgets/top_message.dart';
 import '../providers/profile_details_providers.dart';
 
 const _distanceList = <String>[

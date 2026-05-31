@@ -18,8 +18,12 @@ class RouteNames {
   static const forgotOtp = "forgot-otp";
   static const resetPassword = "reset-password";
 
-  /// Home
+  /// Shell tabs
   static const home = "home";
+  static const shoots = "shoots";
+  static const files = "files";
+  static const messages = "messages";
+  static const manageAvailability = "manage-availability";
 
   /// Shoots
   static const upcomingShootDetails =

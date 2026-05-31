@@ -5,7 +5,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../widgets/custom_text_field.dart';
+import '../../../../shared/widgets/custom_text_field.dart';
 
 typedef PortfolioLinkChange = void Function(VoidCallback mutator);
 

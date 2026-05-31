@@ -8,10 +8,10 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../widgets/custom_multi_selectfield.dart'
+import '../../../../shared/widgets/custom_multi_selectfield.dart'
     show CustomMultiSelectField;
-import '../../../../widgets/custom_text_field.dart';
-import '../../../../widgets/top_message.dart';
+import '../../../../shared/widgets/custom_text_field.dart';
+import '../../../../shared/widgets/top_message.dart';
 import '../providers/profile_details_providers.dart';
 
 class EnterProfileDetailsScreen extends ConsumerStatefulWidget {

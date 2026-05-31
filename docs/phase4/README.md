@@ -1,6 +1,6 @@
 # Phase 4 — Feature Migration
 
-**Overall status:** 🟡 In Progress · 16 / 23 tasks done · **Est:** 58 effort-days
+**Overall status:** 🟢 Completed · 23 / 23 tasks done · **Est:** 58 effort-days
 **Calibration:** re-baseline Groups B–E after Group A (pilot) ships and yields actuals.
 
 | Field | Value |
@@ -53,18 +53,18 @@
 
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
-| [4.17](task_17_groupE_login.md) | Unit 14 — `Login` + auth `ViewDetailsScreen` | 🔴 | 5 | 2d |
-| [4.18](task_18_groupE_forgot_password.md) | Unit 15 — Forgot Password trio | 🔴 | 6 | 3d |
-| [4.19](task_19_groupE_signup1_decompose.md) | Unit 16.a — Decompose `SignUp1` (1,836 LOC) | 🔴 | 5–8 | 2d |
-| [4.20](task_20_groupE_signup1_signup2_migrate.md) | Unit 16.b — Migrate `SignUp1` + `SignUp2` | 🔴 | 8 | 3d |
-| [4.21](task_21_groupE_signup3_decompose.md) | Unit 17.a — Decompose `SignUp3` (3,569 LOC, 35-field state) into 3–4 sub-screens | 🔴 | 8–10 | 2d |
-| [4.22](task_22_groupE_signup3_migrate.md) | Unit 17.b — Migrate `SignUp3` sub-screens (largest single risk in project) | 🔴 | 10 | 2d |
+| [4.17](task_17_groupE_login.md) | Unit 14 — `Login` + auth `ViewDetailsScreen` | 🟢 | 5 | 2d |
+| [4.18](task_18_groupE_forgot_password.md) | Unit 15 — Forgot Password trio | 🟢 | 6 | 3d |
+| [4.19](task_19_groupE_signup1_decompose.md) | Unit 16.a — Decompose `SignUp1` (1,836 LOC) | 🟢 | 6 | 2d |
+| [4.20](task_20_groupE_signup1_signup2_migrate.md) | Unit 16.b — Migrate `SignUp1` + `SignUp2` | 🟢 | 8 | 3d |
+| [4.21](task_21_groupE_signup3_decompose.md) | Unit 17.a — Decompose `SignUp3` (3,569 LOC, 35-field state) into widget files | 🟢 | 9 | 2d |
+| [4.22](task_22_groupE_signup3_migrate.md) | Unit 17.b — Migrate `SignUp3` sub-screens (largest single risk in project) | 🟢 | 7 | 2d |
 
 ## Group F — Shell + shared widgets (3 days)
 
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
-| [4.23](task_23_groupF_shell_shared.md) | Unit 18 — Shell rewrite (`StatefulShellRoute.indexedStack`) + move shared widgets + drop `BackdropFilter` | 🔴 | 10 | 3d |
+| [4.23](task_23_groupF_shell_shared.md) | Unit 18 — Shell rewrite (`StatefulShellRoute.indexedStack`) + move shared widgets + drop `BackdropFilter` | 🟢 | 8 | 3d |
 
 ---
 

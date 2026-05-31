@@ -10,7 +10,7 @@ import '../../../../app/route_names.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../utility/date_time_utils.dart';
-import '../../../../widgets/common_calendar.dart';
+import '../../../../shared/widgets/common_calendar.dart';
 import '../../domain/entities/availability_entry.dart';
 import '../providers/availability_providers.dart';
 

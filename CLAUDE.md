@@ -27,8 +27,8 @@ Current migration state:
 - Phase 1 complete.
 - Phase 2 complete.
 - Phase 3 complete.
-- Phase 4 in progress; `15 / 23` tasks complete.
-- Next open task: `docs/phase4/task_16_groupD_home_migrate.md`.
+- Phase 4 complete; `23 / 23` tasks done.
+- Phase 5 not started — first task `5.01` (`ApiService` retirement + `service/` cleanup).
 
 Riverpod is wired. Do not follow older notes that say ProviderScope/Riverpod is
 unused. `startApp` mounts `ProviderScope`, overrides shared dependencies, and

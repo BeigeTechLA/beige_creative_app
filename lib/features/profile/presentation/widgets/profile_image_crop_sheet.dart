@@ -11,7 +11,8 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../../../auth/sign_up/signup1_screen.dart' show CircleHolePainter;
+import '../../../auth/presentation/widgets/signup1_crop_sheet.dart'
+    show CircleHolePainter;
 
 /// Custom crop bottom sheet shown after the user picks a new avatar.
 /// Returns the cropped [File] via callback; parent decides what to do with it.

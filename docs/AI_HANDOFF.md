@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-05-30.
+Last updated: 2026-05-31.
 
 ## Read Order
 
@@ -21,24 +21,11 @@ Every AI session should read:
 - Phase 1: complete. Audit output lives in `docs/audit/`.
 - Phase 2: complete. Folder casing, security hotfixes, env secrets, CI, and target folders are done.
 - Phase 3: complete. Foundations are in place.
-- Phase 4: active. `16 / 23` tasks complete.
-- Phase 5: not started.
+- Phase 4: **complete**. `23 / 23` tasks done.
+- Phase 5: not started — first task `5.01` (`ApiService` retirement + `service/` cleanup).
 - Phase 6: not started.
 
-Current open Phase 4 task:
-
-- `4.17` — `docs/phase4/task_17_groupE_login.md`
-- Goal: migrate `Login` + auth `ViewDetailsScreen` to Riverpod.
-
-Remaining Phase 4 sequence after 4.16:
-
-- `4.17` Login + auth ViewDetails
-- `4.18` Forgot-password trio
-- `4.19` SignUp1 decomposition
-- `4.20` SignUp1 + SignUp2 migration
-- `4.21` SignUp3 decomposition
-- `4.22` SignUp3 migration
-- `4.23` shell rewrite + shared widget cleanup
+No active Phase 4 task. Next phase entry-point is `docs/phase5/` once that board is opened.
 
 ## Current Architecture
 
@@ -84,10 +71,10 @@ Group D is complete. Home now uses:
 
 ## Verification Baseline
 
-Most recent check (post-4.16):
+Most recent check (post-4.23, end of Phase 4):
 
-- `flutter analyze`: completes with 149 issues, mostly legacy warnings/infos; no compile errors observed.
-- `flutter test`: 106/106 passing.
+- `flutter analyze`: 82 issues, mostly legacy warnings/infos; no compile errors observed.
+- `flutter test`: 145/145 passing.
 
 Do not assume this remains current after further edits; rerun checks after changes.
 
