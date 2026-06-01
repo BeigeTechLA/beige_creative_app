@@ -1,6 +1,6 @@
 # Navigator Migration — Centralised Routing & Tracking
 
-Status: **In progress (2026-06-01)** — A0 + A done, B/C/D/F pending.
+Status: **In progress (2026-06-01)** — A0 + A + B done, C/D/F pending.
 Owner: TBD.
 Related docs: `docs/NAVIGATION_MAP.md` (current state snapshot), `CLAUDE.md`, `MIGRATION_RULES.md`.
 
@@ -10,7 +10,7 @@ Related docs: `docs/NAVIGATION_MAP.md` (current state snapshot), `CLAUDE.md`, `M
 |---|---|---|---|
 | A0 — Regenerate navigation map | ✅ Done | `9befd0d` | NAVIGATION_MAP.md rewritten; P15/P16/P18 evidence updated; P21+P22 added; audit cross-walk in §11. |
 | A — Centralisation | ✅ Done | `98b2196` | `lib/app/routes.dart` + `navigator_key.dart`; auth → NotifierProvider; refreshListenable merged; 36-file `RouteNames` sweep; 9/9 route tests pass; 160/160 full suite green. |
-| B — Restoration + DraftStore | ⏳ Pending | — | Flagged off behind `kRestorationEnabled`. |
+| B — Restoration + DraftStore | ✅ Done | `3b2120b` | 6 restoration files + `prefsProvider`. Persist on every route change, restore on splash, logout wipes. `kRestorationEnabled = false`; flip after device smoke (B6 deferred). 19 new tests; 179/179 green. |
 | C — Typed args | ⏳ Pending | — | Fixes P11/P15. 3 new args files. |
 | D — Cleanup | ⏳ Pending | — | Kills last 2 `Navigator.push`; delete `RouteNames` shim; AppShell branch-4 fix. |
 | F — Centralised screen-view analytics | ⏳ Pending | — | `RouteSpec.trackScreenView` + `screenClass` + DebugView smoke. |
@@ -397,14 +397,16 @@ Acceptance: `flutter analyze` clean, `flutter test` green (160/160), app boots a
 
 ### Phase B — Restoration & DraftStore (1-2 days, gated by flag)
 
-| Task | File(s) |
-|---|---|
-| B1 | Port 5 files from biegeapp `lib/core/restoration/` with package-path edits. `kRestorationEnabled = false`. |
-| B2 | Wire `routerDelegate.addListener(persistOnChange)` in `routerProvider`. |
-| B3 | Update `SplashScreen` to call `splashRestorerProvider.shouldRestore(...)` and `context.go(restored.toUri())`. |
-| B4 | Add `SignUpDraft` (mirrors `BookingDraft` in biegeapp) for the 3-step signup flow. Wire into signup route builders. |
-| B5 | `AuthStateNotifier.logout()` clears restoration + drafts. |
-| B6 | Smoke test: kill app on signup-step-2, relaunch, land back on signup-step-2 with fields preserved. Flip `kRestorationEnabled = true` once green. |
+**Done in commit `3b2120b`.** 6 new restoration files + 3 test files. `kRestorationEnabled = false` (B6 device smoke deferred).
+
+| Task | Status | File(s) | Notes |
+|---|---|---|---|
+| B1 | ✅ | `lib/core/restoration/{restoration_keys,route_restoration_service,app_lifecycle_observer,splash_restorer,draft_store,restoration_providers}.dart` | Ported from biegeapp. Skip list uses `Routes.publicPaths` + OTP/success surfaces. `SignUpDraft` replaces biegeapp's Booking variants. |
+| B2 | ✅ | `lib/app/router.dart` | `router.routerDelegate.addListener(persistOnChange)` — every URL change calls `RouteRestorationService.persist`. No-op while flag is off. |
+| B3 | ✅ | `lib/features/splash/presentation/screens/splash_screen.dart` | Tries `splashRestorerProvider.shouldRestore(...)` before `goNamed(home)`. |
+| B4 | ✅ | `lib/features/auth/presentation/routes/auth_routes.dart`, `lib/core/restoration/draft_store.dart` | `SignUpDraft` model. Step-2/3 builders fall back to draft when `state.extra` is null AND flag is on. |
+| B5 | ✅ | `lib/core/providers/auth_state_provider.dart` | `logout()` calls `routeRestorationService.clearAll()` + `draftStore.clearAll()` before flipping state. |
+| B6 | ⏳ | manual QA + `MIGRATION_LOG.md` | Deferred until product/team confirms restoration is acceptable mid-signup (§9 Q2 still open). Auto-tests cover unit invariants; device smoke flips the flag. |
 
 ### Phase C — Typed args (0.5-1 day)
 
