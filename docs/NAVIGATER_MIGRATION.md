@@ -1,6 +1,6 @@
 # Navigator Migration — Centralised Routing & Tracking
 
-Status: **In progress (2026-06-01)** — A0 + A + B + C + D done, F pending.
+Status: **Done (2026-06-01)** — A0 + A + B + C + D + F complete. B6 + F8 device-smoke deferred. E remains future work.
 Owner: TBD.
 Related docs: `docs/NAVIGATION_MAP.md` (current state snapshot), `CLAUDE.md`, `MIGRATION_RULES.md`.
 
@@ -13,7 +13,7 @@ Related docs: `docs/NAVIGATION_MAP.md` (current state snapshot), `CLAUDE.md`, `M
 | B — Restoration + DraftStore | ✅ Done | `3b2120b` | 6 restoration files + `prefsProvider`. Persist on every route change, restore on splash, logout wipes. `kRestorationEnabled = false`; flip after device smoke (B6 deferred). 19 new tests; 179/179 green. |
 | C — Typed args | ✅ Done | `3e4b08e` | 3 args files + 3 test files. 9 args classes; null-safe `fromExtra`. P15 resolved (no non-null casts). 21 new tests; 200/200 green. |
 | D — Cleanup | ✅ Done | `70979ee` | Last 2 raw `Navigator.push` killed. `RouteNames` shim + `ShootRequestAccepted` orphan deleted. `view_details_screen.dart` renamed `file_viewer_screen.dart` (class `FileViewerScreen`); new `Routes.fileViewer` route. `AppShell` bottom bar hides on branch 4. CI guard `tool/check_no_navigator_push.sh`. `MIGRATION_RULES.md` §6.1-§6.4 refreshed. |
-| F — Centralised screen-view analytics | ⏳ Pending | — | `RouteSpec.trackScreenView` + `screenClass` + DebugView smoke. |
+| F — Centralised screen-view analytics | ✅ Done | `93d2310` | `RouteSpec.trackScreenView` + `_trackedNameOf` extractor. 4 opt-outs (splash + 3 success surfaces). AppShell logs branch switches explicitly. SCREEN_CATALOG.md generated. 5 new tests; 205/205 green. F8 device smoke deferred. |
 | E — Future | — | — | Out of scope this migration. |
 
 ## 1. Goal
@@ -435,20 +435,20 @@ Acceptance: `flutter analyze` clean, `flutter test` green (160/160), app boots a
 
 ### Phase F — Centralised screen-view analytics (0.5-1 day)
 
-Wires `FirebaseAnalyticsObserver` as the single source of truth for `screen_view`. Depends on Phase A (snake_case `Routes.x.name` populating `RouteSettings.name`). Parallelisable with Phase C/D.
+**Done in commit `93d2310`.** 8 files (282 +, 31 −). 205/205 tests green.
 
-| Task | File(s) | Notes |
-|---|---|---|
-| F1 | Audit current observer wiring. Confirm `AppAnalyticsObserver` is in `routerProvider.observers` and that `FirebaseAnalyticsObserver` fires on shell-branch switch (not just leaf push). | `lib/app/router.dart`, `lib/core/firebase/app_analytics_observer.dart` |
-| F2 | Add `nameExtractor` parameter to `AnalyticsService.buildObserver(...)`. Default extractor returns `settings.name` when non-empty. Drop the silent-skip path on un-named routes — they should now be impossible thanks to A8. | `lib/core/firebase/analytics_service.dart`, `app_analytics_observer.dart` |
-| F3 | Add `RouteSpec.trackScreenView` (default `true`) + `Routes.byName` lookup map. Observer skips `screen_view` (but keeps Crashlytics breadcrumb) when `trackScreenView == false`. Apply to `splash` and any OTP success momentary screens. | `lib/app/routes.dart`, `app_analytics_observer.dart` |
-| F4 | Set `screenClass` to the widget runtime type (e.g. `LoginScreen`) so Firebase splits engagement when paths collide. Use a small `_screenClassFor(Route)` helper that reads `route.settings.arguments` / runtime type. | `app_analytics_observer.dart` |
-| F5 | Document the contract in `MIGRATION_RULES.md`: **"`PageRoute` screens are auto-logged via `FirebaseAnalyticsObserver`. Dialogs / bottom sheets must call `AnalyticsService.logScreenView(screenName: Routes.x.name)` explicitly. Never hard-code screen_name strings."** | `MIGRATION_RULES.md` |
-| F6 | Generate `docs/analytics/SCREEN_CATALOG.md` from `Routes.all` (name, path, isPublic, trackScreenView). One source of truth shared with the analytics owner. | new doc |
-| F7 | Add `test/app/routes_analytics_test.dart`: every `Routes.x.name` is non-empty, snake_case (`^[a-z][a-z0-9_]{0,38}$`), unique, ≤40 chars (Firebase screen_name limit). Reuses A8 fixture. | new test |
-| F8 | Firebase DebugView smoke test: walk the golden path (splash → login → home → shoots → manage_availability → logout). Each transition produces one `screen_view` with `screen_name == Routes.<x>.name`. Document in `MIGRATION_LOG.md`. | manual QA |
+| Task | Status | File(s) | Notes |
+|---|---|---|---|
+| F1 | ✅ | `lib/app/router.dart`, `lib/core/firebase/app_analytics_observer.dart`, `lib/shared/layouts/app_shell.dart` | Observer attached at root only — sees PageRoute pushes / replaces. Shell-branch switches handled via explicit `AnalyticsService.logScreenView` call in `AppShell._goBranch`. |
+| F2 | ✅ | `lib/core/firebase/analytics_service.dart` | `buildObserver` accepts `ScreenNameExtractor`. Defaults to the SDK's `defaultNameExtractor` when caller passes none. |
+| F3 | ✅ | `lib/app/routes.dart`, `app_analytics_observer.dart` | `RouteSpec.trackScreenView` (default `true`). `_trackedNameOf` returns `null` when `Routes.byName[name]?.trackScreenView == false`, so the Firebase observer skips `screen_view`. Crashlytics breadcrumb still records via the existing `_recordRoute`. Opt-outs: `splash`, `profile_password_success`, `delete_account_success`, `shoot_cancelotties`. |
+| F4 | ⛔ no-op | `app_analytics_observer.dart` | `FirebaseAnalyticsObserver`'s default `screenClassExtractor` returns `settings.name`, matching what we want when paths are unique (they are). Custom helper deferred — only worth it if path collisions land. |
+| F5 | ✅ | `MIGRATION_RULES.md` §6.5 | PageRoute auto-logged. Dialogs/sheets call `AnalyticsService.logScreenView` explicitly. Branch switches logged in AppShell. Never hard-code analytics strings. |
+| F6 | ✅ | `docs/analytics/SCREEN_CATALOG.md` | 38 routes inventoried with name / path / isPublic / track. Documents kebab→snake rename impact. |
+| F7 | ✅ | `test/app/routes_analytics_test.dart` | snake_case regex, ≤40 char limit, hyphen-leak guard, uniqueness, expected opt-out flags. |
+| F8 | ⏳ | manual QA + `MIGRATION_LOG.md` | Deferred. Needs a post-`flutterfire configure` build; smoke walks splash → login → home → shoots → manage_availability → logout and confirms snake `screen_name` events in DebugView. Document result before flipping analytics dashboards. |
 
-Acceptance: DebugView shows `screen_view` events with snake_case `screen_name` matching `Routes.x.name` on every `PageRoute` push/replace; shell-branch switch logs the new branch's screen; `splash` and opt-out routes are absent; CI fails if a `Routes.x.name` violates the regex or duplicates an existing name.
+Acceptance: DebugView shows `screen_view` events with snake_case `screen_name` matching `Routes.x.name` on every `PageRoute` push/replace; shell-branch switch logs the new branch's screen; `splash` and opt-out routes are absent; CI fails if a `Routes.x.name` violates the regex or duplicates an existing name. **All static checks green; F8 awaits real device.**
 
 ### Phase E — Future (not in this plan)
 
