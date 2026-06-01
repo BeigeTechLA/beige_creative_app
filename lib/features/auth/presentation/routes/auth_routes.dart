@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +14,7 @@ import '../screens/signup1_screen.dart';
 import '../screens/signup2_screen.dart';
 import '../screens/signup3_screen.dart';
 import '../screens/view_details_screen.dart';
+import 'signup_args.dart';
 
 /// Auth + signup-flow routes. Composed into the root `GoRouter` route list
 /// in `lib/app/router.dart`.
@@ -34,16 +33,17 @@ final List<RouteBase> authRoutes = [
     path: Routes.signupStep2.path,
     name: Routes.signupStep2.name,
     builder: (context, state) {
-      final data = _signupExtraOrDraft(context, state.extra);
+      final args =
+          SignUpStep2Args.fromExtra(_signupExtraOrDraft(context, state.extra));
       return SignUp2Screen(
-        crewMemberId: data['crewMemberId'],
-        profileImage: data['profileImage'],
-        email: data['email'],
-        firstName: data['firstName'],
-        lastName: data['lastName'],
-        location: data['location'],
-        workingDistance: data['workingDistance'],
-        step1Progress: data['step1Progress'] ?? 0,
+        crewMemberId: args.crewMemberId,
+        profileImage: args.profileImage,
+        email: args.email,
+        firstName: args.firstName,
+        lastName: args.lastName,
+        location: args.location,
+        workingDistance: args.workingDistance,
+        step1Progress: args.step1Progress,
       );
     },
   ),
@@ -51,22 +51,23 @@ final List<RouteBase> authRoutes = [
     path: Routes.signupStep3.path,
     name: Routes.signupStep3.name,
     builder: (context, state) {
-      final data = _signupExtraOrDraft(context, state.extra);
+      final args =
+          SignUpStep3Args.fromExtra(_signupExtraOrDraft(context, state.extra));
       return SignUp3Screen(
-        crewMemberId: data['crewMemberId'],
-        profileImage: data['profileImage'],
-        email: data['email'],
-        firstName: data['firstName'],
-        lastName: data['lastName'],
-        location: data['location'],
-        workingDistance: data['workingDistance'],
-        primaryRole: data['primaryRole'] ?? "",
-        experience: data['experience'] ?? "",
-        hourlyRate: data['hourlyRate'] ?? "",
-        bio: data['bio'] ?? "",
-        skills: data['skills'] ?? "",
-        equipments: data['equipments'] ?? "",
-        step2Progress: data['step2Progress'] ?? 0,
+        crewMemberId: args.crewMemberId,
+        profileImage: args.profileImage,
+        email: args.email,
+        firstName: args.firstName,
+        lastName: args.lastName,
+        location: args.location,
+        workingDistance: args.workingDistance,
+        primaryRole: args.primaryRole,
+        experience: args.experience,
+        hourlyRate: args.hourlyRate,
+        bio: args.bio,
+        skills: args.skills,
+        equipments: args.equipments,
+        step2Progress: args.step2Progress,
       );
     },
   ),
@@ -98,24 +99,21 @@ final List<RouteBase> authRoutes = [
     path: Routes.viewDetails.path,
     name: Routes.viewDetails.name,
     builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
+      final args = ViewDetailsArgs.fromExtra(state.extra);
       return ViewDetailsScreen(
-        firstName: data['firstName'] ?? "",
-        lastName: data['lastName'] ?? "",
-        email: data['email'] ?? "",
-        location: data['location'] ?? "",
-        profileImage: data['profileImage'],
-        workingDistance: data['workingDistance'] ?? "",
-        primaryRole: data['primaryRole'] ?? "",
-        experience: data['experience'] ?? "",
-        hourlyRate: data['hourlyRate'] ?? "",
-        bio: data['bio'] ?? "",
-        skills: data['skills'] ?? "",
-        equipments: data['equipments'] ?? "",
-        featuredImages: (data['featuredImages'] as List?)
-                ?.map((e) => e as File)
-                .toList() ??
-            <File>[],
+        firstName: args.firstName,
+        lastName: args.lastName,
+        email: args.email,
+        location: args.location,
+        profileImage: args.profileImage,
+        workingDistance: args.workingDistance,
+        primaryRole: args.primaryRole,
+        experience: args.experience,
+        hourlyRate: args.hourlyRate,
+        bio: args.bio,
+        skills: args.skills,
+        equipments: args.equipments,
+        featuredImages: args.featuredImages,
       );
     },
   ),

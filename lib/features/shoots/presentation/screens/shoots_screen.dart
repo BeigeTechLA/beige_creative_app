@@ -8,6 +8,7 @@ import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../routes/shoots_args.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
@@ -153,11 +154,14 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                       onAccept: () => notifier.acceptShoot(shoot.projectId),
                       onDecline: () => context.pushNamed(
                         Routes.cancelShoot.name,
-                        extra: {'projectId': shoot.projectId},
+                        extra: CancelShootArgs(projectId: shoot.projectId)
+                            .toExtra(),
                       ).then((_) => notifier.refresh()),
                       onViewDetails: () => context.pushNamed(
                         Routes.upcomingShootDetails.name,
-                        extra: {'projectId': shoot.projectId},
+                        extra: UpcomingShootDetailsArgs(
+                          projectId: shoot.projectId,
+                        ).toExtra(),
                       ),
                     );
                   },

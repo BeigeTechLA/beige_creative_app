@@ -10,6 +10,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
+import '../routes/profile_args.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -54,7 +55,7 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
   Future<void> _onNavigate(String title, List<dynamic> images) async {
     final result = await context.pushNamed(
       Routes.featuredWorkDetails.name,
-      extra: {'title': title, 'images': images},
+      extra: FeaturedWorkDetailsArgs(title: title, images: images).toExtra(),
     );
     if (result == true) {
       ref.read(featuredWorkNotifierProvider.notifier).refresh();

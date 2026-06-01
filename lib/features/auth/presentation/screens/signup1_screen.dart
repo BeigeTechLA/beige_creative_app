@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../routes/signup_args.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
@@ -176,16 +177,16 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
     final state = ref.read(signupNotifierProvider);
     context.goNamed(
       Routes.signupStep2.name,
-      extra: {
-        'crewMemberId': state.crewMemberId,
-        'profileImage': state.profileImage,
-        'email': state.email,
-        'firstName': state.firstName,
-        'lastName': state.lastName,
-        'location': state.location,
-        'workingDistance': state.workingDistance,
-        'step1Progress': state.step1Progress,
-      },
+      extra: SignUpStep2Args(
+        crewMemberId: state.crewMemberId,
+        profileImage: state.profileImage,
+        email: state.email,
+        firstName: state.firstName,
+        lastName: state.lastName,
+        location: state.location,
+        workingDistance: state.workingDistance,
+        step1Progress: state.step1Progress,
+      ).toExtra(),
     );
   }
 

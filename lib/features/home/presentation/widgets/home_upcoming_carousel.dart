@@ -7,6 +7,7 @@ import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../../../shoots/presentation/routes/shoots_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/upcoming_shoots_model.dart';
@@ -285,7 +286,9 @@ class HomeUpcomingCarousel extends StatelessWidget {
                         onPressed: () {
                           context.pushNamed(
                             Routes.upcomingShootDetails.name,
-                            extra: {"projectId": data['projectId']},
+                            extra: UpcomingShootDetailsArgs(
+                              projectId: data['projectId'] as int?,
+                            ).toExtra(),
                           );
                         },
                         child: Text(

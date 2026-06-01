@@ -7,6 +7,7 @@ import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../../../shoots/presentation/routes/shoots_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/create_dashboard_details_model.dart';
@@ -127,7 +128,9 @@ class HomePendingShootCard extends StatelessWidget {
                           onTap: () {
                             context.pushNamed(
                               Routes.upcomingShootDetails.name,
-                              extra: {"projectId": data.projectId},
+                              extra: UpcomingShootDetailsArgs(
+                                projectId: data.projectId,
+                              ).toExtra(),
                             );
                           },
                           child: Text(
@@ -238,7 +241,9 @@ class HomePendingShootCard extends StatelessWidget {
                                 onPressed: () async {
                                   context.pushNamed(
                                     Routes.cancelShoot.name,
-                                    extra: {"projectId": data.projectId},
+                                    extra: CancelShootArgs(
+                                      projectId: data.projectId,
+                                    ).toExtra(),
                                   ).then((value) {
                                     if (value == true) {
                                       onRejectComplete();

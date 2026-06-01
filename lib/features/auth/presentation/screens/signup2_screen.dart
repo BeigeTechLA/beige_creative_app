@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../routes/signup_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_loader.dart' show AppLoader;
@@ -83,22 +84,22 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
     final state = ref.read(signupNotifierProvider);
     context.pushNamed(
       Routes.signupStep3.name,
-      extra: {
-        'crewMemberId': widget.crewMemberId,
-        'profileImage': widget.profileImage,
-        'email': widget.email,
-        'firstName': widget.firstName,
-        'lastName': widget.lastName,
-        'location': widget.location,
-        'workingDistance': widget.workingDistance,
-        'primaryRole': state.selectedRoles.join(', '),
-        'experience': yearOfExperienceController.text.trim(),
-        'hourlyRate': hourlyRateController.text.trim(),
-        'bio': bioController.text.trim(),
-        'skills': state.selectedSkills.join(', '),
-        'equipments': state.selectedEquipments.join(', '),
-        'step2Progress': state.step2Progress,
-      },
+      extra: SignUpStep3Args(
+        crewMemberId: widget.crewMemberId,
+        profileImage: widget.profileImage,
+        email: widget.email,
+        firstName: widget.firstName,
+        lastName: widget.lastName,
+        location: widget.location,
+        workingDistance: widget.workingDistance,
+        primaryRole: state.selectedRoles.join(', '),
+        experience: yearOfExperienceController.text.trim(),
+        hourlyRate: hourlyRateController.text.trim(),
+        bio: bioController.text.trim(),
+        skills: state.selectedSkills.join(', '),
+        equipments: state.selectedEquipments.join(', '),
+        step2Progress: state.step2Progress,
+      ).toExtra(),
     );
   }
 

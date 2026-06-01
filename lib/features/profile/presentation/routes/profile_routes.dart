@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
 import '../screens/app_preferences_screen.dart';
+import 'profile_args.dart';
 import '../screens/certificates_screen.dart';
 import '../screens/change_password_screen.dart';
 import '../screens/delete_account_lottie_screen.dart';
@@ -50,10 +51,10 @@ final List<RouteBase> profileRoutes = [
     path: Routes.featuredWorkDetails.path,
     name: Routes.featuredWorkDetails.name,
     builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>;
+      final args = FeaturedWorkDetailsArgs.fromExtra(state.extra);
       return FeaturedWorkDetailsScreen(
-        title: data["title"],
-        images: data["images"],
+        title: args.title,
+        images: args.images,
       );
     },
   ),
@@ -76,26 +77,26 @@ final List<RouteBase> profileRoutes = [
     path: Routes.changePassword.path,
     name: Routes.changePassword.name,
     builder: (context, state) {
-      final email = state.extra as String;
-      return ChangePasswordScreen(email: email);
+      final args = ChangePasswordArgs.fromExtra(state.extra);
+      return ChangePasswordScreen(email: args.email);
     },
   ),
   GoRoute(
     path: Routes.profileOtp.path,
     name: Routes.profileOtp.name,
     builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
-      return ProfileOtpScreen(email: data['email'] ?? '');
+      final args = ProfileOtpArgs.fromExtra(state.extra);
+      return ProfileOtpScreen(email: args.email);
     },
   ),
   GoRoute(
     path: Routes.newPassword.path,
     name: Routes.newPassword.name,
     builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
+      final args = ProfileNewPasswordArgs.fromExtra(state.extra);
       return ProfileNewPasswordScreen(
-        email: data['email'] ?? '',
-        otp: data['otp'] ?? '',
+        email: args.email,
+        otp: args.otp,
       );
     },
   ),

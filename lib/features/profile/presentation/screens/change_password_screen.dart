@@ -7,6 +7,7 @@ import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../routes/profile_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/new_text_field.dart';
@@ -40,7 +41,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     if (ok && mounted) {
       context.pushNamed(
         Routes.profileOtp.name,
-        extra: {'email': _emailController.text.trim()},
+        extra: ProfileOtpArgs(email: _emailController.text.trim()).toExtra(),
       );
     }
   }

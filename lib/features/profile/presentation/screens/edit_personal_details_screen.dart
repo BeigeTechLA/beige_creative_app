@@ -12,6 +12,7 @@ import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../routes/profile_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../service/google_config.dart';
@@ -331,7 +332,9 @@ class _EditPersonalDetailsScreenState
                       onTap: () {
                         context.pushNamed(
                           Routes.changePassword.name,
-                          extra: emailcontroller.text.trim(),
+                          extra: ChangePasswordArgs(
+                            email: emailcontroller.text.trim(),
+                          ).toExtra(),
                         );
                       },
                       child: Padding(
