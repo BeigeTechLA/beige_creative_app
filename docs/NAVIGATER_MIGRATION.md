@@ -572,31 +572,40 @@ Per-phase manifest. Counts are the upper bound; A4/A7/C4 sweep widths depend on 
 | A | `tool/check_no_navigator_push.sh` (or analyze rule) | CI grep guard. Path TBD by infra owner. |
 | M | `docs/NAVIGATION_MAP.md` | Reflect final structure (or mark superseded by E1). |
 
-### Phase F — Centralised screen-view analytics
+### Phase F — Centralised screen-view analytics (commit `93d2310`)
 
 | Action | Path | Purpose |
 |---|---|---|
-| M | `lib/core/firebase/analytics_service.dart` | Add `nameExtractor` param to `buildObserver`. |
-| M | `lib/core/firebase/app_analytics_observer.dart` | Plug `_nameOf`, `screenClass` helper, `RouteSpec.trackScreenView` short-circuit. |
-| M | `lib/app/routes.dart` | Add `RouteSpec.trackScreenView` field + `Routes.byName` map. Flag opt-outs (`splash`, OTP success). |
-| M | `MIGRATION_RULES.md` | Dialog/sheet `logScreenView` contract (F5). |
-| A | `docs/analytics/SCREEN_CATALOG.md` | Generated from `Routes.all`. Shared with analytics owner. |
-| A | `test/app/routes_analytics_test.dart` | Snake_case regex + uniqueness + length test. |
-| M | `MIGRATION_LOG.md` | F8 DebugView smoke-test result. |
+| M | `lib/core/firebase/analytics_service.dart` | `buildObserver` accepts `ScreenNameExtractor`. |
+| M | `lib/core/firebase/app_analytics_observer.dart` | `_trackedNameOf` honours `RouteSpec.trackScreenView`. Crashlytics breadcrumb untouched. |
+| M | `lib/app/routes.dart` | `RouteSpec.trackScreenView` field. 4 opt-outs (splash + 3 success surfaces). |
+| M | `lib/shared/layouts/app_shell.dart` | `_goBranch` logs `screen_view` for branch switches (root Navigator misses them). |
+| M | `MIGRATION_RULES.md` | §6.5 analytics contract: PageRoute auto, dialogs/sheets explicit, branch switches in AppShell. |
+| A | `docs/analytics/SCREEN_CATALOG.md` | 38-route catalog + kebab→snake rename impact. |
+| A | `test/app/routes_analytics_test.dart` | snake_case regex, ≤40 char limit, hyphen-leak guard, uniqueness, opt-out flag verification. |
 
-### Aggregate counts (upper bound, excluding sweep-width unknowns)
+`MIGRATION_LOG.md` and F8 DebugView smoke deferred — needs a post-`flutterfire configure` build to assert against real Firebase.
 
-| Bucket | A | M | R | D |
-|---|---|---|---|---|
-| Phase A0 | 0 | 2 | 0 | 0 |
-| Phase A | 3 | ~9 | 0 | 0 |
-| Phase B | 7 | 5 | 0 | 0 |
-| Phase C | 3 | ~5 | 0 | 0 |
-| Phase D | 1 | ~6 | 1 | 1 |
-| Phase F | 2 | 4 | 0 | 0 |
-| **Total** | **16** | **~31** | **1** | **1** |
+### Aggregate counts (actuals after each commit)
 
-Sweep-width unknowns (A4, A7, C4, D1 imports) settle once A0 inventory lands. Recount after A0.7 PR.
+| Bucket | Commit | A | M | R | D | Tests |
+|---|---|---|---|---|---|---|
+| Phase A0 | `9befd0d` | 1 | 1 | 0 | 0 | — |
+| Phase A | `98b2196` | 3 | 48 | 0 | 0 | 9/9 |
+| Phase B | `3b2120b` | 9 | 8 | 0 | 0 | 19/19 |
+| Phase C | `3e4b08e` | 6 | 14 | 0 | 0 | 21/21 |
+| Phase D | `70979ee` | 2 | 7 | 1 | 2 | 200/200 |
+| Phase F | `93d2310` | 2 | 5 | 0 | 0 | 5/5 |
+| **Total** | — | **23** | **83** | **1** | **2** | **205/205** |
+
+Plus 5 docs-status commits: `3424431` (A0+A), `07ed672` (B), `006fcd9` (C),
+`dab2102` (D), `91dc918` (F).
+
+Pre-flight upper bounds (16 A / ~31 M / 1 R / 1 D) were short on M because
+the A4 (~5 feature `*_routes`), A7 (~36 `RouteNames` sweep) and C4 (~10
+push sites) counts were larger than predicted, and Phase B's prefs-test
+ripple landed 3 extra M files (widget_test, delete_account_test,
+core_providers). Tests overshot: 49 new test cases vs no estimate.
 
 ## 11. Audit cross-walk — `docs/audit/NAVIGATION_AUDIT.md` F-01..F-22
 
