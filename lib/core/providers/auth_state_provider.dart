@@ -1,12 +1,34 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Boolean derived from the live `SessionStore` token presence.
+import 'core_providers.dart';
+
+/// Boolean derived from session presence — single source of truth for
+/// "is the user logged in?". Router redirect reads it; login/logout flows
+/// mutate via [AuthStateNotifier.markLoggedIn] / [AuthStateNotifier.logout].
 ///
-/// Single source of truth for "is the user logged in?" — the router redirect
-/// reads it; login/logout flows update it.
-///
-/// Default value `false`. `startApp` overrides with the synchronous
-/// `PrefsService.isLoggedIn` (which reads the secure-storage cached token).
-/// Auth flows (login success, `clearSession` from interceptor on 401) flip
-/// the value via `ref.read(authStateProvider.notifier).state = …`.
-final authStateProvider = StateProvider<bool>((ref) => false);
+/// `build()` returns the seed from the override. `startApp` overrides with
+/// `AuthStateNotifier(initial: PrefsService.isLoggedIn)` so the value is
+/// correct from the first router redirect.
+class AuthStateNotifier extends Notifier<bool> {
+  AuthStateNotifier({this.initial = false});
+
+  final bool initial;
+
+  @override
+  bool build() => initial;
+
+  /// Call after a successful login flow has already written the session.
+  /// Flips the auth state so the router redirect re-evaluates.
+  void markLoggedIn() => state = true;
+
+  /// Clears the session and flips auth state to `false`. Caller is
+  /// responsible for `context.goNamed(Routes.login.name)`; the redirect will
+  /// also enforce the bounce if anything resurrects the authed tree.
+  Future<void> logout() async {
+    await ref.read(sessionStoreProvider).clearSession();
+    state = false;
+  }
+}
+
+final authStateProvider =
+    NotifierProvider<AuthStateNotifier, bool>(AuthStateNotifier.new);

@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
@@ -52,7 +52,7 @@ class _ProfileNewPasswordScreenState
               confirm: _confirmController.text,
             );
     if (ok && mounted) {
-      context.pushNamed(RouteNames.profilePasswordSuccess);
+      context.pushNamed(Routes.profilePasswordSuccess.name);
     }
   }
 

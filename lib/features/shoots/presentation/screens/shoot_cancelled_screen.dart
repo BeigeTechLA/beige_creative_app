@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../providers/shoots_providers.dart';
@@ -44,7 +44,7 @@ class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
     ref.listen(cancelShootProvider(id).select((s) => s.submittedSignal),
         (prev, next) {
       if ((prev ?? 0) < next) {
-        context.goNamed(RouteNames.shootCancelotties);
+        context.goNamed(Routes.shootCancelotties.name);
       }
     });
 

@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -84,7 +84,7 @@ class _ProfileOtpScreenState extends ConsumerState<ProfileOtpScreen> {
             );
     if (ok && mounted) {
       context.pushNamed(
-        RouteNames.newPassword,
+        Routes.newPassword.name,
         extra: {'email': widget.email, 'otp': _enteredOtp},
       );
     }

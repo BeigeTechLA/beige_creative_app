@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 
@@ -29,7 +29,7 @@ class ProfileSectionList extends StatelessWidget {
               _MenuRow(
                 iconPath: AppAssets.userid,
                 title: 'Profile Details',
-                onTap: () => context.pushNamed(RouteNames.profileDetails),
+                onTap: () => context.pushNamed(Routes.profileDetails.name),
               ),
             ],
           ),
@@ -39,19 +39,19 @@ class ProfileSectionList extends StatelessWidget {
               _MenuRow(
                 iconPath: AppAssets.gallery,
                 title: 'Featured Works',
-                onTap: () => context.pushNamed(RouteNames.featuredWorks),
+                onTap: () => context.pushNamed(Routes.featuredWorks.name),
               ),
               const _SectionDivider(),
               _MenuRow(
                 iconPath: AppAssets.certificates,
                 title: 'certificates',
-                onTap: () => context.pushNamed(RouteNames.certificates),
+                onTap: () => context.pushNamed(Routes.certificates.name),
               ),
               const _SectionDivider(),
               _MenuRow(
                 iconPath: AppAssets.resume,
                 title: 'resume',
-                onTap: () => context.pushNamed(RouteNames.resume),
+                onTap: () => context.pushNamed(Routes.resume.name),
               ),
             ],
           ),
@@ -67,7 +67,7 @@ class ProfileSectionList extends StatelessWidget {
               _MenuRow(
                 iconPath: AppAssets.appperference,
                 title: 'App Preferences',
-                onTap: () => context.pushNamed(RouteNames.appPreferences),
+                onTap: () => context.pushNamed(Routes.appPreferences.name),
               ),
               const _SectionDivider(),
               const _MenuRow(

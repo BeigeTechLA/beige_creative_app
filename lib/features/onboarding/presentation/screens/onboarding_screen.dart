@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../providers/onboarding_notifier.dart';
@@ -53,13 +53,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Future<void> _onLoginTap() async {
     await ref.read(onboardingNotifierProvider.notifier).markSeen();
     if (!mounted) return;
-    context.pushNamed(RouteNames.login);
+    context.pushNamed(Routes.login.name);
   }
 
   Future<void> _onSignupTap() async {
     await ref.read(onboardingNotifierProvider.notifier).markSeen();
     if (!mounted) return;
-    context.pushNamed(RouteNames.signupStep1);
+    context.pushNamed(Routes.signupStep1.name);
   }
 
   @override

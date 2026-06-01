@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,75 +18,72 @@ import '../features/shoots/presentation/routes/shoots_routes.dart';
 import '../features/shoots/presentation/screens/shoots_screen.dart';
 import '../features/splash/presentation/screens/splash_screen.dart';
 import '../shared/layouts/app_shell.dart';
-import 'route_names.dart';
+import 'navigator_key.dart';
+import 'routes.dart';
 
-/// Public routes — reachable while unauthenticated.
-const Set<String> _publicRoutes = {
-  '/splash',
-  '/onboarding',
-  '/login',
-  '/signup-step-1',
-  '/signup-step-2',
-  '/signup-step-3',
-  '/forgot-password',
-  '/forgot-otp',
-  '/reset-password',
-};
-
-/// Built once per [ProviderScope]. Reads `authStateProvider` for redirect
-/// logic and listens to it via a `ChangeNotifier` adapter so the router
-/// re-evaluates redirect on token writes/clears (login + logout + 401).
+/// Built once per [ProviderScope]. Reads `authStateProvider` +
+/// `onboardingSeenProvider` for redirect logic and listens to both via a
+/// merged `Listenable` so the router re-evaluates redirect on either flip.
 final routerProvider = Provider<GoRouter>((ref) {
   final notifier = _AuthRefreshNotifier(ref);
   ref.onDispose(notifier.dispose);
 
   return GoRouter(
-    initialLocation: '/splash',
+    navigatorKey: rootNavigatorKey,
+    initialLocation: Routes.splash.path,
     refreshListenable: notifier,
     observers: [AppAnalyticsObserver()],
     redirect: (context, state) {
       final isAuth = ref.read(authStateProvider);
       final hasSeenOnboarding = ref.read(onboardingSeenProvider);
       final loc = state.matchedLocation;
-      final isPublic = _publicRoutes.contains(loc);
+      final isPublic = Routes.publicPaths.contains(loc);
 
       // Unauthed user touching a protected route → /login.
-      if (!isAuth && !isPublic) return '/login';
+      if (!isAuth && !isPublic) return Routes.login.path;
 
       // Onboarding skipped once seen — bounce to /login.
-      if (!isAuth && hasSeenOnboarding && loc == '/onboarding') {
-        return '/login';
+      if (!isAuth && hasSeenOnboarding && loc == Routes.onboarding.path) {
+        return Routes.login.path;
       }
 
       // Authed user on /login or sign-up flow → /home.
       if (isAuth &&
-          (loc == '/login' ||
-              loc == '/onboarding' ||
+          (loc == Routes.login.path ||
+              loc == Routes.onboarding.path ||
               loc.startsWith('/signup-step') ||
-              loc == '/forgot-password' ||
-              loc == '/forgot-otp' ||
-              loc == '/reset-password')) {
-        return '/home';
+              loc == Routes.forgotPassword.path ||
+              loc == Routes.forgotOtp.path ||
+              loc == Routes.resetPassword.path)) {
+        return Routes.home.path;
       }
       return null;
     },
-    routes: _routes,
+    routes: appRoutes,
   );
 });
 
+/// Bridges `authStateProvider` + `onboardingSeenProvider` to `Listenable`
+/// for `GoRouter.refreshListenable`. Either flip triggers redirect re-eval.
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(this._ref) {
-    _sub = _ref.listen<bool>(
+    _authSub = _ref.listen<bool>(
       authStateProvider,
+      (previous, next) => notifyListeners(),
+    );
+    _onboardingSub = _ref.listen<bool>(
+      onboardingSeenProvider,
       (previous, next) => notifyListeners(),
     );
   }
   final Ref _ref;
-  late final ProviderSubscription<bool> _sub;
+  late final ProviderSubscription<bool> _authSub;
+  late final ProviderSubscription<bool> _onboardingSub;
 
   @override
   void dispose() {
-    _sub.close();
+    _authSub.close();
+    _onboardingSub.close();
     super.dispose();
   }
 }
@@ -95,15 +92,15 @@ class _AuthRefreshNotifier extends ChangeNotifier {
 /// 5-tab `StatefulShellRoute` stay inline because they describe the app's
 /// global lifecycle. Everything else lives in per-feature `*_routes.dart`
 /// fragment files and is spread in below.
-final List<RouteBase> _routes = [
+final List<RouteBase> appRoutes = [
   GoRoute(
-    path: '/splash',
-    name: RouteNames.splash,
+    path: Routes.splash.path,
+    name: Routes.splash.name,
     builder: (context, state) => const SplashScreen(),
   ),
   GoRoute(
-    path: '/onboarding',
-    name: RouteNames.onboarding,
+    path: Routes.onboarding.path,
+    name: Routes.onboarding.name,
     builder: (context, state) => const OnboardingScreen(),
   ),
   StatefulShellRoute.indexedStack(
@@ -113,8 +110,8 @@ final List<RouteBase> _routes = [
       StatefulShellBranch(
         routes: [
           GoRoute(
-            path: '/home',
-            name: RouteNames.home,
+            path: Routes.home.path,
+            name: Routes.home.name,
             builder: (context, state) => const HomeScreen(),
           ),
         ],
@@ -122,8 +119,8 @@ final List<RouteBase> _routes = [
       StatefulShellBranch(
         routes: [
           GoRoute(
-            path: '/shoots',
-            name: RouteNames.shoots,
+            path: Routes.shoots.path,
+            name: Routes.shoots.name,
             builder: (context, state) => const ShootsScreen(),
           ),
         ],
@@ -131,8 +128,8 @@ final List<RouteBase> _routes = [
       StatefulShellBranch(
         routes: [
           GoRoute(
-            path: '/files',
-            name: RouteNames.files,
+            path: Routes.files.path,
+            name: Routes.files.name,
             builder: (context, state) => const FileManagerScreen(),
           ),
         ],
@@ -140,8 +137,8 @@ final List<RouteBase> _routes = [
       StatefulShellBranch(
         routes: [
           GoRoute(
-            path: '/messages',
-            name: RouteNames.messages,
+            path: Routes.messages.path,
+            name: Routes.messages.name,
             builder: (context, state) => const MessagesScreen(),
           ),
         ],
@@ -149,8 +146,8 @@ final List<RouteBase> _routes = [
       StatefulShellBranch(
         routes: [
           GoRoute(
-            path: '/manage-availability',
-            name: RouteNames.manageAvailability,
+            path: Routes.manageAvailability.path,
+            name: Routes.manageAvailability.name,
             builder: (context, state) => const ManageAvailabilityScreen(),
           ),
         ],

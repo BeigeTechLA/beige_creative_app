@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../providers/home_notifier.dart';
 import '../widgets/home_availability_section.dart';
@@ -115,7 +115,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               profileImageUrl:
                   homeState.profileData?.profileImageUrl ?? "",
               onAvatarTap: () {
-                context.pushNamed(RouteNames.myProfile).then((value) {
+                context.pushNamed(Routes.myProfile.name).then((value) {
                   if (value == true) {
                     notifier.refreshAfterProfileReturn();
                   }

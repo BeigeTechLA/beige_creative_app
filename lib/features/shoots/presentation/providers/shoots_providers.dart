@@ -171,7 +171,7 @@ final shootsListProvider =
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Cancel-shoot flow (modal bottom sheet — `ShootCancelledScreen` / `RouteNames.cancelShoot`).
+// Cancel-shoot flow (modal bottom sheet — `ShootCancelledScreen` / `Routes.cancelShoot.name`).
 // ─────────────────────────────────────────────────────────────────────────────
 
 @immutable

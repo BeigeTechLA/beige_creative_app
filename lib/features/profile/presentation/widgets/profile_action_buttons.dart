@@ -4,11 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../core/providers/auth_state_provider.dart';
-import '../../../../core/providers/core_providers.dart';
 
 /// Logout button at the bottom of the profile + the confirmation bottom sheet.
 class ProfileLogoutButton extends ConsumerWidget {
@@ -108,10 +107,9 @@ class ProfileLogoutButton extends ConsumerWidget {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        await ref.read(sessionStoreProvider).clearSession();
-                        ref.read(authStateProvider.notifier).state = false;
+                        await ref.read(authStateProvider.notifier).logout();
                         if (context.mounted) {
-                          context.goNamed(RouteNames.login);
+                          context.goNamed(Routes.login.name);
                         }
                       },
                       style: ElevatedButton.styleFrom(

@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
@@ -45,7 +45,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         .read(forgotPasswordNotifierProvider.notifier)
         .requestOtp(email);
     if (!ok || !mounted) return;
-    context.pushNamed(RouteNames.forgotOtp, extra: {'email': email});
+    context.pushNamed(Routes.forgotOtp.name, extra: {'email': email});
   }
 
   @override
@@ -185,7 +185,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 ),
               ),
               InkWell(
-                onTap: () => context.goNamed(RouteNames.login),
+                onTap: () => context.goNamed(Routes.login.name),
                 child: Text(
                   "Login",
                   style: AppTextStyles.inherit15Strong.copyWith(

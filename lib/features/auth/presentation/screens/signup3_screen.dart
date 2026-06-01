@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
@@ -189,7 +189,7 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
     final ok = await _notifier.submitStep3();
     if (!mounted) return;
     if (ok) {
-      context.goNamed(RouteNames.login);
+      context.goNamed(Routes.login.name);
     }
   }
 
@@ -389,7 +389,7 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                                   ),
                                   InkWell(
                                     onTap: () =>
-                                        context.pushNamed(RouteNames.login),
+                                        context.pushNamed(Routes.login.name),
                                     child: Text(
                                       'Login',
                                       style: AppTextStyles.inheritSemiBold

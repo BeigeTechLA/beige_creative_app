@@ -93,7 +93,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
         // Best-effort — remember-me persistence must not block login success.
       }
 
-      ref.read(authStateProvider.notifier).state = true;
+      ref.read(authStateProvider.notifier).markLoggedIn();
       state = state.copyWith(isLoggingIn: false, loginSuccess: true);
     } catch (e, st) {
       AppLogger.e('Login.submit failed', e, st);

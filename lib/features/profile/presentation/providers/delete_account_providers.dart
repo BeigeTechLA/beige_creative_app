@@ -92,8 +92,7 @@ class DeleteAccountNotifier extends AutoDisposeNotifier<DeleteAccountState> {
     state = state.copyWith(isSubmitting: true, clearMessages: true);
     try {
       await ref.read(deleteAccountRepositoryProvider).confirmDelete(otp);
-      await ref.read(sessionStoreProvider).clearSession();
-      ref.read(authStateProvider.notifier).state = false;
+      await ref.read(authStateProvider.notifier).logout();
       state = state.copyWith(isSubmitting: false, confirmOk: true);
       return true;
     } catch (e, st) {

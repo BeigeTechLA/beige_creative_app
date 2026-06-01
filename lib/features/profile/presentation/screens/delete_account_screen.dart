@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../providers/delete_account_providers.dart';
@@ -128,7 +128,7 @@ class DeleteAccountScreen extends ConsumerWidget {
                           final ok = await notifier.requestDelete();
                           if (ok && context.mounted) {
                             context.pushNamed(
-                              RouteNames.deleteAccountOtp,
+                              Routes.deleteAccountOtp.name,
                               extra: {'reason': state.selectedReason},
                             );
                           }

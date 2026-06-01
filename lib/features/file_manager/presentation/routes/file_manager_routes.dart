@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../screens/post_production_screen.dart';
 import '../screens/pre_production_screen.dart';
 
@@ -8,13 +8,13 @@ import '../screens/pre_production_screen.dart';
 /// StatefulShellRoute in `lib/app/router.dart`).
 final List<RouteBase> fileManagerRoutes = [
   GoRoute(
-    path: '/post-production',
-    name: RouteNames.postProduction,
+    path: Routes.postProduction.path,
+    name: Routes.postProduction.name,
     builder: (context, state) => const PostProductionScreen(),
   ),
   GoRoute(
-    path: '/pre-production',
-    name: RouteNames.preProduction,
+    path: Routes.preProduction.path,
+    name: Routes.preProduction.name,
     builder: (context, state) => const PreProductionScreen(),
   ),
 ];

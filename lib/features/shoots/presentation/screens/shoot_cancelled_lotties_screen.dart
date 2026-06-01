@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../../app/assets.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 
@@ -23,7 +23,7 @@ class _ShootCancelledLottiesScreenState
     super.initState();
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        context.goNamed(RouteNames.home);
+        context.goNamed(Routes.home.name);
       }
     });
   }

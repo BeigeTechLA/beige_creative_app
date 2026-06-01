@@ -43,7 +43,9 @@ Future<void> startApp(Environment environment) async {
       overrides: [
         sharedPreferencesProvider.overrideWith((_) async => prefs),
         sessionStoreProvider.overrideWithValue(session),
-        authStateProvider.overrideWith((_) => initialAuth),
+        authStateProvider.overrideWith(
+          () => AuthStateNotifier(initial: initialAuth),
+        ),
         onboardingSeenProvider.overrideWith((_) => initialOnboardingSeen),
       ],
       child: const App(),

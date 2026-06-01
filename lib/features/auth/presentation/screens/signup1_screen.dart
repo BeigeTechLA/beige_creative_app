@@ -8,7 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
@@ -175,7 +175,7 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
     if (!ok || !mounted) return;
     final state = ref.read(signupNotifierProvider);
     context.goNamed(
-      RouteNames.signupStep2,
+      Routes.signupStep2.name,
       extra: {
         'crewMemberId': state.crewMemberId,
         'profileImage': state.profileImage,
@@ -356,7 +356,7 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
                             .copyWith(color: AppColors.white60),
                       ),
                       InkWell(
-                        onTap: () => context.goNamed(RouteNames.login),
+                        onTap: () => context.goNamed(Routes.login.name),
                         child: Text(
                           'Login',
                           style: AppTextStyles.body15Strong.copyWith(

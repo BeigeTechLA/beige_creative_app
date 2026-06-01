@@ -5,7 +5,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/onboarding_seen_provider.dart';
 import '../providers/splash_notifier.dart';
@@ -42,11 +42,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     if (!mounted) return;
     final isAuthed = ref.read(authStateProvider);
     if (isAuthed) {
-      context.goNamed(RouteNames.home);
+      context.goNamed(Routes.home.name);
       return;
     }
     final seen = ref.read(onboardingSeenProvider);
-    context.goNamed(seen ? RouteNames.login : RouteNames.onboarding);
+    context.goNamed(seen ? Routes.login.name : Routes.onboarding.name);
   }
 
   @override

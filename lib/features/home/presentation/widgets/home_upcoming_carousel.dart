@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/upcoming_shoots_model.dart';
@@ -284,7 +284,7 @@ class HomeUpcomingCarousel extends StatelessWidget {
                         ),
                         onPressed: () {
                           context.pushNamed(
-                            RouteNames.upcomingShootDetails,
+                            Routes.upcomingShootDetails.name,
                             extra: {"projectId": data['projectId']},
                           );
                         },

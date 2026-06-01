@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../utility/date_time_utils.dart';
@@ -221,7 +221,7 @@ class ManageAvailabilityScreen extends ConsumerWidget {
                 borderRadius: AppRadii.hugeAll,
                 onTap: () async {
                   final result = await context.pushNamed(
-                    RouteNames.addAvailability,
+                    Routes.addAvailability.name,
                   );
                   if (result == true) {
                     notifier.refresh();

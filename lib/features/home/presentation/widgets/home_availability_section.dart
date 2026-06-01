@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../utility/date_time_utils.dart';
@@ -73,7 +73,7 @@ class HomeAvailabilitySection extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                context.pushNamed(RouteNames.addAvailability).then((value) {
+                context.pushNamed(Routes.addAvailability.name).then((value) {
                   if (value == true) {
                     onAddPressed();
                   }

@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -82,7 +82,7 @@ class _DeleteAccountOtpScreenState
         .read(deleteAccountNotifierProvider.notifier)
         .confirmDelete(_enteredOtp);
     if (ok && mounted) {
-      context.goNamed(RouteNames.deleteAccountSuccess);
+      context.goNamed(Routes.deleteAccountSuccess.name);
     }
   }
 

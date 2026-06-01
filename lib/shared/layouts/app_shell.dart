@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/assets.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
-import '../../app/route_names.dart';
+import '../../app/routes.dart';
 import '../../app/shadows.dart';
 import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
@@ -197,7 +197,7 @@ class _AppShellDrawer extends StatelessWidget {
                   InkWell(
                     onTap: () {
                       Navigator.of(context).pop();
-                      context.pushNamed(RouteNames.myProfile);
+                      context.pushNamed(Routes.myProfile.name);
                     },
                     child: Container(
                       padding: const EdgeInsets.all(AppSpacing.md),

@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../providers/file_manager_providers.dart';
@@ -105,7 +105,7 @@ class _PostProductionScreenState extends ConsumerState<PostProductionScreen> {
                         return InkWell(
                           borderRadius: AppRadii.portfolioCompactAll,
                           onTap: () =>
-                              context.pushNamed(RouteNames.preProduction),
+                              context.pushNamed(Routes.preProduction.name),
                           child: Container(
                             margin: const EdgeInsets.only(
                               bottom: AppSpacing.mld,

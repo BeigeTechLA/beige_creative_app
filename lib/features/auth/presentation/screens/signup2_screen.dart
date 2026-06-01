@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_loader.dart' show AppLoader;
@@ -82,7 +82,7 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
     if (!ok || !mounted) return;
     final state = ref.read(signupNotifierProvider);
     context.pushNamed(
-      RouteNames.signupStep3,
+      Routes.signupStep3.name,
       extra: {
         'crewMemberId': widget.crewMemberId,
         'profileImage': widget.profileImage,
@@ -269,7 +269,7 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                                 ),
                                 InkWell(
                                   onTap: () =>
-                                      context.pushNamed(RouteNames.login),
+                                      context.pushNamed(Routes.login.name),
                                   child: Text(
                                     'Login',
                                     style: AppTextStyles.body15Strong.copyWith(

@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../screens/shoot_cancelled_lotties_screen.dart';
 import '../screens/shoot_cancelled_screen.dart';
 import '../screens/upcoming_shoot_view_details_screen.dart';
@@ -9,24 +9,24 @@ import '../screens/upcoming_shoot_view_details_screen.dart';
 /// the StatefulShellRoute in `lib/app/router.dart`).
 final List<RouteBase> shootsRoutes = [
   GoRoute(
-    path: '/upcoming-shoot-details',
-    name: RouteNames.upcomingShootDetails,
+    path: Routes.upcomingShootDetails.path,
+    name: Routes.upcomingShootDetails.name,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>;
       return UpcomingShootViewDetails(projectid: data["projectId"]);
     },
   ),
   GoRoute(
-    path: '/cancel-shoot',
-    name: RouteNames.cancelShoot,
+    path: Routes.cancelShoot.path,
+    name: Routes.cancelShoot.name,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>;
       return ShootCancelledScreen(projectId: data["projectId"]);
     },
   ),
   GoRoute(
-    path: '/shoot-cancelotties',
-    name: RouteNames.shootCancelotties,
+    path: Routes.shootCancelotties.path,
+    name: Routes.shootCancelotties.name,
     builder: (context, state) => const ShootCancelledLottiesScreen(),
   ),
 ];

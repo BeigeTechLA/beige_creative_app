@@ -5,7 +5,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/text_styles.dart';
 
 class ProfileYoureAllSetScreen extends ConsumerStatefulWidget {
@@ -23,7 +23,7 @@ class _ProfileYoureAllSetScreenState
     super.initState();
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        context.goNamed(RouteNames.login);
+        context.goNamed(Routes.login.name);
       }
     });
   }

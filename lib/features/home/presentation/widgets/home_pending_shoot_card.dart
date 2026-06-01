@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/create_dashboard_details_model.dart';
@@ -126,7 +126,7 @@ class HomePendingShootCard extends StatelessWidget {
                         GestureDetector(
                           onTap: () {
                             context.pushNamed(
-                              RouteNames.upcomingShootDetails,
+                              Routes.upcomingShootDetails.name,
                               extra: {"projectId": data.projectId},
                             );
                           },
@@ -237,7 +237,7 @@ class HomePendingShootCard extends StatelessWidget {
                                 ),
                                 onPressed: () async {
                                   context.pushNamed(
-                                    RouteNames.cancelShoot,
+                                    Routes.cancelShoot.name,
                                     extra: {"projectId": data.projectId},
                                   ).then((value) {
                                     if (value == true) {

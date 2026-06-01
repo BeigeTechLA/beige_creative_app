@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
@@ -397,7 +397,7 @@ class _FolderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => context.pushNamed(RouteNames.postProduction),
+      onTap: () => context.pushNamed(Routes.postProduction.name),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.mld),
         padding: const EdgeInsets.all(AppSpacing.folderCardInset),
@@ -508,7 +508,7 @@ class _FolderRowCompact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => context.pushNamed(RouteNames.postProduction),
+      onTap: () => context.pushNamed(Routes.postProduction.name),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.mld),
         padding: const EdgeInsets.all(AppSpacing.folderCardInset),

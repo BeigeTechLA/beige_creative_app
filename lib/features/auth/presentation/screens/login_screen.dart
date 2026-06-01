@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
@@ -69,7 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         TopMessage.show(context, next.errorMessage!);
       }
       if (next.loginSuccess && !(prev?.loginSuccess ?? false)) {
-        context.goNamed(RouteNames.home);
+        context.goNamed(Routes.home.name);
       }
     });
 
@@ -167,7 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             children: [
                               TextButton(
                                 onPressed: () {
-                                  context.pushNamed(RouteNames.forgotPassword);
+                                  context.pushNamed(Routes.forgotPassword.name);
                                 },
                                 child: Text(
                                   "Forgot Password?",
@@ -236,7 +236,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
             ),
             InkWell(
-              onTap: () => context.pushNamed(RouteNames.signupStep1),
+              onTap: () => context.pushNamed(Routes.signupStep1.name),
               child: Text(
                 "Sign Up",
                 style: AppTextStyles.inherit15Strong.copyWith(

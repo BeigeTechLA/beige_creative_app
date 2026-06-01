@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
@@ -81,7 +81,7 @@ class _ForgotPasswordOtpScreenState
         .verifyOtp(email: widget.email, otp: enteredOtp);
     if (!ok || !mounted) return;
     context.pushNamed(
-      RouteNames.resetPassword,
+      Routes.resetPassword.name,
       extra: {'email': widget.email, 'otp': enteredOtp},
     );
   }

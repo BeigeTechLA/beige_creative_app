@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../screens/app_preferences_screen.dart';
 import '../screens/certificates_screen.dart';
 import '../screens/change_password_screen.dart';
@@ -22,33 +22,33 @@ import '../screens/resume_screen.dart';
 /// `lib/app/router.dart`.
 final List<RouteBase> profileRoutes = [
   GoRoute(
-    path: '/my-profile',
-    name: RouteNames.myProfile,
+    path: Routes.myProfile.path,
+    name: Routes.myProfile.name,
     builder: (context, state) => const Myprofile(),
   ),
   GoRoute(
-    path: '/edit-personal-details',
-    name: RouteNames.editPersonalDetails,
+    path: Routes.editPersonalDetails.path,
+    name: Routes.editPersonalDetails.name,
     builder: (context, state) => const EditPersonalDetailsScreen(),
   ),
   GoRoute(
-    path: '/enter-professional-details',
-    name: RouteNames.enterProfessionalDetails,
+    path: Routes.enterProfessionalDetails.path,
+    name: Routes.enterProfessionalDetails.name,
     builder: (context, state) => const EnterProfileDetailsScreen(),
   ),
   GoRoute(
-    path: '/profile-details',
-    name: RouteNames.profileDetails,
+    path: Routes.profileDetails.path,
+    name: Routes.profileDetails.name,
     builder: (context, state) => const ProfileDetails1Screen(),
   ),
   GoRoute(
-    path: '/featured-works',
-    name: RouteNames.featuredWorks,
+    path: Routes.featuredWorks.path,
+    name: Routes.featuredWorks.name,
     builder: (context, state) => const FeaturedWorkList(),
   ),
   GoRoute(
-    path: '/featured-work-details',
-    name: RouteNames.featuredWorkDetails,
+    path: Routes.featuredWorkDetails.path,
+    name: Routes.featuredWorkDetails.name,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>;
       return FeaturedWorkDetailsScreen(
@@ -58,39 +58,39 @@ final List<RouteBase> profileRoutes = [
     },
   ),
   GoRoute(
-    path: '/certificates',
-    name: RouteNames.certificates,
+    path: Routes.certificates.path,
+    name: Routes.certificates.name,
     builder: (context, state) => const CertificatesScreen(),
   ),
   GoRoute(
-    path: '/resume',
-    name: RouteNames.resume,
+    path: Routes.resume.path,
+    name: Routes.resume.name,
     builder: (context, state) => const ResumeScreen(),
   ),
   GoRoute(
-    path: '/app-preferences',
-    name: RouteNames.appPreferences,
+    path: Routes.appPreferences.path,
+    name: Routes.appPreferences.name,
     builder: (context, state) => const AppPreferencesScreen(),
   ),
   GoRoute(
-    path: '/change-password',
-    name: RouteNames.changePassword,
+    path: Routes.changePassword.path,
+    name: Routes.changePassword.name,
     builder: (context, state) {
       final email = state.extra as String;
       return ChangePasswordScreen(email: email);
     },
   ),
   GoRoute(
-    path: '/profile-otp',
-    name: RouteNames.profileOtp,
+    path: Routes.profileOtp.path,
+    name: Routes.profileOtp.name,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>? ?? {};
       return ProfileOtpScreen(email: data['email'] ?? '');
     },
   ),
   GoRoute(
-    path: '/new-password',
-    name: RouteNames.newPassword,
+    path: Routes.newPassword.path,
+    name: Routes.newPassword.name,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>? ?? {};
       return ProfileNewPasswordScreen(
@@ -100,23 +100,23 @@ final List<RouteBase> profileRoutes = [
     },
   ),
   GoRoute(
-    path: '/profile-password-success',
-    name: RouteNames.profilePasswordSuccess,
+    path: Routes.profilePasswordSuccess.path,
+    name: Routes.profilePasswordSuccess.name,
     builder: (context, state) => const ProfileYoureAllSetScreen(),
   ),
   GoRoute(
-    path: '/delete-account',
-    name: RouteNames.deleteAccount,
+    path: Routes.deleteAccount.path,
+    name: Routes.deleteAccount.name,
     builder: (context, state) => const DeleteAccountScreen(),
   ),
   GoRoute(
-    path: '/delete-account-otp',
-    name: RouteNames.deleteAccountOtp,
+    path: Routes.deleteAccountOtp.path,
+    name: Routes.deleteAccountOtp.name,
     builder: (context, state) => const DeleteAccountOtpScreen(),
   ),
   GoRoute(
-    path: '/delete-account-success',
-    name: RouteNames.deleteAccountSuccess,
+    path: Routes.deleteAccountSuccess.path,
+    name: Routes.deleteAccountSuccess.name,
     builder: (context, state) => const DeleteAccountLottieScreen(),
   ),
 ];

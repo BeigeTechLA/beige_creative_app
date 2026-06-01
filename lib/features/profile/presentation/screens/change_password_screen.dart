@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/new_text_field.dart';
@@ -39,7 +39,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         .requestOtp(_emailController.text);
     if (ok && mounted) {
       context.pushNamed(
-        RouteNames.profileOtp,
+        Routes.profileOtp.name,
         extra: {'email': _emailController.text.trim()},
       );
     }

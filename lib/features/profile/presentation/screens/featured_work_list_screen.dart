@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_loader.dart';
@@ -53,7 +53,7 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
 
   Future<void> _onNavigate(String title, List<dynamic> images) async {
     final result = await context.pushNamed(
-      RouteNames.featuredWorkDetails,
+      Routes.featuredWorkDetails.name,
       extra: {'title': title, 'images': images},
     );
     if (result == true) {

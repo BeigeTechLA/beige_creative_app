@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../screens/forgot_password_otp_screen.dart';
 import '../screens/forgot_password_screen.dart';
 import '../screens/login_screen.dart';
@@ -16,18 +16,18 @@ import '../screens/view_details_screen.dart';
 /// in `lib/app/router.dart`.
 final List<RouteBase> authRoutes = [
   GoRoute(
-    path: '/login',
-    name: RouteNames.login,
+    path: Routes.login.path,
+    name: Routes.login.name,
     builder: (context, state) => const LoginScreen(),
   ),
   GoRoute(
-    path: '/signup-step-1',
-    name: RouteNames.signupStep1,
+    path: Routes.signupStep1.path,
+    name: Routes.signupStep1.name,
     builder: (context, state) => const SignUp1Screen(),
   ),
   GoRoute(
-    path: '/signup-step-2',
-    name: RouteNames.signupStep2,
+    path: Routes.signupStep2.path,
+    name: Routes.signupStep2.name,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>? ?? {};
       return SignUp2Screen(
@@ -43,8 +43,8 @@ final List<RouteBase> authRoutes = [
     },
   ),
   GoRoute(
-    path: '/signup-step-3',
-    name: RouteNames.signupStep3,
+    path: Routes.signupStep3.path,
+    name: Routes.signupStep3.name,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>? ?? {};
       return SignUp3Screen(
@@ -66,21 +66,21 @@ final List<RouteBase> authRoutes = [
     },
   ),
   GoRoute(
-    path: '/forgot-password',
-    name: RouteNames.forgotPassword,
+    path: Routes.forgotPassword.path,
+    name: Routes.forgotPassword.name,
     builder: (context, state) => const ForgotPasswordScreen(),
   ),
   GoRoute(
-    path: '/forgot-otp',
-    name: RouteNames.forgotOtp,
+    path: Routes.forgotOtp.path,
+    name: Routes.forgotOtp.name,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>? ?? {};
       return ForgotPasswordOtpScreen(email: data['email'] ?? '');
     },
   ),
   GoRoute(
-    path: '/reset-password',
-    name: RouteNames.resetPassword,
+    path: Routes.resetPassword.path,
+    name: Routes.resetPassword.name,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>? ?? {};
       return ResetPasswordScreen(
@@ -90,8 +90,8 @@ final List<RouteBase> authRoutes = [
     },
   ),
   GoRoute(
-    path: '/view-details',
-    name: RouteNames.viewDetails,
+    path: Routes.viewDetails.path,
+    name: Routes.viewDetails.name,
     builder: (context, state) {
       final data = state.extra as Map<String, dynamic>? ?? {};
       return ViewDetailsScreen(

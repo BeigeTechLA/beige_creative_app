@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/route_names.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
@@ -111,7 +111,7 @@ class SignUp2PreviewCard extends StatelessWidget {
                   height: 38,
                   child: ElevatedButton(
                     onPressed: () => context.pushNamed(
-                      RouteNames.viewDetails,
+                      Routes.viewDetails.name,
                       extra: {
                         'firstName': firstName,
                         'lastName': lastName,
