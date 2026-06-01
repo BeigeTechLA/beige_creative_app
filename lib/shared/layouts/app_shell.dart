@@ -9,6 +9,7 @@ import '../../app/routes.dart';
 import '../../app/shadows.dart';
 import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
+import '../../core/firebase/analytics_service.dart';
 
 /// Hosts the 5 root branches (Dashboard, Shoots, Files, Messages, Manage
 /// Availability) under a `StatefulShellRoute.indexedStack`. Tabs preserve
@@ -27,7 +28,22 @@ class AppShell extends StatelessWidget {
       index,
       initialLocation: index == shell.currentIndex,
     );
+    // Phase F — StatefulShellRoute branch switches don't push on the root
+    // Navigator, so AppAnalyticsObserver doesn't see them. Log explicitly.
+    if (index != shell.currentIndex && index >= 0 && index < _branchRoutes.length) {
+      AnalyticsService.logScreenView(screenName: _branchRoutes[index].name);
+    }
   }
+
+  /// Branch index → `RouteSpec`. Mirrors the `StatefulShellRoute.branches`
+  /// order in `lib/app/router.dart`.
+  static const List<RouteSpec> _branchRoutes = [
+    Routes.home,
+    Routes.shoots,
+    Routes.files,
+    Routes.messages,
+    Routes.manageAvailability,
+  ];
 
   @override
   Widget build(BuildContext context) {

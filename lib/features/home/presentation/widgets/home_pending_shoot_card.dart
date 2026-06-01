@@ -98,10 +98,7 @@ class HomePendingShootCard extends StatelessWidget {
                         gradient: LinearGradient(
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
-                          colors: [
-                            AppColors.surfaceMid,
-                            AppColors.transparent,
-                          ],
+                          colors: [AppColors.surfaceMid, AppColors.transparent],
                         ),
                       ),
                     ),
@@ -119,8 +116,9 @@ class HomePendingShootCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             data.projectName,
-                            style: AppTextStyles.body15Medium
-                                .copyWith(color: AppColors.white),
+                            style: AppTextStyles.body15Medium.copyWith(
+                              color: AppColors.white,
+                            ),
                           ),
                         ),
                         AppSpacing.gapHSm,
@@ -143,10 +141,7 @@ class HomePendingShootCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Divider(
-                      color: AppColors.dividerDark,
-                      thickness: 0.8,
-                    ),
+                    Divider(color: AppColors.dividerDark, thickness: 0.8),
                     AppSpacing.verticalMd,
                     Wrap(
                       spacing: AppSpacing.mld,
@@ -239,16 +234,18 @@ class HomePendingShootCard extends StatelessWidget {
                                   backgroundColor: AppColors.white,
                                 ),
                                 onPressed: () async {
-                                  context.pushNamed(
-                                    Routes.cancelShoot.name,
-                                    extra: CancelShootArgs(
-                                      projectId: data.projectId,
-                                    ).toExtra(),
-                                  ).then((value) {
-                                    if (value == true) {
-                                      onRejectComplete();
-                                    }
-                                  });
+                                  context
+                                      .pushNamed(
+                                        Routes.cancelShoot.name,
+                                        extra: CancelShootArgs(
+                                          projectId: data.projectId,
+                                        ).toExtra(),
+                                      )
+                                      .then((value) {
+                                        if (value == true) {
+                                          onRejectComplete();
+                                        }
+                                      });
                                 },
                                 child: Text(
                                   data.cta?.secondary.isNotEmpty == true

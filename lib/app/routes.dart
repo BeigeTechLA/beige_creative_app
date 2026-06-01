@@ -17,11 +17,17 @@ class RouteSpec {
     required this.name,
     required this.path,
     this.isPublic = false,
+    this.trackScreenView = true,
   });
 
   final String name;
   final String path;
   final bool isPublic;
+
+  /// When `false`, `AppAnalyticsObserver` skips `screen_view` for this route
+  /// (Crashlytics breadcrumb is still written). Use for transient surfaces
+  /// like `/splash` and OTP / success screens whose presence skews funnels.
+  final bool trackScreenView;
 }
 
 /// All `RouteSpec`s in the app. Add new routes here first; the per-feature
@@ -30,7 +36,12 @@ abstract class Routes {
   Routes._();
 
   // Entry
-  static const splash = RouteSpec(name: 'splash', path: '/splash', isPublic: true);
+  static const splash = RouteSpec(
+    name: 'splash',
+    path: '/splash',
+    isPublic: true,
+    trackScreenView: false, // transient — skews funnels (Phase F)
+  );
   static const onboarding = RouteSpec(name: 'onboarding', path: '/onboarding', isPublic: true);
 
   // Auth
@@ -63,15 +74,27 @@ abstract class Routes {
   static const changePassword = RouteSpec(name: 'change_password', path: '/change-password');
   static const profileOtp = RouteSpec(name: 'profile_otp', path: '/profile-otp');
   static const newPassword = RouteSpec(name: 'new_password', path: '/new-password');
-  static const profilePasswordSuccess = RouteSpec(name: 'profile_password_success', path: '/profile-password-success');
+  static const profilePasswordSuccess = RouteSpec(
+    name: 'profile_password_success',
+    path: '/profile-password-success',
+    trackScreenView: false, // momentary success — funnel noise (Phase F)
+  );
   static const deleteAccount = RouteSpec(name: 'delete_account', path: '/delete-account');
   static const deleteAccountOtp = RouteSpec(name: 'delete_account_otp', path: '/delete-account-otp');
-  static const deleteAccountSuccess = RouteSpec(name: 'delete_account_success', path: '/delete-account-success');
+  static const deleteAccountSuccess = RouteSpec(
+    name: 'delete_account_success',
+    path: '/delete-account-success',
+    trackScreenView: false, // momentary success — funnel noise (Phase F)
+  );
 
   // Shoots
   static const upcomingShootDetails = RouteSpec(name: 'upcoming_shoot_details', path: '/upcoming-shoot-details');
   static const cancelShoot = RouteSpec(name: 'cancel_shoot', path: '/cancel-shoot');
-  static const shootCancelotties = RouteSpec(name: 'shoot_cancelotties', path: '/shoot-cancelotties');
+  static const shootCancelotties = RouteSpec(
+    name: 'shoot_cancelotties',
+    path: '/shoot-cancelotties',
+    trackScreenView: false, // momentary lottie success — funnel noise (Phase F)
+  );
 
   // Availability
   static const addAvailability = RouteSpec(name: 'add_availability', path: '/add-availability');

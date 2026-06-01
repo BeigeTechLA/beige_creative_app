@@ -26,10 +26,20 @@ class AnalyticsService {
 
   /// Convenience for `routerProvider.observers` — re-exposed so the router
   /// file doesn't import `firebase_analytics` directly.
-  static FirebaseAnalyticsObserver? buildObserver() {
+  ///
+  /// [nameExtractor] customises how a route's `screen_name` is computed.
+  /// Default is `FirebaseAnalyticsObserver`'s built-in extractor which reads
+  /// `route.settings.name`. Phase F passes a custom one so the observer
+  /// honours `RouteSpec.trackScreenView` opt-outs.
+  static FirebaseAnalyticsObserver? buildObserver({
+    ScreenNameExtractor? nameExtractor,
+  }) {
     final inst = _instance;
     if (inst == null) return null;
-    return FirebaseAnalyticsObserver(analytics: inst);
+    return FirebaseAnalyticsObserver(
+      analytics: inst,
+      nameExtractor: nameExtractor ?? defaultNameExtractor,
+    );
   }
 
   static Future<void> logEvent(

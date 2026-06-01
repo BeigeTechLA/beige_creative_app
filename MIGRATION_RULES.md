@@ -641,7 +641,31 @@ Every route that needs a payload gets a co-located `*_args.dart` next to its
 `fromExtra(Object?)` (for the builder). `fromExtra(null)` MUST return safe
 defaults — never throw a non-null cast at navigation time.
 
-### 6.5 — Migration Steps
+### 6.5 — Analytics screen tracking
+
+- `PageRoute` screens are auto-logged via `AppAnalyticsObserver` →
+  `FirebaseAnalyticsObserver`. The observer reads `route.settings.name`
+  (= `RouteSpec.name`, snake_case) as `screen_name`.
+- `RouteSpec.trackScreenView` (default `true`) opts a route out of
+  `screen_view` while keeping the Crashlytics breadcrumb. Use it for
+  transient surfaces (splash, OTP success momentary screens) that would
+  skew funnel metrics.
+- Shell-branch switches don't push on the root Navigator and are NOT
+  picked up by the observer. `AppShell._goBranch` calls
+  `AnalyticsService.logScreenView` explicitly so branch nav still emits a
+  `screen_view`.
+- Dialogs and bottom sheets (anything wrapped by `showDialog` /
+  `showModalBottomSheet`) are NOT auto-logged. If the surface matters for
+  funnels, call `AnalyticsService.logScreenView(screenName: …)` manually
+  with a name borrowed from `Routes.x.name`. Never hard-code analytics
+  strings outside `Routes`.
+
+Migrations that add a route MUST add it to `Routes.all` and decide
+`trackScreenView` up front. The catalog at `docs/analytics/SCREEN_CATALOG.md`
+is generated from `Routes.all` — keep it refreshed when names / opt-outs
+change.
+
+### 6.6 — Migration Steps
 
 1. List every `Navigator.push`, `Navigator.pushNamed`, `Navigator.pop` call in the project
 2. Create `app/router.dart` with GoRouter mapping all existing routes
