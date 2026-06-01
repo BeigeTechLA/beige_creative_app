@@ -1,6 +1,6 @@
 # Navigator Migration — Centralised Routing & Tracking
 
-Status: **In progress (2026-06-01)** — A0 + A + B done, C/D/F pending.
+Status: **In progress (2026-06-01)** — A0 + A + B + C done, D/F pending.
 Owner: TBD.
 Related docs: `docs/NAVIGATION_MAP.md` (current state snapshot), `CLAUDE.md`, `MIGRATION_RULES.md`.
 
@@ -11,7 +11,7 @@ Related docs: `docs/NAVIGATION_MAP.md` (current state snapshot), `CLAUDE.md`, `M
 | A0 — Regenerate navigation map | ✅ Done | `9befd0d` | NAVIGATION_MAP.md rewritten; P15/P16/P18 evidence updated; P21+P22 added; audit cross-walk in §11. |
 | A — Centralisation | ✅ Done | `98b2196` | `lib/app/routes.dart` + `navigator_key.dart`; auth → NotifierProvider; refreshListenable merged; 36-file `RouteNames` sweep; 9/9 route tests pass; 160/160 full suite green. |
 | B — Restoration + DraftStore | ✅ Done | `3b2120b` | 6 restoration files + `prefsProvider`. Persist on every route change, restore on splash, logout wipes. `kRestorationEnabled = false`; flip after device smoke (B6 deferred). 19 new tests; 179/179 green. |
-| C — Typed args | ⏳ Pending | — | Fixes P11/P15. 3 new args files. |
+| C — Typed args | ✅ Done | `3e4b08e` | 3 args files + 3 test files. 9 args classes; null-safe `fromExtra`. P15 resolved (no non-null casts). 21 new tests; 200/200 green. |
 | D — Cleanup | ⏳ Pending | — | Kills last 2 `Navigator.push`; delete `RouteNames` shim; AppShell branch-4 fix. |
 | F — Centralised screen-view analytics | ⏳ Pending | — | `RouteSpec.trackScreenView` + `screenClass` + DebugView smoke. |
 | E — Future | — | — | Out of scope this migration. |
@@ -410,13 +410,15 @@ Acceptance: `flutter analyze` clean, `flutter test` green (160/160), app boots a
 
 ### Phase C — Typed args (0.5-1 day)
 
-| Task | File(s) |
-|---|---|
-| C1 | Add `SignUpStep2Args`, `SignUpStep3Args`, `ViewDetailsArgs` in `features/auth/presentation/routes/`. |
-| C2 | Same for `FeaturedWorkDetailsArgs`, `ChangePasswordArgs`, `ProfileOtpArgs`, `ProfileNewPasswordArgs` in `features/profile/…`. |
-| C3 | Same for `UpcomingShootDetailsArgs`, `CancelShootArgs` in `features/shoots/…`. |
-| C4 | Route builders + call sites switch to `Args.fromExtra(state.extra)` / `args.toExtra()`. |
-| C5 | Fix P15: `manage_availability_screen.dart:767` — pass real args or default. |
+**Done in commit `3e4b08e`.** 3 args files + 3 test files. 200/200 tests green.
+
+| Task | Status | File(s) | Notes |
+|---|---|---|---|
+| C1 | ✅ | `lib/features/auth/presentation/routes/signup_args.dart` | `SignUpStep2Args`, `SignUpStep3Args`, `ViewDetailsArgs`. |
+| C2 | ✅ | `lib/features/profile/presentation/routes/profile_args.dart` | `FeaturedWorkDetailsArgs`, `ChangePasswordArgs` (bare-String + Map shapes), `ProfileOtpArgs`, `ProfileNewPasswordArgs`. |
+| C3 | ✅ | `lib/features/shoots/presentation/routes/shoots_args.dart` | `UpcomingShootDetailsArgs`, `CancelShootArgs`. `_asInt` accepts int/num/String. |
+| C4 | ✅ | 3 `*_routes.dart` builders + 10 push call sites | All `extra:` map literals replaced with `Args(...).toExtra()`; builders use `Args.fromExtra(state.extra)`. |
+| C5 | ✅ | route_restoration_service + args | P15 latent footgun eliminated — `Args.fromExtra(null)` returns safe defaults. Original 767-line crash site is gone (file shrank to 324 lines post-Phase-4). |
 
 ### Phase D — Cleanup (0.5 day)
 
