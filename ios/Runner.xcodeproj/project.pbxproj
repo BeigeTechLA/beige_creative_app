@@ -236,6 +236,7 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				88A03CAD2A51C4875AF1D68E /* [CP] Embed Pods Frameworks */,
 				1B9522930D4A5F145CF3B519 /* [CP] Copy Pods Resources */,
+				FB1FB0001CF9000F007C117D /* Firebase Config (Flavor) */,
 			);
 			buildRules = (
 			);
@@ -393,6 +394,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+		};
+		FB1FB0001CF9000F007C117D /* Firebase Config (Flavor) */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/config/dev/GoogleService-Info.plist",
+				"$(SRCROOT)/config/prod/GoogleService-Info.plist",
+			);
+			name = "Firebase Config (Flavor)";
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/GoogleService-Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nif [[ \"$CONFIGURATION\" == *-prod* ]]; then\n  FLAVOR=\"prod\"\nelif [[ \"$CONFIGURATION\" == *-dev* ]]; then\n  FLAVOR=\"dev\"\nelse\n  echo \"warning: unknown CONFIGURATION '$CONFIGURATION' - defaulting Firebase flavor to dev\"\n  FLAVOR=\"dev\"\nfi\nSRC=\"${SRCROOT}/config/${FLAVOR}/GoogleService-Info.plist\"\nDST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\nif [ ! -f \"$SRC\" ]; then\n  echo \"error: missing $SRC\" >&2\n  exit 1\nfi\nmkdir -p \"$(dirname \"$DST\")\"\ncp -f \"$SRC\" \"$DST\"\necho \"Copied Firebase config for flavor=${FLAVOR}\"\n";
 		};
 		E024CAABC223BCEB063C9C9D /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

@@ -1,12 +1,16 @@
 
 import java.util.Properties
+import java.util.Base64
 import java.io.FileInputStream
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 // Load keystore properties for release signing
@@ -26,9 +30,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
 
     defaultConfig {
         applicationId = "com.app.cpbiege"
@@ -43,7 +44,7 @@ android {
         if (dartDefinesString.isNotEmpty()) {
             dartDefinesString.split(",").forEach {
                 try {
-                    val decoded = String(java.util.Base64.getDecoder().decode(it), Charsets.UTF_8)
+                    val decoded = String(Base64.getDecoder().decode(it), Charsets.UTF_8)
                     val parts = decoded.split("=")
                     if (parts.size >= 2 && parts[0] == "GOOGLE_MAPS_KEY") {
                         googleMapsKey = parts[1]
@@ -96,4 +97,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
+    }
 }

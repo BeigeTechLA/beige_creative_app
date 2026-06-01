@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "800392507019",
+    "project_id": "beige-cp-app-live",
+    "storage_bucket": "beige-cp-app-live.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:800392507019:android:d4f13b9beaf35155b3ae8e",
+        "android_client_info": {
+          "package_name": "com.app.cpbiege"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0C8aQwQLpAk5omuEen85BFGOASvC_vXc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
