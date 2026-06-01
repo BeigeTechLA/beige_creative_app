@@ -28,7 +28,8 @@ Current migration state:
 - Phase 2 complete.
 - Phase 3 complete.
 - Phase 4 complete; `23 / 23` tasks done.
-- Phase 5 complete; `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31 (shim deletion, dep prune of `http` + `flutter_stripe` + `image_cropper` + `photo_view`, `CachedNetworkImage` migration, comment hygiene, `--fatal-infos` lint promotion, standardization, naming polish, router split). Next: Phase 6 (testing).
+- Phase 5 complete; `8 / 8` tasks done.
+- Phase 6 in progress; `1 / 14` tasks done. Task `6.01` (test helpers — `pumpRouterApp`, `mocks.dart`, `test_data.dart`) closed 2026-05-31. Next: `6.02` (repo unit tests batch 1).
 
 Riverpod is wired. Do not follow older notes that say ProviderScope/Riverpod is
 unused. `startApp` mounts `ProviderScope`, overrides shared dependencies, and

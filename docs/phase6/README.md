@@ -1,6 +1,6 @@
 # Phase 6 — Testing & CI gating
 
-**Overall status:** 🔴 Not Started · 0 / 14 tasks done · **Est:** 17 effort-days
+**Overall status:** 🟡 In Progress · 1 / 14 tasks done · **Est:** 17 effort-days
 
 | Field | Value |
 |---|---|
@@ -16,7 +16,7 @@
 
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
-| [6.01](task_01_test_helpers.md) | Expand `pump_app`, `mocks.dart`, `test_data.dart` | 🔴 | 3 | 1d |
+| [6.01](task_01_test_helpers.md) | Expand `pump_app`, `mocks.dart`, `test_data.dart` | 🟢 | 4 | 1d |
 | [6.02](task_02_repo_tests_batch1.md) | Repo unit tests batch 1 (auth, profile, home) | 🔴 | 3 | 1.5d |
 | [6.03](task_03_repo_tests_batch2.md) | Repo unit tests batch 2 (shoots, file_manager, availability) | 🔴 | 3 | 1.5d |
 | [6.04](task_04_notifier_tests_auth_profile.md) | Notifier tests — auth + profile | 🔴 | 6–8 | 1.5d |

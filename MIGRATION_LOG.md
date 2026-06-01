@@ -7,6 +7,33 @@
 
 ---
 
+### 2026-05-31: Task 6.01 — **Expand test helpers** 🟢
+
+Task 6.01 done. `test/helpers/` now carries the harness, mocks, and fixtures that the rest of Phase 6 will build on. Test count 145 → **151** (6 new helper smoke tests).
+
+- **Files touched (4):**
+  - `test/helpers/pump_app.dart` — added `pumpRouterApp(GoRouter)` extension method. Mounts `MaterialApp.router(routerConfig: ...)` inside the existing `ProviderScope(overrides: ...)` wrapper. Existing `pumpProviderApp` unchanged.
+  - **New:** `test/helpers/mocks.dart` — `MockDioClient`, `MockDio`, `MockSessionStore` (mocktail), plus `FakeSecureSessionBackend` + `FakePrefsSessionBackend` for behavior-style tests, plus `registerHelperFallbacks()` for the complex-arg fallbacks (`Options`, `Map<String, dynamic>`, `Uri`).
+  - **New:** `test/helpers/test_data.dart` — JSON fixture builders: `loginResponse`, `profileResponse`, `dashboardCountResponse`, `shootCountResponse`, `shootsListResponse`, `singleShootJson`, `errorResponse`. Each returns `Map<String, dynamic>` so tests round-trip through real `fromJson`.
+  - **New:** `test/helpers/helpers_smoke_test.dart` — 6 smoke tests covering each helper surface (router-aware pump, mocktail stub, composite-store round-trip, profile fixture round-trip, login fixture shape, error envelope shape).
+
+- **Decisions:**
+  - **`MockX` only for cross-cutting deps.** `MockDioClient` + `MockSessionStore` cover everything the upcoming repo / notifier suites bump into. Feature-repo mocks stay inline in their consuming test file until ≥3 tests need the same surface (per task notes).
+  - **Behavior fakes alongside the mocktail mocks.** `FakeSecureSessionBackend` + `FakePrefsSessionBackend` let tests use the real `CompositeSessionStore` end-to-end. Cheaper than stubbing every `read*` / `write*` for tests that exercise the composite's internal coordination.
+  - **`profileResponse.user.primary_role` defaults to `null`.** `User.fromJson` decodes `primary_role` as a JSON list when non-null (`jsonDecode(json["primary_role"])`). Empty-string default would crash; null falls into the else branch. Documented inline in the fixture so future-me doesn't re-add the bug.
+  - **Fixtures return raw maps, not typed models.** Tests that need a typed instance do `MyProfileModel.fromJson(profileResponse(...))`. Keeps each fixture round-trippable as a regression test for the model itself.
+
+- **Verification:**
+  - `flutter analyze --fatal-infos` — **No issues found** (exit 0).
+  - `flutter test` — **151/151 passing** (145 prior + 6 new helper smoke tests).
+
+- **Constraints Maintained:**
+  - Zero production-code changes.
+  - No new dependencies — `mocktail: ^1.0.4` was already in `pubspec.yaml`.
+  - All helpers live under `test/helpers/` — no test-only code in `lib/`.
+
+---
+
 ### 2026-05-31: Task 5.08 — **Router final pass** 🟢 — Phase 5 complete
 
 Task 5.08 done. Router shrunk from **465 LOC → 165 LOC** by extracting per-feature route fragments. Phase 5 now closed (8/8 tasks).

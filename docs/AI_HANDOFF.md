@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-05-31 (post-5.08 — Phase 5 complete).
+Last updated: 2026-05-31 (post-6.01).
 
 ## Read Order
 
@@ -22,7 +22,8 @@ Every AI session should read:
 - Phase 2: complete. Folder casing, security hotfixes, env secrets, CI, and target folders are done.
 - Phase 3: complete. Foundations are in place.
 - Phase 4: **complete**. `23 / 23` tasks done.
-- Phase 5: **complete** — `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31 (shim deletion, dep prune, `CachedNetworkImage` migration, comment hygiene, `--fatal-infos` lint promotion, standardization, naming polish, router split). Next: Phase 6 (testing).
+- Phase 5: **complete** — `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31.
+- Phase 6: in progress — `1 / 14` tasks done. Task `6.01` (test helpers) closed 2026-05-31. Next: `6.02` (repo unit tests batch 1: auth, profile, home).
 - Phase 6: not started.
 
 Active Phase 5 entry-point: `docs/phase5/README.md`.
@@ -71,10 +72,10 @@ Group D is complete. Home now uses:
 
 ## Verification Baseline
 
-Most recent check (post-5.08):
+Most recent check (post-6.01):
 
 - `flutter analyze --fatal-infos`: 0 issues. CI now enforces this on every PR.
-- `flutter test`: 145/145 passing.
+- `flutter test`: 151/151 passing (6.01 added 6 helper smoke tests).
 - `pubspec.yaml`: 4 deps dropped in 5.02 (`http`, `flutter_stripe`, `image_cropper`, `photo_view`). 9 packages removed from resolution.
 - All network image sites now use `CachedNetworkImage` / `CachedNetworkImageProvider` (5.03).
 - `lib/` is comment-clean: 0 `/* */` blocks; only 1 scoped `TODO(messaging)` remaining. `lib/service/config.dart` deleted (unused `AppConfig`).
@@ -82,6 +83,7 @@ Most recent check (post-5.08):
 - Validation regex consolidated (5.06): `lib/core/utils/validators.dart` owns `kEmailPattern` / `kPlusCodePattern` + `isValidEmail` / `isPlusCode`.
 - Model class names normalized (5.07): inner `Data` classes are now feature-prefixed (`DashboardCountData`, `ShootCountData`, `CreatorDashboardData`, `MyProfileData`, `ShootsData`); all model wrappers are PascalCase (`MyProfileModel`, `ShootStatusModel`, `UpcomingShootsModel`, `UpcomingShootDatum`, `UpcomingShootViewModel`); `CancelScreen` → `ShootCancelledScreen`.
 - Router split (5.08): `lib/app/router.dart` is now a 165-LOC orchestrator. Feature routes live in `lib/features/<feature>/presentation/routes/<feature>_routes.dart` and are spread into the root route list. Splash + onboarding + the 5-tab `StatefulShellRoute` stay inline (global lifecycle). Deep-link/typed-param wiring deferred.
+- Test helpers (6.01): `test/helpers/` now exposes `pumpProviderApp` + `pumpRouterApp`, `MockDioClient` / `MockSessionStore` / fake-session-backends (mocktail), and `test_data.dart` JSON fixture builders (`loginResponse`, `profileResponse`, `dashboardCountResponse`, `shootCountResponse`, `shootsListResponse`, `singleShootJson`, `errorResponse`).
 
 Do not assume this remains current after further edits; rerun checks after changes.
 
