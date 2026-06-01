@@ -39,6 +39,7 @@ void main() {
       ProviderScope(
         overrides: [
           sharedPreferencesProvider.overrideWith((_) async => prefs),
+          prefsProvider.overrideWithValue(prefs),
           sessionStoreProvider.overrideWithValue(session),
         ],
         child: const App(),

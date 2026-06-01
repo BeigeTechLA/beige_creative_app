@@ -5,6 +5,7 @@ import 'package:beige_creative_app/features/profile/domain/repositories/delete_a
 import 'package:beige_creative_app/features/profile/presentation/providers/delete_account_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeRepo implements DeleteAccountRepository {
   bool requestCalled = false;
@@ -74,15 +75,21 @@ class _FakeSession implements SessionStore {
   Future<bool> isLoggedIn() async => false;
 }
 
-ProviderContainer _container({
+Future<ProviderContainer> _container({
   required _FakeRepo repo,
   _FakeSession? session,
-}) {
+}) async {
+  // Phase B — logout() now wipes restoration + draft stores, both backed
+  // by SharedPreferences via prefsProvider. Mock-init prefs so the
+  // override resolves to a real (in-memory) instance.
+  SharedPreferences.setMockInitialValues({});
+  final prefs = await SharedPreferences.getInstance();
   final c = ProviderContainer(
     overrides: [
       deleteAccountRepositoryProvider.overrideWithValue(repo),
       if (session != null)
         sessionStoreProvider.overrideWithValue(session),
+      prefsProvider.overrideWithValue(prefs),
     ],
   );
   addTearDown(c.dispose);
@@ -93,7 +100,7 @@ void main() {
   group('DeleteAccountNotifier.requestDelete', () {
     test('rejects when no reason selected', () async {
       final repo = _FakeRepo();
-      final c = _container(repo: repo);
+      final c = await _container(repo: repo);
       final ok = await c
           .read(deleteAccountNotifierProvider.notifier)
           .requestDelete();
@@ -107,7 +114,7 @@ void main() {
 
     test('happy path posts reason', () async {
       final repo = _FakeRepo();
-      final c = _container(repo: repo);
+      final c = await _container(repo: repo);
       final notifier = c.read(deleteAccountNotifierProvider.notifier);
       notifier.selectReason('Others');
       final ok = await notifier.requestDelete();
@@ -118,7 +125,7 @@ void main() {
 
     test('surfaces repo error', () async {
       final repo = _FakeRepo()..throwOnRequest = true;
-      final c = _container(repo: repo);
+      final c = await _container(repo: repo);
       final notifier = c.read(deleteAccountNotifierProvider.notifier);
       notifier.selectReason('Others');
       final ok = await notifier.requestDelete();
@@ -134,7 +141,7 @@ void main() {
     test('rejects partial OTP', () async {
       final repo = _FakeRepo();
       final session = _FakeSession();
-      final c = _container(repo: repo, session: session);
+      final c = await _container(repo: repo, session: session);
       final ok = await c
           .read(deleteAccountNotifierProvider.notifier)
           .confirmDelete('123');
@@ -146,7 +153,7 @@ void main() {
     test('happy path clears session + flips auth state', () async {
       final repo = _FakeRepo();
       final session = _FakeSession();
-      final c = _container(repo: repo, session: session);
+      final c = await _container(repo: repo, session: session);
       c.read(authStateProvider.notifier).state = true;
 
       final ok = await c
@@ -162,7 +169,7 @@ void main() {
     test('repo failure leaves session intact', () async {
       final repo = _FakeRepo()..throwOnConfirm = true;
       final session = _FakeSession();
-      final c = _container(repo: repo, session: session);
+      final c = await _container(repo: repo, session: session);
       c.read(authStateProvider.notifier).state = true;
 
       final ok = await c

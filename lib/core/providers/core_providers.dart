@@ -24,6 +24,17 @@ final sharedPreferencesProvider = FutureProvider<SharedPreferences>(
   },
 );
 
+/// Synchronous handle to the same `SharedPreferences` instance, available
+/// once `startApp` has awaited `SharedPreferences.getInstance()`. Used by
+/// restoration / draft providers that need sync read on first router build.
+final prefsProvider = Provider<SharedPreferences>(
+  (ref) {
+    throw UnimplementedError(
+      'prefsProvider must be overridden in startApp / test harness.',
+    );
+  },
+);
+
 /// Concrete `SessionStore` implementations land in Task 3.13. Until overridden
 /// this provider throws — the override is wired in Task 3.16 (`pumpProviderApp`)
 /// and in `startApp` once Task 3.13 closes.

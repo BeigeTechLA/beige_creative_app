@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../restoration/restoration_providers.dart';
 import 'core_providers.dart';
 
 /// Boolean derived from session presence — single source of truth for
@@ -26,6 +27,8 @@ class AuthStateNotifier extends Notifier<bool> {
   /// also enforce the bounce if anything resurrects the authed tree.
   Future<void> logout() async {
     await ref.read(sessionStoreProvider).clearSession();
+    await ref.read(routeRestorationServiceProvider).clearAll();
+    await ref.read(draftStoreProvider).clearAll();
     state = false;
   }
 }

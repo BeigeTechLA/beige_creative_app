@@ -1,8 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
+import '../../../../core/restoration/draft_store.dart';
+import '../../../../core/restoration/restoration_keys.dart';
+import '../../../../core/restoration/restoration_providers.dart';
 import '../screens/forgot_password_otp_screen.dart';
 import '../screens/forgot_password_screen.dart';
 import '../screens/login_screen.dart';
@@ -29,7 +34,7 @@ final List<RouteBase> authRoutes = [
     path: Routes.signupStep2.path,
     name: Routes.signupStep2.name,
     builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
+      final data = _signupExtraOrDraft(context, state.extra);
       return SignUp2Screen(
         crewMemberId: data['crewMemberId'],
         profileImage: data['profileImage'],
@@ -46,7 +51,7 @@ final List<RouteBase> authRoutes = [
     path: Routes.signupStep3.path,
     name: Routes.signupStep3.name,
     builder: (context, state) {
-      final data = state.extra as Map<String, dynamic>? ?? {};
+      final data = _signupExtraOrDraft(context, state.extra);
       return SignUp3Screen(
         crewMemberId: data['crewMemberId'],
         profileImage: data['profileImage'],
@@ -115,3 +120,30 @@ final List<RouteBase> authRoutes = [
     },
   ),
 ];
+
+/// Returns `state.extra` as a map, falling back to the persisted [SignUpDraft]
+/// when restoration is enabled and `extra` is null. Used by step-2 / step-3
+/// builders so a cold start can hydrate the form on restore.
+Map<String, dynamic> _signupExtraOrDraft(BuildContext context, Object? extra) {
+  final data = (extra as Map<String, dynamic>?) ?? const <String, dynamic>{};
+  if (data.isNotEmpty || !kRestorationEnabled) return data;
+  final container = ProviderScope.containerOf(context, listen: false);
+  final draft = container.read(draftStoreProvider).readSignUpDraft();
+  if (draft == null) return data;
+  return {
+    if (draft.crewMemberId != null) 'crewMemberId': draft.crewMemberId,
+    if (draft.email != null) 'email': draft.email,
+    if (draft.firstName != null) 'firstName': draft.firstName,
+    if (draft.lastName != null) 'lastName': draft.lastName,
+    if (draft.location != null) 'location': draft.location,
+    if (draft.workingDistance != null) 'workingDistance': draft.workingDistance,
+    if (draft.primaryRole != null) 'primaryRole': draft.primaryRole,
+    if (draft.experience != null) 'experience': draft.experience,
+    if (draft.hourlyRate != null) 'hourlyRate': draft.hourlyRate,
+    if (draft.bio != null) 'bio': draft.bio,
+    if (draft.skills != null) 'skills': draft.skills,
+    if (draft.equipments != null) 'equipments': draft.equipments,
+    if (draft.step1Progress != null) 'step1Progress': draft.step1Progress,
+    if (draft.step2Progress != null) 'step2Progress': draft.step2Progress,
+  };
+}

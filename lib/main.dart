@@ -42,6 +42,7 @@ Future<void> startApp(Environment environment) async {
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWith((_) async => prefs),
+        prefsProvider.overrideWithValue(prefs),
         sessionStoreProvider.overrideWithValue(session),
         authStateProvider.overrideWith(
           () => AuthStateNotifier(initial: initialAuth),

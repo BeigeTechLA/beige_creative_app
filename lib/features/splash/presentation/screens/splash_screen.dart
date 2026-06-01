@@ -8,6 +8,8 @@ import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/onboarding_seen_provider.dart';
+import '../../../../core/restoration/restoration_keys.dart';
+import '../../../../core/restoration/restoration_providers.dart';
 import '../providers/splash_notifier.dart';
 import '../providers/splash_state.dart';
 
@@ -41,7 +43,21 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   void _routeOnComplete() {
     if (!mounted) return;
     final isAuthed = ref.read(authStateProvider);
+
     if (isAuthed) {
+      // Phase B — try to restore a persisted route first. Decision helper
+      // gates on `kRestorationEnabled`, login state, and a forbid list.
+      final restoration = ref.read(routeRestorationServiceProvider);
+      final restorer = ref.read(splashRestorerProvider);
+      final restored = restoration.readRestorable();
+      if (restorer.shouldRestore(
+        isEnabled: kRestorationEnabled,
+        isLoggedIn: true,
+        persistedRoute: restored?.location,
+      )) {
+        context.go(restored!.toUri());
+        return;
+      }
       context.goNamed(Routes.home.name);
       return;
     }

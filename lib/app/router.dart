@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/firebase/app_analytics_observer.dart';
 import '../core/providers/auth_state_provider.dart';
 import '../core/providers/onboarding_seen_provider.dart';
+import '../core/restoration/restoration_providers.dart';
 import '../features/availability/presentation/routes/availability_routes.dart';
 import '../features/availability/presentation/screens/manage_availability_screen.dart';
 import '../features/auth/presentation/routes/auth_routes.dart';
@@ -28,7 +29,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final notifier = _AuthRefreshNotifier(ref);
   ref.onDispose(notifier.dispose);
 
-  return GoRouter(
+  final router = GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: Routes.splash.path,
     refreshListenable: notifier,
@@ -61,6 +62,22 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: appRoutes,
   );
+
+  // Phase B — persist matchedLocation on every router change. No-op while
+  // kRestorationEnabled is false (service short-circuits internally).
+  final restoration = ref.read(routeRestorationServiceProvider);
+  void persistOnChange() {
+    final match = router.routerDelegate.currentConfiguration;
+    final loc = match.uri.path;
+    restoration.persist(
+      matchedLocation: loc,
+      queryParameters: match.uri.queryParameters,
+    );
+  }
+  router.routerDelegate.addListener(persistOnChange);
+  ref.onDispose(() => router.routerDelegate.removeListener(persistOnChange));
+
+  return router;
 });
 
 /// Bridges `authStateProvider` + `onboardingSeenProvider` to `Listenable`
