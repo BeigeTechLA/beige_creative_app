@@ -1,8 +1,20 @@
 # Navigator Migration — Centralised Routing & Tracking
 
-Status: **Proposed (2026-05-31)** — not started.
+Status: **In progress (2026-06-01)** — A0 + A done, B/C/D/F pending.
 Owner: TBD.
 Related docs: `docs/NAVIGATION_MAP.md` (current state snapshot), `CLAUDE.md`, `MIGRATION_RULES.md`.
+
+### Phase progress
+
+| Phase | State | Commit | Notes |
+|---|---|---|---|
+| A0 — Regenerate navigation map | ✅ Done | `9befd0d` | NAVIGATION_MAP.md rewritten; P15/P16/P18 evidence updated; P21+P22 added; audit cross-walk in §11. |
+| A — Centralisation | ✅ Done | `98b2196` | `lib/app/routes.dart` + `navigator_key.dart`; auth → NotifierProvider; refreshListenable merged; 36-file `RouteNames` sweep; 9/9 route tests pass; 160/160 full suite green. |
+| B — Restoration + DraftStore | ⏳ Pending | — | Flagged off behind `kRestorationEnabled`. |
+| C — Typed args | ⏳ Pending | — | Fixes P11/P15. 3 new args files. |
+| D — Cleanup | ⏳ Pending | — | Kills last 2 `Navigator.push`; delete `RouteNames` shim; AppShell branch-4 fix. |
+| F — Centralised screen-view analytics | ⏳ Pending | — | `RouteSpec.trackScreenView` + `screenClass` + DebugView smoke. |
+| E — Future | — | — | Out of scope this migration. |
 
 ## 1. Goal
 
@@ -352,34 +364,36 @@ Total estimate: **~3.5-6 dev days** for Phase A0 + A + C + D. Phase B (restorati
 
 ### Phase A0 — Regenerate navigation map (0.5 day, docs only)
 
-Read-only sweep + docs rewrite. No code changes. Blocks Phase A.
+Read-only sweep + docs rewrite. No code changes. Blocks Phase A. **Done in commit `9befd0d`.**
 
-| Task | File(s) | Notes |
-|---|---|---|
-| A0.1 | Sweep router + per-feature route files. | `lib/app/router.dart`, `lib/features/*/presentation/routes/*_routes.dart`. Record every `GoRoute`: `path`, `name`, builder widget, builder file, `state.extra` cast shape. |
-| A0.2 | Sweep call sites. | `rg "(pushNamed|goNamed|pushReplacementNamed|push|go)\(" lib --type dart` — record source file:line, target route name, `extra:` payload keys, whether named vs raw. Flag every `Navigator.push` / `MaterialPageRoute` remaining (already known: `pre_production_screen.dart:223`, `common_file_viewer.dart:23` — confirm count). |
-| A0.3 | Cross-check `RouteNames` constants vs `GoRoute(name:)` registrations. | `rg "RouteNames\.\w+" lib --type dart -o \| sort -u` vs the route tree. Record dead constants + un-named routes. |
-| A0.4 | Rewrite `docs/NAVIGATION_MAP.md`. Replace §1 source-files table (drop `main.dart` / `main_screen.dart` / `service/*`, add `app/router.dart`, `core/providers/auth_state_provider.dart`, `core/providers/onboarding_seen_provider.dart`, `core/session/session_store.dart`, `shared/layouts/app_shell.dart`, the 5 feature `*_routes.dart` files). Replace §2 (Riverpod IS wired; `SessionStore` owns auth state; redirect IS configured). Rebuild §3 screen inventory + §4 Mermaid diagram from the A0.1/A0.2 sweep. Refresh §6 (redirect exists; describe gates). Refresh §7 (`AppShell` bottom bar — confirm 4 vs 5 tab clamp still present in current code). Re-scope §8 against current oddities. | |
-| A0.5 | Cross-check P1-P19 in §2 of this doc against A0.1 output. Confirm each evidence line:number still resolves; fix any that drifted. Add any new problems the sweep surfaces. | |
-| A0.6 | Cross-walk `docs/audit/NAVIGATION_AUDIT.md` findings F-01..F-22 vs current code. Mark each: **surviving** (already in §2), **obsoleted-by-Phase-1-5** (F-02 IndexedStack, F-04 splash gate, F-09 case-mismatch imports, F-10 orphans, F-12 dead app.dart), or **verify-required** (F-06 dup CancelScreen → P16, F-11 ShootRequestAccepted raw-push, F-18 login mixed nav). Append surviving-but-uncaptured findings as new Pxx rows. | Audit is pre-migration (branch `improvments-phase1`, 2026-05-21). Stale paths; live finding categories. |
-| A0.7 | Commit `NAVIGATION_MAP.md` rewrite + any `NAVIGATER_MIGRATION.md` §2 evidence-line fixups + audit cross-walk results in one PR. | One PR, docs-only, easy review. |
+| Task | Status | File(s) | Notes |
+|---|---|---|---|
+| A0.1 | ✅ | Sweep router + per-feature route files. | 37 GoRoutes inventoried. |
+| A0.2 | ✅ | Sweep call sites. | ~90 named-nav refs across 38 files. 2 raw `Navigator.push` confirmed (P8). |
+| A0.3 | ✅ | Cross-check `RouteNames` constants vs `GoRoute(name:)` registrations. | Dead: `signup`, `viewShootDetails` (P21). |
+| A0.4 | ✅ | Rewrite `docs/NAVIGATION_MAP.md`. | All stale `main_screen.dart` / `service/*` refs gone. Mermaid + 37 routes documented. |
+| A0.5 | ✅ | Cross-check P1-P19 evidence. | P15 re-scoped (manage_availability.dart shrank 767→324 lines, footgun not crash); P16 obsoleted; P18 evidence updated. Added P20-P22. |
+| A0.6 | ✅ | Audit cross-walk F-01..F-22. | 9/22 obsoleted by Phase 1-5. See §11. |
+| A0.7 | ✅ | Single docs-only commit. | `9befd0d` on `improvments-phase1`. |
 
-Acceptance: regenerated `NAVIGATION_MAP.md` lists every current `GoRoute`, every current call site, no references to deleted files (`lib/main.dart`, `lib/main_screen.dart`, `lib/service/*`, `lib/auth/`, `lib/Profile/`). `rg -F "lib/service/" docs/NAVIGATION_MAP.md` returns 0. Mermaid renders.
+Acceptance: regenerated `NAVIGATION_MAP.md` lists every current `GoRoute`, every current call site, no references to deleted files (`lib/main.dart`, `lib/main_screen.dart`, `lib/service/*`, `lib/auth/`, `lib/Profile/`). `rg -F "lib/service/" docs/NAVIGATION_MAP.md` returns 0. Mermaid renders. **Verified.**
 
 ### Phase A — Centralisation (1.5 days, no behavior change)
 
-| Task | File(s) | Notes |
-|---|---|---|
-| A1 | Create `lib/app/routes.dart` with `RouteSpec` + every existing `RouteNames` constant ported. snake_case names. | Inventory source: regenerated `NAVIGATION_MAP.md` §3 (post-A0). |
-| A2 | Add `lib/app/navigator_key.dart`, wire into `GoRouter(navigatorKey:)`. | One line. |
-| A3 | Update `lib/app/router.dart`: derive `_publicRoutes` from `Routes.publicPaths`. Delete the literal set. | |
-| A4 | Update each `lib/features/*/presentation/routes/*_routes.dart` to use `Routes.x.path` / `Routes.x.name`. | Mechanical sweep. |
-| A5 | Replace `lib/core/providers/auth_state_provider.dart` with `Notifier`. Add `login()` / `logout()`. Update call sites. | Search for `authStateProvider.notifier).state` — should be ≤5 hits. |
-| A6 | Add `onboardingSeenProvider` to `routerProvider` refresh listenable via `Listenable.merge`. | Pattern from biegeapp router.dart:108. |
-| A7 | Migrate `RouteNames` usages → `Routes.x.name`. Keep `RouteNames` as a forwarder for 1 PR cycle, then delete. | `rg "RouteNames\." lib` to find call sites. |
-| A8 | Add `test/app/router_test.dart` (4.10). | Block CI. |
+**Done in commit `98b2196`.** 51 files changed (+534 / −310). 9/9 router tests + 160/160 full suite green.
 
-Acceptance: `flutter analyze` clean, `flutter test` green, app boots and reaches `/home` after login.
+| Task | Status | File(s) | Notes |
+|---|---|---|---|
+| A1 | ✅ | `lib/app/routes.dart` | 37 `RouteSpec`s. snake_case names + kebab paths. `Routes.all` / `.publicPaths` / `.byName`. |
+| A2 | ✅ | `lib/app/navigator_key.dart` | `rootNavigatorKey` wired into `GoRouter(navigatorKey:)`. |
+| A3 | ✅ | `lib/app/router.dart` | `_publicRoutes` literal set deleted; derived from `Routes.publicPaths`. Inline `GoRoute`s use `Routes.x`. |
+| A4 | ✅ | 5 feature `*_routes.dart` | auth / profile / shoots / availability / file_manager — all `Routes.x.path/.name`. |
+| A5 | ✅ | `auth_state_provider.dart`, `login_notifier.dart`, `delete_account_providers.dart`, `profile_action_buttons.dart`, `main.dart` | `NotifierProvider<AuthStateNotifier, bool>`. `markLoggedIn()` + `logout()`. 3 mutator call sites migrated. `startApp` override passes initial seed. |
+| A6 | ✅ | `lib/app/router.dart` | `_AuthRefreshNotifier` listens to `authStateProvider` AND `onboardingSeenProvider`. |
+| A7 | ✅ | ~36 call sites + `route_names.dart` | `sed` sweep: `RouteNames.X` → `Routes.X.name`; `route_names.dart` import → `routes.dart`. `route_names.dart` converted to `@deprecated` forwarder shim — deleted in D4. |
+| A8 | ✅ | `test/app/router_test.dart` | 9 tests: name non-empty, snake_case regex (`^[a-z][a-z0-9_]{0,39}$`), uniqueness, `publicPaths` ↔ `isPublic` flag, `byName` covers `all`, GoRoute ↔ RouteSpec consistency, every `Routes.x` registered. |
+
+Acceptance: `flutter analyze` clean, `flutter test` green (160/160), app boots and reaches `/home` after login. **Verified.**
 
 ### Phase B — Restoration & DraftStore (1-2 days, gated by flag)
 
