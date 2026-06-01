@@ -1,6 +1,6 @@
 # Navigator Migration — Centralised Routing & Tracking
 
-Status: **In progress (2026-06-01)** — A0 + A + B + C done, D/F pending.
+Status: **In progress (2026-06-01)** — A0 + A + B + C + D done, F pending.
 Owner: TBD.
 Related docs: `docs/NAVIGATION_MAP.md` (current state snapshot), `CLAUDE.md`, `MIGRATION_RULES.md`.
 
@@ -12,7 +12,7 @@ Related docs: `docs/NAVIGATION_MAP.md` (current state snapshot), `CLAUDE.md`, `M
 | A — Centralisation | ✅ Done | `98b2196` | `lib/app/routes.dart` + `navigator_key.dart`; auth → NotifierProvider; refreshListenable merged; 36-file `RouteNames` sweep; 9/9 route tests pass; 160/160 full suite green. |
 | B — Restoration + DraftStore | ✅ Done | `3b2120b` | 6 restoration files + `prefsProvider`. Persist on every route change, restore on splash, logout wipes. `kRestorationEnabled = false`; flip after device smoke (B6 deferred). 19 new tests; 179/179 green. |
 | C — Typed args | ✅ Done | `3e4b08e` | 3 args files + 3 test files. 9 args classes; null-safe `fromExtra`. P15 resolved (no non-null casts). 21 new tests; 200/200 green. |
-| D — Cleanup | ⏳ Pending | — | Kills last 2 `Navigator.push`; delete `RouteNames` shim; AppShell branch-4 fix. |
+| D — Cleanup | ✅ Done | `70979ee` | Last 2 raw `Navigator.push` killed. `RouteNames` shim + `ShootRequestAccepted` orphan deleted. `view_details_screen.dart` renamed `file_viewer_screen.dart` (class `FileViewerScreen`); new `Routes.fileViewer` route. `AppShell` bottom bar hides on branch 4. CI guard `tool/check_no_navigator_push.sh`. `MIGRATION_RULES.md` §6.1-§6.4 refreshed. |
 | F — Centralised screen-view analytics | ⏳ Pending | — | `RouteSpec.trackScreenView` + `screenClass` + DebugView smoke. |
 | E — Future | — | — | Out of scope this migration. |
 
@@ -422,14 +422,16 @@ Acceptance: `flutter analyze` clean, `flutter test` green (160/160), app boots a
 
 ### Phase D — Cleanup (0.5 day)
 
-| Task | File(s) |
-|---|---|
-| D1 | Replace `Navigator.push` in `pre_production_screen.dart:223` + `common_file_viewer.dart:23`. |
-| D2 | Fix `AppShell` bottom-bar index (4.8). |
-| D3 | Rename `lib/features/file_manager/presentation/screens/view_details_screen.dart` → `file_viewer_screen.dart`. Update imports. (Disambiguates from `auth/.../view_details_screen.dart`.) |
-| D4 | Delete `RouteNames` shim. |
-| D5 | Add `MIGRATION_RULES.md` entry: **"No `Navigator.push` / `MaterialPageRoute` in feature code. Use `Routes.x` + `context.pushNamed`."** Add CI grep guard. |
-| D6 | Update `docs/NAVIGATION_MAP.md` to reflect new structure (or supersede with a generated map per E1). |
+**Done in commit `70979ee`.** 12 files (155 +, 181 −). 200/200 tests still pass. Grep guard green.
+
+| Task | Status | File(s) | Notes |
+|---|---|---|---|
+| D1 | ✅ | `pre_production_screen.dart`, `common_file_viewer.dart`, `file_manager_routes.dart`, `file_manager_args.dart` | `pre_production` → `pushNamed(Routes.fileViewer)` with `FileViewerArgs`. `common_file_viewer` → `showDialog` (modal, not routed). |
+| D2 | ✅ | `lib/shared/layouts/app_shell.dart` | `currentIndex >= 4 ? null : bar`. Bar disappears on Manage Availability — honest UX. |
+| D3 | ✅ | `lib/features/file_manager/presentation/screens/file_viewer_screen.dart` | Renamed from `view_details_screen.dart`; class `FileManagerViewDetailsScreen` → `FileViewerScreen`. P12 resolved. |
+| D4 | ✅ | `lib/app/route_names.dart` (deleted), `lib/features/shoots/presentation/screens/shoot_request_accepted_screen.dart` (deleted) | Shim drained after Phase A sweep; orphan widget (P22) removed. |
+| D5 | ✅ | `MIGRATION_RULES.md`, `tool/check_no_navigator_push.sh` | §6.1–§6.4 rewritten around `RouteSpec` + typed args + modal-vs-route boundary. CI grep guard executable. |
+| D6 | ✅ | `docs/NAVIGATION_MAP.md` | Phase D delta note (route 37→38, deletions, AppShell change, zero raw `Navigator.push`). |
 
 ### Phase F — Centralised screen-view analytics (0.5-1 day)
 
