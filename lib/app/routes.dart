@@ -79,6 +79,7 @@ abstract class Routes {
   // File manager
   static const postProduction = RouteSpec(name: 'post_production', path: '/post-production');
   static const preProduction = RouteSpec(name: 'pre_production', path: '/pre-production');
+  static const fileViewer = RouteSpec(name: 'file_viewer', path: '/file-viewer');
 
   /// Flat list — drives [publicPaths], [byName], and the route-completeness test.
   static const all = <RouteSpec>[
@@ -92,7 +93,7 @@ abstract class Routes {
     deleteAccount, deleteAccountOtp, deleteAccountSuccess,
     upcomingShootDetails, cancelShoot, shootCancelotties,
     addAvailability,
-    postProduction, preProduction,
+    postProduction, preProduction, fileViewer,
   ];
 
   static final Set<String> publicPaths = {

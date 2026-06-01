@@ -6,10 +6,11 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../providers/file_manager_providers.dart';
-import 'view_details_screen.dart';
+import '../routes/file_manager_args.dart';
 
 const _kFolderId = 'lana-123456';
 
@@ -220,13 +221,9 @@ class _PreProductionScreenState extends ConsumerState<PreProductionScreen> {
             InkWell(
               borderRadius: AppRadii.smAll,
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const FileManagerViewDetailsScreen(
-                      folderId: _kFolderId,
-                    ),
-                  ),
+                context.pushNamed(
+                  Routes.fileViewer.name,
+                  extra: const FileViewerArgs(folderId: _kFolderId).toExtra(),
                 );
               },
               child: Column(

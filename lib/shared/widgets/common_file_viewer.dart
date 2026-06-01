@@ -20,33 +20,35 @@ class CommonFileViewer {
     final isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(ext);
 
     if (isImage) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Scaffold(
+      // Full-screen modal — not a routable screen. Uses showDialog with
+      // useSafeArea: false so the InteractiveViewer fills the viewport.
+      showDialog<void>(
+        context: context,
+        useSafeArea: false,
+        barrierColor: AppColors.black,
+        builder: (dialogCtx) => Scaffold(
+          backgroundColor: AppColors.black,
+          appBar: AppBar(
             backgroundColor: AppColors.black,
-            appBar: AppBar(
-              backgroundColor: AppColors.black,
-              leading: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon:SvgPicture.asset(AppAssets.back)
-              ),
+            leading: IconButton(
+              onPressed: () => Navigator.of(dialogCtx).pop(),
+              icon: SvgPicture.asset(AppAssets.back),
             ),
-            body: Center(
-              child: InteractiveViewer(
-                child: isNetwork
-                    ? CachedNetworkImage(
-                        imageUrl: filePath,
-                        fit: BoxFit.contain,
-                        errorWidget: (_, _, _) {
-                          return SvgPicture.asset(
-                            AppAssets.image_holder,
-                            height: 150,
-                          );
-                        },
-                      )
-                    : Image.file(File(filePath)),
-              ),
+          ),
+          body: Center(
+            child: InteractiveViewer(
+              child: isNetwork
+                  ? CachedNetworkImage(
+                      imageUrl: filePath,
+                      fit: BoxFit.contain,
+                      errorWidget: (_, _, _) {
+                        return SvgPicture.asset(
+                          AppAssets.image_holder,
+                          height: 150,
+                        );
+                      },
+                    )
+                  : Image.file(File(filePath)),
             ),
           ),
         ),

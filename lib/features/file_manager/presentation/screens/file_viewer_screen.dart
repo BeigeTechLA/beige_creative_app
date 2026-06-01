@@ -13,9 +13,9 @@ import '../providers/file_manager_providers.dart';
 /// Folder/shoot detail surface reached via "View Shoot Details" inside
 /// pre-production. Named with the feature prefix to avoid colliding with the
 /// auth `ViewDetailsScreen` (which the router exposes under `viewDetails`).
-class FileManagerViewDetailsScreen extends ConsumerWidget {
+class FileViewerScreen extends ConsumerWidget {
   final String folderId;
-  const FileManagerViewDetailsScreen({super.key, required this.folderId});
+  const FileViewerScreen({super.key, required this.folderId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -595,24 +595,27 @@ class AuthRepositoryImpl implements AuthRepository {
 ### 6.1 — GoRouter Rules
 
 - Every route MUST have a `name` property — used for analytics screen tracking.
-- Never use `Navigator.push()` directly — always `context.goNamed()` or `context.pushNamed()`.
-- Route names are `lowercase_snake_case`: `product_detail`, `order_history`.
-- Use `ShellRoute` for bottom navigation / persistent layouts.
+- Never use `Navigator.push()` / `Navigator.pushReplacement()` / `MaterialPageRoute` in feature code — always `context.goNamed()` or `context.pushNamed()`. CI grep guard at `tool/check_no_navigator_push.sh`.
+- Dialogs / bottom sheets that are NOT a `PageRoute` (e.g. image preview modals) may use `showDialog` / `showModalBottomSheet` — those don't enter the GoRouter stack and are not subject to the rule above.
+- Route names are `lowercase_snake_case`: `product_detail`, `order_history`. Paths stay kebab-case.
+- Use `StatefulShellRoute.indexedStack` for bottom navigation / persistent layouts.
 - Attach `AppAnalyticsObserver` to GoRouter for automatic screen tracking.
 
-### 6.2 — Route Names
+### 6.2 — Route Spec (single source of truth)
 
 ```dart
-// lib/app/route_names.dart
-abstract class RouteNames {
-  static const splash = 'splash';
-  static const login = 'login';
-  static const register = 'register';
-  static const home = 'home';
-  static const search = 'search';
-  static const profile = 'profile';
-  static const settings = 'settings';
-  // Add per feature...
+// lib/app/routes.dart
+abstract class Routes {
+  Routes._();
+
+  static const splash = RouteSpec(name: 'splash', path: '/splash', isPublic: true);
+  static const home = RouteSpec(name: 'home', path: '/home');
+  static const productDetail = RouteSpec(name: 'product_detail', path: '/product-detail');
+  // …
+
+  static const all = <RouteSpec>[splash, home, productDetail, /* … */];
+  static final Set<String> publicPaths = { for (final r in all) if (r.isPublic) r.path };
+  static final Map<String, RouteSpec> byName = { for (final r in all) r.name: r };
 }
 ```
 
@@ -620,15 +623,25 @@ abstract class RouteNames {
 
 ```dart
 // CORRECT
-context.goNamed(RouteNames.home);
-context.pushNamed(RouteNames.productDetail, pathParameters: {'id': productId});
+context.goNamed(Routes.home.name);
+context.pushNamed(
+  Routes.productDetail.name,
+  extra: ProductDetailArgs(id: productId).toExtra(),
+);
 
-// WRONG — never use raw paths
+// WRONG — never use raw paths or untyped state.extra maps
 context.go('/home');
-context.push('/product/$id');
+context.pushNamed(Routes.productDetail.name, extra: {'id': productId});
 ```
 
-### 6.4 — Migration Steps
+### 6.4 — Typed args for `state.extra`
+
+Every route that needs a payload gets a co-located `*_args.dart` next to its
+`*_routes.dart`. The class exposes `toExtra()` (for callers) and
+`fromExtra(Object?)` (for the builder). `fromExtra(null)` MUST return safe
+defaults — never throw a non-null cast at navigation time.
+
+### 6.5 — Migration Steps
 
 1. List every `Navigator.push`, `Navigator.pushNamed`, `Navigator.pop` call in the project
 2. Create `app/router.dart` with GoRouter mapping all existing routes

@@ -5,6 +5,18 @@ from a full sweep of `lib/` on 2026-06-01 (branch `improvments-phase1`,
 post-Phase 1-5 feature/Riverpod migration). Supersedes the pre-restructure
 snapshot referenced by older docs.
 
+> **Phase D delta (commit pending):** route count 37 → 38 (added
+> `Routes.fileViewer` for `/file-viewer`). `lib/features/file_manager/presentation/screens/view_details_screen.dart`
+> renamed to `file_viewer_screen.dart` (class `FileManagerViewDetailsScreen` →
+> `FileViewerScreen`) to disambiguate from `auth/.../view_details_screen.dart` (P12).
+> `lib/features/shoots/presentation/screens/shoot_request_accepted_screen.dart`
+> deleted (P22 orphan). `lib/app/route_names.dart` deleted (post-Phase A shim).
+> `AppShell` bottom bar hides on branch 4 instead of clamping to Dashboard (P9).
+> Zero raw `Navigator.push` / `MaterialPageRoute` in `lib/` — `pre_production:223`
+> moved to `pushNamed(Routes.fileViewer)`, `common_file_viewer:23` switched to
+> `showDialog` (modal, not a routed screen). CI guard at
+> `tool/check_no_navigator_push.sh`.
+
 ## 1. Source files
 
 | Concern | File |

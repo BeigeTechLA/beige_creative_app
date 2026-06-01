@@ -42,10 +42,14 @@ class AppShell extends StatelessWidget {
       ),
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
       body: shell,
-      bottomNavigationBar: _AppShellBottomBar(
-        currentIndex: shell.currentIndex > 3 ? 0 : shell.currentIndex,
-        onTap: _goBranch,
-      ),
+      // Branch 4 (Manage Availability) is drawer-only — hiding the bar on
+      // that branch tells the truth instead of clamping to Dashboard.
+      bottomNavigationBar: shell.currentIndex >= 4
+          ? null
+          : _AppShellBottomBar(
+              currentIndex: shell.currentIndex,
+              onTap: _goBranch,
+            ),
     );
   }
 }
