@@ -1,0 +1,621 @@
+# Navigator Migration — Centralised Routing & Tracking
+
+Status: **Proposed (2026-05-31)** — not started.
+Owner: TBD.
+Related docs: `docs/NAVIGATION_MAP.md` (current state snapshot), `CLAUDE.md`, `MIGRATION_RULES.md`.
+
+## 1. Goal
+
+Make the router the single source of truth for paths, names, gating, and analytics — and survive process death for multi-step flows. Pattern is drawn from the `biegeapp` (client-side) router, which already solves most of these problems.
+
+Outcomes:
+
+1. One file lists every route's `path`, `name`, `isPublic`, and `args` shape.
+2. Auth + onboarding + (future) connectivity gates are reactive — no stale redirects.
+3. Interceptors / non-widget code can navigate without `BuildContext`.
+4. Multi-step `state.extra` payloads survive cold start.
+5. Zero `Navigator.push` / `MaterialPageRoute` in `lib/`.
+6. Bottom-bar selected index never lies about the active branch.
+7. Crashlytics breadcrumbs already work — keep them, plus add a redirect breadcrumb.
+8. Every screen logs a stable `screen_view` to Firebase Analytics via `FirebaseAnalyticsObserver`, keyed off `RouteSettings.name` (= `Routes.x.name`, snake_case). No ad-hoc `logScreenView` per screen.
+
+## 2. Problems being fixed
+
+Drawn from the current code + `NAVIGATION_MAP.md`. Each item maps to a Phase task below.
+
+| # | Problem | Evidence |
+|---|---|---|
+| P1 | Path strings duplicated between `_publicRoutes` set and per-feature `path:` literals. | `lib/app/router.dart:24-34` vs `auth_routes.dart:19,24,28…` |
+| P2 | `RouteNames` holds only names, not paths — no `name → path` map. | `lib/app/route_names.dart` |
+| P3 | `authStateProvider` is `StateProvider<bool>` — mutated from outside via `.notifier.state = …`. Leaks state ownership. | `lib/core/providers/auth_state_provider.dart:12` |
+| P4 | `onboardingSeenProvider` is read in `redirect:` but NOT in `refreshListenable`. Flips don't re-run redirect. | `lib/app/router.dart:49`, `_AuthRefreshNotifier:77-92` |
+| P5 | No `rootNavigatorKey`. 401 interceptor cannot bounce to `/login` without context. | absent |
+| P6 | No route restoration. Cold start always lands `/splash`; multi-step signup loses extras. | absent |
+| P7 | No draft store. `state.extra as Map<String, dynamic>` is in-memory only — process death = data loss. | `auth_routes.dart:31-66` (signup-step-2/3 extras), `profile_routes.dart` |
+| P8 | Two leftover `Navigator.push` + `MaterialPageRoute`. | `pre_production_screen.dart:223`, `common_file_viewer.dart:23` |
+| P9 | `AppShell` bottom bar clamps `currentIndex > 3 ? 0`. Branch 4 (Manage Availability) shows Dashboard active. | `app_shell.dart:46` |
+| P10 | Kebab-case route names (`"signup-step-1"`). `biegeapp` uses snake_case — analytics splits across apps. | `route_names.dart` |
+| P11 | Untyped extras — every screen redoes `data['key'] ?? ''` casts; no compile-time guard. | `auth_routes.dart:31-66`, `profile_routes.dart:78-99` |
+| P12 | Two `view_details_screen.dart` files (auth/ + file_manager/). Import collisions waiting. | `lib/features/auth/presentation/screens/view_details_screen.dart`, `lib/features/file_manager/presentation/screens/view_details_screen.dart` |
+| P13 | Adding a public auth route requires editing 3 files (`route_names.dart` + `auth_routes.dart` + `_publicRoutes` set). | structural |
+| P14 | No test enforces every `GoRoute` has a `name`. Analytics observer silently drops un-named pushes. | `app_analytics_observer.dart:39` (`if (name == null || name.isEmpty) return`) |
+| P15 | Three GoRoutes do non-null cast `state.extra as Map<String,dynamic>` (no `?? {}`) — crash if any caller forgets `extra:`. All current callers pass extras (verified A0.1/A0.2), so this is a latent footgun, not active crash. Sites: `shoots_routes.dart:15` (`upcomingShootDetails`), `shoots_routes.dart:23` (`cancelShoot`), `profile_routes.dart:53` (`featuredWorkDetails`). Plus `profile_routes.dart:79` casts to bare `String`. Original 767-line crash site is gone — Phase 4 god-widget split shrank `manage_availability_screen.dart` to 324 lines. | re-scoped via A0.1 sweep |
+| P16 | ~~Duplicate routes to `CancelScreen` (`/cancel-shoot` vs `/shoot-Cancel`).~~ **OBSOLETED by Phase 1-5 feature restructure** — only `/cancel-shoot` exists today. Confirmed in A0.1 sweep. | audit F-06 → resolved |
+| P17 | `RouteNames.shootCancelotties` constant value is `"shoot-cancellooties"` (double-o typo) while path is `/shoot-cancelotties`. Name=value drift; safe today (both sides agree on constant), trap for anyone typing literal value. | `route_names.dart`, audit F-08. |
+| P18 | Single `PopScope` site in `lib/` (`featuredwork_details_screen.dart:69`); zero `WillPopScope` / `SystemNavigator.pop`. Android hardware-back drops signup-step-2/3 form state silently; no "discard form?" guard on multi-step flows. | audit F-13 (was "0 hits"; updated A0.5). Scope question: in this migration or follow-up? Listed in §9. |
+| P19 | Logout `goNamed(login)` does not clear go_router stack. Back-gesture from `/login` may resurrect authed tree → API calls with cleared token. | audit F-05. Mitigated partially by `redirect` (added post-audit) bouncing unauth to `/login`, but worth verifying in A0 against current `AuthStateNotifier.logout()` path. |
+| P20 | `screen_view` analytics rides on `RouteSettings.name`. Today's kebab names (`signup-step-1`) ship to Firebase as the screen_name; snake_case rename in Phase A changes the analytics key. No test asserts every route is observed, no `screenClass` is set, and modal sheets / dialogs are invisible to the observer. | `app_analytics_observer.dart:38-42`, `analytics_service.dart:29-33`, P10/P14. |
+| P21 | Dead constants in `route_names.dart`: `signup` (line 9, value `"signup"`) and `viewShootDetails` (lines 83-84, value `"view-shoot-details"`). Both defined, no matching `GoRoute`, zero references in `lib/`. Confirmed A0.3. | audit F-07, A0.3 sweep. |
+| P22 | `lib/features/shoots/presentation/screens/shoot_request_accepted_screen.dart` (`ShootRequestAccepted`) is defined but has **zero** call sites. Was previously raw-`Navigator.push`-only per audit F-11; the push has since been removed without removing the widget. Candidate for deletion in Phase D. | audit F-11, A0.6 sweep. |
+
+## 3. Non-goals
+
+- Deep-link / Universal-link support. (Out of scope; possible follow-up once typed args + path constants land.)
+- Replacing `StatefulShellRoute.indexedStack`. Shell stays as-is.
+- Migrating screens to Riverpod where they aren't already (Phase 4 work).
+- Building a generic event taxonomy (login, signup_completed, shoot_accepted, …). Phase F only centralises **screen-view** tracking via `FirebaseAnalyticsObserver` + `RouteSettings.name`. Custom event taxonomy stays a follow-up.
+
+## 4. Target architecture
+
+### 4.1 `RouteSpec` — single source of truth
+
+`lib/app/routes.dart` (new):
+
+```dart
+import 'package:flutter/foundation.dart';
+
+@immutable
+class RouteSpec {
+  const RouteSpec({
+    required this.name,
+    required this.path,
+    this.isPublic = false,
+  });
+
+  final String name;   // analytics-safe, snake_case
+  final String path;   // GoRouter path
+  final bool isPublic; // reachable while unauthenticated
+}
+
+abstract class Routes {
+  // Entry
+  static const splash = RouteSpec(name: 'splash', path: '/splash', isPublic: true);
+  static const onboarding = RouteSpec(name: 'onboarding', path: '/onboarding', isPublic: true);
+
+  // Auth
+  static const login = RouteSpec(name: 'login', path: '/login', isPublic: true);
+  static const signupStep1 = RouteSpec(name: 'signup_step_1', path: '/signup-step-1', isPublic: true);
+  static const signupStep2 = RouteSpec(name: 'signup_step_2', path: '/signup-step-2', isPublic: true);
+  static const signupStep3 = RouteSpec(name: 'signup_step_3', path: '/signup-step-3', isPublic: true);
+  static const forgotPassword = RouteSpec(name: 'forgot_password', path: '/forgot-password', isPublic: true);
+  static const forgotOtp = RouteSpec(name: 'forgot_otp', path: '/forgot-otp', isPublic: true);
+  static const resetPassword = RouteSpec(name: 'reset_password', path: '/reset-password', isPublic: true);
+
+  // Shell tabs
+  static const home = RouteSpec(name: 'home', path: '/home');
+  static const shoots = RouteSpec(name: 'shoots', path: '/shoots');
+  static const files = RouteSpec(name: 'files', path: '/files');
+  static const messages = RouteSpec(name: 'messages', path: '/messages');
+  static const manageAvailability = RouteSpec(name: 'manage_availability', path: '/manage-availability');
+
+  // … (profile, shoots, file_manager — port from RouteNames)
+
+  /// Flat list — used to derive [publicPaths] and by the route-completeness test.
+  static const all = <RouteSpec>[
+    splash, onboarding,
+    login, signupStep1, signupStep2, signupStep3,
+    forgotPassword, forgotOtp, resetPassword,
+    home, shoots, files, messages, manageAvailability,
+    // …
+  ];
+
+  static final Set<String> publicPaths = {
+    for (final r in all) if (r.isPublic) r.path,
+  };
+}
+```
+
+`lib/app/route_names.dart` becomes a thin shim that re-exports `Routes.x.name` for the migration window, then is deleted in step 7.6.
+
+### 4.2 Per-feature route fragments — keep, but cleaner
+
+Each `*_routes.dart` switches from string literals to `Routes.x`:
+
+```dart
+GoRoute(
+  path: Routes.login.path,
+  name: Routes.login.name,
+  builder: (context, state) => const LoginScreen(),
+),
+```
+
+Add typed-args parsing co-located with the feature (see 4.5).
+
+### 4.3 Auth provider — `Notifier<bool>` with mutator
+
+Replace `lib/core/providers/auth_state_provider.dart`:
+
+```dart
+class AuthStateNotifier extends Notifier<bool> {
+  @override
+  bool build() => ref.read(sessionStoreProvider).hasToken;
+
+  Future<void> login() async { /* delegated by login flow */ state = true; }
+  Future<void> logout() async {
+    await ref.read(sessionStoreProvider).clear();
+    await ref.read(routeRestorationServiceProvider).clearAll();
+    await ref.read(draftStoreProvider).clearAll();
+    state = false;
+  }
+}
+
+final authStateProvider = NotifierProvider<AuthStateNotifier, bool>(AuthStateNotifier.new);
+```
+
+All `ref.read(authStateProvider.notifier).state = …` call sites become `.login()` / `.logout()`.
+
+### 4.4 Refresh listenable — merge auth + onboarding
+
+`router.dart`:
+
+```dart
+final auth = ValueNotifier<bool>(ref.read(authStateProvider));
+final onb  = ValueNotifier<bool>(ref.read(onboardingSeenProvider));
+ref.listen(authStateProvider, (_, v) => auth.value = v);
+ref.listen(onboardingSeenProvider, (_, v) => onb.value = v);
+
+return GoRouter(
+  navigatorKey: rootNavigatorKey,
+  refreshListenable: Listenable.merge([auth, onb]),
+  …
+);
+```
+
+Same shape as `biegeapp/lib/app/router.dart:108-109`. Lets us add a `connectivity` notifier later without re-plumbing.
+
+### 4.5 Typed args
+
+Per multi-step flow, create an args class beside the feature:
+
+```dart
+// lib/features/auth/presentation/routes/signup_args.dart
+@immutable
+class SignUpStep2Args {
+  const SignUpStep2Args({required this.crewMemberId, required this.email, …});
+
+  final int crewMemberId;
+  final String email;
+  // …
+
+  Map<String, dynamic> toExtra() => { 'crewMemberId': crewMemberId, 'email': email, … };
+
+  factory SignUpStep2Args.fromExtra(Object? extra) {
+    final m = (extra as Map?)?.cast<String, dynamic>() ?? const {};
+    return SignUpStep2Args(
+      crewMemberId: m['crewMemberId'] as int,
+      email: m['email'] as String? ?? '',
+      // …
+    );
+  }
+}
+```
+
+Route builder shrinks to:
+
+```dart
+builder: (context, state) {
+  final args = SignUpStep2Args.fromExtra(state.extra);
+  return SignUp2Screen(args: args);
+},
+```
+
+Call site:
+
+```dart
+context.pushNamed(Routes.signupStep2.name, extra: args.toExtra());
+```
+
+### 4.6 `rootNavigatorKey`
+
+`lib/app/navigator_key.dart` (new, copied from biegeapp):
+
+```dart
+import 'package:flutter/material.dart';
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+```
+
+Passed to `GoRouter(navigatorKey: rootNavigatorKey)`. Auth interceptor (`lib/core/network/interceptors/…`) can do:
+
+```dart
+rootNavigatorKey.currentContext?.goNamed(Routes.login.name);
+```
+
+### 4.7 Restoration + DraftStore (Phase B — optional but recommended)
+
+Port both files from biegeapp with minor edits:
+
+- `lib/core/restoration/route_restoration_service.dart` — persist `matchedLocation` + params, TTL, schema migration.
+- `lib/core/restoration/draft_store.dart` — JSON drafts for signup flow (only flow with cross-step extras in this app).
+- `lib/core/restoration/restoration_providers.dart` — wire to `sessionStoreProvider`'s prefs.
+- `lib/core/restoration/restoration_keys.dart` — prefs keys + feature flag `kRestorationEnabled` (default `false` — flip when ready).
+- `lib/core/restoration/app_lifecycle_observer.dart` — stamps `lastActiveTs` on `paused`.
+- `lib/core/restoration/splash_restorer.dart` — pure helper called from `SplashScreen` to decide restore vs `goNamed(home)`.
+
+Attach via `router.routerDelegate.addListener(persistOnChange)` in `routerProvider`. Skip list copied from biegeapp + `'/signup-step-*'` if we choose not to restore mid-signup (lighter to start there).
+
+Defer Phase B until Phase A lands and stabilises.
+
+### 4.8 `AppShell` bottom bar fix
+
+Replace `currentIndex: shell.currentIndex > 3 ? 0 : shell.currentIndex` with `selectedItemColor` overrides so nothing is highlighted on branch 4, OR hide the bottom bar on branch 4:
+
+```dart
+bottomNavigationBar: shell.currentIndex >= 4
+    ? null
+    : _AppShellBottomBar(currentIndex: shell.currentIndex, onTap: _goBranch),
+```
+
+Bar disappearing on Manage Availability is the honest UX (it's a Drawer-only tab).
+
+### 4.9 Kill `Navigator.push`
+
+| File | Replacement |
+|---|---|
+| `lib/features/file_manager/presentation/screens/pre_production_screen.dart:223` | Add `GoRoute('/file-viewer', name: Routes.fileViewer.name, …)` or use `showDialog`. |
+| `lib/shared/widgets/common_file_viewer.dart:23` | Same. |
+
+### 4.10 Route-completeness test
+
+`test/app/router_test.dart` (new):
+
+```dart
+test('every GoRoute has a non-empty name', () {
+  final routes = _flatten(routerProvider /* with overrides */);
+  for (final r in routes.whereType<GoRoute>()) {
+    expect(r.name, isNotNull);
+    expect(r.name, isNotEmpty);
+  }
+});
+
+test('every Routes.* entry maps to a GoRoute with same path/name', () {
+  // builds a Set<(name,path)> from Routes.all and from the tree, asserts equal.
+});
+
+test('Routes.publicPaths matches isPublic flags', () { /* sanity */ });
+```
+
+Failing CI when someone adds a `GoRoute` without registering it in `Routes` is the whole point.
+
+### 4.11 Centralised screen-view analytics
+
+`FirebaseAnalyticsObserver` already logs `screen_view` automatically — it reads `route.settings.name` on every push/replace/pop. GoRouter copies `GoRoute.name` straight into `RouteSettings.name`, so once Phase A wires every `GoRoute(name: Routes.x.name)`, the observer is the single source of truth for screen analytics. No per-screen `logScreenView` call is needed.
+
+Extend `AppAnalyticsObserver` minimally:
+
+```dart
+class AppAnalyticsObserver extends NavigatorObserver {
+  AppAnalyticsObserver()
+      : _delegate = AnalyticsService.buildObserver(
+          nameExtractor: _nameOf,
+          // FirebaseAnalyticsObserver also accepts routeFilter — default keeps PageRoute only.
+        );
+
+  static String? _nameOf(RouteSettings s) {
+    final n = s.name;
+    if (n == null || n.isEmpty) return null;
+    // Defence in depth — Phase A ensures these are already snake_case.
+    return n;
+  }
+
+  // … existing didPush/didReplace/didPop unchanged, still write Crashlytics breadcrumb.
+}
+```
+
+`AnalyticsService.buildObserver` grows the matching parameter:
+
+```dart
+static FirebaseAnalyticsObserver? buildObserver({
+  ScreenNameExtractor? nameExtractor,
+}) {
+  final inst = _instance;
+  if (inst == null) return null;
+  return FirebaseAnalyticsObserver(
+    analytics: inst,
+    nameExtractor: nameExtractor ?? defaultNameExtractor,
+  );
+}
+```
+
+For dialogs / bottom sheets (not `PageRoute`), keep an explicit `AnalyticsService.logScreenView(screenName: Routes.x.name)` at the call site — documented in `MIGRATION_RULES.md`.
+
+Opt-out: add `RouteSpec.trackScreenView` (default `true`). Observer skips when false (used for `/splash`, OTP success momentary screens that would skew funnel metrics).
+
+```dart
+class RouteSpec {
+  const RouteSpec({
+    required this.name,
+    required this.path,
+    this.isPublic = false,
+    this.trackScreenView = true,
+  });
+  // …
+}
+```
+
+The observer resolves the spec by `settings.name` lookup against `Routes.byName` (added in A1) and short-circuits when `trackScreenView` is false.
+
+## 5. Phased plan
+
+Total estimate: **~3.5-6 dev days** for Phase A0 + A + C + D. Phase B (restoration) is another **1-2 days**. Phase F (centralised screen analytics) is **0.5-1 day**, parallelisable with C/D.
+
+> **Why A0 exists:** the existing `docs/NAVIGATION_MAP.md` predates the Phase 1-5 feature/Riverpod migration. It still references `lib/main.dart`, `lib/main_screen.dart`, `lib/service/shared_service.dart`, `lib/service/api_service.dart`, `lib/auth/`, `lib/Profile/`, and claims "No Riverpod / `ProviderScope` never mounted" and "No `redirect` callback" — all false against current `lib/app/router.dart` + `lib/features/<f>/presentation/routes/*_routes.dart`. Phase A1's inventory needs a current map; A0 produces it. Without A0, A1 inherits stale paths and the route-completeness test in A8 will mis-assert.
+
+### Phase A0 — Regenerate navigation map (0.5 day, docs only)
+
+Read-only sweep + docs rewrite. No code changes. Blocks Phase A.
+
+| Task | File(s) | Notes |
+|---|---|---|
+| A0.1 | Sweep router + per-feature route files. | `lib/app/router.dart`, `lib/features/*/presentation/routes/*_routes.dart`. Record every `GoRoute`: `path`, `name`, builder widget, builder file, `state.extra` cast shape. |
+| A0.2 | Sweep call sites. | `rg "(pushNamed|goNamed|pushReplacementNamed|push|go)\(" lib --type dart` — record source file:line, target route name, `extra:` payload keys, whether named vs raw. Flag every `Navigator.push` / `MaterialPageRoute` remaining (already known: `pre_production_screen.dart:223`, `common_file_viewer.dart:23` — confirm count). |
+| A0.3 | Cross-check `RouteNames` constants vs `GoRoute(name:)` registrations. | `rg "RouteNames\.\w+" lib --type dart -o \| sort -u` vs the route tree. Record dead constants + un-named routes. |
+| A0.4 | Rewrite `docs/NAVIGATION_MAP.md`. Replace §1 source-files table (drop `main.dart` / `main_screen.dart` / `service/*`, add `app/router.dart`, `core/providers/auth_state_provider.dart`, `core/providers/onboarding_seen_provider.dart`, `core/session/session_store.dart`, `shared/layouts/app_shell.dart`, the 5 feature `*_routes.dart` files). Replace §2 (Riverpod IS wired; `SessionStore` owns auth state; redirect IS configured). Rebuild §3 screen inventory + §4 Mermaid diagram from the A0.1/A0.2 sweep. Refresh §6 (redirect exists; describe gates). Refresh §7 (`AppShell` bottom bar — confirm 4 vs 5 tab clamp still present in current code). Re-scope §8 against current oddities. | |
+| A0.5 | Cross-check P1-P19 in §2 of this doc against A0.1 output. Confirm each evidence line:number still resolves; fix any that drifted. Add any new problems the sweep surfaces. | |
+| A0.6 | Cross-walk `docs/audit/NAVIGATION_AUDIT.md` findings F-01..F-22 vs current code. Mark each: **surviving** (already in §2), **obsoleted-by-Phase-1-5** (F-02 IndexedStack, F-04 splash gate, F-09 case-mismatch imports, F-10 orphans, F-12 dead app.dart), or **verify-required** (F-06 dup CancelScreen → P16, F-11 ShootRequestAccepted raw-push, F-18 login mixed nav). Append surviving-but-uncaptured findings as new Pxx rows. | Audit is pre-migration (branch `improvments-phase1`, 2026-05-21). Stale paths; live finding categories. |
+| A0.7 | Commit `NAVIGATION_MAP.md` rewrite + any `NAVIGATER_MIGRATION.md` §2 evidence-line fixups + audit cross-walk results in one PR. | One PR, docs-only, easy review. |
+
+Acceptance: regenerated `NAVIGATION_MAP.md` lists every current `GoRoute`, every current call site, no references to deleted files (`lib/main.dart`, `lib/main_screen.dart`, `lib/service/*`, `lib/auth/`, `lib/Profile/`). `rg -F "lib/service/" docs/NAVIGATION_MAP.md` returns 0. Mermaid renders.
+
+### Phase A — Centralisation (1.5 days, no behavior change)
+
+| Task | File(s) | Notes |
+|---|---|---|
+| A1 | Create `lib/app/routes.dart` with `RouteSpec` + every existing `RouteNames` constant ported. snake_case names. | Inventory source: regenerated `NAVIGATION_MAP.md` §3 (post-A0). |
+| A2 | Add `lib/app/navigator_key.dart`, wire into `GoRouter(navigatorKey:)`. | One line. |
+| A3 | Update `lib/app/router.dart`: derive `_publicRoutes` from `Routes.publicPaths`. Delete the literal set. | |
+| A4 | Update each `lib/features/*/presentation/routes/*_routes.dart` to use `Routes.x.path` / `Routes.x.name`. | Mechanical sweep. |
+| A5 | Replace `lib/core/providers/auth_state_provider.dart` with `Notifier`. Add `login()` / `logout()`. Update call sites. | Search for `authStateProvider.notifier).state` — should be ≤5 hits. |
+| A6 | Add `onboardingSeenProvider` to `routerProvider` refresh listenable via `Listenable.merge`. | Pattern from biegeapp router.dart:108. |
+| A7 | Migrate `RouteNames` usages → `Routes.x.name`. Keep `RouteNames` as a forwarder for 1 PR cycle, then delete. | `rg "RouteNames\." lib` to find call sites. |
+| A8 | Add `test/app/router_test.dart` (4.10). | Block CI. |
+
+Acceptance: `flutter analyze` clean, `flutter test` green, app boots and reaches `/home` after login.
+
+### Phase B — Restoration & DraftStore (1-2 days, gated by flag)
+
+| Task | File(s) |
+|---|---|
+| B1 | Port 5 files from biegeapp `lib/core/restoration/` with package-path edits. `kRestorationEnabled = false`. |
+| B2 | Wire `routerDelegate.addListener(persistOnChange)` in `routerProvider`. |
+| B3 | Update `SplashScreen` to call `splashRestorerProvider.shouldRestore(...)` and `context.go(restored.toUri())`. |
+| B4 | Add `SignUpDraft` (mirrors `BookingDraft` in biegeapp) for the 3-step signup flow. Wire into signup route builders. |
+| B5 | `AuthStateNotifier.logout()` clears restoration + drafts. |
+| B6 | Smoke test: kill app on signup-step-2, relaunch, land back on signup-step-2 with fields preserved. Flip `kRestorationEnabled = true` once green. |
+
+### Phase C — Typed args (0.5-1 day)
+
+| Task | File(s) |
+|---|---|
+| C1 | Add `SignUpStep2Args`, `SignUpStep3Args`, `ViewDetailsArgs` in `features/auth/presentation/routes/`. |
+| C2 | Same for `FeaturedWorkDetailsArgs`, `ChangePasswordArgs`, `ProfileOtpArgs`, `ProfileNewPasswordArgs` in `features/profile/…`. |
+| C3 | Same for `UpcomingShootDetailsArgs`, `CancelShootArgs` in `features/shoots/…`. |
+| C4 | Route builders + call sites switch to `Args.fromExtra(state.extra)` / `args.toExtra()`. |
+| C5 | Fix P15: `manage_availability_screen.dart:767` — pass real args or default. |
+
+### Phase D — Cleanup (0.5 day)
+
+| Task | File(s) |
+|---|---|
+| D1 | Replace `Navigator.push` in `pre_production_screen.dart:223` + `common_file_viewer.dart:23`. |
+| D2 | Fix `AppShell` bottom-bar index (4.8). |
+| D3 | Rename `lib/features/file_manager/presentation/screens/view_details_screen.dart` → `file_viewer_screen.dart`. Update imports. (Disambiguates from `auth/.../view_details_screen.dart`.) |
+| D4 | Delete `RouteNames` shim. |
+| D5 | Add `MIGRATION_RULES.md` entry: **"No `Navigator.push` / `MaterialPageRoute` in feature code. Use `Routes.x` + `context.pushNamed`."** Add CI grep guard. |
+| D6 | Update `docs/NAVIGATION_MAP.md` to reflect new structure (or supersede with a generated map per E1). |
+
+### Phase F — Centralised screen-view analytics (0.5-1 day)
+
+Wires `FirebaseAnalyticsObserver` as the single source of truth for `screen_view`. Depends on Phase A (snake_case `Routes.x.name` populating `RouteSettings.name`). Parallelisable with Phase C/D.
+
+| Task | File(s) | Notes |
+|---|---|---|
+| F1 | Audit current observer wiring. Confirm `AppAnalyticsObserver` is in `routerProvider.observers` and that `FirebaseAnalyticsObserver` fires on shell-branch switch (not just leaf push). | `lib/app/router.dart`, `lib/core/firebase/app_analytics_observer.dart` |
+| F2 | Add `nameExtractor` parameter to `AnalyticsService.buildObserver(...)`. Default extractor returns `settings.name` when non-empty. Drop the silent-skip path on un-named routes — they should now be impossible thanks to A8. | `lib/core/firebase/analytics_service.dart`, `app_analytics_observer.dart` |
+| F3 | Add `RouteSpec.trackScreenView` (default `true`) + `Routes.byName` lookup map. Observer skips `screen_view` (but keeps Crashlytics breadcrumb) when `trackScreenView == false`. Apply to `splash` and any OTP success momentary screens. | `lib/app/routes.dart`, `app_analytics_observer.dart` |
+| F4 | Set `screenClass` to the widget runtime type (e.g. `LoginScreen`) so Firebase splits engagement when paths collide. Use a small `_screenClassFor(Route)` helper that reads `route.settings.arguments` / runtime type. | `app_analytics_observer.dart` |
+| F5 | Document the contract in `MIGRATION_RULES.md`: **"`PageRoute` screens are auto-logged via `FirebaseAnalyticsObserver`. Dialogs / bottom sheets must call `AnalyticsService.logScreenView(screenName: Routes.x.name)` explicitly. Never hard-code screen_name strings."** | `MIGRATION_RULES.md` |
+| F6 | Generate `docs/analytics/SCREEN_CATALOG.md` from `Routes.all` (name, path, isPublic, trackScreenView). One source of truth shared with the analytics owner. | new doc |
+| F7 | Add `test/app/routes_analytics_test.dart`: every `Routes.x.name` is non-empty, snake_case (`^[a-z][a-z0-9_]{0,38}$`), unique, ≤40 chars (Firebase screen_name limit). Reuses A8 fixture. | new test |
+| F8 | Firebase DebugView smoke test: walk the golden path (splash → login → home → shoots → manage_availability → logout). Each transition produces one `screen_view` with `screen_name == Routes.<x>.name`. Document in `MIGRATION_LOG.md`. | manual QA |
+
+Acceptance: DebugView shows `screen_view` events with snake_case `screen_name` matching `Routes.x.name` on every `PageRoute` push/replace; shell-branch switch logs the new branch's screen; `splash` and opt-out routes are absent; CI fails if a `Routes.x.name` violates the regex or duplicates an existing name.
+
+### Phase E — Future (not in this plan)
+
+- E1: Generated route map (markdown) emitted from a dev tool that walks `Routes.all`. (Subsumes Phase F's `SCREEN_CATALOG.md` once it lands.)
+- E2: Deep-link support — possible once paths + typed args are centralised.
+- E3: Offline gate (`visitedOnlineLocations` from biegeapp) — only if product asks for it.
+- E4: Custom event taxonomy (`login_success`, `signup_completed`, `shoot_accepted`, …) layered on top of Phase F's `AnalyticsService`.
+
+## 6. Rollout
+
+- One PR per Phase. Phase A0 (docs-only) lands first and unblocks A1. Phase A is the only mandatory code phase; B/C/D/F are independent and shippable on their own.
+- `kRestorationEnabled = false` default — flip in a follow-up PR after Phase B QA.
+- Feature flag is not needed for Phase A; the change is structural and behaviour-preserving.
+- Phase F ships behind no flag — `AnalyticsService.buildObserver` already no-ops when Firebase config is missing, so dev/local builds stay green pre-`flutterfire configure`.
+
+## 7. Risks & mitigations
+
+| Risk | Mitigation |
+|---|---|
+| snake_case rename breaks analytics dashboards. | Keep the kebab `path:` strings. Only `name:` (analytics screen key) changes. Coordinate with analytics owner; consider keeping kebab names if dashboards are heavily wired. |
+| `AuthStateNotifier` API change misses a call site → silent logout fail. | `flutter analyze` + grep `authStateProvider.notifier).state` before deleting the setter. |
+| Restoration restores user into a screen whose backing data 404s post-deploy. | TTL + skip list (auth/OTP/success screens already excluded in biegeapp). Start `kRestorationEnabled = false` and dogfood. |
+| Typed args break existing pushers expecting `Map`. | Roll C feature-by-feature; each `Args` class accepts both keys + missing-field defaults during the migration window. |
+| Removing `RouteNames` breaks something obscure. | Keep shim for one release; grep `RouteNames\.` after Phase A. |
+| Phase F renames `screen_name` in Firebase (kebab → snake), orphaning existing dashboards / funnels. | Coordinate with analytics owner before merge. Option: keep kebab `path:` and only switch `RouteSpec.name` if dashboards are wired to `path` not `screen_name`. Worst case, ship a one-time mapping table in BigQuery to bridge old/new keys. |
+| Phase F over-logs — modal sheets / `showDialog` start firing `screen_view` for non-screen surfaces. | `FirebaseAnalyticsObserver` default `routeFilter` keeps `PageRoute` only — leave as default. Dialogs / sheets call `logScreenView` explicitly per F5. |
+
+## 8. Source-of-truth references
+
+- biegeapp router: `../../biegeapp/lib/app/router.dart` (full reference impl).
+- biegeapp restoration: `../../biegeapp/lib/core/restoration/*`.
+- biegeapp draft store: `../../biegeapp/lib/core/restoration/draft_store.dart`.
+- biegeapp navigator key: `../../biegeapp/lib/app/navigator_key.dart`.
+- Current state inventory: `docs/NAVIGATION_MAP.md` (stale until Phase A0 regenerates it).
+- **Pre-migration navigation audit** (historical reference): `docs/audit/NAVIGATION_AUDIT.md`. Snapshot of branch `improvments-phase1`, 2026-05-21. File paths predate Phase 1-5 feature/ restructure — do **not** use for current line:number citations. Use for: (a) finding categories that may survive (raw-Navigator inventory, dup routes, missing back-handling, dead constants), (b) deep-link gap rationale (§3 non-goal), (c) baseline counts for "did Phase 1-5 reduce raw `Navigator.push` sites?" comparison. Cross-walked in task A0.6.
+- Project rules: `CLAUDE.md`, `MIGRATION_RULES.md`.
+
+## 9. Open questions for the team
+
+1. Are existing kebab-case route names load-bearing in any Firebase dashboard? If yes, keep them and update biegeapp instead.
+2. Is restoration into mid-signup acceptable, or should signup always restart? (Drives B4 skip list.)
+3. Should `manageAvailability` (branch 4) keep its bottom-bar tile (add 5th item) or stay Drawer-only (hide bar on that branch)?
+4. Phase A only, or A+C bundled into one PR? Recommendation: separate, since C touches every multi-arg screen.
+5. P18 — adding `PopScope` guards on signup-step-2/3 + change-password OTP flows: in this migration (Phase D candidate) or follow-up? Audit flagged it 2026-05-21; still 0 hits in `lib/` per A0.2 sweep results.
+6. Phase F: which routes should opt out of `screen_view` (`trackScreenView: false`)? Candidates: `/splash` (always transient), `/forgot-otp` + `/reset-password` (funnel noise vs signal — analytics owner call), in-app file-viewer modal once it becomes a real route (D1).
+7. Phase F: keep kebab `path:` strings forever (current plan), or also rename `path:` to snake_case? Dashboards keyed on `screen_name` are safe; deep links and any web analytics that scrape `firebase_screen` from the URL are not. Default: keep kebab paths.
+
+## 10. Expected output — files added / changed
+
+Action legend: **A** = added, **M** = modified, **R** = renamed, **D** = deleted.
+
+Per-phase manifest. Counts are the upper bound; A4/A7/C4 sweep widths depend on the A0 inventory.
+
+### Phase A0 — Docs regenerate
+
+| Action | Path | Purpose |
+|---|---|---|
+| M | `docs/NAVIGATION_MAP.md` | Full rewrite — current router, providers, feature routes, mermaid. |
+| M | `docs/NAVIGATER_MIGRATION.md` | §2 evidence line:number fixups + §5 A0.6 audit cross-walk results. |
+
+### Phase A — Centralisation
+
+| Action | Path | Purpose |
+|---|---|---|
+| A | `lib/app/routes.dart` | `RouteSpec` + `Routes.all` + `Routes.publicPaths` + (Phase F) `Routes.byName`. |
+| A | `lib/app/navigator_key.dart` | `rootNavigatorKey` for context-less navigation. |
+| M | `lib/app/router.dart` | Consume `Routes.publicPaths`, attach `rootNavigatorKey`, merge `auth+onboarding` into `refreshListenable`. |
+| M | `lib/features/auth/presentation/routes/auth_routes.dart` | Switch literals → `Routes.x.path/.name`. |
+| M | `lib/features/profile/presentation/routes/profile_routes.dart` | Same. |
+| M | `lib/features/shoots/presentation/routes/shoots_routes.dart` | Same. |
+| M | `lib/features/file_manager/presentation/routes/file_manager_routes.dart` | Same. |
+| M | `lib/features/home/presentation/routes/home_routes.dart` | Same. |
+| M | `lib/core/providers/auth_state_provider.dart` | `StateProvider<bool>` → `NotifierProvider<AuthStateNotifier, bool>` with `login()` / `logout()`. |
+| M | `lib/app/route_names.dart` | Convert to forwarder shim re-exporting `Routes.x.name`. Deleted in D4. |
+| M | _N call sites_ of `authStateProvider.notifier).state = …` | Switch to `.login()` / `.logout()`. Expected ≤5 hits. |
+| M | _N call sites_ of `RouteNames.x` | Switch to `Routes.x.name`. Sweep via `rg "RouteNames\."`. |
+| A | `test/app/router_test.dart` | Route-completeness test (4.10). |
+
+### Phase B — Restoration & DraftStore (flagged off)
+
+| Action | Path | Purpose |
+|---|---|---|
+| A | `lib/core/restoration/route_restoration_service.dart` | Persist matched location + params, TTL, schema migration. |
+| A | `lib/core/restoration/draft_store.dart` | JSON drafts for cross-step flows. |
+| A | `lib/core/restoration/restoration_providers.dart` | Riverpod wiring to `sessionStoreProvider` prefs. |
+| A | `lib/core/restoration/restoration_keys.dart` | Prefs keys + `kRestorationEnabled` flag (`false` default). |
+| A | `lib/core/restoration/app_lifecycle_observer.dart` | Stamps `lastActiveTs` on `paused`. |
+| A | `lib/core/restoration/splash_restorer.dart` | Splash decision helper. |
+| A | `lib/features/auth/presentation/routes/sign_up_draft.dart` | `SignUpDraft` model + serializer. |
+| M | `lib/app/router.dart` | `routerDelegate.addListener(persistOnChange)`. |
+| M | `lib/features/splash/presentation/screens/splash_screen.dart` | Call `splashRestorerProvider.shouldRestore(...)`. |
+| M | `lib/features/auth/presentation/routes/auth_routes.dart` | Wire `SignUpDraft` into signup builders. |
+| M | `lib/core/providers/auth_state_provider.dart` | `logout()` also clears restoration + drafts. |
+| M | `MIGRATION_LOG.md` | B6 smoke-test result + flag flip. |
+
+### Phase C — Typed args
+
+| Action | Path | Purpose |
+|---|---|---|
+| A | `lib/features/auth/presentation/routes/signup_args.dart` | `SignUpStep2Args`, `SignUpStep3Args`, `ViewDetailsArgs`. |
+| A | `lib/features/profile/presentation/routes/profile_args.dart` | `FeaturedWorkDetailsArgs`, `ChangePasswordArgs`, `ProfileOtpArgs`, `ProfileNewPasswordArgs`. |
+| A | `lib/features/shoots/presentation/routes/shoots_args.dart` | `UpcomingShootDetailsArgs`, `CancelShootArgs`. |
+| M | `lib/features/auth/presentation/routes/auth_routes.dart` | Builders use `Args.fromExtra(state.extra)`. |
+| M | `lib/features/profile/presentation/routes/profile_routes.dart` | Same. |
+| M | `lib/features/shoots/presentation/routes/shoots_routes.dart` | Same. |
+| M | _N push call sites_ across `auth/`, `profile/`, `shoots/` | Switch to `args.toExtra()`. |
+| M | `lib/features/shoots/presentation/screens/manage_availability_screen.dart` | Fix P15 — pass real `UpcomingShootDetailsArgs`. |
+
+### Phase D — Cleanup
+
+| Action | Path | Purpose |
+|---|---|---|
+| M | `lib/features/file_manager/presentation/screens/pre_production_screen.dart` | Replace `Navigator.push` with `pushNamed(Routes.fileViewer.name)`. |
+| M | `lib/shared/widgets/common_file_viewer.dart` | Same. |
+| M | `lib/features/file_manager/presentation/routes/file_manager_routes.dart` | Register `/file-viewer` `GoRoute`. |
+| M | `lib/shared/layouts/app_shell.dart` | Hide bottom bar on branch 4 (4.8). |
+| R | `lib/features/file_manager/presentation/screens/view_details_screen.dart` → `file_viewer_screen.dart` | Disambiguate from `auth/.../view_details_screen.dart`. |
+| M | _N import sites_ of renamed file | Update path. |
+| D | `lib/app/route_names.dart` | Shim retired after Phase A grace window. |
+| M | `MIGRATION_RULES.md` | "No raw `Navigator.push`" rule. |
+| A | `tool/check_no_navigator_push.sh` (or analyze rule) | CI grep guard. Path TBD by infra owner. |
+| M | `docs/NAVIGATION_MAP.md` | Reflect final structure (or mark superseded by E1). |
+
+### Phase F — Centralised screen-view analytics
+
+| Action | Path | Purpose |
+|---|---|---|
+| M | `lib/core/firebase/analytics_service.dart` | Add `nameExtractor` param to `buildObserver`. |
+| M | `lib/core/firebase/app_analytics_observer.dart` | Plug `_nameOf`, `screenClass` helper, `RouteSpec.trackScreenView` short-circuit. |
+| M | `lib/app/routes.dart` | Add `RouteSpec.trackScreenView` field + `Routes.byName` map. Flag opt-outs (`splash`, OTP success). |
+| M | `MIGRATION_RULES.md` | Dialog/sheet `logScreenView` contract (F5). |
+| A | `docs/analytics/SCREEN_CATALOG.md` | Generated from `Routes.all`. Shared with analytics owner. |
+| A | `test/app/routes_analytics_test.dart` | Snake_case regex + uniqueness + length test. |
+| M | `MIGRATION_LOG.md` | F8 DebugView smoke-test result. |
+
+### Aggregate counts (upper bound, excluding sweep-width unknowns)
+
+| Bucket | A | M | R | D |
+|---|---|---|---|---|
+| Phase A0 | 0 | 2 | 0 | 0 |
+| Phase A | 3 | ~9 | 0 | 0 |
+| Phase B | 7 | 5 | 0 | 0 |
+| Phase C | 3 | ~5 | 0 | 0 |
+| Phase D | 1 | ~6 | 1 | 1 |
+| Phase F | 2 | 4 | 0 | 0 |
+| **Total** | **16** | **~31** | **1** | **1** |
+
+Sweep-width unknowns (A4, A7, C4, D1 imports) settle once A0 inventory lands. Recount after A0.7 PR.
+
+## 11. Audit cross-walk — `docs/audit/NAVIGATION_AUDIT.md` F-01..F-22
+
+Performed in task A0.6 on 2026-06-01 against current code. Each finding is
+classified **SURVIVING** (still live), **OBSOLETED** (resolved by Phase 1-5
+restructure), or **VERIFY-REQUIRED** (needs runtime check). Surviving items
+already mapped to Pxx rows in §2; new rows added where coverage was missing.
+
+| Finding | Status | Notes / Pxx mapping |
+|---|---|---|
+| F-01 — Raw `Navigator.push` + `MaterialPageRoute` (26 + 31 sites across 19 files) | **SURVIVING (reduced)** | Phase 1-5 killed all but 2 pairs (`pre_production_screen.dart:223-225`, `common_file_viewer.dart:23-25`). Tracked as P8. |
+| F-02 — Tab content rebuilt on every switch (no IndexedStack) | **OBSOLETED** | Phase 4 introduced `StatefulShellRoute.indexedStack` (router.dart:109). State preserved across branch switches. |
+| F-03 — Bottom-nav index 4 unreachable from nav | **SURVIVING** | `app_shell.dart:46` `currentIndex > 3 ? 0 : …` clamp still present. Tracked as P9. |
+| F-04 — Splash re-reads `isLoggedIn`; main.dart's read dead | **OBSOLETED** | `startApp` now overrides `authStateProvider` from `PrefsService.isLoggedIn`; `redirect:` enforces gating. Splash's re-read is redundant but harmless. |
+| F-05 — Logout doesn't clear navigation stack | **SURVIVING (mitigated)** | Current logout: `clearSession()` + `state = false` + `goNamed(login)`. Stack not explicitly cleared, but `redirect:` (added post-audit) bounces any !isAuth nav → `/login`. Tracked as P19. |
+| F-06 — Duplicate `CancelScreen` routes (`/cancel-shoot` vs `/shoot-Cancel`) | **OBSOLETED** | Only `/cancel-shoot` exists today. Phase restructure killed dup. P16 row in §2 updated to reflect. |
+| F-07 — Dead constants `signup`, `viewShootDetails`, `changePassword` | **PARTIAL — dead 2/3** | `signup` + `viewShootDetails` still dead. `changePassword` is now LIVE (registered in `profile_routes.dart:77`). Tracked as new P21. |
+| F-08 — `shootCancelotties` value typo (`"shoot-cancellooties"`) | **SURVIVING** | `route_names.dart:73-74` unchanged. Tracked as P17. |
+| F-09 — Case-mismatch imports (`ManageAvailability/`, `Shoots/`, …) | **OBSOLETED** | All folders are lowercase under `lib/features/` post-restructure. Linux CI risk eliminated. |
+| F-10 — Orphan screens (`file_manager/view_details_screen.dart`, `Profile/profile_new_passwrod_screen.dart`, `auth/view_details_screen .dart` with trailing space) | **PARTIAL** | `file_manager/view_details_screen.dart` exists but is now IMPORTED by `pre_production_screen.dart:12` (via raw push — P8). Name-collision with `auth/view_details_screen.dart` (no trailing space anymore) tracked as P12. `profile_new_password_screen.dart` (renamed, typo fixed) is live in `profile_routes.dart:92`. |
+| F-11 — `ShootRequestAccepted` reachable only via raw push | **SURVIVING (worse)** | Widget exists at `shoot_request_accepted_screen.dart`. The single raw-push site that referenced it (from `upcomingshootviewdetils/upcoming_shoot_view_detils.dart`) is gone — widget is now fully orphan. Tracked as new P22. |
+| F-12 — `app/app.dart` dead | **OBSOLETED** | `lib/app/app.dart` is now the live root (mounts `MaterialApp.router`, watches `routerProvider`). |
+| F-13 — No back-press handling | **SURVIVING (1 hit)** | Single `PopScope` site in `featuredwork_details_screen.dart:69`. Signup/OTP/multi-step flows still unguarded. Tracked as P18 (evidence line updated). |
+| F-14 — Argument typing implicit and lossy (non-null casts on `/upcoming-shoot-details`, `/cancel-shoot`) | **SURVIVING (+ added sites)** | Three non-null `Map` casts + one non-null `String` cast confirmed in A0.1. Tracked as P15 (re-scoped) + P11. |
+| F-15 — Drawer mixes `Navigator.pop` and `context.pop` | **OBSOLETED** | `AppShell` has zero pop calls (drawer pop is implicit via Scaffold). Codepath rebuilt. |
+| F-16 — Shared widgets reach `Navigator` directly | **SURVIVING (reduced)** | Only `common_file_viewer.dart:23-25` survives in `lib/shared/`. Tracked as P8. `lib/utility/app_utils.dart` was deleted in Phase 5. |
+| F-17 — `.then((value)` pattern in `pushNamed` | **SURVIVING (low)** | Pattern still present in `home_screen.dart:118`, `home_availability_section.dart:76`, `home_pending_shoot_card.dart:242`. Low-severity, no fix planned in this migration. |
+| F-18 — Login route mixes go_router + raw Navigator | **OBSOLETED** | `login_screen.dart` now uses only `context.goNamed`/`pushNamed` (3 sites, no raw). |
+| F-19 — Tab navigation discards transient state | **OBSOLETED** | Resolved by F-02 fix (indexedStack). |
+| F-20 — Zero deep-link config (Android/iOS/macOS/web) | **SURVIVING (out of scope)** | §3 non-goal. Possible follow-up (Phase E2). |
+| F-21 — Routes pass args via non-serializable `state.extra` | **SURVIVING** | Phase C (typed args) is the structural fix. Tracked as P11. |
+| F-22 — `singleTop` without intent handling | **SURVIVING (low, OOS)** | Native config unchanged. Deferred with F-20. |
+
+### Severity tally — current
+
+| Severity | Then | Now | Survivors |
+|---|---|---|---|
+| High | 4 | 2 | F-01 (P8), F-05 (P19) |
+| Medium | 11 | 6 | F-03 (P9), F-11 (P22), F-13 (P18), F-14 (P11/P15), F-16 (P8), F-21 (P11) |
+| Low | 7 | 5 | F-07 (P21), F-08 (P17), F-10 (P12), F-17 (—), F-20+F-22 (OOS) |
+
+Phase 1-5 obsoleted 9 of 22 findings (F-02, F-04, F-06, F-09, F-12, F-15, F-18, F-19, partial F-10). New problems uncovered by A0.6: P21 (dead constants narrowed), P22 (orphan widget). Net: migration scope shrank, plan is well-aimed.

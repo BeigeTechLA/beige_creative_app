@@ -1,71 +1,122 @@
 # Navigation Map — beige_creative_app
 
-Snapshot of every screen, every route, and the wiring between them. Generated from a full sweep of `lib/`.
+Snapshot of every screen, every route, and the wiring between them. Generated
+from a full sweep of `lib/` on 2026-06-01 (branch `improvments-phase1`,
+post-Phase 1-5 feature/Riverpod migration). Supersedes the pre-restructure
+snapshot referenced by older docs.
 
 ## 1. Source files
 
 | Concern | File |
 |---|---|
-| Router config | `lib/app/router.dart` |
-| Route name constants | `lib/app/route_names.dart` |
-| App root + initial-route gate | `lib/main.dart` (`MyApp`, `startApp`) |
-| Entrypoints | `lib/main_dev.dart`, `lib/main_prod.dart` |
-| Post-login shell (bottom nav + drawer) | `lib/main_screen.dart` (`Mainscreen`) |
-| Auth/session persistence | `lib/service/shared_service.dart` |
-| Auth header injection | `lib/service/api_service.dart` (`createAuthorizationHeader`) |
-| Disabled/scaffold root (Riverpod) | `lib/app/app.dart` (commented out, NOT live) |
+| App root + `ProviderScope` mount | `lib/app/app.dart` |
+| Entrypoints | `lib/main_dev.dart`, `lib/main_prod.dart`, `lib/startup.dart` |
+| Router config (root `GoRouter`) | `lib/app/router.dart` |
+| Route-name constants (legacy shim) | `lib/app/route_names.dart` (to be replaced by `lib/app/routes.dart` in Phase A) |
+| Auth state provider | `lib/core/providers/auth_state_provider.dart` |
+| Onboarding-seen provider | `lib/core/providers/onboarding_seen_provider.dart` |
+| Session persistence | `lib/core/session/session_store.dart` (Riverpod-wired via `sessionStoreProvider`) |
+| Shell (5-tab bottom nav) | `lib/shared/layouts/app_shell.dart` |
+| Analytics observer | `lib/core/firebase/app_analytics_observer.dart` |
+| Per-feature route fragments | `lib/features/auth/presentation/routes/auth_routes.dart`, `lib/features/profile/presentation/routes/profile_routes.dart`, `lib/features/shoots/presentation/routes/shoots_routes.dart`, `lib/features/availability/presentation/routes/availability_routes.dart`, `lib/features/file_manager/presentation/routes/file_manager_routes.dart` |
 
 ## 2. State management
 
-No Riverpod / Bloc / Provider in the live tree. `flutter_riverpod` is a dep but `ProviderScope` is never mounted. Navigation is plain `go_router` + local `StatefulWidget` state. Auth state lives in `SharedPreferences` (keys: `token`, `isLoggedIn`, `id`, `name`, `email`, `role`, `user_type`, `profile_image_url`).
+`flutter_riverpod` is wired. `startApp(env)` (in `lib/startup.dart`) initialises
+`Env`, Firebase, `PrefsService`, `SessionStore`, then mounts `ProviderScope`
+with overrides:
 
-## 3. Screen inventory
+- `authStateProvider` (`StateProvider<bool>`) — seeded from `PrefsService.isLoggedIn`.
+- `onboardingSeenProvider` (`StateProvider<bool>`) — seeded from `PrefsService.onboardingSeen`.
+- `sessionStoreProvider` — concrete `PrefsSessionStore` over `SharedPreferences`.
 
-| # | Screen widget | File | Route name | Path | Extra (Map keys) | Pushed from |
-|---|---|---|---|---|---|---|
-| 1 | `SplashScreen` | `splash/splash_screen.dart` | `splash` | `/splash` | — | initial route |
-| 2 | `OnboardingScreen` | `onboding/onboding_screen.dart` | `onboarding` | `/onboarding` | — | Splash (logged out) |
-| 3 | `Login` | `auth/login/login.dart` | `login` | `/login` | — | Onboarding, Signup1/2/3, MyProfile logout, Reset success, Delete success |
-| 4 | `SignUp1Screen` | `auth/sign_up/signup1_screen.dart` | `signup-step-1` | `/signup-step-1` | — | Onboarding, Login |
-| 5 | `SignUp2Screen` | `auth/sign_up/signup2_screen.dart` | `signup-step-2` | `/signup-step-2` | `crewMemberId, profileImage, email, firstName, lastName, location, workingDistance, step1Progress` | Signup1 (after API success) |
-| 6 | `SignUp3Screen` | `auth/sign_up/signup3_screen.dart` | `signup-step-3` | `/signup-step-3` | `crewMemberId, profileImage, email, firstName, lastName, location, workingDistance, primaryRole, experience, hourlyRate, bio, skills, equipments, step2Progress` | Signup2 (after API success) |
-| 7 | `ViewDetailsScreen` | `auth/view_details_screen .dart` (note trailing space in filename) | `view-details` | `/view-details` | `firstName, lastName, email, location, profileImage, workingDistance, primaryRole, experience, hourlyRate, bio, skills, equipments, featuredImages (List<File>)` | Signup1 (preview), Signup2 (preview) |
-| 8 | `ForgotPasswordScreen` | `auth/forgotpassword/forgot_password_screen.dart` | `forgot-password` | `/forgot-password` | — | Login |
-| 9 | `ForgotPasswordOtpScreen` | `auth/forgotpassword/forgot_password_otp_screen.dart` | `forgot-otp` | `/forgot-otp` | `email` | ForgotPassword (via raw `Navigator.push`, not named) |
-| 10 | `ResetPasswordScreen` | `auth/resetpassword/reset_password_screen.dart` | `reset-password` | `/reset-password` | `email, otp` | ForgotOtp (via raw `Navigator.push`) |
-| 11 | `MyprofileYoureAllSetScreen` | `Profile/myprofile_youre_all_set_screen.dart` | `profile-password-success` | `/profile-password-success` | — | ResetPassword (raw), NewPassword button |
-| 12 | `Mainscreen` (shell) | `main_screen.dart` | `home` | `/home` | — | Splash (logged in), Login success, Shoot lottie screens |
-| 13 | `HomeScreen` (tab 0) | `home/home_screen.dart` | (no route — nested in shell) | — | — | Mainscreen `_pages[0]` |
-| 14 | `ShootsScreen` (tab 1) | `shoots/shoots_screen.dart` | (no route — nested) | — | — | Mainscreen `_pages[1]` |
-| 15 | `FileManagerScreen` (tab 2) | `file_manager/file_manager_screen.dart` | (no route — nested) | — | — | Mainscreen `_pages[2]` |
-| 16 | `MessagesScreen` (tab 3) | `messages/messages_screen.dart` | (no route — nested) | — | — | Mainscreen `_pages[3]` |
-| 17 | `ManageAvailabilityScreen` (tab 4 / drawer) | `manageavailability/manage_availability_screen.dart` | (no route — nested) | — | — | Mainscreen `_pages[4]` (drawer entry only) |
-| 18 | `UpcomingShootViewDetils` | `upcomingshootviewdetils/upcoming_shoot_view_detils.dart` | `upcoming-shoot-details` | `/upcoming-shoot-details` | `projectId` (REQUIRED, cast `as Map<String, dynamic>` — non-null) | Home (2x), Shoots, ManageAvailability |
-| 19 | `CancelScreen` | `shoots/shoot_cancelled_screen.dart` | `cancel-shoot` | `/cancel-shoot` | `projectId` | Home, Shoots (via `shoot-cancel`), Shoots (via `cancel-shoot`) |
-| 19b | `CancelScreen` (dup route, no extra) | same widget | `shoot-cancel` | `/shoot-Cancel` | — (`const CancelScreen()`) | Shoots screen list |
-| 20 | `ShootCancelledLottiesScreen` | `shoots/shoot_cancelled_lotties_screen.dart` | `shoot-cancellooties` (slug typo) | `/shoot-cancelotties` | — | CancelScreen (after cancel API) |
-| 21 | `ShootRequestAccepted` | `shoots/shoot_request_accepted.dart` | (no GoRoute) | — | — | UpcomingShootViewDetils (raw `Navigator.push`) |
-| 22 | `AddAvailabilityScreen` | `manageavailability/add_availability_screen.dart` | `add-availability` | `/add-availability` | — | Home, ManageAvailability |
-| 23 | `Myprofile` | `Profile/myprofile.dart` | `my-profile` | `/my-profile` | — | Drawer (Mainscreen), Home avatar |
-| 24 | `ProfileDetils1screen` | `Profile/profiledetils/profile_detils_1screen.dart` | `profile-details` | `/profile-details` | — | Myprofile |
-| 25 | `EditPersonalDetailsScreen` | `Profile/profiledetils/edit_personal_details_screen.dart` | `edit-personal-details` | `/edit-personal-details` | — | ProfileDetils1screen (tab 0, via `pushNamed`); also raw `Navigator.push` from same screen |
-| 26 | `EnterProfileDetailsScreen` | `Profile/profiledetils/enter_profile_details_screen.dart` | `enter-professional-details` | `/enter-professional-details` | — | ProfileDetils1screen (tab 1) |
-| 27 | `FeaturedWorkList` | `Profile/featured_work_list.dart` | `featured-works` | `/featured-works` | — | Myprofile |
-| 28 | `FeaturedWorkDetailsScreen` | `Profile/featuredwork_details_screen.dart` | `featured-work-details` | `/featured-work-details` | `title, images` (REQUIRED — non-null cast) | FeaturedWorkList (2x) |
-| 29 | `Certificates` | `Profile/certificates.dart` | `certificates` | `/certificates` | — | Myprofile |
-| 30 | `Resume` | `Profile/resume_screen.dart` | `resume` | `/resume` | — | Myprofile |
-| 31 | `AppPreferences` | `Profile/app_preferences.dart` | `app-preferences` | `/app-preferences` | — | Myprofile |
-| 32 | `ChangePasswordScreen` | `Profile/change_password_screen.dart` | `change-password` | `/change-password` | `extra: String` (email — positional, NOT a map) | EditPersonalDetailsScreen |
-| 33 | `ProfileOtpScreen` | `Profile/profile_otp_screen.dart` | `profile-otp` | `/profile-otp` | `email` | ChangePasswordScreen |
-| 34 | `MyprofileNewPasswrodScreen` | `Profile/profile_new_passwrod_screen.dart` | `new-password` | `/new-password` | `email, otp` | ProfileOtpScreen |
-| 35 | `DeleteAccount` | `Profile/deleteaccount/delete_account.dart` | `delete-account` | `/delete-account` | — | AppPreferences |
-| 36 | `DeleteAccountOtpScreen` | `Profile/deleteaccount/delete_account_otp_screen.dart` | `delete-account-otp` | `/delete-account-otp` | `reason` (passed but screen does not unpack in router) | DeleteAccount |
-| 37 | `DeleteAccountLottieScreen` | `Profile/deleteaccount/delete_account_lottieScreen.dart` | `delete-account-success` | `/delete-account-success` | — | DeleteAccountOtp (success), auto-routes to Login |
-| 38 | `PostProductionScreen` | `file_manager/post_production_screen.dart` | `post-production` | `/post-production` | — | FileManager tab (pushNamed) + raw push |
-| 39 | `PreProductionScreen` | `file_manager/pre_production_screen.dart` | `pre-production` | `/pre-production` | — | PostProduction |
-| 40 | `ViewDetailsScreen` (file_manager) | `file_manager/view_details_screen.dart` | (no GoRoute) | — | — | PreProduction (raw `Navigator.push`) |
+Router lives in `routerProvider` (`Provider<GoRouter>`) — built once per
+`ProviderScope`. A `_AuthRefreshNotifier` (router.dart:77-92) bridges
+`authStateProvider` → `ChangeNotifier` so the router re-runs `redirect:` on
+auth flips. `onboardingSeenProvider` is read inside `redirect:` but is NOT
+listened on `refreshListenable` — flips of onboarding-seen do not retrigger
+redirect (see §8 P4).
 
-> Filename note: `auth/view_details_screen .dart` has a literal space before `.dart`. It is imported as `auth/view_details_screen .dart` in `router.dart`. Don't "fix" the rename without touching the import.
+Feature state lives in per-feature notifiers under
+`lib/features/<f>/presentation/providers/*.dart` (Phase 4 pattern). No Bloc /
+plain `Provider` (package:provider) in the live tree.
+
+## 3. Route inventory
+
+37 declared `GoRoute`s. Every route has a non-empty `name` (verified by sweep).
+`state.extra` shape column documents what the builder unpacks — `Map<String,dynamic>` everywhere except `/change-password` (bare `String`).
+
+### 3.1 Entry routes (router.dart inline)
+
+| # | Path | Name constant | Widget | Extra shape |
+|---|---|---|---|---|
+| 1 | `/splash` | `splash` | `SplashScreen` | — |
+| 2 | `/onboarding` | `onboarding` | `OnboardingScreen` | — |
+
+### 3.2 Shell branches (`StatefulShellRoute.indexedStack`, router.dart:109-159)
+
+| # | Branch | Path | Name | Widget |
+|---|---|---|---|---|
+| 3 | 0 | `/home` | `home` | `HomeScreen` |
+| 4 | 1 | `/shoots` | `shoots` | `ShootsScreen` |
+| 5 | 2 | `/files` | `files` | `FileManagerScreen` |
+| 6 | 3 | `/messages` | `messages` | `MessagesScreen` |
+| 7 | 4 | `/manage-availability` | `manage-availability` | `ManageAvailabilityScreen` |
+
+### 3.3 `authRoutes` (`auth_routes.dart`)
+
+| # | Path | Name | Widget | Extra shape |
+|---|---|---|---|---|
+| 8 | `/login` | `login` | `LoginScreen` | — |
+| 9 | `/signup-step-1` | `signup-step-1` | `SignUp1Screen` | — |
+| 10 | `/signup-step-2` | `signup-step-2` | `SignUp2Screen` | Map: `crewMemberId, profileImage, email, firstName, lastName, location, workingDistance, step1Progress` (nullable cast `as Map<String,dynamic>? ?? {}`) |
+| 11 | `/signup-step-3` | `signup-step-3` | `SignUp3Screen` | Map: + `primaryRole, experience, hourlyRate, bio, skills, equipments, step2Progress` (14 keys total) |
+| 12 | `/forgot-password` | `forgot-password` | `ForgotPasswordScreen` | — |
+| 13 | `/forgot-otp` | `forgot-otp` | `ForgotPasswordOtpScreen` | Map: `email` |
+| 14 | `/reset-password` | `reset-password` | `ResetPasswordScreen` | Map: `email, otp` |
+| 15 | `/view-details` | `view-details` | `ViewDetailsScreen` (auth/) | Map: 13 keys incl. `featuredImages: List<File>` |
+
+### 3.4 `profileRoutes` (`profile_routes.dart`)
+
+| # | Path | Name | Widget | Extra shape |
+|---|---|---|---|---|
+| 16 | `/my-profile` | `my-profile` | `Myprofile` | — |
+| 17 | `/edit-personal-details` | `edit-personal-details` | `EditPersonalDetailsScreen` | — |
+| 18 | `/enter-professional-details` | `enter-professional-details` | `EnterProfileDetailsScreen` | — |
+| 19 | `/profile-details` | `profile-details` | `ProfileDetails1Screen` | — |
+| 20 | `/featured-works` | `featured-works` | `FeaturedWorkList` | — |
+| 21 | `/featured-work-details` | `featured-work-details` | `FeaturedWorkDetailsScreen` | Map: `title, images` — **non-null cast `as Map<String,dynamic>`** (crash path) |
+| 22 | `/certificates` | `certificates` | `CertificatesScreen` | — |
+| 23 | `/resume` | `resume` | `ResumeScreen` | — |
+| 24 | `/app-preferences` | `app-preferences` | `AppPreferencesScreen` | — |
+| 25 | `/change-password` | `change-password` | `ChangePasswordScreen` | **bare `String`** (`state.extra as String`) — non-null cast (crash path); inconsistent with rest of app |
+| 26 | `/profile-otp` | `profile-otp` | `ProfileOtpScreen` | Map: `email` |
+| 27 | `/new-password` | `new-password` | `ProfileNewPasswordScreen` | Map: `email, otp` |
+| 28 | `/profile-password-success` | `profile-password-success` | `ProfileYoureAllSetScreen` | — |
+| 29 | `/delete-account` | `delete-account` | `DeleteAccountScreen` | — |
+| 30 | `/delete-account-otp` | `delete-account-otp` | `DeleteAccountOtpScreen` | — (caller `delete_account_screen.dart:131` passes `{reason}` but builder ignores) |
+| 31 | `/delete-account-success` | `delete-account-success` | `DeleteAccountLottieScreen` | — |
+
+### 3.5 `shootsRoutes` (`shoots_routes.dart`)
+
+| # | Path | Name | Widget | Extra shape |
+|---|---|---|---|---|
+| 32 | `/upcoming-shoot-details` | `upcoming-shoot-details` | `UpcomingShootViewDetails` | Map: `projectId` — **non-null cast `as Map<String,dynamic>`** |
+| 33 | `/cancel-shoot` | `cancel-shoot` | `ShootCancelledScreen` | Map: `projectId` — **non-null cast** |
+| 34 | `/shoot-cancelotties` | `shoot-cancellooties` (typo, value vs path) | `ShootCancelledLottiesScreen` | — |
+
+### 3.6 `availabilityRoutes` (`availability_routes.dart`)
+
+| # | Path | Name | Widget | Extra shape |
+|---|---|---|---|---|
+| 35 | `/add-availability` | `add-availability` | `AddAvailabilityScreen` | — |
+
+### 3.7 `fileManagerRoutes` (`file_manager_routes.dart`)
+
+| # | Path | Name | Widget | Extra shape |
+|---|---|---|---|---|
+| 36 | `/post-production` | `post-production` | `PostProductionScreen` | — |
+| 37 | `/pre-production` | `pre-production` | `PreProductionScreen` | — |
 
 ## 4. Navigation diagram (Mermaid)
 
@@ -73,32 +124,30 @@ No Riverpod / Bloc / Provider in the live tree. `flutter_riverpod` is a dep but 
 flowchart TD
   Splash["/splash<br/>SplashScreen"]
   Onb["/onboarding<br/>OnboardingScreen"]
-  Login["/login<br/>Login"]
-  Su1["/signup-step-1<br/>SignUp1Screen"]
-  Su2["/signup-step-2<br/>SignUp2Screen"]
-  Su3["/signup-step-3<br/>SignUp3Screen"]
-  VD["/view-details<br/>ViewDetailsScreen (preview)"]
+  Login["/login<br/>LoginScreen"]
+  Su1["/signup-step-1"]
+  Su2["/signup-step-2"]
+  Su3["/signup-step-3"]
+  VD["/view-details<br/>(auth preview)"]
   Fp["/forgot-password"]
   FpOtp["/forgot-otp"]
   Rp["/reset-password"]
-  AllSet["/profile-password-success<br/>MyprofileYoureAllSetScreen"]
 
-  Home["/home<br/>Mainscreen (shell)"]
-  HomeTab[HomeScreen tab 0]
-  ShootsTab[ShootsScreen tab 1]
-  FilesTab[FileManagerScreen tab 2]
-  MsgTab[MessagesScreen tab 3]
-  AvailTab[ManageAvailabilityScreen tab 4 / drawer]
+  subgraph Shell["AppShell (StatefulShellRoute.indexedStack)"]
+    Home["/home<br/>branch 0"]
+    Shoots["/shoots<br/>branch 1"]
+    Files["/files<br/>branch 2"]
+    Msg["/messages<br/>branch 3"]
+    Avail["/manage-availability<br/>branch 4"]
+  end
 
-  Up["/upcoming-shoot-details<br/>UpcomingShootViewDetils"]
-  Cancel["/cancel-shoot<br/>CancelScreen"]
-  CancelDup["/shoot-Cancel<br/>CancelScreen (dup)"]
-  CancelLot["/shoot-cancelotties<br/>ShootCancelledLottiesScreen"]
-  Accepted[ShootRequestAccepted (no route)]
+  Up["/upcoming-shoot-details"]
+  Cancel["/cancel-shoot"]
+  CancelLot["/shoot-cancelotties"]
+  Accepted[ShootRequestAccepted<br/>ORPHAN — no caller]
+  Add["/add-availability"]
 
-  Add["/add-availability<br/>AddAvailabilityScreen"]
-
-  Prof["/my-profile<br/>Myprofile"]
+  Prof["/my-profile"]
   PDetails["/profile-details"]
   EditPers["/edit-personal-details"]
   EntProf["/enter-professional-details"]
@@ -107,57 +156,44 @@ flowchart TD
   Cert["/certificates"]
   Res["/resume"]
   AppPref["/app-preferences"]
-
   ChPwd["/change-password"]
   PrOtp["/profile-otp"]
   NewPwd["/new-password"]
-
+  AllSet["/profile-password-success"]
   Del["/delete-account"]
   DelOtp["/delete-account-otp"]
   DelDone["/delete-account-success"]
-
   Post["/post-production"]
   Pre["/pre-production"]
-  FmView[file_manager ViewDetailsScreen (no route)]
+  FmView[file_manager ViewDetailsScreen<br/>raw Navigator.push]
 
-  Splash -->|isLoggedIn=true goNamed| Home
-  Splash -->|isLoggedIn=false goNamed| Onb
-  Onb --> Login
-  Onb --> Su1
+  Splash -->|isAuth goNamed| Home
+  Splash -->|!isAuth + seen goNamed| Login
+  Splash -->|!isAuth + !seen goNamed| Onb
+  Onb -->|Sign In pushNamed| Login
+  Onb -->|Sign Up pushNamed| Su1
   Login -->|success goNamed| Home
-  Login --> Fp
-  Login --> Su1
-  Su1 --> Su2
-  Su1 --> VD
-  Su1 -->|Login link| Login
-  Su2 --> Su3
-  Su2 --> VD
-  Su2 -->|Login link| Login
-  Su3 -->|submit success goNamed| Login
-  Su3 -->|Login link| Login
+  Login -->|forgot pushNamed| Fp
+  Login -->|signup pushNamed| Su1
+  Su1 -->|preview pushNamed| VD
+  Su1 -->|next goNamed| Su2
+  Su1 -->|Login link goNamed| Login
+  Su2 -->|preview pushNamed| VD
+  Su2 -->|next pushNamed| Su3
+  Su2 -->|Login link pushNamed| Login
+  Su3 -->|submit goNamed| Login
+  Su3 -->|Login link pushNamed| Login
+  Fp -->|pushNamed extra=email| FpOtp
+  FpOtp -->|pushNamed extra=email,otp| Rp
+  Rp -->|success goNamed| Login
 
-  Fp -->|Navigator.push| FpOtp
-  FpOtp -->|Navigator.push| Rp
-  Rp -->|Navigator.pushReplacement| AllSet
-  AllSet -->|delayed goNamed| Login
-
-  Home --> HomeTab
-  Home --> ShootsTab
-  Home --> FilesTab
-  Home --> MsgTab
-  Home --> AvailTab
-  Home -.->|drawer pushNamed| Prof
-
-  HomeTab --> Up
-  HomeTab --> Cancel
-  HomeTab --> Add
-  HomeTab --> Prof
-  ShootsTab --> Up
-  ShootsTab --> CancelDup
-  AvailTab --> Add
-  AvailTab --> Up
-  Up -->|Navigator.push| Accepted
-  Accepted -->|delayed goNamed| Home
+  Home --> Up
+  Home --> Cancel
+  Home --> Add
+  Home -->|drawer pushNamed| Prof
+  Shoots --> Cancel
+  Shoots --> Up
+  Avail --> Add
 
   Cancel -->|after API goNamed| CancelLot
   CancelLot -->|delayed goNamed| Home
@@ -167,21 +203,22 @@ flowchart TD
   Prof --> Cert
   Prof --> Res
   Prof --> AppPref
-  Prof -->|logout goNamed| Login
+  Prof -->|logout clearSession + goNamed| Login
   PDetails --> EditPers
   PDetails --> EntProf
-  EditPers --> ChPwd
-  ChPwd --> PrOtp
-  PrOtp --> NewPwd
-  NewPwd --> AllSet
-  FW --> FWD
+  EditPers -->|pushNamed extra=String email| ChPwd
+  ChPwd -->|pushNamed extra=email| PrOtp
+  PrOtp -->|pushNamed extra=email,otp| NewPwd
+  NewPwd -->|pushNamed| AllSet
+  AllSet -->|delayed goNamed| Login
+  FW -->|pushNamed extra=title,images| FWD
 
   AppPref --> Del
-  Del --> DelOtp
+  Del -->|pushNamed extra=reason| DelOtp
   DelOtp -->|goNamed| DelDone
   DelDone -->|delayed goNamed| Login
 
-  FilesTab --> Post
+  Files --> Post
   Post --> Pre
   Pre -->|Navigator.push| FmView
 ```
@@ -189,65 +226,75 @@ flowchart TD
 ## 5. Major user journeys
 
 ### A. Cold boot
-1. `main_dev.dart` / `main_prod.dart` → `startApp(env)` → `Env.init()` → reads `isLoggedIn` from `SharedPreferences` (read but only used to decide *what `MyApp` is given* — see note).
-2. `MyApp` mounts `MaterialApp.router(routerConfig: appRouter)`.
-3. Router `initialLocation: '/splash'` always — **`isLoggedIn` is NOT used to gate the initial route at the router level**. The Splash screen re-reads `isLoggedIn` and `goNamed`s either `home` or `onboarding` after Lottie completes.
+1. `main_dev.dart` / `main_prod.dart` → `startApp(env)` (`lib/startup.dart`) → `Env.init()` → Firebase init → `PrefsService.init()` → `SessionStore.init()`.
+2. `startApp` reads `PrefsService.isLoggedIn` + `PrefsService.onboardingSeen` synchronously, mounts `ProviderScope` with overrides for `authStateProvider` + `onboardingSeenProvider`.
+3. `App` (`lib/app/app.dart`) builds `MaterialApp.router(routerConfig: ref.watch(routerProvider))`.
+4. `routerProvider` sets `initialLocation: '/splash'` and registers a `redirect:` callback that gates on `authStateProvider` + `_publicRoutes` set + `onboardingSeenProvider`.
+5. `SplashScreen` reads `authStateProvider` post-Lottie and calls `goNamed(home)` or `goNamed(login | onboarding)`. The redirect also fires.
 
 ### B. First-time user → onboarding → signup
-`Splash` → `Onboarding` → tap **Sign Up** → `SignUp1Screen` → on API success `goNamed(signupStep2)` with step-1 payload → `SignUp2Screen` → on API success `pushNamed(signupStep3)` with merged payload → `SignUp3Screen` → multipart submit → `goNamed(login)`. Each step also has a "Preview" entry into `view-details` and a "Login" link back to `/login`.
+`Splash` → `Onboarding` → tap **Sign Up** → `SignUp1Screen` → API success → `goNamed(signupStep2, extra: stepPayload)` → `SignUp2Screen` → API success → `pushNamed(signupStep3, extra: merged)` → `SignUp3Screen` → multipart submit → `goNamed(login)`. Each step has a Preview entry into `/view-details` and a "Login" link back to `/login`.
 
 ### C. Returning user → login → home
-`Splash` → if `isLoggedIn` → `goNamed(home)` → `Mainscreen` mounts, calls `fetchprofiledata()` in `initState`. Or: `Login` form → `ApiService` POST → `SharedService.setLoginDetails(...)` sets prefs → `goNamed(home)`. **No router redirect/guard exists** — anyone who lands on `/home` with no token will hit a 401 on first API call.
+`Splash` reads `authStateProvider`. If true → `goNamed(home)`. Otherwise `Login` form → `LoginNotifier.submit()` → API → `SessionStore.write(token, user)` → `authStateProvider.notifier.state = true` → `goNamed(home)`. Router `redirect:` enforces `!isAuth → /login` on every nav, so a missing token bounces to `/login` rather than 401-ing.
 
-### D. Forgot password (legacy stack)
-`Login` → `pushNamed(forgotPassword)` → enter email → **`Navigator.push`** (not named) → `ForgotPasswordOtpScreen(email)` → OTP verify → **`Navigator.push`** → `ResetPasswordScreen(email, otp)` → reset API → **`Navigator.pushReplacement`** → `MyprofileYoureAllSetScreen` → after 3 s → `goNamed(login)`. The three named routes `forgot-otp` / `reset-password` exist but are not used from this flow — the in-flow pushes construct widgets directly.
+### D. Forgot password
+`Login` → `pushNamed(forgotPassword)` → `pushNamed(forgotOtp, extra: {email})` → `pushNamed(resetPassword, extra: {email, otp})` → `goNamed(login)`. **All named** — no raw `Navigator.push` in this flow (post-Phase 1-5).
 
 ### E. Change password (from profile)
-`Myprofile` → `app-preferences`? No — actually `Profile Details` → `Edit Personal Details` → tap edit icon → `pushNamed(changePassword, extra: email)` (extra is a **bare `String`**, not a map) → enter email → `pushNamed(profileOtp, extra: {email})` → OTP → `pushNamed(newPassword, extra: {email, otp})` → button at l.272 → `pushNamed(profilePasswordSuccess)` → delayed `goNamed(login)`. The success-path inside `_resetPassword()` at l.103 (`context.pushNamed(RouteNames.);`) is sitting inside a commented block and is also a compile-blocking fragment in isolation — see "Unknowns".
+`Myprofile` → `Profile Details` → `Edit Personal Details` → tap edit icon → `pushNamed(changePassword, extra: emailString)` — note the **bare `String`** extra (every other route uses `Map`). Then `pushNamed(profileOtp, extra: {email})` → OTP verify → `pushNamed(newPassword, extra: {email, otp})` → reset API → `pushNamed(profilePasswordSuccess)` → delayed `goNamed(login)`.
 
 ### F. Project lifecycle (crew side)
-Home / Shoots / ManageAvailability list cards → `pushNamed(upcomingShootDetails, extra: {projectId})` → `UpcomingShootViewDetils` shows details → user can `Navigator.push(ShootRequestAccepted)` → delayed `goNamed(home)`; or cancel → `pushNamed(cancelShoot, extra: {projectId})` → `CancelScreen` submits → `goNamed(shoot-cancellooties)` → `ShootCancelledLottiesScreen` → delayed `goNamed(home)`.
+Home / Shoots / ManageAvailability list cards → `pushNamed(upcomingShootDetails, extra: {projectId})` → `UpcomingShootViewDetails`. Cancel flow: `pushNamed(cancelShoot, extra: {projectId})` → `ShootCancelledScreen` submits → `goNamed(shootCancelotties)` → `ShootCancelledLottiesScreen` → delayed `goNamed(home)`. **All callers pass projectId.** No more bare-`pushNamed(cancelShoot)` sites in the tree.
 
 ### G. Account deletion
-`Myprofile` → `App Preferences` → tap delete card → `pushNamed(deleteAccount)` → select reason → `pushNamed(deleteAccountOtp, extra: {reason})` → OTP → `goNamed(deleteAccountSuccess)` → `DeleteAccountLottieScreen` → after Lottie → `goNamed(login)`. **Note:** `SharedService.logout()` is NOT called anywhere in this path; only `prefs.clear()`-equivalent should run to actually drop the token. Verify before relying on this flow to log the user out.
+`Myprofile` → `App Preferences` → `pushNamed(deleteAccount)` → `pushNamed(deleteAccountOtp, extra: {reason})` (builder ignores) → OTP → `goNamed(deleteAccountSuccess)` → `DeleteAccountLottieScreen` → in `_logoutAndGo`: `sessionStore.clearSession()` + `authStateProvider.state = false` + `goNamed(login)`. Token IS cleared (resolves former audit F-05 / F-G concern from old map).
 
 ### H. File manager
-`Mainscreen` tab 2 → `FileManagerScreen` → tap card → `pushNamed(postProduction)` → `PostProductionScreen` → `pushNamed(preProduction)` → `PreProductionScreen` → tap → raw `Navigator.push(ViewDetailsScreen())` (the `file_manager/view_details_screen.dart` one, not the auth one).
+`Files` tab → `FileManagerScreen` → `pushNamed(postProduction)` → `PostProductionScreen` → `pushNamed(preProduction)` → `PreProductionScreen` → tap → **raw `Navigator.push(MaterialPageRoute(... ViewDetailsScreen(...)))`** to `lib/features/file_manager/presentation/screens/view_details_screen.dart`. One of the two surviving raw-push sites (the other: `lib/shared/widgets/common_file_viewer.dart:23`).
 
-## 6. Deep links / guarded routes
+## 6. Redirect / gates / guards
 
-- **Deep links:** none configured. `go_router` is name-based, all args pass via `state.extra` (in-memory `Map`/`Object`), so URLs are not parseable on cold-start. No `redirect` callback on the `GoRouter`, no `Uri`/intent handling in native or Dart.
-- **Route guards:** none. `appRouter` has no `redirect`. There is no `ShellRoute`, no `refreshListenable`, no auth-aware router. The only "gate" is the Splash screen reading `SharedPreferences.isLoggedIn`.
-- **Auth-required surfaces:** every screen that calls `ApiService` relies on `Authorization: Bearer <token>` from `SharedPreferences` (`api_service.dart::createAuthorizationHeader`). A missing token surfaces as a 401 / `Exception('Failed to ...')` at call time, never as a route bounce.
+- **`GoRouter.redirect:`** (router.dart:47-72) is live. Reads `authStateProvider` + `onboardingSeenProvider`, classifies `state.matchedLocation` against `_publicRoutes` set, returns:
+  - `!isAuth && !isPublic` → `/login`
+  - `!isAuth && hasSeenOnboarding && loc == /onboarding` → `/login` (skip onboarding once dismissed)
+  - `isAuth && loc ∈ {login, onboarding, signup-step-*, forgot-*, reset-password}` → `/home`
+  - otherwise `null`
+- **`refreshListenable:`** = `_AuthRefreshNotifier` — listens to `authStateProvider`. **Does NOT listen to `onboardingSeenProvider`** — onboarding flips don't retrigger redirect until next nav (see §8 P4).
+- **`_publicRoutes` set** is a literal `const Set<String>` in router.dart (kebab paths). Drift risk versus per-feature `path:` literals (§8 P1).
+- **No deep-link support.** No `redirect:` of incoming URIs; `initialLocation:` is hard-coded `/splash`. Out of scope this migration.
 
-## 7. Bottom nav / drawer (Mainscreen)
+## 7. Bottom nav / drawer (`AppShell`)
 
-- 4 tabs in `BottomNavigationBar` (Dashboard / Shoots / Files / Messages) — `_pages` indexed by `_selectedIndex`. **No `IndexedStack`** — each tab loses state on switch (commented-out IndexedStack lives at l.113-116).
-- Drawer (`_buildDrawer`) re-exposes the 4 tabs PLUS a 5th `_pages[4]` = `ManageAvailabilityScreen`. The bottom bar clamps with `currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex` to hide the 5th from the bar.
-- Drawer also has a profile chip → `context.pushNamed(myProfile).then((_) => fetchprofiledata())`. Profile changes propagate back by re-fetching, not by reactive state.
+- 5 branches in `StatefulShellRoute.indexedStack` (Home / Shoots / Files / Messages / ManageAvailability). State preserved across switches (resolves former audit F-02 / F-19).
+- `BottomNavigationBar` exposes branches 0-3 only. Branch 4 (ManageAvailability) is drawer-only.
+- `app_shell.dart:46` clamps `currentIndex: shell.currentIndex > 3 ? 0 : shell.currentIndex`. On branch 4 the bar **lies** — Dashboard highlights. See §8 P9.
+- Drawer (built inside AppShell) navigates via `context.pushNamed(myProfile)` etc. No raw `Navigator.push` in AppShell. No drawer `Navigator.pop` inconsistency anymore.
 
-## 8. Unknowns / oddities / risk flags
+## 8. Oddities / risk flags (mapped to NAVIGATER_MIGRATION.md Pxx)
 
-| Location | Issue |
-|---|---|
-| `route_names.dart::shootCancelotties` | Constant value `"shoot-cancellooties"` (double-o typo) but path is `/shoot-cancelotties`. `goNamed` uses the constant — works as long as both sides agree, but the name is misleading. |
-| `route_names.dart::signup`, `route_names.dart::viewShootDetails` | Defined but no `GoRoute` matches and nothing imports them. Dead constants. |
-| `router.dart` `cancelShoot` vs `shootCancel` | Two routes (`/cancel-shoot`, `/shoot-Cancel`) both build `CancelScreen`. `cancelShoot` requires `extra.projectId`; `shootCancel` ignores extra. Shoots screen uses `shootCancel` for one list, `cancelShoot` for cancel action. Likely an accidental dup. |
-| `manage_availability_screen.dart:767` | `pushNamed(upcomingShootDetails)` with **no `extra`** map. Router builder is `state.extra as Map<String, dynamic>` (non-nullable cast) — this will throw `TypeError` at runtime. |
-| `auth/view_details_screen .dart` | Filename has a trailing space before `.dart`. Imported with the space — case-sensitive filesystems (Linux CI) may break. |
-| `auth/forgotpassword/*` | Forgot-password chain still uses raw `Navigator.push` even though named routes exist (`forgot-otp`, `reset-password`). Inconsistent with the rest of the app. |
-| `Profile/profile_new_passwrod_screen.dart:103` | `context.pushNamed(RouteNames.);` — token after `RouteNames.` is missing. The line *appears* to be inside a `/*...*/` block (l.97-102 opens with `/*`, l.102 has `*//*` which closes then re-opens). Worth a closer look — if the comment grouping is wrong this won't compile. |
-| `Profile/deleteaccount/*` flow | Success screen `goNamed(login)` but never calls `SharedService.logout()` / `prefs.clear()` — token may persist after account deletion. |
-| `lib/app/app.dart` | A `ConsumerWidget` root referencing `flutter_riverpod` exists but is commented out. Anyone reading `lib/app/` may think it is the live root — it is not. `MyApp` in `lib/main.dart` is. |
-| `lib/app/theme.dart` and siblings | Per `CLAUDE.md`, treated as unused scaffolding — but `Mainscreen` and several feature screens DO import from `app/colors.dart`, `app/spacing.dart`, `app/text_styles.dart`, `app/radii.dart`, `app/shadows.dart`. The "unused" caveat in CLAUDE.md is now partially out-of-date; only `theme.dart` itself (not used by `MyApp`) and `app.dart` are dead. |
-| `splash_screen.dart` | Reads `isLoggedIn` AFTER `startApp` already read it. Double read is harmless but the value computed in `startApp` is never consumed (passed to `MyApp` but `MyApp` ignores it). |
-| `messages/messages_screen.dart` | No outgoing navigation found. Likely a placeholder tab. |
-| `home_screen.dart` lines 1557, 1565 | Raw `Navigator.push(ShootsScreen())` — re-mounts a tab as a new full-screen route instead of switching `_selectedIndex`. Tab state diverges. |
+| # | Where | Issue | NAVIGATER_MIGRATION.md ref |
+|---|---|---|---|
+| O1 | `route_names.dart:9, 80-85` | Dead constants `signup`, `viewShootDetails`. No GoRoute, zero references. | P2 / new P21 |
+| O2 | `route_names.dart:73-74` | `shootCancelotties = "shoot-cancellooties"` value typo vs path `/shoot-cancelotties`. | P17 |
+| O3 | `router.dart:24-34` | `_publicRoutes` literal set duplicates per-feature `path:` strings. | P1 |
+| O4 | `auth_state_provider.dart:12` | `StateProvider<bool>` mutated externally via `.notifier.state = …` (3 sites). | P3 |
+| O5 | `router.dart:49` vs `_AuthRefreshNotifier:79-83` | `onboardingSeenProvider` read in redirect but NOT in refreshListenable. | P4 |
+| O6 | `router.dart` (absent) | No `rootNavigatorKey`. 401 interceptor cannot bounce without `BuildContext`. | P5 |
+| O7 | `auth_routes.dart:31-66`, `profile_routes.dart`, `shoots_routes.dart:14-26` | Untyped `state.extra` Maps; `?? ""` defaults everywhere. | P11 |
+| O8 | `shoots_routes.dart:15, 23`, `profile_routes.dart:53` | Non-null casts `as Map<String,dynamic>` — crash if extra missing. All current callers pass extras (audited), so it's a latent footgun, not an active crash. | P15 (re-scoped) |
+| O9 | `profile_routes.dart:78-82` | `/change-password` builder casts `state.extra as String` — bare-String extra is the only one in the app, inconsistent with all others. | P11 |
+| O10 | `lib/features/auth/presentation/screens/view_details_screen.dart` + `lib/features/file_manager/presentation/screens/view_details_screen.dart` | Two `view_details_screen.dart` files. Compiles only because of relative imports. | P12 |
+| O11 | `pre_production_screen.dart:223-225`, `common_file_viewer.dart:23-25` | Two surviving `Navigator.push` + `MaterialPageRoute` sites. | P8 |
+| O12 | `app_shell.dart:46` | `currentIndex > 3 ? 0 : shell.currentIndex` lies on branch 4. | P9 |
+| O13 | `route_names.dart` everywhere | All names kebab-case. Affects Firebase Analytics `screen_name`. | P10 / Phase F |
+| O14 | absent | No test enforces every `GoRoute` has a `name`. | P14 |
+| O15 | `lib/features/shoots/presentation/screens/shoot_request_accepted_screen.dart` | Defined, zero call sites (was previously raw-`Navigator.push`-only per F-11). Now fully orphan. Candidate for deletion. | new P22 |
+| O16 | `featuredwork_details_screen.dart:69` | Only `PopScope` in `lib/` is here. Multi-step flows (signup-step-2/3, OTP screens) have no back guard. | P18 |
+| O17 | `profile_action_buttons.dart:111-115` | Logout flow: `clearSession()` + `state = false` + `goNamed(login)`. Redirect bounces back if needed, but stack not explicitly cleared. | P19 |
+| O18 | `app_analytics_observer.dart:38-42` | Silent skip on `route.settings.name == null/empty`. Once Phase A enforces names, drop the skip. | P20 |
+| O19 | `analytics_service.dart:29-33` | `buildObserver` has no `nameExtractor` knob; default `defaultNameExtractor` returns kebab path component, not `RouteSpec.name`. | P20 / Phase F |
 
 ## 9. Things worth confirming with the team
 
-1. Is the forgot-password flow expected to use named routes? If yes, three call sites need conversion.
-2. Is `shootCancel` (`/shoot-Cancel`) intentional, or should `cancelShoot` be the only route?
-3. Should the router have a `redirect` to bounce unauthenticated users off `/home` and friends, or is the "first API call 401" pattern the intended UX?
-4. Should `DeleteAccountLottieScreen` call `SharedService.logout()` before `goNamed(login)`?
-5. The `extra` shape for `change-password` is a bare `String`. Every other screen uses `Map<String, dynamic>`. Standardize?
+Same five as before, plus two added in NAVIGATER_MIGRATION.md §9 (analytics opt-out list, kebab-vs-snake path debate). See that doc — single source of truth for open questions on this migration.
