@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
 import 'config/env.dart';
+import 'core/firebase/crashlytics_service.dart';
 import 'core/firebase/firebase_service.dart';
 import 'core/providers/auth_state_provider.dart';
 import 'core/providers/core_providers.dart';
@@ -38,18 +41,28 @@ Future<void> startApp(Environment environment) async {
   final initialOnboardingSeen =
       prefs.getBool(PrefsSessionStore.onboardingSeenKey) ?? false;
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWith((_) async => prefs),
-        prefsProvider.overrideWithValue(prefs),
-        sessionStoreProvider.overrideWithValue(session),
-        authStateProvider.overrideWith(
-          () => AuthStateNotifier(initial: initialAuth),
-        ),
-        onboardingSeenProvider.overrideWith((_) => initialOnboardingSeen),
-      ],
-      child: const App(),
+  // Wrap `runApp` (and only `runApp`) so async errors that escape
+  // `PlatformDispatcher.onError` are still funneled to Crashlytics as fatal.
+  // Keep all init calls above OUTSIDE the zone — if Firebase init itself
+  // fails, we don't want the zone-guard reporting back into a half-booted
+  // Firebase.
+  runZonedGuarded(
+    () => runApp(
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWith((_) async => prefs),
+          prefsProvider.overrideWithValue(prefs),
+          sessionStoreProvider.overrideWithValue(session),
+          authStateProvider.overrideWith(
+            () => AuthStateNotifier(initial: initialAuth),
+          ),
+          onboardingSeenProvider.overrideWith((_) => initialOnboardingSeen),
+        ],
+        child: const App(),
+      ),
     ),
+    (error, stack) {
+      CrashlyticsService.recordError(error, stack, fatal: true);
+    },
   );
 }

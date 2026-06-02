@@ -7,6 +7,29 @@
 
 ---
 
+### 2026-06-02: Telemetry A3 — **`runZonedGuarded` + debug-build collection gate** 🟢
+
+Phase A foundation task A3 closed — closes Phase A (3 / 3 done). `runApp` is now wrapped in `runZonedGuarded` so async errors that escape `PlatformDispatcher.onError` still land in Crashlytics as fatal; debug builds explicitly disable Crashlytics + Analytics collection so dev sessions stop polluting prod dashboards. Branch: `improvments-phase1`.
+
+- **Files touched (2):**
+  - `lib/main.dart` — `runApp(ProviderScope(...))` is now wrapped in `runZonedGuarded(() => runApp(...), (e, st) => CrashlyticsService.recordError(e, st, fatal: true))`. All init calls (`Env.init`, `FirebaseService.initialize`, `PrefsService.init`, `SharedPreferences.getInstance`, `SessionMigration.runOnce`) stay above the zone so a Firebase init failure can't loop back through the zone-guard. Added `import 'dart:async'` for `runZonedGuarded`.
+  - `lib/core/firebase/firebase_service.dart` — after `Firebase.initializeApp()` succeeds, now calls `FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode)` and `FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(!kDebugMode)` (wrapped in try/catch so missing native config still proceeds).
+
+- **Decisions:**
+  - **Init outside zone.** Per task notes — if `FirebaseService.initialize` itself throws, we don't want the zone-guard handler trying to report it back into half-booted Firebase.
+  - **`!kDebugMode` over `Env.isStaging`.** Task notes flag the staging case for future work; current flavors don't have a staging-wants-telemetry use case. Defer until needed.
+  - **No new tests.** A3 is startup wiring at `startApp` and `FirebaseService.initialize`; both already run on every test via the existing smoke harness. The zone-guard handler isn't directly unit-testable without a separate process.
+
+- **Verification:**
+  - `flutter analyze --fatal-infos` — **No issues found** (exit 0).
+  - `flutter test` — **223/223 passing** (no test count change).
+
+- **Constraints Maintained:**
+  - No new dependencies (`firebase_analytics` and `firebase_crashlytics` already direct deps).
+  - Init order preserved.
+
+---
+
 ### 2026-06-02: Telemetry A2 — **Non-fatal error funnel through ExceptionHandler** 🟢
 
 Phase A foundation task A2 closed. Non-fatal errors caught by `ExceptionHandler.guardAsync` now forward to Crashlytics for the signal-rich branches (`ServerException` 5xx + unknown, `ValidationException` 422, plus unknown thrown shapes). Noise (NoInternet / Timeout / RequestCancelled / 401 / 403 / 404 / 429 / 503) is explicitly skipped. Branch: `improvments-phase1`.

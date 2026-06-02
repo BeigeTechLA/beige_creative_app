@@ -1,4 +1,6 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../config/env.dart';
@@ -30,6 +32,20 @@ class FirebaseService {
     try {
       await Firebase.initializeApp();
       _initialized = true;
+
+      // Debug builds: suppress collection so dev sessions don't pollute prod
+      // dashboards. `DebugView` is still reachable via the platform-level
+      // `debug.firebase.analytics.app` prop when QA needs it.
+      try {
+        await FirebaseCrashlytics.instance
+            .setCrashlyticsCollectionEnabled(!kDebugMode);
+        await FirebaseAnalytics.instance
+            .setAnalyticsCollectionEnabled(!kDebugMode);
+      } catch (e) {
+        AppLogger.w(
+          'FirebaseService.initialize: collection toggle failed ($e)',
+        );
+      }
 
       CrashlyticsService.registerErrorHandlers();
       await CrashlyticsService.setCustomKey(
