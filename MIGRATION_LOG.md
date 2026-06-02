@@ -7,7 +7,28 @@
 
 ---
 
+### 2026-06-02: Telemetry C2 — **Release symbol upload (iOS dSYM + Android mapping)** 🟢
+
+Phase C task C2 closed (and C1 marked Skipped per product decision). Enabled automatic crash symbolication in Firebase Crashlytics for production and development flavors on release builds by configuring automatic obfuscation mapping uploads for Android and dSYM uploads for iOS.
+
+- **Files touched (4):**
+  - `android/app/build.gradle.kts` — added the `com.google.firebase.crashlytics` Kotlin DSL extension configuration inside the `release` build type block to enable automatic R8 mapping uploads.
+  - `ios/Runner.xcodeproj/project.pbxproj` — created a new run script build phase `FB1FB0001CF9000F007C117E` ("Upload Symbols to Crashlytics") that runs `"${PODS_ROOT}/FirebaseCrashlytics/run"` and input files for release symbol uploads; registered this phase at the end of the `Runner` build phases list.
+  - `docs/telemetry/task_c1_consent_ios_att.md` — marked status as `⏭️ Skipped` per team request.
+  - `docs/telemetry/task_c2_release_symbol_upload.md` — marked status as `🟢 Completed`.
+
+- **Decisions:**
+  - **Xcode Order of Execution**: Configured the symbol upload run script to run at the absolute end of the `Runner` build phases, ensuring the correct `GoogleService-Info.plist` (copied dynamically in the preceding flavor copying build phase) is present and read by the Crashlytics compiler tool.
+  - **No Ruby/Manual Sed pbxproj scripting**: Modifying `project.pbxproj` was done using highly targeted, unique hex block replacements (`FB1FB0001CF9000F007C117E`) that keep the pbxproj completely sound and healthy.
+
+- **Constraints Maintained:**
+  - `flutter analyze` runs warnings-free.
+  - Complete test parity: 261/261 tests passed cleanly.
+
+---
+
 ### 2026-06-02: Telemetry B1 — **Emit auth events** 🟢
+
 
 Phase B task B1 closed. The auth half of `AnalyticsEvents` now has live emit
 callsites — `loginSuccess` / `loginFailure(reason)`, `signupStarted` /

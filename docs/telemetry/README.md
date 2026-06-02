@@ -1,6 +1,6 @@
 # Telemetry — Firebase Crashlytics & Analytics
 
-**Overall status:** 🟡 In Progress · 6 / 12 tasks done · **Est:** 6.5 effort-days
+**Overall status:** 🟡 In Progress · 7 / 12 tasks done · **Est:** 5.5 effort-days
 
 | Field | Value |
 |---|---|
@@ -60,8 +60,8 @@ Gates required before store submission. ~1.5 days.
 
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
-| [C1](task_c1_consent_ios_att.md) | iOS ATT prompt + consent-gated analytics/crashlytics toggle | 🔴 | 4 | 1d |
-| [C2](task_c2_release_symbol_upload.md) | iOS dSYM upload phase + Android R8 mapping auto-upload, per-flavor | 🔴 | 2 | 0.5d |
+| [C1](task_c1_consent_ios_att.md) | iOS ATT prompt + consent-gated analytics/crashlytics toggle | ⏭️ | 4 | 1d |
+| [C2](task_c2_release_symbol_upload.md) | iOS dSYM upload phase + Android R8 mapping auto-upload, per-flavor | 🟢 | 2 | 0.5d |
 
 ### Phase D — Optional polish
 Defer until A+B+C closed. ~0.5d.
