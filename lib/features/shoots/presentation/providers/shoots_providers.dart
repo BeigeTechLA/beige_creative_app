@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/firebase/analytics_events.dart';
+import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
+import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/shoot_count_model.dart' as count_model;
 import '../../../../model_class/shoots_model.dart';
@@ -101,7 +104,9 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
     }
   }
 
-  Future<count_model.ShootCountData?> _safeFetchCounts(ShootsRepository repo) async {
+  Future<count_model.ShootCountData?> _safeFetchCounts(
+    ShootsRepository repo,
+  ) async {
     try {
       return await repo.fetchShootCount();
     } catch (e, st) {
@@ -138,19 +143,26 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
   /// One-tap accept from the list row. Tracks the in-flight project id so the
   /// row can render a loading state. Refreshes on success.
   Future<bool> acceptShoot(int projectId) async {
+    final shootId = projectId.toString();
+    CrashlyticsBreadcrumbs.start(
+      featureArea: 'shoots.accept',
+      message: 'shoot.accept.start id=$shootId',
+    );
     state = state.copyWith(
       actionInFlightProjectId: projectId,
       clearError: true,
     );
     try {
-      await ref.read(shootsRepositoryProvider).respondToProject(
-            projectId: projectId,
-            status: 'accepted',
-          );
+      await ref
+          .read(shootsRepositoryProvider)
+          .respondToProject(projectId: projectId, status: 'accepted');
+      unawaited(ref.read(telemetryClientProvider).shootAccepted(shootId));
+      CrashlyticsBreadcrumbs.success('shoot.accept.success id=$shootId');
       await refresh();
       state = state.copyWith(actionInFlightProjectId: 0);
       return true;
     } catch (e, st) {
+      CrashlyticsBreadcrumbs.failure('shoot.accept.failure id=$shootId');
       AppLogger.e('Shoots acceptShoot failed', e, st);
       state = state.copyWith(
         actionInFlightProjectId: 0,
@@ -167,8 +179,8 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
 
 final shootsListProvider =
     AutoDisposeNotifierProvider<ShootsListNotifier, ShootsListState>(
-  ShootsListNotifier.new,
-);
+      ShootsListNotifier.new,
+    );
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cancel-shoot flow (modal bottom sheet — `ShootCancelledScreen` / `Routes.cancelShoot.name`).
@@ -224,20 +236,33 @@ class CancelShootNotifier
       state = state.copyWith(errorMessage: 'Please choose a reason');
       return false;
     }
+    final shootId = arg.toString();
+    CrashlyticsBreadcrumbs.start(
+      featureArea: 'shoots.cancel',
+      message: 'shoot.cancel.start id=$shootId',
+    );
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
-      await ref.read(shootsRepositoryProvider).respondToProject(
+      await ref
+          .read(shootsRepositoryProvider)
+          .respondToProject(
             projectId: arg,
             status: 'declined',
             reason: state.selectedReason,
             comment: comment,
           );
+      // UX-wise this is the "Cancel Shoot" flow even though the backend
+      // status posted is `declined` — funnel separation lets us distinguish
+      // cancel-screen-initiated rejections from in-detail declines.
+      unawaited(ref.read(telemetryClientProvider).shootCancelled(shootId));
+      CrashlyticsBreadcrumbs.success('shoot.cancel.success id=$shootId');
       state = state.copyWith(
         isSubmitting: false,
         submittedSignal: state.submittedSignal + 1,
       );
       return true;
     } catch (e, st) {
+      CrashlyticsBreadcrumbs.failure('shoot.cancel.failure id=$shootId');
       AppLogger.e('Cancel shoot submit failed', e, st);
       state = state.copyWith(
         isSubmitting: false,
@@ -248,7 +273,9 @@ class CancelShootNotifier
   }
 }
 
-final cancelShootProvider = AutoDisposeNotifierProviderFamily<
-    CancelShootNotifier, CancelShootState, int>(
-  CancelShootNotifier.new,
-);
+final cancelShootProvider =
+    AutoDisposeNotifierProviderFamily<
+      CancelShootNotifier,
+      CancelShootState,
+      int
+    >(CancelShootNotifier.new);

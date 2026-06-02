@@ -1,9 +1,13 @@
+import 'dart:async' show unawaited;
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/firebase/analytics_events.dart';
+import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
+import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/edit_profile_model.dart';
@@ -62,7 +66,9 @@ class ProfileDetailsViewNotifier
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final data = await ref.read(profileFilesRepositoryProvider).fetchProfile();
+      final data = await ref
+          .read(profileFilesRepositoryProvider)
+          .fetchProfile();
       state = state.copyWith(profile: data, isLoading: false);
     } catch (e, st) {
       AppLogger.e('Profile details fetch failed', e, st);
@@ -78,10 +84,11 @@ class ProfileDetailsViewNotifier
   }
 }
 
-final profileDetailsViewProvider = AutoDisposeNotifierProvider<
-    ProfileDetailsViewNotifier, ProfileDetailsViewState>(
-  ProfileDetailsViewNotifier.new,
-);
+final profileDetailsViewProvider =
+    AutoDisposeNotifierProvider<
+      ProfileDetailsViewNotifier,
+      ProfileDetailsViewState
+    >(ProfileDetailsViewNotifier.new);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EditPersonalDetails — form for personal data + working distance + location.
@@ -125,10 +132,10 @@ class EditPersonalState {
       isLoadingInitial: isLoadingInitial ?? this.isLoadingInitial,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       savedOk: savedOk ?? this.savedOk,
-      validationMessage:
-          clearMessages ? null : (validationMessage ?? this.validationMessage),
-      errorMessage:
-          clearMessages ? null : (errorMessage ?? this.errorMessage),
+      validationMessage: clearMessages
+          ? null
+          : (validationMessage ?? this.validationMessage),
+      errorMessage: clearMessages ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }
@@ -214,8 +221,8 @@ class EditPersonalNotifier extends AutoDisposeNotifier<EditPersonalState> {
 
 final editPersonalNotifierProvider =
     AutoDisposeNotifierProvider<EditPersonalNotifier, EditPersonalState>(
-  EditPersonalNotifier.new,
-);
+      EditPersonalNotifier.new,
+    );
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EnterProfessional — professional details form. Loads roles + skills lists
@@ -270,10 +277,10 @@ class EnterProfessionalState {
       isLoadingInitial: isLoadingInitial ?? this.isLoadingInitial,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       savedOk: savedOk ?? this.savedOk,
-      validationMessage:
-          clearMessages ? null : (validationMessage ?? this.validationMessage),
-      errorMessage:
-          clearMessages ? null : (errorMessage ?? this.errorMessage),
+      validationMessage: clearMessages
+          ? null
+          : (validationMessage ?? this.validationMessage),
+      errorMessage: clearMessages ? null : (errorMessage ?? this.errorMessage),
     );
   }
 
@@ -382,13 +389,24 @@ class EnterProfessionalNotifier
     }
   }
 
-  Future<bool> uploadPhoto(File file) async {
+  Future<bool> uploadPhoto(File file, {ProfilePhotoSource? source}) async {
+    CrashlyticsBreadcrumbs.start(
+      featureArea: 'profile.upload.photo',
+      message: 'profile.upload.photo.start',
+    );
     state = state.copyWith(isSubmitting: true, clearMessages: true);
     try {
       await ref.read(profileRepositoryProvider).uploadPhoto(file);
+      if (source != null) {
+        unawaited(
+          ref.read(telemetryClientProvider).profilePhotoUploaded(source),
+        );
+      }
+      CrashlyticsBreadcrumbs.success('profile.upload.photo.success');
       state = state.copyWith(isSubmitting: false);
       return true;
     } catch (e, st) {
+      CrashlyticsBreadcrumbs.failure('profile.upload.photo.failure');
       AppLogger.e('uploadPhoto failed', e, st);
       state = state.copyWith(
         isSubmitting: false,
@@ -399,10 +417,11 @@ class EnterProfessionalNotifier
   }
 }
 
-final enterProfessionalNotifierProvider = AutoDisposeNotifierProvider<
-    EnterProfessionalNotifier, EnterProfessionalState>(
-  EnterProfessionalNotifier.new,
-);
+final enterProfessionalNotifierProvider =
+    AutoDisposeNotifierProvider<
+      EnterProfessionalNotifier,
+      EnterProfessionalState
+    >(EnterProfessionalNotifier.new);
 
 // Match the legacy parsing: `primary_role` may be a JSON-encoded list, a CSV,
 // or a single token. Map ids back to display labels via the role map.
@@ -422,8 +441,7 @@ List<String> _decodePrimaryRoles(String raw, Map<String, int> roleMap) {
   final out = <String>[];
   for (final s in ids) {
     final id = int.tryParse(s) ?? 0;
-    final match =
-        roleMap.entries.where((e) => e.value == id).map((e) => e.key);
+    final match = roleMap.entries.where((e) => e.value == id).map((e) => e.key);
     if (match.isNotEmpty) out.add(match.first);
   }
   return out;

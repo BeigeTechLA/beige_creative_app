@@ -1,6 +1,6 @@
 # Telemetry — Firebase Crashlytics & Analytics
 
-**Overall status:** 🟡 In Progress · 7 / 12 tasks done · **Est:** 5.5 effort-days
+**Overall status:** 🟡 In Progress · 9 / 12 tasks done · **Est:** 5.5 effort-days
 
 | Field | Value |
 |---|---|
@@ -50,9 +50,9 @@ Convert `AnalyticsEvents` from dead constants into live funnel. ~2.5 days.
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
 | [B1](task_b1_event_emission_auth.md) | Emit auth events (`login_success/failure`, `logout`, signup steps, password reset, account deletion) | 🟢 | 4–6 | 0.75d |
-| [B2](task_b2_event_emission_features.md) | Emit shoots / profile / availability events from feature notifiers | 🔴 | 6–8 | 1d |
+| [B2](task_b2_event_emission_features.md) | Emit shoots / profile / availability events from feature notifiers | 🟢 | 6–8 | 1d |
 | [B3](task_b3_typed_event_helpers.md) | Typed event helpers — enforce param shape, kill duplicates | 🟢 | 1 | 0.25d |
-| [B4](task_b4_breadcrumbs.md) | `feature_area` Crashlytics key + `CrashlyticsService.log` breadcrumbs at high-risk actions | 🔴 | 4–6 | 0.5d |
+| [B4](task_b4_breadcrumbs.md) | `feature_area` Crashlytics key + `CrashlyticsService.log` breadcrumbs at high-risk actions | 🟢 | 4–6 | 0.5d |
 | [B5](task_b5_logger_bridge.md) | Bridge `AppLogger.e` → `CrashlyticsService.recordError` (non-fatal) | 🟢 | 1 | 0.25d |
 
 ### Phase C — Compliance & release pipeline

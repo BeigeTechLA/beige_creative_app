@@ -1,3 +1,7 @@
+import 'package:beige_creative_app/core/firebase/analytics_events.dart';
+import 'package:beige_creative_app/core/firebase/crashlytics_breadcrumbs.dart';
+import 'package:beige_creative_app/core/firebase/crashlytics_keys.dart';
+import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/features/availability/domain/entities/availability_entry.dart';
 import 'package:beige_creative_app/features/availability/domain/repositories/availability_repository.dart';
 import 'package:beige_creative_app/features/availability/presentation/providers/availability_providers.dart';
@@ -29,7 +33,51 @@ class _FakeRepo implements AvailabilityRepository {
   }
 }
 
+class _RecordingTelemetry implements TelemetryClient {
+  final List<({String name, Map<String, Object>? parameters})> events =
+      <({String name, Map<String, Object>? parameters})>[];
+
+  @override
+  Future<void> setUserIdentity({
+    required String userId,
+    String? userRole,
+    String loginMethod = 'password',
+  }) async {}
+
+  @override
+  Future<void> clearUserIdentity({bool emitLogoutEvent = false}) async {}
+
+  @override
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    events.add((name: name, parameters: parameters));
+  }
+
+  @override
+  Future<void> recordError(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal = false,
+  }) async {}
+}
+
 void main() {
+  final keys = <({String key, Object value})>[];
+  final logs = <String>[];
+
+  setUp(() {
+    keys.clear();
+    logs.clear();
+    CrashlyticsBreadcrumbs.setCustomKey = (key, value) async {
+      keys.add((key: key, value: value));
+    };
+    CrashlyticsBreadcrumbs.log = (message) async {
+      logs.add(message);
+    };
+  });
+
+  tearDown(CrashlyticsBreadcrumbs.resetForTesting);
+
   group('ManageAvailabilityNotifier', () {
     test('loads month and exposes count getters', () async {
       final container = ProviderContainer(
@@ -45,9 +93,7 @@ void main() {
       addTearDown(sub.close);
 
       for (var i = 0; i < 20; i++) {
-        if (!container
-            .read(manageAvailabilityNotifierProvider)
-            .isLoading) {
+        if (!container.read(manageAvailabilityNotifierProvider).isLoading) {
           break;
         }
         await Future<void>.delayed(Duration.zero);
@@ -73,25 +119,27 @@ void main() {
       addTearDown(sub.close);
 
       for (var i = 0; i < 20; i++) {
-        if (!container
-            .read(manageAvailabilityNotifierProvider)
-            .isLoading) {
+        if (!container.read(manageAvailabilityNotifierProvider).isLoading) {
           break;
         }
         await Future<void>.delayed(Duration.zero);
       }
 
-      final notifier =
-          container.read(manageAvailabilityNotifierProvider.notifier);
-      final beforeMonth =
-          container.read(manageAvailabilityNotifierProvider).focusedDay.month;
+      final notifier = container.read(
+        manageAvailabilityNotifierProvider.notifier,
+      );
+      final beforeMonth = container
+          .read(manageAvailabilityNotifierProvider)
+          .focusedDay
+          .month;
       notifier.shiftMonth(1);
       for (var i = 0; i < 20; i++) {
         await Future<void>.delayed(Duration.zero);
       }
 
-      final after =
-          container.read(manageAvailabilityNotifierProvider).focusedDay;
+      final after = container
+          .read(manageAvailabilityNotifierProvider)
+          .focusedDay;
       expect(after.month, isNot(beforeMonth));
     });
   });
@@ -99,9 +147,11 @@ void main() {
   group('AddAvailabilityNotifier', () {
     test('submit rejects when type missing', () async {
       final repo = _FakeRepo();
+      final telemetry = _RecordingTelemetry();
       final container = ProviderContainer(
         overrides: [
           availabilityRepositoryProvider.overrideWithValue(repo),
+          telemetryClientProvider.overrideWithValue(telemetry),
         ],
       );
       addTearDown(container.dispose);
@@ -122,19 +172,26 @@ void main() {
         container.read(addAvailabilityNotifierProvider).validationMessage,
         'Please select type',
       );
+      expect(
+        telemetry.events.where(
+          (e) => e.name == AnalyticsEvents.availabilityAdded,
+        ),
+        isEmpty,
+      );
     });
 
     test('submit posts payload when all-day + type set', () async {
       final repo = _FakeRepo();
+      final telemetry = _RecordingTelemetry();
       final container = ProviderContainer(
         overrides: [
           availabilityRepositoryProvider.overrideWithValue(repo),
+          telemetryClientProvider.overrideWithValue(telemetry),
         ],
       );
       addTearDown(container.dispose);
 
-      final notifier =
-          container.read(addAvailabilityNotifierProvider.notifier);
+      final notifier = container.read(addAvailabilityNotifierProvider.notifier);
       notifier.setType(AvailabilityType.available);
       notifier.toggleAllDay(true);
       notifier.setRecurrence(RecurrenceKind.weekly);
@@ -145,7 +202,7 @@ void main() {
         formattedDate: '2026-06-01',
         startTime: '',
         endTime: '',
-        recurrenceUntil: '2026-12-31',
+        recurrenceUntil: '2026-06-07',
         repeatDay: '',
         notes: '  hello  ',
       );
@@ -161,19 +218,33 @@ void main() {
         container.read(addAvailabilityNotifierProvider).submittedOk,
         isTrue,
       );
+      final hits = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.availabilityAdded)
+          .toList();
+      expect(hits, hasLength(1));
+      expect(hits.single.parameters, {'duration_days': 7});
+
+      expect(keys, [
+        (key: CrashlyticsKeys.featureArea, value: 'availability.add'),
+      ]);
+      expect(logs, [
+        'availability.add.start days=7',
+        'availability.add.success days=7',
+      ]);
     });
 
     test('submit surfaces error on repo throw', () async {
       final repo = _FakeRepo()..throwOnCreate = true;
+      final telemetry = _RecordingTelemetry();
       final container = ProviderContainer(
         overrides: [
           availabilityRepositoryProvider.overrideWithValue(repo),
+          telemetryClientProvider.overrideWithValue(telemetry),
         ],
       );
       addTearDown(container.dispose);
 
-      final notifier =
-          container.read(addAvailabilityNotifierProvider.notifier);
+      final notifier = container.read(addAvailabilityNotifierProvider.notifier);
       notifier.setType(AvailabilityType.notAvailable);
       notifier.toggleAllDay(true);
 
@@ -190,6 +261,20 @@ void main() {
         container.read(addAvailabilityNotifierProvider).errorMessage,
         contains('boom'),
       );
+      expect(
+        telemetry.events.where(
+          (e) => e.name == AnalyticsEvents.availabilityAdded,
+        ),
+        isEmpty,
+      );
+
+      expect(keys, [
+        (key: CrashlyticsKeys.featureArea, value: 'availability.add'),
+      ]);
+      expect(logs, [
+        'availability.add.start days=1',
+        'availability.add.failure days=1',
+      ]);
     });
   });
 }

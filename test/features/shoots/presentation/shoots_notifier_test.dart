@@ -1,4 +1,5 @@
 import 'package:beige_creative_app/config/env.dart';
+import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/features/shoots/domain/repositories/shoots_repository.dart';
 import 'package:beige_creative_app/features/shoots/presentation/providers/shoots_providers.dart';
 import 'package:beige_creative_app/features/shoots/presentation/providers/upcoming_shoot_providers.dart';
@@ -64,6 +65,34 @@ class _FakeShootsRepo implements ShootsRepository {
   }
 }
 
+class _RecordingTelemetry implements TelemetryClient {
+  final List<({String name, Map<String, Object>? parameters})> events =
+      <({String name, Map<String, Object>? parameters})>[];
+
+  @override
+  Future<void> setUserIdentity({
+    required String userId,
+    String? userRole,
+    String loginMethod = 'password',
+  }) async {}
+
+  @override
+  Future<void> clearUserIdentity({bool emitLogoutEvent = false}) async {}
+
+  @override
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    events.add((name: name, parameters: parameters));
+  }
+
+  @override
+  Future<void> recordError(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal = false,
+  }) async {}
+}
+
 Shoot _shoot({
   required int id,
   required int projectId,
@@ -112,16 +141,26 @@ Future<void> _drainTime(Duration d) async {
 void main() {
   setUpAll(() => Env.init(Environment.dev));
 
-  ProviderContainer make(_FakeShootsRepo repo) {
-    return ProviderContainer(overrides: [
-      shootsRepositoryProvider.overrideWithValue(repo),
-    ]);
+  ProviderContainer make(
+    _FakeShootsRepo repo, {
+    _RecordingTelemetry? telemetry,
+  }) {
+    return ProviderContainer(
+      overrides: [
+        shootsRepositoryProvider.overrideWithValue(repo),
+        if (telemetry != null)
+          telemetryClientProvider.overrideWithValue(telemetry),
+      ],
+    );
   }
 
   group('ShootsListNotifier — refresh', () {
     test('hydrates shoots + counts on build', () async {
       final repo = _FakeShootsRepo()
-        ..shoots = [_shoot(id: 1, projectId: 100), _shoot(id: 2, projectId: 200)]
+        ..shoots = [
+          _shoot(id: 1, projectId: 100),
+          _shoot(id: 2, projectId: 200),
+        ]
         ..counts = count_model.ShootCountData(
           completedShoots: 3,
           pendingRequests: 2,
@@ -167,45 +206,47 @@ void main() {
   });
 
   group('ShootsListNotifier — search debounce', () {
-    test('multiple rapid updateSearch calls within window collapse to one filter',
-        () async {
-      final repo = _FakeShootsRepo()
-        ..shoots = [
-          _shoot(id: 1, projectId: 100, projectName: 'Beach wedding'),
-          _shoot(id: 2, projectId: 200, projectName: 'Office party'),
-          _shoot(id: 3, projectId: 300, projectName: 'Bridal shoot'),
-        ];
-      final c = make(repo);
-      addTearDown(c.dispose);
-      c.listen(shootsListProvider, (_, _) {});
-      await _drain(() => !c.read(shootsListProvider).isLoading);
+    test(
+      'multiple rapid updateSearch calls within window collapse to one filter',
+      () async {
+        final repo = _FakeShootsRepo()
+          ..shoots = [
+            _shoot(id: 1, projectId: 100, projectName: 'Beach wedding'),
+            _shoot(id: 2, projectId: 200, projectName: 'Office party'),
+            _shoot(id: 3, projectId: 300, projectName: 'Bridal shoot'),
+          ];
+        final c = make(repo);
+        addTearDown(c.dispose);
+        c.listen(shootsListProvider, (_, _) {});
+        await _drain(() => !c.read(shootsListProvider).isLoading);
 
-      final notifier = c.read(shootsListProvider.notifier);
+        final notifier = c.read(shootsListProvider.notifier);
 
-      // Capture fetch baseline — repo should not be re-hit on search.
-      final fetchBefore = repo.fetchShootsCount;
+        // Capture fetch baseline — repo should not be re-hit on search.
+        final fetchBefore = repo.fetchShootsCount;
 
-      // Rapid-fire keystrokes ("b" → "br" → "bri") within the debounce window.
-      notifier.updateSearch('b');
-      notifier.updateSearch('br');
-      notifier.updateSearch('bri');
+        // Rapid-fire keystrokes ("b" → "br" → "bri") within the debounce window.
+        notifier.updateSearch('b');
+        notifier.updateSearch('br');
+        notifier.updateSearch('bri');
 
-      // Before the debounce expires the query is recorded but visibleShoots
-      // still reflects the previous filter (full list).
-      expect(c.read(shootsListProvider).searchQuery, 'bri');
-      expect(c.read(shootsListProvider).visibleShoots.length, 3);
+        // Before the debounce expires the query is recorded but visibleShoots
+        // still reflects the previous filter (full list).
+        expect(c.read(shootsListProvider).searchQuery, 'bri');
+        expect(c.read(shootsListProvider).visibleShoots.length, 3);
 
-      // Wait past the 250ms debounce window.
-      await _drainTime(const Duration(milliseconds: 350));
+        // Wait past the 250ms debounce window.
+        await _drainTime(const Duration(milliseconds: 350));
 
-      // Only one filter pass should have landed → matches 'Bridal shoot' only.
-      final s = c.read(shootsListProvider);
-      expect(s.visibleShoots.length, 1);
-      expect(s.visibleShoots.first.projectName, 'Bridal shoot');
+        // Only one filter pass should have landed → matches 'Bridal shoot' only.
+        final s = c.read(shootsListProvider);
+        expect(s.visibleShoots.length, 1);
+        expect(s.visibleShoots.first.projectName, 'Bridal shoot');
 
-      // Critically: no extra network calls for any of the keystrokes.
-      expect(repo.fetchShootsCount, fetchBefore);
-    });
+        // Critically: no extra network calls for any of the keystrokes.
+        expect(repo.fetchShootsCount, fetchBefore);
+      },
+    );
 
     test('empty query returns full list', () async {
       final repo = _FakeShootsRepo()
@@ -231,15 +272,14 @@ void main() {
 
   group('ShootsListNotifier — accept flow', () {
     test('acceptShoot posts accepted + refreshes', () async {
-      final repo = _FakeShootsRepo()
-        ..shoots = [_shoot(id: 1, projectId: 100)];
-      final c = make(repo);
+      final repo = _FakeShootsRepo()..shoots = [_shoot(id: 1, projectId: 100)];
+      final telemetry = _RecordingTelemetry();
+      final c = make(repo, telemetry: telemetry);
       addTearDown(c.dispose);
       c.listen(shootsListProvider, (_, _) {});
       await _drain(() => !c.read(shootsListProvider).isLoading);
 
-      final ok =
-          await c.read(shootsListProvider.notifier).acceptShoot(100);
+      final ok = await c.read(shootsListProvider.notifier).acceptShoot(100);
       expect(ok, isTrue);
       expect(repo.respondCount, 1);
       expect(repo.lastStatus, 'accepted');
@@ -247,44 +287,51 @@ void main() {
       // Refresh re-pulls the list after accept.
       expect(repo.fetchShootsCount, greaterThan(1));
       expect(c.read(shootsListProvider).actionInFlightProjectId, 0);
+      expect(telemetry.events.map((e) => e.name), ['shoot_accepted']);
+      expect(telemetry.events.single.parameters, {'shoot_id': '100'});
     });
 
     test('accept failure sets errorMessage + clears action flag', () async {
       final repo = _FakeShootsRepo()
         ..shoots = [_shoot(id: 1, projectId: 100)]
         ..throwOnRespond = true;
-      final c = make(repo);
+      final telemetry = _RecordingTelemetry();
+      final c = make(repo, telemetry: telemetry);
       addTearDown(c.dispose);
       c.listen(shootsListProvider, (_, _) {});
       await _drain(() => !c.read(shootsListProvider).isLoading);
 
-      final ok =
-          await c.read(shootsListProvider.notifier).acceptShoot(100);
+      final ok = await c.read(shootsListProvider.notifier).acceptShoot(100);
       expect(ok, isFalse);
       final s = c.read(shootsListProvider);
       expect(s.errorMessage, 'Failed to accept shoot');
       expect(s.actionInFlightProjectId, 0);
+      expect(telemetry.events, isEmpty);
     });
   });
 
   group('CancelShootNotifier — decline flow', () {
     test('submit rejects empty reason', () async {
       final repo = _FakeShootsRepo();
-      final c = make(repo);
+      final telemetry = _RecordingTelemetry();
+      final c = make(repo, telemetry: telemetry);
       addTearDown(c.dispose);
       c.listen(cancelShootProvider(100), (_, _) {});
 
-      final ok =
-          await c.read(cancelShootProvider(100).notifier).submit();
+      final ok = await c.read(cancelShootProvider(100).notifier).submit();
       expect(ok, isFalse);
       expect(repo.respondCount, 0);
-      expect(c.read(cancelShootProvider(100)).errorMessage,
-          'Please choose a reason');
+      expect(
+        c.read(cancelShootProvider(100)).errorMessage,
+        'Please choose a reason',
+      );
+      expect(telemetry.events, isEmpty);
     });
 
     test('submit posts declined + bumps submittedSignal', () async {
       final repo = _FakeShootsRepo();
-      final c = make(repo);
+      final telemetry = _RecordingTelemetry();
+      final c = make(repo, telemetry: telemetry);
       addTearDown(c.dispose);
       c.listen(cancelShootProvider(100), (_, _) {});
 
@@ -298,26 +345,34 @@ void main() {
       expect(repo.lastReason, 'Schedule conflict');
       expect(repo.lastComment, 'busy week');
       expect(repo.lastRespondId, 100);
-      expect(c.read(cancelShootProvider(100)).submittedSignal,
-          greaterThan(before));
+      expect(
+        c.read(cancelShootProvider(100)).submittedSignal,
+        greaterThan(before),
+      );
+      expect(telemetry.events.map((e) => e.name), ['shoot_cancelled']);
+      expect(telemetry.events.single.parameters, {'shoot_id': '100'});
     });
 
-    test('submit failure surfaces errorMessage + leaves signal untouched',
-        () async {
-      final repo = _FakeShootsRepo()..throwOnRespond = true;
-      final c = make(repo);
-      addTearDown(c.dispose);
-      c.listen(cancelShootProvider(100), (_, _) {});
+    test(
+      'submit failure surfaces errorMessage + leaves signal untouched',
+      () async {
+        final repo = _FakeShootsRepo()..throwOnRespond = true;
+        final telemetry = _RecordingTelemetry();
+        final c = make(repo, telemetry: telemetry);
+        addTearDown(c.dispose);
+        c.listen(cancelShootProvider(100), (_, _) {});
 
-      final notifier = c.read(cancelShootProvider(100).notifier);
-      notifier.selectReason('Rate too low');
-      final before = c.read(cancelShootProvider(100)).submittedSignal;
-      final ok = await notifier.submit();
-      expect(ok, isFalse);
-      final s = c.read(cancelShootProvider(100));
-      expect(s.errorMessage, 'Something went wrong');
-      expect(s.submittedSignal, before);
-      expect(s.isSubmitting, isFalse);
-    });
+        final notifier = c.read(cancelShootProvider(100).notifier);
+        notifier.selectReason('Rate too low');
+        final before = c.read(cancelShootProvider(100)).submittedSignal;
+        final ok = await notifier.submit();
+        expect(ok, isFalse);
+        final s = c.read(cancelShootProvider(100));
+        expect(s.errorMessage, 'Something went wrong');
+        expect(s.submittedSignal, before);
+        expect(s.isSubmitting, isFalse);
+        expect(telemetry.events, isEmpty);
+      },
+    );
   });
 }

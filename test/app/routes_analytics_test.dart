@@ -74,4 +74,28 @@ void main() {
       }
     });
   });
+
+  group('RouteSpec.featureArea definitions', () {
+    test('expected routes define correct feature area', () {
+      final expected = {
+        'login': 'auth',
+        'home': 'home',
+        'shoots': 'shoots',
+        'files': 'files',
+        'messages': 'messages',
+        'my_profile': 'profile',
+        'add_availability': 'availability',
+      };
+
+      for (final entry in expected.entries) {
+        final spec = Routes.byName[entry.key];
+        expect(spec, isNotNull, reason: 'Routes.${entry.key} missing');
+        expect(
+          spec!.featureArea,
+          entry.value,
+          reason: 'Routes.${entry.key} should map to featureArea "${entry.value}"',
+        );
+      }
+    });
+  });
 }

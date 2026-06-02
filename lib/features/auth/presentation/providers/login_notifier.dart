@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/firebase/analytics_events.dart';
+import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
 import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/auth_state_provider.dart';
@@ -69,6 +70,10 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       return;
     }
 
+    CrashlyticsBreadcrumbs.start(
+      featureArea: 'auth.login',
+      message: 'auth.login.start',
+    );
     state = state.copyWith(
       isLoggingIn: true,
       clearError: true,
@@ -117,8 +122,11 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
         AppLogger.d('stack: $st');
       }
 
+      CrashlyticsBreadcrumbs.success('auth.login.success');
       state = state.copyWith(isLoggingIn: false, loginSuccess: true);
     } catch (e, st) {
+      final reason = _classifyLoginFailure(e).name;
+      CrashlyticsBreadcrumbs.failure('auth.login.failure reason=$reason');
       AppLogger.e('Login.submit failed', e, st);
       unawaited(
         ref

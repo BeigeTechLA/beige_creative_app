@@ -1,6 +1,11 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/firebase/analytics_events.dart';
+import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
+import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../data/repositories/availability_repository_impl.dart';
@@ -45,10 +50,12 @@ class ManageAvailabilityState {
 
   int countOf(AvailabilityStatus status) {
     return events.entries
-        .where((e) =>
-            e.key.year == focusedDay.year &&
-            e.key.month == focusedDay.month &&
-            e.value == status)
+        .where(
+          (e) =>
+              e.key.year == focusedDay.year &&
+              e.key.month == focusedDay.month &&
+              e.value == status,
+        )
         .length;
   }
 
@@ -68,8 +75,7 @@ class ManageAvailabilityNotifier
     final repo = ref.read(availabilityRepositoryProvider);
     final day = state.focusedDay;
     try {
-      final events =
-          await repo.fetchMonth(month: day.month, year: day.year);
+      final events = await repo.fetchMonth(month: day.month, year: day.year);
       state = state.copyWith(events: events, isLoading: false);
     } catch (e, st) {
       AppLogger.e('ManageAvailability.refresh failed', e, st);
@@ -78,7 +84,10 @@ class ManageAvailabilityNotifier
   }
 
   void shiftMonth(int delta) {
-    final next = DateTime(state.focusedDay.year, state.focusedDay.month + delta);
+    final next = DateTime(
+      state.focusedDay.year,
+      state.focusedDay.month + delta,
+    );
     state = state.copyWith(focusedDay: next, isLoading: true);
     refresh();
   }
@@ -93,10 +102,11 @@ class ManageAvailabilityNotifier
   }
 }
 
-final manageAvailabilityNotifierProvider = AutoDisposeNotifierProvider<
-    ManageAvailabilityNotifier, ManageAvailabilityState>(
-  ManageAvailabilityNotifier.new,
-);
+final manageAvailabilityNotifierProvider =
+    AutoDisposeNotifierProvider<
+      ManageAvailabilityNotifier,
+      ManageAvailabilityState
+    >(ManageAvailabilityNotifier.new);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Add Availability — form state + submit.
@@ -150,10 +160,10 @@ class AddAvailabilityState {
       selectedWeekDays: selectedWeekDays ?? this.selectedWeekDays,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       submittedOk: submittedOk ?? this.submittedOk,
-      errorMessage:
-          clearMessages ? null : (errorMessage ?? this.errorMessage),
-      validationMessage:
-          clearMessages ? null : (validationMessage ?? this.validationMessage),
+      errorMessage: clearMessages ? null : (errorMessage ?? this.errorMessage),
+      validationMessage: clearMessages
+          ? null
+          : (validationMessage ?? this.validationMessage),
     );
   }
 }
@@ -192,8 +202,7 @@ class AddAvailabilityNotifier
     state = state.copyWith(selectedWeekDays: updated);
   }
 
-  void clearMessages() =>
-      state = state.copyWith(clearMessages: true);
+  void clearMessages() => state = state.copyWith(clearMessages: true);
 
   List<String>? _recurrenceDays() {
     switch (state.recurrence) {
@@ -261,24 +270,44 @@ class AddAvailabilityNotifier
       repeatDay: repeatDay.isEmpty ? null : repeatDay,
     );
 
+    final durationDays = _durationDays(formattedDate, recurrenceUntil);
+    CrashlyticsBreadcrumbs.start(
+      featureArea: 'availability.add',
+      message: 'availability.add.start days=$durationDays',
+    );
     try {
       await ref
           .read(availabilityRepositoryProvider)
           .createAvailability(payload);
+      unawaited(
+        ref
+            .read(telemetryClientProvider)
+            .availabilityAdded(
+              durationDays: durationDays,
+            ),
+      );
+      CrashlyticsBreadcrumbs.success('availability.add.success days=$durationDays');
       state = state.copyWith(isSubmitting: false, submittedOk: true);
       return true;
     } catch (e, st) {
+      CrashlyticsBreadcrumbs.failure('availability.add.failure days=$durationDays');
       AppLogger.e('AddAvailability.submit failed', e, st);
-      state = state.copyWith(
-        isSubmitting: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isSubmitting: false, errorMessage: e.toString());
       return false;
     }
   }
 }
 
-final addAvailabilityNotifierProvider = AutoDisposeNotifierProvider<
-    AddAvailabilityNotifier, AddAvailabilityState>(
-  AddAvailabilityNotifier.new,
-);
+int _durationDays(String startDate, String endDate) {
+  final start = DateTime.tryParse(startDate);
+  final end = DateTime.tryParse(endDate);
+  if (start == null || end == null || end.isBefore(start)) {
+    return 1;
+  }
+  return end.difference(start).inDays + 1;
+}
+
+final addAvailabilityNotifierProvider =
+    AutoDisposeNotifierProvider<AddAvailabilityNotifier, AddAvailabilityState>(
+      AddAvailabilityNotifier.new,
+    );

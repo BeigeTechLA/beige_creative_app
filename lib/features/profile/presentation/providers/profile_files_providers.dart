@@ -1,8 +1,12 @@
+import 'dart:async' show unawaited;
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/firebase/analytics_events.dart';
+import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
+import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/myprofile_model.dart';
@@ -57,7 +61,9 @@ class ResumeNotifier extends AutoDisposeNotifier<FilesListState> {
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final data = await ref.read(profileFilesRepositoryProvider).fetchProfile();
+      final data = await ref
+          .read(profileFilesRepositoryProvider)
+          .fetchProfile();
       state = state.copyWith(files: data.resumeFiles, isLoading: false);
     } catch (e, st) {
       AppLogger.e('Resume fetch failed', e, st);
@@ -69,17 +75,21 @@ class ResumeNotifier extends AutoDisposeNotifier<FilesListState> {
   }
 
   Future<bool> upload(File file) async {
+    CrashlyticsBreadcrumbs.start(
+      featureArea: 'profile.upload.resume',
+      message: 'profile.upload.resume.start',
+    );
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       await ref.read(profileFilesRepositoryProvider).uploadResume(file);
+      unawaited(ref.read(telemetryClientProvider).resumeUploaded(fileCount: 1));
+      CrashlyticsBreadcrumbs.success('profile.upload.resume.success');
       await refresh();
       return true;
     } catch (e, st) {
+      CrashlyticsBreadcrumbs.failure('profile.upload.resume.failure');
       AppLogger.e('Resume upload failed', e, st);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Upload failed',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: 'Upload failed');
       return false;
     }
   }
@@ -92,10 +102,7 @@ class ResumeNotifier extends AutoDisposeNotifier<FilesListState> {
       return true;
     } catch (e, st) {
       AppLogger.e('Resume delete failed', e, st);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Delete failed',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: 'Delete failed');
       return false;
     }
   }
@@ -103,8 +110,8 @@ class ResumeNotifier extends AutoDisposeNotifier<FilesListState> {
 
 final resumeNotifierProvider =
     AutoDisposeNotifierProvider<ResumeNotifier, FilesListState>(
-  ResumeNotifier.new,
-);
+      ResumeNotifier.new,
+    );
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Certificates.
@@ -120,7 +127,9 @@ class CertificatesNotifier extends AutoDisposeNotifier<FilesListState> {
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final data = await ref.read(profileFilesRepositoryProvider).fetchProfile();
+      final data = await ref
+          .read(profileFilesRepositoryProvider)
+          .fetchProfile();
       state = state.copyWith(files: data.certificateFiles, isLoading: false);
     } catch (e, st) {
       AppLogger.e('Certificates fetch failed', e, st);
@@ -132,17 +141,23 @@ class CertificatesNotifier extends AutoDisposeNotifier<FilesListState> {
   }
 
   Future<bool> upload(File file) async {
+    CrashlyticsBreadcrumbs.start(
+      featureArea: 'profile.upload.certifications',
+      message: 'profile.upload.certifications.start',
+    );
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       await ref.read(profileFilesRepositoryProvider).uploadCertificate(file);
+      unawaited(
+        ref.read(telemetryClientProvider).certificationsUploaded(fileCount: 1),
+      );
+      CrashlyticsBreadcrumbs.success('profile.upload.certifications.success');
       await refresh();
       return true;
     } catch (e, st) {
+      CrashlyticsBreadcrumbs.failure('profile.upload.certifications.failure');
       AppLogger.e('Certificate upload failed', e, st);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Upload failed',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: 'Upload failed');
       return false;
     }
   }
@@ -155,10 +170,7 @@ class CertificatesNotifier extends AutoDisposeNotifier<FilesListState> {
       return true;
     } catch (e, st) {
       AppLogger.e('Certificate delete failed', e, st);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Delete failed',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: 'Delete failed');
       return false;
     }
   }
@@ -166,8 +178,8 @@ class CertificatesNotifier extends AutoDisposeNotifier<FilesListState> {
 
 final certificatesNotifierProvider =
     AutoDisposeNotifierProvider<CertificatesNotifier, FilesListState>(
-  CertificatesNotifier.new,
-);
+      CertificatesNotifier.new,
+    );
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Featured work — keeps full grid shape (not flat). Upload takes title+tags+files.
@@ -209,7 +221,9 @@ class FeaturedWorkNotifier extends AutoDisposeNotifier<FeaturedWorkState> {
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final data = await ref.read(profileFilesRepositoryProvider).fetchProfile();
+      final data = await ref
+          .read(profileFilesRepositoryProvider)
+          .fetchProfile();
       state = state.copyWith(files: data.featuredWorkFiles, isLoading: false);
     } catch (e, st) {
       AppLogger.e('Featured work fetch failed', e, st);
@@ -225,21 +239,31 @@ class FeaturedWorkNotifier extends AutoDisposeNotifier<FeaturedWorkState> {
     required List<String> tags,
     required List<File> files,
   }) async {
+    CrashlyticsBreadcrumbs.start(
+      featureArea: 'profile.upload.featured_work',
+      message: 'profile.upload.featured_work.start count=${files.length}',
+    );
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      await ref.read(profileFilesRepositoryProvider).uploadFeaturedWork(
-            title: title,
-            tags: tags,
-            files: files,
-          );
+      await ref
+          .read(profileFilesRepositoryProvider)
+          .uploadFeaturedWork(title: title, tags: tags, files: files);
+      unawaited(
+        ref
+            .read(telemetryClientProvider)
+            .featuredWorkUploaded(fileCount: files.length),
+      );
+      CrashlyticsBreadcrumbs.success(
+        'profile.upload.featured_work.success count=${files.length}',
+      );
       await refresh();
       return true;
     } catch (e, st) {
-      AppLogger.e('Featured work upload failed', e, st);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Upload failed',
+      CrashlyticsBreadcrumbs.failure(
+        'profile.upload.featured_work.failure count=${files.length}',
       );
+      AppLogger.e('Featured work upload failed', e, st);
+      state = state.copyWith(isLoading: false, errorMessage: 'Upload failed');
       return false;
     }
   }
@@ -256,10 +280,7 @@ class FeaturedWorkNotifier extends AutoDisposeNotifier<FeaturedWorkState> {
       return true;
     } catch (e, st) {
       AppLogger.e('Featured work delete failed', e, st);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Delete failed',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: 'Delete failed');
       return false;
     }
   }
@@ -267,5 +288,5 @@ class FeaturedWorkNotifier extends AutoDisposeNotifier<FeaturedWorkState> {
 
 final featuredWorkNotifierProvider =
     AutoDisposeNotifierProvider<FeaturedWorkNotifier, FeaturedWorkState>(
-  FeaturedWorkNotifier.new,
-);
+      FeaturedWorkNotifier.new,
+    );

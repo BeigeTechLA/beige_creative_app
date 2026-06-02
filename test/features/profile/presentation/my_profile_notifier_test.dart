@@ -1,5 +1,9 @@
 import 'dart:io';
 
+import 'package:beige_creative_app/core/firebase/analytics_events.dart';
+import 'package:beige_creative_app/core/firebase/crashlytics_breadcrumbs.dart';
+import 'package:beige_creative_app/core/firebase/crashlytics_keys.dart';
+import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/config/env.dart';
 import 'package:beige_creative_app/features/profile/domain/repositories/profile_files_repository.dart';
 import 'package:beige_creative_app/features/profile/domain/repositories/profile_repository.dart';
@@ -89,6 +93,7 @@ class _FakeProfileRepo implements ProfileRepository {
   String? lastCrewMemberId;
 
   bool throwOnUpdateSocial = false;
+  bool throwOnUploadPhoto = false;
 
   @override
   Future<EditProfileModel> fetchEditProfile() async =>
@@ -107,6 +112,7 @@ class _FakeProfileRepo implements ProfileRepository {
   Future<String> uploadPhoto(File file, {String? crewMemberId}) async {
     uploadPhotoCount++;
     lastCrewMemberId = crewMemberId;
+    if (throwOnUploadPhoto) throw Exception('photo failed');
     return 'uploads/${file.path.split('/').last}';
   }
 
@@ -140,6 +146,34 @@ class _FakeProfileRepo implements ProfileRepository {
   }
 }
 
+class _RecordingTelemetry implements TelemetryClient {
+  final List<({String name, Map<String, Object>? parameters})> events =
+      <({String name, Map<String, Object>? parameters})>[];
+
+  @override
+  Future<void> setUserIdentity({
+    required String userId,
+    String? userRole,
+    String loginMethod = 'password',
+  }) async {}
+
+  @override
+  Future<void> clearUserIdentity({bool emitLogoutEvent = false}) async {}
+
+  @override
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    events.add((name: name, parameters: parameters));
+  }
+
+  @override
+  Future<void> recordError(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal = false,
+  }) async {}
+}
+
 Future<void> _drain(bool Function() done) async {
   for (var i = 0; i < 20; i++) {
     if (done()) return;
@@ -150,16 +184,39 @@ Future<void> _drain(bool Function() done) async {
 void main() {
   setUpAll(() => Env.init(Environment.dev));
 
+  final keys = <({String key, Object value})>[];
+  final logs = <String>[];
+
+  setUp(() {
+    keys.clear();
+    logs.clear();
+    CrashlyticsBreadcrumbs.setCustomKey = (key, value) async {
+      keys.add((key: key, value: value));
+    };
+    CrashlyticsBreadcrumbs.log = (message) async {
+      logs.add(message);
+    };
+  });
+
+  tearDown(CrashlyticsBreadcrumbs.resetForTesting);
+
   ProviderContainer make({
     _FakeFilesRepo? files,
     _FakeProfileRepo? profile,
+    _RecordingTelemetry? telemetry,
   }) {
-    final c = ProviderContainer(overrides: [
-      profileFilesRepositoryProvider
-          .overrideWithValue(files ?? _FakeFilesRepo()),
-      profileRepositoryProvider
-          .overrideWithValue(profile ?? _FakeProfileRepo()),
-    ]);
+    final c = ProviderContainer(
+      overrides: [
+        profileFilesRepositoryProvider.overrideWithValue(
+          files ?? _FakeFilesRepo(),
+        ),
+        profileRepositoryProvider.overrideWithValue(
+          profile ?? _FakeProfileRepo(),
+        ),
+        if (telemetry != null)
+          telemetryClientProvider.overrideWithValue(telemetry),
+      ],
+    );
     return c;
   }
 
@@ -179,29 +236,68 @@ void main() {
 
   test('uploadPhoto passes crewMemberId through repo', () async {
     final profileRepo = _FakeProfileRepo();
-    final c = make(profile: profileRepo);
+    final telemetry = _RecordingTelemetry();
+    final c = make(profile: profileRepo, telemetry: telemetry);
     addTearDown(c.dispose);
     c.listen(myProfileNotifierProvider, (_, _) {});
     await _drain(() => !c.read(myProfileNotifierProvider).isLoading);
     final ok = await c
         .read(myProfileNotifierProvider.notifier)
-        .uploadPhoto(File('/tmp/x.png'));
+        .uploadPhoto(File('/tmp/x.png'), source: ProfilePhotoSource.gallery);
     expect(ok, isTrue);
     expect(profileRepo.uploadPhotoCount, 1);
     expect(profileRepo.lastCrewMemberId, '42');
+    final hits = telemetry.events
+        .where((e) => e.name == AnalyticsEvents.profilePhotoUploaded)
+        .toList();
+    expect(hits, hasLength(1));
+    expect(hits.single.parameters, {'source': 'gallery'});
+
+    expect(keys, [
+      (key: CrashlyticsKeys.featureArea, value: 'profile.upload.photo'),
+    ]);
+    expect(logs, [
+      'profile.upload.photo.start',
+      'profile.upload.photo.success',
+    ]);
   });
 
-  test('saveSocialLinksToApi posts payload + signals sheet dismiss',
-      () async {
+  test('uploadPhoto failure does not emit profile_photo_uploaded', () async {
+    final profileRepo = _FakeProfileRepo()..throwOnUploadPhoto = true;
+    final telemetry = _RecordingTelemetry();
+    final c = make(profile: profileRepo, telemetry: telemetry);
+    addTearDown(c.dispose);
+    c.listen(myProfileNotifierProvider, (_, _) {});
+    await _drain(() => !c.read(myProfileNotifierProvider).isLoading);
+
+    final ok = await c
+        .read(myProfileNotifierProvider.notifier)
+        .uploadPhoto(File('/tmp/x.png'), source: ProfilePhotoSource.camera);
+    expect(ok, isFalse);
+    expect(
+      telemetry.events.where(
+        (e) => e.name == AnalyticsEvents.profilePhotoUploaded,
+      ),
+      isEmpty,
+    );
+
+    expect(keys, [
+      (key: CrashlyticsKeys.featureArea, value: 'profile.upload.photo'),
+    ]);
+    expect(logs, [
+      'profile.upload.photo.start',
+      'profile.upload.photo.failure',
+    ]);
+  });
+
+  test('saveSocialLinksToApi posts payload + signals sheet dismiss', () async {
     final profileRepo = _FakeProfileRepo();
     final c = make(profile: profileRepo);
     addTearDown(c.dispose);
     c.listen(myProfileNotifierProvider, (_, _) {});
     await _drain(() => !c.read(myProfileNotifierProvider).isLoading);
     final before = c.read(myProfileNotifierProvider).dismissSheetSignal;
-    await c
-        .read(myProfileNotifierProvider.notifier)
-        .saveSocialLinksToApi();
+    await c.read(myProfileNotifierProvider.notifier).saveSocialLinksToApi();
     expect(profileRepo.updateSocialCount, 1);
     expect(profileRepo.lastSocialPayload, isNotNull);
     expect(
@@ -216,22 +312,16 @@ void main() {
     c.listen(myProfileNotifierProvider, (_, _) {});
     await _drain(() => !c.read(myProfileNotifierProvider).isLoading);
     // Clear hydrated links first.
-    c
-        .read(myProfileNotifierProvider.notifier)
-        .mutableSocialLinks
-        .clear();
+    c.read(myProfileNotifierProvider.notifier).mutableSocialLinks.clear();
     c.read(myProfileNotifierProvider.notifier).commitSocial();
-    await c
-        .read(myProfileNotifierProvider.notifier)
-        .saveSocialLinksToApi();
+    await c.read(myProfileNotifierProvider.notifier).saveSocialLinksToApi();
     expect(
       c.read(myProfileNotifierProvider).toastMessage,
       'Add at least one link',
     );
   });
 
-  test('editPortfolioLinkApi posts payload + signals sheet dismiss',
-      () async {
+  test('editPortfolioLinkApi posts payload + signals sheet dismiss', () async {
     final profileRepo = _FakeProfileRepo();
     final c = make(profile: profileRepo);
     addTearDown(c.dispose);
@@ -272,9 +362,6 @@ void main() {
     await notifier.deletePortfolioFile(99);
     expect(filesRepo.deleteCount, 1);
     expect(filesRepo.lastDeletedId, 99);
-    expect(
-      notifier.mutablePortfolioLinks.any((e) => e['id'] == '99'),
-      isFalse,
-    );
+    expect(notifier.mutablePortfolioLinks.any((e) => e['id'] == '99'), isFalse);
   });
 }

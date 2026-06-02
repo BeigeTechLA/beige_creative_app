@@ -18,6 +18,7 @@ class RouteSpec {
     required this.path,
     this.isPublic = false,
     this.trackScreenView = true,
+    this.featureArea,
   });
 
   final String name;
@@ -28,6 +29,8 @@ class RouteSpec {
   /// (Crashlytics breadcrumb is still written). Use for transient surfaces
   /// like `/splash` and OTP / success screens whose presence skews funnels.
   final bool trackScreenView;
+
+  final String? featureArea;
 }
 
 /// All `RouteSpec`s in the app. Add new routes here first; the per-feature
@@ -45,7 +48,7 @@ abstract class Routes {
   static const onboarding = RouteSpec(name: 'onboarding', path: '/onboarding', isPublic: true);
 
   // Auth
-  static const login = RouteSpec(name: 'login', path: '/login', isPublic: true);
+  static const login = RouteSpec(name: 'login', path: '/login', isPublic: true, featureArea: 'auth');
   static const signupStep1 = RouteSpec(name: 'signup_step_1', path: '/signup-step-1', isPublic: true);
   static const signupStep2 = RouteSpec(name: 'signup_step_2', path: '/signup-step-2', isPublic: true);
   static const signupStep3 = RouteSpec(name: 'signup_step_3', path: '/signup-step-3', isPublic: true);
@@ -55,14 +58,14 @@ abstract class Routes {
   static const viewDetails = RouteSpec(name: 'view_details', path: '/view-details', isPublic: true);
 
   // Shell tabs
-  static const home = RouteSpec(name: 'home', path: '/home');
-  static const shoots = RouteSpec(name: 'shoots', path: '/shoots');
-  static const files = RouteSpec(name: 'files', path: '/files');
-  static const messages = RouteSpec(name: 'messages', path: '/messages');
+  static const home = RouteSpec(name: 'home', path: '/home', featureArea: 'home');
+  static const shoots = RouteSpec(name: 'shoots', path: '/shoots', featureArea: 'shoots');
+  static const files = RouteSpec(name: 'files', path: '/files', featureArea: 'files');
+  static const messages = RouteSpec(name: 'messages', path: '/messages', featureArea: 'messages');
   static const manageAvailability = RouteSpec(name: 'manage_availability', path: '/manage-availability');
 
   // Profile
-  static const myProfile = RouteSpec(name: 'my_profile', path: '/my-profile');
+  static const myProfile = RouteSpec(name: 'my_profile', path: '/my-profile', featureArea: 'profile');
   static const editPersonalDetails = RouteSpec(name: 'edit_personal_details', path: '/edit-personal-details');
   static const enterProfessionalDetails = RouteSpec(name: 'enter_professional_details', path: '/enter-professional-details');
   static const profileDetails = RouteSpec(name: 'profile_details', path: '/profile-details');
@@ -97,7 +100,7 @@ abstract class Routes {
   );
 
   // Availability
-  static const addAvailability = RouteSpec(name: 'add_availability', path: '/add-availability');
+  static const addAvailability = RouteSpec(name: 'add_availability', path: '/add-availability', featureArea: 'availability');
 
   // File manager
   static const postProduction = RouteSpec(name: 'post_production', path: '/post-production');

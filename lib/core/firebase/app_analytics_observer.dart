@@ -58,5 +58,9 @@ class AppAnalyticsObserver extends NavigatorObserver {
     final name = route.settings.name;
     if (name == null || name.isEmpty) return;
     CrashlyticsService.setCustomKey(CrashlyticsKeys.route, name);
+    final spec = Routes.byName[name];
+    if (spec?.featureArea != null) {
+      CrashlyticsService.setCustomKey(CrashlyticsKeys.featureArea, spec!.featureArea!);
+    }
   }
 }

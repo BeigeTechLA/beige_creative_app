@@ -1,6 +1,11 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/firebase/analytics_events.dart';
+import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
+import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/upcoming_shootview_model.dart';
@@ -56,8 +61,9 @@ class UpcomingShootDetailNotifier
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final data =
-          await ref.read(shootsRepositoryProvider).fetchProjectDetail(arg);
+      final data = await ref
+          .read(shootsRepositoryProvider)
+          .fetchProjectDetail(arg);
       state = state.copyWith(data: data, isLoading: false);
     } catch (e, st) {
       AppLogger.e('Upcoming shoot detail fetch failed', e, st);
@@ -70,25 +76,40 @@ class UpcomingShootDetailNotifier
 
   Future<bool> accept() => _respond(status: 'accepted');
 
-  Future<bool> decline({String? reason, String? comment}) => _respond(
-        status: 'declined',
-        reason: reason,
-        comment: comment,
-      );
+  Future<bool> decline({String? reason, String? comment}) =>
+      _respond(status: 'declined', reason: reason, comment: comment);
 
   Future<bool> _respond({
     required String status,
     String? reason,
     String? comment,
   }) async {
+    final shootId = arg.toString();
+    final action = status == 'accepted' ? 'shoot.accept' : 'shoot.decline';
+    final featureArea = status == 'accepted'
+        ? 'shoots.accept'
+        : 'shoots.decline';
+    CrashlyticsBreadcrumbs.start(
+      featureArea: featureArea,
+      message: '$action.start id=$shootId',
+    );
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
-      await ref.read(shootsRepositoryProvider).respondToProject(
+      await ref
+          .read(shootsRepositoryProvider)
+          .respondToProject(
             projectId: arg,
             status: status,
             reason: reason,
             comment: comment,
           );
+      final telemetry = ref.read(telemetryClientProvider);
+      if (status == 'accepted') {
+        unawaited(telemetry.shootAccepted(shootId));
+      } else if (status == 'declined') {
+        unawaited(telemetry.shootDeclined(shootId));
+      }
+      CrashlyticsBreadcrumbs.success('$action.success id=$shootId');
       await refresh();
       state = state.copyWith(
         isSubmitting: false,
@@ -96,6 +117,7 @@ class UpcomingShootDetailNotifier
       );
       return true;
     } catch (e, st) {
+      CrashlyticsBreadcrumbs.failure('$action.failure id=$shootId');
       AppLogger.e('Upcoming shoot respond failed', e, st);
       state = state.copyWith(
         isSubmitting: false,
@@ -106,7 +128,9 @@ class UpcomingShootDetailNotifier
   }
 }
 
-final upcomingShootDetailProvider = AutoDisposeNotifierProviderFamily<
-    UpcomingShootDetailNotifier, UpcomingShootDetailState, int>(
-  UpcomingShootDetailNotifier.new,
-);
+final upcomingShootDetailProvider =
+    AutoDisposeNotifierProviderFamily<
+      UpcomingShootDetailNotifier,
+      UpcomingShootDetailState,
+      int
+    >(UpcomingShootDetailNotifier.new);

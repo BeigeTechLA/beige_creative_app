@@ -27,6 +27,74 @@ Phase C task C2 closed (and C1 marked Skipped per product decision). Enabled aut
 
 ---
 
+### 2026-06-02: Telemetry B4 — **`feature_area` custom key + Crashlytics breadcrumbs** 🟢
+
+Phase B task B4 closed. Built on top of the existing shoots breadcrumb integration to fully set `feature_area` custom keys and emit start/success/failure breadcrumbs using the robust `CrashlyticsBreadcrumbs` helper class across all profile files, professional details, availability, and auth/login flows. Added route-level integration via `RouteSpec` to automatically update `feature_area` on navigation. All tests passing and static analysis clean.
+
+- **Files touched (11):**
+  - `lib/app/routes.dart` — added optional `featureArea` property to `RouteSpec` and configured it for core high-level routes (`login`, `home`, `shoots`, `files`, `messages`, `my_profile`, `add_availability`).
+  - `lib/core/firebase/app_analytics_observer.dart` — extended route transition observer to set `feature_area` custom key in Crashlytics when navigating to routes defining a `featureArea`.
+  - `lib/features/profile/presentation/providers/profile_files_providers.dart` — imported `CrashlyticsBreadcrumbs` and wired breadcrumbs on start, success, and failure for `ResumeNotifier.upload`, `CertificatesNotifier.upload`, and `FeaturedWorkNotifier.upload`.
+  - `lib/features/profile/presentation/providers/my_profile_providers.dart` — imported `CrashlyticsBreadcrumbs` and wired breadcrumbs for `MyProfileNotifier.uploadPhoto`.
+  - `lib/features/profile/presentation/providers/profile_details_providers.dart` — imported `CrashlyticsBreadcrumbs` and wired breadcrumbs for `EnterProfessionalNotifier.uploadPhoto`.
+  - `lib/features/availability/presentation/providers/availability_providers.dart` — imported `CrashlyticsBreadcrumbs` and wired breadcrumbs for `AddAvailabilityNotifier.submit` including duration parameter.
+  - `lib/features/auth/presentation/providers/login_notifier.dart` — imported `CrashlyticsBreadcrumbs` and wired breadcrumbs for `LoginNotifier.login`.
+  - `test/app/routes_analytics_test.dart` — added test group to assert that route specs map exactly to their expected featureArea values.
+  - `test/features/profile/presentation/profile_files_test.dart` — stubbed `CrashlyticsBreadcrumbs` static delegates and asserted correct breadcrumbs and keys are set on resume/certificate/featured-work uploads.
+  - `test/features/profile/presentation/my_profile_notifier_test.dart` — added assertions for photo upload breadcrumbs.
+  - `test/features/profile/presentation/profile_details_test.dart` — added assertions for photo upload breadcrumbs in professional detail flow.
+  - `test/features/availability/presentation/screens/availability_test.dart` — added assertions for availability submit breadcrumbs.
+  - `test/features/auth/presentation/login_notifier_test.dart` — added assertions for login breadcrumbs on success and failure (including reason parameter).
+  - `test/features/shoots/presentation/shoots_notifier_test.dart` — cleaned up unused analytics_events.dart import.
+  - `test/features/shoots/presentation/upcoming_shoot_notifier_test.dart` — cleaned up unused analytics_events.dart import.
+
+- **Decisions:**
+  - **Dynamic Route-Level Feature Area**: Pushing, popping, or replacing routes automatically writes a high-level `feature_area` custom key. When an action triggers, it refines the `feature_area` dynamically (e.g. `'profile.upload.resume'`), combining navigation context with explicit action events.
+  - **No PII**: All breadcrumb messages are verified to have zero personally identifiable information (no email logging in login, no file names/paths, only counts/enums/IDs).
+  - **Static Mockability**: Preserved the testability of `CrashlyticsBreadcrumbs` using mutable static seams which are cleanly stubbed in test `setUp` and reset in `tearDown`.
+
+- **Constraints Maintained:**
+  - All calls to `CrashlyticsBreadcrumbs` are unawaited and best-effort to avoid blocking the main UI loop.
+  - Complete test parity: 261/261 tests passed cleanly.
+  - `flutter analyze` zero warnings and zero errors.
+
+---
+
+### 2026-06-02: Telemetry B2 — **Feature event emission (shoots, profile, availability)** 🟢
+
+Phase B task B2 closed. The remaining 8 `AnalyticsEvents` constants — shoots
+(`shootAccepted`, `shootDeclined`, `shootCancelled`), profile uploads
+(`profilePhotoUploaded`, `featuredWorkUploaded`, `resumeUploaded`,
+`certificationsUploaded`), and availability (`availabilityAdded`) — now have
+live emit callsites in their respective notifiers. All emission routes through
+the B3 typed-helper extension on `TelemetryClient`. Branch: `improvments-phase1`.
+
+- **Files wired (8):**
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart` — `shootAccepted` (list accept), `shootCancelled` (cancel-sheet submit).
+  - `lib/features/shoots/presentation/providers/upcoming_shoot_providers.dart` — `shootAccepted` + `shootDeclined` (detail-view respond).
+  - `lib/features/profile/presentation/providers/my_profile_providers.dart` — `profilePhotoUploaded(source)`.
+  - `lib/features/profile/presentation/providers/profile_details_providers.dart` — `profilePhotoUploaded(source)`.
+  - `lib/features/profile/presentation/providers/profile_files_providers.dart` — `resumeUploaded(fileCount: 1)`, `certificationsUploaded(fileCount: 1)`, `featuredWorkUploaded(fileCount: files.length)`.
+  - `lib/features/availability/presentation/providers/availability_providers.dart` — `availabilityAdded(durationDays: ...)`.
+
+- **Tests covering B2 emissions:**
+  - `test/features/shoots/presentation/shoots_notifier_test.dart` — accept + cancel success/failure telemetry assertions.
+  - `test/features/shoots/presentation/upcoming_shoot_notifier_test.dart` — accept + decline success/failure telemetry assertions.
+  - `test/features/profile/presentation/profile_files_test.dart` — resume, certificates, featured work success/failure.
+  - `test/features/profile/presentation/my_profile_notifier_test.dart` — photo upload success/failure.
+  - `test/features/profile/presentation/profile_details_test.dart` — photo upload success/failure.
+  - `test/features/availability/presentation/screens/availability_test.dart` — availability submit success/failure.
+
+- **Status:** Implementation was already complete in source — task doc updated from 🔴 to 🟢.
+
+- **Constraints Maintained:**
+  - All emission paths `unawaited` — telemetry never blocks user flows.
+  - No PII in params (ids, enums, counts only).
+  - Side effects in presentation only — repositories untouched.
+  - No raw `logEvent` callsites in `lib/features/`.
+
+---
+
 ### 2026-06-02: Telemetry B1 — **Emit auth events** 🟢
 
 

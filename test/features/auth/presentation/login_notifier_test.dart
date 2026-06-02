@@ -1,4 +1,6 @@
 import 'package:beige_creative_app/core/firebase/analytics_events.dart';
+import 'package:beige_creative_app/core/firebase/crashlytics_breadcrumbs.dart';
+import 'package:beige_creative_app/core/firebase/crashlytics_keys.dart';
 import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/core/network/exceptions/exceptions.dart';
 import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
@@ -165,6 +167,22 @@ ProviderContainer _container({
 }
 
 void main() {
+  final keys = <({String key, Object value})>[];
+  final logs = <String>[];
+
+  setUp(() {
+    keys.clear();
+    logs.clear();
+    CrashlyticsBreadcrumbs.setCustomKey = (key, value) async {
+      keys.add((key: key, value: value));
+    };
+    CrashlyticsBreadcrumbs.log = (message) async {
+      logs.add(message);
+    };
+  });
+
+  tearDown(CrashlyticsBreadcrumbs.resetForTesting);
+
   group('LoginNotifier.login validation', () {
     test('rejects empty email', () async {
       final c = _container(repo: _FakeAuthRepo(), session: _FakeSession());
@@ -224,6 +242,14 @@ void main() {
       expect(s.loginSuccess, isTrue);
       expect(s.isLoggingIn, isFalse);
       expect(s.errorMessage, isNull);
+
+      expect(keys, [
+        (key: CrashlyticsKeys.featureArea, value: 'auth.login'),
+      ]);
+      expect(logs, [
+        'auth.login.start',
+        'auth.login.success',
+      ]);
     });
 
     test('repo error surfaces message and keeps auth off', () async {
@@ -242,6 +268,14 @@ void main() {
       expect(s.errorMessage, 'Invalid email or password');
       expect(s.loginSuccess, isFalse);
       expect(s.isLoggingIn, isFalse);
+
+      expect(keys, [
+        (key: CrashlyticsKeys.featureArea, value: 'auth.login'),
+      ]);
+      expect(logs, [
+        'auth.login.start',
+        'auth.login.failure reason=server',
+      ]);
     });
   });
 

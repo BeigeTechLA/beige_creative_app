@@ -1,8 +1,12 @@
+import 'dart:async' show unawaited;
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/firebase/analytics_events.dart';
+import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
+import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/myprofile_model.dart';
 import '../widgets/profile_link_mappers.dart';
@@ -71,10 +75,8 @@ class MyProfileState {
       isEditing: isEditing ?? this.isEditing,
       isLoading: isLoading ?? this.isLoading,
       isUploadingImage: isUploadingImage ?? this.isUploadingImage,
-      errorMessage:
-          clearMessages ? null : (errorMessage ?? this.errorMessage),
-      toastMessage:
-          clearMessages ? null : (toastMessage ?? this.toastMessage),
+      errorMessage: clearMessages ? null : (errorMessage ?? this.errorMessage),
+      toastMessage: clearMessages ? null : (toastMessage ?? this.toastMessage),
       dismissSheetSignal: dismissSheetSignal ?? this.dismissSheetSignal,
       saveAllSocialSuccess: saveAllSocialSuccess ?? this.saveAllSocialSuccess,
       saveAllPortfolioSuccess:
@@ -103,7 +105,9 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearMessages: true);
     try {
-      final data = await ref.read(profileFilesRepositoryProvider).fetchProfile();
+      final data = await ref
+          .read(profileFilesRepositoryProvider)
+          .fetchProfile();
       _hydrateSocialLinks(data.socialMediaLinks);
       _hydratePortfolioLinks(
         (data.portfolioLinks.isNotEmpty
@@ -153,17 +157,30 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
   }
 
   // ───── Photo upload
-  Future<bool> uploadPhoto(File file) async {
+  Future<bool> uploadPhoto(File file, {ProfilePhotoSource? source}) async {
+    CrashlyticsBreadcrumbs.start(
+      featureArea: 'profile.upload.photo',
+      message: 'profile.upload.photo.start',
+    );
     state = state.copyWith(isUploadingImage: true, clearMessages: true);
     try {
-      await ref.read(profileRepositoryProvider).uploadPhoto(
+      await ref
+          .read(profileRepositoryProvider)
+          .uploadPhoto(
             file,
             crewMemberId: state.profile?.crewMemberId.toString(),
           );
+      if (source != null) {
+        unawaited(
+          ref.read(telemetryClientProvider).profilePhotoUploaded(source),
+        );
+      }
+      CrashlyticsBreadcrumbs.success('profile.upload.photo.success');
       await refresh();
       state = state.copyWith(isUploadingImage: false);
       return true;
     } catch (e, st) {
+      CrashlyticsBreadcrumbs.failure('profile.upload.photo.failure');
       AppLogger.e('MyProfile uploadPhoto failed', e, st);
       state = state.copyWith(
         isUploadingImage: false,
@@ -198,10 +215,7 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
     );
   }
 
-  void setPortfolioSelection({
-    int? selectedIndex,
-    int? editingIndex,
-  }) {
+  void setPortfolioSelection({int? selectedIndex, int? editingIndex}) {
     state = state.copyWith(
       selectedPortfolioIndex: selectedIndex,
       editingIndex: editingIndex,
@@ -217,10 +231,7 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
     state = state.copyWith(isLoading: true, clearMessages: true);
     try {
       final payload = _socialLinks
-          .map((e) => {
-                'platform': e['name'] ?? '',
-                'url': e['url'] ?? '',
-              })
+          .map((e) => {'platform': e['name'] ?? '', 'url': e['url'] ?? ''})
           .toList();
       await ref.read(profileRepositoryProvider).updateSocialLinks(payload);
       await refresh();
@@ -243,10 +254,12 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
     _socialLinks.removeAt(index);
     commitSocial();
     final payload = _socialLinks
-        .map((e) => {
-              'platform': socialPlatformKey(e['name']!),
-              'url': e['url'] ?? '',
-            })
+        .map(
+          (e) => {
+            'platform': socialPlatformKey(e['name']!),
+            'url': e['url'] ?? '',
+          },
+        )
         .toList();
     try {
       await ref.read(profileRepositoryProvider).updateSocialLinks(payload);
@@ -266,10 +279,7 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
     state = state.copyWith(isLoading: true, clearMessages: true);
     try {
       final payload = _portfolioLinks
-          .map((e) => {
-                'platform': portfolioKey(e['name']!),
-                'url': e['url'],
-              })
+          .map((e) => {'platform': portfolioKey(e['name']!), 'url': e['url']})
           .toList();
       await ref.read(profileRepositoryProvider).addPortfolioLinks(payload);
       await refresh();
@@ -307,16 +317,16 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
     required String title,
   }) async {
     try {
-      await ref.read(profileRepositoryProvider).editPortfolioLink(
+      await ref
+          .read(profileRepositoryProvider)
+          .editPortfolioLink(
             id: id,
             url: url,
             platform: platform,
             title: title,
           );
       await refresh();
-      state = state.copyWith(
-        dismissSheetSignal: state.dismissSheetSignal + 1,
-      );
+      state = state.copyWith(dismissSheetSignal: state.dismissSheetSignal + 1);
       return true;
     } catch (e, st) {
       AppLogger.e('editPortfolioLink failed', e, st);
@@ -330,17 +340,9 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
     required String url,
     required String icon,
   }) {
-    _portfolioLinks.add({
-      'id': '',
-      'name': name,
-      'url': url,
-      'icon': icon,
-    });
+    _portfolioLinks.add({'id': '', 'name': name, 'url': url, 'icon': icon});
     commitPortfolio();
-    state = state.copyWith(
-      editingIndex: -1,
-      selectedPortfolioIndex: -1,
-    );
+    state = state.copyWith(editingIndex: -1, selectedPortfolioIndex: -1);
   }
 
   void clearMessage() {
@@ -350,5 +352,5 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
 
 final myProfileNotifierProvider =
     AutoDisposeNotifierProvider<MyProfileNotifier, MyProfileState>(
-  MyProfileNotifier.new,
-);
+      MyProfileNotifier.new,
+    );

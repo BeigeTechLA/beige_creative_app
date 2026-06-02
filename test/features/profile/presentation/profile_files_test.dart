@@ -1,5 +1,9 @@
 import 'dart:io';
 
+import 'package:beige_creative_app/core/firebase/analytics_events.dart';
+import 'package:beige_creative_app/core/firebase/crashlytics_breadcrumbs.dart';
+import 'package:beige_creative_app/core/firebase/crashlytics_keys.dart';
+import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/config/env.dart';
 import 'package:beige_creative_app/features/profile/domain/repositories/profile_files_repository.dart';
 import 'package:beige_creative_app/features/profile/presentation/providers/profile_files_providers.dart';
@@ -126,10 +130,35 @@ class _FakeRepo implements ProfileFilesRepository {
   }
 }
 
-Future<void> _drain(
-  ProviderContainer container,
-  bool Function() done,
-) async {
+class _RecordingTelemetry implements TelemetryClient {
+  final List<({String name, Map<String, Object>? parameters})> events =
+      <({String name, Map<String, Object>? parameters})>[];
+
+  @override
+  Future<void> setUserIdentity({
+    required String userId,
+    String? userRole,
+    String loginMethod = 'password',
+  }) async {}
+
+  @override
+  Future<void> clearUserIdentity({bool emitLogoutEvent = false}) async {}
+
+  @override
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    events.add((name: name, parameters: parameters));
+  }
+
+  @override
+  Future<void> recordError(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal = false,
+  }) async {}
+}
+
+Future<void> _drain(ProviderContainer container, bool Function() done) async {
   for (var i = 0; i < 20; i++) {
     if (done()) return;
     await Future<void>.delayed(Duration.zero);
@@ -139,11 +168,31 @@ Future<void> _drain(
 void main() {
   setUpAll(() => Env.init(Environment.dev));
 
+  final keys = <({String key, Object value})>[];
+  final logs = <String>[];
+
+  setUp(() {
+    keys.clear();
+    logs.clear();
+    CrashlyticsBreadcrumbs.setCustomKey = (key, value) async {
+      keys.add((key: key, value: value));
+    };
+    CrashlyticsBreadcrumbs.log = (message) async {
+      logs.add(message);
+    };
+  });
+
+  tearDown(CrashlyticsBreadcrumbs.resetForTesting);
+
   group('resumeNotifier', () {
     test('build → refresh → upload happy path', () async {
       final repo = _FakeRepo();
+      final telemetry = _RecordingTelemetry();
       final container = ProviderContainer(
-        overrides: [profileFilesRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          profileFilesRepositoryProvider.overrideWithValue(repo),
+          telemetryClientProvider.overrideWithValue(telemetry),
+        ],
       );
       addTearDown(container.dispose);
       container.listen<FilesListState>(resumeNotifierProvider, (_, _) {});
@@ -164,12 +213,29 @@ void main() {
         container.read(resumeNotifierProvider).files.first.filePath,
         '/tmp/cv.pdf',
       );
+      final hits = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.resumeUploaded)
+          .toList();
+      expect(hits, hasLength(1));
+      expect(hits.single.parameters, {'file_count': 1});
+
+      expect(keys, [
+        (key: CrashlyticsKeys.featureArea, value: 'profile.upload.resume'),
+      ]);
+      expect(logs, [
+        'profile.upload.resume.start',
+        'profile.upload.resume.success',
+      ]);
     });
 
     test('upload failure surfaces error', () async {
       final repo = _FakeRepo()..throwOnUpload = true;
+      final telemetry = _RecordingTelemetry();
       final container = ProviderContainer(
-        overrides: [profileFilesRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          profileFilesRepositoryProvider.overrideWithValue(repo),
+          telemetryClientProvider.overrideWithValue(telemetry),
+        ],
       );
       addTearDown(container.dispose);
       container.listen<FilesListState>(resumeNotifierProvider, (_, _) {});
@@ -182,14 +248,30 @@ void main() {
           .upload(File('/tmp/cv.pdf'));
       expect(ok, isFalse);
       expect(container.read(resumeNotifierProvider).errorMessage, isNotNull);
+      expect(
+        telemetry.events.where((e) => e.name == AnalyticsEvents.resumeUploaded),
+        isEmpty,
+      );
+
+      expect(keys, [
+        (key: CrashlyticsKeys.featureArea, value: 'profile.upload.resume'),
+      ]);
+      expect(logs, [
+        'profile.upload.resume.start',
+        'profile.upload.resume.failure',
+      ]);
     });
   });
 
   group('certificatesNotifier', () {
     test('upload + delete', () async {
       final repo = _FakeRepo();
+      final telemetry = _RecordingTelemetry();
       final container = ProviderContainer(
-        overrides: [profileFilesRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          profileFilesRepositoryProvider.overrideWithValue(repo),
+          telemetryClientProvider.overrideWithValue(telemetry),
+        ],
       );
       addTearDown(container.dispose);
       container.listen<FilesListState>(certificatesNotifierProvider, (_, _) {});
@@ -204,6 +286,11 @@ void main() {
       expect(repo.uploadCertCount, 1);
       final files = container.read(certificatesNotifierProvider).files;
       expect(files, hasLength(1));
+      final hits = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.certificationsUploaded)
+          .toList();
+      expect(hits, hasLength(1));
+      expect(hits.single.parameters, {'file_count': 1});
 
       final id = files.first.crewFilesId;
       final ok = await container
@@ -212,17 +299,68 @@ void main() {
       expect(ok, isTrue);
       expect(repo.lastDeletedId, id);
       expect(container.read(certificatesNotifierProvider).files, isEmpty);
+
+      expect(keys, [
+        (key: CrashlyticsKeys.featureArea, value: 'profile.upload.certifications'),
+      ]);
+      expect(logs, [
+        'profile.upload.certifications.start',
+        'profile.upload.certifications.success',
+      ]);
+    });
+
+    test('upload failure does not emit certifications_uploaded', () async {
+      final repo = _FakeRepo()..throwOnUpload = true;
+      final telemetry = _RecordingTelemetry();
+      final container = ProviderContainer(
+        overrides: [
+          profileFilesRepositoryProvider.overrideWithValue(repo),
+          telemetryClientProvider.overrideWithValue(telemetry),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.listen<FilesListState>(certificatesNotifierProvider, (_, _) {});
+      await _drain(
+        container,
+        () => !container.read(certificatesNotifierProvider).isLoading,
+      );
+
+      final ok = await container
+          .read(certificatesNotifierProvider.notifier)
+          .upload(File('/tmp/c.png'));
+      expect(ok, isFalse);
+      expect(
+        telemetry.events.where(
+          (e) => e.name == AnalyticsEvents.certificationsUploaded,
+        ),
+        isEmpty,
+      );
+
+      expect(keys, [
+        (key: CrashlyticsKeys.featureArea, value: 'profile.upload.certifications'),
+      ]);
+      expect(logs, [
+        'profile.upload.certifications.start',
+        'profile.upload.certifications.failure',
+      ]);
     });
   });
 
   group('featuredWorkNotifier', () {
     test('upload bundles title + tags + files', () async {
       final repo = _FakeRepo();
+      final telemetry = _RecordingTelemetry();
       final container = ProviderContainer(
-        overrides: [profileFilesRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          profileFilesRepositoryProvider.overrideWithValue(repo),
+          telemetryClientProvider.overrideWithValue(telemetry),
+        ],
       );
       addTearDown(container.dispose);
-      container.listen<FeaturedWorkState>(featuredWorkNotifierProvider, (_, _) {});
+      container.listen<FeaturedWorkState>(
+        featuredWorkNotifierProvider,
+        (_, _) {},
+      );
       await _drain(
         container,
         () => !container.read(featuredWorkNotifierProvider).isLoading,
@@ -238,6 +376,62 @@ void main() {
       expect(repo.lastFeaturedTitle, 'Wedding shoot');
       expect(repo.lastFeaturedTags, ['wedding', 'outdoor']);
       expect(container.read(featuredWorkNotifierProvider).files, hasLength(2));
+      final hits = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.featuredWorkUploaded)
+          .toList();
+      expect(hits, hasLength(1));
+      expect(hits.single.parameters, {'file_count': 2});
+
+      expect(keys, [
+        (key: CrashlyticsKeys.featureArea, value: 'profile.upload.featured_work'),
+      ]);
+      expect(logs, [
+        'profile.upload.featured_work.start count=2',
+        'profile.upload.featured_work.success count=2',
+      ]);
+    });
+
+    test('upload failure does not emit featured_work_uploaded', () async {
+      final repo = _FakeRepo()..throwOnUpload = true;
+      final telemetry = _RecordingTelemetry();
+      final container = ProviderContainer(
+        overrides: [
+          profileFilesRepositoryProvider.overrideWithValue(repo),
+          telemetryClientProvider.overrideWithValue(telemetry),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.listen<FeaturedWorkState>(
+        featuredWorkNotifierProvider,
+        (_, _) {},
+      );
+      await _drain(
+        container,
+        () => !container.read(featuredWorkNotifierProvider).isLoading,
+      );
+
+      final ok = await container
+          .read(featuredWorkNotifierProvider.notifier)
+          .upload(
+            title: 'Wedding shoot',
+            tags: ['wedding', 'outdoor'],
+            files: [File('/tmp/a.jpg'), File('/tmp/b.jpg')],
+          );
+      expect(ok, isFalse);
+      expect(
+        telemetry.events.where(
+          (e) => e.name == AnalyticsEvents.featuredWorkUploaded,
+        ),
+        isEmpty,
+      );
+
+      expect(keys, [
+        (key: CrashlyticsKeys.featureArea, value: 'profile.upload.featured_work'),
+      ]);
+      expect(logs, [
+        'profile.upload.featured_work.start count=2',
+        'profile.upload.featured_work.failure count=2',
+      ]);
     });
 
     test('deleteMany iterates ids', () async {
@@ -246,16 +440,21 @@ void main() {
         overrides: [profileFilesRepositoryProvider.overrideWithValue(repo)],
       );
       addTearDown(container.dispose);
-      container.listen<FeaturedWorkState>(featuredWorkNotifierProvider, (_, _) {});
+      container.listen<FeaturedWorkState>(
+        featuredWorkNotifierProvider,
+        (_, _) {},
+      );
       await _drain(
         container,
         () => !container.read(featuredWorkNotifierProvider).isLoading,
       );
-      await container.read(featuredWorkNotifierProvider.notifier).upload(
-        title: 'A',
-        tags: const [],
-        files: [File('/tmp/x.jpg'), File('/tmp/y.jpg')],
-      );
+      await container
+          .read(featuredWorkNotifierProvider.notifier)
+          .upload(
+            title: 'A',
+            tags: const [],
+            files: [File('/tmp/x.jpg'), File('/tmp/y.jpg')],
+          );
       final ids = container
           .read(featuredWorkNotifierProvider)
           .files
