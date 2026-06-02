@@ -7,6 +7,33 @@
 
 ---
 
+### 2026-06-02: Telemetry B3 — **Typed event helpers** 🟢
+
+Phase B task B3 closed. Replaced the raw `AnalyticsService.logEvent(name, parameters: {...})` shape with typed extension methods on `TelemetryClient`. B1 / B2 callers now have a refactor-safe surface that enforces param shape per event; no `Map<String, Object>` reaches feature code. Branch: `improvments-phase1`.
+
+- **Files touched (3):**
+  - `lib/core/firebase/analytics_events.dart` — `extension TelemetryEventHelpers on TelemetryClient` adds 15 helpers (8 parametric, 7 nullary) alongside the existing string-constant registry. Added two closed-set parameter enums (`LoginFailureReason`, `ProfilePhotoSource`) so reason / source strings can't drift across notifiers.
+  - `lib/core/firebase/telemetry_client.dart` — `FirebaseTelemetryClient.clearUserIdentity` now calls the `logout()` extension instead of `AnalyticsService.logEvent(AnalyticsEvents.logout)`. Removes the last direct `AnalyticsEvents.<name>` read in `lib/`.
+  - `test/core/firebase/analytics_events_test.dart` — new, 9 cases. 6 parametric helpers asserted against name + parameter map (`shootAccepted`, `loginFailure`+enum, `signupCompleted`, `profilePhotoUploaded`+enum, `featuredWorkUploaded`, `availabilityAdded`). 3 nullary cases (`loginSuccess`, `logout`, batched `signupStarted` / `passwordResetRequested` / `accountDeletionRequested`).
+
+- **Decisions:**
+  - **Extension on `TelemetryClient`, not static methods on `AnalyticsEvents`.** Routes through the existing `TelemetryClient.logEvent` seam so `_FakeTelemetry` / `_RecordingTelemetry` test fakes don't need 15 new method overrides. Keeps the abstract interface minimal — fakes implement 4 methods, get all 15 helpers for free.
+  - **Same file as the registry.** `analytics_events.dart` lands at 184 LOC after the change, under the ~200-line threshold called out in the task brief. Co-locating the constants + helpers keeps PR review on one file.
+  - **Closed-set enums for `reason` / `source`.** `LoginFailureReason` and `ProfilePhotoSource` carry their wire name as a field so the helper emits the snake-case form without a switch. Adding a new value becomes a reviewable diff.
+  - **`*Name` constant rename deferred.** Task notes flagged the rename as sugar; with no direct `AnalyticsEvents.<name>` reads remaining in `lib/`, the rename buys nothing today. Re-evaluate if a registry-read use case appears.
+  - **Param-less events get nullary helpers** (chose "nullary" over "stay as constants" per task brief recommendation). Consistency at the call site: every event uses the same `ref.read(telemetryClientProvider).foo(...)` shape.
+
+- **Verification:**
+  - `flutter analyze --fatal-infos` — **No issues found** (exit 0).
+  - `flutter test` — **232/232 passing** (223 prior + 9 new).
+
+- **Constraints Maintained:**
+  - No new dependencies.
+  - No call-site churn yet — B1 / B2 will be the first features to consume the helpers.
+  - Existing `_FakeTelemetry` in `login_notifier_test.dart` still satisfies `TelemetryClient` with no changes needed.
+
+---
+
 ### 2026-06-02: Telemetry A3 — **`runZonedGuarded` + debug-build collection gate** 🟢
 
 Phase A foundation task A3 closed — closes Phase A (3 / 3 done). `runApp` is now wrapped in `runZonedGuarded` so async errors that escape `PlatformDispatcher.onError` still land in Crashlytics as fatal; debug builds explicitly disable Crashlytics + Analytics collection so dev sessions stop polluting prod dashboards. Branch: `improvments-phase1`.

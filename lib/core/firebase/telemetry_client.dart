@@ -78,7 +78,9 @@ class FirebaseTelemetryClient implements TelemetryClient {
     await AnalyticsService.setUserId(null);
     await CrashlyticsService.setUserIdentifier('');
     if (emitLogoutEvent) {
-      await AnalyticsService.logEvent(AnalyticsEvents.logout);
+      // Route through the typed helper so the registry stays the single
+      // emission surface — same wire format as feature-side logout calls.
+      await logout();
     }
   }
 
