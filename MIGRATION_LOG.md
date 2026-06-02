@@ -7,6 +7,31 @@
 
 ---
 
+### 2026-06-02: Telemetry B5 — **Bridge `AppLogger.e` to Crashlytics non-fatal** 🟢
+
+Phase B task B5 closed. `AppLogger.e(...)` now forwards to `CrashlyticsService.recordError` as a non-fatal whenever a release build logs an error with a non-null error object — gives one funnel for every `AppLogger.e` callsite without touching feature code. Branch: `improvments-phase1`.
+
+- **Files touched (2):**
+  - `lib/core/utils/app_logger.dart` — added `@visibleForTesting` `crashRecorder` field + `defaultCrashRecorder` static (mirrors A2's `ExceptionHandler.crashRecorder`). Added `debugModeOverride` callable defaulting to `() => kDebugMode`. `AppLogger.e` now appends `if (!debugModeOverride() && error != null) unawaited(crashRecorder(error, stackTrace, reason: 'logger.e: $message', fatal: false))` after the existing console-print block. Added `import 'dart:async' show unawaited` + `import '../firebase/crashlytics_service.dart'`.
+  - `test/core/utils/app_logger_test.dart` — new, 5 cases. Stubs `crashRecorder` + flips `debugModeOverride` per test. Asserts: (1) forwards with same error / stack / `'logger.e: $message'` reason / `fatal:false` in simulated-release, (2) skips when `error == null`, (3) skips in debug, (4) each `e()` call forwards independently, (5) `d` / `i` / `w` never invoke the recorder. `tearDown` restores both seams.
+
+- **Decisions:**
+  - **`debugModeOverride` seam, not just stubbed `crashRecorder`.** `kDebugMode` is `const true` under `flutter test`; without a callable override the `!kDebugMode` branch is unreachable in unit tests and B5's release-mode forwarding can't be asserted. Field is `@visibleForTesting`; production reads it through a default that returns `kDebugMode` so behavior is unchanged.
+  - **No recursion guard.** `CrashlyticsService.recordError` swallows its own failures via try/catch + `AppLogger.w`. `AppLogger.w` doesn't forward. Even if it did, the only path back to `e` would be via `recordError` failing — which it doesn't, because it already catches.
+  - **Reason prefix `'logger.e: '`.** Lets Crashlytics dashboards group by message prefix without conflating with A2's `'dio.5xx'` / `'dio.422'` / `'guard.unexpected'` non-fatals.
+  - **`fatal: false`, `unawaited(...)`.** Matches A2 / A3 conventions — only `runZonedGuarded` (A3) emits `fatal: true`.
+
+- **Verification:**
+  - `flutter analyze --fatal-infos` — **No issues found** (exit 0).
+  - `flutter test` — **237/237 passing** (232 prior + 5 new).
+
+- **Constraints Maintained:**
+  - No new dependencies.
+  - Console-print behavior of all four `AppLogger` methods unchanged.
+  - Same call signature for `AppLogger.e` — every existing callsite gets the bridge for free.
+
+---
+
 ### 2026-06-02: Telemetry B3 — **Typed event helpers** 🟢
 
 Phase B task B3 closed. Replaced the raw `AnalyticsService.logEvent(name, parameters: {...})` shape with typed extension methods on `TelemetryClient`. B1 / B2 callers now have a refactor-safe surface that enforces param shape per event; no `Map<String, Object>` reaches feature code. Branch: `improvments-phase1`.
