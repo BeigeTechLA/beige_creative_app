@@ -45,6 +45,10 @@ flutter test
 flutter run --flavor dev  --dart-define-from-file=env/dev.json  -t lib/main_dev.dart
 flutter run --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart
 
+flutter build apk       --flavor dev  --dart-define-from-file=env/dev.json  -t lib/main_dev.dart  --release
+flutter build appbundle --flavor dev  --dart-define-from-file=env/dev.json  -t lib/main_dev.dart  --release
+flutter build ios       --flavor dev  --dart-define-from-file=env/dev.json  -t lib/main_dev.dart  --release
+
 flutter build apk       --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart --release
 flutter build appbundle --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart --release
 flutter build ios       --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart --release
