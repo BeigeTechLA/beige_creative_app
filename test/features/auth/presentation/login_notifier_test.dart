@@ -1,10 +1,13 @@
+import 'package:beige_creative_app/core/firebase/analytics_events.dart';
 import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
+import 'package:beige_creative_app/core/network/exceptions/exceptions.dart';
 import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
 import 'package:beige_creative_app/core/providers/core_providers.dart';
 import 'package:beige_creative_app/core/session/session_store.dart';
 import 'package:beige_creative_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/login_notifier.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/login_state.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -107,7 +110,8 @@ class _FakeTelemetry implements TelemetryClient {
   String? lastUserId;
   String? lastUserRole;
   String? lastLoginMethod;
-  final List<String> events = <String>[];
+  final List<({String name, Map<String, Object>? parameters})> events =
+      <({String name, Map<String, Object>? parameters})>[];
   final List<Object> recordedErrors = <Object>[];
 
   @override
@@ -130,7 +134,7 @@ class _FakeTelemetry implements TelemetryClient {
 
   @override
   Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
-    events.add(name);
+    events.add((name: name, parameters: parameters));
   }
 
   @override
@@ -295,6 +299,139 @@ void main() {
 
       expect(telemetry.setIdentityCalls, 0);
       expect(telemetry.clearIdentityCalls, 0);
+    });
+  });
+
+  group('LoginNotifier event emission (B1)', () {
+    test('emits login_success exactly once on success', () async {
+      final repo = _FakeAuthRepo()
+        ..result = const LoginResult(
+          token: 'tok',
+          user: UserSnapshot(id: '7', email: 'u@example.com'),
+        );
+      final telemetry = _FakeTelemetry();
+      final c = _container(
+        repo: repo,
+        session: _FakeSession(),
+        telemetry: telemetry,
+      );
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'u@example.com', password: 'pw');
+
+      final names = telemetry.events.map((e) => e.name).toList();
+      expect(names.where((n) => n == AnalyticsEvents.loginSuccess), hasLength(1));
+      expect(
+        names.where((n) => n == AnalyticsEvents.loginFailure),
+        isEmpty,
+      );
+    });
+
+    test('login_success not emitted on failure', () async {
+      final repo = _FakeAuthRepo()..throwError = Exception('nope');
+      final telemetry = _FakeTelemetry();
+      final c = _container(
+        repo: repo,
+        session: _FakeSession(),
+        telemetry: telemetry,
+      );
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'u@example.com', password: 'pw');
+
+      expect(
+        telemetry.events.where((e) => e.name == AnalyticsEvents.loginSuccess),
+        isEmpty,
+      );
+    });
+
+    test('login_failure tags 401 as invalid_credentials', () async {
+      final repo = _FakeAuthRepo()
+        ..throwError = DioException(
+          requestOptions: RequestOptions(path: '/login'),
+          error: const UnauthorizedException(),
+        );
+      final telemetry = _FakeTelemetry();
+      final c = _container(
+        repo: repo,
+        session: _FakeSession(),
+        telemetry: telemetry,
+      );
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'u@example.com', password: 'pw');
+
+      final failures = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.loginFailure)
+          .toList();
+      expect(failures, hasLength(1));
+      expect(failures.single.parameters, {'reason': 'invalid_credentials'});
+    });
+
+    test('login_failure tags NoInternetException as network', () async {
+      final repo = _FakeAuthRepo()
+        ..throwError = const NoInternetException();
+      final telemetry = _FakeTelemetry();
+      final c = _container(
+        repo: repo,
+        session: _FakeSession(),
+        telemetry: telemetry,
+      );
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'u@example.com', password: 'pw');
+
+      final failures = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.loginFailure)
+          .toList();
+      expect(failures, hasLength(1));
+      expect(failures.single.parameters, {'reason': 'network'});
+    });
+
+    test('login_failure tags ServerException as server', () async {
+      final repo = _FakeAuthRepo()
+        ..throwError = const ServerException(message: 'oops');
+      final telemetry = _FakeTelemetry();
+      final c = _container(
+        repo: repo,
+        session: _FakeSession(),
+        telemetry: telemetry,
+      );
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'u@example.com', password: 'pw');
+
+      final failures = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.loginFailure)
+          .toList();
+      expect(failures, hasLength(1));
+      expect(failures.single.parameters, {'reason': 'server'});
+    });
+
+    test('login_failure tags raw Exception (repo error:true branch) as server',
+        () async {
+      final repo = _FakeAuthRepo()..throwError = Exception('Login failed');
+      final telemetry = _FakeTelemetry();
+      final c = _container(
+        repo: repo,
+        session: _FakeSession(),
+        telemetry: telemetry,
+      );
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'u@example.com', password: 'pw');
+
+      final failures = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.loginFailure)
+          .toList();
+      expect(failures, hasLength(1));
+      expect(failures.single.parameters, {'reason': 'server'});
     });
   });
 

@@ -1,5 +1,9 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/firebase/analytics_events.dart';
+import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/validators.dart';
@@ -36,6 +40,7 @@ class ForgotPasswordNotifier extends AutoDisposeNotifier<ForgotPasswordState> {
       await ref
           .read(forgotPasswordRepositoryProvider)
           .requestPasswordReset(trimmed);
+      unawaited(ref.read(telemetryClientProvider).passwordResetRequested());
       state = state.copyWith(
         isSubmitting: false,
         step: ForgotPasswordStep.otpSent,

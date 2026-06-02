@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:beige_creative_app/core/firebase/analytics_events.dart';
+import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/signup_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,9 +86,44 @@ class _FakeAuthRepo implements AuthRepository {
   }) async {}
 }
 
-ProviderContainer _container(_FakeAuthRepo repo) {
+class _RecordingTelemetry implements TelemetryClient {
+  final List<({String name, Map<String, Object>? parameters})> events =
+      <({String name, Map<String, Object>? parameters})>[];
+
+  @override
+  Future<void> setUserIdentity({
+    required String userId,
+    String? userRole,
+    String loginMethod = 'password',
+  }) async {}
+
+  @override
+  Future<void> clearUserIdentity({bool emitLogoutEvent = false}) async {}
+
+  @override
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    events.add((name: name, parameters: parameters));
+  }
+
+  @override
+  Future<void> recordError(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal = false,
+  }) async {}
+}
+
+ProviderContainer _container(
+  _FakeAuthRepo repo, {
+  _RecordingTelemetry? telemetry,
+}) {
   final c = ProviderContainer(
-    overrides: [signupRepositoryProvider.overrideWithValue(repo)],
+    overrides: [
+      signupRepositoryProvider.overrideWithValue(repo),
+      if (telemetry != null)
+        telemetryClientProvider.overrideWithValue(telemetry),
+    ],
   );
   addTearDown(c.dispose);
   return c;
@@ -475,6 +512,108 @@ void main() {
       expect(ok, isFalse);
       expect(c.read(signupNotifierProvider).errorMessage, 'boom');
       expect(c.read(signupNotifierProvider).isSubmittingStep3, isFalse);
+    });
+  });
+
+  group('SignupNotifier event emission (B1)', () {
+    test('markSignupStarted emits signup_started once per flow', () async {
+      final telemetry = _RecordingTelemetry();
+      final c = _container(_FakeAuthRepo(), telemetry: telemetry);
+      final notifier = c.read(signupNotifierProvider.notifier);
+
+      notifier.markSignupStarted();
+      notifier.markSignupStarted();
+      notifier.markSignupStarted();
+
+      final hits = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.signupStarted)
+          .toList();
+      expect(hits, hasLength(1));
+      expect(hits.single.parameters, isNull);
+      expect(c.read(signupNotifierProvider).signupStartedEmitted, isTrue);
+    });
+
+    test('reset() re-arms signupStarted for a fresh flow', () async {
+      final telemetry = _RecordingTelemetry();
+      final c = _container(_FakeAuthRepo(), telemetry: telemetry);
+      final notifier = c.read(signupNotifierProvider.notifier);
+      notifier.markSignupStarted();
+      notifier.reset();
+      notifier.markSignupStarted();
+      final hits = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.signupStarted)
+          .toList();
+      expect(hits, hasLength(2));
+    });
+
+    test('submitStep3 success emits signup_completed with asset flags',
+        () async {
+      final repo = _FakeAuthRepo()..step1Result = 11;
+      final telemetry = _RecordingTelemetry();
+      final c = _container(repo, telemetry: telemetry);
+      final notifier = c.read(signupNotifierProvider.notifier);
+      // Prime crewMemberId via step1.
+      notifier.setProfileImage(File('/tmp/a.png'));
+      notifier.setSelectedDistance('Upto 50 Miles');
+      notifier.setAcceptedTerms(true);
+      notifier.setCurrentLatLng(const LatLng(0, 0));
+      await notifier.submitStep1(
+        firstName: 'A',
+        lastName: 'B',
+        email: 'a@b.com',
+        phone: '1',
+        password: 'pw',
+        confirmPassword: 'pw',
+        location: 'L',
+      );
+      notifier.setSocialLinks([
+        {'name': 'Instagram', 'url': 'insta.com/a'},
+        {'name': 'TikTok', 'url': 'tt.com/a'},
+      ]);
+      notifier.setFeaturedProjects([
+        [File('/tmp/a.jpg')],
+      ], const ['p1']);
+      notifier.setResumeFile(File('/tmp/cv.pdf'));
+
+      final ok = await notifier.submitStep3();
+      expect(ok, isTrue);
+      final hits = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.signupCompleted)
+          .toList();
+      expect(hits, hasLength(1));
+      expect(hits.single.parameters, {
+        'has_resume': true,
+        'has_featured_work': true,
+        'social_count': 2,
+      });
+    });
+
+    test('submitStep3 failure does not emit signup_completed', () async {
+      final repo = _FakeAuthRepo()..step1Result = 12;
+      repo.throwOnStep3 = Exception('boom');
+      final telemetry = _RecordingTelemetry();
+      final c = _container(repo, telemetry: telemetry);
+      final notifier = c.read(signupNotifierProvider.notifier);
+      notifier.setProfileImage(File('/tmp/a.png'));
+      notifier.setSelectedDistance('Upto 50 Miles');
+      notifier.setAcceptedTerms(true);
+      notifier.setCurrentLatLng(const LatLng(0, 0));
+      await notifier.submitStep1(
+        firstName: 'A',
+        lastName: 'B',
+        email: 'a@b.com',
+        phone: '1',
+        password: 'pw',
+        confirmPassword: 'pw',
+        location: 'L',
+      );
+      final ok = await notifier.submitStep3();
+      expect(ok, isFalse);
+      expect(
+        telemetry.events
+            .where((e) => e.name == AnalyticsEvents.signupCompleted),
+        isEmpty,
+      );
     });
   });
 }

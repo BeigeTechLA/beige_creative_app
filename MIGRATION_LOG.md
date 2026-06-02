@@ -7,6 +7,47 @@
 
 ---
 
+### 2026-06-02: Telemetry B1 — **Emit auth events** 🟢
+
+Phase B task B1 closed. The auth half of `AnalyticsEvents` now has live emit
+callsites — `loginSuccess` / `loginFailure(reason)`, `signupStarted` /
+`signupCompleted(...)`, `passwordResetRequested`, `accountDeletionRequested`.
+All emission routes through the B3 typed-helper extension on
+`TelemetryClient`; no `AnalyticsService.logEvent(...)` callsite remains in
+`lib/features`. Branch: `improvments-phase1`.
+
+- **Files touched (10):**
+  - `lib/features/auth/presentation/providers/login_notifier.dart` — emits `loginSuccess()` inside the existing telemetry try/catch and `loginFailure(reason)` from the catch path. Added `_classifyLoginFailure(Object)` that buckets `DioException.error: AppException` + bare `Exception` into the closed `LoginFailureReason` set (401/403 → `invalidCredentials`, NoInternet/Timeout/Cancel → `network`, everything else → `server`).
+  - `lib/features/auth/presentation/providers/signup_notifier.dart` — added `markSignupStarted()` (idempotent via state flag) and emits `signupCompleted(hasResume, hasFeaturedWork, socialCount)` on `submitStep3` success.
+  - `lib/features/auth/presentation/providers/signup_state.dart` — new sticky `signupStartedEmitted` field on `SignupState` + `copyWith`.
+  - `lib/features/auth/presentation/screens/signup1_screen.dart` — wired all five form-field controllers' listeners through a single `onFieldChanged` that calls `markSignupStarted()` once per flow.
+  - `lib/features/auth/presentation/providers/forgot_password_notifier.dart` — emits `passwordResetRequested()` on `requestOtp` success.
+  - `lib/features/profile/presentation/providers/delete_account_providers.dart` — emits `accountDeletionRequested()` on `confirmDelete` success, before the auth-state logout.
+  - `test/features/auth/presentation/login_notifier_test.dart` — `_FakeTelemetry.events` is now `({String name, Map<String, Object>? parameters})` so param shapes can be asserted. 6 new tests cover the `loginSuccess` / `loginFailure(reason)` matrix.
+  - `test/features/auth/presentation/forgot_password_notifier_test.dart` — added `_RecordingTelemetry`, 3 new tests.
+  - `test/features/auth/presentation/signup_notifier_test.dart` — added `_RecordingTelemetry`, 3 new tests (`markSignupStarted` idempotence, `reset()` re-arm, `signupCompleted` shape).
+  - `test/features/profile/presentation/delete_account_test.dart` — added `_RecordingTelemetry`, 3 new tests.
+
+- **Decisions:**
+  - **`signupStarted` fires on first form interaction, not first build.** Notifier owns a sticky `signupStartedEmitted` flag cleared by `reset()`; the screen wires it from a shared `onFieldChanged` callback hooked into all five text controllers. Beats screen-view (would duplicate the observer) and beats `initState` (would fire on every back-tap).
+  - **`passwordResetRequested` placed on `requestOtp` success.** Funnel-friendly: counts users who actually submitted an email vs. who landed on the screen. The full reset-success event can be added later as a separate wire name if reporting needs it.
+  - **`accountDeletionRequested` placed on `confirmDelete` success.** Matches the "user actively confirmed" semantics of the event name; emits before `logout()` so telemetry identity is still wired when the event fires.
+  - **Failure classification reuses the typed `AppException` hierarchy.** `_classifyLoginFailure` peeks at `DioException.error` (set by `ErrorInterceptor`) and falls back to `server` for unknowns so the registry always gets one of the three closed-set values.
+  - **All emission paths `unawaited`.** Telemetry failure never aborts user flow; `TelemetryClient` swallows wrapper errors internally.
+
+- **Verification:**
+  - `flutter analyze --fatal-infos` — **No issues found** (exit 0).
+  - `flutter test` — **253/253 passing** (237 prior + 15 new auth/profile tests; existing `_FakeTelemetry.events` shape update absorbed by existing tests).
+  - `rg "AnalyticsService.logEvent\(" lib/features` — **0 hits** (constraint upheld).
+
+- **Constraints Maintained:**
+  - No new dependencies.
+  - No raw `Map<String, Object>` reaches feature code — every emit goes through a typed helper.
+  - No PII in event params (ids / enums / bools / counts only).
+  - Side effects in presentation only — repositories untouched.
+
+---
+
 ### 2026-06-02: Telemetry B5 — **Bridge `AppLogger.e` to Crashlytics non-fatal** 🟢
 
 Phase B task B5 closed. `AppLogger.e(...)` now forwards to `CrashlyticsService.recordError` as a non-fatal whenever a release build logs an error with a non-null error object — gives one funnel for every `AppLogger.e` callsite without touching feature code. Branch: `improvments-phase1`.

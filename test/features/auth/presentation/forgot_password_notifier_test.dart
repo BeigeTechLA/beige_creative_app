@@ -1,3 +1,5 @@
+import 'package:beige_creative_app/core/firebase/analytics_events.dart';
+import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/forgot_password_notifier.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/forgot_password_state.dart';
@@ -69,10 +71,43 @@ class _FakeAuthRepo implements AuthRepository {
   Future<List<LookupOption>> searchEquipments(String query) async => const [];
 }
 
-ProviderContainer _container(_FakeAuthRepo repo) {
+class _RecordingTelemetry implements TelemetryClient {
+  final List<({String name, Map<String, Object>? parameters})> events =
+      <({String name, Map<String, Object>? parameters})>[];
+
+  @override
+  Future<void> setUserIdentity({
+    required String userId,
+    String? userRole,
+    String loginMethod = 'password',
+  }) async {}
+
+  @override
+  Future<void> clearUserIdentity({bool emitLogoutEvent = false}) async {}
+
+  @override
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    events.add((name: name, parameters: parameters));
+  }
+
+  @override
+  Future<void> recordError(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal = false,
+  }) async {}
+}
+
+ProviderContainer _container(
+  _FakeAuthRepo repo, {
+  _RecordingTelemetry? telemetry,
+}) {
   final c = ProviderContainer(
     overrides: [
       forgotPasswordRepositoryProvider.overrideWithValue(repo),
+      if (telemetry != null)
+        telemetryClientProvider.overrideWithValue(telemetry),
     ],
   );
   addTearDown(c.dispose);
@@ -214,6 +249,56 @@ void main() {
       final s = c.read(forgotPasswordNotifierProvider);
       expect(s.step, ForgotPasswordStep.resetSucceeded);
       expect(s.toastMessage, 'Password reset successfully');
+    });
+  });
+
+  group('ForgotPasswordNotifier event emission (B1)', () {
+    test('emits password_reset_requested on requestOtp success', () async {
+      final repo = _FakeAuthRepo();
+      final telemetry = _RecordingTelemetry();
+      final c = _container(repo, telemetry: telemetry);
+
+      final ok = await c
+          .read(forgotPasswordNotifierProvider.notifier)
+          .requestOtp('user@example.com');
+      expect(ok, isTrue);
+      final hits = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.passwordResetRequested)
+          .toList();
+      expect(hits, hasLength(1));
+      expect(hits.single.parameters, isNull);
+    });
+
+    test('does not emit on validation failure', () async {
+      final repo = _FakeAuthRepo();
+      final telemetry = _RecordingTelemetry();
+      final c = _container(repo, telemetry: telemetry);
+
+      final ok = await c
+          .read(forgotPasswordNotifierProvider.notifier)
+          .requestOtp('  ');
+      expect(ok, isFalse);
+      expect(
+        telemetry.events
+            .where((e) => e.name == AnalyticsEvents.passwordResetRequested),
+        isEmpty,
+      );
+    });
+
+    test('does not emit on repo failure', () async {
+      final repo = _FakeAuthRepo()..throwOnRequest = Exception('boom');
+      final telemetry = _RecordingTelemetry();
+      final c = _container(repo, telemetry: telemetry);
+
+      final ok = await c
+          .read(forgotPasswordNotifierProvider.notifier)
+          .requestOtp('user@example.com');
+      expect(ok, isFalse);
+      expect(
+        telemetry.events
+            .where((e) => e.name == AnalyticsEvents.passwordResetRequested),
+        isEmpty,
+      );
     });
   });
 

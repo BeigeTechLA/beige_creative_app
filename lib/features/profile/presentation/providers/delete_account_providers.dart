@@ -1,6 +1,10 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/firebase/analytics_events.dart';
+import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -92,6 +96,7 @@ class DeleteAccountNotifier extends AutoDisposeNotifier<DeleteAccountState> {
     state = state.copyWith(isSubmitting: true, clearMessages: true);
     try {
       await ref.read(deleteAccountRepositoryProvider).confirmDelete(otp);
+      unawaited(ref.read(telemetryClientProvider).accountDeletionRequested());
       await ref.read(authStateProvider.notifier).logout();
       state = state.copyWith(isSubmitting: false, confirmOk: true);
       return true;

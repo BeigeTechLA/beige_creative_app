@@ -1,8 +1,11 @@
+import 'dart:async' show unawaited;
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../../core/firebase/analytics_events.dart';
+import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/validators.dart';
@@ -24,6 +27,17 @@ class SignupNotifier extends Notifier<SignupState> {
   SignupState build() => const SignupState();
 
   void reset() => state = const SignupState();
+
+  /// Fires `signup_started` exactly once per active signup flow. Called from
+  /// the first text-field interaction on signup1 — subsequent calls (other
+  /// fields, edits, rebuilds) are no-ops courtesy of the
+  /// [SignupState.signupStartedEmitted] flag. The flag is cleared by [reset]
+  /// when the user re-enters the flow from scratch.
+  void markSignupStarted() {
+    if (state.signupStartedEmitted) return;
+    state = state.copyWith(signupStartedEmitted: true);
+    unawaited(ref.read(telemetryClientProvider).signupStarted());
+  }
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 1 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -492,6 +506,13 @@ class SignupNotifier extends Notifier<SignupState> {
               recentWorkMediaIndexes: recentWorkIndexes,
             ),
           );
+      unawaited(
+        ref.read(telemetryClientProvider).signupCompleted(
+              hasResume: state.resumeFile != null,
+              hasFeaturedWork: state.featuredProjects.isNotEmpty,
+              socialCount: state.savedSocialLinks.length,
+            ),
+      );
       state = state.copyWith(
         isSubmittingStep3: false,
         step3Success: true,

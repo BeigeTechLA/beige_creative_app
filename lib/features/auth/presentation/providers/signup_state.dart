@@ -69,6 +69,11 @@ class SignupState {
   final bool step3Success;
   final int step3Progress;
 
+  /// Sticky flag set the first time the user interacts with any signup1
+  /// field — used to fire `signup_started` exactly once per flow without
+  /// duplicating on rebuild.
+  final bool signupStartedEmitted;
+
   // Shared error/toast surface.
   final String? errorMessage;
   final String? toastMessage;
@@ -119,6 +124,7 @@ class SignupState {
     this.isSubmittingStep3 = false,
     this.step3Success = false,
     this.step3Progress = 0,
+    this.signupStartedEmitted = false,
     this.errorMessage,
     this.toastMessage,
   });
@@ -171,6 +177,7 @@ class SignupState {
     bool? isSubmittingStep3,
     bool? step3Success,
     int? step3Progress,
+    bool? signupStartedEmitted,
     String? errorMessage,
     String? toastMessage,
     bool clearError = false,
@@ -226,6 +233,8 @@ class SignupState {
       isSubmittingStep3: isSubmittingStep3 ?? this.isSubmittingStep3,
       step3Success: step3Success ?? this.step3Success,
       step3Progress: step3Progress ?? this.step3Progress,
+      signupStartedEmitted:
+          signupStartedEmitted ?? this.signupStartedEmitted,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       toastMessage: clearToast ? null : (toastMessage ?? this.toastMessage),
     );

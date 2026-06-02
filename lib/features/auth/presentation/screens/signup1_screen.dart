@@ -64,11 +64,18 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
   @override
   void initState() {
     super.initState();
-    firstNameController.addListener(() => setState(() {}));
-    lastNameController.addListener(() => setState(() {}));
-    emailController.addListener(() => setState(() {}));
-    passwordController.addListener(() => setState(() {}));
-    confirmPasswordController.addListener(() => setState(() {}));
+    void onFieldChanged() {
+      // Fires `signup_started` once per flow. Notifier ignores duplicates
+      // via the `signupStartedEmitted` flag, cleared on `reset()`.
+      ref.read(signupNotifierProvider.notifier).markSignupStarted();
+      setState(() {});
+    }
+
+    firstNameController.addListener(onFieldChanged);
+    lastNameController.addListener(onFieldChanged);
+    emailController.addListener(onFieldChanged);
+    passwordController.addListener(onFieldChanged);
+    confirmPasswordController.addListener(onFieldChanged);
     _locationFocus.addListener(() {
       ref
           .read(signupNotifierProvider.notifier)

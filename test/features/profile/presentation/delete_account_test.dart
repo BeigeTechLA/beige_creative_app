@@ -1,3 +1,5 @@
+import 'package:beige_creative_app/core/firebase/analytics_events.dart';
+import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
 import 'package:beige_creative_app/core/providers/core_providers.dart';
 import 'package:beige_creative_app/core/session/session_store.dart';
@@ -75,9 +77,38 @@ class _FakeSession implements SessionStore {
   Future<bool> isLoggedIn() async => false;
 }
 
+class _RecordingTelemetry implements TelemetryClient {
+  final List<({String name, Map<String, Object>? parameters})> events =
+      <({String name, Map<String, Object>? parameters})>[];
+
+  @override
+  Future<void> setUserIdentity({
+    required String userId,
+    String? userRole,
+    String loginMethod = 'password',
+  }) async {}
+
+  @override
+  Future<void> clearUserIdentity({bool emitLogoutEvent = false}) async {}
+
+  @override
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    events.add((name: name, parameters: parameters));
+  }
+
+  @override
+  Future<void> recordError(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal = false,
+  }) async {}
+}
+
 Future<ProviderContainer> _container({
   required _FakeRepo repo,
   _FakeSession? session,
+  _RecordingTelemetry? telemetry,
 }) async {
   // Phase B — logout() now wipes restoration + draft stores, both backed
   // by SharedPreferences via prefsProvider. Mock-init prefs so the
@@ -90,6 +121,8 @@ Future<ProviderContainer> _container({
       if (session != null)
         sessionStoreProvider.overrideWithValue(session),
       prefsProvider.overrideWithValue(prefs),
+      if (telemetry != null)
+        telemetryClientProvider.overrideWithValue(telemetry),
     ],
   );
   addTearDown(c.dispose);
@@ -181,6 +214,74 @@ void main() {
       expect(
         c.read(deleteAccountNotifierProvider).errorMessage,
         'Invalid OTP',
+      );
+    });
+  });
+
+  group('DeleteAccountNotifier event emission (B1)', () {
+    test('emits account_deletion_requested on confirm success', () async {
+      final repo = _FakeRepo();
+      final session = _FakeSession();
+      final telemetry = _RecordingTelemetry();
+      final c = await _container(
+        repo: repo,
+        session: session,
+        telemetry: telemetry,
+      );
+      c.read(authStateProvider.notifier).state = true;
+
+      final ok = await c
+          .read(deleteAccountNotifierProvider.notifier)
+          .confirmDelete('123456');
+      expect(ok, isTrue);
+      final hits = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.accountDeletionRequested)
+          .toList();
+      expect(hits, hasLength(1));
+      expect(hits.single.parameters, isNull);
+    });
+
+    test('does not emit account_deletion_requested on confirm failure',
+        () async {
+      final repo = _FakeRepo()..throwOnConfirm = true;
+      final session = _FakeSession();
+      final telemetry = _RecordingTelemetry();
+      final c = await _container(
+        repo: repo,
+        session: session,
+        telemetry: telemetry,
+      );
+      c.read(authStateProvider.notifier).state = true;
+
+      final ok = await c
+          .read(deleteAccountNotifierProvider.notifier)
+          .confirmDelete('123456');
+      expect(ok, isFalse);
+      expect(
+        telemetry.events
+            .where((e) => e.name == AnalyticsEvents.accountDeletionRequested),
+        isEmpty,
+      );
+    });
+
+    test('does not emit on validation rejection (partial OTP)', () async {
+      final repo = _FakeRepo();
+      final session = _FakeSession();
+      final telemetry = _RecordingTelemetry();
+      final c = await _container(
+        repo: repo,
+        session: session,
+        telemetry: telemetry,
+      );
+
+      final ok = await c
+          .read(deleteAccountNotifierProvider.notifier)
+          .confirmDelete('123');
+      expect(ok, isFalse);
+      expect(
+        telemetry.events
+            .where((e) => e.name == AnalyticsEvents.accountDeletionRequested),
+        isEmpty,
       );
     });
   });
