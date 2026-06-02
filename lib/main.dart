@@ -18,36 +18,34 @@ import 'core/session/session_store.dart';
 import 'service/prefs_service.dart';
 
 Future<void> startApp(Environment environment) async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // `ensureInitialized` and `runApp` must run in the SAME zone — Flutter
+  // asserts this. So perform all init (including binding + Firebase) inside
+  // `runZonedGuarded` and let async errors funnel to Crashlytics as fatal.
+  await runZonedGuarded<Future<void>>(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  Env.init(environment);
+    Env.init(environment);
 
-  // Boot Firebase first so any subsequent crash inside startup itself is
-  // captured by Crashlytics. Tolerant of missing config (dev pre-flutterfire).
-  await FirebaseService.initialize(environment);
+    // Boot Firebase first so any subsequent crash inside startup itself is
+    // captured by Crashlytics. Tolerant of missing config (dev pre-flutterfire).
+    await FirebaseService.initialize(environment);
 
-  await PrefsService.init();
+    await PrefsService.init();
 
-  // Wire SessionStore + run one-time legacy-token migration before any
-  // network call so AuthInterceptor sees a consistent token source.
-  final prefs = await SharedPreferences.getInstance();
-  final SessionStore session = CompositeSessionStore(
-    secure: SecureSessionStore(),
-    prefs: PrefsSessionStore(prefs),
-  );
-  await SessionMigration.runOnce(prefs: prefs, session: session);
+    // Wire SessionStore + run one-time legacy-token migration before any
+    // network call so AuthInterceptor sees a consistent token source.
+    final prefs = await SharedPreferences.getInstance();
+    final SessionStore session = CompositeSessionStore(
+      secure: SecureSessionStore(),
+      prefs: PrefsSessionStore(prefs),
+    );
+    await SessionMigration.runOnce(prefs: prefs, session: session);
 
-  final initialAuth = PrefsService.isLoggedIn;
-  final initialOnboardingSeen =
-      prefs.getBool(PrefsSessionStore.onboardingSeenKey) ?? false;
+    final initialAuth = PrefsService.isLoggedIn;
+    final initialOnboardingSeen =
+        prefs.getBool(PrefsSessionStore.onboardingSeenKey) ?? false;
 
-  // Wrap `runApp` (and only `runApp`) so async errors that escape
-  // `PlatformDispatcher.onError` are still funneled to Crashlytics as fatal.
-  // Keep all init calls above OUTSIDE the zone — if Firebase init itself
-  // fails, we don't want the zone-guard reporting back into a half-booted
-  // Firebase.
-  runZonedGuarded(
-    () => runApp(
+    runApp(
       ProviderScope(
         overrides: [
           sharedPreferencesProvider.overrideWith((_) async => prefs),
@@ -60,9 +58,8 @@ Future<void> startApp(Environment environment) async {
         ],
         child: const App(),
       ),
-    ),
-    (error, stack) {
-      CrashlyticsService.recordError(error, stack, fatal: true);
-    },
-  );
+    );
+  }, (error, stack) {
+    CrashlyticsService.recordError(error, stack, fatal: true);
+  });
 }

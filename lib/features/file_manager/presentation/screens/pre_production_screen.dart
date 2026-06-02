@@ -333,7 +333,11 @@ class _PreProductionScreenState extends ConsumerState<PreProductionScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.asset(AppAssets.iconUploadFilled, height: 40),
+                        const Icon(
+                          Icons.cloud_upload_outlined,
+                          size: 40,
+                          color: AppColors.white,
+                        ),
                         const SizedBox(height: 16),
                         RichText(
                           textAlign: TextAlign.center,

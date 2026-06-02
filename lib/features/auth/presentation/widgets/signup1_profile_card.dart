@@ -6,7 +6,6 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import 'package:beige_creative_app/app/assets.dart';
 
 class SignUp1ProfileCard extends StatelessWidget {
   final File? profileImage;
@@ -46,10 +45,15 @@ class SignUp1ProfileCard extends StatelessWidget {
               CircleAvatar(
                 radius: 26,
                 backgroundColor: AppColors.surfaceMid,
-                backgroundImage: profileImage != null
-                    ? FileImage(profileImage!)
-                    : const AssetImage(AppAssets.imageProfilePlaceholder)
-                        as ImageProvider,
+                backgroundImage:
+                    profileImage != null ? FileImage(profileImage!) : null,
+                child: profileImage == null
+                    ? const Icon(
+                        Icons.person_outline,
+                        size: 28,
+                        color: AppColors.white60,
+                      )
+                    : null,
               ),
               const SizedBox(width: 14),
               Expanded(

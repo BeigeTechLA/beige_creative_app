@@ -99,7 +99,6 @@ class AppAssets {
   static const String circle_arrow = '$_svg/circle_arrow.svg';
   static const String more_vert = '$_svg/more_vert.svg';
   static const String info_svg = '$_svg/Info.svg';
-  static const String dropdownArrow = '$_svg/drodown.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — User & Profile
@@ -163,21 +162,6 @@ class AppAssets {
   static const String lottie1 = '$_lottie/Untitled file.json';
   static const String lottie2 = '$_lottie/Component10.json';
   static const String lottieLoader = '$_lottie/loader.json';
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // Legacy raw-string paths (files not present on disk —
-  // kept centralized here so they can be fixed/redirected
-  // in one place).
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  static const String onbodingFrame = 'assets/Onboding/Frame 2087328917.png';
-  static const String iconImage = 'assets/icons/Image.png';
-  static const String imageProfilePlaceholder = 'assets/images/profile_placeholder.png';
-  static const String imageChooseRole2 = 'assets/images/chooese_your_role2.png';
-  static const String iconExit = 'assets/Icons/Exit.png';
-  static const String iconBackReply = 'assets/Icons/back_icon/Reply.png';
-  static const String iconReply = 'assets/icons/Reply.png';
-  static const String iconUploadFilled = 'assets/icons/upload-filled.png';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // FONT FAMILIES
