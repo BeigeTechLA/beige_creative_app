@@ -1,5 +1,5 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug-dev.xcconfig"
 #include "Generated.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = com.app.cpbiege.dev
+PRODUCT_BUNDLE_IDENTIFIER = com.app.cpbeige.dev
 APP_DISPLAY_NAME = BeigeCp Dev

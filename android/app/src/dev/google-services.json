@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:558330423342:android:e89d0f1281fe7047b797bf",
+        "mobilesdk_app_id": "1:558330423342:android:71af15af5ebf9d65b797bf",
         "android_client_info": {
-          "package_name": "com.app.cpbiege.dev"
+          "package_name": "com.app.cpbeige.dev"
         }
       },
       "oauth_client": [],

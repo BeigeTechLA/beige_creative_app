@@ -9,8 +9,8 @@
 
 | Flavor | Android `applicationId` | iOS `PRODUCT_BUNDLE_IDENTIFIER` | Launcher / Display Name |
 |---|---|---|---|
-| `dev` | `com.app.cpbiege.dev` | `com.app.cpbiege.dev` | "BeigeCp Dev" |
-| `prod` | `com.app.cpbiege` | `com.app.cpbiege` | "BeigeCp" |
+| `dev` | `com.app.cpbeige.dev` | `com.app.cpbeige.dev` | "BeigeCp Dev" |
+| `prod` | `com.app.cpbeige` | `com.app.cpbeige` | "BeigeCp" |
 
 Side-by-side install required (dev + prod on same device).
 Dart entrypoint mapping unchanged:
@@ -50,27 +50,27 @@ applicationId = "com.beige_creative_app"
 ```
 With:
 ```kotlin
-namespace = "com.app.cpbiege"
+namespace = "com.app.cpbeige"
 ...
-applicationId = "com.app.cpbiege"
+applicationId = "com.app.cpbeige"
 ```
 
-Keep flavor block as-is — `applicationIdSuffix = ".dev"` already yields `com.app.cpbiege.dev` once base is changed.
+Keep flavor block as-is — `applicationIdSuffix = ".dev"` already yields `com.app.cpbeige.dev` once base is changed.
 
 ### 3.2 Move Kotlin package directory
 
 Current path: `android/app/src/main/kotlin/com/beige_creative_app/MainActivity.kt`
-Target path: `android/app/src/main/kotlin/com/app/cpbiege/MainActivity.kt`
+Target path: `android/app/src/main/kotlin/com/app/cpbeige/MainActivity.kt`
 
 Steps:
 ```bash
-mkdir -p android/app/src/main/kotlin/com/app/cpbiege
+mkdir -p android/app/src/main/kotlin/com/app/cpbeige
 git mv android/app/src/main/kotlin/com/beige_creative_app/MainActivity.kt \
-       android/app/src/main/kotlin/com/app/cpbiege/MainActivity.kt
+       android/app/src/main/kotlin/com/app/cpbeige/MainActivity.kt
 rmdir android/app/src/main/kotlin/com/beige_creative_app
 ```
 
-Edit `MainActivity.kt` — change `package com.beige_creative_app` → `package com.app.cpbiege`.
+Edit `MainActivity.kt` — change `package com.beige_creative_app` → `package com.app.cpbeige`.
 
 ### 3.3 Fix `AndroidManifest.xml` label
 
@@ -103,17 +103,17 @@ Document in release notes.
 
 `ios/Runner.xcodeproj/project.pbxproj` — 3 hits to change (lines 371, 550, 572).
 
-Without flavor schemes yet, set base id to **prod**: `com.app.cpbiege`. Per-flavor variants get added in §4.2.
+Without flavor schemes yet, set base id to **prod**: `com.app.cpbeige`. Per-flavor variants get added in §4.2.
 
 ```diff
 - PRODUCT_BUNDLE_IDENTIFIER = com.example.beigeCreativeApp;
-+ PRODUCT_BUNDLE_IDENTIFIER = com.app.cpbiege;
++ PRODUCT_BUNDLE_IDENTIFIER = com.app.cpbeige;
 ```
 
 Also update `RunnerTests` ids (lines 387, 404, 419):
 ```diff
 - PRODUCT_BUNDLE_IDENTIFIER = com.example.beigeCreativeApp.RunnerTests;
-+ PRODUCT_BUNDLE_IDENTIFIER = com.app.cpbiege.RunnerTests;
++ PRODUCT_BUNDLE_IDENTIFIER = com.app.cpbeige.RunnerTests;
 ```
 
 ### 4.2 Add Xcode build configs for flavors
@@ -146,7 +146,7 @@ ios/Flutter/Profile-prod.xcconfig
 ```
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
 #include "Generated.xcconfig"
-PRODUCT_BUNDLE_IDENTIFIER = com.app.cpbiege.dev
+PRODUCT_BUNDLE_IDENTIFIER = com.app.cpbeige.dev
 APP_DISPLAY_NAME = BeigeCp Dev
 ```
 
@@ -156,7 +156,7 @@ APP_DISPLAY_NAME = BeigeCp Dev
 ```
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
 #include "Generated.xcconfig"
-PRODUCT_BUNDLE_IDENTIFIER = com.app.cpbiege
+PRODUCT_BUNDLE_IDENTIFIER = com.app.cpbeige
 APP_DISPLAY_NAME = BeigeCp
 ```
 
@@ -209,11 +209,11 @@ Same pattern under `macos/Runner.xcodeproj/`. Skip if macOS not a deliverable.
 flutter clean
 flutter pub get
 flutter run --flavor dev  -t lib/main_dev.dart
-# Check: app installs as "BeigeCp Dev", package com.app.cpbiege.dev
-adb shell pm list packages | grep cpbiege
+# Check: app installs as "BeigeCp Dev", package com.app.cpbeige.dev
+adb shell pm list packages | grep cpbeige
 
 flutter run --flavor prod -t lib/main_prod.dart
-# Check: app installs as "BeigeCp", package com.app.cpbiege
+# Check: app installs as "BeigeCp", package com.app.cpbeige
 ```
 
 ### 6.2 iOS
@@ -221,10 +221,10 @@ flutter run --flavor prod -t lib/main_prod.dart
 flutter clean
 cd ios && pod install && cd ..
 flutter run --flavor dev  -t lib/main_dev.dart
-# Check: Settings → General → iPhone Storage → "BeigeCp Dev", bundle com.app.cpbiege.dev
+# Check: Settings → General → iPhone Storage → "BeigeCp Dev", bundle com.app.cpbeige.dev
 
 flutter run --flavor prod -t lib/main_prod.dart
-# Check: "BeigeCp", bundle com.app.cpbiege
+# Check: "BeigeCp", bundle com.app.cpbeige
 ```
 
 ### 6.3 Side-by-side install
@@ -262,7 +262,7 @@ Update **Flavor mechanism** row:
 ```
 Choice: Android product flavors (dev/prod) + iOS schemes (Runner-dev/Runner-prod) + per-flavor xcconfigs.
         Dart entrypoint still selected via -t lib/main_<flavor>.dart.
-        Bundle id base: com.app.cpbiege (prod), com.app.cpbiege.dev (dev).
+        Bundle id base: com.app.cpbeige (prod), com.app.cpbeige.dev (dev).
 ```
 
 ### 7.3 `docs/migration/phase2_structure_and_unblock.md`
@@ -277,10 +277,10 @@ After id change, the following resources must be updated **before** any release 
 
 | System | Action |
 |---|---|
-| Apple App Store Connect | Create new app records for `com.app.cpbiege.dev` + `com.app.cpbiege`. Old `com.example.beigeCreativeApp` was never submitted; safe to ignore. Generate provisioning profiles + signing certs per id. |
+| Apple App Store Connect | Create new app records for `com.app.cpbeige.dev` + `com.app.cpbeige`. Old `com.example.beigeCreativeApp` was never submitted; safe to ignore. Generate provisioning profiles + signing certs per id. |
 | Apple Developer Portal | Register both App IDs; enable required capabilities (Push, Sign in with Apple if used). |
-| Google Play Console | Create new app for `com.app.cpbiege`. Internal-testing track for `com.app.cpbiege.dev` if desired. |
-| Google Cloud Console (Maps) | Add new Android SHA-1 + package `com.app.cpbiege` and `com.app.cpbiege.dev` to API key restrictions. Add new iOS bundle ids. **Rotate key** if previously exposed (it is — see plan Risk #5). |
+| Google Play Console | Create new app for `com.app.cpbeige`. Internal-testing track for `com.app.cpbeige.dev` if desired. |
+| Google Cloud Console (Maps) | Add new Android SHA-1 + package `com.app.cpbeige` and `com.app.cpbeige.dev` to API key restrictions. Add new iOS bundle ids. **Rotate key** if previously exposed (it is — see plan Risk #5). |
 | Stripe Dashboard | No bundle-id constraint; no change required. |
 | Firebase (when wired) | New iOS apps + Android apps per flavor; download `google-services.json` + `GoogleService-Info.plist` per flavor. |
 | Backend (`mobile.beige.app`) | If push tokens / device records keyed by bundle id, coordinate with backend lead to accept the new ids. |
