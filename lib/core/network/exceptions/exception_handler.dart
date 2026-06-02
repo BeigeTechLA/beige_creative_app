@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
+import '../../firebase/crashlytics_service.dart';
 import 'app_exception.dart';
 
 /// Wraps async work in a typed-error envelope.
@@ -27,6 +29,35 @@ import 'app_exception.dart';
 class ExceptionHandler {
   ExceptionHandler._();
 
+  /// Test seam. Overridden by `exception_handler_test.dart` to capture the
+  /// forward calls without invoking the static [CrashlyticsService]. Always
+  /// `unawaited`-able. Default forwards to [CrashlyticsService.recordError].
+  ///
+  /// Reset to [defaultCrashRecorder] in `tearDown` so cross-test state can't
+  /// leak.
+  @visibleForTesting
+  static Future<void> Function(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal,
+  }) crashRecorder = defaultCrashRecorder;
+
+  /// The production sink — exposed so tests can restore it after stubbing.
+  @visibleForTesting
+  static Future<void> defaultCrashRecorder(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal = false,
+  }) =>
+      CrashlyticsService.recordError(
+        error,
+        stack,
+        reason: reason,
+        fatal: fatal,
+      );
+
   static Future<Either<AppException, T>> guardAsync<T>(
     Future<T> Function() body,
   ) async {
@@ -34,18 +65,63 @@ class ExceptionHandler {
       final result = await body();
       return Right(result);
     } on DioException catch (e, st) {
-      return Left(mapDioException(e, st));
+      final mapped = mapDioException(e, st);
+      // Forward only the signal-rich branches to Crashlytics. Skip noise:
+      // NoInternet / Timeout / RequestCancelled / 401 / 403 / 404 / 429 / 503.
+      switch (mapped) {
+        case ServerException():
+          dart_async.unawaited(
+            crashRecorder(
+              mapped,
+              st,
+              reason: 'dio.5xx',
+              fatal: false,
+            ),
+          );
+        case ValidationException():
+          dart_async.unawaited(
+            crashRecorder(
+              mapped,
+              st,
+              reason: 'dio.422',
+              fatal: false,
+            ),
+          );
+        case NoInternetException():
+        case TimeoutException():
+        case RequestCancelledException():
+        case UnauthorizedException():
+        case ForbiddenException():
+        case NotFoundException():
+        case TooManyRequestsException():
+        case ServiceUnavailableException():
+          // Skip — user-visible or expected; would just be noise.
+          break;
+      }
+      return Left(mapped);
     } on SocketException catch (e, st) {
+      // Skip — connectivity blip, not a defect.
       return Left(
         NoInternetException(cause: e, stackTrace: st),
       );
     } on dart_async.TimeoutException catch (e, st) {
+      // Skip — same reason as SocketException.
       return Left(
         TimeoutException(cause: e, stackTrace: st),
       );
     } on AppException catch (e) {
+      // Caller already classified; trust them and don't double-report.
       return Left(e);
     } catch (e, st) {
+      // Unknown shape — always forward so the bug isn't silently mapped away.
+      dart_async.unawaited(
+        crashRecorder(
+          e,
+          st,
+          reason: 'guard.unexpected',
+          fatal: false,
+        ),
+      );
       return Left(
         ServerException(
           message: 'Unexpected error: $e',

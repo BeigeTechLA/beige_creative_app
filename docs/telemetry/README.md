@@ -1,6 +1,6 @@
 # Telemetry — Firebase Crashlytics & Analytics
 
-**Overall status:** 🟡 In Progress · 1 / 12 tasks done · **Est:** 6.5 effort-days
+**Overall status:** 🟡 In Progress · 2 / 12 tasks done · **Est:** 6.5 effort-days
 
 | Field | Value |
 |---|---|
@@ -41,7 +41,7 @@ Cannot ship telemetry without these. ~2 days.
 | # | Task | Status | Files | Est. |
 |---|---|---|---|---|
 | [A1](task_a1_user_identity.md) | Wire `setUserId` + `setUserIdentifier` + role key on login/logout | 🟢 | 3 | 0.5d |
-| [A2](task_a2_error_funnel.md) | Forward non-fatal errors from `ExceptionHandler` to Crashlytics | 🔴 | 2 | 0.5d |
+| [A2](task_a2_error_funnel.md) | Forward non-fatal errors from `ExceptionHandler` to Crashlytics | 🟢 | 2 | 0.5d |
 | [A3](task_a3_zone_guard_debug_gate.md) | `runZonedGuarded` wrap + `setCrashlyticsCollectionEnabled(!kDebugMode)` | 🔴 | 2 | 0.5d |
 
 ### Phase B — Event wiring (use the registry)

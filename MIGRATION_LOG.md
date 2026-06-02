@@ -7,6 +7,30 @@
 
 ---
 
+### 2026-06-02: Telemetry A2 — **Non-fatal error funnel through ExceptionHandler** 🟢
+
+Phase A foundation task A2 closed. Non-fatal errors caught by `ExceptionHandler.guardAsync` now forward to Crashlytics for the signal-rich branches (`ServerException` 5xx + unknown, `ValidationException` 422, plus unknown thrown shapes). Noise (NoInternet / Timeout / RequestCancelled / 401 / 403 / 404 / 429 / 503) is explicitly skipped. Branch: `improvments-phase1`.
+
+- **Files touched (2):**
+  - `lib/core/network/exceptions/exception_handler.dart` — added `@visibleForTesting` `crashRecorder` seam (defaults to `CrashlyticsService.recordError`) so tests can capture forwarding without invoking the static Firebase service. `guardAsync` now pattern-matches the mapped `AppException` and forwards via `unawaited(crashRecorder(...))` with `reason: 'dio.5xx'` / `'dio.422'` / `'guard.unexpected'`. Noise branches explicitly `break`.
+  - `test/core/network/exception_handler_test.dart` — count 6 → 20. 14 new cases stub the seam and assert the call/no-call matrix per branch (`5xx`, `badCertificate-unknown`, `422`, `401`, `403`, `404`, `429`, `503`, `timeout`, `cancel`, `connectionError`, top-level `SocketException`, rethrown `AppException`, unknown `StateError`).
+
+- **Decisions:**
+  - **`crashRecorder` field, not full DI.** Repositories call `ExceptionHandler.guardAsync` statically; threading a provider through every repo just to stub the sink would be massive churn. The `@visibleForTesting` field + `defaultCrashRecorder` reset in `tearDown` is enough for unit tests.
+  - **No `ErrorInterceptor` mirror.** It wraps the typed error but doesn't classify-and-forward; adding forwarding there would double-report whenever a feature uses `guardAsync` downstream. Single source of truth stays in `ExceptionHandler`.
+  - **`fatal: false` for everything.** A1's `runZonedGuarded` (task A3) owns the `fatal: true` path. A2 is the non-fatal pipe.
+  - **`unawaited(...)` on forward.** Crashlytics is fire-and-forget; awaiting it would slow the error path on a slow network.
+
+- **Verification:**
+  - `flutter analyze --fatal-infos` — **No issues found** (exit 0).
+  - `flutter test` — **223/223 passing** (209 prior + 14 new).
+
+- **Constraints Maintained:**
+  - Existing mapping behavior unchanged — all 6 prior mapping tests still pass.
+  - No new dependencies.
+
+---
+
 ### 2026-06-02: Telemetry A1 — **User identity on login/logout** 🟢
 
 Phase A foundation task A1 closed. Authenticated user is now propagated to Firebase Analytics (`setUserId`) + Crashlytics (`setUserIdentifier` + `user_id` / `user_role` custom keys) on every authed entry; identity is dropped on explicit logout and on 401 / token-expiry. Branch: `improvments-phase1`.
