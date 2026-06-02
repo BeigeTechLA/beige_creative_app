@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../firebase/telemetry_client.dart';
 import '../restoration/restoration_providers.dart';
 import 'core_providers.dart';
 
@@ -29,6 +30,15 @@ class AuthStateNotifier extends Notifier<bool> {
     await ref.read(sessionStoreProvider).clearSession();
     await ref.read(routeRestorationServiceProvider).clearAll();
     await ref.read(draftStoreProvider).clearAll();
+    // Clear telemetry identity + emit `logout`. Best-effort — never fail
+    // logout on a wrapper error.
+    try {
+      await ref
+          .read(telemetryClientProvider)
+          .clearUserIdentity(emitLogoutEvent: true);
+    } catch (_) {
+      // Swallow — logout must complete regardless.
+    }
     state = false;
   }
 }

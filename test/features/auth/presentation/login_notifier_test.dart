@@ -1,3 +1,4 @@
+import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
 import 'package:beige_creative_app/core/providers/core_providers.dart';
 import 'package:beige_creative_app/core/session/session_store.dart';
@@ -6,6 +7,7 @@ import 'package:beige_creative_app/features/auth/presentation/providers/login_no
 import 'package:beige_creative_app/features/auth/presentation/providers/login_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeAuthRepo implements AuthRepository {
   String? capturedEmail;
@@ -98,14 +100,60 @@ class _FakeSession implements SessionStore {
   Future<void> clearSession() async {}
 }
 
+class _FakeTelemetry implements TelemetryClient {
+  int setIdentityCalls = 0;
+  int clearIdentityCalls = 0;
+  bool lastEmitLogoutEvent = false;
+  String? lastUserId;
+  String? lastUserRole;
+  String? lastLoginMethod;
+  final List<String> events = <String>[];
+  final List<Object> recordedErrors = <Object>[];
+
+  @override
+  Future<void> setUserIdentity({
+    required String userId,
+    String? userRole,
+    String loginMethod = 'password',
+  }) async {
+    setIdentityCalls++;
+    lastUserId = userId;
+    lastUserRole = userRole;
+    lastLoginMethod = loginMethod;
+  }
+
+  @override
+  Future<void> clearUserIdentity({bool emitLogoutEvent = false}) async {
+    clearIdentityCalls++;
+    lastEmitLogoutEvent = emitLogoutEvent;
+  }
+
+  @override
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    events.add(name);
+  }
+
+  @override
+  Future<void> recordError(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal = false,
+  }) async {
+    recordedErrors.add(error);
+  }
+}
+
 ProviderContainer _container({
   required _FakeAuthRepo repo,
   required _FakeSession session,
+  _FakeTelemetry? telemetry,
 }) {
   final c = ProviderContainer(
     overrides: [
       authRepositoryProvider.overrideWithValue(repo),
       sessionStoreProvider.overrideWithValue(session),
+      telemetryClientProvider.overrideWithValue(telemetry ?? _FakeTelemetry()),
     ],
   );
   addTearDown(c.dispose);
@@ -190,6 +238,88 @@ void main() {
       expect(s.errorMessage, 'Invalid email or password');
       expect(s.loginSuccess, isFalse);
       expect(s.isLoggingIn, isFalse);
+    });
+  });
+
+  group('LoginNotifier telemetry wiring', () {
+    test('login success sets identity with backend user id + role', () async {
+      final repo = _FakeAuthRepo()
+        ..result = const LoginResult(
+          token: 'tok-xyz',
+          user: UserSnapshot(
+            id: '42',
+            email: 'user@example.com',
+            role: 'photographer',
+          ),
+        );
+      final session = _FakeSession();
+      final telemetry = _FakeTelemetry();
+      final c = _container(repo: repo, session: session, telemetry: telemetry);
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'user@example.com', password: 'secret');
+
+      expect(telemetry.setIdentityCalls, 1);
+      expect(telemetry.clearIdentityCalls, 0);
+      expect(telemetry.lastUserId, '42');
+      expect(telemetry.lastUserRole, 'photographer');
+      expect(telemetry.lastLoginMethod, 'password');
+    });
+
+    test('login success without user payload skips telemetry identity',
+        () async {
+      final repo = _FakeAuthRepo()
+        ..result = const LoginResult(token: 'tok-only', user: null);
+      final session = _FakeSession();
+      final telemetry = _FakeTelemetry();
+      final c = _container(repo: repo, session: session, telemetry: telemetry);
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'user@example.com', password: 'secret');
+
+      expect(telemetry.setIdentityCalls, 0);
+      expect(c.read(loginNotifierProvider).loginSuccess, isTrue);
+    });
+
+    test('login failure does not touch telemetry', () async {
+      final repo = _FakeAuthRepo()..throwError = Exception('nope');
+      final session = _FakeSession();
+      final telemetry = _FakeTelemetry();
+      final c = _container(repo: repo, session: session, telemetry: telemetry);
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'user@example.com', password: 'secret');
+
+      expect(telemetry.setIdentityCalls, 0);
+      expect(telemetry.clearIdentityCalls, 0);
+    });
+  });
+
+  group('AuthStateNotifier.logout telemetry wiring', () {
+    test('logout clears identity and emits logout event', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final telemetry = _FakeTelemetry();
+      final c = ProviderContainer(
+        overrides: [
+          prefsProvider.overrideWithValue(prefs),
+          sessionStoreProvider.overrideWithValue(_FakeSession()),
+          telemetryClientProvider.overrideWithValue(telemetry),
+        ],
+      );
+      addTearDown(c.dispose);
+
+      // Seed authed state, then log out.
+      c.read(authStateProvider.notifier).markLoggedIn();
+      await c.read(authStateProvider.notifier).logout();
+
+      expect(telemetry.clearIdentityCalls, 1);
+      expect(telemetry.lastEmitLogoutEvent, isTrue);
+      expect(c.read(authStateProvider), isFalse);
     });
   });
 }

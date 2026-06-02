@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -94,6 +95,21 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       }
 
       ref.read(authStateProvider.notifier).markLoggedIn();
+
+      // Best-effort telemetry — never fail login on a wrapper error.
+      try {
+        final user = result.user;
+        if (user != null) {
+          await ref.read(telemetryClientProvider).setUserIdentity(
+                userId: user.id,
+                userRole: user.role,
+              );
+        }
+      } catch (e, st) {
+        AppLogger.w('Login.telemetry.setUserIdentity failed: $e');
+        AppLogger.d('stack: $st');
+      }
+
       state = state.copyWith(isLoggingIn: false, loginSuccess: true);
     } catch (e, st) {
       AppLogger.e('Login.submit failed', e, st);

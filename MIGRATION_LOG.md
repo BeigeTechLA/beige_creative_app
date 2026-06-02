@@ -7,6 +7,34 @@
 
 ---
 
+### 2026-06-02: Telemetry A1 — **User identity on login/logout** 🟢
+
+Phase A foundation task A1 closed. Authenticated user is now propagated to Firebase Analytics (`setUserId`) + Crashlytics (`setUserIdentifier` + `user_id` / `user_role` custom keys) on every authed entry; identity is dropped on explicit logout and on 401 / token-expiry. Branch: `improvments-phase1`.
+
+- **Files touched (5):**
+  - **New:** `lib/core/firebase/telemetry_client.dart` — `TelemetryClient` interface + `FirebaseTelemetryClient` default + `telemetryClientProvider`. Test seam over the two static Firebase wrappers (`AnalyticsService`, `CrashlyticsService`). Surface: `setUserIdentity`, `clearUserIdentity`, `logEvent`, `recordError`.
+  - `lib/features/auth/presentation/providers/login_notifier.dart` — after `markLoggedIn` and only when `result.user` is non-null, calls `setUserIdentity(userId, userRole)`. Wrapped in try/catch — telemetry hiccup never fails login.
+  - `lib/core/providers/auth_state_provider.dart` — `AuthStateNotifier.logout()` calls `clearUserIdentity(emitLogoutEvent: true)` after the session/restoration/draft clears.
+  - `lib/core/providers/core_providers.dart` — `AuthInterceptor.onUnauthorized` callback now also calls `clearUserIdentity()` (no logout event — user didn't choose this).
+  - `test/features/auth/presentation/login_notifier_test.dart` — `_FakeTelemetry` + 4 new tests (identity set with role on success, no-op when user payload missing, no-op on login failure, logout clears identity with event).
+
+- **Decisions:**
+  - **Single seam, not three.** Tests need to stub `AnalyticsService` + `CrashlyticsService` together; introducing one `TelemetryClient` is leaner than two abstracts. `FirebaseTelemetryClient` just forwards to the existing static services so Firebase-isn't-configured stub mode still works.
+  - **`setUserIdentity` is one method, not four.** Forces the call site to do the right thing (analytics + crashlytics + custom keys + `logLogin`) in one call — no chance of half-applying telemetry on a future feature.
+  - **No `loginSuccess` registry event yet.** A1's scope is identity wiring + Firebase-builtin `logLogin`. The `AnalyticsEvents.loginSuccess` registry entry is the B1 task.
+  - **401 path skips `logout` event.** User didn't initiate; emitting `logout` would pollute the funnel. Identity still cleared.
+  - **Best-effort, never blocking.** All telemetry calls inside auth flows are wrapped in try/catch — auth success/failure must complete regardless.
+
+- **Verification:**
+  - `flutter analyze --fatal-infos` — **No issues found** (exit 0).
+  - `flutter test` — **209/209 passing** (205 prior + 4 new).
+
+- **Constraints Maintained:**
+  - Side effects in presentation only — `AuthRepositoryImpl` and the interceptor remain telemetry-unaware (the interceptor wires the closure but doesn't import `AnalyticsService`/`CrashlyticsService` directly).
+  - No new dependencies.
+
+---
+
 ### 2026-05-31: Task 6.01 — **Expand test helpers** 🟢
 
 Task 6.01 done. `test/helpers/` now carries the harness, mocks, and fixtures that the rest of Phase 6 will build on. Test count 145 → **151** (6 new helper smoke tests).
