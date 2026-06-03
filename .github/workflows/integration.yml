@@ -1,0 +1,116 @@
+name: Flutter Integration Tests
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  integration:
+    name: ${{ matrix.platform }} integration
+    runs-on: macos-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [android, ios]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        if: matrix.platform == 'android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Gradle
+        if: matrix.platform == 'android'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Cache Android emulator
+        if: matrix.platform == 'android'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android/avd
+            ~/.android/adb*
+          key: ${{ runner.os }}-android-avd-api-35-pixel-6-v1
+
+      - name: Cache CocoaPods
+        if: matrix.platform == 'ios'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods
+          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run integration tests on Android emulator
+        if: matrix.platform == 'android'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          target: google_apis
+          force-avd-creation: false
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            flutter devices
+            flutter test --flavor dev --dart-define-from-file=env/dev.example.json integration_test/login_logout_test.dart -d emulator-5554
+            flutter test --flavor dev --dart-define-from-file=env/dev.example.json integration_test/signup_flow_test.dart -d emulator-5554
+
+      - name: Boot iOS simulator
+        if: matrix.platform == 'ios'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          runtime_id="$(
+            xcrun simctl list runtimes iOS --json |
+            ruby -rjson -e 'runtimes = JSON.parse(STDIN.read)["runtimes"].select { |runtime| runtime["isAvailable"] }; abort("No available iOS runtime") if runtimes.empty?; puts runtimes.last["identifier"]'
+          )"
+          device_type="$(
+            xcrun simctl list devicetypes --json |
+            ruby -rjson -e 'types = JSON.parse(STDIN.read)["devicetypes"]; type = types.find { |entry| entry["name"] == "iPhone 16" } || types.find { |entry| entry["name"] == "iPhone 15" } || types.find { |entry| entry["name"].start_with?("iPhone") }; abort("No available iPhone simulator type") unless type; puts type["identifier"]'
+          )"
+          device_id="$(xcrun simctl create beige-ci-ios "$device_type" "$runtime_id")"
+
+          xcrun simctl boot "$device_id"
+          xcrun simctl bootstatus "$device_id" -b
+          echo "IOS_DEVICE_ID=$device_id" >> "$GITHUB_ENV"
+
+      - name: Run integration tests on iOS simulator
+        if: matrix.platform == 'ios'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          flutter devices
+          flutter test --flavor dev --dart-define-from-file=env/dev.example.json integration_test/login_logout_test.dart -d "$IOS_DEVICE_ID"
+          flutter test --flavor dev --dart-define-from-file=env/dev.example.json integration_test/signup_flow_test.dart -d "$IOS_DEVICE_ID"
