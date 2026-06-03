@@ -89,7 +89,7 @@ class _FileManagerScreenState extends ConsumerState<FileManagerScreen>
                     ),
                     child: Row(
                       children: [
-                        SvgPicture.asset(AppAssets.search_icon),
+                        SvgPicture.asset(AppAssets.searchIcon),
                         const SizedBox(width: 10),
                         Expanded(
                           child: TextField(

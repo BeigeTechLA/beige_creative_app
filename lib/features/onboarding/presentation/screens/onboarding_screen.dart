@@ -27,7 +27,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   static const List<_OnboardingPage> _pages = [
     _OnboardingPage(
-      image: AppAssets.onboding1,
+      image: AppAssets.onboardingHero,
       title: 'Find Your Next\nCreative Gig',
       description:
           'Access shoots, collaborate with brands, and\nmanage your work — all in one place. Shoot. Edit. Earn.📍⚡',

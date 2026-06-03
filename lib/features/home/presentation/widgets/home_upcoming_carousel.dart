@@ -209,7 +209,7 @@ class HomeUpcomingCarousel extends StatelessWidget {
               fit: BoxFit.cover,
               errorWidget: (context, url, error) {
                 return SvgPicture.asset(
-                  AppAssets.image_holder,
+                  AppAssets.imageHolder,
                   height: 169,
                   width: 117,
                   fit: BoxFit.cover,
@@ -234,7 +234,7 @@ class HomeUpcomingCarousel extends StatelessWidget {
                 AppSpacing.verticalXs,
                 Row(
                   children: [
-                    SvgPicture.asset(AppAssets.calender, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.calendar, width: 14, height: 14),
                     const SizedBox(width: AppSpacing.tabInnerPad),
                     Text(
                       data['date'],

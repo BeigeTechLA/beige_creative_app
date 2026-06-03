@@ -418,7 +418,7 @@ class _SavedSocialRow extends StatelessWidget {
               color: AppColors.surfaceMid,
             ),
             child: IconButton(
-              icon: SvgPicture.asset(AppAssets.Pencil),
+              icon: SvgPicture.asset(AppAssets.pencil),
               onPressed: onEdit,
             ),
           ),

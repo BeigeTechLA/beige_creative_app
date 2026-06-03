@@ -153,7 +153,7 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SvgPicture.asset(
-              AppAssets.Upload,
+              AppAssets.upload,
               // ignore: deprecated_member_use
               color: AppColors.white,
               width: 24,

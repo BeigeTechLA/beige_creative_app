@@ -35,7 +35,7 @@ class _ProfileYoureAllSetScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Lottie.asset(AppAssets.lottie1, height: 180, repeat: false),
+            Lottie.asset(AppAssets.lottieSuccess, height: 180, repeat: false),
             const SizedBox(height: 24),
             Text(
               "You're All Set",

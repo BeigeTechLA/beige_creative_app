@@ -15,7 +15,6 @@ class AppTextStyles {
   // ━━━ Font Family Constants ━━━
   static const String fontFamilyDisplay = AppAssets.fontUnbounded;
   static const String fontFamilyBody = AppAssets.fontOutfit;
-  static const String fontFamilyHelvetica = AppAssets.fontHelveticaNeue;
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // DISPLAY — Unbounded (Hero sections, splash, onboarding)
@@ -177,13 +176,6 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.w600,
     height: 1.33,
-  );
-
-  static const TextStyle detailingText = TextStyle(
-    fontFamily: fontFamilyHelvetica,
-    fontSize: 12,
-    fontWeight: FontWeight.w500,
-    fontStyle: FontStyle.italic,
   );
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

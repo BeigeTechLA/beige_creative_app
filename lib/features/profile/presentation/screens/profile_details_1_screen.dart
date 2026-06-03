@@ -376,13 +376,13 @@ class _Avatar extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorWidget: (_, _, _) {
                   return SvgPicture.asset(
-                    AppAssets.User_Circle,
+                    AppAssets.userCircle,
                     fit: BoxFit.cover,
                   );
                 },
               )
             : SvgPicture.asset(
-                AppAssets.User_Circle,
+                AppAssets.userCircle,
                 fit: BoxFit.cover,
               ),
       ),

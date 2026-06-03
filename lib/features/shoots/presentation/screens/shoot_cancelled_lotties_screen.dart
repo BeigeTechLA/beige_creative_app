@@ -36,7 +36,7 @@ class _ShootCancelledLottiesScreenState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Lottie.asset(
-              AppAssets.lottie1,
+              AppAssets.lottieSuccess,
               height: 180,
               repeat: false,
             ),

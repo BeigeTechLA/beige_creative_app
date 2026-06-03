@@ -194,19 +194,19 @@ class ManageAvailabilityScreen extends ConsumerWidget {
                   ),
                   AppSpacing.verticalBase,
                   _StatCard(
-                    svgIcon: AppAssets.calender,
+                    svgIcon: AppAssets.calendar,
                     title: 'Available Days',
                     value: '${state.availableDaysCount}',
                   ),
                   AppSpacing.verticalMd,
                   _StatCard(
-                    svgIcon: AppAssets.book_video,
+                    svgIcon: AppAssets.bookVideo,
                     title: 'Book shoots',
                     value: '${state.shootDaysCount}',
                   ),
                   AppSpacing.verticalMd,
                   const _StatCard(
-                    svgIcon: AppAssets.HourglasTime,
+                    svgIcon: AppAssets.hourglassTime,
                     title: 'Time Off',
                     value: '0',
                   ),

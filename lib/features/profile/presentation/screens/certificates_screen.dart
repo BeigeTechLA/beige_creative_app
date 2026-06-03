@@ -298,7 +298,7 @@ class _CertificateRow extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.all(AppSpacing.sm),
                     child: SvgPicture.asset(
-                      AppAssets.image_holder,
+                      AppAssets.imageHolder,
                       fit: BoxFit.contain,
                     ),
                   );
@@ -324,7 +324,7 @@ class _CertificateRow extends StatelessWidget {
               GestureDetector(
                 onTap: onMenuTap,
                 child: SvgPicture.asset(
-                  AppAssets.more_vert,
+                  AppAssets.moreVert,
                   height: 20,
                   width: 20,
                 ),

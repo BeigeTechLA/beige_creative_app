@@ -312,7 +312,7 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     SvgPicture.asset(
-                                      AppAssets.User_Circle,
+                                      AppAssets.userCircle,
                                       width: 30,
                                       height: 30,
                                     ),

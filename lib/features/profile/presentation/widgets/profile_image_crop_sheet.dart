@@ -138,7 +138,7 @@ class _ProfileImageCropSheetState extends State<ProfileImageCropSheet> {
             child: Row(
               children: [
                 SvgPicture.asset(
-                  AppAssets.Image_zoom,
+                  AppAssets.imageZoom,
                   height: 20,
                   width: 20,
                 ),
@@ -168,7 +168,7 @@ class _ProfileImageCropSheetState extends State<ProfileImageCropSheet> {
                 ),
                 const SizedBox(width: 10),
                 SvgPicture.asset(
-                  AppAssets.Image_zoom,
+                  AppAssets.imageZoom,
                   height: 26,
                   width: 26,
                 ),

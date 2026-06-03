@@ -31,7 +31,7 @@ class ProfileStatsPanel extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _InfoCard(
-              icon: AppAssets.doller,
+              icon: AppAssets.dollar,
               value: hourlyRateLabel,
               title: 'Per Hour',
             ),

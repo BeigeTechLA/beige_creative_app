@@ -54,7 +54,7 @@ class UpcomingShootViewDetails extends ConsumerWidget {
                           fit: BoxFit.cover,
                           errorWidget: (_, _, _) {
                             return SvgPicture.asset(
-                              AppAssets.image_holder,
+                              AppAssets.imageHolder,
                               fit: BoxFit.cover,
                             );
                           },
@@ -311,19 +311,19 @@ class _InfoCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.mld),
                 _ContactItem(
-                  icon: SvgPicture.asset(AppAssets.person_icons),
+                  icon: SvgPicture.asset(AppAssets.personIcon),
                   title: 'Contact Name',
                   value: '${mydata?.clientContact.fullName}',
                 ),
                 const SizedBox(height: AppSpacing.mld),
                 _ContactItem(
-                  icon: SvgPicture.asset(AppAssets.Phone_Calling),
+                  icon: SvgPicture.asset(AppAssets.phoneCalling),
                   title: 'Contact Number',
                   value: mydata?.clientContact.phone ?? 'No number found',
                 ),
                 const SizedBox(height: AppSpacing.mld),
                 _ContactItem(
-                  icon: SvgPicture.asset(AppAssets.mail_icon),
+                  icon: SvgPicture.asset(AppAssets.mailIcon),
                   title: 'Email ID',
                   value: '${mydata?.clientContact.email}',
                 ),

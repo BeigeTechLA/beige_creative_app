@@ -264,7 +264,7 @@ class _AddAvailabilityScreenState
                       readOnly: true,
                       suffixIcon: Padding(
                         padding: const EdgeInsets.all(AppSpacing.smd),
-                        child: SvgPicture.asset(AppAssets.calender),
+                        child: SvgPicture.asset(AppAssets.calendar),
                       ),
                       onTap: () => _pickDate(_dateController),
                     ),
@@ -455,7 +455,7 @@ class _AddAvailabilityScreenState
           Row(
             children: [
               SvgPicture.asset(
-                AppAssets.info_svg,
+                AppAssets.infoFilled,
                 // ignore: deprecated_member_use
                 color: AppColors.orangeBright,
               ),
@@ -578,7 +578,7 @@ class _AddAvailabilityScreenState
       suffixIcon: Padding(
         padding: const EdgeInsets.all(AppSpacing.smd),
         child: SvgPicture.asset(
-          AppAssets.mycalender,
+          AppAssets.myCalendar,
           width: 13,
           height: 13,
         ),

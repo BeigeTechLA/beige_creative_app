@@ -8,11 +8,11 @@ String portfolioIcon(String key) {
     case 'youtube':
       return AppAssets.youtube;
     case 'vimeo':
-      return AppAssets.v;
+      return AppAssets.vimeo;
     case 'google_drive':
-      return AppAssets.googledrive;
+      return AppAssets.googleDrive;
     default:
-      return AppAssets.Ball;
+      return AppAssets.ball;
   }
 }
 
@@ -66,8 +66,8 @@ String socialIcon(String key) {
     case 'tiktok':
       return AppAssets.tiktok;
     case 'behance':
-      return AppAssets.be;
+      return AppAssets.behance;
     default:
-      return AppAssets.Ball;
+      return AppAssets.ball;
   }
 }

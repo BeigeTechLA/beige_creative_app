@@ -122,7 +122,7 @@ class FeaturedWorkCard extends StatelessWidget {
                           GestureDetector(
                             onTap: onTap,
                             child: SvgPicture.asset(
-                              AppAssets.circle_arrow,
+                              AppAssets.circleArrow,
                               height: 30,
                               width: 30,
                             ),

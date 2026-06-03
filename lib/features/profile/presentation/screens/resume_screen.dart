@@ -308,7 +308,7 @@ class _ResumeRow extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.all(AppSpacing.sm),
                           child: SvgPicture.asset(
-                            AppAssets.image_holder,
+                            AppAssets.imageHolder,
                             fit: BoxFit.contain,
                           ),
                         );

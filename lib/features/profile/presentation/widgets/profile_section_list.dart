@@ -27,7 +27,7 @@ class ProfileSectionList extends StatelessWidget {
           _SectionCard(
             children: [
               _MenuRow(
-                iconPath: AppAssets.userid,
+                iconPath: AppAssets.userId,
                 title: 'Profile Details',
                 onTap: () => context.pushNamed(Routes.profileDetails.name),
               ),
@@ -65,13 +65,13 @@ class ProfileSectionList extends StatelessWidget {
           _SectionCard(
             children: [
               _MenuRow(
-                iconPath: AppAssets.appperference,
+                iconPath: AppAssets.appPreference,
                 title: 'App Preferences',
                 onTap: () => context.pushNamed(Routes.appPreferences.name),
               ),
               const _SectionDivider(),
               const _MenuRow(
-                iconPath: AppAssets.notificationsetting,
+                iconPath: AppAssets.notificationSetting,
                 title: 'Notifications Settings',
               ),
             ],

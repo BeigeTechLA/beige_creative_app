@@ -79,22 +79,22 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                     _CountCard(
                       number: '${state.counts?.pendingRequests ?? 0}',
                       title: 'Pending Shoots',
-                      iconPath: AppAssets.clock_icon,
+                      iconPath: AppAssets.clockIcon,
                     ),
                     _CountCard(
                       number: '${state.counts?.confirmedRequests ?? 0}',
                       title: 'Confirmed Shoots',
-                      iconPath: AppAssets.video_icon,
+                      iconPath: AppAssets.videoIcon,
                     ),
                     _CountCard(
                       number: '${state.counts?.completedShoots ?? 0}',
                       title: 'Completed Shoots',
-                      iconPath: AppAssets.photo_icon,
+                      iconPath: AppAssets.photoIcon,
                     ),
                     _CountCard(
                       number: '${state.counts?.rejectedRequests ?? 0}',
                       title: 'Declined',
-                      iconPath: AppAssets.declined_icon,
+                      iconPath: AppAssets.declinedIcon,
                     ),
                   ],
                 ),
@@ -123,7 +123,7 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                         padding:
                             const EdgeInsets.all(AppSpacing.inlineNudge),
                         child: SvgPicture.asset(
-                          AppAssets.search_icon,
+                          AppAssets.searchIcon,
                           width: 14,
                           height: 14,
                           fit: BoxFit.contain,
@@ -305,7 +305,7 @@ class _ShootCard extends StatelessWidget {
                       color: AppColors.surfaceStats,
                       alignment: Alignment.center,
                       child: SvgPicture.asset(
-                        AppAssets.image_holder,
+                        AppAssets.imageHolder,
                         height: 60,
                         colorFilter: const ColorFilter.mode(
                           AppColors.white24,
@@ -349,7 +349,7 @@ class _ShootCard extends StatelessWidget {
                 const Divider(color: AppColors.dividerDark),
                 Row(
                   children: [
-                    SvgPicture.asset(AppAssets.calender, width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.calendar, width: 14, height: 14),
                     AppSpacing.gapHXs,
                     Text(formattedDate, style: AppTextStyles.body10),
                     const SizedBox(width: AppSpacing.mld),

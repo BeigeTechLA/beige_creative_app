@@ -74,7 +74,7 @@ class HomePendingShootCard extends StatelessWidget {
                             errorWidget: (context, url, error) {
                               return Center(
                                 child: SvgPicture.asset(
-                                  AppAssets.image_holder,
+                                  AppAssets.imageHolder,
                                   height: 220,
                                   width: double.infinity,
                                   fit: BoxFit.cover,
@@ -84,7 +84,7 @@ class HomePendingShootCard extends StatelessWidget {
                           )
                         : Center(
                             child: SvgPicture.asset(
-                              AppAssets.image_holder,
+                              AppAssets.imageHolder,
                               height: 220,
                               width: double.infinity,
                               fit: BoxFit.cover,
@@ -151,7 +151,7 @@ class HomePendingShootCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SvgPicture.asset(
-                              AppAssets.calender,
+                              AppAssets.calendar,
                               width: 14,
                               height: 14,
                             ),

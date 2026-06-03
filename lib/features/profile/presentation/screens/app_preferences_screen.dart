@@ -142,7 +142,7 @@ class AppPreferencesScreen extends ConsumerWidget {
                     child: Row(
                       children: [
                         SvgPicture.asset(
-                          AppAssets.appversion,
+                          AppAssets.appVersion,
                           height: 24,
                           width: 24,
                           colorFilter: const ColorFilter.mode(

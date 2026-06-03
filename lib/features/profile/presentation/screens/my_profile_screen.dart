@@ -46,15 +46,15 @@ class _MyprofileState extends ConsumerState<Myprofile> {
     AppAssets.facebook,
     AppAssets.insta,
     AppAssets.tiktok,
-    AppAssets.be,
+    AppAssets.behance,
   ];
 
   static const _portfolioNames = ['Vimeo', 'YouTube', 'Google Drive'];
 
   static const _portfolioIcons = [
-    AppAssets.v,
+    AppAssets.vimeo,
     AppAssets.youtube,
-    AppAssets.googledrive,
+    AppAssets.googleDrive,
   ];
 
   @override

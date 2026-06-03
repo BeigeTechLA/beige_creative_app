@@ -340,7 +340,7 @@ class _EditPersonalDetailsScreenState
                       child: Padding(
                         padding: const EdgeInsets.all(AppSpacing.sm),
                         child: SvgPicture.asset(
-                          AppAssets.box_edit,
+                          AppAssets.boxEdit,
                           colorFilter: const ColorFilter.mode(
                             AppColors.white30,
                             BlendMode.srcIn,

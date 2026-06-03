@@ -43,7 +43,7 @@ class CommonFileViewer {
                       fit: BoxFit.contain,
                       errorWidget: (_, _, _) {
                         return SvgPicture.asset(
-                          AppAssets.image_holder,
+                          AppAssets.imageHolder,
                           height: 150,
                         );
                       },

@@ -137,7 +137,7 @@ class _SignUp1CropSheetState extends State<_SignUp1CropSheet> {
             ),
             child: Row(
               children: [
-                SvgPicture.asset(AppAssets.Image_zoom, height: 20, width: 20),
+                SvgPicture.asset(AppAssets.imageZoom, height: 20, width: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: SliderTheme(
@@ -163,7 +163,7 @@ class _SignUp1CropSheetState extends State<_SignUp1CropSheet> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                SvgPicture.asset(AppAssets.Image_zoom, height: 20, width: 20),
+                SvgPicture.asset(AppAssets.imageZoom, height: 20, width: 20),
               ],
             ),
           ),

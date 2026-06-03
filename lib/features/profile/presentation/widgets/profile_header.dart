@@ -38,7 +38,7 @@ class ProfileHeader extends StatelessWidget {
           child: ClipRRect(
             borderRadius: AppRadii.bottomHeader,
             child: SvgPicture.asset(
-              AppAssets.rectangle_profile,
+              AppAssets.rectangleProfile,
               fit: BoxFit.fill,
             ),
           ),
@@ -102,7 +102,7 @@ class ProfileHeader extends StatelessWidget {
                                   fit: BoxFit.cover,
                                 )
                               : SvgPicture.asset(
-                                  AppAssets.User_Circle,
+                                  AppAssets.userCircle,
                                   width: 96,
                                   height: 96,
                                 ),
@@ -126,7 +126,7 @@ class ProfileHeader extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: SvgPicture.asset(
-                          AppAssets.edit_circle,
+                          AppAssets.editCircle,
                           height: 18,
                           width: 18,
                         ),

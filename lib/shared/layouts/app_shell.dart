@@ -205,7 +205,7 @@ class _AppShellDrawer extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Image.asset(AppAssets.group_logo),
+                      Image.asset(AppAssets.groupLogo),
                       IconButton(
                         icon:
                             const Icon(Icons.close, color: AppColors.white),
@@ -229,7 +229,7 @@ class _AppShellDrawer extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 25,
-                            child: SvgPicture.asset(AppAssets.User_Circle),
+                            child: SvgPicture.asset(AppAssets.userCircle),
                           ),
                           AppSpacing.gapHMd,
                           Expanded(

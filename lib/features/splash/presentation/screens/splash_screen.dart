@@ -78,7 +78,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         color: AppColors.textHeading,
         child: Center(
           child: Lottie.asset(
-            AppAssets.lottie2,
+            AppAssets.lottieSplash,
             controller: _controller,
             width: 250,
             fit: BoxFit.contain,

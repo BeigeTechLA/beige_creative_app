@@ -100,7 +100,7 @@ class SignUp3SavedLinkRow extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: SvgPicture.asset(AppAssets.Pencil, width: 18, height: 18),
+            icon: SvgPicture.asset(AppAssets.pencil, width: 18, height: 18),
             onPressed: onEdit,
           ),
           IconButton(

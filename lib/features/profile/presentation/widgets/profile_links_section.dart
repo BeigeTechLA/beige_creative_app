@@ -273,7 +273,7 @@ class _EditAffordance extends StatelessWidget {
           color: AppColors.primary,
           borderRadius: AppRadii.compactCardAll,
         ),
-        child: SvgPicture.asset(AppAssets.myprofile_edit),
+        child: SvgPicture.asset(AppAssets.myProfileEdit),
       ),
     );
   }

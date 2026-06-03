@@ -73,7 +73,7 @@ class HomeWelcomeHeader extends StatelessWidget {
                   ),
                   const SizedBox(width: 15),
                   SvgPicture.asset(
-                    AppAssets.notificationbell,
+                    AppAssets.notificationBell,
                     width: 22,
                     colorFilter: const ColorFilter.mode(
                       AppColors.white,
@@ -92,7 +92,7 @@ class HomeWelcomeHeader extends StatelessWidget {
                           : null,
                       child: profileImageUrl.isEmpty
                           ? SvgPicture.asset(
-                              AppAssets.User_Circle,
+                              AppAssets.userCircle,
                               width: 20,
                               height: 20,
                             )

@@ -374,7 +374,7 @@ class _SavedPortfolioRow extends StatelessWidget {
             child: IconButton(
               padding: EdgeInsets.zero,
               icon: SvgPicture.asset(
-                AppAssets.Pencil,
+                AppAssets.pencil,
                 width: 18,
                 height: 18,
               ),

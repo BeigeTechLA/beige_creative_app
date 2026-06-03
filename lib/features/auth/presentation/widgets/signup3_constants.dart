@@ -3,9 +3,9 @@ import 'package:beige_creative_app/app/assets.dart';
 const List<String> kSignup3PortfolioNames = ['Vimeo', 'YouTube', 'Google Drive'];
 
 const List<String> kSignup3PortfolioIcons = [
-  AppAssets.v,
+  AppAssets.vimeo,
   AppAssets.youtube,
-  AppAssets.googledrive,
+  AppAssets.googleDrive,
 ];
 
 const List<String> kSignup3SocialNames = [
@@ -20,8 +20,8 @@ const List<String> kSignup3SocialIcons = [
   AppAssets.facebook,
   AppAssets.insta,
   AppAssets.tiktok,
-  AppAssets.be,
-  AppAssets.Ball,
+  AppAssets.behance,
+  AppAssets.ball,
 ];
 
 String signup3SocialPlatformKey(String name) {
