@@ -6,6 +6,7 @@ import 'package:beige_creative_app/core/firebase/crashlytics_keys.dart';
 import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/config/env.dart';
 import 'package:beige_creative_app/features/profile/domain/repositories/profile_files_repository.dart';
+import 'package:beige_creative_app/features/profile/presentation/providers/profile_details_providers.dart';
 import 'package:beige_creative_app/features/profile/presentation/providers/profile_files_providers.dart';
 import 'package:beige_creative_app/model_class/myprofile_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -467,6 +468,74 @@ void main() {
       expect(ok, isTrue);
       expect(repo.deleteCount, 2);
       expect(container.read(featuredWorkNotifierProvider).files, isEmpty);
+    });
+  });
+
+  group('profileDetailsViewNotifier', () {
+    test('build → refresh hydrates profile + clears loading', () async {
+      final repo = _FakeRepo();
+      final container = ProviderContainer(
+        overrides: [profileFilesRepositoryProvider.overrideWithValue(repo)],
+      );
+      addTearDown(container.dispose);
+      container.listen<ProfileDetailsViewState>(
+        profileDetailsViewProvider,
+        (_, _) {},
+      );
+      await _drain(
+        container,
+        () => !container.read(profileDetailsViewProvider).isLoading,
+      );
+
+      final s = container.read(profileDetailsViewProvider);
+      expect(s.isLoading, isFalse);
+      expect(s.profile, isNotNull);
+      expect(s.errorMessage, isNull);
+      expect(repo.fetchCount, 1);
+    });
+
+    test('refresh failure surfaces errorMessage and clears loading',
+        () async {
+      final repo = _FakeRepo()..throwOnFetch = true;
+      final container = ProviderContainer(
+        overrides: [profileFilesRepositoryProvider.overrideWithValue(repo)],
+      );
+      addTearDown(container.dispose);
+      container.listen<ProfileDetailsViewState>(
+        profileDetailsViewProvider,
+        (_, _) {},
+      );
+      await _drain(
+        container,
+        () => container.read(profileDetailsViewProvider).errorMessage != null,
+      );
+
+      final s = container.read(profileDetailsViewProvider);
+      expect(s.isLoading, isFalse);
+      expect(s.profile, isNull);
+      expect(s.errorMessage, 'Failed to load profile');
+    });
+
+    test('selectTab updates selectedTab without re-fetching', () async {
+      final repo = _FakeRepo();
+      final container = ProviderContainer(
+        overrides: [profileFilesRepositoryProvider.overrideWithValue(repo)],
+      );
+      addTearDown(container.dispose);
+      container.listen<ProfileDetailsViewState>(
+        profileDetailsViewProvider,
+        (_, _) {},
+      );
+      await _drain(
+        container,
+        () => !container.read(profileDetailsViewProvider).isLoading,
+      );
+      final fetchBefore = repo.fetchCount;
+
+      container.read(profileDetailsViewProvider.notifier).selectTab(2);
+
+      expect(container.read(profileDetailsViewProvider).selectedTab, 2);
+      expect(repo.fetchCount, fetchBefore);
     });
   });
 }

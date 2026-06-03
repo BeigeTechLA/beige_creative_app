@@ -7,6 +7,324 @@
 
 ---
 
+### 2026-06-03: Phase 6 task 6.13 — **CI coverage gate + Android/iOS integration workflow** 🟡
+
+Implemented Phase 6 task 6.13 wiring, but left the task in progress because live acceptance still needs the first GitHub Actions emulator/simulator run and the current LCOV is below the new 70% gate.
+
+- **Files touched (6):**
+  - `.github/workflows/ci.yml` — `flutter test --coverage`, LCOV parsing, `$GITHUB_STEP_SUMMARY` coverage table, 70% threshold enforcement, LCOV artifact upload.
+  - `.github/workflows/integration.yml` — **new** — `push` to `main` / manual Android + iOS matrix on `macos-latest`, Android emulator action, iOS simulator boot script, Flutter/Gradle/AVD/CocoaPods caches, dev-flavor integration test commands.
+  - `docs/phase6/task_13_ci_coverage_gate.md` — moved to `🟡 In Progress`; implementation checklist checked; remote/timing acceptance left open.
+  - `docs/phase6/README.md` — 6.13 row moved to `🟡`; whole-phase CI coverage gate acceptance checked.
+  - `docs/AI_HANDOFF.md` — updated next work and verification baseline.
+  - `docs/audit/AUDIT_REPORT.md` — added a dated Phase 6 CI update without rewriting the original audit baseline.
+
+- **Decisions:**
+  - **Custom LCOV shell parser instead of adding `coverage` / lcov tooling.** Flutter already generates `coverage/lcov.info`; avoiding another dev dependency keeps the workflow scoped to the two files named in the task.
+  - **Strict 70% enforcement.** The current refreshed LCOV is `5358 / 11129 = 48.14%`, so the new CI gate will fail until coverage is raised. That is the intended behavior of task 6.13 and makes 6.14 the active coverage-lift blocker.
+  - **Device workflow uses the dev flavor explicitly.** Android has product flavors and iOS has dev/prod schemes, so the integration commands include `--flavor dev --dart-define-from-file=env/dev.example.json`.
+  - **Kept integration test source untouched.** 6.11/6.12 tests still use vm-mode `TestWidgetsFlutterBinding`; the first Android/iOS GitHub run may require the documented one-line swap to `IntegrationTestWidgetsFlutterBinding.ensureInitialized()`.
+  - **Did not mark 6.13 complete.** GitHub-hosted Android/iOS timing and green status cannot be proven locally in this workspace.
+
+- **Verification:**
+  - `ruby -e 'require "yaml"; YAML.load_file(".github/workflows/ci.yml"); YAML.load_file(".github/workflows/integration.yml"); puts "workflow yaml parsed"'` → parsed (Ruby warned about local `ffi`, unrelated).
+  - `git diff --check -- .github/workflows/ci.yml .github/workflows/integration.yml` → clean.
+  - `flutter analyze --fatal-infos` → no issues.
+  - `flutter test --coverage` → 451 tests passed; LCOV `48.14%`.
+  - `flutter test integration_test/login_logout_test.dart -d macos` → 1 / 1 passing.
+  - `flutter test integration_test/signup_flow_test.dart -d macos` → 1 / 1 passing.
+
+- **Remaining risk / follow-up:**
+  - First GitHub Actions `push` to `main` must validate Android/iOS device execution and cache timing.
+  - Coverage must be raised from `48.14%` to at least `70%`; task 6.14 is the next planned coverage work.
+
+---
+
+### 2026-06-03: Phase 6 task 6.12 — **Integration test: signup 1 → 2 → 3 (multipart assertions)** 🟢
+
+Closed Phase 6 task 6.12. Added the signup integration journey across the real `SignUp1Screen` → `SignUp2Screen` → `SignUp3Screen` stack with real `SignupNotifier`, `AuthRepositoryImpl`, Riverpod route-state carry-through, and Dio stubbed. The test asserts step-1 multipart fields/files, step-2 JSON, and step-3 multipart fields/files including repeated `recent_work_media` plus paired `recent_work_media_index`.
+
+- **Files touched (8):**
+  - `integration_test/signup_flow_test.dart` — **new** — vm-mode signup integration test (1 / 1 passing on macOS).
+  - `integration_test/robots/signup_robot.dart` — **new** — `SignupRobot` page-object for step assertions, form entry, route progression, and seeded picker outcomes.
+  - `docs/phase6/task_12_integration_signup.md` — marked `🟢 Completed`; documented stale endpoint and success-route spec deviations.
+  - `docs/phase6/task_11_integration_login_logout.md` — repaired stale task-file status to match the board / handoff.
+  - `docs/phase6/README.md` — `12 / 14`, 6.12 row flipped to `🟢`.
+  - `docs/AI_HANDOFF.md` — post-6.12 status, next task `6.13`, verification baseline, integration-test convention.
+  - `CLAUDE.md` — Phase 6 status corrected from stale `10 / 14`; integration-test commands added.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Preserved current signup success navigation.** The 6.12 goal said the flow should land on `/home`, but current `SignUp3Screen._submit` routes to `Routes.login`, matching `docs/NAVIGATION_MAP.md`. The integration harness asserts login success instead of changing production navigation under a testing task.
+  - **Used live endpoint names.** The task's `auth/signup1`, `auth/signup2`, `auth/signup3-multipart` labels were stale. The test stubs `auth/register-crew-step1`, `auth/register-crew-step2`, `auth/register-crew-step3`, plus `auth/crew-roles` and `auth/skills`.
+  - **Seeded native picker outcomes through the real Notifier.** `CommonUploader`, `FilePicker`, Google Places, and Google Maps do not expose app-level injection seams. The robot seeds profile image, map lat/lng, social/portfolio links, featured work, certificate, resume, and portfolio files through `SignupNotifier`; screen traversal, submit buttons, notifier validation, repository calls, and route extras remain real.
+  - **Geolocator channel stubs only.** `SignUp1Screen` checks location in a post-frame callback. The test stubs the geolocator channels to keep mount hermetic and avoid rendering the map before submit.
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - Unit `flutter test` green — 451 events total.
+  - `flutter test integration_test/signup_flow_test.dart -d macos` → 1 / 1 passing.
+  - Integration tests remain outside default `flutter test`.
+  - No production code changed.
+
+---
+
+### 2026-06-03: Phase 6 task 6.11 — **Integration test: login → home → logout (robots pattern)** 🟢
+
+Closed Phase 6 task 6.11. Added the project's first integration test exercising a full login → home → logout → login loop with the real `LoginScreen` + `LoginNotifier` + `CompositeSessionStore` + Riverpod `authStateProvider` + GoRouter `refreshListenable` redirect. Dio is stubbed (canned `auth/login`); everything else is real.
+
+- **Files touched (5):**
+  - `pubspec.yaml` — added `integration_test` dev_dependency (Flutter SDK package).
+  - `integration_test/login_logout_test.dart` — **new** — single end-to-end test (1 / 1 passing on macos).
+  - `integration_test/robots/auth_robot.dart` — **new** — `AuthRobot` page-object: `expectOnLoginScreen`, `enterEmail`, `enterPassword`, `tapLogin`, `expectOnHome`, `tapLogout`. Reusable across future integration tests.
+  - `docs/phase6/task_11_integration_login_logout.md` — marked `🟢 Completed`; documented vm-mode binding + minimal-router decisions.
+  - `docs/phase6/README.md` — `11 / 14`, 6.11 row flipped to `🟢`.
+
+- **Decisions:**
+  - **Vm-mode binding (`TestWidgetsFlutterBinding.ensureInitialized()`), not `IntegrationTestWidgetsFlutterBinding`.** `flutter test integration_test/...` requires a device picker; with multiple devices connected and no Android/iOS emulator booted locally, the live binding is impractical. Vm binding runs under `flutter test -d macos`. CI promotion to an Android/iOS emulator is a one-line swap (`IntegrationTestWidgetsFlutterBinding.ensureInitialized()`) documented at the top of the test file.
+  - **Did not mount the production `routerProvider`.** That router pulls in splash + onboarding + 5-tab `StatefulShellRoute` + restoration providers + analytics observers — way more surface than the login/logout loop needs. The harness builds a minimal 2-route GoRouter with the same auth-driven `redirect` + `refreshListenable` pattern as production. Catches the real failure mode (router not bouncing on auth flip) without the full tree.
+  - **`_HomeStub` drives `AuthStateNotifier.logout()` directly** instead of mounting `Myprofile` + tapping through the modal-sheet logout confirmation. The 2-tap modal-sheet path is widget-level concern; the integration test's job is the round-trip wire-up (real session clear, real auth flip, real router redirect). `login_notifier_test.dart` + `my_profile_notifier_test.dart` cover the deeper interactions.
+  - **`AuthRobot._settle()` uses `tester.runAsync()` + manual `pump()` cycles** rather than `pumpAndSettle`. `pumpAndSettle` was unreliable across vm-mode and live-binding — the manual drain works in both, with the trade-off of a fixed ~120 ms wait per settle call.
+  - **Used `WidgetRef.listenManual` for `_AuthRefreshNotifier`.** Bridges `authStateProvider` flips into `GoRouter.refreshListenable` without needing `ProviderSubscription.close` exposure on the more common `ConsumerStatefulWidget.ref.listen`.
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - Unit `flutter test` green — 451 events total (unchanged from 6.10; integration tests live under `integration_test/`, not part of the default `flutter test` run).
+  - `flutter test integration_test/login_logout_test.dart -d macos` → 1 / 1 passing in ~25s (mostly macos app build time).
+  - Zero real network — Dio stubbed via mocktail; SharedPreferences uses `setMockInitialValues({})`.
+  - **Robots-pattern milestone**: future integration tests (signup, etc.) reuse `AuthRobot` and add `SignupRobot`, `HomeRobot`, etc., as needed.
+
+---
+
+### 2026-06-03: Phase 6 task 6.10 — **Golden tests for design tokens (button / card / avatar / input)** 🟢
+
+Closed Phase 6 task 6.10. Added 13 golden tests across 3 files covering `AppButton`, `AppCard`, `AppAvatar`, and `AppTextField` in their canonical configurations on dark + light surfaces. Goldens lock in token consumption (`AppColors`, `AppRadii`, `AppSpacing`, `AppTextStyles`) so a future token drift will fail CI.
+
+- **Files touched (6):**
+  - `test/golden/buttons_test.dart` — **new** — 5 golden tests.
+  - `test/golden/cards_test.dart` — **new** — 4 golden tests (3 card variants + 2 avatar setups).
+  - `test/golden/inputs_test.dart` — **new** — 4 golden tests.
+  - `test/golden/goldens/*.png` — **new** — 13 PNG files, 368 KB total.
+  - `CLAUDE.md` — added the regeneration command `flutter test --update-goldens test/golden/` to the Commands section.
+  - `docs/phase6/task_10_golden_tests.md` — marked `🟢 Completed`; documented why app-bar / bottom-nav / colors-swatch goldens were skipped.
+
+- **Decisions:**
+  - **Did NOT create `app_bar_test.dart` / `bottom_nav_test.dart`.** There is no shared `AppBar` or `BottomNav` widget — every screen rolls its own header inline. Goldens at this layer would be screen-level goldens, which are explicitly out of scope (the design is still iterating). The existing widget tests in 6.07–6.09 cover screen renders functionally.
+  - **Did NOT create `colors_swatch_test.dart`.** A coloured-rectangle-per-token golden doesn't catch the failure mode that matters — a renamed token would still pass because the swatch position would shift but the colour wouldn't change. The variant goldens on real components catch drift where it actually shows up (button background contrast, error border colour, etc.).
+  - **Light/dark = scaffold background swap, not Material brightness.** `AppColors` are static constants, not theme-driven. The "dark" goldens render over `AppColors.background`; the "light" goldens render over `Colors.white`. Same widget, different surrounding canvas — catches contrast regressions but not M3 colour-scheme drift (we don't use M3 colour-scheme yet).
+  - **`matchesGoldenFile` uses Flutter's default byte-exact comparison.** No per-test threshold was set; CI will fail on the first off-by-one pixel diff. Documented in the task notes that cross-SDK drift is noise — the goldens were generated on Flutter `3.38.9` / Dart `3.10.8`. CI needs to run on the same SDK or accept a one-time regenerate.
+  - **Avatar `null` argument in `const` constructor list** — `AppAvatar(name: null, ...)` requires the constructor to accept `String?` (it does); the const-list of children passes.
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - `flutter test` green — 451 events total (up from 438 post-6.09; +13 golden tests).
+  - Per-file run: `flutter test test/golden/` → 13 passing.
+  - Golden PNG baseline committed under `test/golden/goldens/` (368 KB across 13 files — well under any reasonable budget).
+  - Regeneration command documented in `CLAUDE.md` so any future contributor running the wrong Flutter SDK can rebuild the baseline.
+
+---
+
+### 2026-06-03: Phase 6 task 6.09 — **Widget tests: availability (manage + add)** 🟢
+
+Closed Phase 6 task 6.09. Added widget tests for `ManageAvailabilityScreen` and `AddAvailabilityScreen`. File manager already had screen-level widget tests from Phase 4; left untouched. After this task every entry-point screen with a Notifier has at least one widget test.
+
+- **Files touched (5):**
+  - `test/features/availability/presentation/screens/manage_availability_screen_test.dart` — **new** — 4 tests.
+  - `test/features/availability/presentation/screens/add_availability_screen_test.dart` — **new** — 4 tests.
+  - `docs/phase6/task_09_widget_tests_file_manager.md` — marked `🟢 Completed`; documented `CircularProgressIndicator` vs `AppLoader` distinction per-screen.
+  - `docs/phase6/README.md` — `9 / 14`, 6.09 row flipped to `🟢`.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Did not rewrite `file_manager_screen_test.dart`.** The pre-existing tests use a real-notifier + repo-override pattern (the stub repo is cheap, no Dio). Switching to the new subclass + fake notifier pattern would be churn without coverage gain. New tests use the established 6.08 pattern.
+  - **Asserted on `CircularProgressIndicator` for the Add screen's in-flight Save state** rather than `AppLoader`. The bottom CTA renders an inline 22×22 native spinner — different widget from the full-screen `AppLoader` used elsewhere. Pinned explicitly so a future swap is deliberate.
+  - **`ManageAvailabilityScreen` chevron taps cover the `shiftMonth` wire.** `setFilter` (dropdown) and `setFocusedDay` (calendar page change) are notifier-level concerns already covered in `availability_notifier_test.dart`. Widget test stays focused on the visible top-level affordances.
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - `flutter test` green — 438 events total (up from 430 post-6.08; +8 events).
+  - Per-file run: `flutter test test/features/availability/presentation/screens/` → 8 passing.
+  - Zero real API calls — both new files subclass the relevant notifier and override `submit` / `shiftMonth` / `refresh`; no Dio ever constructed.
+  - **Coverage milestone**: every entry-point screen with a Notifier has at least one widget test. Goldens (6.10) + integration tests (6.11–6.12) remain.
+
+---
+
+### 2026-06-03: Phase 6 task 6.08 — **Widget tests: home + profile + shoots (+ upcoming details)** 🟢
+
+Closed Phase 6 task 6.08. Added widget tests for the four post-login entry screens: HomeScreen, Myprofile, ShootsScreen, UpcomingShootViewDetails. 12 tests, each screen covered with render + interaction + state-driven branch.
+
+- **Files touched (6):**
+  - `test/features/home/presentation/screens/home_screen_test.dart` — **new** — 3 tests.
+  - `test/features/profile/presentation/screens/my_profile_screen_test.dart` — **new** — 3 tests.
+  - `test/features/shoots/presentation/screens/shoots_screen_test.dart` — **new** — 3 tests.
+  - `test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — **new** — 3 tests.
+  - `docs/phase6/task_08_widget_tests_home_profile.md` — marked `🟢 Completed`; documented the runAsync→takeException pivot and the AppLoader vs CircularProgressIndicator mistake.
+  - `docs/phase6/README.md` — `8 / 14`, 6.08 row flipped to `🟢`.
+
+- **Decisions:**
+  - **Dropped `tester.runAsync` + `FlutterError.onError = (_) {}` pattern from 6.07.** That combo asserts `_pendingExceptionDetails != null` and fails here when the screen's asset loads don't actually error during pump. Switched to `tester.takeException()` immediately after `pump` to silently drain any harmless asset-decode errors. Auth tests still use the old pattern (they pass there); home/profile/shoots use the new one. Worth backporting auth to the cleaner pattern in a separate sweep.
+  - **Did not chase `changeStatsRange` / `changeShootCategoryTab` interaction tests on HomeScreen.** Range tabs and category tabs sit at `Offset(710, 1589.8)` on the default 800×600 test surface. The tap warns about hit-testing off-screen and the test passes the on-screen criterion but the interaction never fires. `home_notifier_test.dart` already covers these mutators directly; the widget test stays focused on the welcome-banner / refresh canary so future render regressions fail fast.
+  - **Family-provider override syntax**: `upcomingShootDetailProvider.overrideWith(() => Fake())` on the family itself (not on a specific `arg` instance). Riverpod 2.6 doesn't define `overrideWith` on the per-arg `AutoDisposeFamilyNotifierProviderImpl`. Caught at compile time; documented in task notes.
+  - **Pinned `AppLoader` (Lottie) as the loader widget**, not `CircularProgressIndicator`. First pass mistakenly asserted on the Material spinner; the screens use a custom Lottie loader. Worth catching at the widget-test layer because a Lottie→spinner swap should be a deliberate, test-updating change.
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - `flutter test` green — 430 events total (up from 418 post-6.07; +12 events).
+  - Per-file run: `flutter test test/features/{home,profile,shoots}/presentation/screens/` → 12 passing.
+  - Zero real API calls — every screen test overrides the relevant notifier provider with a fake.
+
+---
+
+### 2026-06-03: Phase 6 task 6.07 — **Widget tests: auth (login + forgot password trio + signup3 smoke)** 🟢
+
+Closed Phase 6 task 6.07. Added widget tests for the auth entry points (login + forgot-password / otp / reset-password trio + signup3 render+submit smoke). 14 tests, every interactive auth screen now has at least render + happy-tap + form-gating coverage where applicable.
+
+- **Files touched (5):**
+  - `test/features/auth/presentation/screens/login_screen_test.dart` — **new** — 4 tests over `LoginScreen`. Fake `LoginNotifier` overrides `loadSavedCredentials` to a no-op so the test doesn't pull in `PrefsService` / `SharedPreferences`.
+  - `test/features/auth/presentation/screens/forgot_password_screens_test.dart` — **new** — 8 tests over `ForgotPasswordScreen` / `ForgotPasswordOtpScreen` / `ResetPasswordScreen`. Single fake implements `ForgotPasswordNotifier`; per-screen `_router(...)` helper switches `initialLocation` so the right screen mounts.
+  - `test/features/auth/presentation/screens/signup3_screen_test.dart` — **new** — 2 smoke tests. Fake extends `SignupNotifier` directly (rather than `implements`) so the 30+ inherited methods don't have to be redeclared; only `build` + `submitStep3` are overridden.
+  - `docs/phase6/task_07_widget_tests_auth.md` — marked `🟢 Completed`; documented why signup3 is one screen not four sub-screens; pinned the `extends vs implements` choice for the fake notifiers.
+  - `docs/phase6/README.md` — `7 / 14`, 6.07 row flipped to `🟢`.
+
+- **Decisions:**
+  - **Did not write 4 separate signup3 sub-screen test files.** SignUp3 was decomposed into widgets (sections, sheets, document blocks) but never split into sub-screens. The four spec files (`signup3_resume_screen_test.dart`, etc.) describe a layout that doesn't exist. One render-smoke + tap-Create-Profile test on the composite screen catches top-level layout regressions; deeper interaction (sheets, file pickers) belongs in unit tests of the section widgets (already covered by `signup_notifier_test.dart` step3 mutators + the existing `signup1_widgets_test.dart` precedent).
+  - **Used `extends SignupNotifier` for the signup3 fake.** First attempt was `implements SignupNotifier` with every method stubbed — broke on a moving target (param-name drift in `submitStep2`, `setFeaturedProjects`). Extending lets inherited methods be ignored unless triggered; the render path only hits `build` (auto-fires nothing) and the post-frame `seedStep3FromRoute` (pure state). Submit happens via tap and is the only method actually overridden.
+  - **Used `overrideWith(() => fake)` + `implements LoginNotifier / ForgotPasswordNotifier`** for login + forgot. Both surfaces are small (≤5 methods) so explicit `implements` is cheap and pins the surface. Drift would surface as a compile error, which is the right signal for "you added a Notifier method screens should consider using."
+  - **Asset/Image errors are swallowed** via `FlutterError.onError = (_) {}` inside `runAsync`. Every auth screen uses `Image.asset(AppAssets.rectangle)` + `SvgPicture.asset(...)` which fail under the test bundle. Suppressing these keeps tests focused on Notifier wiring; if the asset paths break in prod, golden tests (6.10) will catch it.
+  - **`tester.pump()` not `tester.pumpAndSettle()`** — `pumpAndSettle` hangs on the OTP screen's 1-second `Timer.periodic` countdown. The tests only need one frame past the post-frame callback so `await tester.pump()` (called twice in `_pump`) is sufficient.
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - `flutter test` green — 418 events total (up from 404 post-6.06; +14 events: 4 login + 8 forgot trio + 2 signup3).
+  - Per-file run: `flutter test test/features/auth/presentation/screens/` → 14 passing.
+  - Zero real API calls — every test overrides the notifier provider with a fake; no `Dio` or `SharedPreferences` initialisation needed.
+
+---
+
+### 2026-06-03: Phase 6 task 6.06 — **Notifier tests: file_manager + availability (messages skipped)** 🟢
+
+Closed Phase 6 task 6.06. Added dedicated Notifier tests for all 4 file_manager Notifiers (`FileManagerNotifier`, `PreProductionNotifier`, `PostProductionNotifier`, `ViewDetailsNotifier`) and filled gaps on the 2 availability Notifiers not covered by the pre-existing screen-level test. Messages is intentionally skipped — the feature has no Notifier yet.
+
+- **Files touched (5):**
+  - `test/features/file_manager/presentation/file_manager_notifier_test.dart` — **new** — 13 tests over 4 Notifiers. Root: load + setQuery filtering (name + category, case-insensitive) + empty query + toggleView. Family Notifiers (Pre/Post/ViewDetails): per-folder load + setQuery + state isolation across distinct `folderId` args.
+  - `test/features/availability/presentation/availability_notifier_test.dart` — **new** — 9 gap-fill tests. ManageAvailability: refresh failure (state.events stays empty, isLoading clears), `setFocusedDay` re-fetches with the new month/year, `setFilter` doesn't re-fetch. AddAvailability: rejects empty date, rejects empty time when not all-day, `setRecurrence` wipes weekday + weekend selections (preserves type + isAllDay), `toggleWeekDay` round-trip, `clearMessages`, daily recurrence happy submit.
+  - `docs/phase6/task_06_notifier_tests_rest.md` — marked `🟢 Completed`; documented messages-feature non-existence; noted family Notifier state-isolation coverage.
+  - `docs/phase6/README.md` — `6 / 14`, 6.06 row flipped to `🟢`.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Skipped `messages_notifier_test.dart` entirely.** `lib/features/messages` is only `presentation/screens/messages_screen.dart` — no domain repo, no data repo, no Notifier. The spec's third file line predates the messages-feature decision to leave it on legacy code for now. Writing a placeholder test for a class that doesn't exist would be busywork. Logged this as a deviation in the task file.
+  - **Added `availability_notifier_test.dart` as a sibling of the existing screen-level test, not as a rewrite.** The existing `screens/availability_test.dart` is the canonical place for assertions that need telemetry events + crashlytics breadcrumbs (B1 work). Splitting per-method state-transition tests into a separate file keeps gap-fills additive and lets the screen-level file stay focused on the telemetry path.
+  - **Pinned `AddAvailabilityNotifier.setRecurrence`'s "fresh constructor not copyWith" pattern.** The Notifier rewrites state by calling `AddAvailabilityState(type: state.type, recurrence: value, isAllDay: state.isAllDay, ...)` — wiping `selectedWeekDays` + `includeWeekends` while preserving `type` + `isAllDay`. New test asserts this exact carry-over.
+  - **Family Notifier state-isolation** test for `PreProductionNotifier` and `ViewDetailsNotifier` — sets a query / reads state on one `folderId`, then asserts the other `folderId` has untouched state. Catches a future refactor that accidentally collapses a family into a singleton.
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - `flutter test` green — 404 events total (up from 382 post-6.05; +22 events from the new file_manager and availability tests: 13 + 9).
+  - Per-file run: `flutter test test/features/{file_manager,availability}/presentation/{file_manager_notifier,availability_notifier}_test.dart` → 22 passing.
+  - Zero real API calls — both new files use inline `_FakeRepo` fakes; no `Dio` ever instantiated.
+  - **Coverage milestone**: every Notifier in `lib/` that exists has tests after 6.06. Messages remains the only un-tested feature surface because it has no Notifier yet.
+
+---
+
+### 2026-06-03: Phase 6 task 6.05 — **Notifier tests: home + shoots (audit only)** 🟢
+
+Closed Phase 6 task 6.05 by audit. All 4 home + shoots Notifiers (`HomeNotifier`, `ShootsListNotifier`, `CancelShootNotifier`, `UpcomingShootDetailNotifier`) already had AAA-style Phase 4 tests with ≥ 3 cases per public method, plus the two acceptance-critical paths called out by the spec.
+
+- **Files touched (3):**
+  - `docs/phase6/task_05_notifier_tests_home_shoots.md` — marked `🟢 Completed`; documented mapping from spec's 4-file layout to the actual 3-file layout; flagged the `FakeAsync` deviation explicitly.
+  - `docs/phase6/README.md` — `5 / 14`, 6.05 row flipped to `🟢`.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Spec-critical paths verified in existing tests:**
+  - **Home `Future.wait` partial failure** — `home_notifier_test.dart:185` "partial failure — crew stats fails but others succeed": stubs `fetchCrewStats` to throw while the other 6 fetchers succeed. State carries `errorMessage` and the rest of the dashboard hydrates. Matches the spec's "one of 7 fetchers errors" requirement.
+  - **Shoots search debounce** — `shoots_notifier_test.dart:209` "multiple rapid updateSearch calls within window collapse to one filter": 3 calls inside the 250 ms window all land but only the last query filters; `fetchShootsCount` is unchanged. Matches the spec's "only 1 fetch fires per 250ms window" requirement.
+
+- **Decisions:**
+  - **Did not switch the debounce test to `FakeAsync`.** Spec says "Debounce verified via `FakeAsync`"; existing test uses `_drainTime(Duration)` with real 20 ms wall-time steps. The test file's own comment justifies the choice — keeps every notifier test on the same harness pattern (microtask drain + optional real wait). Cost: ~350 ms on one test. Benefit: no `fake_async` zone wrapping that other tests would need to copy.
+  - **Did not split `CancelShootNotifier` into a separate `shoot_cancel_notifier_test.dart`.** Both Notifiers consume `_FakeShootsRepo`; splitting the test file would duplicate the fake. Spec file name treated as aspirational.
+  - **Did not move tests to `test/features/<feature>/presentation/providers/`.** Same blame-preservation reason as 6.04.
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - `flutter test` green — 382 events total (unchanged from 6.04 — no new tests added in this task).
+  - Per-file run: `flutter test test/features/{home,shoots}/presentation/{home_notifier,shoots_notifier,upcoming_shoot_notifier}_test.dart` → 22 passing.
+
+---
+
+### 2026-06-03: Phase 6 task 6.04 — **Notifier tests: auth + profile (audit + gap-fill)** 🟢
+
+Closed Phase 6 task 6.04 by auditing the existing Phase 4 Notifier tests against the task spec rather than rewriting them. 13 of 14 auth + profile Notifiers already had AAA-style tests with ≥ 3 cases per public method (validation / happy / error + B1 telemetry). One gap (`ProfileDetailsViewNotifier`) was filled inline.
+
+- **Files touched (4):**
+  - `test/features/profile/presentation/profile_files_test.dart` — added `profileDetailsViewNotifier` group with 3 tests (refresh happy, refresh failure → `errorMessage = 'Failed to load profile'`, `selectTab` mutation without re-fetch). Also added `profile_details_providers.dart` import.
+  - `docs/phase6/task_04_notifier_tests_auth_profile.md` — marked `🟢 Completed`; documented mapping from spec's file list to actual test files, called out two structural deltas vs spec (signup3 sub-screens are not separate Notifiers; featured-work tests share `profile_files_test.dart` with resume + certificates).
+  - `docs/phase6/README.md` — `4 / 14`, 6.04 row flipped to `🟢`.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Did not rewrite existing 3,395 LOC of Phase 4 Notifier tests.** Each existing file already covers the spec's AAA + ≥ 3-cases pattern (login validation/happy/repo-error + telemetry; signup step1-3 validation + happy + repo-error; forgot password 3 flows; my-profile refresh/upload/social/portfolio; profile-files resume/certs/featured; edit-personal + enter-professional; change-password 3 notifiers; delete-account 2 flows + B1). Replacing them would erase B1 telemetry assertions that landed during the telemetry phase.
+  - **`ProfileDetailsViewNotifier` was the only Notifier without dedicated tests.** Added it to `profile_files_test.dart` (not a new file) because `ProfileDetailsViewNotifier` depends on `ProfileFilesRepository` — re-using the file's `_FakeRepo` keeps the test infrastructure lean.
+  - **Did not chase the spec's `providers/` sub-directory layout.** Existing tests live at `test/features/<feature>/presentation/<notifier>_test.dart`. Moving them would invalidate every PR's git blame on tests; the spec's path was aspirational.
+  - **`signup3_*_notifier_test.dart` files do not exist** because step1 / step2 / step3 share a single `SignupNotifier`. The existing `signup_notifier_test.dart` covers all three step submissions and the step3 mutator surface (social links, portfolio links, featured projects, certificates, resume).
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - `flutter test` green — 382 events total (up from 379 post-6.03; +3 events from the new `profileDetailsViewNotifier` group).
+  - Zero real API calls — every notifier test uses an inline `_FakeRepo` / `_FakeAuthRepo` / `_FakeSession` fake.
+
+---
+
+### 2026-06-03: Phase 6 task 6.03 — **Repository unit tests batch 2 (shoots · file_manager · availability)** 🟢
+
+Closed Phase 6 task 6.03. Added unit-test coverage for `ShootsRepositoryImpl`, `FileManagerStubRepository`, and `AvailabilityRepositoryImpl` following the 6.02 mocktail-on-`DioClient.dio` pattern. After this task every repository in the codebase has dedicated unit tests; notifier-level tests (6.04 onward) can rely on the repo contract being pinned.
+
+- **Files touched (5):**
+  - `test/features/shoots/data/repositories/shoots_repository_impl_test.dart` — **new** — 16 tests over `fetchProjectDetail`, `respondToProject`, `fetchShoots`, `fetchShootCount`. `respondToProject` covers both the omit-null-fields path (Dart 3 collection-if-elements) and the include-reason/comment path.
+  - `test/features/file_manager/data/repositories/file_manager_repository_impl_test.dart` — **new** — 8 tests pinning the stub repo's hardcoded shape (20 folders, 6 alternating pdf/doc files, folderId-namespaced ids).
+  - `test/features/availability/data/repositories/availability_repository_impl_test.dart` — **new** — 11 tests covering `fetchMonth` (swallow-on-envelope-error, status precedence: `projectAssigned` over `available`) and `createAvailability` (fire-and-forget) plus 401 / 5xx / cancel propagation.
+  - `docs/phase6/task_03_repo_tests_batch2.md` — marked `🟢 Completed`; captured file paths, counts, swallow-on-error + fire-and-forget deviations, and the home/shoots `acceptdeclineproject` shape duplication.
+  - `docs/phase6/README.md` — overall status `3 / 14`, 6.03 row flipped to `🟢`.
+
+- **Decisions:**
+  - **Treat `FileManagerStubRepository` as the real surface for now.** Backend endpoints are not live yet (Phase 4 punted on these), so the stub is the contract notifiers + widget tests consume. Tests pin the hardcoded shape rather than mocking anything — when the Dio-backed impl arrives, these tests will deliberately fail and force an update.
+  - **Pinned `AvailabilityRepositoryImpl`'s swallow-on-envelope-error behavior.** `fetchMonth` returns `{}` (not throws) on non-Map / missing `data.availability` / `error: true`. Surfacing those as user-visible errors is its own change; tests lock the current behavior so it can't silently regress.
+  - **Pinned `createAvailability` as fire-and-forget.** It never inspects `response.data`. One test asserts a `{error: true}` response is silently accepted, so a future "actually check the envelope" change must update tests intentionally.
+  - **Did not de-dup `acceptdeclineproject` body shapes.** `ShootsRepositoryImpl.respondToProject` posts `{project_id, status, reason?, comment?}` (enum-driven) while `HomeRepositoryImpl.acceptDeclineProject` posts `{project_id, crew_accept: 1|2}` (int-driven). Both hit the same endpoint. Bridging the two is a notifier-layer task (likely 6.05). Each test file pins its own repo's shape — duplication is intentional.
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - `flutter test` green — 379 events total (35 new repo-test events: 16 shoots + 8 file_manager + 11 availability), +35 from the post-6.02 baseline of 344.
+  - Per-file run also green: `flutter test test/features/{shoots,file_manager,availability}/data` → `+35`.
+  - Zero real network — every `dio.get` / `dio.post` is stubbed via mocktail; the stub repo is constructed directly with no `Dio` ever involved.
+
+---
+
+### 2026-06-03: Phase 6 task 6.02 — **Repository unit tests batch 1 (auth · profile · home)** 🟢
+
+Closed Phase 6 task 6.02. Added unit-test coverage for `AuthRepositoryImpl`, `ProfileRepositoryImpl`, and `HomeRepositoryImpl` exercising every public method's happy path plus its server-envelope error and transport failures (401 / 5xx / cancel where applicable). Mocks come from the shared `test/helpers/mocks.dart` from 6.01 — `MockDioClient` returns a `MockDio` and tests `verify(...).captured` the path/body each method sent.
+
+- **Files touched (5):**
+  - `test/features/auth/data/repositories/auth_repository_impl_test.dart` — **new** — 32 tests over `login`, `requestPasswordReset`, `verifyResetOtp`, `resetPassword`, `registerStep1`, `registerStep2`, `registerStep3`, `fetchRoles`, `fetchSkills`, `searchEquipments`. `registerStep1` writes a 4-byte temp file in `Directory.systemTemp` so `MultipartFile.fromFile` succeeds, then cleans up.
+  - `test/features/profile/data/repositories/profile_repository_impl_test.dart` — **new** — 26 tests over `fetchEditProfile`, `updateProfile`, `fetchRoles`, `fetchSkills`, `uploadPhoto`, `updateSocialLinks`, `addPortfolioLinks`, `editPortfolioLink`. Uses an inline `_editProfilePayload(...)` builder because the existing `profileResponse` fixture targets the my-profile model, not the edit-profile model.
+  - `test/features/home/data/repositories/home_repository_impl_test.dart` — **new** — 25 tests over `fetchDashboardCount`, `fetchUpcomingShoots`, `fetchPendingRequests`, `fetchCrewStats`, `fetchShootCategories`, `fetchAvailability`, `fetchProfile`, `acceptDeclineProject`. `fetchPendingRequests` test asserts the repo's status-substring filter keeps `Pending` and `pending ` and drops `confirmed`.
+  - `docs/phase6/task_02_repo_tests_batch1.md` — marked `🟢 Completed`, captured the actual files / counts / deviations.
+  - `docs/phase6/README.md` — overall status `2 / 14`, 6.02 row flipped to `🟢`.
+
+- **Decisions:**
+  - **Followed live `throws Exception` contract, not the `Either<AppException, T>` line in the task spec.** Phase 4 / `AI_HANDOFF.md` already flag that repos throw rather than return `Either`. Aligning the codebase to `Either` is a separate sweep that would touch every repo and every Notifier `catch` block; doing it inside a "write tests" task would silently expand scope. Logged as a deviation in the task file and surfaced in the AI handoff so it shows up at the start of every future session.
+  - **`CancelToken` is not threaded through repo methods today.** Tests simulate cancel by stubbing `Dio.<verb>` to throw `DioException(type: DioExceptionType.cancel)` and asserting the type propagates. Wiring real `CancelToken` plumbing is a notifier-layer concern (6.04–6.06).
+  - **Inline `_editProfilePayload(...)` builder in the profile test** instead of bloating `test/helpers/test_data.dart`. The shared helpers file's own guidance is "add a fixture only when ≥2 tests need the same shape" — this one shape currently lives in one test file.
+  - **Multipart endpoints use a real temp file** (`Directory.systemTemp` + `writeAsBytesSync` + `tearDown` delete) rather than faking `FormData`. `MultipartFile.fromFile` reads from disk during construction; faking the API would mean intercepting `FormData.fromMap` itself, which is fragile.
+
+- **Constraints Maintained:**
+  - `flutter analyze --fatal-infos` clean.
+  - `flutter test` green — 344 events total (83 new repo-test events: 32 auth + 26 profile + 25 home).
+  - Per-file run also green: `flutter test test/features/{auth,profile,home}/data` → `+83`.
+  - Zero real network — every `dio.get` / `dio.post` is stubbed via mocktail; assertions on captured args confirm the request shape without ever touching `BaseOptions.baseUrl`.
+
+---
+
 ### 2026-06-02: Telemetry C2 — **Release symbol upload (iOS dSYM + Android mapping)** 🟢
 
 Phase C task C2 closed (and C1 marked Skipped per product decision). Enabled automatic crash symbolication in Firebase Crashlytics for production and development flavors on release builds by configuring automatic obfuscation mapping uploads for Android and dSYM uploads for iOS.

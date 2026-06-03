@@ -9,8 +9,8 @@ tools.
 Before planning or editing, read these in order:
 
 1. `docs/AI_HANDOFF.md` — current shared context for Claude Code + Codex.
-2. `docs/phase5/README.md` — active sprint board.
-3. The current task file under `docs/phase5/`.
+2. `docs/phase6/README.md` — active sprint board.
+3. The current task file under `docs/phase6/`.
 4. The latest relevant entries in `MIGRATION_LOG.md`.
 5. The files you are about to edit.
 
@@ -29,7 +29,7 @@ Current migration state:
 - Phase 3 complete.
 - Phase 4 complete; `23 / 23` tasks done.
 - Phase 5 complete; `8 / 8` tasks done.
-- Phase 6 in progress; `1 / 14` tasks done. Task `6.01` (test helpers — `pumpRouterApp`, `mocks.dart`, `test_data.dart`) closed 2026-05-31. Next: `6.02` (repo unit tests batch 1).
+- Phase 6 in progress; `12 / 14` tasks done. Task `6.01` (test helpers) closed 2026-05-31; `6.02`–`6.12` closed 2026-06-03 (all 6 repos + every Notifier + widget tests for every entry-point screen + golden baselines for the 4 shared design-token components + login/logout and signup integration tests). Next: `6.13` (CI coverage gate).
 
 Riverpod is wired. Do not follow older notes that say ProviderScope/Riverpod is
 unused. `startApp` mounts `ProviderScope`, overrides shared dependencies, and
@@ -41,6 +41,16 @@ boots `App`.
 flutter pub get
 flutter analyze
 flutter test
+
+# Integration tests live under integration_test/ and are not part of the
+# default flutter test run.
+flutter test integration_test/login_logout_test.dart -d macos
+flutter test integration_test/signup_flow_test.dart -d macos
+
+# Regenerate golden PNGs after deliberate design-token changes (6.10).
+# Goldens live in test/golden/goldens/. Re-run on the same Flutter SDK
+# version that produced them — cross-SDK pixel diffs are noise.
+flutter test --update-goldens test/golden/
 
 flutter run --flavor dev  --dart-define-from-file=env/dev.json  -t lib/main_dev.dart
 flutter run --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart
@@ -92,4 +102,3 @@ Follow the established migration pattern:
 - New Markdown docs belong under `docs/`, except repo-root convention files: `README.md`, `CLAUDE.md`, `AGENTS.md`, `MIGRATION_PLAN.md`, `MIGRATION_RULES.md`, `MIGRATION_LOG.md`.
 - Prefer `rg` / `rg --files` for search.
 - Run `flutter analyze` and focused tests for the changed area; run full `flutter test` when feasible.
-

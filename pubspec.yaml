@@ -64,6 +64,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  # Phase 6 integration test runner (6.11 onward).
+  integration_test:
+    sdk: flutter
+
   # Phase 3 test deps
   mocktail: ^1.0.4
 

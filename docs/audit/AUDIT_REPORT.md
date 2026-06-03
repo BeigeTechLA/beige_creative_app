@@ -15,6 +15,10 @@ The codebase is **not production-ready**. A single root cause — 41 `StatefulWi
 
 ## Audit Coverage
 
+### 2026-06-03 Phase 6 CI Update
+
+This audit report is still the original 2026-05-20 baseline, but Phase 6 now has CI coverage enforcement wired: GitHub Actions runs `flutter analyze --fatal-infos`, `flutter test --coverage`, uploads LCOV, and fails below `70%` line coverage. A separate `push`-to-`main` integration workflow is configured for Android emulator + iOS simulator. Current refreshed LCOV is `48.14%`, so release readiness is not yet claimed; task 6.14 remains the coverage-lift blocker.
+
 | Area | Score | Highest Severity | Verdict |
 |------|-------|------------------|---------|
 | #1 Architecture | 2/10 | 🔴 | Survives 12 months only with major refactor |
