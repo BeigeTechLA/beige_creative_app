@@ -177,6 +177,16 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
   }
 
   String? _formatError(Object e) {
+    AppException? typed;
+    if (e is AppException) {
+      typed = e;
+    } else if (e is DioException && e.error is AppException) {
+      typed = e.error as AppException;
+    }
+    if (typed != null) {
+      final msg = typed.message.trim();
+      if (msg.isNotEmpty) return msg;
+    }
     final raw = e.toString().replaceFirst('Exception: ', '');
     if (raw.contains('{') && raw.contains('"message"')) {
       final match = RegExp(r'"message":"(.*?)"').firstMatch(raw);
