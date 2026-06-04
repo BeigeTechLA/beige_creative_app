@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
+import 'app/assets.dart';
 import 'config/env.dart';
 import 'core/firebase/crashlytics_service.dart';
 import 'core/firebase/firebase_service.dart';
@@ -44,6 +46,10 @@ Future<void> startApp(Environment environment) async {
     final initialAuth = PrefsService.isLoggedIn;
     final initialOnboardingSeen =
         prefs.getBool(PrefsSessionStore.onboardingSeenKey) ?? false;
+
+    // Warm Lottie composition so splash paints first frame in sync with native
+    // launch screen handoff (no transparent gap during JSON parse).
+    unawaited(AssetLottie(AppAssets.lottieSplash).load());
 
     runApp(
       ProviderScope(
