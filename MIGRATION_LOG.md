@@ -7,6 +7,62 @@
 
 ---
 
+### 2026-06-04: iOS launch image asset refresh
+
+Regenerated the iOS launch image set from the AppIcon 1024 px source and
+removed the white outside corner fill so the icon sits cleanly on dark launch
+backgrounds.
+
+- **Files touched (4):**
+  - `ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png` — replaced with a 200 px resize of `AppIcon.appiconset/1024.png` with transparent outside corners.
+  - `ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png` — replaced with a 400 px resize with transparent outside corners.
+  - `ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png` — replaced with a 600 px resize with transparent outside corners.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Kept `Contents.json` unchanged.** The asset catalog already references the standard `1x` / `2x` / `3x` launch image filenames.
+  - **No phase task status changed.** This was a targeted iOS asset update, not active Phase 6 test implementation.
+
+- **Verification:**
+  - `sips -g pixelWidth -g pixelHeight ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage*.png` -> 200, 400, and 600 px square outputs.
+  - `magick identify` pixel checks -> corner pixels are transparent; internal white `CP` and beige logo pixels remain opaque.
+  - `ruby -rjson -e 'JSON.parse(File.read(ARGV.fetch(0)))' ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json` -> OK.
+
+- **Remaining risk / follow-up:**
+  - iOS launch-screen rendering was not simulator-verified in this turn.
+
+---
+
+### 2026-06-04: iOS Info.plist plugin privacy-string audit
+
+Audited the iOS plugin set and current code paths for required `Info.plist`
+privacy usage strings.
+
+- **Files touched (2):**
+  - `ios/Runner/Info.plist` — added `NSCameraUsageDescription` for the
+    `image_picker` camera path used by certificate uploads; normalized
+    indentation in the existing privacy-string block.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Added camera, not microphone.** `CommonUploader.pickFromCamera()` is used
+    from the certificates flow, so `NSCameraUsageDescription` is required.
+    There are no `pickVideo` / video-capture code paths, so
+    `NSMicrophoneUsageDescription` was not added.
+  - **Kept existing location and photo-library strings.** Geolocator and
+    image/file picking paths were already covered by the current plist entries.
+  - **No phase task status changed.** This was a targeted iOS config audit, not
+    active Phase 6 test implementation.
+
+- **Verification:**
+  - `plutil -lint ios/Runner/Info.plist` -> OK.
+  - `git diff --check -- ios/Runner/Info.plist` -> clean.
+
+- **Remaining risk / follow-up:**
+  - `ios/Podfile.lock` had pre-existing local changes and was left untouched.
+
+---
+
 ### 2026-06-03: Phase 6 task 6.13 — **CI coverage gate + Android/iOS integration workflow** 🟡
 
 Implemented Phase 6 task 6.13 wiring, but left the task in progress because live acceptance still needs the first GitHub Actions emulator/simulator run and the current LCOV is below the new 70% gate.
