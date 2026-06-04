@@ -137,11 +137,11 @@ class AppAssets {
   // SVG — Shoots
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const String clockIcon = '$_shootSvg/clock_icon.svg';
+  static const String clockIcon = '$_shootSvg/ic_clock.svg';
   static const String declinedIcon = '$_shootSvg/declined_icon.svg';
   static const String photoIcon = '$_shootSvg/photo_icon.svg';
-  static const String videoIcon = '$_shootSvg/video_icon.svg';
-  static const String calendarIcon = '$_shootSvg/calendar.svg';
+  static const String videoIcon = '$_shootSvg/ic_video.svg';
+  static const String calendarIcon = '$_shootSvg/ic_calendar.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Onboarding

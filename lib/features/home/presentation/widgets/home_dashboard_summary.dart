@@ -163,10 +163,6 @@ class _DashboardCard extends StatelessWidget {
                 iconPath,
                 width: 17,
                 height: 17,
-                colorFilter: ColorFilter.mode(
-                  isSelected ? AppColors.primary : AppColors.primary,
-                  BlendMode.srcIn,
-                ),
               ),
             ),
           ],
