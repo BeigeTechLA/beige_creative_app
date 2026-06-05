@@ -25,7 +25,10 @@ class AppAssets {
   static const String activeShoots = '$_active/shoots_active.svg';
   static const String activeFileManager = '$_active/file_manager_active.svg';
   static const String activeMessages = '$_active/messages_active.svg';
-  static const String activeManageAvailability = '$_active/manage_availability.svg';
+  static const String activeMeetings = '$_active/meetings_active.svg';
+  static const String activeManageAvailability = '$_active/manage_availability_active.svg';
+  static const String activeAffiliate = '$_active/affiliate_active.svg';
+  static const String activePayouts = '$_active/payouts_active.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Inactive Icons
@@ -35,7 +38,10 @@ class AppAssets {
   static const String inactiveShoots = '$_inactive/shoots_inactive.svg';
   static const String inactiveFileManager = '$_inactive/file_manager_inactive.svg';
   static const String inactiveMessages = '$_inactive/messages_inactive.svg';
+  static const String inactiveMeetings = '$_inactive/meetings_inactive.svg';
   static const String inactiveManageAvailability = '$_inactive/manage_availability_inactive.svg';
+  static const String inactiveAffiliate = '$_inactive/affiliate_inactive.svg';
+  static const String inactivePayouts = '$_inactive/payouts_inactive.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Common Images

@@ -43,8 +43,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        final upcoming =
-            ref.read(homeNotifierProvider).upcomingShootsList;
+        final upcoming = ref.read(homeNotifierProvider).upcomingShootsList;
         if (upcoming.isNotEmpty) {
           setState(() {
             _currentIndex = (_currentIndex + 1) % upcoming.length;
@@ -72,8 +71,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final upcoming = ref.read(homeNotifierProvider).upcomingShootsList;
     if (!_controller.isAnimating && upcoming.isNotEmpty) {
       setState(() {
-        _currentIndex =
-            (_currentIndex - 1 + upcoming.length) % upcoming.length;
+        _currentIndex = (_currentIndex - 1 + upcoming.length) % upcoming.length;
       });
     }
   }
@@ -100,132 +98,120 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         ? homeState.pendingRequestCards.first
         : null;
 
-    return RefreshIndicator(
-      color: AppColors.primary,
-      backgroundColor: AppColors.surfaceMid,
-      onRefresh: () => notifier.refresh(),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
+    return Column(
+      children: [
+        HomeWelcomeHeader(
+          firstName: homeState.profileData?.firstName,
+          profileImageUrl: homeState.profileData?.profileImageUrl ?? "",
+          onAvatarTap: () {
+            context.pushNamed(Routes.myProfile.name).then((value) {
+              if (value == true) {
+                notifier.refreshAfterProfileReturn();
+              }
+            });
+          },
         ),
-        child: Column(
-          children: [
-            HomeWelcomeHeader(
-              firstName: homeState.profileData?.firstName,
-              profileImageUrl:
-                  homeState.profileData?.profileImageUrl ?? "",
-              onAvatarTap: () {
-                context.pushNamed(Routes.myProfile.name).then((value) {
-                  if (value == true) {
-                    notifier.refreshAfterProfileReturn();
-                  }
-                });
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xl,
-                vertical: AppSpacing.lg,
+        Expanded(
+          child: RefreshIndicator(
+            color: AppColors.primary,
+            backgroundColor: AppColors.surfaceMid,
+            onRefresh: () => notifier.refresh(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  HomeDashboardSummary(
-                    completedShoots: homeState.completedShoots,
-                    upcomingShoots: homeState.upcomingShoots,
-                    pendingRequests: homeState.pendingRequests,
-                    selectedIndex: homeState.selectedDashboardIndex,
-                    onSelect: notifier.selectDashboardCard,
-                  ),
-                  AppSpacing.verticalMld,
-                  Divider(color: AppColors.dividerDark),
-                  AppSpacing.verticalMld,
-                  if (homeState.upcomingShootsList.isNotEmpty)
-                    HomeUpcomingCarousel(
-                      upcomingShoots: homeState.upcomingShootsList,
-                      currentIndex: _currentIndex,
-                      controller: _controller,
-                      onCardTap: _onCardTap,
-                      onSwipeNext: _goToNext,
-                      onSwipePrevious: _goToPrevious,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl,
+                  vertical: AppSpacing.lg,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HomeDashboardSummary(
+                      completedShoots: homeState.completedShoots,
+                      upcomingShoots: homeState.upcomingShoots,
+                      pendingRequests: homeState.pendingRequests,
+                      selectedIndex: homeState.selectedDashboardIndex,
+                      onSelect: notifier.selectDashboardCard,
                     ),
-                  AppSpacing.verticalMld,
-                  HomeAvailabilitySection(
-                    focusedDay: homeState.focusedDay,
-                    selectedEvent: homeState.selectedEvent,
-                    eventList: const [
-                      'All Events',
-                      'Available',
-                      'Shoot',
-                    ],
-                    events: homeState.events,
-                    onAddPressed: () {
-                      notifier.onPageChanged(homeState.focusedDay);
-                    },
-                    onPrevMonth: () => notifier.changeMonth(-1),
-                    onNextMonth: () => notifier.changeMonth(1),
-                    onSelectedEventChanged: notifier.selectEvent,
-                    onPageChanged: notifier.onPageChanged,
-                  ),
-                  AppSpacing.verticalMd,
-                  Divider(
-                    color: AppColors.dividerDark,
-                    thickness: 0.8,
-                  ),
-                  AppSpacing.verticalMd,
-                  if (homeState.pendingRequestCards.isNotEmpty) ...[
-                    HomePendingShootCard(
-                      pendingShoot: data,
-                      onAccept: (projectId) {
-                        notifier.acceptDecline(projectId, 1);
+                    AppSpacing.verticalMld,
+                    Divider(color: AppColors.dividerDark),
+                    AppSpacing.verticalMld,
+                    if (homeState.upcomingShootsList.isNotEmpty)
+                      HomeUpcomingCarousel(
+                        upcomingShoots: homeState.upcomingShootsList,
+                        currentIndex: _currentIndex,
+                        controller: _controller,
+                        onCardTap: _onCardTap,
+                        onSwipeNext: _goToNext,
+                        onSwipePrevious: _goToPrevious,
+                      ),
+                    AppSpacing.verticalMld,
+                    HomeAvailabilitySection(
+                      focusedDay: homeState.focusedDay,
+                      selectedEvent: homeState.selectedEvent,
+                      eventList: const ['All Events', 'Available', 'Shoot'],
+                      events: homeState.events,
+                      onAddPressed: () {
+                        notifier.onPageChanged(homeState.focusedDay);
                       },
-                      onRejectComplete: () {
-                        notifier.refresh();
-                      },
+                      onPrevMonth: () => notifier.changeMonth(-1),
+                      onNextMonth: () => notifier.changeMonth(1),
+                      onSelectedEventChanged: notifier.selectEvent,
+                      onPageChanged: notifier.onPageChanged,
                     ),
                     AppSpacing.verticalMd,
-                    Divider(
-                      color: AppColors.dividerDark,
-                      thickness: 0.8,
+                    Divider(color: AppColors.dividerDark, thickness: 0.8),
+                    AppSpacing.verticalMd,
+                    if (homeState.pendingRequestCards.isNotEmpty) ...[
+                      HomePendingShootCard(
+                        pendingShoot: data,
+                        onAccept: (projectId) {
+                          notifier.acceptDecline(projectId, 1);
+                        },
+                        onRejectComplete: () {
+                          notifier.refresh();
+                        },
+                      ),
+                      AppSpacing.verticalMd,
+                      Divider(color: AppColors.dividerDark, thickness: 0.8),
+                    ],
+                    AppSpacing.verticalMd,
+                    AppSpacing.verticalMld,
+                    HomeShootStatusPanel(
+                      successfulShoots: homeState.successfulShoots,
+                      pendingShoots: homeState.pendingShootsCount,
+                      rejectedShoots: homeState.rejectedShoots,
+                      shootRequests: homeState.shootRequests,
+                      selectedRange: homeState.selectedRange,
+                      rangeOptions: const ['Week', 'Month', 'Year'],
+                      onRangeChanged: notifier.changeStatsRange,
+                    ),
+                    AppSpacing.verticalBase,
+                    Divider(color: AppColors.dividerDark, thickness: 0.8),
+                    AppSpacing.verticalBase,
+                    HomeShootCategoriesPanel(
+                      selectedTab: homeState.selectedTab,
+                      categoryPhotoTotal: homeState.categoryPhotoTotal,
+                      categoryVideoTotal: homeState.categoryVideoTotal,
+                      acceptPhotographyShoots:
+                          homeState.acceptPhotographyShoots,
+                      acceptVideographyShoots:
+                          homeState.acceptVideographyShoots,
+                      rejectedPhoto: homeState.rejectedPhoto,
+                      rejectedVideo: homeState.rejectedVideo,
+                      requestPhoto: homeState.requestPhoto,
+                      requestVideo: homeState.requestVideo,
+                      onTabChanged: notifier.changeShootCategoryTab,
                     ),
                   ],
-                  AppSpacing.verticalMd,
-                  AppSpacing.verticalMld,
-                  HomeShootStatusPanel(
-                    successfulShoots: homeState.successfulShoots,
-                    pendingShoots: homeState.pendingShootsCount,
-                    rejectedShoots: homeState.rejectedShoots,
-                    shootRequests: homeState.shootRequests,
-                    selectedRange: homeState.selectedRange,
-                    rangeOptions: const ['Week', 'Month', 'Year'],
-                    onRangeChanged: notifier.changeStatsRange,
-                  ),
-                  AppSpacing.verticalBase,
-                  Divider(
-                    color: AppColors.dividerDark,
-                    thickness: 0.8,
-                  ),
-                  AppSpacing.verticalBase,
-                  HomeShootCategoriesPanel(
-                    selectedTab: homeState.selectedTab,
-                    categoryPhotoTotal: homeState.categoryPhotoTotal,
-                    categoryVideoTotal: homeState.categoryVideoTotal,
-                    acceptPhotographyShoots:
-                        homeState.acceptPhotographyShoots,
-                    acceptVideographyShoots:
-                        homeState.acceptVideographyShoots,
-                    rejectedPhoto: homeState.rejectedPhoto,
-                    rejectedVideo: homeState.rejectedVideo,
-                    requestPhoto: homeState.requestPhoto,
-                    requestVideo: homeState.requestVideo,
-                    onTabChanged: notifier.changeShootCategoryTab,
-                  ),
-                ],
+                ),
               ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

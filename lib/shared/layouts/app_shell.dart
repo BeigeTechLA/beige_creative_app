@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,11 +11,16 @@ import '../../app/routes.dart';
 import '../../app/shadows.dart';
 import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
+import '../../config/env.dart';
 import '../../core/firebase/analytics_service.dart';
+import '../../features/home/presentation/providers/home_notifier.dart';
+import '../../features/profile/presentation/providers/my_profile_providers.dart'
+    show profileImageBustProvider;
 
-/// Hosts the 5 root branches (Dashboard, Shoots, Files, Messages, Manage
-/// Availability) under a `StatefulShellRoute.indexedStack`. Tabs preserve
-/// their `Navigator` state across switches.
+/// Hosts the root branches (Dashboard, Shoots, Files, Messages, future
+/// drawer-only entries, Manage Availability) under a
+/// `StatefulShellRoute.indexedStack`. Tabs preserve their `Navigator` state
+/// across switches.
 ///
 /// Replaces the legacy `Mainscreen` (also drops the per-frame
 /// `BackdropFilter(sigmaX: 80, sigmaY: 70)` which was costing 4-6 ms/frame
@@ -24,13 +31,12 @@ class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.shell});
 
   void _goBranch(int index) {
-    shell.goBranch(
-      index,
-      initialLocation: index == shell.currentIndex,
-    );
+    shell.goBranch(index, initialLocation: index == shell.currentIndex);
     // Phase F — StatefulShellRoute branch switches don't push on the root
     // Navigator, so AppAnalyticsObserver doesn't see them. Log explicitly.
-    if (index != shell.currentIndex && index >= 0 && index < _branchRoutes.length) {
+    if (index != shell.currentIndex &&
+        index >= 0 &&
+        index < _branchRoutes.length) {
       AnalyticsService.logScreenView(screenName: _branchRoutes[index].name);
     }
   }
@@ -42,7 +48,10 @@ class AppShell extends StatelessWidget {
     Routes.shoots,
     Routes.files,
     Routes.messages,
+    Routes.meetings,
     Routes.manageAvailability,
+    Routes.affiliate,
+    Routes.payouts,
   ];
 
   @override
@@ -58,8 +67,8 @@ class AppShell extends StatelessWidget {
       ),
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
       body: shell,
-      // Branch 4 (Manage Availability) is drawer-only — hiding the bar on
-      // that branch tells the truth instead of clamping to Dashboard.
+      // Branches 4+ are drawer-only — hiding the bar on those branches tells
+      // the truth instead of clamping to Dashboard.
       bottomNavigationBar: shell.currentIndex >= 4
           ? null
           : _AppShellBottomBar(
@@ -74,10 +83,7 @@ class _AppShellBottomBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const _AppShellBottomBar({
-    required this.currentIndex,
-    required this.onTap,
-  });
+  const _AppShellBottomBar({required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -182,17 +188,23 @@ class _ActiveNavIcon extends StatelessWidget {
   }
 }
 
-class _AppShellDrawer extends StatelessWidget {
+class _AppShellDrawer extends ConsumerWidget {
   final int currentIndex;
   final ValueChanged<int> onSelect;
 
-  const _AppShellDrawer({
-    required this.currentIndex,
-    required this.onSelect,
-  });
+  const _AppShellDrawer({required this.currentIndex, required this.onSelect});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileImageUrl = ref.watch(
+      homeNotifierProvider.select(
+        (s) => s.profileData?.profileImageUrl ?? '',
+      ),
+    );
+    final bust = ref.watch(profileImageBustProvider);
+    final avatarUrl = profileImageUrl.isEmpty
+        ? ''
+        : '${Env.imageUrl}$profileImageUrl${bust > 0 ? '?v=$bust' : ''}';
     return Drawer(
       backgroundColor: AppColors.surfaceAbyss,
       child: SafeArea(
@@ -207,8 +219,7 @@ class _AppShellDrawer extends StatelessWidget {
                     children: [
                       Image.asset(AppAssets.groupLogo),
                       IconButton(
-                        icon:
-                            const Icon(Icons.close, color: AppColors.white),
+                        icon: const Icon(Icons.close, color: AppColors.white),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ],
@@ -229,7 +240,13 @@ class _AppShellDrawer extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 25,
-                            child: SvgPicture.asset(AppAssets.userCircle),
+                            backgroundColor: AppColors.surfaceVariant,
+                            backgroundImage: avatarUrl.isNotEmpty
+                                ? CachedNetworkImageProvider(avatarUrl)
+                                : null,
+                            child: avatarUrl.isEmpty
+                                ? SvgPicture.asset(AppAssets.userCircle)
+                                : null,
                           ),
                           AppSpacing.gapHMd,
                           Expanded(
@@ -238,8 +255,7 @@ class _AppShellDrawer extends StatelessWidget {
                               children: [
                                 Text(
                                   'My Profile',
-                                  style: AppTextStyles.bodyLargeStrong
-                                      .copyWith(
+                                  style: AppTextStyles.bodyLargeStrong.copyWith(
                                     color: AppColors.black,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -247,8 +263,9 @@ class _AppShellDrawer extends StatelessWidget {
                                 AppSpacing.verticalXxs,
                                 Text(
                                   'View account details',
-                                  style: AppTextStyles.bodySmallMedium
-                                      .copyWith(color: AppColors.black),
+                                  style: AppTextStyles.bodySmallMedium.copyWith(
+                                    color: AppColors.black,
+                                  ),
                                 ),
                               ],
                             ),
@@ -267,49 +284,25 @@ class _AppShellDrawer extends StatelessWidget {
             ),
             const Divider(color: AppColors.neutralGrey),
             Expanded(
-              child: ListView(
-                children: [
-                  _DrawerItem(
-                    label: 'Dashboard',
-                    activeIcon: AppAssets.activeDashboard,
-                    inactiveIcon: AppAssets.inactiveDashboard,
-                    index: 0,
+              child: ListView.separated(
+                padding: EdgeInsets.zero,
+                itemCount: _drawerItems.length,
+                separatorBuilder: (_, _) => const Divider(
+                  height: 1,
+                  thickness: 0.8,
+                  color: AppColors.dividerDark,
+                ),
+                itemBuilder: (context, index) {
+                  final item = _drawerItems[index];
+                  return _DrawerItem(
+                    label: item.label,
+                    activeIcon: item.activeIcon,
+                    inactiveIcon: item.inactiveIcon,
+                    index: index,
                     currentIndex: currentIndex,
                     onTap: onSelect,
-                  ),
-                  _DrawerItem(
-                    label: 'shoots',
-                    activeIcon: AppAssets.activeShoots,
-                    inactiveIcon: AppAssets.inactiveShoots,
-                    index: 1,
-                    currentIndex: currentIndex,
-                    onTap: onSelect,
-                  ),
-                  _DrawerItem(
-                    label: 'File Manager',
-                    activeIcon: AppAssets.activeFileManager,
-                    inactiveIcon: AppAssets.inactiveFileManager,
-                    index: 2,
-                    currentIndex: currentIndex,
-                    onTap: onSelect,
-                  ),
-                  _DrawerItem(
-                    label: 'messages',
-                    activeIcon: AppAssets.activeMessages,
-                    inactiveIcon: AppAssets.inactiveMessages,
-                    index: 3,
-                    currentIndex: currentIndex,
-                    onTap: onSelect,
-                  ),
-                  _DrawerItem(
-                    label: 'Manage Availability',
-                    activeIcon: AppAssets.activeManageAvailability,
-                    inactiveIcon: AppAssets.inactiveManageAvailability,
-                    index: 4,
-                    currentIndex: currentIndex,
-                    onTap: onSelect,
-                  ),
-                ],
+                  );
+                },
               ),
             ),
           ],
@@ -317,6 +310,61 @@ class _AppShellDrawer extends StatelessWidget {
       ),
     );
   }
+
+  static const List<_DrawerMenuItemData> _drawerItems = [
+    _DrawerMenuItemData(
+      label: 'Dashboard',
+      activeIcon: AppAssets.activeDashboard,
+      inactiveIcon: AppAssets.inactiveDashboard,
+    ),
+    _DrawerMenuItemData(
+      label: 'Shoots',
+      activeIcon: AppAssets.activeShoots,
+      inactiveIcon: AppAssets.inactiveShoots,
+    ),
+    _DrawerMenuItemData(
+      label: 'File Manager',
+      activeIcon: AppAssets.activeFileManager,
+      inactiveIcon: AppAssets.inactiveFileManager,
+    ),
+    _DrawerMenuItemData(
+      label: 'Messages',
+      activeIcon: AppAssets.activeMessages,
+      inactiveIcon: AppAssets.inactiveMessages,
+    ),
+    _DrawerMenuItemData(
+      label: 'Meetings',
+      activeIcon: AppAssets.activeMeetings,
+      inactiveIcon: AppAssets.inactiveMeetings,
+    ),
+    _DrawerMenuItemData(
+      label: 'Manage Availability',
+      activeIcon: AppAssets.activeManageAvailability,
+      inactiveIcon: AppAssets.inactiveManageAvailability,
+    ),
+    _DrawerMenuItemData(
+      label: 'Affiliate',
+      activeIcon: AppAssets.activeAffiliate,
+      inactiveIcon: AppAssets.inactiveAffiliate,
+    ),
+    _DrawerMenuItemData(
+      label: 'Payouts',
+      activeIcon: AppAssets.activePayouts,
+      inactiveIcon: AppAssets.inactivePayouts,
+    ),
+  ];
+}
+
+class _DrawerMenuItemData {
+  final String label;
+  final String activeIcon;
+  final String inactiveIcon;
+
+  const _DrawerMenuItemData({
+    required this.label,
+    required this.activeIcon,
+    required this.inactiveIcon,
+  });
 }
 
 class _DrawerItem extends StatelessWidget {
@@ -340,25 +388,25 @@ class _DrawerItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isActive = currentIndex == index;
     return ListTile(
+      minLeadingWidth: 32,
+      minVerticalPadding: AppSpacing.base,
       leading: SizedBox(
         width: 32,
         height: 32,
         child: Center(
           child: SvgPicture.asset(
             isActive ? activeIcon : inactiveIcon,
-            width: isActive ? 28 : 24,
-            height: isActive ? 28 : 24,
+            width: 24,
+            height: 24,
             fit: BoxFit.contain,
-            colorFilter: ColorFilter.mode(
-              isActive ? AppColors.white : AppColors.white30,
-              BlendMode.srcIn,
-            ),
           ),
         ),
       ),
       title: Text(
         label,
-        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
+        style: AppTextStyles.bodyLargeMedium.copyWith(
+          color: isActive ? AppColors.white : AppColors.white38,
+        ),
       ),
       onTap: () => onTap(index),
     );

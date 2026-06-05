@@ -41,3 +41,5 @@ Placeholder route deliberately defers the architectural transport choice (stream
 - `presentation/providers/messages_notifier.dart` (Stream or AsyncNotifier per decision)
 
 Calibration: ~10 min vs. 1.5d budget. Treat as degenerate (no repository work attempted). First non-trivial repository-bound calibration target shifts to **4.04 File Manager**.
+
+2026-06-05 UI polish: `MessagesScreen` now uses the shared shell `AppMainToolbar` with drawer navigation, matching Shoots, File Manager, and Manage Availability while keeping the static placeholder transport decision unchanged.

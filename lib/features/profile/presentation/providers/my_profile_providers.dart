@@ -9,9 +9,19 @@ import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
 import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/myprofile_model.dart';
+import '../../../home/presentation/providers/home_notifier.dart';
 import '../widgets/profile_link_mappers.dart';
 import 'profile_details_providers.dart' show profileRepositoryProvider;
 import 'profile_files_providers.dart' show profileFilesRepositoryProvider;
+
+/// Increments every time the user successfully re-uploads their profile photo.
+///
+/// Display sites (drawer avatar, home welcome header) append `?v=$token` to
+/// the network URL so `CachedNetworkImage` treats it as a brand-new resource
+/// even when the backend reuses the same path after a re-upload. Avoids the
+/// stale-cache "image not refreshing" bug without touching disk-level
+/// cache-manager APIs (which need platform bindings unavailable in tests).
+final profileImageBustProvider = StateProvider<int>((_) => 0);
 
 @immutable
 class MyProfileState {
@@ -177,6 +187,11 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
       }
       CrashlyticsBreadcrumbs.success('profile.upload.photo.success');
       await refresh();
+      // Bump the cache-bust token + invalidate home so the drawer avatar and
+      // dashboard header rebuild with a fresh URL even when the backend
+      // reuses the same path string.
+      ref.read(profileImageBustProvider.notifier).state++;
+      ref.invalidate(homeNotifierProvider);
       state = state.copyWith(isUploadingImage: false);
       return true;
     } catch (e, st) {

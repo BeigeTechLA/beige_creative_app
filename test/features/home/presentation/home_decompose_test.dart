@@ -7,6 +7,7 @@ import 'package:beige_creative_app/features/home/presentation/widgets/home_statu
 import 'package:beige_creative_app/features/home/presentation/widgets/home_welcome_header.dart';
 import 'package:beige_creative_app/model_class/create_dashboard_details_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,17 +42,20 @@ void main() {
       'HomeWelcomeHeader renders welcome text + avatar fallback',
       (tester) async {
         await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: HomeWelcomeHeader(
-                firstName: 'Casey',
-                profileImageUrl: '',
-                onAvatarTap: () {},
+          ProviderScope(
+            child: MaterialApp(
+              home: Scaffold(
+                body: HomeWelcomeHeader(
+                  firstName: 'Casey',
+                  profileImageUrl: '',
+                  onAvatarTap: () {},
+                ),
               ),
             ),
           ),
         );
         expect(find.text('Welcome Back, Casey'), findsOneWidget);
+        expect(find.text('Creative Pro'), findsOneWidget);
         expect(find.byType(CircleAvatar), findsOneWidget);
       },
     );

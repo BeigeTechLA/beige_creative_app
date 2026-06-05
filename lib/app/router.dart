@@ -12,6 +12,7 @@ import '../features/auth/presentation/routes/auth_routes.dart';
 import '../features/file_manager/presentation/routes/file_manager_routes.dart';
 import '../features/file_manager/presentation/screens/file_manager_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
+import '../features/menu_placeholders/presentation/screens/menu_placeholder_screen.dart';
 import '../features/messages/presentation/screens/messages_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../features/profile/presentation/routes/profile_routes.dart';
@@ -74,6 +75,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       queryParameters: match.uri.queryParameters,
     );
   }
+
   router.routerDelegate.addListener(persistOnChange);
   ref.onDispose(() => router.routerDelegate.removeListener(persistOnChange));
 
@@ -105,9 +107,9 @@ class _AuthRefreshNotifier extends ChangeNotifier {
   }
 }
 
-/// Composed route tree. Entry-point routes (splash, onboarding) + the
-/// 5-tab `StatefulShellRoute` stay inline because they describe the app's
-/// global lifecycle. Everything else lives in per-feature `*_routes.dart`
+/// Composed route tree. Entry-point routes (splash, onboarding) and root
+/// `StatefulShellRoute` destinations stay inline because they describe the
+/// app's global lifecycle. Everything else lives in per-feature `*_routes.dart`
 /// fragment files and is spread in below.
 final List<RouteBase> appRoutes = [
   GoRoute(
@@ -163,9 +165,45 @@ final List<RouteBase> appRoutes = [
       StatefulShellBranch(
         routes: [
           GoRoute(
+            path: Routes.meetings.path,
+            name: Routes.meetings.name,
+            builder: (context, state) => const MenuPlaceholderScreen(
+              title: 'Meetings',
+              description: 'Meetings arriving soon.',
+            ),
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
             path: Routes.manageAvailability.path,
             name: Routes.manageAvailability.name,
             builder: (context, state) => const ManageAvailabilityScreen(),
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: Routes.affiliate.path,
+            name: Routes.affiliate.name,
+            builder: (context, state) => const MenuPlaceholderScreen(
+              title: 'Affiliate',
+              description: 'Affiliate tools arriving soon.',
+            ),
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: Routes.payouts.path,
+            name: Routes.payouts.name,
+            builder: (context, state) => const MenuPlaceholderScreen(
+              title: 'Payouts',
+              description: 'Payouts arriving soon.',
+            ),
           ),
         ],
       ),

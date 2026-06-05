@@ -5,6 +5,8 @@ import 'package:beige_creative_app/core/firebase/crashlytics_breadcrumbs.dart';
 import 'package:beige_creative_app/core/firebase/crashlytics_keys.dart';
 import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/config/env.dart';
+import 'package:beige_creative_app/features/home/presentation/providers/home_notifier.dart';
+import 'package:beige_creative_app/features/home/presentation/providers/home_state.dart';
 import 'package:beige_creative_app/features/profile/domain/repositories/profile_files_repository.dart';
 import 'package:beige_creative_app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:beige_creative_app/features/profile/presentation/providers/my_profile_providers.dart';
@@ -14,6 +16,15 @@ import 'package:beige_creative_app/model_class/edit_profile_model.dart';
 import 'package:beige_creative_app/model_class/myprofile_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+class _FakeHomeNotifier extends AutoDisposeNotifier<HomeState>
+    implements HomeNotifier {
+  @override
+  HomeState build() => HomeState();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 class _FakeFilesRepo implements ProfileFilesRepository {
   int fetchCount = 0;
@@ -213,6 +224,7 @@ void main() {
         profileRepositoryProvider.overrideWithValue(
           profile ?? _FakeProfileRepo(),
         ),
+        homeNotifierProvider.overrideWith(_FakeHomeNotifier.new),
         if (telemetry != null)
           telemetryClientProvider.overrideWithValue(telemetry),
       ],

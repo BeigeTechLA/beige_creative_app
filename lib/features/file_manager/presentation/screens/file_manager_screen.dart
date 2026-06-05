@@ -10,6 +10,7 @@ import '../../../../app/routes.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../domain/entities/file_folder.dart';
 import '../providers/file_manager_providers.dart';
@@ -23,8 +24,10 @@ class FileManagerScreen extends ConsumerStatefulWidget {
 
 class _FileManagerScreenState extends ConsumerState<FileManagerScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabController =
-      TabController(length: 2, vsync: this);
+  late final TabController _tabController = TabController(
+    length: 2,
+    vsync: this,
+  );
   final TextEditingController _folderController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
@@ -46,32 +49,7 @@ class _FileManagerScreenState extends ConsumerState<FileManagerScreen>
     return SafeArea(
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.base,
-              vertical: AppSpacing.md,
-            ),
-            child: Row(
-              children: [
-                Builder(
-                  builder: (ctx) => InkWell(
-                    onTap: () => Scaffold.of(ctx).openDrawer(),
-                    child: SvgPicture.asset(
-                      AppAssets.menu,
-                      width: 26,
-                      height: 26,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                const Text(
-                  'File Manager',
-                  style: AppTextStyles.displayLabel16,
-                ),
-                const Spacer(),
-              ],
-            ),
-          ),
+          const AppMainToolbar(title: 'File Manager'),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
@@ -210,10 +188,7 @@ class _FileManagerScreenState extends ConsumerState<FileManagerScreen>
                     children: [
                       Icon(Icons.add, color: AppColors.black, size: 20),
                       SizedBox(width: 8),
-                      Text(
-                        'Add / Create',
-                        style: AppTextStyles.body14Medium,
-                      ),
+                      Text('Add / Create', style: AppTextStyles.body14Medium),
                     ],
                   ),
                 ),
@@ -279,10 +254,7 @@ class _FileManagerScreenState extends ConsumerState<FileManagerScreen>
                     color: AppColors.white30,
                   ),
                 ),
-                const Divider(
-                  color: AppColors.dividerDark,
-                  thickness: 0.8,
-                ),
+                const Divider(color: AppColors.dividerDark, thickness: 0.8),
                 const SizedBox(height: 12),
                 CustomTextField(
                   label: 'Folder Name',
@@ -422,9 +394,7 @@ class _FolderCard extends StatelessWidget {
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, color: AppColors.white),
                   color: AppColors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: AppRadii.xxxlAll,
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadii.xxxlAll),
                   onSelected: (_) {},
                   itemBuilder: (_) => [
                     _popupItem('open', Icons.folder_open, 'Open'),
@@ -451,9 +421,7 @@ class _FolderCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '${folder.fileCount.toString().padLeft(2, '0')} Files',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.primary,
-              ),
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary),
             ),
             const SizedBox(height: 8),
             Container(

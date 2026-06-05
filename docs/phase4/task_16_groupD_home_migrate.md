@@ -40,3 +40,5 @@ Migrate the post-split home dashboard to Riverpod. Replace 7 `initState` fetcher
 
 ## Notes
 Pre-Phase-4 the home screen leaked controllers and fired fetchers on every rebuild. Post-migration the budget is one fetch per `ref.invalidate` call.
+
+2026-06-05 UI polish: `HomeWelcomeHeader` was tightened against the CP Dashboard toolbar reference without changing Home's Riverpod/data flow.

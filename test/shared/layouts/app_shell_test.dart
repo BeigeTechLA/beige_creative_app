@@ -1,7 +1,28 @@
+import 'package:beige_creative_app/features/home/presentation/providers/home_notifier.dart';
+import 'package:beige_creative_app/features/home/presentation/providers/home_state.dart';
 import 'package:beige_creative_app/shared/layouts/app_shell.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+
+class _FakeHomeNotifier extends AutoDisposeNotifier<HomeState>
+    implements HomeNotifier {
+  @override
+  HomeState build() => HomeState();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+Widget _wrap(Widget child) {
+  return ProviderScope(
+    overrides: [
+      homeNotifierProvider.overrideWith(_FakeHomeNotifier.new),
+    ],
+    child: child,
+  );
+}
 
 class _Counter extends StatefulWidget {
   final String label;
@@ -80,8 +101,35 @@ GoRouter _harnessRouter() {
             routes: [
               GoRoute(
                 path: '/e',
-                name: 'manage-availability',
+                name: 'meetings',
                 builder: (_, _) => const _Counter('E'),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/f',
+                name: 'manage_availability',
+                builder: (_, _) => const _Counter('F'),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/g',
+                name: 'affiliate',
+                builder: (_, _) => const _Counter('G'),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/h',
+                name: 'payouts',
+                builder: (_, _) => const _Counter('H'),
               ),
             ],
           ),
@@ -92,9 +140,12 @@ GoRouter _harnessRouter() {
 }
 
 void main() {
-  testWidgets('AppShell preserves per-branch state across tab switches',
-      (tester) async {
-    await tester.pumpWidget(MaterialApp.router(routerConfig: _harnessRouter()));
+  testWidgets('AppShell preserves per-branch state across tab switches', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(MaterialApp.router(routerConfig: _harnessRouter())),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('A: 0'), findsOneWidget);
@@ -105,9 +156,11 @@ void main() {
     expect(find.text('A: 2'), findsOneWidget);
 
     // Switch to Shoots tab.
-    await tester.tap(find.byIcon(Icons.search).hitTestable().evaluate().isEmpty
-        ? find.text('Shoots')
-        : find.text('Shoots'));
+    await tester.tap(
+      find.byIcon(Icons.search).hitTestable().evaluate().isEmpty
+          ? find.text('Shoots')
+          : find.text('Shoots'),
+    );
     await tester.pumpAndSettle();
     expect(find.text('B: 0'), findsOneWidget);
 
@@ -121,19 +174,48 @@ void main() {
     );
   });
 
-  testWidgets('AppShell drawer item switches to Manage Availability branch',
-      (tester) async {
-    await tester.pumpWidget(MaterialApp.router(routerConfig: _harnessRouter()));
+  testWidgets('AppShell drawer item switches to Manage Availability branch', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(MaterialApp.router(routerConfig: _harnessRouter())),
+    );
     await tester.pumpAndSettle();
 
-    final scaffoldState =
-        tester.state<ScaffoldState>(find.byType(Scaffold).first);
+    final scaffoldState = tester.state<ScaffoldState>(
+      find.byType(Scaffold).first,
+    );
     scaffoldState.openDrawer();
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Manage Availability'));
     await tester.pumpAndSettle();
 
-    expect(find.text('E: 0'), findsOneWidget);
+    expect(find.text('F: 0'), findsOneWidget);
+  });
+
+  testWidgets('AppShell drawer item switches to future Payouts branch', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(MaterialApp.router(routerConfig: _harnessRouter())),
+    );
+    await tester.pumpAndSettle();
+
+    final scaffoldState = tester.state<ScaffoldState>(
+      find.byType(Scaffold).first,
+    );
+    scaffoldState.openDrawer();
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Payouts'),
+      220,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.tap(find.text('Payouts'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('H: 0'), findsOneWidget);
   });
 }

@@ -63,6 +63,9 @@ abstract class Routes {
   static const files = RouteSpec(name: 'files', path: '/files', featureArea: 'files');
   static const messages = RouteSpec(name: 'messages', path: '/messages', featureArea: 'messages');
   static const manageAvailability = RouteSpec(name: 'manage_availability', path: '/manage-availability');
+  static const meetings = RouteSpec(name: 'meetings', path: '/meetings', featureArea: 'meetings');
+  static const affiliate = RouteSpec(name: 'affiliate', path: '/affiliate', featureArea: 'affiliate');
+  static const payouts = RouteSpec(name: 'payouts', path: '/payouts', featureArea: 'payouts');
 
   // Profile
   static const myProfile = RouteSpec(name: 'my_profile', path: '/my-profile', featureArea: 'profile');
@@ -112,7 +115,8 @@ abstract class Routes {
     splash, onboarding,
     login, signupStep1, signupStep2, signupStep3,
     forgotPassword, forgotOtp, resetPassword, viewDetails,
-    home, shoots, files, messages, manageAvailability,
+    home, shoots, files, messages, meetings, manageAvailability, affiliate,
+    payouts,
     myProfile, editPersonalDetails, enterProfessionalDetails, profileDetails,
     featuredWorks, featuredWorkDetails, certificates, resume, appPreferences,
     changePassword, profileOtp, newPassword, profilePasswordSuccess,

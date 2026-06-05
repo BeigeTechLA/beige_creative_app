@@ -32,10 +32,12 @@ class ProfileLogoutButton extends ConsumerWidget {
             color: AppColors.primary,
             borderRadius: AppRadii.xxlAll,
           ),
-          child: const Center(
+          child: Center(
             child: Text(
               'Logout',
-              style: AppTextStyles.displayLabel14Strong,
+              style: AppTextStyles.displayLabel14Strong.copyWith(
+                color: AppColors.textHeading,
+              ),
             ),
           ),
         ),

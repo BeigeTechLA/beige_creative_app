@@ -7,6 +7,88 @@
 
 ---
 
+### 2026-06-05: Drawer future menu branch setup
+
+Extended the hamburger drawer to include all planned menu entries with active
+and inactive states, while keeping future features as placeholder routes.
+
+- **Files touched (7):**
+  - `lib/shared/layouts/app_shell.dart` — added Meetings, Affiliate, and Payouts to the drawer order; wired all drawer items through shell branch indexes; muted inactive rows and reused Messages active/inactive icons for future entries.
+  - `lib/app/routes.dart` — added `meetings`, `affiliate`, and `payouts` route specs.
+  - `lib/app/router.dart` — added drawer-only shell branches for the new route specs.
+  - `lib/features/menu_placeholders/presentation/screens/menu_placeholder_screen.dart` — new reusable placeholder screen with the shared toolbar/menu affordance.
+  - `test/shared/layouts/app_shell_test.dart` — updated the shell harness to eight branches and covered future drawer navigation.
+  - `docs/phase4/task_23_groupF_shell_shared.md` — noted the post-completion drawer expansion.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Drawer-only shell branches.** The future entries participate in active/inactive drawer state and can open the drawer from their placeholder screens, while the bottom nav remains the existing four-tab surface.
+  - **Temporary Messages icons.** Meetings, Affiliate, and Payouts use `activeMessages` / `inactiveMessages` until final assets are supplied.
+  - **No backend feature work.** Placeholder screens avoid inventing repositories/notifiers before requirements exist.
+
+- **Verification:**
+  - `dart format lib/app/routes.dart lib/app/router.dart lib/shared/layouts/app_shell.dart lib/features/menu_placeholders/presentation/screens/menu_placeholder_screen.dart test/shared/layouts/app_shell_test.dart` -> formatted; `routes.dart` compact style restored afterward to avoid unrelated churn.
+  - `flutter test test/app/router_test.dart test/app/routes_analytics_test.dart test/shared/layouts/app_shell_test.dart test/features/messages/presentation/screens/messages_screen_test.dart test/features/shoots/presentation/screens/shoots_screen_test.dart test/features/file_manager/presentation/screens/file_manager_screen_test.dart test/features/availability/presentation/screens/manage_availability_screen_test.dart` -> all tests passed.
+  - `flutter analyze` -> no issues found.
+
+- **Remaining risk / follow-up:**
+  - Replace the temporary Messages icons once final Meetings / Affiliate / Payouts assets are available.
+  - No simulator screenshot was captured in this turn.
+
+---
+
+### 2026-06-05: Messages shell toolbar alignment
+
+Aligned the Messages placeholder tab with the other app-shell menu screens by
+using the shared toolbar and drawer navigation affordance.
+
+- **Files touched (5):**
+  - `lib/features/messages/presentation/screens/messages_screen.dart` — replaced the standalone `Scaffold` body with `SafeArea` + shared `AppMainToolbar` + centered placeholder content.
+  - `lib/shared/widgets/app_main_toolbar.dart` — tightened the shared drawer affordance to a 48dp target, added tooltip semantics, and centered titles with a trailing spacer.
+  - `test/features/messages/presentation/screens/messages_screen_test.dart` — asserted the toolbar renders and the menu button opens the drawer.
+  - `docs/phase4/task_03_groupB_messages.md` — noted the post-completion UI polish while preserving the placeholder transport decision.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Kept Messages as a static placeholder.** No repository/notifier/transport work was added because the backend transport decision remains deferred.
+  - **Used the existing shell scaffold.** Messages now matches the other root-branch screens and does not create its own nested scaffold.
+
+- **Verification:**
+  - `dart format lib/shared/widgets/app_main_toolbar.dart lib/features/messages/presentation/screens/messages_screen.dart test/features/messages/presentation/screens/messages_screen_test.dart` -> formatted.
+  - `flutter test test/features/messages/presentation/screens/messages_screen_test.dart test/features/shoots/presentation/screens/shoots_screen_test.dart test/features/file_manager/presentation/screens/file_manager_screen_test.dart test/features/availability/presentation/screens/manage_availability_screen_test.dart` -> all tests passed.
+  - `flutter analyze` -> no issues found.
+
+- **Remaining risk / follow-up:**
+  - No simulator screenshot was captured in this turn.
+
+---
+
+### 2026-06-05: Home welcome toolbar UI polish
+
+Aligned the Home welcome header with the CP Dashboard toolbar reference while
+leaving Home's Riverpod orchestration and route behavior unchanged.
+
+- **Files touched (4):**
+  - `lib/features/home/presentation/widgets/home_welcome_header.dart` — added the `Creative Pro` subtitle, tightened toolbar spacing, and gave drawer/avatar controls 44dp hit areas while preserving app tokens.
+  - `test/features/home/presentation/home_decompose_test.dart` — pinned the default toolbar subtitle in the existing header characterization test.
+  - `docs/phase4/task_16_groupD_home_migrate.md` — noted the post-completion UI polish against the Home migration task.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Kept the bell visual-only.** The previous widget did not expose a notification callback, so the icon was aligned to the toolbar without adding a no-op action.
+  - **Kept fallback text as `User..`.** Existing Home widget tests pin that behavior; this pass focused on the reference toolbar details.
+  - **No Phase 6 status changed.** This was a targeted Home UI correction, not active coverage/test work.
+
+- **Verification:**
+  - `dart format lib/features/home/presentation/widgets/home_welcome_header.dart` -> formatted.
+  - `flutter test test/features/home/presentation/home_decompose_test.dart test/features/home/presentation/screens/home_screen_test.dart` -> all tests passed.
+  - `flutter analyze` -> no issues found.
+
+- **Remaining risk / follow-up:**
+  - Visual verification was static/code-level in this turn; no simulator screenshot was captured.
+
+---
+
 ### 2026-06-04: iOS launch image asset refresh
 
 Regenerated the iOS launch image set from the AppIcon 1024 px source and

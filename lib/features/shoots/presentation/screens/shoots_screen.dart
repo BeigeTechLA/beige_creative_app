@@ -16,6 +16,7 @@ import '../../../../model_class/shoots_model.dart';
 import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/widgets/app_loader.dart';
+import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../providers/shoots_providers.dart';
 
 class ShootsScreen extends ConsumerStatefulWidget {
@@ -44,37 +45,16 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
         children: [
           Column(
             children: [
-              /// TOP BAR
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.base,
-                  vertical: AppSpacing.md,
-                ),
-                child: Row(
-                  children: [
-                    Builder(
-                      builder: (context) => InkWell(
-                        onTap: () => Scaffold.of(context).openDrawer(),
-                        child: SvgPicture.asset(AppAssets.menu, height: 26),
-                      ),
-                    ),
-                    const Spacer(),
-                    const Text(
-                      'shoots',
-                      style: AppTextStyles.displayLabel16,
-                    ),
-                    const Spacer(),
-                  ],
-                ),
-              ),
+              const AppMainToolbar(title: 'shoots'),
 
               /// COUNT CARDS
               SizedBox(
                 height: 76,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.mld,
+                  ),
                   children: [
                     _CountCard(
                       number: '${state.counts?.pendingRequests ?? 0}',
@@ -120,8 +100,7 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                       hintText: 'Search events or crew...',
                       hintStyle: AppTextStyles.bodyMedium,
                       prefixIcon: Padding(
-                        padding:
-                            const EdgeInsets.all(AppSpacing.inlineNudge),
+                        padding: const EdgeInsets.all(AppSpacing.inlineNudge),
                         child: SvgPicture.asset(
                           AppAssets.searchIcon,
                           width: 14,
@@ -130,8 +109,9 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                         ),
                       ),
                       border: InputBorder.none,
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: AppSpacing.mld),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.mld,
+                      ),
                     ),
                   ),
                 ),
@@ -152,11 +132,14 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                       shoot: shoot,
                       isAcceptInFlight: inFlight,
                       onAccept: () => notifier.acceptShoot(shoot.projectId),
-                      onDecline: () => context.pushNamed(
-                        Routes.cancelShoot.name,
-                        extra: CancelShootArgs(projectId: shoot.projectId)
-                            .toExtra(),
-                      ).then((_) => notifier.refresh()),
+                      onDecline: () => context
+                          .pushNamed(
+                            Routes.cancelShoot.name,
+                            extra: CancelShootArgs(
+                              projectId: shoot.projectId,
+                            ).toExtra(),
+                          )
+                          .then((_) => notifier.refresh()),
                       onViewDetails: () => context.pushNamed(
                         Routes.upcomingShootDetails.name,
                         extra: UpcomingShootDetailsArgs(
@@ -203,16 +186,10 @@ class _CountCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.shootStatsCardTop,
-            AppColors.shootStatsCardBottom,
-          ],
+          colors: [AppColors.shootStatsCardTop, AppColors.shootStatsCardBottom],
         ),
         borderRadius: AppRadii.xlAll,
-        border: Border.all(
-          color: AppColors.shootStatsCardBorder,
-          width: 0.8,
-        ),
+        border: Border.all(color: AppColors.shootStatsCardBorder, width: 0.8),
         boxShadow: AppShadows.cardBlack12,
       ),
       child: Stack(
@@ -234,9 +211,7 @@ class _CountCard extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodyCompactMedium.copyWith(
-                    height: 1.1,
-                  ),
+                  style: AppTextStyles.bodyCompactMedium.copyWith(height: 1.1),
                 ),
               ],
             ),
@@ -246,11 +221,7 @@ class _CountCard extends StatelessWidget {
             right: 4,
             child: Container(
               alignment: Alignment.center,
-              child: SvgPicture.asset(
-                iconPath,
-                width: 25,
-                height: 25,
-              ),
+              child: SvgPicture.asset(iconPath, width: 25, height: 25),
             ),
           ),
         ],
@@ -341,10 +312,7 @@ class _ShootCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text(
-                  shoot.projectName,
-                  style: AppTextStyles.body15Strong,
-                ),
+                Text(shoot.projectName, style: AppTextStyles.body15Strong),
                 AppSpacing.verticalSm,
                 const Divider(color: AppColors.dividerDark),
                 Row(
@@ -357,8 +325,7 @@ class _ShootCard extends StatelessWidget {
                     AppSpacing.gapHXs,
                     Text(formattedTime, style: AppTextStyles.body10),
                     const SizedBox(width: AppSpacing.mld),
-                    SvgPicture.asset(AppAssets.location,
-                        width: 14, height: 14),
+                    SvgPicture.asset(AppAssets.location, width: 14, height: 14),
                     AppSpacing.gapHXs,
                     Expanded(
                       child: Text(
