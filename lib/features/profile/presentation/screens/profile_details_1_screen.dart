@@ -432,9 +432,11 @@ class _EditButton extends StatelessWidget {
           color: AppColors.primary,
           borderRadius: AppRadii.portfolioAll,
         ),
-        child: const Text(
+        child: Text(
           'Edit Profile Details',
-          style: AppTextStyles.body14Medium,
+          style: AppTextStyles.body14Medium.copyWith(
+            color: AppColors.onPrimary,
+          ),
         ),
       ),
     );
