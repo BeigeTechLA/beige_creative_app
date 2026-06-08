@@ -12,6 +12,7 @@ import '../../../../shared/widgets/custom_multi_selectfield.dart'
     show CustomMultiSelectField;
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/profile_details_providers.dart';
 
 class EnterProfileDetailsScreen extends ConsumerStatefulWidget {
@@ -78,9 +79,8 @@ class _EnterProfileDetailsScreenState
     final state = ref.watch(enterProfessionalNotifierProvider);
     _hydrateOnce(state);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
+    return AppScaffold(
+      body: Stack(
           children: [
             SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.xl),
@@ -161,7 +161,6 @@ class _EnterProfileDetailsScreenState
               ),
           ],
         ),
-      ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: SizedBox(

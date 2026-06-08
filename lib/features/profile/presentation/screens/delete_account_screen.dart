@@ -9,6 +9,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/delete_account_providers.dart';
 
 class DeleteAccountScreen extends ConsumerWidget {
@@ -44,9 +45,8 @@ class DeleteAccountScreen extends ConsumerWidget {
     final state = ref.watch(deleteAccountNotifierProvider);
     final notifier = ref.read(deleteAccountNotifierProvider.notifier);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
+    return AppScaffold(
+      body: Padding(
           padding: const EdgeInsets.all(AppSpacing.base),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +112,6 @@ class DeleteAccountScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(AppSpacing.base),
         child: Row(

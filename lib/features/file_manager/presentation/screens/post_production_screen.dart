@@ -9,6 +9,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/file_manager_providers.dart';
 
 const _kFolderId = 'lana-123456';
@@ -36,10 +37,8 @@ class _PostProductionScreenState extends ConsumerState<PostProductionScreen> {
     final notifier =
         ref.read(postProductionNotifierProvider(_kFolderId).notifier);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
+    return AppScaffold(
+      body: Column(
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(
@@ -189,7 +188,6 @@ class _PostProductionScreenState extends ConsumerState<PostProductionScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 }

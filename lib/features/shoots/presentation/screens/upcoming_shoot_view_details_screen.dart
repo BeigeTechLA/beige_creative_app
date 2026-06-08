@@ -11,6 +11,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/upcoming_shoot_providers.dart';
@@ -34,7 +35,8 @@ class UpcomingShootViewDetails extends ConsumerWidget {
     final state = ref.watch(provider);
     final mydata = state.data;
 
-    return Scaffold(
+    return AppScaffold(
+      safeTop: false,
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -62,7 +64,7 @@ class UpcomingShootViewDetails extends ConsumerWidget {
                       ),
                     ),
                     Positioned(
-                      top: 50,
+                      top: MediaQuery.of(context).padding.top + AppSpacing.sm,
                       left: AppSpacing.lg,
                       right: AppSpacing.lg,
                       child: Row(

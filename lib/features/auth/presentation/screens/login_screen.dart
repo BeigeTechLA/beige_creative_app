@@ -10,6 +10,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/new_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/login_notifier.dart';
@@ -73,7 +74,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     });
 
-    return Scaffold(
+    return AppScaffold(
+      safeTop: false,
       body: SingleChildScrollView(
         child: Column(
           children: [

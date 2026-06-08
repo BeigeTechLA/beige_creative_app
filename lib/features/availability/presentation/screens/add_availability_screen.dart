@@ -10,6 +10,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../utility/date_time_utils.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../providers/availability_providers.dart';
@@ -197,7 +198,7 @@ class _AddAvailabilityScreenState
     final state = ref.watch(addAvailabilityNotifierProvider);
     final notifier = ref.read(addAvailabilityNotifierProvider.notifier);
 
-    return Scaffold(
+    return AppScaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         child: Column(

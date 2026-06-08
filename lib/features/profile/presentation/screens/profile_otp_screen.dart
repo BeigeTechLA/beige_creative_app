@@ -13,6 +13,7 @@ import '../routes/profile_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/top_message.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/change_password_providers.dart';
 
 class ProfileOtpScreen extends ConsumerStatefulWidget {
@@ -116,9 +117,8 @@ class _ProfileOtpScreenState extends ConsumerState<ProfileOtpScreen> {
     });
     final state = ref.watch(verifyOtpNotifierProvider);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
+    return AppScaffold(
+      body: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.xl,
             vertical: AppSpacing.cardCompactInset,
@@ -277,7 +277,6 @@ class _ProfileOtpScreenState extends ConsumerState<ProfileOtpScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 }

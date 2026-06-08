@@ -7,6 +7,7 @@ import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -231,7 +232,8 @@ class _MyprofileState extends ConsumerState<Myprofile> {
     final state = ref.watch(myProfileNotifierProvider);
     final profile = state.profile;
 
-    return Scaffold(
+    return AppScaffold(
+      safeTop: false,
       body: Stack(
         children: [
           SingleChildScrollView(

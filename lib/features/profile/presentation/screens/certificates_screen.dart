@@ -15,6 +15,7 @@ import '../../../../shared/widgets/app_loader.dart';
 import '../../../../shared/widgets/common_file_viewer.dart';
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/top_message.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/profile_files_providers.dart';
 
 class CertificatesScreen extends ConsumerWidget {
@@ -32,9 +33,8 @@ class CertificatesScreen extends ConsumerWidget {
     final state = ref.watch(certificatesNotifierProvider);
     final certs = state.files;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
+    return AppScaffold(
+      body: Stack(
           children: [
             Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
@@ -137,7 +137,6 @@ class CertificatesScreen extends ConsumerWidget {
             if (state.isLoading) AppLoader(),
           ],
         ),
-      ),
     );
   }
 

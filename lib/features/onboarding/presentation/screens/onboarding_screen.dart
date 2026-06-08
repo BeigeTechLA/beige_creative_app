@@ -8,6 +8,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/onboarding_notifier.dart';
 
 /// Onboarding hero pager + Login / Sign-up CTAs.
@@ -64,9 +65,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
+    return AppScaffold(
+      body: Column(
           children: [
             Expanded(
               child: PageView.builder(
@@ -131,7 +131,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 }

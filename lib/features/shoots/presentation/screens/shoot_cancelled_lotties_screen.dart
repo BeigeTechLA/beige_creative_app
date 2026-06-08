@@ -7,6 +7,7 @@ import '../../../../app/assets.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 
 class ShootCancelledLottiesScreen extends ConsumerStatefulWidget {
   const ShootCancelledLottiesScreen({super.key});
@@ -30,7 +31,7 @@ class _ShootCancelledLottiesScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

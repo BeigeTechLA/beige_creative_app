@@ -7,6 +7,7 @@ import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 
 class DeleteAccountLottieScreen extends ConsumerStatefulWidget {
   const DeleteAccountLottieScreen({super.key});
@@ -30,7 +31,7 @@ class _DeleteAccountLottieScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

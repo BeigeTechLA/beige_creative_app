@@ -7,6 +7,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/shoots_providers.dart';
 
 class ShootCancelledScreen extends ConsumerStatefulWidget {
@@ -48,9 +49,9 @@ class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
       }
     });
 
-    return Scaffold(
+    return AppScaffold(
+      safeTop: false,
       backgroundColor: AppColors.black.withValues(alpha: 0.4),
-      resizeToAvoidBottomInset: true,
       body: Align(
         alignment: Alignment.bottomCenter,
         child: Container(

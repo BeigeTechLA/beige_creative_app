@@ -12,6 +12,7 @@ import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../routes/profile_args.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/profile_files_providers.dart';
@@ -127,11 +128,10 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
 
     final state = ref.watch(featuredWorkNotifierProvider);
 
-    return Scaffold(
+    return AppScaffold(
       body: Stack(
         children: [
-          SafeArea(
-            child: Padding(
+          Padding(
               padding: const EdgeInsets.all(AppSpacing.cardCompactInset),
               child: Column(
                 children: [
@@ -171,8 +171,7 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
                 ],
               ),
             ),
-          ),
-          if (state.isLoading) AppLoader(),
+          if (state.isLoading) const AppLoader(),
         ],
       ),
       bottomNavigationBar: Padding(

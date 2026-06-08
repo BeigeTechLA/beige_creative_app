@@ -9,6 +9,7 @@ import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/new_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/forgot_password_notifier.dart';
@@ -59,7 +60,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       }
     });
 
-    return Scaffold(
+    return AppScaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -71,7 +72,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     child: Image.asset(AppAssets.rectangle, fit: BoxFit.fill),
                   ),
                   Positioned(
-                    top: 50,
+                    top: AppSpacing.md,
                     left: 16,
                     child: InkWell(
                       onTap: () => context.pop(),

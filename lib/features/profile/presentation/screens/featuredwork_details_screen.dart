@@ -10,6 +10,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/myprofile_model.dart';
 import '../../../../config/env.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/profile_files_providers.dart';
@@ -72,7 +73,8 @@ class _FeaturedWorkDetailsScreenState
         if (didPop) return;
         Navigator.pop(context, hasChanges);
       },
-      child: Scaffold(
+      child: AppScaffold(
+        safeTop: false,
         appBar: AppBar(
           backgroundColor: AppColors.background,
           elevation: 0,

@@ -15,6 +15,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../core/utils/validators.dart';
 import 'package:beige_creative_app/app/assets.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_loader.dart' show AppLoader;
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -211,9 +212,8 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
     final isLocationFilled = searchController.text.isNotEmpty;
     final locationHighlight = state.isLocationFocused || isLocationFilled;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
+    return AppScaffold(
+      body: Stack(
           children: [
             SingleChildScrollView(
               child: Column(
@@ -382,7 +382,6 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
             if (state.isSubmittingStep1) const AppLoader(),
           ],
         ),
-      ),
     );
   }
 }

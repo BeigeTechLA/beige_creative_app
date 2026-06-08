@@ -12,6 +12,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/myprofile_model.dart';
 import '../../../../config/env.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_loader.dart';
 import '../providers/profile_details_providers.dart';
 
@@ -23,11 +24,10 @@ class ProfileDetails1Screen extends ConsumerWidget {
     final state = ref.watch(profileDetailsViewProvider);
     final notifier = ref.read(profileDetailsViewProvider.notifier);
 
-    return Scaffold(
+    return AppScaffold(
       body: Stack(
         children: [
-          SafeArea(
-            child: Column(
+          Column(
               mainAxisSize: MainAxisSize.max,
               children: [
                 Padding(
@@ -107,7 +107,6 @@ class ProfileDetails1Screen extends ConsumerWidget {
                 ),
               ],
             ),
-          ),
           if (state.isLoading) AppLoader(),
         ],
       ),

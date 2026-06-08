@@ -10,6 +10,7 @@ import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/onboarding_seen_provider.dart';
 import '../../../../core/restoration/restoration_keys.dart';
 import '../../../../core/restoration/restoration_providers.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/splash_notifier.dart';
 import '../providers/splash_state.dart';
 
@@ -73,7 +74,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       }
     });
 
-    return Scaffold(
+    return AppScaffold(
       body: Container(
         color: AppColors.textHeading,
         child: Center(

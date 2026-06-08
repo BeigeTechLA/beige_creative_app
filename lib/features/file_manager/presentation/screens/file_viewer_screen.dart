@@ -8,6 +8,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/file_manager_providers.dart';
 
 /// Folder/shoot detail surface reached via "View Shoot Details" inside
@@ -22,7 +23,8 @@ class FileViewerScreen extends ConsumerWidget {
     final state = ref.watch(viewDetailsNotifierProvider(folderId));
     final folder = state.folder;
 
-    return Scaffold(
+    return AppScaffold(
+      safeTop: false,
       body: state.isLoading || folder == null
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -43,18 +45,20 @@ class FileViewerScreen extends ConsumerWidget {
                         ),
                       ),
                       Positioned(
-                        top: 90,
+                        top:
+                            MediaQuery.of(context).padding.top + AppSpacing.lg,
                         left: AppSpacing.base,
                         child: InkWell(
                           onTap: () => Navigator.pop(context),
                           child: SvgPicture.asset(AppAssets.back, height: 24),
                         ),
                       ),
-                      const Positioned(
-                        top: 90,
+                      Positioned(
+                        top:
+                            MediaQuery.of(context).padding.top + AppSpacing.lg,
                         left: 0,
                         right: 0,
-                        child: Center(
+                        child: const Center(
                           child: Text(
                             'Shoot Details',
                             style: AppTextStyles.bodyMedium,

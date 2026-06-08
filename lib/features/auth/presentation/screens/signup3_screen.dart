@@ -11,6 +11,7 @@ import '../../../../app/routes.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_loader.dart' show AppLoader;
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/signup_notifier.dart';
@@ -212,8 +213,7 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
     final flattenedFeatured = _flattenedFeaturedImages(state);
     final progress = state.step2Progress + _progressFromState(state);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return AppScaffold(
       body: Stack(
         children: [
           SingleChildScrollView(

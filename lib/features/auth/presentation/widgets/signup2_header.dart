@@ -21,7 +21,7 @@ class SignUp2Header extends StatelessWidget {
             child: Image.asset(AppAssets.rectangle, fit: BoxFit.fill),
           ),
           Positioned(
-            top: 50,
+            top: AppSpacing.sm,
             left: 16,
             right: 16,
             child: Row(

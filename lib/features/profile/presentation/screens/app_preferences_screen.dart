@@ -9,6 +9,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 
 final appPreferencesDarkModeProvider =
     StateProvider.autoDispose<bool>((_) => false);
@@ -20,9 +21,8 @@ class AppPreferencesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = ref.watch(appPreferencesDarkModeProvider);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
+    return AppScaffold(
+      body: Padding(
           padding: const EdgeInsets.all(AppSpacing.base),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,7 +166,6 @@ class AppPreferencesScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

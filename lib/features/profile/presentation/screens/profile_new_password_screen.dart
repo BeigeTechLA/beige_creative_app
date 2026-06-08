@@ -9,6 +9,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/change_password_providers.dart';
@@ -70,7 +71,7 @@ class _ProfileNewPasswordScreenState
     });
     final state = ref.watch(newPasswordNotifierProvider);
 
-    return Scaffold(
+    return AppScaffold(
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -87,7 +88,7 @@ class _ProfileNewPasswordScreenState
                         ),
                       ),
                       Positioned(
-                        top: 50,
+                        top: AppSpacing.md,
                         left: 16,
                         right: 16,
                         child: Row(

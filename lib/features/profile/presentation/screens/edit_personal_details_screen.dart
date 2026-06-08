@@ -17,6 +17,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../service/google_config.dart';
 import '../../../../utility/location_service.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/custom_dropdown_field.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -192,11 +193,10 @@ class _EditPersonalDetailsScreenState
     _hydrateOnce(state);
     final workingDistance = state.workingDistance;
 
-    return Scaffold(
+    return AppScaffold(
       body: Stack(
         children: [
-          SafeArea(
-            child: SingleChildScrollView(
+          SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.xl),
               child: Column(
                 children: [
@@ -352,7 +352,6 @@ class _EditPersonalDetailsScreenState
                 ],
               ),
             ),
-          ),
           if (state.isLoadingInitial || state.isSubmitting)
             const ColoredBox(
               color: Color(0x66000000),

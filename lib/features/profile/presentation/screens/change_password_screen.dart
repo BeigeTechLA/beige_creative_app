@@ -12,6 +12,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/new_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/change_password_providers.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -61,9 +62,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
     final state = ref.watch(requestOtpNotifierProvider);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
+    return AppScaffold(
+      body: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.xl,
             vertical: AppSpacing.cardCompactInset,
@@ -150,7 +150,6 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 }

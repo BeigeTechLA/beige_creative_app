@@ -44,7 +44,7 @@ class ProfileHeader extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: 90,
+          top: MediaQuery.of(context).padding.top + AppSpacing.lg,
           left: 16,
           child: InkWell(
             onTap: () => context.pop(true),
@@ -58,11 +58,11 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
         ),
-        const Positioned(
-          top: 90,
+        Positioned(
+          top: MediaQuery.of(context).padding.top + AppSpacing.lg,
           left: 0,
           right: 0,
-          child: Center(
+          child: const Center(
             child: Text(
               'My Profile',
               style: AppTextStyles.displayLabel16,

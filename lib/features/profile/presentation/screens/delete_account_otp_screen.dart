@@ -12,6 +12,7 @@ import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/top_message.dart';
+import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/delete_account_providers.dart';
 
 class DeleteAccountOtpScreen extends ConsumerStatefulWidget {
@@ -113,9 +114,8 @@ class _DeleteAccountOtpScreenState
     });
     final state = ref.watch(deleteAccountNotifierProvider);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
+    return AppScaffold(
+      body: Padding(
           padding: const EdgeInsets.all(AppSpacing.base),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,7 +256,6 @@ class _DeleteAccountOtpScreenState
             ],
           ),
         ),
-      ),
     );
   }
 }
