@@ -71,7 +71,7 @@ final dioClientProvider = Provider<DioClient>(
       ),
       RetryInterceptor(dio: client.dio),
       ErrorInterceptor(),
-      if (kDebugMode) LoggingInterceptor(),
+   //   if (kDebugMode) LoggingInterceptor(),
     ]);
     return client;
   },
