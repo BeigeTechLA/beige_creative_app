@@ -1,7 +1,9 @@
-import 'package:flutter/foundation.dart' show ChangeNotifier;
+import 'package:flutter/foundation.dart' show ChangeNotifier, visibleForTesting;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/connectivity/connectivity_providers.dart';
+import '../core/connectivity/connectivity_status.dart';
 import '../core/firebase/app_analytics_observer.dart';
 import '../core/providers/auth_state_provider.dart';
 import '../core/providers/onboarding_seen_provider.dart';
@@ -35,32 +37,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: Routes.splash.path,
     refreshListenable: notifier,
     observers: [AppAnalyticsObserver()],
-    redirect: (context, state) {
-      final isAuth = ref.read(authStateProvider);
-      final hasSeenOnboarding = ref.read(onboardingSeenProvider);
-      final loc = state.matchedLocation;
-      final isPublic = Routes.publicPaths.contains(loc);
-
-      // Unauthed user touching a protected route → /login.
-      if (!isAuth && !isPublic) return Routes.login.path;
-
-      // Onboarding skipped once seen — bounce to /login.
-      if (!isAuth && hasSeenOnboarding && loc == Routes.onboarding.path) {
-        return Routes.login.path;
-      }
-
-      // Authed user on /login or sign-up flow → /home.
-      if (isAuth &&
-          (loc == Routes.login.path ||
-              loc == Routes.onboarding.path ||
-              loc.startsWith('/signup-step') ||
-              loc == Routes.forgotPassword.path ||
-              loc == Routes.forgotOtp.path ||
-              loc == Routes.resetPassword.path)) {
-        return Routes.home.path;
-      }
-      return null;
-    },
+    redirect: (context, state) => appRedirect(
+      isAuth: ref.read(authStateProvider),
+      hasSeenOnboarding: ref.read(onboardingSeenProvider),
+      connStatus: ref.read(connectivityStatusProvider),
+      location: state.matchedLocation,
+    ),
     routes: appRoutes,
   );
 
@@ -82,8 +64,52 @@ final routerProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-/// Bridges `authStateProvider` + `onboardingSeenProvider` to `Listenable`
-/// for `GoRouter.refreshListenable`. Either flip triggers redirect re-eval.
+/// Pure redirect logic — kept top-level so router behaviour stays testable
+/// without spinning up the whole `routerProvider` graph (restoration, splash
+/// lottie, etc.).
+///
+/// Returns a target path when the redirect should override navigation, or
+/// `null` to allow the requested location.
+@visibleForTesting
+String? appRedirect({
+  required bool isAuth,
+  required bool hasSeenOnboarding,
+  required ConnectivityStatus connStatus,
+  required String location,
+}) {
+  final isPublic = Routes.publicPaths.contains(location);
+
+  // Offline + protected target → stay put; ConnectivityListener shows
+  // the dialog over the current screen. Public routes (splash/auth/
+  // onboarding) stay reachable so cold-start without network resolves.
+  if (connStatus == ConnectivityStatus.offline && !isPublic) {
+    return null;
+  }
+
+  // Unauthed user touching a protected route → /login.
+  if (!isAuth && !isPublic) return Routes.login.path;
+
+  // Onboarding skipped once seen — bounce to /login.
+  if (!isAuth && hasSeenOnboarding && location == Routes.onboarding.path) {
+    return Routes.login.path;
+  }
+
+  // Authed user on /login or sign-up flow → /home.
+  if (isAuth &&
+      (location == Routes.login.path ||
+          location == Routes.onboarding.path ||
+          location.startsWith('/signup-step') ||
+          location == Routes.forgotPassword.path ||
+          location == Routes.forgotOtp.path ||
+          location == Routes.resetPassword.path)) {
+    return Routes.home.path;
+  }
+  return null;
+}
+
+/// Bridges `authStateProvider` + `onboardingSeenProvider` +
+/// `connectivityStatusProvider` to `Listenable` for `GoRouter.refreshListenable`.
+/// Any flip triggers redirect re-eval.
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(this._ref) {
     _authSub = _ref.listen<bool>(
@@ -94,15 +120,21 @@ class _AuthRefreshNotifier extends ChangeNotifier {
       onboardingSeenProvider,
       (previous, next) => notifyListeners(),
     );
+    _connSub = _ref.listen<ConnectivityStatus>(
+      connectivityStatusProvider,
+      (previous, next) => notifyListeners(),
+    );
   }
   final Ref _ref;
   late final ProviderSubscription<bool> _authSub;
   late final ProviderSubscription<bool> _onboardingSub;
+  late final ProviderSubscription<ConnectivityStatus> _connSub;
 
   @override
   void dispose() {
     _authSub.close();
     _onboardingSub.close();
+    _connSub.close();
     super.dispose();
   }
 }

@@ -1,4 +1,3 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -78,8 +77,6 @@ final dioClientProvider = Provider<DioClient>(
   },
 );
 
-/// Connectivity stream. `connectivity_plus ^6.x` emits
-/// `List<ConnectivityResult>` (the device can have multiple active transports).
-final connectivityProvider = StreamProvider<List<ConnectivityResult>>(
-  (ref) => Connectivity().onConnectivityChanged,
-);
+/// Connectivity moved to `lib/core/connectivity/connectivity_providers.dart`
+/// in the no-internet-handling work (debounced + reachability-checked status
+/// stream with a domain `ConnectivityStatus` enum). Import from there.
