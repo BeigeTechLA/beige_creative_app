@@ -134,6 +134,7 @@ class _EditPersonalDetailsScreenState
 
   Future<void> loadCurrentLocation() async {
     final latLng = await LocationService.getCurrentLocation(context);
+    if (!mounted) return;
     if (latLng != null) {
       setState(() {
         currentLatLng = latLng;
@@ -366,6 +367,7 @@ class _EditPersonalDetailsScreenState
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.goldSandPale,
+              foregroundColor: const Color(0xFF1D1D1B),
               shape: RoundedRectangleBorder(
                 borderRadius: AppRadii.xlAll,
               ),

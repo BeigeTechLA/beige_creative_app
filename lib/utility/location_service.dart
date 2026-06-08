@@ -38,36 +38,46 @@ class LocationService {
 
   /// 📡 GET CURRENT LOCATION
   static Future<LatLng?> getCurrentLocation(BuildContext context) async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    try {
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
-    if (!serviceEnabled) {
-      await Geolocator.openLocationSettings();
-      return null;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Enable location permission from settings"),
-          ),
-        );
+      if (!serviceEnabled) {
+        await Geolocator.openLocationSettings();
+        return null;
       }
-      await Geolocator.openAppSettings();
+
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Enable location permission from settings"),
+            ),
+          );
+        }
+        await Geolocator.openAppSettings();
+        return null;
+      }
+
+      if (permission == LocationPermission.denied) {
+        return null;
+      }
+
+      final Position position = await Geolocator.getCurrentPosition(
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+
+      return LatLng(position.latitude, position.longitude);
+    } catch (e) {
+      debugPrint('getCurrentLocation error: $e');
       return null;
     }
-
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-    );
-
-    return LatLng(position.latitude, position.longitude);
   }
 
   /// 🗺️ UPDATE LOCATION + ADDRESS

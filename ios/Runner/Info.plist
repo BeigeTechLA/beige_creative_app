@@ -53,5 +53,7 @@
 	<string>BEIGE uses the camera so you can capture and upload certificate photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>BEIGE needs access to your photo library so you can select and upload photos.</string>
+	<key>GoogleMapsAPIKey</key>
+	<string>AIzaSyB55dzOzA9np8T1rn-DpKKqcqGcgbGmgOc</string>
 </dict>
 </plist>

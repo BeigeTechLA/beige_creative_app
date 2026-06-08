@@ -182,6 +182,7 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              foregroundColor: const Color(0xFF1D1D1B),
               shape: RoundedRectangleBorder(borderRadius: AppRadii.xxlAll),
             ),
             onPressed: _openUploadSheet,

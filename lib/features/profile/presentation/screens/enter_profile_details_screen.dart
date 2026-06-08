@@ -168,6 +168,7 @@ class _EnterProfileDetailsScreenState
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              foregroundColor: const Color(0xFF1D1D1B),
               shape: RoundedRectangleBorder(borderRadius: AppRadii.xlAll),
             ),
             onPressed: state.isSubmitting ? null : _save,
@@ -259,6 +260,7 @@ class _EnterProfileDetailsScreenState
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
+                        foregroundColor: const Color(0xFF1D1D1B),
                         shape: RoundedRectangleBorder(
                             borderRadius: AppRadii.lgAll),
                       ),

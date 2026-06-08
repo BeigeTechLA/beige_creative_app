@@ -10,6 +10,7 @@ import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
+import '../providers/app_version_provider.dart';
 
 final appPreferencesDarkModeProvider =
     StateProvider.autoDispose<bool>((_) => false);
@@ -20,6 +21,7 @@ class AppPreferencesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = ref.watch(appPreferencesDarkModeProvider);
+    final appVersionAsync = ref.watch(appVersionProvider);
 
     return AppScaffold(
       body: Padding(
@@ -152,7 +154,10 @@ class AppPreferencesScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          'App Version V1.0',
+                          appVersionAsync.maybeWhen(
+                            data: (v) => 'App Version $v',
+                            orElse: () => 'App Version',
+                          ),
                           style: AppTextStyles.inherit13.copyWith(
                             color: AppColors.white24,
                           ),
