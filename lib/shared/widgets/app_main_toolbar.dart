@@ -18,7 +18,11 @@ class AppMainToolbar extends StatelessWidget {
 
   final String title;
 
-  const AppMainToolbar({super.key, required this.title});
+  /// Optional trailing widget rendered in the right-hand 48dp slot.
+  /// When null, an empty 48dp square keeps the title visually centered.
+  final Widget? trailing;
+
+  const AppMainToolbar({super.key, required this.title, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +56,10 @@ class AppMainToolbar extends StatelessWidget {
           const Spacer(),
           Text(title, style: AppTextStyles.displayLabel16),
           const Spacer(),
-          const SizedBox.square(dimension: _navigationTargetSize),
+          SizedBox.square(
+            dimension: _navigationTargetSize,
+            child: trailing == null ? null : Center(child: trailing),
+          ),
         ],
       ),
     );

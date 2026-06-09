@@ -7,6 +7,27 @@
 
 ---
 
+### 2026-06-09: Redesign Meeting Card and Create Meeting UI to Match Mockup Spec
+
+Redesigned the `MeetingCard` and `CreateMeetingScreen` UI components to match the premium mockup specifications (Option 1).
+
+- **Files touched:**
+  - `lib/features/meetings/presentation/widgets/meeting_card.dart` — refactored to a `StatefulWidget` and updated layout with camera icon header, status pills, white platform badge with custom Google Meet painter, horizontal dividers, overlapping avatars, sync meeting toggle, and custom Join and Details buttons.
+  - `lib/features/meetings/presentation/screens/create_meeting_screen.dart` — redesigned layout, outline floating-label input fields, Select Shoot dropdown, custom reminder pills, and info banner.
+  - `lib/features/meetings/presentation/widgets/select_meet_link_picker.dart` — updated to use fixed-size square buttons with brand logos.
+  - `lib/features/meetings/presentation/providers/create_meeting_state.dart` — added `project` and `invitedParticipants` state fields and validation logic.
+  - `lib/features/meetings/presentation/providers/create_meeting_notifier.dart` — added setters and mapped input creation.
+  - `test/features/meetings/presentation/screens/meetings_screen_test.dart` — updated unit tests to adapt to the new state constraints.
+
+- **Decisions:**
+  - **Option 1 Implementation.** Implemented Option 1 (Mockup design matching) with mockup-exact styles and brand logos.
+  - **Custom Google Meet Logo & Teams Sunburst Painters.** Designed high-fidelity CustomPainters for brand logos to avoid external asset dependencies.
+  - **Expanded state validation.** Supported Select Shoot and Invite Participants inputs dynamically inside the notifier flow to drive submit validation.
+
+- **Verification:**
+  - `flutter analyze lib/features/meetings/` -> Clean, no issues.
+  - `flutter test test/features/meetings/presentation/screens/meetings_screen_test.dart` -> 5 / 5 passing.
+
 ### 2026-06-09: Messages timezone, ordering, and tab bar design alignment fix
 
 Fixed the bug where newly sent messages sorted to the top of the chat thread due to a timezone mismatch, and updated the MessagesTabBar segmented design to align with the rectangular tab design of the Profile Details screen.

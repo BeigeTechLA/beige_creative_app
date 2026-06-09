@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
+import '../../app/assets.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
 import '../../app/spacing.dart';
@@ -47,32 +49,33 @@ class AppButton extends StatelessWidget {
     final pad = _paddingFor(size);
     final textStyle = _textStyleFor(size).copyWith(color: colors.foreground);
 
-    final child = isLoading
-        ? SizedBox(
-            height: 18,
-            width: 18,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(colors.foreground),
+    final child = Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (isLoading) ...[
+          SizedBox(
+            height: 24,
+            width: 24,
+            child: Lottie.asset(
+              AppAssets.lottieLoader,
+              fit: BoxFit.contain,
             ),
-          )
-        : Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 18, color: colors.foreground),
-                SizedBox(width: AppSpacing.xs),
-              ],
-              Flexible(
-                child: Text(
-                  label,
-                  style: textStyle,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          );
+          ),
+          const SizedBox(width: AppSpacing.sm),
+        ] else if (icon != null) ...[
+          Icon(icon, size: 18, color: colors.foreground),
+          const SizedBox(width: AppSpacing.xs),
+        ],
+        Flexible(
+          child: Text(
+            label,
+            style: textStyle,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
 
     final button = Material(
       color: disabled

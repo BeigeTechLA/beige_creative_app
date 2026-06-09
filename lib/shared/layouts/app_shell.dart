@@ -16,7 +16,6 @@ import '../../core/firebase/analytics_service.dart';
 import '../../features/home/presentation/providers/home_notifier.dart';
 import '../../features/profile/presentation/providers/my_profile_providers.dart'
     show profileImageBustProvider;
-import '../../model_class/myprofile_model.dart';
 
 /// Hosts the root branches (Dashboard, Shoots, Files, Messages, future
 /// drawer-only entries, Manage Availability) under a

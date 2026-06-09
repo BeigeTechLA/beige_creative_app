@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../app/colors.dart';
-import '../../../../../app/durations.dart';
-import '../../../../../app/radii.dart';
-import '../../../../../app/spacing.dart';
-import '../../../../../app/text_styles.dart';
-import '../../../domain/entities/conversation.dart';
+import '../../../../app/colors.dart';
+import '../../../../app/durations.dart';
+import '../../../../app/radii.dart';
+import '../../../../app/spacing.dart';
+import '../../../../app/text_styles.dart';
+import '../../domain/models/meeting_status.dart';
 
-/// Pill segmented tab bar — All / Shoots / Admin. Active tab uses
-/// [AppColors.primary] cream surface with dark text; inactive tabs render
-/// transparent with [AppColors.textSecondary] text.
-class MessagesTabBar extends StatelessWidget {
-  const MessagesTabBar({
+/// Pill segmented tab bar — Upcoming / Completed. Mirrors MessagesTabBar.
+/// Active pill uses the gold horizontal gradient; inactive pills sit flat
+/// on the surface.
+class MeetingsTabBar extends StatelessWidget {
+  const MeetingsTabBar({
     super.key,
     required this.selected,
     required this.onChanged,
   });
 
-  final ConversationTab selected;
-  final ValueChanged<ConversationTab> onChanged;
+  final MeetingStatus selected;
+  final ValueChanged<MeetingStatus> onChanged;
 
-  static const _items = <(ConversationTab, String)>[
-    (ConversationTab.all, 'All'),
-    (ConversationTab.shoots, 'Shoots'),
-    (ConversationTab.admin, 'Admin'),
+  static const _items = <(MeetingStatus, String)>[
+    (MeetingStatus.upcoming, 'Upcoming'),
+    (MeetingStatus.completed, 'Completed'),
   ];
 
   @override
@@ -67,7 +66,7 @@ class _Pill extends StatelessWidget {
     return Semantics(
       button: true,
       selected: isActive,
-      label: '$label conversations',
+      label: '$label meetings',
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,

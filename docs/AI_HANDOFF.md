@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-06-09 (post Messages timezone, order, and tab bar fix).
+Last updated: 2026-06-09 (post Meetings UI Card and Create Meeting Screen redesign).
 
 ## Read Order
 
@@ -24,6 +24,7 @@ Every AI session should read:
 - Phase 4: **complete**. `23 / 23` tasks done.
 - Phase 5: **complete** — `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31.
 - Phase 6: in progress — `12 / 14` tasks done. Tasks `6.01` (test helpers) closed 2026-05-31; `6.02`–`6.12` closed 2026-06-03. 6.13 implementation is in place but the task remains 🟡 pending the first GitHub Actions Android/iOS run and coverage lift: `.github/workflows/ci.yml` now runs `flutter test --coverage`, uploads LCOV, writes a summary, and enforces `COVERAGE_MINIMUM=70`; `.github/workflows/integration.yml` runs Android emulator + iOS simulator integration tests on `push` to `main`. Current refreshed LCOV is `5358 / 11129 = 48.14%`, so the new gate will fail until coverage is raised. 6.11 added the login → home → logout journey; 6.12 added signup1 → signup2 → signup3. Both integration files still pass locally with `flutter test <file> -d macos`; device CI may require the documented binding swap to `IntegrationTestWidgetsFlutterBinding`. Next: `6.14` (models/utils/validators tests) and first remote CI feedback for 6.13.
+- Meetings UI Card & Create Meeting Screen redesign: complete as of 2026-06-09, matching Option 1 of the mockup specifications.
 - Messages UI sidecar plan (`docs/feature/MESSAGES_UI_PLAN.md`): M1–M5 are complete as of 2026-06-09. M5 added motion polish, a11y labels/touch-target fixes, message goldens, and widget tests. M6 remains pending for real REST + socket.io integration and is outside the completed UI scope.
 
 Active Phase 6 entry-point: `docs/phase6/README.md`.

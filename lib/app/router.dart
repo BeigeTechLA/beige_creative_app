@@ -15,6 +15,8 @@ import '../features/file_manager/presentation/routes/file_manager_routes.dart';
 import '../features/file_manager/presentation/screens/file_manager_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/menu_placeholders/presentation/screens/menu_placeholder_screen.dart';
+import '../features/meetings/presentation/routes/meetings_routes.dart';
+import '../features/meetings/presentation/screens/meetings_screen.dart';
 import '../features/messages/presentation/routes/messages_routes.dart';
 import '../features/messages/presentation/screens/messages_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
@@ -200,10 +202,7 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.meetings.path,
             name: Routes.meetings.name,
-            builder: (context, state) => const MenuPlaceholderScreen(
-              title: 'Meetings',
-              description: 'Meetings arriving soon.',
-            ),
+            builder: (context, state) => const MeetingsScreen(),
           ),
         ],
       ),
@@ -248,4 +247,5 @@ final List<RouteBase> appRoutes = [
   ...availabilityRoutes,
   ...fileManagerRoutes,
   ...messagesRoutes,
+  ...meetingsRoutes,
 ];

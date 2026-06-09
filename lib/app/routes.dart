@@ -114,6 +114,15 @@ abstract class Routes {
   static const chat = RouteSpec(name: 'chat', path: '/chat', featureArea: 'messages');
   static const chatDetails = RouteSpec(name: 'chat_details', path: '/chat-details', featureArea: 'messages');
 
+  // Meetings
+  static const meetingCreate = RouteSpec(name: 'meeting_create', path: '/meetings/create', featureArea: 'meetings');
+  static const meetingScheduled = RouteSpec(
+    name: 'meeting_scheduled',
+    path: '/meetings/scheduled',
+    featureArea: 'meetings',
+    trackScreenView: false, // momentary success — funnel noise
+  );
+
   /// Flat list — drives [publicPaths], [byName], and the route-completeness test.
   static const all = <RouteSpec>[
     splash, onboarding,
@@ -129,6 +138,7 @@ abstract class Routes {
     addAvailability,
     postProduction, preProduction, fileViewer,
     chat, chatDetails,
+    meetingCreate, meetingScheduled,
   ];
 
   static final Set<String> publicPaths = {

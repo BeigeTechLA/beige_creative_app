@@ -45,6 +45,7 @@ void main() {
         'profile_password_success',
         'delete_account_success',
         'shoot_cancelotties',
+        'meeting_scheduled',
       };
       for (final name in expectedOptOuts) {
         final spec = Routes.byName[name];
@@ -63,6 +64,7 @@ void main() {
         'profile_password_success',
         'delete_account_success',
         'shoot_cancelotties',
+        'meeting_scheduled',
       };
       for (final r in Routes.all) {
         if (optOuts.contains(r.name)) continue;
