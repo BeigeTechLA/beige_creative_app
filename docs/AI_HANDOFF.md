@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-06-03 (post-6.13 implementation).
+Last updated: 2026-06-09 (post Messages timezone, order, and tab bar fix).
 
 ## Read Order
 
@@ -24,6 +24,7 @@ Every AI session should read:
 - Phase 4: **complete**. `23 / 23` tasks done.
 - Phase 5: **complete** — `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31.
 - Phase 6: in progress — `12 / 14` tasks done. Tasks `6.01` (test helpers) closed 2026-05-31; `6.02`–`6.12` closed 2026-06-03. 6.13 implementation is in place but the task remains 🟡 pending the first GitHub Actions Android/iOS run and coverage lift: `.github/workflows/ci.yml` now runs `flutter test --coverage`, uploads LCOV, writes a summary, and enforces `COVERAGE_MINIMUM=70`; `.github/workflows/integration.yml` runs Android emulator + iOS simulator integration tests on `push` to `main`. Current refreshed LCOV is `5358 / 11129 = 48.14%`, so the new gate will fail until coverage is raised. 6.11 added the login → home → logout journey; 6.12 added signup1 → signup2 → signup3. Both integration files still pass locally with `flutter test <file> -d macos`; device CI may require the documented binding swap to `IntegrationTestWidgetsFlutterBinding`. Next: `6.14` (models/utils/validators tests) and first remote CI feedback for 6.13.
+- Messages UI sidecar plan (`docs/feature/MESSAGES_UI_PLAN.md`): M1–M5 are complete as of 2026-06-09. M5 added motion polish, a11y labels/touch-target fixes, message goldens, and widget tests. M6 remains pending for real REST + socket.io integration and is outside the completed UI scope.
 
 Active Phase 6 entry-point: `docs/phase6/README.md`.
 
@@ -71,9 +72,13 @@ Group D is complete. Home now uses:
 
 ## Verification Baseline
 
-Most recent check (post-6.13 implementation):
+Most recent check (post Messages timezone, order, and tab bar fix):
 
-- `flutter analyze --fatal-infos`: 0 issues. CI now enforces this on every PR.
+- `flutter analyze --fatal-infos`: 0 issues. CI enforces fatal infos on every PR.
+- `flutter test`: green — 485 tests passed, including new message widget/golden coverage.
+- `flutter test test/features/messages/presentation/screens/messages_screen_test.dart`: 3 / 3 passing.
+- `flutter test test/golden/messages_test.dart`: 3 / 3 passing.
+- Previous coverage baseline from 6.13 remains `48.14%` (`5358 / 11129` lines); coverage was not refreshed during Messages M5.
 - `flutter test --coverage`: green — 451 events total; refreshed LCOV is `48.14%` (`5358 / 11129` lines), below the new 70% gate.
 - `flutter test integration_test/login_logout_test.dart -d macos`: 1 / 1 passing.
 - `flutter test integration_test/signup_flow_test.dart -d macos`: 1 / 1 passing.

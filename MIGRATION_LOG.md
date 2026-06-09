@@ -7,6 +7,98 @@
 
 ---
 
+### 2026-06-09: Messages timezone, ordering, and tab bar design alignment fix
+
+Fixed the bug where newly sent messages sorted to the top of the chat thread due to a timezone mismatch, and updated the MessagesTabBar segmented design to align with the rectangular tab design of the Profile Details screen.
+
+- **Files touched:**
+  - `lib/features/messages/presentation/screens/widgets/messages_tab_bar.dart` — changed border radius, height, padding, and active/inactive color scheme to match the Profile Details screen's tab bar.
+  - `lib/features/messages/data/dto/message_dto.dart` — parsed `sentAt` converted to local timezone.
+  - `lib/features/messages/data/dto/conversation_dto.dart` — parsed `sentAt` in conversation preview converted to local timezone.
+  - `lib/features/messages/data/dto/chat_details_dto.dart` — parsed dates converted to local timezone.
+  - `lib/features/messages/data/sources/messages_dummy_source.dart` — changed dummy conversation list and chat thread message loading to dynamically offset timestamps relative to `DateTime.now()` in the past.
+  - `lib/features/messages/domain/entities/message.dart` — added `sentAt` parameter support to `Message.copyWith`.
+  - `lib/features/messages/domain/entities/conversation.dart` — added `copyWith` methods to `Conversation` and `ConversationPreview` to support local overrides.
+
+- **Decisions:**
+  - **Dynamic relative dummy timestamps.** Computed dummy timestamps relative to `DateTime.now()` dynamically, ensuring they are always in the past regardless of current execution timezone or time of day.
+  - **Explicit DTO timezone conversion.** Used `.toLocal()` on parsed `DateTime` fields to align all timestamps to a single consistent local timezone reference.
+  - **Profile Details tab bar design parity.** Reused the `AppColors.surfaceMid`, `AppColors.goldSoftSand`, `AppColors.textHeading`, and `AppColors.white30` color tokens, alongside `AppRadii.xlAll` (14px outer) and `AppRadii.mldAll` (10px inner) to perfectly match the Profile Details tab design.
+
+- **Verification:**
+  - `dart format lib/features/messages/` -> formatted.
+  - `flutter test` -> All 485 tests passed.
+  - `flutter test integration_test/login_logout_test.dart -d macos` -> 1 / 1 passing.
+  - `flutter test integration_test/signup_flow_test.dart -d macos` -> 1 / 1 passing.
+  - `flutter analyze` -> Clean, no issues.
+
+---
+
+### 2026-06-09: Messages chat thread bottom-order correction
+
+Adjusted the chat thread so newly added messages render at the bottom of the
+conversation instead of appearing at the top.
+
+- **Files touched:**
+  - `lib/features/messages/presentation/screens/chat_thread_screen.dart` — removed `reverse: true` / reversed item rendering, kept messages sorted oldest-to-newest, and changed auto-scroll to `maxScrollExtent`.
+  - `test/features/messages/presentation/screens/messages_screen_test.dart` — pinned the optimistic send path so the newly sent message appears below the existing message.
+  - `docs/feature/MESSAGES_UI_PLAN.md` — updated M3.07 notes and deviations to document chronological bottom-order rendering.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Normal chronological list over reversed chat list.** This matches the requested visual behavior directly: older messages are higher, new local/remote messages append lower.
+  - **Bottom scroll uses `AppDurations.fast`.** Reused the existing motion token instead of another inline duration.
+
+- **Verification:**
+  - `dart format lib/features/messages/presentation/screens/chat_thread_screen.dart test/features/messages/presentation/screens/messages_screen_test.dart` -> formatted.
+  - `flutter test test/features/messages/presentation/screens/messages_screen_test.dart` -> 3 / 3 passing.
+  - `flutter analyze --fatal-infos` -> no issues found.
+
+- **Remaining risk / follow-up:**
+  - No device/simulator screenshot was captured in this turn.
+
+---
+
+### 2026-06-09: Messages UI Phase M5 — polish + tests 🟢
+
+Closed the UI-only Messages M5 pass: motion polish, accessibility labels /
+touch targets, message component goldens, and real widget tests for the list,
+thread, and details interactions. M6 remains the API + socket.io integration
+phase.
+
+- **Files touched:**
+  - `lib/features/messages/presentation/screens/chat_thread_screen.dart` — added message/audio bubble fade+slide entrance and attached the existing scroll controller to the reversed thread list so auto-scroll can run.
+  - `lib/features/messages/presentation/screens/widgets/chat_composer.dart` — added focused composer expansion/border animation and increased the custom send target to 44dp.
+  - `lib/features/messages/presentation/screens/widgets/audio_bubble.dart` — increased play target to 44dp and made placeholder waveform rendering deterministic per paint for stable goldens.
+  - `lib/features/messages/presentation/screens/widgets/{messages_tab_bar,conversation_tile,message_bubble,details_section_card,shared_file_row,attach_action_sheet}.dart` — added explicit semantics labels for custom controls/rows/sections.
+  - `lib/features/messages/presentation/screens/messages_screen.dart` — added explicit semantics to the custom new-chat button.
+  - `test/features/messages/presentation/screens/messages_screen_test.dart` — replaced stale placeholder expectations with M5 tests for tab switching, optimistic send, and section expand/collapse.
+  - `test/golden/messages_test.dart` + `test/golden/goldens/messages_*.png` — new message component golden coverage.
+  - `lib/core/providers/core_providers.dart` — removed two genuinely unused imports that blocked repo-wide analyze while `LoggingInterceptor` remains commented out.
+  - `docs/feature/MESSAGES_UI_PLAN.md` — marked M5 complete, added M5 ledger, corrected stale dummy-fixture location notes.
+  - `MIGRATION_LOG.md` — this entry.
+
+- **Decisions:**
+  - **Kept transport dummy-backed.** No REST or socket.io code was activated; M6 still owns remote source, socket source, delivery/read receipts, presence, reconnect, and offline queue.
+  - **Screen-scoped entrance animation.** Bubble fade/slide lives in `ChatThreadScreen`, leaving `MessageBubble` and `AudioBubble` deterministic for direct component reuse and golden tests.
+  - **Provider override tests.** Widget tests override `messagesRepositoryProvider` with a fake repository, so they exercise the real Riverpod Notifiers and screens without loading bundled assets.
+  - **Golden baselines use current test-font behavior.** Message goldens follow the repo's existing component-golden pattern; text renders through Flutter's test font baseline.
+  - **Handoff discrepancy noted.** The prompt-provided AGENTS text still referenced Phase 4 as active, while current `docs/AI_HANDOFF.md` / `CLAUDE.md` point to Phase 6. This M5 pass was handled as a feature-side UI task without changing the active Phase 6 board.
+
+- **Verification:**
+  - `dart format ...` on touched Dart files -> formatted.
+  - `flutter test test/features/messages/presentation/screens/messages_screen_test.dart` -> 3 / 3 passing.
+  - `flutter test --update-goldens test/golden/messages_test.dart` -> 3 / 3 passing; new baselines written.
+  - `flutter test test/golden/messages_test.dart` -> 3 / 3 passing.
+  - `flutter analyze --fatal-infos` -> no issues found.
+  - `flutter test` -> all 485 tests passed.
+
+- **Remaining risk / follow-up:**
+  - M6 must replace dummy bindings with real REST + socket.io transport and validate backend event semantics.
+  - No device/simulator screenshot was captured in this turn; verification was widget/golden/analyzer/full-test based.
+
+---
+
 ### 2026-06-05: Drawer future menu branch setup
 
 Extended the hamburger drawer to include all planned menu entries with active

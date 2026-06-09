@@ -1,46 +1,315 @@
+import 'dart:async';
+
+import 'package:beige_creative_app/features/messages/domain/entities/chat_details.dart';
+import 'package:beige_creative_app/features/messages/domain/entities/chat_thread.dart';
+import 'package:beige_creative_app/features/messages/domain/entities/conversation.dart';
+import 'package:beige_creative_app/features/messages/domain/entities/message.dart';
+import 'package:beige_creative_app/features/messages/domain/entities/participant.dart';
+import 'package:beige_creative_app/features/messages/domain/entities/shared_file.dart';
+import 'package:beige_creative_app/features/messages/domain/events/chat_socket_event.dart';
+import 'package:beige_creative_app/features/messages/domain/repositories/messages_repository.dart';
+import 'package:beige_creative_app/features/messages/presentation/providers/messages_repository_provider.dart';
+import 'package:beige_creative_app/features/messages/presentation/screens/chat_thread_screen.dart';
 import 'package:beige_creative_app/features/messages/presentation/screens/messages_screen.dart';
-import 'package:beige_creative_app/shared/widgets/app_empty_state.dart';
-import 'package:beige_creative_app/shared/widgets/app_main_toolbar.dart';
+import 'package:beige_creative_app/features/messages/presentation/screens/widgets/details_section_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+class _FakeMessagesRepository implements MessagesRepository {
+  final sentBodies = <String>[];
+  Completer<Message>? sendTextCompleter;
+
+  @override
+  Future<List<Conversation>> listConversations({
+    required ConversationTab tab,
+    String? query,
+  }) async {
+    final items = switch (tab) {
+      ConversationTab.all => [
+        Conversation(
+          id: 'conv_001',
+          title: 'Angela Kia',
+          tab: ConversationTab.all,
+          unreadCount: 2,
+          isOnline: true,
+          participantIds: ['user_me', 'user_angela'],
+          lastMessage: ConversationPreview(
+            preview: 'Hey! How are you?',
+            sentAt: _stamp,
+            fromMe: false,
+          ),
+        ),
+      ],
+      ConversationTab.shoots => [
+        Conversation(
+          id: 'conv_002',
+          title: 'Shoot Planning',
+          tab: ConversationTab.shoots,
+          unreadCount: 0,
+          isOnline: false,
+          participantIds: ['user_me', 'producer'],
+          lastMessage: ConversationPreview(
+            preview: 'Call sheet attached.',
+            sentAt: _stamp,
+            fromMe: true,
+          ),
+        ),
+      ],
+      ConversationTab.admin => [
+        Conversation(
+          id: 'conv_003',
+          title: 'Admin Desk',
+          tab: ConversationTab.admin,
+          unreadCount: 0,
+          isOnline: false,
+          participantIds: ['user_me', 'admin'],
+          lastMessage: ConversationPreview(
+            preview: 'Your invoice is ready.',
+            sentAt: _stamp,
+            fromMe: false,
+          ),
+        ),
+      ],
+    };
+    if (query == null || query.isEmpty) return items;
+    return [
+      for (final item in items)
+        if (item.title.toLowerCase().contains(query.toLowerCase())) item,
+    ];
+  }
+
+  @override
+  Future<ChatThread> fetchThread(
+    String conversationId, {
+    String? cursor,
+  }) async {
+    return ChatThread(
+      conversationId: conversationId,
+      messages: [
+        Message(
+          id: 'm1',
+          senderId: 'user_angela',
+          senderName: 'Angela Kia',
+          type: MessageType.text,
+          body: 'Hello!',
+          sentAt: _stamp,
+        ),
+      ],
+    );
+  }
+
+  @override
+  Stream<ChatSocketEvent> events(String conversationId) => const Stream.empty();
+
+  @override
+  Future<Message> sendText(
+    String conversationId,
+    String body, {
+    String? replyToId,
+  }) {
+    sentBodies.add(body);
+    final completer = Completer<Message>();
+    sendTextCompleter = completer;
+    return completer.future;
+  }
+
+  @override
+  Future<Message> sendAudio(
+    String conversationId,
+    String localPath,
+    Duration duration,
+  ) async {
+    return Message(
+      id: 'audio_1',
+      senderId: 'user_me',
+      senderName: 'Me',
+      type: MessageType.file,
+      sentAt: _stamp,
+      file: MessageFile(
+        url: localPath,
+        name: 'voice.m4a',
+        mimeType: 'audio/m4a',
+        sizeBytes: 0,
+        durationMs: duration.inMilliseconds,
+      ),
+    );
+  }
+
+  @override
+  Future<Message> sendAttachment(
+    String conversationId, {
+    required String localPath,
+    required String name,
+    required String mimeType,
+    required int sizeBytes,
+  }) async {
+    return Message(
+      id: 'file_1',
+      senderId: 'user_me',
+      senderName: 'Me',
+      type: MessageType.file,
+      sentAt: _stamp,
+      file: MessageFile(
+        url: localPath,
+        name: name,
+        mimeType: mimeType,
+        sizeBytes: sizeBytes,
+      ),
+    );
+  }
+
+  @override
+  Future<void> editMessage(String messageId, String newBody) async {}
+
+  @override
+  Future<void> deleteMessage(String messageId) async {}
+
+  @override
+  Future<void> markRead(String conversationId, String upToMessageId) async {}
+
+  @override
+  Future<ChatDetails> fetchDetails(String conversationId) async {
+    return ChatDetails(
+      conversationId: conversationId,
+      contact: const ContactInfo(id: 'p1', name: 'Angela Kia'),
+      participants: const [
+        Participant(id: 'user_me', name: 'Me', role: 'Crew'),
+        Participant(id: 'user_angela', name: 'Angela Kia', role: 'Producer'),
+      ],
+      sharedFiles: [
+        SharedFile(
+          id: 'f1',
+          name: 'call_sheet.pdf',
+          mimeType: 'application/pdf',
+          sizeBytes: 2048,
+          uploadedAt: DateTime(2026, 1, 23, 9, 25),
+        ),
+      ],
+      notes: 'VIP client',
+    );
+  }
+}
+
+final _stamp = DateTime(2026, 1, 23, 9, 25);
+
+Future<void> _pumpWithRepo(
+  WidgetTester tester,
+  Widget child,
+  _FakeMessagesRepository repo,
+) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [messagesRepositoryProvider.overrideWithValue(repo)],
+      child: MaterialApp(
+        home: Scaffold(
+          drawer: const Drawer(child: Text('drawer-open')),
+          body: child,
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
-  testWidgets('MessagesScreen renders placeholder empty state', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(
-            drawer: Drawer(child: Text('drawer-open')),
-            body: MessagesScreen(),
-          ),
-        ),
-      ),
-    );
+  testWidgets('MessagesScreen switches conversation tabs', (tester) async {
+    final repo = _FakeMessagesRepository();
+    await _pumpWithRepo(tester, const MessagesScreen(), repo);
 
-    expect(find.byType(AppMainToolbar), findsOneWidget);
-    expect(find.text('messages'), findsOneWidget);
-    expect(find.byType(AppEmptyState), findsOneWidget);
-    expect(find.text('Messages'), findsOneWidget);
-    expect(find.text('Inbox arriving soon.'), findsOneWidget);
-    expect(find.byIcon(Icons.forum_outlined), findsOneWidget);
-  });
+    expect(find.text('Message'), findsOneWidget);
+    expect(find.text('Angela Kia'), findsOneWidget);
+    expect(find.text('Shoot Planning'), findsNothing);
 
-  testWidgets('MessagesScreen toolbar menu opens app drawer', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(
-            drawer: Drawer(child: Text('drawer-open')),
-            body: MessagesScreen(),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.byTooltip('Open menu'));
+    await tester.tap(find.text('Shoots'));
     await tester.pumpAndSettle();
 
-    expect(find.text('drawer-open'), findsOneWidget);
+    expect(find.text('Angela Kia'), findsNothing);
+    expect(find.text('Shoot Planning'), findsOneWidget);
+  });
+
+  testWidgets('ChatThreadScreen shows optimistic message while sending', (
+    tester,
+  ) async {
+    final repo = _FakeMessagesRepository();
+    await _pumpWithRepo(
+      tester,
+      const ChatThreadScreen(
+        conversationId: 'conv_001',
+        contactName: 'Angela Kia',
+      ),
+      repo,
+    );
+
+    await tester.enterText(find.byType(TextField), 'Booked for 10');
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('Send message'));
+    await tester.pumpAndSettle();
+
+    expect(repo.sentBodies, ['Booked for 10']);
+    expect(find.text('Booked for 10'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Booked for 10')).dy,
+      greaterThan(tester.getTopLeft(find.text('Hello!')).dy),
+    );
+
+    repo.sendTextCompleter!.complete(
+      Message(
+        id: 'server_1',
+        senderId: 'user_me',
+        senderName: 'Me',
+        type: MessageType.text,
+        body: 'Booked for 10',
+        sentAt: _stamp.add(const Duration(minutes: 1)),
+        deliveryStatus: DeliveryStatus.sent,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Booked for 10'), findsOneWidget);
+  });
+
+  testWidgets('DetailsSectionCard expands and collapses body content', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: DetailsSectionCard(
+            icon: Icons.folder_outlined,
+            title: 'Shared Files',
+            trailingCount: 1,
+            body: Text('Call sheet.pdf'),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester
+          .widget<AnimatedCrossFade>(find.byType(AnimatedCrossFade))
+          .crossFadeState,
+      CrossFadeState.showFirst,
+    );
+
+    await tester.tap(find.byIcon(Icons.folder_outlined));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .widget<AnimatedCrossFade>(find.byType(AnimatedCrossFade))
+          .crossFadeState,
+      CrossFadeState.showSecond,
+    );
+
+    await tester.tap(find.byIcon(Icons.folder_outlined));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .widget<AnimatedCrossFade>(find.byType(AnimatedCrossFade))
+          .crossFadeState,
+      CrossFadeState.showFirst,
+    );
   });
 }

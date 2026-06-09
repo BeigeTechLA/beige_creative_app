@@ -110,6 +110,10 @@ abstract class Routes {
   static const preProduction = RouteSpec(name: 'pre_production', path: '/pre-production');
   static const fileViewer = RouteSpec(name: 'file_viewer', path: '/file-viewer');
 
+  // Messages
+  static const chat = RouteSpec(name: 'chat', path: '/chat', featureArea: 'messages');
+  static const chatDetails = RouteSpec(name: 'chat_details', path: '/chat-details', featureArea: 'messages');
+
   /// Flat list — drives [publicPaths], [byName], and the route-completeness test.
   static const all = <RouteSpec>[
     splash, onboarding,
@@ -124,6 +128,7 @@ abstract class Routes {
     upcomingShootDetails, cancelShoot, shootCancelotties,
     addAvailability,
     postProduction, preProduction, fileViewer,
+    chat, chatDetails,
   ];
 
   static final Set<String> publicPaths = {

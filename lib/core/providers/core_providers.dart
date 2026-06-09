@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -6,7 +5,6 @@ import '../firebase/telemetry_client.dart';
 import '../network/dio_client.dart';
 import '../network/interceptors/auth_interceptor.dart';
 import '../network/interceptors/error_interceptor.dart';
-import '../network/interceptors/logging_interceptor.dart';
 import '../network/interceptors/retry_interceptor.dart';
 import '../session/session_store.dart';
 

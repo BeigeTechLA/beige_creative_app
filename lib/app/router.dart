@@ -15,6 +15,7 @@ import '../features/file_manager/presentation/routes/file_manager_routes.dart';
 import '../features/file_manager/presentation/screens/file_manager_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/menu_placeholders/presentation/screens/menu_placeholder_screen.dart';
+import '../features/messages/presentation/routes/messages_routes.dart';
 import '../features/messages/presentation/screens/messages_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../features/profile/presentation/routes/profile_routes.dart';
@@ -246,4 +247,5 @@ final List<RouteBase> appRoutes = [
   ...shootsRoutes,
   ...availabilityRoutes,
   ...fileManagerRoutes,
+  ...messagesRoutes,
 ];
