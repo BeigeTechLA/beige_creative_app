@@ -80,7 +80,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: Column(
           children: [
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.35,
+              height:
+                  (MediaQuery.of(context).size.height * 0.35).clamp(220.0, 320.0),
               child: Stack(
                 children: [
                   Positioned.fill(

@@ -135,8 +135,11 @@ Future<void> showSignup3FeaturedSheet({
                                   ),
                                 ],
                               )
-                            : SizedBox(
-                                height: 300,
+                            : ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  minHeight: 220,
+                                  maxHeight: 360,
+                                ),
                                 child: GridView.builder(
                                   shrinkWrap: true,
                                   physics: const BouncingScrollPhysics(),

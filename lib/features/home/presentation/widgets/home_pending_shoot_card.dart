@@ -65,31 +65,25 @@ class HomePendingShootCard extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: AppRadii.topPortfolioCompact,
-                    child: data.shootTypeImageUrl.isNotEmpty
-                        ? CachedNetworkImage(
-                            imageUrl: Env.imageUrl + data.shootTypeImageUrl,
-                            height: 220,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorWidget: (context, url, error) {
-                              return Center(
-                                child: SvgPicture.asset(
-                                  AppAssets.imageHolder,
-                                  height: 220,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                              );
-                            },
-                          )
-                        : Center(
-                            child: SvgPicture.asset(
-                              AppAssets.imageHolder,
-                              height: 220,
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: data.shootTypeImageUrl.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: Env.imageUrl + data.shootTypeImageUrl,
                               width: double.infinity,
                               fit: BoxFit.cover,
+                              errorWidget: (context, url, error) {
+                                return SvgPicture.asset(
+                                  AppAssets.imageHolder,
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            )
+                          : SvgPicture.asset(
+                              AppAssets.imageHolder,
+                              fit: BoxFit.cover,
                             ),
-                          ),
+                    ),
                   ),
                   Positioned.fill(
                     child: Container(

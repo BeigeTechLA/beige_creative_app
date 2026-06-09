@@ -45,15 +45,15 @@ class UpcomingShootViewDetails extends ConsumerWidget {
               children: [
                 Stack(
                   children: [
-                    SizedBox(
-                      height: 330,
-                      width: double.infinity,
+                    AspectRatio(
+                      aspectRatio: 16 / 9,
                       child: ClipRRect(
                         borderRadius: AppRadii.noneAll,
                         child: CachedNetworkImage(
                           imageUrl:
                               '${Env.imageUrl}${mydata?.project.imageUrl ?? ''}',
                           fit: BoxFit.cover,
+                          width: double.infinity,
                           errorWidget: (_, _, _) {
                             return SvgPicture.asset(
                               AppAssets.imageHolder,

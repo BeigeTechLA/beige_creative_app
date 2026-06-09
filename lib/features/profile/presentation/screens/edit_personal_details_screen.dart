@@ -263,8 +263,11 @@ class _EditPersonalDetailsScreenState
                   AppSpacing.verticalXl,
                   ClipRRect(
                     borderRadius: AppRadii.xxlAll,
-                    child: SizedBox(
-                      height: 250,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: 200,
+                        maxHeight: MediaQuery.of(context).size.height * 0.35,
+                      ),
                       child: currentLatLng == null
                           ? const Center(
                               child: CircularProgressIndicator(),

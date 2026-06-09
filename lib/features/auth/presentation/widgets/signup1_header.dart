@@ -12,7 +12,7 @@ class SignUp1Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.28,
+      height: (MediaQuery.of(context).size.height * 0.28).clamp(180.0, 240.0),
       child: Stack(
         children: [
           Positioned.fill(
@@ -47,7 +47,7 @@ class SignUp1Header extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "Create your profile to get discovered by\n production teams.",
+                  "Create your profile to get discovered by production teams.",
                   textAlign: TextAlign.center,
                   style: AppTextStyles.body14.copyWith(
                     color: AppColors.white30,

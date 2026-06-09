@@ -320,7 +320,10 @@ class _PreProductionScreenState extends ConsumerState<PreProductionScreen> {
                 const Divider(color: AppColors.dividerDark, thickness: 0.8),
                 const SizedBox(height: 20),
                 Container(
-                  height: 230,
+                  constraints: const BoxConstraints(
+                    minHeight: 200,
+                    maxHeight: 260,
+                  ),
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceMid,

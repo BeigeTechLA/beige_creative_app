@@ -65,7 +65,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         child: Column(
           children: [
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.32,
+              height:
+                  (MediaQuery.of(context).size.height * 0.32).clamp(200.0, 280.0),
               child: Stack(
                 children: [
                   Positioned.fill(

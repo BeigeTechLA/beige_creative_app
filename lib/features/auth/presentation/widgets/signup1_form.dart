@@ -142,8 +142,11 @@ class SignUp1Form extends StatelessWidget {
         if (showMap)
           Padding(
             padding: const EdgeInsets.only(top: AppSpacing.smd),
-            child: SizedBox(
-              height: 280,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: 200,
+                maxHeight: MediaQuery.of(context).size.height * 0.35,
+              ),
               child: ClipRRect(
                 borderRadius: AppRadii.xxlAll,
                 child: currentLatLng == null

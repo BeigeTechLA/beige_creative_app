@@ -145,15 +145,19 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
           setState(() => widget.tempFeaturedImages.add(file));
         }
       },
-      child: SizedBox(
-        height: 220,
-        width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              AppAssets.upload,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: 180,
+          maxHeight: 240,
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                AppAssets.upload,
               // ignore: deprecated_member_use
               color: AppColors.white,
               width: 24,
@@ -177,13 +181,17 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
             ),
           ],
         ),
+        ),
       ),
     );
   }
 
   Widget _imageGrid(int totalImages) {
-    return SizedBox(
-      height: 320,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minHeight: 220,
+        maxHeight: 360,
+      ),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const BouncingScrollPhysics(),

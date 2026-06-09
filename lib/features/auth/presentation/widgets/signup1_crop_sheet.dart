@@ -44,12 +44,19 @@ class _SignUp1CropSheetState extends State<_SignUp1CropSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       decoration: const BoxDecoration(
         color: AppColors.surfaceCropSheet,
         borderRadius: AppRadii.topMassive,
       ),
-      padding: const EdgeInsets.all(AppSpacing.base),
+      padding: EdgeInsets.only(
+        left: AppSpacing.base,
+        right: AppSpacing.base,
+        top: AppSpacing.base,
+        bottom: AppSpacing.base + MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Column(
         children: [
           Center(

@@ -1,6 +1,6 @@
 # Design Fixing — Static Sizing & Safe-Area Audit
 
-Date: 2026-06-07
+Date: 2026-06-07 (audit) · last updated 2026-06-09
 Scope: `lib/` Flutter UI
 Goal: Eliminate hardcoded dimensions and missing SafeArea that break layouts on
 small iOS / Android phones, Dynamic Island devices, foldables, and tablets.
@@ -18,281 +18,226 @@ Device matrix to validate against:
 
 ---
 
-## Task 1 — SafeArea / status-bar coverage
+## Status summary
 
-> **Status (2026-06-08): superseded by [`appScaffoldPlan.md`](appScaffoldPlan.md).**
->
-> All 32 feature `Scaffold(...)` call-sites migrated to the shared `AppScaffold` widget. SafeArea handling now lives in one place (`lib/shared/layouts/app_scaffold.dart`):
->
-> - Default screens — `AppScaffold(body: ...)` applies `SafeArea(top: true, bottom: false, left: true, right: true)` automatically. Status bar / Dynamic Island clearance is handled.
-> - Decorative-bleed screens — `AppScaffold(safeTop: false, body: ...)` keeps the historical "art bleeds under status bar" behaviour. Back-row offsets use `MediaQuery.of(context).padding.top + AppSpacing.lg` (or `.sm`).
-> - Screens with `AppBar` — `AppScaffold(safeTop: false, appBar: ...)`. The AppBar already covers the inset.
-> - Overlay modals (`shoot_cancelled_screen`) — `AppScaffold(safeTop: false, backgroundColor: <dim>)`.
->
-> Buckets A–G below remain as the **as-of-2026-06-07 audit snapshot**. Migration completion + status markers per-file live in `appScaffoldPlan.md`. New screens should use `AppScaffold` directly — do not hand-roll `Scaffold( body: SafeArea(...))` patterns.
-
-### Audit state (re-checked 2026-06-07)
-
-`SafeArea` usage in `lib/`:
-
-| Status                                    | Count | Notes                                                            |
-| ----------------------------------------- | ----- | ---------------------------------------------------------------- |
-| Feature `Scaffold` files total            | 32    | `rg -ln "Scaffold\(" lib/features/`                              |
-| With `SafeArea` somewhere                 | 18    | Body / bottomNavigationBar / partial section                     |
-| **No `SafeArea` at all**                  | 14    | Listed below                                                     |
-| `Drawer` (`app_shell.dart`) has SafeArea  | 1     | Side menu — does NOT cover body of host screen                   |
-
-Critical mental model:
-
-- `SafeArea` resets the origin to where system insets end. A `Positioned(top: N)`
-  *inside* SafeArea is `N` below the status bar — safe.
-- A `Positioned(top: N)` *outside* SafeArea is `N` from screen edge. On iPhone
-  15 Pro the Dynamic Island bottom is ~59pt, status bar inset is ~59pt. Any
-  `top: 30` or `top: 50` outside SafeArea collides with DI.
-- Centered-only screens (splash, lottie confirmations, "you're all set") have
-  no top widget and do not need SafeArea unless we add one later.
-
-### Cases by severity
-
-**A. Confirmed DI / status-bar collision — NO SafeArea + small top inset (HIGH PRIO)**
-
-These have `body: Stack` or `body: SingleChildScrollView` with no SafeArea wrap
-AND a `Positioned(top: 50)` (or smaller) for a back button or progress chip.
-On iPhone 15 Pro the chip / icon sits inside the Dynamic Island.
-
-- `lib/features/auth/presentation/screens/signup2_screen.dart:125` — `body: Stack`, no SafeArea. Internal `Positioned` at line 288 + `SignUp2Header` (`signup2_header.dart:24` `top: 50`).
-- `lib/features/auth/presentation/screens/signup3_screen.dart:217` — `body: Stack`, no SafeArea. `SignUp3Header` (`signup3_header.dart:24` `top: 50`) + internal `Positioned` lines 406, 454.
-- `lib/features/auth/presentation/screens/reset_password_screen.dart:87` — `body: SingleChildScrollView` (no SafeArea) wrapping Stack with `Positioned(top: 50)` for back arrow.
-- `lib/features/auth/presentation/screens/forgot_password_screen.dart:63` — same pattern, `top: 50`.
-- `lib/features/auth/presentation/screens/forgot_password_otp_screen.dart:114` — same pattern, `top: 50`.
-- `lib/features/profile/presentation/screens/profile_new_password_screen.dart:74` — `body: Stack`, no SafeArea, `Positioned(top: 50)` back arrow.
-
-**B. NO SafeArea but top inset large enough to clear DI (MEDIUM PRIO — visual only)**
-
-Back arrow / icons at `top: 90` from screen edge. Above the DI on every iPhone
-(DI ends at ~59pt) and above status bar on every Android. Acceptable
-functionally, but inconsistent — same screens should not mix manual offsets
-with SafeArea screens. Decorative `Stack` background art (`rectangleProfile`,
-hero `CachedNetworkImage`) is intentionally allowed to extend under the status
-bar.
-
-- `lib/features/profile/presentation/screens/my_profile_screen.dart:234` — `ProfileHeader` `Positioned(top: 90)` lines 47, 62.
-- `lib/features/profile/presentation/screens/featuredwork_details_screen.dart:97` — has its own `AppBar`, so it is actually safe. Drop from list.
-- `lib/features/file_manager/presentation/screens/file_viewer_screen.dart:26` — `Positioned(top: 90)` lines 45, 53, plus `bottom: -48` line 65 (intentional overlap).
-- `lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart:38` — `Positioned(top: 50)` for back arrow. Move to bucket A — `top: 50` on iPhone 15 Pro = DI collision.
-- `lib/features/auth/presentation/screens/login_screen.dart:77` — no SafeArea, but body is `SingleChildScrollView` whose first child is a `0.35 * height` banner. No top buttons — system status bar overlays the banner gradient. Acceptable today; revisit if a back / language toggle is added.
-
-**C. Already inside a SafeArea — fine, no work needed**
-
-- `lib/features/auth/presentation/screens/signup1_screen.dart:215` — `body: SafeArea(child: Stack(...))`. `SignUp1Header` `Positioned(top: 30)` is 30pt below the inset — safe.
-- All files in the `SafeArea` grep list above. Sanity-check that their SafeArea wraps the relevant `Positioned` subtree and not only a sibling Column.
-
-**D. Centered-only screens — no SafeArea required**
-
-- `lib/features/splash/presentation/screens/splash_screen.dart`
-- `lib/features/shoots/presentation/screens/shoot_cancelled_lotties_screen.dart`
-- `lib/features/profile/presentation/screens/profile_youre_all_set_screen.dart`
-- `lib/features/profile/presentation/screens/delete_account_lottie_screen.dart`
-
-Verify nothing is added near the top edge later; if it is, add SafeArea.
-
-### Bottom-inset (home indicator) audit
-
-Most fixed bottoms are routed through `bottomNavigationBar:` of `Scaffold`, which
-Flutter already pads for the home indicator. Two exceptions found:
-
-- `lib/features/availability/presentation/screens/add_availability_screen.dart:373` —
-  `bottomNavigationBar: SafeArea(top: false, ...)`. Correct.
-- `lib/features/home/presentation/widgets/home_welcome_header.dart:51` —
-  `SafeArea(bottom: false, ...)`. Correct (header at the top).
-
-No fixed-position bottom buttons inside `body` Stacks were found. If one is
-added later, wrap in `SafeArea(top: false, minimum: EdgeInsets.only(bottom: AppSpacing.md))`.
-
-### Pattern to apply (Bucket A files)
-
-**Resolved via `AppScaffold` migration.** See [`appScaffoldPlan.md`](appScaffoldPlan.md) §"Proposed API" for the canonical patterns:
-
-- Default (Bucket A, C, D, onboarding): `AppScaffold(body: ...)` — implicit `SafeArea(top: true, bottom: false, left: true, right: true)`.
-- Bleed (Bucket B, login hero, file viewer hero, my-profile hero): `AppScaffold(safeTop: false, body: Stack(...))` with `Positioned(top: MediaQuery.of(context).padding.top + AppSpacing.lg, ...)` for back rows.
-- AppBar host (`featuredwork_details_screen`): `AppScaffold(safeTop: false, appBar: AppBar(...))` — AppBar covers the inset.
-- Overlay modal (`shoot_cancelled_screen`): `AppScaffold(safeTop: false, backgroundColor: AppColors.black.withValues(alpha: 0.4), ...)`.
-
-Header widgets (`signup2_header.dart`, `signup3_header.dart`): inner `Positioned(top: 50)` is now `top: AppSpacing.sm` (host body is inside `AppScaffold`'s SafeArea).
-
-Pick one approach per screen — do not mix. Do not hand-roll `Scaffold( body: SafeArea(...))` in new code; use `AppScaffold`.
-
-### Verification
-
-- iPhone SE 1st gen simulator (no notch) + iPhone 15 Pro simulator (DI) +
-  Pixel 4a (camera cutout).
-- Status bar / Dynamic Island must never overlap interactive widgets.
-- Home indicator must never sit on top of a button.
-- Toggle iOS Control Center "Larger Text" 200% and confirm the header chip /
-  back row still has space.
+| Task                                      | Status           |
+| ----------------------------------------- | ---------------- |
+| Task 1 — SafeArea / status-bar coverage   | ✅ Done           |
+| Task 2 — Auth-header proportional heights | ✅ Done           |
+| Task 3 — Bottom-sheet fixed heights       | ✅ Done (partial — see crop-dim follow-up) |
+| Task 4 — Hero / card image heights        | ✅ Done           |
+| Task 5 — Cosmetic fixed sizes             | ✅ Won't fix      |
+| Task 6 — Device-matrix goldens            | ✅ Done (partial — see screen-level follow-up) |
 
 ---
 
-## Task 2 — Auth-header proportional heights
+## Task 1 — SafeArea / status-bar coverage ✅ DONE
 
-**Problem.** `height: MediaQuery.of(context).size.height * 0.28` (and `0.32` /
-`0.35`) is used for top banners. On iPhone SE (568 * 0.28 = 159pt) the centered
-Column with multi-line subtitle and the `1/3` badge overlap. On iPad / foldable
-(1133 * 0.28 = 317pt) headers waste large vertical space.
+Verified 2026-06-09. All 32 feature `Scaffold(...)` call-sites migrated to the
+shared `AppScaffold` (`lib/shared/layouts/app_scaffold.dart`). Zero raw
+`Scaffold(` left in `lib/features/`. Defaults applied:
 
-**Files:**
+- `safeTop: true`, `safeBottom: false`, `safeLeft/Right: true`,
+  `resizeToAvoidBottomInset: true`.
 
-- `lib/features/auth/presentation/widgets/signup1_header.dart:15` — `0.28`
-- `lib/features/auth/presentation/widgets/signup2_header.dart:17` — `0.28`
-- `lib/features/auth/presentation/widgets/signup3_header.dart:17` — `0.28`
-- `lib/features/auth/presentation/screens/login_screen.dart:81` — `0.35`
-- `lib/features/auth/presentation/screens/forgot_password_screen.dart:67` — `0.32`
-- `lib/features/auth/presentation/screens/forgot_password_otp_screen.dart:118` — `0.32`
-- `lib/features/auth/presentation/screens/reset_password_screen.dart:91` — `0.32`
-- `lib/features/profile/presentation/screens/profile_new_password_screen.dart:80` — `0.28`
+Bucket A (DI/status-bar collision) — all fixed:
 
-**Pattern to apply.** Clamp the proportional height, or switch to
-`IntrinsicHeight` + min padding so content drives the size.
+| File                                    | Pattern                                                  |
+| --------------------------------------- | -------------------------------------------------------- |
+| `signup2_screen.dart:125`               | default `AppScaffold`; header `top: AppSpacing.sm`       |
+| `signup3_screen.dart:216`               | default `AppScaffold`; header `top: AppSpacing.sm`       |
+| `reset_password_screen.dart:87`         | default `AppScaffold`; inner `Positioned(top: AppSpacing.md)` |
+| `forgot_password_screen.dart:63`        | default `AppScaffold`; inner `Positioned(top: AppSpacing.md)` |
+| `forgot_password_otp_screen.dart:114`   | default `AppScaffold`; inner `Positioned(top: AppSpacing.md)` |
+| `profile_new_password_screen.dart:74`   | default `AppScaffold`; inner `Positioned(top: AppSpacing.md)` |
 
-```dart
-// Option A — clamp
-height: (MediaQuery.of(context).size.height * 0.28).clamp(180.0, 240.0),
+Bucket B (decorative bleed) — `safeTop: false` + `MediaQuery.padding.top + AppSpacing.*`
+applied in `login_screen.dart`, `my_profile_screen.dart` /
+`profile_header.dart`, `file_viewer_screen.dart`,
+`upcoming_shoot_view_details_screen.dart`,
+`featuredwork_details_screen.dart` (has AppBar),
+`shoot_cancelled_screen.dart` (overlay modal).
 
-// Option B — content-driven
-ConstrainedBox(
-  constraints: const BoxConstraints(minHeight: 180, maxHeight: 240),
-  child: IntrinsicHeight(child: ...),
-),
-```
+New screens MUST use `AppScaffold` — do not hand-roll `Scaffold( body: SafeArea(...))`.
 
-Also drop the hardcoded `\n` line break in the subtitle of `signup1_header.dart`
-(`"Create your profile to get discovered by\n production teams."`) — let
-`TextAlign.center` wrap naturally so it survives larger text scale factors.
+### Residual nit (optional)
 
-**Verification.** iPhone SE + iPad. No overlap, no >25% wasted vertical on iPad.
+- `lib/features/auth/presentation/widgets/signup1_header.dart:22` still uses
+  raw `top: 30`. Functionally safe (inside default SafeArea) but inconsistent
+  with `signup2_header` / `signup3_header` which use `AppSpacing.sm`.
+  Token-ize for consistency or leave.
 
 ---
 
-## Task 3 — Bottom-sheet containers with fixed proportional height
+## Task 2 — Auth-header proportional heights ✅ DONE
 
-**Problem.** Bottom sheets use `Container(height: size.height * 0.75 / 0.85)`
-which ignores keyboard. `resizeToAvoidBottomInset: true` is set but the fixed
-inner Container will not shrink — content gets cut on small phones when the
-soft keyboard opens.
+Applied 2026-06-09. Clamp pattern picked (Option A) so existing layout math
+stays untouched. Bounds derived per multiplier from the device matrix:
 
-**Files:**
+| Multiplier | Files                                                                                                                                                                                                                                                                                                  | Clamp           | Rationale                                                |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | -------------------------------------------------------- |
+| `0.28`     | `signup1_header.dart:15`, `signup2_header.dart:17`, `signup3_header.dart:17`, `profile_new_password_screen.dart:81`                                                                                                                                                                                     | `180.0, 240.0`  | SE 159→180 (+21 prevents `1/3` chip + subtitle overlap); iPad 317→240 (saves 77pt waste) |
+| `0.32`     | `forgot_password_screen.dart:68`, `forgot_password_otp_screen.dart:119`, `reset_password_screen.dart:92`                                                                                                                                                                                                | `200.0, 280.0`  | SE 182→200; iPad 363→280                                  |
+| `0.35`     | `login_screen.dart:83`                                                                                                                                                                                                                                                                                  | `220.0, 320.0`  | SE 199→220; iPad 397→320                                  |
 
-- `lib/features/shoots/presentation/screens/shoot_cancelled_screen.dart:57` — `0.75`
-- `lib/features/profile/presentation/widgets/profile_image_crop_sheet.dart:43` — `0.85`
-- `lib/features/auth/presentation/widgets/signup1_crop_sheet.dart:47` — `0.85`
+Also dropped hardcoded `\n` line break in `signup1_header.dart` subtitle —
+`"Create your profile to get discovered by\n production teams."` →
+`"Create your profile to get discovered by production teams."` so
+`TextAlign.center` wraps naturally under larger text-scale settings.
 
-Crop sheets additionally wrap a fixed `320 / 340` px crop area
-(`profile_image_crop_sheet.dart:103-114`). On iPhone SE that leaves ~80pt for
-controls — cramped.
+`signup2_header.dart` and `signup3_header.dart` subtitles still carry `\n` —
+left as-is since doc only flagged signup1. Revisit if text-scale audits
+surface overflow.
 
-**Pattern to apply.** Replace the fixed-height Container with
-`DraggableScrollableSheet` (for resizable sheets) or wrap content in
-`SingleChildScrollView` + `Padding(bottom: viewInsets.bottom)` so keyboard
-resizes correctly. Crop area sizing should derive from
-`min(size.width - 2 * AppSpacing.xl, 340)`.
+`flutter analyze` clean post-change (2 pre-existing unused-import warnings
+in `core/providers/core_providers.dart` unrelated).
 
-```dart
-showModalBottomSheet(
-  isScrollControlled: true,
-  builder: (_) => DraggableScrollableSheet(
-    initialChildSize: 0.75,
-    minChildSize: 0.5,
-    maxChildSize: 0.95,
-    expand: false,
-    builder: (_, scrollController) => ...,
-  ),
-);
-```
-
-**Verification.** iPhone SE with keyboard open. Form fields stay visible. Crop
-area not larger than viewport width.
+**Verification still pending.** iPhone SE + iPad manual run. No overlap,
+no >25% wasted vertical on iPad.
 
 ---
 
-## Task 4 — Hero / card images with fixed pixel heights
+## Task 3 — Bottom-sheet containers with fixed proportional height ✅ DONE (partial)
 
-**Problem.** Image widgets pin `height: 220 / 230 / 240 / 250 / 300 / 320 / 330`
-with `width: double.infinity`. On narrow Android phones (360dp) and tablets the
-aspect ratio distorts and content shifts off-grid.
+Applied 2026-06-09. Lower-risk path picked over full
+`DraggableScrollableSheet` rewrite — same keyboard-aware behaviour, no API
+churn for callers.
 
-**Files:**
+Pattern: swap `Container(height: h * X)` for
+`Container(constraints: BoxConstraints(maxHeight: h * X))`. Combined with
+existing `resizeToAvoidBottomInset: true` (AppScaffold default) / sheet
+`isScrollControlled: true`, the sheet shrinks when the keyboard pushes the
+body up instead of getting clipped. Crop sheets also add
+`bottom: AppSpacing.base + viewInsets.bottom` to padding so controls lift
+above the keyboard.
 
-- `lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart:47` — `height: 330`
-- `lib/features/home/presentation/widgets/home_pending_shoot_card.dart:71,78,88` — `height: 220` (triple-nested)
-- `lib/features/profile/presentation/widgets/featured_work_card.dart:41` — `height: 250`
-- `lib/features/profile/presentation/screens/featuredwork_details_screen.dart:106` — `height: 240`
-- `lib/features/file_manager/presentation/screens/pre_production_screen.dart:324` — `height: 230`
-- `lib/features/file_manager/presentation/screens/file_viewer_screen.dart:36` — `height: 200`
-- `lib/features/profile/presentation/widgets/profile_header.dart:37` — `height: 200`
-- `lib/features/profile/presentation/widgets/featured_work_upload_sheet.dart:149,186` — `height: 220, 320`
-- `lib/features/profile/presentation/screens/edit_personal_details_screen.dart:266` — `height: 250`
-- `lib/features/auth/presentation/widgets/signup1_form.dart:146` — Google Map `height: 280`
-- `lib/features/auth/presentation/widgets/signup3_featured_sheet.dart:139` — `height: 300`
+| File                                                                 | Before               | After                                  |
+| -------------------------------------------------------------------- | -------------------- | -------------------------------------- |
+| `shoot_cancelled_screen.dart:58`                                     | `height: h * 0.75`   | `constraints.maxHeight: h * 0.85`      |
+| `profile_image_crop_sheet.dart:43`                                   | `height: h * 0.85`   | `constraints.maxHeight: h * 0.85` + `viewInsets.bottom` padding |
+| `signup1_crop_sheet.dart:47`                                         | `height: h * 0.85`   | `constraints.maxHeight: h * 0.85` + `viewInsets.bottom` padding |
 
-**Pattern to apply.** Use `AspectRatio` so the image scales with the column
-width.
+`flutter analyze` clean post-change (2 pre-existing unused-import warnings
+in `core/providers/core_providers.dart` unrelated).
 
-```dart
-// Before
-SizedBox(height: 220, width: double.infinity, child: image)
+**Verification still pending.** iPhone SE with keyboard open — confirm
+"Others" TextField stays visible and Save buttons stay above keyboard.
 
-// After (16:9 hero, 4:3 card, pick per use)
-AspectRatio(aspectRatio: 16 / 9, child: image)
-```
+### Follow-up — crop UI dimension on small phones
 
-For the Google Map, keep a min-height to stay interactive but cap to viewport:
+NOT yet done. Crop sheets still hard-code visible `SizedBox(320, 320)` +
+`CustomPaint(Size(320, 320))` + `Image.file(width: 340, height: 340)` plus
+`_cropImage` constants (`uiSize = 360 / 320`, `cropUI = 260`,
+`CircleHolePainter` radius `130`). On iPhone SE (320 width) the crop region
+overflows the sheet padding.
 
-```dart
-ConstrainedBox(
-  constraints: BoxConstraints(
-    minHeight: 200,
-    maxHeight: MediaQuery.of(context).size.height * 0.35,
-  ),
-  child: GoogleMap(...),
-),
-```
+Doc target: `cropDim = min(size.width - 2 * AppSpacing.xl, 340.0)` and
+scale every coupled constant by `cropDim / 320` to preserve crop fidelity.
 
-**Verification.** Pixel 4a portrait + iPad portrait. Image aspect stays
-consistent, no horizontal whitespace.
+Risk: crop math is tuned by hand — `profile_image_crop_sheet.dart` uses
+`uiSize = 360` while `signup1_crop_sheet.dart` uses `uiSize = 320`. No
+unit tests cover crop output. Defer to a follow-up sprint with a
+golden / round-trip test for `_cropImage` before resizing.
+
+Files for follow-up:
+- `profile_image_crop_sheet.dart:102-128` (SizedBox + CustomPaint) +
+  `:239-240` (`uiSize`, `cropUI` constants).
+- `signup1_crop_sheet.dart:105-127` (SizedBox + CustomPaint) +
+  `:213-214` (`uiSize`, `cropUI`) + `:271` (`CircleHolePainter` radius).
 
 ---
 
-## Task 5 — Drag handle, status pill, progress dots (cosmetic fixed sizes)
+## Task 4 — Hero / card images with fixed pixel heights ✅ DONE
+
+Applied 2026-06-09. Pattern picked per use:
+
+| Category    | Aspect / bounds              | Files                                                                                                                                                                                                                       |
+| ----------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hero 16:9   | `AspectRatio(16 / 9)`        | `upcoming_shoot_view_details_screen.dart` (was 330), `home_pending_shoot_card.dart` (was 220 × 3 → single wrap), `featuredwork_details_screen.dart` (was 240), `file_viewer_screen.dart` (was 200), `profile_header.dart` (was 200) |
+| Card 4:3    | `AspectRatio(4 / 3)`         | `featured_work_card.dart` (was 250)                                                                                                                                                                                          |
+| Google Map  | `ConstrainedBox(min 200, max h * 0.35)` | `edit_personal_details_screen.dart` (was 250), `signup1_form.dart` (was 280)                                                                                                                                                |
+| Dropzone    | `ConstrainedBox(min 200, max 260)` | `pre_production_screen.dart` (was 230)                                                                                                                                                                                       |
+| Empty zone  | `ConstrainedBox(min 180, max 240)` | `featured_work_upload_sheet.dart` `_emptyDropZone` (was 220)                                                                                                                                                                |
+| Grid wrapper | `ConstrainedBox(min 220, max 360)` | `featured_work_upload_sheet.dart` `_imageGrid` (was 320), `signup3_featured_sheet.dart` (was 300)                                                                                                                            |
+
+Notes:
+
+- `home_pending_shoot_card.dart` had triple-nested `height: 220` (image,
+  error fallback, empty fallback). Collapsed into one `AspectRatio` wrapping
+  the ternary and dropped the inner `Center` wrappers.
+- `featured_work_card.dart`: `AspectRatio` wraps the whole decorated card
+  Container — keeps the surface shadow + radius proportional to width.
+- Dropzones / GridView wrappers are not images but were listed in T4. Used
+  `ConstrainedBox` min/max so they grow with text-scale yet cap on iPad.
+
+`flutter analyze` clean post-change (2 pre-existing unused-import warnings
+in `core/providers/core_providers.dart` unrelated).
+
+**Verification still pending.** Pixel 4a portrait + iPad portrait manual
+run. Image aspect consistent, no horizontal whitespace, Google Map
+interactive at min size.
+
+---
+
+## Task 5 — Drag handle, status pill, progress dots (cosmetic fixed sizes) ✅ WON'T FIX
 
 Low priority. Fixed `width: 40-42, height: 5` drag handles and pill dots are
-fine — they are intentional UI tokens. Leave alone unless rebranding.
+intentional UI tokens. Leave alone unless rebranding.
 
 ---
 
-## Task 6 — Add device-matrix golden / smoke check
+## Task 6 — Add device-matrix golden / smoke check ✅ DONE (partial)
 
-After Tasks 1-4:
+Applied 2026-06-09.
 
-1. Add golden tests under `test/golden/` for the auth screens, profile header,
-   home pending-shoot card, and crop sheets at three viewport sizes
-   (320x568, 393x852, 744x1133) using `tester.binding.setSurfaceSize`.
-2. Add a manual smoke checklist to `docs/designAudit/` documenting the steps
-   to run on iPhone SE simulator + iPhone 15 Pro simulator + Pixel 4a +
-   foldable / iPad before marking the task complete.
-3. Toggle iOS Larger Text (Accessibility) to 200% on iPhone SE to confirm fixed
-   image heights do not overflow scaled text.
+**Device-matrix goldens — `test/golden/device_matrix_test.dart`.**
+Renders the 3 signup headers at the 3 reference viewports
+(`320 × 568`, `393 × 852`, `744 × 1133`) via `tester.binding.setSurfaceSize`.
+9 baselines under `test/golden/goldens/signup{1,2,3}_header_<size>.png`.
+
+Regenerate after a deliberate header change:
+
+```bash
+flutter test --update-goldens test/golden/device_matrix_test.dart
+```
+
+Re-run on the same Flutter SDK that produced the baselines — cross-SDK
+diffs are noise. Phase 6.10 golden conventions still apply.
+
+**Manual smoke checklist — `docs/designAudit/manualSmoke.md`.**
+Per-screen + per-device checklist covering every screen touched in
+Tasks 1-4, plus an iOS Larger Text 200% accessibility pass. Includes a
+verification log table for sign-off per release.
+
+### Follow-up — screen-level goldens
+
+NOT yet done. The matrix only covers the signup-header widgets because
+they are dependency-free. Full-screen goldens (login, forgot-password,
+my-profile, home pending-shoot card, crop sheets) need provider /
+network image mocking before they can be pumped in widget tests:
+
+- `CachedNetworkImage` widgets require an `HttpClient` override or a fake
+  image-cache layer.
+- Screens are `ConsumerWidget` / `ConsumerStatefulWidget` — need
+  `ProviderScope` with overrides for `sessionStoreProvider`,
+  `dioClientProvider`, and any repository providers they touch.
+- Router-based screens depend on `GoRouter` context — pump under a
+  minimal router or refactor the body widgets to accept the data the
+  notifiers would supply.
+
+Until that infra lands, regression coverage for those screens is the
+manual smoke checklist.
 
 ---
 
-## Execution Order
+## Execution Order (remaining)
 
 Suggested merge order, each independently shippable:
 
-1. Task 1 (SafeArea) — single mechanical pattern, high user-visible win.
-2. Task 2 (auth header clamp) — touches 4 screens, single pattern.
-3. Task 4 (AspectRatio for images) — visual polish across home / profile.
-4. Task 3 (bottom-sheet rewrite) — riskier, needs keyboard + crop QA.
-5. Task 6 (golden + manual matrix) — locks the wins.
+1. Task 3 crop-dim follow-up — add `_cropImage` round-trip test, then
+   parameterize crop dim per `min(w - 2 * AppSpacing.xl, 340)`.
+2. Task 6 screen-level goldens — needs provider + network-image mocking
+   infra (see Task 6 follow-up section).
 
 ## Out of Scope
 

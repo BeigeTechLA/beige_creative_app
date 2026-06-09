@@ -32,9 +32,8 @@ class ProfileHeader extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: 200,
+        AspectRatio(
+          aspectRatio: 16 / 9,
           child: ClipRRect(
             borderRadius: AppRadii.bottomHeader,
             child: SvgPicture.asset(

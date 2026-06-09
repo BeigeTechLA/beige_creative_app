@@ -37,15 +37,16 @@ class FeaturedWorkCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 250,
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceShadow,
-              borderRadius: AppRadii.hugeAll,
-            ),
-            child: Stack(
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceShadow,
+                borderRadius: AppRadii.hugeAll,
+              ),
+              child: Stack(
               children: [
                 ClipRRect(
                   borderRadius: AppRadii.xxxlAll,
@@ -134,6 +135,7 @@ class FeaturedWorkCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
             ),
           ),
         ],

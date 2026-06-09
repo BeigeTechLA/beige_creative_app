@@ -40,12 +40,19 @@ class _ProfileImageCropSheetState extends State<ProfileImageCropSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       decoration: const BoxDecoration(
         color: AppColors.surfaceCropSheet,
         borderRadius: AppRadii.topRound,
       ),
-      padding: const EdgeInsets.all(AppSpacing.base),
+      padding: EdgeInsets.only(
+        left: AppSpacing.base,
+        right: AppSpacing.base,
+        top: AppSpacing.base,
+        bottom: AppSpacing.base + MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Column(
         children: [
           Center(

@@ -14,7 +14,7 @@ class SignUp3Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.28,
+      height: (MediaQuery.of(context).size.height * 0.28).clamp(180.0, 240.0),
       child: Stack(
         children: [
           Positioned.fill(

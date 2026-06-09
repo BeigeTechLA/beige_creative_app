@@ -105,13 +105,14 @@ class _FeaturedWorkDetailsScreenState
                 final imageData = images[index];
                 return Container(
                   margin: const EdgeInsets.only(bottom: AppSpacing.base),
-                  height: 240,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: AppRadii.hugeAll,
                     color: AppColors.surfaceShadow,
                   ),
-                  child: Stack(
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Stack(
                     children: [
                       ClipRRect(
                         borderRadius: AppRadii.hugeAll,
@@ -142,6 +143,7 @@ class _FeaturedWorkDetailsScreenState
                         ),
                       ),
                     ],
+                    ),
                   ),
                 );
               },
