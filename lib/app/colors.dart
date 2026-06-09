@@ -460,5 +460,16 @@ class AppColors {
   /// 0xE8D1AB80 — Textfield border (legacy value, was 0xFFE8D1AB80 before
   /// strict 8-digit-hex lint promotion in Phase 5.05; high byte truncated.
   static const Color textfieldBorderLegacy = Color(0xE8D1AB80);
+
+  /// Gold gradient — cream end (counter bg light stop)
+  static const Color goldGradientCream = Color(0xFFFDEFD9);
+
+  /// Gold horizontal gradient — CSS `linear-gradient(90deg, #E8D1AB 0%, #FDEFD9 100%)`
+  static const LinearGradient goldHorizontalGradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [goldGradientLight, goldGradientCream],
+    stops: [0.0, 1.0],
+  );
 }
 

@@ -1,0 +1,64 @@
+{
+  "conversations": [
+    {
+      "id": "conv_001",
+      "title": "Angela Kia",
+      "avatarUrl": null,
+      "tab": "all",
+      "lastMessage": {
+        "preview": "Hey! How's it going?",
+        "sentAt": "2026-06-09T04:23:00.000Z",
+        "fromMe": false
+      },
+      "unreadCount": 2,
+      "isOnline": true,
+      "linkedShootId": "shoot_4521",
+      "participants": ["user_me", "user_angela"]
+    },
+    {
+      "id": "conv_002",
+      "title": "Conner Frazier",
+      "avatarUrl": null,
+      "tab": "shoots",
+      "lastMessage": {
+        "preview": "What kind of music do you like?",
+        "sentAt": "2026-06-08T21:02:00.000Z",
+        "fromMe": false
+      },
+      "unreadCount": 0,
+      "isOnline": false,
+      "linkedShootId": "shoot_4530",
+      "participants": ["user_me", "user_conner"]
+    },
+    {
+      "id": "conv_003",
+      "title": "Timothy Steele",
+      "avatarUrl": null,
+      "tab": "shoots",
+      "lastMessage": {
+        "preview": "Hi Tina, How's your night going?",
+        "sentAt": "2026-06-08T20:55:00.000Z",
+        "fromMe": true
+      },
+      "unreadCount": 0,
+      "isOnline": false,
+      "linkedShootId": null,
+      "participants": ["user_me", "user_timothy"]
+    },
+    {
+      "id": "conv_004",
+      "title": "Josephine Gordon",
+      "avatarUrl": null,
+      "tab": "admin",
+      "lastMessage": {
+        "preview": "Sounds good to me!",
+        "sentAt": "2026-06-08T18:50:00.000Z",
+        "fromMe": false
+      },
+      "unreadCount": 1,
+      "isOnline": false,
+      "linkedShootId": null,
+      "participants": ["user_me", "user_josephine"]
+    }
+  ]
+}

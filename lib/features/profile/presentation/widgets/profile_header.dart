@@ -61,10 +61,12 @@ class ProfileHeader extends StatelessWidget {
           top: MediaQuery.of(context).padding.top + AppSpacing.lg,
           left: 0,
           right: 0,
-          child: const Center(
+          child: Center(
             child: Text(
               'My Profile',
-              style: AppTextStyles.displayLabel16,
+              style: AppTextStyles.displayLabel16.copyWith(
+                color: AppColors.textHeading,
+              ),
             ),
           ),
         ),

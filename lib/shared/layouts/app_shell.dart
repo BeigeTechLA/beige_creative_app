@@ -16,6 +16,7 @@ import '../../core/firebase/analytics_service.dart';
 import '../../features/home/presentation/providers/home_notifier.dart';
 import '../../features/profile/presentation/providers/my_profile_providers.dart'
     show profileImageBustProvider;
+import '../../model_class/myprofile_model.dart';
 
 /// Hosts the root branches (Dashboard, Shoots, Files, Messages, future
 /// drawer-only entries, Manage Availability) under a
@@ -196,15 +197,29 @@ class _AppShellDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileImageUrl = ref.watch(
-      homeNotifierProvider.select(
-        (s) => s.profileData?.profileImageUrl ?? '',
-      ),
+    final profileData = ref.watch(
+      homeNotifierProvider.select((s) => s.profileData),
     );
+    final profileImageUrl = profileData?.profileImageUrl ?? '';
     final bust = ref.watch(profileImageBustProvider);
     final avatarUrl = profileImageUrl.isEmpty
         ? ''
         : '${Env.imageUrl}$profileImageUrl${bust > 0 ? '?v=$bust' : ''}';
+
+    final userName = profileData != null
+        ? ('${profileData.firstName} ${profileData.lastName}'.trim().isNotEmpty
+            ? '${profileData.firstName} ${profileData.lastName}'.trim()
+            : profileData.user.name.isNotEmpty
+                ? profileData.user.name
+                : 'No Name')
+        : 'Loading...';
+    final userEmail = profileData != null
+        ? (profileData.email.isNotEmpty
+            ? profileData.email
+            : profileData.user.email.isNotEmpty
+                ? profileData.user.email
+                : 'No Email')
+        : 'Loading...';
     return Drawer(
       backgroundColor: AppColors.surfaceAbyss,
       child: SafeArea(
@@ -233,7 +248,7 @@ class _AppShellDrawer extends ConsumerWidget {
                     child: Container(
                       padding: const EdgeInsets.all(AppSpacing.md),
                       decoration: BoxDecoration(
-                        color: AppColors.goldSandLight,
+                        color: AppColors.primary,
                         borderRadius: AppRadii.xxlAll,
                       ),
                       child: Row(
@@ -254,15 +269,14 @@ class _AppShellDrawer extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'My Profile',
-                                  style: AppTextStyles.bodyLargeStrong.copyWith(
+                                  userName,
+                                  style: AppTextStyles.bodyMediumStrong.copyWith(
                                     color: AppColors.black,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                AppSpacing.verticalXxs,
                                 Text(
-                                  'View account details',
+                                  userEmail,
                                   style: AppTextStyles.bodySmallMedium.copyWith(
                                     color: AppColors.black,
                                   ),

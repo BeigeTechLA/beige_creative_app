@@ -134,8 +134,7 @@ class _Tab extends StatelessWidget {
         onTap: () => onTap(index),
         child: Container(
           decoration: BoxDecoration(
-            color:
-                selected ? AppColors.goldSoftSand : AppColors.transparent,
+            gradient: selected ? AppColors.goldHorizontalGradient : null,
             borderRadius: AppRadii.mldAll,
           ),
           alignment: Alignment.center,
