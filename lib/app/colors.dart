@@ -243,6 +243,15 @@ class AppColors {
   static const Color discountGreen = Color(0xFF7ED957);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SHOOT ACTION COLORS
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const Color shootAcceptButtonBackground = softMint;
+  static const Color shootAcceptButtonText = greenBright;
+  static const Color shootDeclineButtonBackground = softPeach;
+  static const Color shootDeclineButtonText = Color(0xFFD33732);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // STATUS COLORS (booking flow)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -472,4 +481,3 @@ class AppColors {
     stops: [0.0, 1.0],
   );
 }
-

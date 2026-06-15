@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
@@ -7,254 +8,214 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 
-/// "Social Link" section: heading + list of saved entries + edit-affordance.
+const int _maxVisibleChips = 2;
+
+/// "Social Link" section: heading + chip row (first 2 + "+N") + edit affordance.
 class ProfileSocialLinksList extends StatelessWidget {
   final List<Map<String, String>> socialLinks;
-  final void Function(int index, Map<String, String> item) onEdit;
-  final void Function(int index) onDelete;
-  final VoidCallback onAdd;
+  final VoidCallback onOpen;
 
   const ProfileSocialLinksList({
     super.key,
     required this.socialLinks,
-    required this.onEdit,
-    required this.onDelete,
-    required this.onAdd,
+    required this.onOpen,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              'Social Link',
-              style: AppTextStyles.displayLabel14
-                  .copyWith(color: AppColors.white),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        if (socialLinks.isEmpty)
-          const Text(
-            'No social links added',
-            style: AppTextStyles.inherit,
-          )
-        else
-          Column(
-            children: socialLinks.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              return _SocialRow(
-                item: item,
-                onEdit: () => onEdit(index, item),
-                onDelete: () => onDelete(index),
-              );
-            }).toList(),
-          ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [_EditAffordance(onTap: onAdd)],
-        ),
-      ],
+    return _LinksChipSection(
+      title: 'Social Link',
+      emptyLabel: 'No social links added',
+      links: socialLinks,
+      iconTint: AppColors.white,
+      onOpen: onOpen,
     );
   }
 }
 
-/// "Portfolio Link" section: heading + list of saved entries + edit-affordance.
+/// "Portfolio Link" section: heading + chip row (first 2 + "+N") + edit affordance.
 class ProfilePortfolioLinksList extends StatelessWidget {
   final List<Map<String, String>> portfolioLinks;
-  final void Function(int index, Map<String, String> item) onEdit;
-  final Future<void> Function(int id) onDelete;
-  final VoidCallback onAdd;
+  final VoidCallback onOpen;
 
   const ProfilePortfolioLinksList({
     super.key,
     required this.portfolioLinks,
-    required this.onEdit,
-    required this.onDelete,
-    required this.onAdd,
+    required this.onOpen,
   });
 
   @override
   Widget build(BuildContext context) {
+    return _LinksChipSection(
+      title: 'Portfolio Links',
+      emptyLabel: 'No portfolio links added',
+      links: portfolioLinks,
+      iconTint: AppColors.primary,
+      onOpen: onOpen,
+    );
+  }
+}
+
+class _LinksChipSection extends StatelessWidget {
+  final String title;
+  final String emptyLabel;
+  final List<Map<String, String>> links;
+  final Color iconTint;
+  final VoidCallback onOpen;
+
+  const _LinksChipSection({
+    required this.title,
+    required this.emptyLabel,
+    required this.links,
+    required this.iconTint,
+    required this.onOpen,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final visible = links.take(_maxVisibleChips).toList();
+    final overflow = links.length - visible.length;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          title,
+          style: AppTextStyles.displayLabel14.copyWith(color: AppColors.white),
+        ),
+        const SizedBox(height: 14),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Portfolio Link',
-              style: AppTextStyles.displayLabel14
-                  .copyWith(color: AppColors.white),
+            Expanded(
+              child: links.isEmpty
+                  ? const Text(
+                      'No links added',
+                      style: AppTextStyles.inherit,
+                    )
+                  : Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      children: [
+                        for (final item in visible)
+                          _LinkChip(
+                            item: item,
+                            iconTint: iconTint,
+                            onTap: () => _openExternalLink(
+                              context,
+                              item['url'],
+                              fallback: onOpen,
+                            ),
+                          ),
+                        if (overflow > 0)
+                          _LinkChip.overflow(
+                            count: overflow,
+                            onTap: onOpen,
+                          ),
+                      ],
+                    ),
             ),
+            const SizedBox(width: AppSpacing.smd),
+            _EditAffordance(onTap: onOpen),
           ],
         ),
         const SizedBox(height: 20),
-        if (portfolioLinks.isEmpty)
-          const Text(
-            'No portfolio links added',
-            style: AppTextStyles.inherit,
-          )
-        else
-          Column(
-            children: portfolioLinks.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              return _PortfolioRow(
-                item: item,
-                onEdit: () => onEdit(index, item),
-                onDelete: () async {
-                  final id = int.parse(item['id'].toString());
-                  await onDelete(id);
-                },
-              );
-            }).toList(),
-          ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [_EditAffordance(onTap: onAdd)],
-        ),
       ],
     );
   }
 }
 
-class _SocialRow extends StatelessWidget {
-  final Map<String, String> item;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+class _LinkChip extends StatelessWidget {
+  final Map<String, String>? item;
+  final Color iconTint;
+  final int? overflowCount;
+  final VoidCallback onTap;
 
-  const _SocialRow({
+  const _LinkChip({
     required this.item,
-    required this.onEdit,
-    required this.onDelete,
-  });
+    required this.iconTint,
+    required this.onTap,
+  }) : overflowCount = null;
+
+  const _LinkChip.overflow({
+    required int count,
+    required this.onTap,
+  })  : item = null,
+        iconTint = AppColors.white,
+        overflowCount = count;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.smd),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.smd,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: AppRadii.lgAll,
-        border: Border.all(color: AppColors.white24),
-        color: AppColors.surfaceMid,
-      ),
-      child: Row(
-        children: [
-          SvgPicture.asset(
-            item['icon']!,
-            height: 20,
-            width: 20,
-            colorFilter: const ColorFilter.mode(
-              AppColors.white,
-              BlendMode.srcIn,
+    final isOverflow = overflowCount != null;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: AppRadii.mdAll,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.smd,
+          vertical: AppSpacing.dropdownIconInset,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceMid,
+          borderRadius: AppRadii.mdAll,
+          border: Border.all(
+            color: AppColors.white.withValues(alpha: 0.2),
+            width: 0.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!isOverflow && item?['icon'] != null) ...[
+              SvgPicture.asset(
+                item!['icon']!,
+                height: 14,
+                width: 14,
+                colorFilter: ColorFilter.mode(iconTint, BlendMode.srcIn),
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              isOverflow ? '+$overflowCount' : (item?['name'] ?? ''),
+              style: AppTextStyles.body12.copyWith(color: AppColors.white),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item['name']!,
-                  style: AppTextStyles.bodyMedium
-                      .copyWith(color: AppColors.white),
-                ),
-                Text(
-                  item['url']!,
-                  style: AppTextStyles.bodySmall
-                      .copyWith(color: AppColors.white24),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.edit, color: AppColors.white, size: 18),
-            onPressed: onEdit,
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete, color: AppColors.error, size: 18),
-            onPressed: onDelete,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _PortfolioRow extends StatelessWidget {
-  final Map<String, String> item;
-  final VoidCallback onEdit;
-  final Future<void> Function() onDelete;
-
-  const _PortfolioRow({
-    required this.item,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.smd),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.smd,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: AppRadii.lgAll,
-        border: Border.all(color: AppColors.white24),
-        color: AppColors.surfaceVariant,
-      ),
-      child: Row(
-        children: [
-          SvgPicture.asset(
-            item['icon']!,
-            height: 20,
-            width: 20,
-            colorFilter: const ColorFilter.mode(
-              AppColors.primary,
-              BlendMode.srcIn,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item['name']!,
-                  style: AppTextStyles.bodyMedium
-                      .copyWith(color: AppColors.white),
-                ),
-                Text(
-                  item['url']!,
-                  style: AppTextStyles.bodySmall
-                      .copyWith(color: AppColors.white24),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.edit, color: AppColors.white, size: 18),
-            onPressed: onEdit,
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete, color: AppColors.error, size: 18),
-            onPressed: () async => onDelete(),
-          ),
-        ],
-      ),
+Future<void> _openExternalLink(
+  BuildContext context,
+  String? rawUrl, {
+  required VoidCallback fallback,
+}) async {
+  final uri = _parseExternalUri(rawUrl);
+  if (uri == null) {
+    fallback();
+    return;
+  }
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+  if (!launched && messenger != null) {
+    messenger.showSnackBar(
+      const SnackBar(content: Text('Could not open link')),
     );
   }
+}
+
+Uri? _parseExternalUri(String? raw) {
+  if (raw == null) return null;
+  final trimmed = raw.trim();
+  if (trimmed.isEmpty) return null;
+  final withScheme =
+      trimmed.startsWith(RegExp(r'^[a-zA-Z][a-zA-Z0-9+\-.]*://'))
+          ? trimmed
+          : 'https://$trimmed';
+  final uri = Uri.tryParse(withScheme);
+  if (uri == null || uri.host.isEmpty) return null;
+  return uri;
 }
 
 class _EditAffordance extends StatelessWidget {

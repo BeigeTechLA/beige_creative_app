@@ -346,7 +346,13 @@ class _ShootCard extends StatelessWidget {
                         children: [
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.white,
+                              backgroundColor:
+                                  AppColors.shootAcceptButtonBackground,
+                              foregroundColor: AppColors.shootAcceptButtonText,
+                              disabledBackgroundColor:
+                                  AppColors.shootAcceptButtonBackground,
+                              disabledForegroundColor:
+                                  AppColors.shootAcceptButtonText,
                             ),
                             onPressed: isAcceptInFlight ? null : onAccept,
                             child: isAcceptInFlight
@@ -355,23 +361,31 @@ class _ShootCard extends StatelessWidget {
                                     height: 16,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      color: AppColors.black,
+                                      color: AppColors.shootAcceptButtonText,
                                     ),
                                   )
-                                : const Text(
+                                : Text(
                                     'Accept',
-                                    style: AppTextStyles.bodySmall,
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.shootAcceptButtonText,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                           ),
                           AppSpacing.gapHSmd,
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.white,
+                              backgroundColor:
+                                  AppColors.shootDeclineButtonBackground,
+                              foregroundColor: AppColors.shootDeclineButtonText,
                             ),
                             onPressed: onDecline,
-                            child: const Text(
+                            child: Text(
                               'Decline',
-                              style: AppTextStyles.bodySmall,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.shootDeclineButtonText,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],

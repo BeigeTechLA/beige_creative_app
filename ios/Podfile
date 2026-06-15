@@ -38,6 +38,26 @@ target 'Runner' do
   end
 end
 
+require 'json'
+
+def write_google_maps_xcconfig(flavor)
+  env_path = File.expand_path(File.join('..', 'env', "#{flavor}.json"), __dir__)
+  out_path = File.expand_path(File.join('Flutter', "GoogleMaps-#{flavor}.xcconfig"), __dir__)
+  unless File.exist?(env_path)
+    warn "[GoogleMaps] env/#{flavor}.json missing — iOS map key will be empty for #{flavor}."
+    File.write(out_path, "GOOGLE_MAPS_KEY = \n")
+    return
+  end
+  key = JSON.parse(File.read(env_path))['GOOGLE_MAPS_KEY'].to_s
+  if key.empty?
+    warn "[GoogleMaps] GOOGLE_MAPS_KEY missing in env/#{flavor}.json — iOS map will not render."
+  end
+  File.write(out_path, "GOOGLE_MAPS_KEY = #{key}\n")
+end
+
+write_google_maps_xcconfig('dev')
+write_google_maps_xcconfig('prod')
+
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)

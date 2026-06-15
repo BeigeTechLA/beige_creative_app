@@ -19,6 +19,8 @@ import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_loader.dart' show AppLoader;
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/top_message.dart';
+import '../../../../utility/location_exception.dart';
+import '../../../../utility/location_service.dart';
 import '../providers/signup_notifier.dart';
 import '../providers/signup_state.dart';
 import '../widgets/signup1_crop_sheet.dart';
@@ -112,34 +114,32 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
   }
 
   Future<void> _getCurrentLocation() async {
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      await Geolocator.openLocationSettings();
-      return;
-    }
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    if (permission == LocationPermission.deniedForever) {
+    try {
+      final latLng = await LocationService.getCurrentLocation();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Location permission permanently denied. Enable from settings.',
-          ),
-        ),
-      );
-      await Geolocator.openAppSettings();
-      return;
+      ref.read(signupNotifierProvider.notifier).setCurrentLatLng(latLng);
+    } on LocationException catch (e) {
+      if (!mounted) return;
+      switch (e.status) {
+        case LocationStatus.serviceDisabled:
+          await Geolocator.openLocationSettings();
+        case LocationStatus.permanentlyDenied:
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Location permission permanently denied. Enable from settings.',
+              ),
+            ),
+          );
+          await Geolocator.openAppSettings();
+        case LocationStatus.denied:
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location needed to autofill address.')),
+          );
+        case LocationStatus.unknown:
+          break;
+      }
     }
-    final position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-    );
-    if (!mounted) return;
-    ref
-        .read(signupNotifierProvider.notifier)
-        .setCurrentLatLng(LatLng(position.latitude, position.longitude));
   }
 
   Future<void> _updateLocationFromLatLng(LatLng latLng) async {

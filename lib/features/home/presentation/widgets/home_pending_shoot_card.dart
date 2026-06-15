@@ -208,7 +208,14 @@ class HomePendingShootCard extends StatelessWidget {
                             children: [
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.white,
+                                  backgroundColor:
+                                      AppColors.shootAcceptButtonBackground,
+                                  foregroundColor:
+                                      AppColors.shootAcceptButtonText,
+                                  disabledBackgroundColor:
+                                      AppColors.shootAcceptButtonBackground,
+                                  disabledForegroundColor:
+                                      AppColors.shootAcceptButtonText,
                                 ),
                                 onPressed: () {
                                   onAccept(data.projectId);
@@ -218,14 +225,21 @@ class HomePendingShootCard extends StatelessWidget {
                                       ? data.cta!.primary
                                       : "Accept",
                                   style: AppTextStyles.bodySmallStrong.copyWith(
-                                    color: AppColors.success,
+                                    color: AppColors.shootAcceptButtonText,
                                   ),
                                 ),
                               ),
                               AppSpacing.gapHSmd,
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.white,
+                                  backgroundColor:
+                                      AppColors.shootDeclineButtonBackground,
+                                  foregroundColor:
+                                      AppColors.shootDeclineButtonText,
+                                  disabledBackgroundColor:
+                                      AppColors.shootDeclineButtonBackground,
+                                  disabledForegroundColor:
+                                      AppColors.shootDeclineButtonText,
                                 ),
                                 onPressed: () async {
                                   context
@@ -244,9 +258,9 @@ class HomePendingShootCard extends StatelessWidget {
                                 child: Text(
                                   data.cta?.secondary.isNotEmpty == true
                                       ? data.cta!.secondary
-                                      : "Reject",
+                                      : "Decline",
                                   style: AppTextStyles.bodySmallStrong.copyWith(
-                                    color: AppColors.error,
+                                    color: AppColors.shootDeclineButtonText,
                                   ),
                                 ),
                               ),

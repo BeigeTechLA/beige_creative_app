@@ -6,10 +6,10 @@ abstract class ShootsRepository {
   /// GET `creator/project-details/$id`. Throws on non-2xx or `error: true`.
   Future<MyData> fetchProjectDetail(int projectId);
 
-  /// POST `creator/accept-project` with `{project_id, status}` — status is
-  /// `accepted` or `declined`. Optional `reason`/`comment` carry through for
-  /// declines. Legacy ShootsScreen passed `{project_id, crew_accept: 1|2}`
-  /// which is bridged here behind the typed status enum.
+  /// POST `creator/accept-project`. Server contract is
+  /// `{project_id, crew_accept: 1|2}` (1=accepted, 2=declined). Callers pass
+  /// `status` as `accepted`/`declined`; impl maps to `crew_accept`. Optional
+  /// `reason`/`comment` carry through for declines.
   Future<void> respondToProject({
     required int projectId,
     required String status,

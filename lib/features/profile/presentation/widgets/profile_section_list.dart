@@ -44,13 +44,13 @@ class ProfileSectionList extends StatelessWidget {
               const _SectionDivider(),
               _MenuRow(
                 iconPath: AppAssets.certificates,
-                title: 'certificates',
+                title: 'Certificates',
                 onTap: () => context.pushNamed(Routes.certificates.name),
               ),
               const _SectionDivider(),
               _MenuRow(
                 iconPath: AppAssets.resume,
-                title: 'resume',
+                title: 'Resume',
                 onTap: () => context.pushNamed(Routes.resume.name),
               ),
             ],

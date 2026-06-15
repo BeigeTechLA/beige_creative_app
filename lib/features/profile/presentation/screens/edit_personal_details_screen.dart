@@ -3,7 +3,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
@@ -16,9 +15,10 @@ import '../routes/profile_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../service/google_config.dart';
+import '../../../../utility/location_exception.dart';
 import '../../../../utility/location_service.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
-import '../../../../shared/widgets/custom_dropdown_field.dart';
+import '../../../../shared/widgets/custom_multi_selectfield.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/profile_details_providers.dart';
@@ -29,20 +29,6 @@ const _distanceList = <String>[
   'Upto 20 Miles',
   '20-50 Miles',
 ];
-
-const String _darkMapStyle = '''
-[
-  {"elementType": "geometry", "stylers": [{"color": "#212121"}]},
-  {"elementType": "labels.icon", "stylers": [{"visibility": "off"}]},
-  {"elementType": "labels.text.fill", "stylers": [{"color": "#757575"}]},
-  {"elementType": "labels.text.stroke", "stylers": [{"color": "#212121"}]},
-  {"featureType": "administrative", "elementType": "geometry", "stylers": [{"color": "#757575"}]},
-  {"featureType": "poi", "elementType": "labels.text.fill", "stylers": [{"color": "#757575"}]},
-  {"featureType": "road", "elementType": "geometry", "stylers": [{"color": "#383838"}]},
-  {"featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#8a8a8a"}]},
-  {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#000000"}]}
-]
-''';
 
 class EditPersonalDetailsScreen extends ConsumerStatefulWidget {
   const EditPersonalDetailsScreen({super.key});
@@ -115,31 +101,21 @@ class _EditPersonalDetailsScreenState
   }
 
   Future<void> getAddressFromLatLng(LatLng latLng) async {
-    try {
-      final placemarks = await placemarkFromCoordinates(
-        latLng.latitude,
-        latLng.longitude,
-      );
-      if (placemarks.isNotEmpty) {
-        final place = placemarks.first;
-        setState(() {
-          selectedAddress =
-              '${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.postalCode}';
-        });
-      }
-    } catch (e) {
-      debugPrint('Reverse geocode error: $e');
-    }
+    final address = await LocationService.getAddressFromLatLng(latLng);
+    if (!mounted || address.isEmpty) return;
+    setState(() => selectedAddress = address);
   }
 
   Future<void> loadCurrentLocation() async {
-    final latLng = await LocationService.getCurrentLocation(context);
-    if (!mounted) return;
-    if (latLng != null) {
+    try {
+      final latLng = await LocationService.getCurrentLocation();
+      if (!mounted) return;
       setState(() {
         currentLatLng = latLng;
         showMap = true;
       });
+    } on LocationException catch (_) {
+      // Edit profile screen: silent fail, user can search manually.
     }
   }
 
@@ -273,7 +249,7 @@ class _EditPersonalDetailsScreenState
                               child: CircularProgressIndicator(),
                             )
                           : GoogleMap(
-                              style: _darkMapStyle,
+                              style: GoogleConfig.darkMapStyle,
                               initialCameraPosition: CameraPosition(
                                 target: currentLatLng!,
                                 zoom: 14,
@@ -313,18 +289,11 @@ class _EditPersonalDetailsScreenState
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   const SizedBox(height: 22),
-                  CustomDropdownField(
+                  CustomMultiSelectField(
                     label: 'Working Distance',
-                    value: _distanceList.contains(workingDistance)
-                        ? workingDistance
-                        : null,
-                    items: _distanceList,
-                    onChanged: (val) {
-                      if (val == null) return;
-                      ref
-                          .read(editPersonalNotifierProvider.notifier)
-                          .setWorkingDistance(val);
-                    },
+                    value: workingDistance,
+                    hasValue: workingDistance.isNotEmpty,
+                    onTap: () async => _openWorkingDistanceBottomSheet(),
                   ),
                   const SizedBox(height: 22),
                   CustomTextField(
@@ -380,6 +349,71 @@ class _EditPersonalDetailsScreenState
           ),
         ),
       ),
+    );
+  }
+
+  void _openWorkingDistanceBottomSheet() {
+    FocusScope.of(context).unfocus();
+    final workingDistance = ref.read(editPersonalNotifierProvider).workingDistance;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.background,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: AppRadii.topHuge),
+      builder: (sheetCtx) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.base,
+            AppSpacing.base,
+            AppSpacing.base,
+            AppSpacing.xxl,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.white24,
+                  borderRadius: AppRadii.xsAll,
+                ),
+              ),
+              const Text(
+                'Select Working Distance',
+                style: AppTextStyles.bodyLargeMedium,
+              ),
+              const SizedBox(height: 12),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: _distanceList.map((distance) {
+                    final isSelected = workingDistance == distance;
+                    return ListTile(
+                      title: Text(
+                        distance,
+                        style: AppTextStyles.body14Medium.copyWith(
+                          color: isSelected ? AppColors.primary : AppColors.white,
+                        ),
+                      ),
+                      trailing: isSelected
+                          ? const Icon(Icons.check, color: AppColors.primary)
+                          : null,
+                      onTap: () {
+                        ref
+                            .read(editPersonalNotifierProvider.notifier)
+                            .setWorkingDistance(distance);
+                        sheetCtx.pop();
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

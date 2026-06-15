@@ -38,9 +38,8 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        // Parse dart-defines for Google Maps API Key
         val dartDefinesString = project.properties["dart-defines"]?.toString() ?: ""
-        var googleMapsKey = "AIzaSyB55dzOzA9np8T1rn-DpKKqcqGcgbGmgOc" // Fallback key
+        var googleMapsKey = ""
         if (dartDefinesString.isNotEmpty()) {
             dartDefinesString.split(",").forEach {
                 try {
@@ -53,6 +52,11 @@ android {
                     // Ignore decoding errors
                 }
             }
+        }
+        if (googleMapsKey.isEmpty()) {
+            throw GradleException(
+                "GOOGLE_MAPS_KEY missing. Pass via --dart-define-from-file=env/<flavor>.json."
+            )
         }
         manifestPlaceholders["GOOGLE_MAPS_KEY"] = googleMapsKey
     }

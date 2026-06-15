@@ -114,7 +114,6 @@ class _EnterProfileDetailsScreenState
                     label: 'Primary Role*',
                     value: state.selectedRoles.join(', '),
                     hasValue: state.selectedRoles.isNotEmpty,
-                    prefixIcon: SvgPicture.asset(AppAssets.dropdown),
                     onTap: () async => _openRolesBottomSheet(),
                   ),
                   const SizedBox(height: 22),
@@ -264,7 +263,7 @@ class _EnterProfileDetailsScreenState
                         shape: RoundedRectangleBorder(
                             borderRadius: AppRadii.lgAll),
                       ),
-                      child: const Text('Done', style: AppTextStyles.body15),
+                      child: const Text('Done', style: AppTextStyles.buttonMedium),
                     ),
                   ),
                 ],
@@ -350,10 +349,11 @@ class _EnterProfileDetailsScreenState
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
+                        foregroundColor: const Color(0xFF1D1D1B),
                         shape: RoundedRectangleBorder(
                             borderRadius: AppRadii.lgAll),
                       ),
-                      child: const Text('Done', style: AppTextStyles.body15),
+                      child: const Text('Done', style: AppTextStyles.buttonMedium),
                     ),
                   ),
                 ],

@@ -7,6 +7,92 @@
 
 ---
 
+### 2026-06-15: ShootsScreen accept/decline button color tokens
+
+Updated the pending-shoot action buttons in `ShootsScreen` to use the requested
+accept/decline colors through `AppColors` only.
+
+- **Files touched:**
+  - `lib/app/colors.dart` — added semantic shoot action tokens for accept and decline button background/text colors.
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart` — swapped pending-card Accept/Decline buttons to the new tokens.
+  - `lib/features/meetings/presentation/widgets/meeting_card.dart` — replaced an existing inline use of the requested mint color with `AppColors.softMint`.
+  - `test/features/shoots/presentation/screens/shoots_screen_test.dart` — added a widget assertion that rendered button styles and text colors resolve to the shoot action tokens.
+  - `docs/phase4/task_14_groupD_shoots.md` — recorded this post-completion UI-token follow-up.
+
+- **Decisions:**
+  - Kept the change scoped to `ShootsScreen`; home pending cards still use their existing Accept/Reject styling because the request was for the shoot screen.
+  - Reused existing palette tokens where the requested colors already existed; added the new decline text red in `AppColors`.
+  - Replaced the unrelated meeting-card inline mint because it used one of the requested source colors; broader meeting-card color cleanup remains outside this change.
+
+- **Verification:**
+  - `flutter analyze lib/app/colors.dart lib/features/shoots/presentation/screens/shoots_screen.dart lib/features/meetings/presentation/widgets/meeting_card.dart test/features/shoots/presentation/screens/shoots_screen_test.dart` — clean.
+  - `flutter test test/features/shoots/presentation/screens/shoots_screen_test.dart test/features/meetings/presentation/screens/meetings_screen_test.dart` — 9 / 9 passing.
+
+---
+
+### 2026-06-15: iOS Maps loading diagnosis follow-up
+
+Checked the current iOS Google Maps path after the 6.15 native wiring changes.
+
+- **Findings:**
+  - `ios/Runner/Info.plist` now uses `GMSApiKey`, and `ios/Runner/AppDelegate.swift` reads `GMSApiKey` before calling `GMSServices.provideAPIKey(...)`.
+  - The Debug-dev simulator artifact has a resolved, non-empty `GMSApiKey` in `Runner.app/Info.plist` for bundle id `com.app.cpbeige.dev`; the value is not left as literal `$(GOOGLE_MAPS_KEY)`.
+  - `ios/Flutter/GoogleMaps-{dev,prod}.xcconfig` are present and non-empty, generated from local `env/{dev,prod}.json`.
+  - White-map follow-up: simulator logs show the native Google Maps SDK starts (`Google Maps SDK for iOS version: 9.4.0.0`) and creates `GMSCacheStorage`, then `GMSDASHConnection` / Google fetcher requests repeatedly return HTTP `400`.
+  - The remaining iOS tile-loading blocker is Google Cloud key state/restriction: the local env still points at the old key called out by 6.15, so it must be rotated/replaced with a Maps SDK for iOS-enabled key restricted to `com.app.cpbeige.dev` / `com.app.cpbeige`.
+  - Separate signup/edit-profile caveat: native Maps reads the xcconfig-backed plist key, but Places autocomplete reads `Env.googleMapsKey` from `--dart-define`. Running directly from Xcode without equivalent Dart defines can leave Places empty even when native map initialization has a key.
+
+- **Verification:**
+  - `flutter analyze` — clean.
+  - `flutter run --flavor dev --dart-define-from-file=env/dev.json -t lib/main_dev.dart -d 48F3BC5F-708D-4246-8668-242D492771C0` — launched on iOS simulator; no Dart-side map/layout errors surfaced before the debug connection was background-terminated.
+  - `xcrun simctl ... log show` — native Maps SDK starts, but Google requests return HTTP `400`.
+  - `git diff --check` — clean.
+  - Focused location tests were not run because `test/utility/location_exception_test.dart` and `test/utility/location_service_test.dart` do not exist yet; this matches the open 6.15 test checklist.
+
+---
+
+### 2026-06-15: Phase 6 task 6.15 — **Location service + Google Maps consolidation** 🟡
+
+Fixed three latent bugs: iOS Maps key mismatch (`GoogleMapsAPIKey` → `GMSApiKey`) silently broke the map on iOS, `LocationService.getAddressFromLatLng` joined raw `null` strings when placemark fields were absent, and a leaked Google Maps API key was hardcoded in `lib/config/env.dart`, `android/app/build.gradle.kts`, and `ios/Runner/Info.plist`. Consolidated three drifting copies of the dark map style to a single `GoogleConfig.darkMapStyle` and replaced the inline Geolocator flow in `signup1_screen.dart` with the shared `LocationService` now throwing a typed `LocationException`.
+
+- **Files touched:**
+  - `lib/utility/location_exception.dart` — new. `LocationStatus { serviceDisabled, denied, permanentlyDenied, unknown }` + `LocationException implements Exception`.
+  - `lib/utility/location_service.dart` — dropped `flutter/material.dart` import + `BuildContext` param + in-service `SnackBar`. `getCurrentLocation` returns non-null `Future<LatLng>`, throws `LocationException`. `getAddressFromLatLng` null-safe `where` filter. Deleted dead `searchLocation` + `updateLocation`.
+  - `lib/service/google_config.dart` — replaced 6-rule `darkMapStyle` with 9-rule consolidated variant (administrative + poi + road labels).
+  - `lib/config/env.dart` — dropped hardcoded `defaultValue` from `Env.googleMapsKey`; empty `String.fromEnvironment`.
+  - `lib/features/auth/presentation/screens/signup1_screen.dart` — deleted inline `_getCurrentLocation` (Geolocator flow). New flow calls `LocationService.getCurrentLocation()` in try/catch with `LocationStatus` switch.
+  - `lib/features/auth/presentation/widgets/signup1_form.dart` — deleted local `_darkMapStyle`. Uses `GoogleConfig.darkMapStyle`.
+  - `lib/features/profile/presentation/screens/edit_personal_details_screen.dart` — deleted local `_darkMapStyle` + unused `geocoding` import. `loadCurrentLocation` drops `context` arg, silent fail on `LocationException`. `getAddressFromLatLng` uses `LocationService`.
+  - `ios/Runner/Info.plist` — `GoogleMapsAPIKey` → `GMSApiKey`, value `$(GOOGLE_MAPS_KEY)`. Dropped `NSLocationAlwaysAndWhenInUseUsageDescription` (foreground-only app).
+  - `ios/Runner/AppDelegate.swift` — bundle lookup key `GMSApiKey` (was `GoogleMapsAPIKey`).
+  - `ios/Flutter/{Debug,Release,Profile}-{dev,prod}.xcconfig` — added `#include? "GoogleMaps-<flavor>.xcconfig"` to all 6.
+  - `ios/Podfile` — `write_google_maps_xcconfig(flavor)` reads `env/<flavor>.json` and writes `ios/Flutter/GoogleMaps-<flavor>.xcconfig` on every `pod install`.
+  - `android/app/build.gradle.kts` — dropped hardcoded fallback key; throws `GradleException` if `GOOGLE_MAPS_KEY` missing from `DART_DEFINES`.
+  - `.gitignore` — added `ios/Flutter/GoogleMaps-dev.xcconfig` + `GoogleMaps-prod.xcconfig`.
+  - `docs/phase6/task_15_location_map_consolidation.md` — new task brief.
+  - `docs/phase6/README.md` — sprint board count `12 / 15`, est `18.5d`, 3 new acceptance bullets.
+
+- **Decisions:**
+  - **Typed exceptions over sealed result type.** `LocationException` + `LocationStatus` enum matches the existing `AppException` convention. Sealed-class result type considered, rejected to avoid two divergent error-handling idioms in the codebase.
+  - **iOS xcconfig over Run Script build phase.** Avoids editing `project.pbxproj`. Cost: user must re-run `pod install` after editing `env/<flavor>.json`. Acceptable since env values change rarely. Generated `GoogleMaps-<flavor>.xcconfig` files are gitignored.
+  - **Reverse-geocode helper stays inline in signup.** Signup needs `place.name` + `isPlusCode` filter that the shared `LocationService` intentionally omits (other callers don't want plus codes). Adding an `includeName: bool` flag to the service was rejected as caller-specific UX leakage.
+  - **`edit_personal_details_screen.dart` silently swallows `LocationException`.** Profile edit screen has a search field as fallback, so failing silently is the better UX than the signup-style snack chain.
+  - **`Env.googleMapsKey` empty default.** Build fails loud without `--dart-define-from-file`, preventing accidental fallback to a leaked key. Same posture for `build.gradle.kts` (`GradleException`).
+  - **No Riverpod provider for location yet.** Signup notifier already owns `latLng` via `setCurrentLatLng`. Only two consumers; provider extraction deferred until a third consumer appears.
+
+- **Constraints Maintained:**
+  - `flutter analyze` — `No issues found! (ran in 4.0s)` after refactor.
+  - `pod install` regenerates xcconfigs without manual steps; verified xcconfig values present.
+  - No UI imports inside `LocationService`; matches CLAUDE.md "UI side effects in widgets via `ref.listen`, not inside services" rule.
+  - No new dependencies added; uses existing `geocoding`, `geolocator`, `google_maps_flutter`.
+
+- **Outstanding (carried in task file):**
+  - **Sub-task A — key rotation (user / GCP).** Revoke the leaked key, create restricted Android (SHA-1 + package) / iOS (bundle ID) / Places keys, populate fresh values in `env/{dev,prod}.json`. Sub-task B onward is wired but useless against the burned key.
+  - **Sub-task F — tests.** Unit tests for `LocationException` + `LocationService.getAddressFromLatLng` (null-safety regression). Widget tests for signup deny / permanent-deny paths (requires Geolocator channel mock).
+  - **Manual G — device verification.** iOS simulator + Android emulator: dark style renders, accept / deny / permanent-deny flows behave on signup + edit profile.
+
+---
+
 ### 2026-06-09: Redesign Meeting Card and Create Meeting UI to Match Mockup Spec
 
 Redesigned the `MeetingCard` and `CreateMeetingScreen` UI components to match the premium mockup specifications (Option 1).

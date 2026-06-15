@@ -43,7 +43,7 @@ class _MeetingCardState extends State<MeetingCard> {
       case MeetingStatus.initiated:
         return const Color(0xFFFEF5E5);
       case MeetingStatus.completed:
-        return const Color(0xFFD8FDE6);
+        return AppColors.softMint;
       case MeetingStatus.reviewer:
         return const Color(0xFFFFEAE0);
       case MeetingStatus.upcoming:

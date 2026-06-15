@@ -19,20 +19,6 @@ import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import 'signup1_profile_card.dart';
 
-const String _darkMapStyle = '''
-[
-  {"elementType": "geometry", "stylers": [{"color": "#212121"}]},
-  {"elementType": "labels.icon", "stylers": [{"visibility": "off"}]},
-  {"elementType": "labels.text.fill", "stylers": [{"color": "#757575"}]},
-  {"elementType": "labels.text.stroke", "stylers": [{"color": "#212121"}]},
-  {"featureType": "administrative", "elementType": "geometry", "stylers": [{"color": "#757575"}]},
-  {"featureType": "poi", "elementType": "labels.text.fill", "stylers": [{"color": "#757575"}]},
-  {"featureType": "road", "elementType": "geometry", "stylers": [{"color": "#383838"}]},
-  {"featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#8a8a8a"}]},
-  {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#000000"}]}
-]
-''';
-
 const List<String> _distances = [
   "Upto 50 Miles",
   "Upto 75 miles",
@@ -156,7 +142,7 @@ class SignUp1Form extends StatelessWidget {
                           target: currentLatLng!,
                           zoom: 14,
                         ),
-                        style: _darkMapStyle,
+                        style: GoogleConfig.darkMapStyle,
                         myLocationEnabled: true,
                         myLocationButtonEnabled: true,
                         zoomControlsEnabled: true,

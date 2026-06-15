@@ -1,92 +1,53 @@
-import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'location_exception.dart';
+
 class LocationService {
-  /// 🔍 SEARCH LOCATION FROM TEXT
-  static Future<LatLng?> searchLocation(String query) async {
-    try {
-      List<Location> locations = await locationFromAddress(query);
-
-      if (locations.isNotEmpty) {
-        final loc = locations.first;
-        return LatLng(loc.latitude, loc.longitude);
-      }
-    } catch (e) {
-      debugPrint("Search location error: $e");
-    }
-    return null;
-  }
-
-  /// 📍 GET ADDRESS FROM LAT LNG
   static Future<String> getAddressFromLatLng(LatLng latLng) async {
     try {
-      List<Placemark> placemarks =
-      await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
-
-      if (placemarks.isNotEmpty) {
-        final p = placemarks.first;
-
-        return "${p.subLocality}, ${p.locality}, ${p.administrativeArea}, ${p.postalCode}";
-      }
-    } catch (e) {
-      debugPrint("Reverse geocode error: $e");
-    }
-    return "";
-  }
-
-  /// 📡 GET CURRENT LOCATION
-  static Future<LatLng?> getCurrentLocation(BuildContext context) async {
-    try {
-      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-      if (!serviceEnabled) {
-        await Geolocator.openLocationSettings();
-        return null;
-      }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Enable location permission from settings"),
-            ),
-          );
-        }
-        await Geolocator.openAppSettings();
-        return null;
-      }
-
-      if (permission == LocationPermission.denied) {
-        return null;
-      }
-
-      final Position position = await Geolocator.getCurrentPosition(
-        locationSettings:
-            const LocationSettings(accuracy: LocationAccuracy.high),
+      final placemarks = await placemarkFromCoordinates(
+        latLng.latitude,
+        latLng.longitude,
       );
-
-      return LatLng(position.latitude, position.longitude);
-    } catch (e) {
-      debugPrint('getCurrentLocation error: $e');
-      return null;
+      if (placemarks.isEmpty) return '';
+      final p = placemarks.first;
+      final parts = <String?>[
+        p.subLocality,
+        p.locality,
+        p.administrativeArea,
+        p.postalCode,
+      ].where((s) => s != null && s.isNotEmpty).cast<String>().toList();
+      return parts.join(', ');
+    } catch (_) {
+      return '';
     }
   }
 
-  /// 🗺️ UPDATE LOCATION + ADDRESS
-  static Future<Map<String, dynamic>> updateLocation(LatLng latLng) async {
-    String address = await getAddressFromLatLng(latLng);
+  static Future<LatLng> getCurrentLocation() async {
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw const LocationException(LocationStatus.serviceDisabled);
+    }
 
-    return {
-      "latLng": latLng,
-      "address": address,
-    };
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw const LocationException(LocationStatus.permanentlyDenied);
+    }
+
+    if (permission == LocationPermission.denied) {
+      throw const LocationException(LocationStatus.denied);
+    }
+
+    final position = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    );
+
+    return LatLng(position.latitude, position.longitude);
   }
 }

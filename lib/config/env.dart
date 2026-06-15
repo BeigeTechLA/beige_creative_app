@@ -5,10 +5,7 @@ class Env {
   static late String apiUrl;
   static late String imageUrl;
 
-  static const String googleMapsKey = String.fromEnvironment(
-    'GOOGLE_MAPS_KEY',
-    defaultValue: 'AIzaSyB55dzOzA9np8T1rn-DpKKqcqGcgbGmgOc',
-  );
+  static const String googleMapsKey = String.fromEnvironment('GOOGLE_MAPS_KEY');
 
   static void init(Environment environment) {
     current = environment;

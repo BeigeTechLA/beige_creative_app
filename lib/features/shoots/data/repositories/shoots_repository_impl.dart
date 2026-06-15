@@ -31,9 +31,11 @@ class ShootsRepositoryImpl implements ShootsRepository {
     String? reason,
     String? comment,
   }) async {
+    final normalized = status.toLowerCase();
+    final crewAccept = normalized == 'accepted' ? 1 : 2;
     final body = <String, dynamic>{
       'project_id': projectId,
-      'status': status,
+      'crew_accept': crewAccept,
       'reason': ?reason,
       'comment': ?comment,
     };

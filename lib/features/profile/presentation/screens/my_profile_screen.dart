@@ -275,42 +275,12 @@ class _MyprofileState extends ConsumerState<Myprofile> {
                       ),
                       ProfileSocialLinksList(
                         socialLinks: state.socialLinks,
-                        onEdit: (index, item) {
-                          nameController.text = item['name']!;
-                          linkController.text = item['url']!;
-                          ref
-                              .read(myProfileNotifierProvider.notifier)
-                              .setSocialSelection(
-                                selectedIndex:
-                                    _socialNames.indexOf(item['name']!),
-                                editingIndex: index,
-                                isEditing: true,
-                              );
-                          _openSocialDialog(startInEditMode: true);
-                        },
-                        onDelete: (index) => ref
-                            .read(myProfileNotifierProvider.notifier)
-                            .deleteSocialLink(index),
-                        onAdd: _openSocialDialog,
+                        onOpen: _openSocialDialog,
                       ),
                       const SizedBox(height: 20),
                       ProfilePortfolioLinksList(
                         portfolioLinks: state.portfolioLinks,
-                        onEdit: (index, item) {
-                          linkController.text = item['url']!;
-                          ref
-                              .read(myProfileNotifierProvider.notifier)
-                              .setPortfolioSelection(
-                                selectedIndex:
-                                    _portfolioNames.indexOf(item['name']!),
-                                editingIndex: index,
-                              );
-                          _openPortfolioDialog(startInEditMode: true);
-                        },
-                        onDelete: ref
-                            .read(myProfileNotifierProvider.notifier)
-                            .deletePortfolioFile,
-                        onAdd: _openPortfolioDialog,
+                        onOpen: _openPortfolioDialog,
                       ),
                     ],
                   ),
