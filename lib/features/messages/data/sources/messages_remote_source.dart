@@ -1,20 +1,103 @@
+import 'package:dio/dio.dart';
+
+import '../../../../core/network/api_endpoints.dart';
+import '../../../../core/network/dio_client.dart';
+import '../../../../core/network/exceptions/app_exception.dart';
+import '../../../../core/network/exceptions/exception_handler.dart';
+import '../../../../core/session/session_store.dart';
 import '../../domain/entities/chat_details.dart';
 import '../../domain/entities/chat_thread.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
+import '../dto/chat_details_dto.dart';
+import '../dto/conversation_dto.dart';
+import '../dto/message_dto.dart';
+import '../dto/pagination_envelope.dart';
 
-/// REST source. Stubbed for UI phases (M1-M5). Implemented against
-/// `external-chat/*` endpoints in M6 using `dioClientProvider`.
+/// REST source. Implements `external-chat/*` endpoints via `dioClientProvider`.
+///
+/// All methods translate `DioException` → typed `AppException` via
+/// [ExceptionHandler.mapDioException] so the notifier layer sees the same
+/// error taxonomy as the rest of the app.
+///
+/// `currentUserId` is resolved per-call from [SessionStore] — needed by DTOs
+/// to derive `fromMe` / read-receipt-based delivery status.
 class MessagesRemoteSource {
-  Future<List<Conversation>> listConversations({
-    required ConversationTab tab,
-    String? query,
-  }) {
-    throw UnimplementedError('Remote source lands in M6');
+  MessagesRemoteSource(this._client, this._session);
+
+  final DioClient _client;
+  final SessionStore _session;
+
+  Dio get _dio => _client.dio;
+
+  Future<String> _currentUserId() async {
+    final user = await _session.readUser();
+    if (user == null) {
+      throw const UnauthorizedException(message: 'No active session');
+    }
+    return user.id;
+  }
+
+  /// Single funnel for `DioException` → `AppException`. Keeps method bodies
+  /// linear.
+  Future<T> _guard<T>(Future<T> Function() body) async {
+    try {
+      return await body();
+    } on DioException catch (e, st) {
+      throw ExceptionHandler.mapDioException(e, st);
+    }
+  }
+
+  Future<List<Conversation>> listConversations({String? query}) {
+    return _guard(() async {
+      final userId = await _currentUserId();
+      final resp = await _dio.get<dynamic>(
+        ApiEndpoints.chatRooms,
+        queryParameters: {
+          'page': 1,
+          'limit': 50,
+          if (query != null && query.isNotEmpty) 'search': query,
+        },
+      );
+      final rooms = PaginationEnvelope.unwrapList(resp.data);
+      return rooms
+          .map((r) => ConversationDto.fromRestJson(r, currentUserId: userId))
+          .toList(growable: false);
+    });
   }
 
   Future<ChatThread> fetchThread(String conversationId, {String? cursor}) {
-    throw UnimplementedError('Remote source lands in M6');
+    return _guard(() async {
+      final userId = await _currentUserId();
+      const limit = 30;
+      final resp = await _dio.get<dynamic>(
+        ApiEndpoints.chatMessages(conversationId),
+        queryParameters: {
+          'page': int.tryParse(cursor ?? '') ?? 1,
+          'limit': limit,
+          'sortBy': '-createdAt',
+        },
+      );
+      final raw = resp.data;
+      final messagesRaw = PaginationEnvelope.unwrapList(raw);
+      // Backend serves newest-first; thread renders chronological asc.
+      final messages = messagesRaw.reversed
+          .map((m) => MessageDto.fromRestJson(m, currentUserId: userId))
+          .toList(growable: false);
+
+      String? nextCursor;
+      if (PaginationEnvelope.hasMore(raw, limit: limit)) {
+        final nextRaw = PaginationEnvelope.nextCursor(raw);
+        nextCursor = nextRaw ??
+            (int.tryParse(cursor ?? '1') ?? 1).let((p) => (p + 1).toString());
+      }
+
+      return ChatThread(
+        conversationId: conversationId,
+        messages: messages,
+        nextCursor: nextCursor,
+      );
+    });
   }
 
   Future<Message> sendText(
@@ -22,7 +105,18 @@ class MessagesRemoteSource {
     String body, {
     String? replyToId,
   }) {
-    throw UnimplementedError('Remote source lands in M6');
+    return _guard(() async {
+      final userId = await _currentUserId();
+      final resp = await _dio.post<dynamic>(
+        ApiEndpoints.chatMessages(conversationId),
+        data: {
+          'message': body,
+          'replyTo': replyToId,
+        },
+      );
+      final json = PaginationEnvelope.unwrapItem(resp.data);
+      return MessageDto.fromRestJson(json, currentUserId: userId);
+    });
   }
 
   Future<Message> sendAudio(
@@ -30,7 +124,12 @@ class MessagesRemoteSource {
     String localPath,
     Duration duration,
   ) {
-    throw UnimplementedError('Remote source lands in M6');
+    // Plan §11 Q3 — backend has no documented upload endpoint. Block until
+    // confirmed; UI currently has no real audio capture either (M5 leaves
+    // mic as bool toggle).
+    throw UnimplementedError(
+      'Audio upload not yet supported by backend (plan §11 Q3)',
+    );
   }
 
   Future<Message> sendAttachment(
@@ -40,22 +139,64 @@ class MessagesRemoteSource {
     required String mimeType,
     required int sizeBytes,
   }) {
-    throw UnimplementedError('Remote source lands in M6');
+    // Plan §11 Q3 — same blocker as sendAudio.
+    throw UnimplementedError(
+      'Attachment upload not yet supported by backend (plan §11 Q3)',
+    );
   }
 
-  Future<void> editMessage(String messageId, String newBody) {
-    throw UnimplementedError('Remote source lands in M6');
+  Future<void> editMessage(
+    String conversationId,
+    String messageId,
+    String newBody,
+  ) {
+    return _guard(() async {
+      // Body key is `content` (not `message`) per REST §14 — flagged
+      // inconsistency, deliberate.
+      await _dio.post<dynamic>(
+        ApiEndpoints.chatEditMessage(messageId),
+        data: {
+          'content': newBody,
+          'roomId': conversationId,
+        },
+      );
+    });
   }
 
-  Future<void> deleteMessage(String messageId) {
-    throw UnimplementedError('Remote source lands in M6');
+  Future<void> deleteMessage(String conversationId, String messageId) {
+    return _guard(() async {
+      await _dio.post<dynamic>(
+        ApiEndpoints.chatDeleteMessage(messageId),
+        data: {
+          'roomId': conversationId,
+        },
+      );
+    });
   }
 
   Future<void> markRead(String conversationId, String upToMessageId) {
-    throw UnimplementedError('Remote source lands in M6');
+    return _guard(() async {
+      // REST spec defines no body / no `upTo` field — backend marks the
+      // whole room as read for the caller. `upToMessageId` is currently
+      // unused; keep on the signature for future per-message granularity.
+      await _dio.patch<dynamic>(ApiEndpoints.chatMarkRead(conversationId));
+    });
   }
 
   Future<ChatDetails> fetchDetails(String conversationId) {
-    throw UnimplementedError('Remote source lands in M6');
+    return _guard(() async {
+      final resp = await _dio.get<dynamic>(
+        ApiEndpoints.chatRoomDetails(conversationId),
+      );
+      final json = PaginationEnvelope.unwrapItem(resp.data);
+      return ChatDetailsDto.fromRestJson(
+        json,
+        conversationId: conversationId,
+      );
+    });
   }
+}
+
+extension<T> on T {
+  R let<R>(R Function(T it) body) => body(this);
 }

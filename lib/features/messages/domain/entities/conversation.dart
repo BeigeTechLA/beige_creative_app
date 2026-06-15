@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-enum ConversationTab { all, shoots, admin }
-
 @immutable
 class ConversationPreview {
   final String preview;
@@ -32,7 +30,6 @@ class Conversation {
   final String id;
   final String title;
   final String? avatarUrl;
-  final ConversationTab tab;
   final ConversationPreview? lastMessage;
   final int unreadCount;
   final bool isOnline;
@@ -42,7 +39,6 @@ class Conversation {
   const Conversation({
     required this.id,
     required this.title,
-    required this.tab,
     required this.unreadCount,
     required this.isOnline,
     required this.participantIds,
@@ -55,7 +51,6 @@ class Conversation {
     String? id,
     String? title,
     String? avatarUrl,
-    ConversationTab? tab,
     ConversationPreview? lastMessage,
     int? unreadCount,
     bool? isOnline,
@@ -66,7 +61,6 @@ class Conversation {
       id: id ?? this.id,
       title: title ?? this.title,
       avatarUrl: avatarUrl ?? this.avatarUrl,
-      tab: tab ?? this.tab,
       lastMessage: lastMessage ?? this.lastMessage,
       unreadCount: unreadCount ?? this.unreadCount,
       isOnline: isOnline ?? this.isOnline,

@@ -8,15 +8,29 @@ import '../events/chat_socket_event.dart';
 /// phases (M1-M5). M6 swaps in REST + socket.io implementations behind the
 /// same contract — UI never changes.
 abstract class MessagesRepository {
-  Future<List<Conversation>> listConversations({
-    required ConversationTab tab,
-    String? query,
-  });
+  Future<List<Conversation>> listConversations({String? query});
 
   Future<ChatThread> fetchThread(String conversationId, {String? cursor});
 
-  /// socket.io-backed event stream. UI never imports `socket_io_client`.
+  /// socket.io-backed per-room event stream. UI never imports `socket_io_client`.
+  /// Caller must pair with [joinConversation]/[leaveConversation] for lifecycle.
   Stream<ChatSocketEvent> events(String conversationId);
+
+  /// Cross-room event firehose for the conversation list (preview / unread
+  /// refresh). Dummy impl returns an empty stream.
+  Stream<ChatSocketEvent> globalEvents();
+
+  /// Emit `joinRoom` to backend so this client starts receiving room events.
+  /// Idempotent; safe to call before socket connect resolves.
+  Future<void> joinConversation(String conversationId);
+
+  /// Emit `leaveRoom` + drop per-room subscription. Called from thread-screen
+  /// dispose via `ref.onDispose`.
+  Future<void> leaveConversation(String conversationId);
+
+  /// Composer typing pulses. No-op when running on dummy.
+  void notifyTyping(String conversationId);
+  void notifyStopTyping(String conversationId);
 
   Future<Message> sendText(
     String conversationId,
@@ -38,9 +52,17 @@ abstract class MessagesRepository {
     required int sizeBytes,
   });
 
-  Future<void> editMessage(String messageId, String newBody);
+  /// `conversationId` required by REST contract — body carries `roomId`
+  /// (`external-chat-api-reference.md` §14).
+  Future<void> editMessage(
+    String conversationId,
+    String messageId,
+    String newBody,
+  );
 
-  Future<void> deleteMessage(String messageId);
+  /// `conversationId` required by REST contract — body carries `roomId`
+  /// (`external-chat-api-reference.md` §15).
+  Future<void> deleteMessage(String conversationId, String messageId);
 
   Future<void> markRead(String conversationId, String upToMessageId);
 

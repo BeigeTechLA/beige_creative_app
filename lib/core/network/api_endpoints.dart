@@ -53,4 +53,19 @@ class ApiEndpoints {
 
   static const String accountDeleted = 'auth/user/delete-account/request';
   static const String account_deleted_otp = 'auth/user/delete-account/confirm';
+
+  // ───── Messages / External Chat (M6) ─────────────────────────────────────
+  static const String chatRooms = 'external-chat/rooms';
+  static const String chatDirectory = 'external-chat/directory';
+  static String chatMessages(String roomId) => 'external-chat/messages/$roomId';
+  static String chatEditMessage(String messageId) =>
+      'external-chat/messages/$messageId/edit';
+  static String chatDeleteMessage(String messageId) =>
+      'external-chat/messages/$messageId/delete';
+  static String chatMarkRead(String roomId) =>
+      'external-chat/room/$roomId/mark-read';
+  static String chatRoomDetails(String roomId) =>
+      'external-chat/room/$roomId/details';
+  static String chatParticipants(String roomId) =>
+      'external-chat/participants/$roomId';
 }

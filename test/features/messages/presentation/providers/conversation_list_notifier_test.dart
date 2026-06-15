@@ -1,0 +1,167 @@
+import 'dart:async';
+
+import 'package:beige_creative_app/features/messages/domain/entities/chat_details.dart';
+import 'package:beige_creative_app/features/messages/domain/entities/chat_thread.dart';
+import 'package:beige_creative_app/features/messages/domain/entities/conversation.dart';
+import 'package:beige_creative_app/features/messages/domain/entities/message.dart';
+import 'package:beige_creative_app/features/messages/domain/events/chat_socket_event.dart';
+import 'package:beige_creative_app/features/messages/domain/repositories/messages_repository.dart';
+import 'package:beige_creative_app/features/messages/presentation/providers/conversation_list_providers.dart';
+import 'package:beige_creative_app/features/messages/presentation/providers/messages_repository_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+class _DriverRepo implements MessagesRepository {
+  final StreamController<ChatSocketEvent> globalCtrl =
+      StreamController.broadcast();
+  int listCalls = 0;
+
+  @override
+  Future<List<Conversation>> listConversations({String? query}) async {
+    listCalls++;
+    return [
+      Conversation(
+        id: 'room_1',
+        title: 'Angela',
+        unreadCount: 0,
+        isOnline: false,
+        participantIds: const [],
+      ),
+    ];
+  }
+
+  @override
+  Future<ChatThread> fetchThread(String conversationId, {String? cursor}) =>
+      throw UnimplementedError();
+
+  @override
+  Stream<ChatSocketEvent> events(String conversationId) => const Stream.empty();
+
+  @override
+  Stream<ChatSocketEvent> globalEvents() => globalCtrl.stream;
+
+  @override
+  Future<void> joinConversation(String conversationId) async {}
+
+  @override
+  Future<void> leaveConversation(String conversationId) async {}
+
+  @override
+  void notifyTyping(String conversationId) {}
+
+  @override
+  void notifyStopTyping(String conversationId) {}
+
+  @override
+  Future<Message> sendText(String conversationId, String body,
+          {String? replyToId}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Message> sendAudio(String conversationId, String localPath,
+          Duration duration) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Message> sendAttachment(String conversationId,
+          {required String localPath,
+          required String name,
+          required String mimeType,
+          required int sizeBytes}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> editMessage(
+          String conversationId, String messageId, String newBody) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> deleteMessage(String conversationId, String messageId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> markRead(String conversationId, String upToMessageId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<ChatDetails> fetchDetails(String conversationId) =>
+      throw UnimplementedError();
+}
+
+void main() {
+  late _DriverRepo repo;
+  late ProviderContainer container;
+  ProviderSubscription<ConversationListState>? activeSub;
+
+  Future<void> hydrate() async {
+    activeSub = container.listen<ConversationListState>(
+      conversationListProvider,
+      (_, _) {},
+    );
+    for (var i = 0; i < 20; i++) {
+      if (!container.read(conversationListProvider).isLoading) break;
+      await Future<void>.delayed(Duration.zero);
+    }
+  }
+
+  setUp(() {
+    repo = _DriverRepo();
+    container = ProviderContainer(overrides: [
+      messagesRepositoryProvider.overrideWithValue(repo),
+    ]);
+  });
+
+  tearDown(() async {
+    activeSub?.close();
+    activeSub = null;
+    await repo.globalCtrl.close();
+    container.dispose();
+  });
+
+  test('initial build fetches conversations once', () async {
+    await hydrate();
+    expect(repo.listCalls, 1);
+    expect(container.read(conversationListProvider).items, hasLength(1));
+  });
+
+  test('global RoomPreviewUpdated triggers throttled refetch', () async {
+    await hydrate();
+    repo.listCalls = 0;
+
+    repo.globalCtrl.add(const RoomPreviewUpdated('room_1'));
+    // Throttle window is 500ms — wait past it.
+    await Future<void>.delayed(
+      kConversationRefreshThrottle + const Duration(milliseconds: 50),
+    );
+
+    expect(repo.listCalls, 1);
+  });
+
+  test('burst of events coalesces to a single refetch', () async {
+    await hydrate();
+    repo.listCalls = 0;
+
+    // Fire 5 events within the throttle window — only one refetch should run.
+    for (var i = 0; i < 5; i++) {
+      repo.globalCtrl.add(const RoomPreviewUpdated('room_1'));
+    }
+    await Future<void>.delayed(
+      kConversationRefreshThrottle + const Duration(milliseconds: 50),
+    );
+
+    expect(repo.listCalls, 1);
+  });
+
+  test('TypingStarted (non-list event) does NOT trigger refetch', () async {
+    await hydrate();
+    repo.listCalls = 0;
+
+    repo.globalCtrl
+        .add(const TypingStarted('room_1', 'user_angela', 'Angela'));
+    await Future<void>.delayed(
+      kConversationRefreshThrottle + const Duration(milliseconds: 50),
+    );
+
+    expect(repo.listCalls, 0);
+  });
+}

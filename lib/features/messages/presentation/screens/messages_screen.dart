@@ -12,7 +12,6 @@ import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../providers/conversation_list_providers.dart';
 import '../routes/messages_args.dart';
 import 'widgets/conversation_tile.dart';
-import 'widgets/messages_tab_bar.dart';
 
 class MessagesScreen extends ConsumerStatefulWidget {
   const MessagesScreen({super.key});
@@ -55,13 +54,6 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen> {
       child: Column(
         children: [
           const AppMainToolbar(title: 'Message'),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
-            child: MessagesTabBar(
-              selected: state.tab,
-              onChanged: notifier.selectTab,
-            ),
-          ),
           const SizedBox(height: AppSpacing.md),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenH),

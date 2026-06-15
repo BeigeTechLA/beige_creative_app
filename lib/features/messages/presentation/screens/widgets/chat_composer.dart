@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../../app/colors.dart';
@@ -5,6 +7,10 @@ import '../../../../../app/durations.dart';
 import '../../../../../app/radii.dart';
 import '../../../../../app/spacing.dart';
 import '../../../../../app/text_styles.dart';
+
+/// Idle window before composer emits `stopTyping`. Matches common chat
+/// clients (WhatsApp ≈ 3s).
+const Duration kComposerTypingIdle = Duration(seconds: 3);
 
 /// Composer row — attach, text field, emoji, camera, mic. Send button replaces
 /// the mic icon once the field is non-empty. Mic toggles a dummy record state
@@ -19,6 +25,8 @@ class ChatComposer extends StatefulWidget {
     required this.onEmojiPressed,
     required this.onMicToggle,
     required this.isRecording,
+    this.onTypingPulse,
+    this.onTypingStop,
   });
 
   final TextEditingController controller;
@@ -29,6 +37,14 @@ class ChatComposer extends StatefulWidget {
   final VoidCallback onMicToggle;
   final bool isRecording;
 
+  /// Fires once when text becomes non-empty after being empty, then is
+  /// suppressed until [onTypingStop] runs.
+  final VoidCallback? onTypingPulse;
+
+  /// Fires either after [kComposerTypingIdle] of no edits, or when the field
+  /// is cleared / submitted / disposed while still in the typing state.
+  final VoidCallback? onTypingStop;
+
   @override
   State<ChatComposer> createState() => _ChatComposerState();
 }
@@ -37,6 +53,9 @@ class _ChatComposerState extends State<ChatComposer> {
   late final FocusNode _inputFocus;
   bool _hasText = false;
   bool _isFocused = false;
+
+  bool _isTyping = false;
+  Timer? _idleTimer;
 
   @override
   void initState() {
@@ -49,6 +68,8 @@ class _ChatComposerState extends State<ChatComposer> {
 
   @override
   void dispose() {
+    _idleTimer?.cancel();
+    if (_isTyping) widget.onTypingStop?.call();
     _inputFocus.removeListener(_onFocusChanged);
     _inputFocus.dispose();
     widget.controller.removeListener(_onChanged);
@@ -64,6 +85,34 @@ class _ChatComposerState extends State<ChatComposer> {
   void _onChanged() {
     final next = widget.controller.text.trim().isNotEmpty;
     if (next != _hasText) setState(() => _hasText = next);
+    _pulseTyping(hasContent: next);
+  }
+
+  /// Typing state machine — fires `onTypingPulse` once per typing session,
+  /// `onTypingStop` after [kComposerTypingIdle] of silence or when the field
+  /// goes empty.
+  void _pulseTyping({required bool hasContent}) {
+    if (!hasContent) {
+      _idleTimer?.cancel();
+      _idleTimer = null;
+      if (_isTyping) {
+        _isTyping = false;
+        widget.onTypingStop?.call();
+      }
+      return;
+    }
+    if (!_isTyping) {
+      _isTyping = true;
+      widget.onTypingPulse?.call();
+    }
+    _idleTimer?.cancel();
+    _idleTimer = Timer(kComposerTypingIdle, _emitStopTyping);
+  }
+
+  void _emitStopTyping() {
+    if (!_isTyping) return;
+    _isTyping = false;
+    widget.onTypingStop?.call();
   }
 
   void _submit() {
@@ -71,6 +120,7 @@ class _ChatComposerState extends State<ChatComposer> {
     if (value.isEmpty) return;
     widget.onSendText(value);
     widget.controller.clear();
+    // Clear cancels the timer + fires stop via _onChanged → _pulseTyping(false).
   }
 
   @override

@@ -52,9 +52,13 @@ class ChatThreadNotifier
 
   @override
   ChatThreadState build(String arg) {
+    final repo = ref.read(messagesRepositoryProvider);
     ref.onDispose(() {
       _eventsSub?.cancel();
       _eventsSub = null;
+      // Best-effort leave — socket source closes per-room stream regardless
+      // of connection state.
+      unawaited(repo.leaveConversation(arg));
     });
     Future.microtask(_hydrate);
     return const ChatThreadState(isLoading: true);
@@ -63,9 +67,15 @@ class ChatThreadNotifier
   Future<void> _hydrate() async {
     final repo = ref.read(messagesRepositoryProvider);
     try {
+      // Join first so any backend events emitted during/after fetch are
+      // captured by the listener below. Idempotent on the source side.
+      await repo.joinConversation(arg);
+      _eventsSub = repo.events(arg).listen(_onEvent);
       final thread = await repo.fetchThread(arg);
       state = state.copyWith(messages: thread.messages, isLoading: false);
-      _eventsSub = repo.events(arg).listen(_onEvent);
+      if (thread.messages.isNotEmpty) {
+        unawaited(markRead());
+      }
     } catch (e, st) {
       AppLogger.e('Chat thread hydrate failed', e, st);
       state = state.copyWith(
@@ -79,7 +89,22 @@ class ChatThreadNotifier
     switch (event) {
       case MessageReceived(:final conversationId, :final message)
           when conversationId == arg:
-        state = state.copyWith(messages: [...state.messages, message]);
+        // Dedupe — backend echoes our own POSTed messages back via socket.
+        // `sendText` already swapped the optimistic placeholder with the
+        // server's saved Message (same id) before this fires. If the id is
+        // present, bump status only.
+        final existing = state.messages.indexWhere((m) => m.id == message.id);
+        if (existing >= 0) {
+          final patched = [...state.messages];
+          patched[existing] = patched[existing].copyWith(
+            deliveryStatus: DeliveryStatus.delivered,
+          );
+          state = state.copyWith(messages: patched);
+        } else {
+          state = state.copyWith(messages: [...state.messages, message]);
+          // Genuine inbound message (not our own echo) — flush read receipt.
+          unawaited(markRead());
+        }
       case MessageEdited(
             :final conversationId,
             :final messageId,
@@ -109,6 +134,12 @@ class ChatThreadNotifier
         state = state.copyWith(peerTyping: false);
       case PresenceChanged(:final isOnline):
         state = state.copyWith(peerOnline: isOnline);
+      case SocketErrored():
+        // Throttled at the socket source (≤1 per 30s until reconnect), so
+        // surfacing here is a one-shot user-visible banner per outage.
+        state = state.copyWith(
+          errorMessage: 'Connection lost. Reconnecting…',
+        );
       case _:
         // Other events (read receipts, room preview, etc.) ignored here —
         // conversationListProvider handles preview refresh in its own scope.
@@ -154,6 +185,29 @@ class ChatThreadNotifier
         ],
         errorMessage: 'Could not send message',
       );
+    }
+  }
+
+  /// Composer → backend pulse. No-op on dummy. Notifier wraps so the screen
+  /// doesn't need a direct repository handle.
+  void notifyTyping() =>
+      ref.read(messagesRepositoryProvider).notifyTyping(arg);
+
+  void notifyStopTyping() =>
+      ref.read(messagesRepositoryProvider).notifyStopTyping(arg);
+
+  /// Marks the room read on the backend. Called on hydrate, on every genuine
+  /// inbound `MessageReceived`, and on app resume from the screen.
+  /// Backend `PATCH /external-chat/room/:roomId/mark-read` takes no `upTo`
+  /// field today (REST §4) — `upToMessageId` is forwarded for future
+  /// per-message granularity but currently dropped server-side.
+  Future<void> markRead() async {
+    final latestId = state.messages.isEmpty ? '' : state.messages.last.id;
+    try {
+      await ref.read(messagesRepositoryProvider).markRead(arg, latestId);
+    } catch (e, st) {
+      // Read receipts are best-effort — never bubble to UI.
+      AppLogger.e('Mark read failed', e, st);
     }
   }
 

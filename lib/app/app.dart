@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/messages/presentation/providers/messages_repository_provider.dart';
 import '../shared/widgets/connectivity_listener.dart';
 import 'router.dart';
 import 'theme.dart';
@@ -15,6 +16,10 @@ class App extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Mount chat socket lifecycle — connects on auth + real backend, disconnects
+    // on logout. Provider has no value; the watch exists only to keep it alive.
+    ref.watch(chatSocketLifecycleProvider);
+
     final router = ref.watch(routerProvider);
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,

@@ -24,35 +24,22 @@ class MessagesRepositoryImpl implements MessagesRepository {
   final bool useDummy;
 
   @override
-  Future<List<Conversation>> listConversations({
-    required ConversationTab tab,
-    String? query,
-  }) async {
+  Future<List<Conversation>> listConversations({String? query}) async {
     if (useDummy) {
       final all = await dummy.loadConversations();
-      return _filter(all, tab, query);
+      return _filter(all, query);
     }
-    return remote.listConversations(tab: tab, query: query);
+    return remote.listConversations(query: query);
   }
 
-  List<Conversation> _filter(
-    List<Conversation> source,
-    ConversationTab tab,
-    String? query,
-  ) {
-    Iterable<Conversation> out = source;
-    if (tab != ConversationTab.all) {
-      out = out.where((c) => c.tab == tab);
-    }
+  List<Conversation> _filter(List<Conversation> source, String? query) {
     final q = (query ?? '').trim().toLowerCase();
-    if (q.isNotEmpty) {
-      out = out.where((c) {
-        if (c.title.toLowerCase().contains(q)) return true;
-        final last = c.lastMessage?.preview.toLowerCase() ?? '';
-        return last.contains(q);
-      });
-    }
-    return out.toList(growable: false);
+    if (q.isEmpty) return source;
+    return source.where((c) {
+      if (c.title.toLowerCase().contains(q)) return true;
+      final last = c.lastMessage?.preview.toLowerCase() ?? '';
+      return last.contains(q);
+    }).toList(growable: false);
   }
 
   @override
@@ -65,6 +52,36 @@ class MessagesRepositoryImpl implements MessagesRepository {
   Stream<ChatSocketEvent> events(String conversationId) {
     if (useDummy) return dummy.events(conversationId);
     return socket.events(conversationId);
+  }
+
+  @override
+  Stream<ChatSocketEvent> globalEvents() {
+    if (useDummy) return const Stream.empty();
+    return socket.globalEvents();
+  }
+
+  @override
+  Future<void> joinConversation(String conversationId) {
+    if (useDummy) return Future.value();
+    return socket.joinRoom(conversationId);
+  }
+
+  @override
+  Future<void> leaveConversation(String conversationId) {
+    if (useDummy) return Future.value();
+    return socket.leaveRoom(conversationId);
+  }
+
+  @override
+  void notifyTyping(String conversationId) {
+    if (useDummy) return;
+    socket.emitTyping(conversationId);
+  }
+
+  @override
+  void notifyStopTyping(String conversationId) {
+    if (useDummy) return;
+    socket.emitStopTyping(conversationId);
   }
 
   @override
@@ -116,15 +133,19 @@ class MessagesRepositoryImpl implements MessagesRepository {
   }
 
   @override
-  Future<void> editMessage(String messageId, String newBody) {
+  Future<void> editMessage(
+    String conversationId,
+    String messageId,
+    String newBody,
+  ) {
     if (useDummy) return Future.value();
-    return remote.editMessage(messageId, newBody);
+    return remote.editMessage(conversationId, messageId, newBody);
   }
 
   @override
-  Future<void> deleteMessage(String messageId) {
+  Future<void> deleteMessage(String conversationId, String messageId) {
     if (useDummy) return Future.value();
-    return remote.deleteMessage(messageId);
+    return remote.deleteMessage(conversationId, messageId);
   }
 
   @override

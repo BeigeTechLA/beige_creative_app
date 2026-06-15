@@ -21,57 +21,33 @@ class _FakeMessagesRepository implements MessagesRepository {
   Completer<Message>? sendTextCompleter;
 
   @override
-  Future<List<Conversation>> listConversations({
-    required ConversationTab tab,
-    String? query,
-  }) async {
-    final items = switch (tab) {
-      ConversationTab.all => [
-        Conversation(
-          id: 'conv_001',
-          title: 'Angela Kia',
-          tab: ConversationTab.all,
-          unreadCount: 2,
-          isOnline: true,
-          participantIds: ['user_me', 'user_angela'],
-          lastMessage: ConversationPreview(
-            preview: 'Hey! How are you?',
-            sentAt: _stamp,
-            fromMe: false,
-          ),
+  Future<List<Conversation>> listConversations({String? query}) async {
+    final items = [
+      Conversation(
+        id: 'conv_001',
+        title: 'Angela Kia',
+        unreadCount: 2,
+        isOnline: true,
+        participantIds: ['user_me', 'user_angela'],
+        lastMessage: ConversationPreview(
+          preview: 'Hey! How are you?',
+          sentAt: _stamp,
+          fromMe: false,
         ),
-      ],
-      ConversationTab.shoots => [
-        Conversation(
-          id: 'conv_002',
-          title: 'Shoot Planning',
-          tab: ConversationTab.shoots,
-          unreadCount: 0,
-          isOnline: false,
-          participantIds: ['user_me', 'producer'],
-          lastMessage: ConversationPreview(
-            preview: 'Call sheet attached.',
-            sentAt: _stamp,
-            fromMe: true,
-          ),
+      ),
+      Conversation(
+        id: 'conv_002',
+        title: 'Shoot Planning',
+        unreadCount: 0,
+        isOnline: false,
+        participantIds: ['user_me', 'producer'],
+        lastMessage: ConversationPreview(
+          preview: 'Call sheet attached.',
+          sentAt: _stamp,
+          fromMe: true,
         ),
-      ],
-      ConversationTab.admin => [
-        Conversation(
-          id: 'conv_003',
-          title: 'Admin Desk',
-          tab: ConversationTab.admin,
-          unreadCount: 0,
-          isOnline: false,
-          participantIds: ['user_me', 'admin'],
-          lastMessage: ConversationPreview(
-            preview: 'Your invoice is ready.',
-            sentAt: _stamp,
-            fromMe: false,
-          ),
-        ),
-      ],
-    };
+      ),
+    ];
     if (query == null || query.isEmpty) return items;
     return [
       for (final item in items)
@@ -101,6 +77,21 @@ class _FakeMessagesRepository implements MessagesRepository {
 
   @override
   Stream<ChatSocketEvent> events(String conversationId) => const Stream.empty();
+
+  @override
+  Stream<ChatSocketEvent> globalEvents() => const Stream.empty();
+
+  @override
+  Future<void> joinConversation(String conversationId) async {}
+
+  @override
+  Future<void> leaveConversation(String conversationId) async {}
+
+  @override
+  void notifyTyping(String conversationId) {}
+
+  @override
+  void notifyStopTyping(String conversationId) {}
 
   @override
   Future<Message> sendText(
@@ -160,10 +151,14 @@ class _FakeMessagesRepository implements MessagesRepository {
   }
 
   @override
-  Future<void> editMessage(String messageId, String newBody) async {}
+  Future<void> editMessage(
+    String conversationId,
+    String messageId,
+    String newBody,
+  ) async {}
 
   @override
-  Future<void> deleteMessage(String messageId) async {}
+  Future<void> deleteMessage(String conversationId, String messageId) async {}
 
   @override
   Future<void> markRead(String conversationId, String upToMessageId) async {}
@@ -213,18 +208,12 @@ Future<void> _pumpWithRepo(
 }
 
 void main() {
-  testWidgets('MessagesScreen switches conversation tabs', (tester) async {
+  testWidgets('MessagesScreen renders conversation list', (tester) async {
     final repo = _FakeMessagesRepository();
     await _pumpWithRepo(tester, const MessagesScreen(), repo);
 
     expect(find.text('Message'), findsOneWidget);
     expect(find.text('Angela Kia'), findsOneWidget);
-    expect(find.text('Shoot Planning'), findsNothing);
-
-    await tester.tap(find.text('Shoots'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Angela Kia'), findsNothing);
     expect(find.text('Shoot Planning'), findsOneWidget);
   });
 

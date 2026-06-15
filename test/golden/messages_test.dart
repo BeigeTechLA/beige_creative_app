@@ -40,7 +40,6 @@ void main() {
         conversation: Conversation(
           id: 'conv_001',
           title: 'Angela Kia',
-          tab: ConversationTab.all,
           unreadCount: 3,
           isOnline: true,
           participantIds: const ['user_me', 'user_angela'],

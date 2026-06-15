@@ -30,7 +30,8 @@ class ChatThreadScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatThreadScreen> createState() => _ChatThreadScreenState();
 }
 
-class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
+class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
+    with WidgetsBindingObserver {
   late final TextEditingController _composerCtrl;
   late final ScrollController _scrollCtrl;
   int _lastCount = 0;
@@ -40,13 +41,23 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     super.initState();
     _composerCtrl = TextEditingController();
     _scrollCtrl = ScrollController();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _composerCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    // App returned to foreground — bump read pointer for the room the user
+    // is looking at. Notifier swallows failures (best-effort receipt).
+    ref.read(chatThreadProvider(widget.conversationId).notifier).markRead();
   }
 
   void _maybeScrollToLatest(int count) {
@@ -124,6 +135,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                 notifier.toggleRecording();
               }
             },
+            onTypingPulse: notifier.notifyTyping,
+            onTypingStop: notifier.notifyStopTyping,
           ),
         ],
       ),
