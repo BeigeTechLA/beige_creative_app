@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-06-15 (iOS Google Maps white-map diagnosis for Phase 6 task 6.15).
+Last updated: 2026-06-16 (Messages socket host correction & self-healing logout & bubble headers).
 
 ## Read Order
 
@@ -23,10 +23,13 @@ Every AI session should read:
 - Phase 3: complete. Foundations are in place.
 - Phase 4: **complete**. `23 / 23` tasks done.
 - Phase 5: **complete** — `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31.
-- Phase 6: in progress — `12 / 15` tasks done. Tasks `6.01` (test helpers) closed 2026-05-31; `6.02`–`6.12` closed 2026-06-03. 6.13 implementation is in place but the task remains 🟡 pending the first GitHub Actions Android/iOS run and coverage lift: `.github/workflows/ci.yml` now runs `flutter test --coverage`, uploads LCOV, writes a summary, and enforces `COVERAGE_MINIMUM=70`; `.github/workflows/integration.yml` runs Android emulator + iOS simulator integration tests on `push` to `main`. Current refreshed LCOV is `5358 / 11129 = 48.14%`, so the new gate will fail until coverage is raised. 6.11 added the login → home → logout journey; 6.12 added signup1 → signup2 → signup3. Both integration files still pass locally with `flutter test <file> -d macos`; device CI may require the documented binding swap to `IntegrationTestWidgetsFlutterBinding`. Next: `6.14` (models/utils/validators tests), 6.15 key rotation/tests/manual verification, and first remote CI feedback for 6.13.
-- Task 6.15 (Location service + Google Maps consolidation) is 🟡 in progress. Native iOS Maps wiring is fixed in the worktree (`GMSApiKey` in `Info.plist`, `GMSServices.provideAPIKey(...)` in `AppDelegate.swift`, generated `GoogleMaps-<flavor>.xcconfig` files from local env JSON). White-map diagnosis on 2026-06-15: the Debug-dev simulator app resolves a non-empty `GMSApiKey` for `com.app.cpbeige.dev`, the native SDK starts (`Google Maps SDK for iOS version: 9.4.0.0`), then `GMSDASHConnection` / Google fetcher requests repeatedly return HTTP `400`. Treat remaining blank/white tiles as Google Cloud key/API restriction until proven otherwise: rotate away from the leaked key, enable Maps SDK for iOS, restrict the iOS key to `com.app.cpbeige.dev` / `com.app.cpbeige`, update local `env/{dev,prod}.json`, rerun `pod install`, then verify on simulator/device. Xcode-direct runs still need equivalent Dart defines for Places autocomplete because `Env.googleMapsKey` is read from `--dart-define`.
+- Phase 6: in progress — 13 / 15 tasks done. Tasks 6.01 (test helpers) closed 2026-05-31; 6.02–6.12 closed 2026-06-03. 6.13 implementation is in place but the task remains 🟡 pending the first GitHub Actions Android/iOS run and coverage lift: `.github/workflows/ci.yml` now runs `flutter test --coverage`, uploads LCOV, writes a summary, and enforces `COVERAGE_MINIMUM=70`; `.github/workflows/integration.yml` runs Android emulator + iOS simulator integration tests on `push` to `main`. Current refreshed LCOV is `5358 / 11129 = 48.14%`, so the new gate will fail until coverage is raised. 6.11 added the login → home → logout journey; 6.12 added signup1 → signup2 → signup3. Both integration files still pass locally with `flutter test <file> -d macos`; device CI may require the documented binding swap to `IntegrationTestWidgetsFlutterBinding`. Next: `6.14` (models/utils/validators tests) and first remote CI feedback for `6.13`.
+- Task 6.15 (Location service + Google Maps consolidation) is 🟢 complete. Native iOS Maps wiring is fixed and aligned with rotated keys. LocationService and LocationException are fully unit tested (all 9 test cases passing) and verified clean.
 - Meetings UI Card & Create Meeting Screen redesign: complete as of 2026-06-09, matching Option 1 of the mockup specifications.
 - Messages UI sidecar plan (`docs/feature/MESSAGES_UI_PLAN.md`): M1–M5 are complete as of 2026-06-09. M5 added motion polish, a11y labels/touch-target fixes, message goldens, and widget tests. M6 remains pending for real REST + socket.io integration and is outside the completed UI scope.
+- Messages post-login logout fix (2026-06-16): `AuthRepositoryImpl` now persists a `UserSnapshot` from `data.crew_member` when `data.user` is absent, matching the documented real login shape. `MessagesRemoteSource` no longer turns a missing local user snapshot into `UnauthorizedException`; it uses an empty `currentUserId` only for DTO ownership/read derivation. Real REST 401s still map through Dio and can trigger the existing logout path.
+- Messages socket host correction (2026-06-16): live probes showed `https://api.dev.beige.app/socket.io/?EIO=4&transport=websocket` returns Express 404 `Route not found`, while `https://api2.dev.beige.app/socket.io/?EIO=4&transport=polling` returns an Engine.IO open packet and WebSocket upgrade returns HTTP 101. `Env.socketUrl` dev default is now `https://api2.dev.beige.app`, with `CHAT_SOCKET_URL` dart-define override support; `MessagesSocketSource` sets path `/socket.io` and WebSocket-only transport.
+- Messages self-healing logout & inside-bubble headers (2026-06-16): Caught `UnauthorizedException` in messages and chat thread providers to automatically invoke `authStateProvider.notifier.logout()` to resolve retry/reload bugs. Relocated sender headers inside the message and audio bubbles, styling them with bold uppercase name text and title-cased role badge pills.
 
 Active Phase 6 entry-point: `docs/phase6/README.md`.
 
@@ -74,14 +77,13 @@ Group D is complete. Home now uses:
 
 ## Verification Baseline
 
-Most recent check (post Messages timezone, order, and tab bar fix):
+Most recent check (post Messages socket reflection fix):
 
 - `flutter analyze --fatal-infos`: 0 issues. CI enforces fatal infos on every PR.
-- `flutter test`: green — 485 tests passed, including new message widget/golden coverage.
+- `flutter test test/features/messages`: 26 / 26 passing.
+- `flutter test`: 512 / 514 passing (2 pre-existing shoots_repository_impl_test.dart failures persist).
 - `flutter test test/features/messages/presentation/screens/messages_screen_test.dart`: 3 / 3 passing.
 - `flutter test test/golden/messages_test.dart`: 3 / 3 passing.
-- Previous coverage baseline from 6.13 remains `48.14%` (`5358 / 11129` lines); coverage was not refreshed during Messages M5.
-- `flutter test --coverage`: green — 451 events total; refreshed LCOV is `48.14%` (`5358 / 11129` lines), below the new 70% gate.
 - `flutter test integration_test/login_logout_test.dart -d macos`: 1 / 1 passing.
 - `flutter test integration_test/signup_flow_test.dart -d macos`: 1 / 1 passing.
 - `pubspec.yaml`: 4 deps dropped in 5.02 (`http`, `flutter_stripe`, `image_cropper`, `photo_view`). 9 packages removed from resolution.

@@ -1,59 +1,17 @@
 import '../../domain/entities/chat_details.dart';
-import '../../domain/entities/participant.dart';
-import '../../domain/entities/shared_file.dart';
 import 'participant_dto.dart';
 import 'shared_file_dto.dart';
 
 class ChatDetailsDto {
-  /// Canonical dummy-fixture shape. Used by `MessagesDummySource`.
-  static ChatDetails fromJson(Map<String, dynamic> json) {
-    final contactRaw = json['contact'] as Map<String, dynamic>;
-    final shootRaw = json['linkedShoot'] as Map<String, dynamic>?;
-    return ChatDetails(
-      conversationId: json['conversationId'] as String,
-      contact: ContactInfo(
-        id: contactRaw['id'] as String,
-        name: contactRaw['name'] as String,
-        email: contactRaw['email'] as String?,
-        phone: contactRaw['phone'] as String?,
-        avatarUrl: contactRaw['avatarUrl'] as String?,
-      ),
-      participants: ((json['participants'] as List?) ?? const [])
-          .cast<Map<String, dynamic>>()
-          .map(
-            (p) => Participant(
-              id: p['id'] as String,
-              name: p['name'] as String,
-              role: p['role'] as String,
-              avatarUrl: p['avatarUrl'] as String?,
-            ),
-          )
-          .toList(growable: false),
-      linkedShoot: shootRaw == null
-          ? null
-          : LinkedShoot(
-              id: shootRaw['id'] as String,
-              title: shootRaw['title'] as String,
-              date: DateTime.parse(shootRaw['date'] as String).toLocal(),
-            ),
-      sharedFiles: ((json['sharedFiles'] as List?) ?? const [])
-          .cast<Map<String, dynamic>>()
-          .map(
-            (f) => SharedFile(
-              id: f['id'] as String,
-              name: f['name'] as String,
-              mimeType: f['mimeType'] as String,
-              sizeBytes: (f['sizeBytes'] as num).toInt(),
-              uploadedAt: DateTime.parse(f['uploadedAt'] as String).toLocal(),
-            ),
-          )
-          .toList(growable: false),
-      notes: (json['notes'] as String?) ?? '',
-    );
-  }
-
   /// REST shape from `GET /external-chat/room/:roomId/details`.
-  /// Assumed shape — confirm with backend (plan §3.3, §11 Q1).
+  ///
+  /// Backend returns:
+  /// ```
+  /// { success, data: { room, profile, participants: { items, ... },
+  ///   linkedShoot, sharedFiles: { items, ... }, notes: { value } } }
+  /// ```
+  /// `PaginationEnvelope.unwrapItem` strips `data`, so this receives the
+  /// inner object.
   ///
   /// `conversationId` is passed in because backend response may not echo it
   /// under a stable key.
@@ -61,41 +19,86 @@ class ChatDetailsDto {
     Map<String, dynamic> json, {
     required String conversationId,
   }) {
-    final contactRaw = (json['contact'] ?? json['client']) as Map<String, dynamic>?;
-    final shootRaw = (json['linked_shoot'] ?? json['linkedShoot'] ?? json['booking'])
+    final room = (json['room'] as Map<String, dynamic>?) ?? const {};
+    final profile = (json['profile'] ??
+            room['client_snapshot'] ??
+            json['contact'] ??
+            json['client'])
         as Map<String, dynamic>?;
-    final participantsRaw = (json['participants'] as List?) ?? const [];
-    final filesRaw = (json['shared_files'] ?? json['sharedFiles'] ?? const []) as List;
+
+    final participantsBlock = json['participants'];
+    final List participantsRaw = participantsBlock is Map<String, dynamic>
+        ? (participantsBlock['items'] as List? ?? const [])
+        : (participantsBlock as List? ?? const []);
+
+    final shootRaw = (json['linkedShoot'] ??
+        json['linked_shoot'] ??
+        json['booking']) as Map<String, dynamic>?;
+
+    final filesBlock = json['sharedFiles'] ?? json['shared_files'];
+    final List filesRaw = filesBlock is Map<String, dynamic>
+        ? (filesBlock['items'] as List? ?? const [])
+        : (filesBlock as List? ?? const []);
+
+    final notesBlock = json['notes'];
+    final String notes = notesBlock is Map<String, dynamic>
+        ? ((notesBlock['value'] as String?) ?? '')
+        : ((notesBlock as String?) ?? '');
 
     return ChatDetails(
       conversationId: conversationId,
       contact: ContactInfo(
-        id: (contactRaw?['id'] ?? contactRaw?['_id'] ?? '').toString(),
-        name: (contactRaw?['name'] ?? json['room_name'] ?? '') as String,
-        email: (contactRaw?['email'] ?? json['contact_email']) as String?,
-        phone: (contactRaw?['phone'] ?? json['contact_phone']) as String?,
-        avatarUrl: (contactRaw?['avatar_url'] ??
-            contactRaw?['profile_image'] ??
-            json['avatar_url']) as String?,
+        id: (profile?['id'] ??
+                profile?['_id'] ??
+                json['id'] ??
+                json['_id'] ??
+                '')
+            .toString(),
+        name: (profile?['name'] ??
+                room['display_name'] ??
+                room['name'] ??
+                json['room_name'] ??
+                json['name'] ??
+                '')
+            as String,
+        email: (profile?['email'] ??
+            room['contact_email'] ??
+            json['contact_email'] ??
+            json['email']) as String?,
+        phone: (profile?['phone'] ??
+            room['contact_phone'] ??
+            json['contact_phone'] ??
+            json['phone']) as String?,
+        avatarUrl: (profile?['profileImage'] ??
+            profile?['profile_image'] ??
+            profile?['avatar_url'] ??
+            json['avatar_url'] ??
+            json['profileImage'] ??
+            json['profile_image']) as String?,
       ),
       participants: participantsRaw
           .cast<Map<String, dynamic>>()
           .map(ParticipantDto.fromRestJson)
           .toList(growable: false),
-      linkedShoot: shootRaw == null
-          ? null
-          : LinkedShoot(
-              id: (shootRaw['id'] ?? shootRaw['_id']).toString(),
-              title: (shootRaw['title'] ?? shootRaw['name'] ?? '') as String,
-              date: DateTime.parse(
-                (shootRaw['date'] ?? shootRaw['shoot_date'] ?? shootRaw['createdAt']).toString(),
-              ).toLocal(),
-            ),
+      linkedShoot: shootRaw == null ? null : _shootFrom(shootRaw),
       sharedFiles: filesRaw
           .cast<Map<String, dynamic>>()
           .map(SharedFileDto.fromRestJson)
           .toList(growable: false),
-      notes: (json['notes'] as String?) ?? '',
+      notes: notes,
     );
+  }
+
+  static LinkedShoot _shootFrom(Map<String, dynamic> raw) {
+    final id = (raw['bookingId'] ?? raw['id'] ?? raw['_id'] ?? '').toString();
+    final title =
+        (raw['name'] ?? raw['title'] ?? raw['shootType'] ?? '') as String;
+    final dateStr =
+        (raw['eventDate'] ?? raw['date'] ?? raw['shoot_date'] ?? raw['createdAt'])
+            ?.toString();
+    final date = dateStr == null
+        ? DateTime.fromMillisecondsSinceEpoch(0)
+        : DateTime.parse(dateStr).toLocal();
+    return LinkedShoot(id: id, title: title, date: date);
   }
 }

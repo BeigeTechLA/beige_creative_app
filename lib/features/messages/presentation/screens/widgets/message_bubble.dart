@@ -6,6 +6,10 @@ import '../../../../../app/spacing.dart';
 import '../../../../../app/text_styles.dart';
 import '../../../../../shared/widgets/app_avatar.dart';
 import '../../../domain/entities/message.dart';
+import '../../../domain/role_label.dart';
+
+const double _avatarDiameter = 24;
+const double _bubbleRadius = 16;
 
 /// Text or system message bubble. Audio + image variants live in
 /// `audio_bubble.dart` (M3.03) and the future media bubble.
@@ -15,52 +19,73 @@ class MessageBubble extends StatelessWidget {
     required this.message,
     required this.isMine,
     required this.showSenderHeader,
+    this.senderRole,
+    this.senderName,
+    this.senderAvatarUrl,
   });
 
   final Message message;
   final bool isMine;
   final bool showSenderHeader;
+  final String? senderRole;
+  /// Resolved from chat-details `participants.items` via id match. Falls back
+  /// to `message.senderName` when null/empty.
+  final String? senderName;
+  /// Resolved from `participants.items` via id match (already absolute).
+  final String? senderAvatarUrl;
+
+  String get _displayName {
+    if (senderName != null && senderName!.isNotEmpty) return senderName!;
+    if (message.senderName.isNotEmpty) return message.senderName;
+    return 'Unknown';
+  }
 
   @override
   Widget build(BuildContext context) {
     if (message.type == MessageType.system) {
       return _SystemNotice(text: message.body ?? '');
     }
+    final maxBubbleWidth = MediaQuery.sizeOf(context).width * 0.72;
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.screenH,
         vertical: AppSpacing.xs,
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: isMine
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment:
+            isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isMine) ...[
-            AppAvatar(name: message.senderName, size: AppAvatarSize.xs),
+            if (showSenderHeader)
+              AppAvatar(
+                name: _displayName,
+                imageUrl: senderAvatarUrl,
+                size: AppAvatarSize.xs,
+              )
+            else
+              const SizedBox(width: _avatarDiameter),
             const SizedBox(width: AppSpacing.sm),
           ],
           Flexible(
             child: Column(
-              crossAxisAlignment: isMine
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                if (showSenderHeader && !isMine)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.xxs),
-                    child: Text(
-                      message.senderName,
-                      style: AppTextStyles.bodySmallMedium.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
+                if (!isMine && showSenderHeader) ...[
+                  _SenderHeader(name: _displayName, role: senderRole),
+                  const SizedBox(height: AppSpacing.xxs),
+                ],
                 Semantics(
                   label: _semanticLabel(),
-                  child: _Bubble(message: message, isMine: isMine),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: maxBubbleWidth),
+                    child: _Bubble(message: message, isMine: isMine),
+                  ),
                 ),
+                const SizedBox(height: AppSpacing.xxs),
+                _BubbleMeta(message: message, isMine: isMine),
               ],
             ),
           ),
@@ -73,8 +98,40 @@ class MessageBubble extends StatelessWidget {
     final body = message.isDeleted
         ? 'This message was deleted'
         : (message.body ?? 'Attachment message');
-    final sender = isMine ? 'You' : message.senderName;
+    final sender = isMine ? 'You' : _displayName;
     return '$sender: $body';
+  }
+}
+
+class _SenderHeader extends StatelessWidget {
+  const _SenderHeader({required this.name, this.role});
+
+  final String name;
+  final String? role;
+
+  @override
+  Widget build(BuildContext context) {
+    final formattedRole = roleLabel(role);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(
+          name,
+          style: AppTextStyles.bodySmallStrong.copyWith(
+            color: AppColors.textPrimary,
+          ),
+        ),
+        if (formattedRole.isNotEmpty) ...[
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            formattedRole,
+            style: AppTextStyles.body10.copyWith(color: AppColors.textTertiary),
+          ),
+        ],
+      ],
+    );
   }
 }
 
@@ -87,7 +144,7 @@ class _Bubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bg = isMine ? AppColors.primary : AppColors.surfaceCharcoal;
-    final fg = isMine ? AppColors.textDark : AppColors.textPrimary;
+    final fg = isMine ? AppColors.onPrimary : AppColors.textPrimary;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -96,56 +153,52 @@ class _Bubble extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(20),
-          topRight: const Radius.circular(20),
-          bottomLeft: Radius.circular(isMine ? 20 : 4),
-          bottomRight: Radius.circular(isMine ? 4 : 20),
-        ),
+        borderRadius: BorderRadius.circular(_bubbleRadius),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (message.isDeleted)
-            Text(
+      child: message.isDeleted
+          ? Text(
               'This message was deleted',
               style: AppTextStyles.body14.copyWith(
                 color: fg.withValues(alpha: 0.6),
                 fontStyle: FontStyle.italic,
               ),
             )
-          else if (message.body != null && message.body!.isNotEmpty)
-            Text(
-              message.body!,
+          : Text(
+              message.body ?? '',
               style: AppTextStyles.body14.copyWith(color: fg),
             ),
-          const SizedBox(height: AppSpacing.xxs),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (message.isEdited) ...[
-                Text(
-                  'edited',
-                  style: AppTextStyles.body10.copyWith(
-                    color: fg.withValues(alpha: 0.6),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.xxs),
-              ],
-              Text(
-                DateFormat('hh:mm a').format(message.sentAt),
-                style: AppTextStyles.body10.copyWith(
-                  color: fg.withValues(alpha: 0.6),
-                ),
-              ),
-              if (isMine) ...[
-                const SizedBox(width: AppSpacing.xxs),
-                _StatusIcon(status: message.deliveryStatus, color: fg),
-              ],
-            ],
+    );
+  }
+}
+
+class _BubbleMeta extends StatelessWidget {
+  const _BubbleMeta({required this.message, required this.isMine});
+
+  final Message message;
+  final bool isMine;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = AppColors.textTertiary;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (message.isEdited) ...[
+          Text(
+            'edited',
+            style: AppTextStyles.body10.copyWith(color: color),
           ),
+          const SizedBox(width: AppSpacing.xxs),
         ],
-      ),
+        Text(
+          DateFormat('hh:mm a').format(message.sentAt),
+          style: AppTextStyles.body10.copyWith(color: color),
+        ),
+        if (isMine) ...[
+          const SizedBox(width: AppSpacing.xxs),
+          _StatusIcon(status: message.deliveryStatus, color: color),
+        ],
+      ],
     );
   }
 }
@@ -171,9 +224,7 @@ class _StatusIcon extends StatelessWidget {
       case DeliveryStatus.read:
         icon = Icons.done_all;
     }
-    final tint = status == DeliveryStatus.read
-        ? AppColors.info
-        : color.withValues(alpha: 0.6);
+    final tint = status == DeliveryStatus.read ? AppColors.info : color;
     return ExcludeSemantics(child: Icon(icon, size: 12, color: tint));
   }
 }

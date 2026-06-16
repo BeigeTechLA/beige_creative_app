@@ -37,16 +37,86 @@ class AuthRepositoryImpl implements AuthRepository {
     if (token.isEmpty) {
       throw Exception('Login response missing token');
     }
-    UserSnapshot? user;
-    final rawUser = payload['user'];
-    if (rawUser is Map<String, dynamic>) {
-      try {
-        user = UserSnapshot.fromJson(rawUser);
-      } catch (_) {
-        user = null;
-      }
-    }
+    final user = _parseLoginUser(payload);
     return LoginResult(token: token, user: user);
+  }
+
+  UserSnapshot? _parseLoginUser(Map<String, dynamic> payload) {
+    final rawUser = payload['user'];
+    if (rawUser is Map) {
+      final user = _snapshotFromMap(rawUser);
+      if (user != null) return user;
+    }
+
+    final rawCrewMember = payload['crew_member'];
+    if (rawCrewMember is Map) {
+      final nestedUser = rawCrewMember['user'];
+      if (nestedUser is Map) {
+        final user = _snapshotFromMap(nestedUser);
+        if (user != null) return user;
+      }
+
+      final id = _stringValue(rawCrewMember, [
+        'user_id',
+        'userId',
+        'id',
+        'crew_member_id',
+        '_id',
+      ]);
+      if (id == null || id.isEmpty) return null;
+
+      final firstName = _stringValue(rawCrewMember, ['first_name']);
+      final lastName = _stringValue(rawCrewMember, ['last_name']);
+      final fallbackName = [
+        if (firstName != null && firstName.isNotEmpty) firstName,
+        if (lastName != null && lastName.isNotEmpty) lastName,
+      ].join(' ');
+
+      return UserSnapshot(
+        id: id,
+        name:
+            _stringValue(rawCrewMember, ['name']) ??
+            (fallbackName.isEmpty ? null : fallbackName),
+        email: _stringValue(rawCrewMember, ['email']),
+        role: _stringValue(rawCrewMember, ['role']),
+        userType: _stringValue(rawCrewMember, ['user_type']),
+        profileImageUrl: _stringValue(rawCrewMember, [
+          'profile_image_url',
+          'user_profile_image_url',
+          'profile_photo',
+        ]),
+      );
+    }
+
+    return null;
+  }
+
+  UserSnapshot? _snapshotFromMap(Map<dynamic, dynamic> json) {
+    final id = _stringValue(json, ['id', 'user_id', '_id']);
+    if (id == null || id.isEmpty) return null;
+    return UserSnapshot(
+      id: id,
+      name: _stringValue(json, ['name', 'full_name']),
+      email: _stringValue(json, ['email']),
+      role: _stringValue(json, ['role']),
+      userType: _stringValue(json, ['user_type']),
+      profileImageUrl: _stringValue(json, [
+        'profile_image_url',
+        'user_profile_image_url',
+        'profileImage',
+        'avatar_url',
+      ]),
+    );
+  }
+
+  String? _stringValue(Map<dynamic, dynamic> json, List<String> keys) {
+    for (final key in keys) {
+      final value = json[key];
+      if (value == null) continue;
+      final text = value.toString();
+      if (text.isNotEmpty) return text;
+    }
+    return null;
   }
 
   @override
@@ -157,9 +227,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final fields = <String, String>{
       'crew_member_id': payload.crewMemberId.toString(),
       'certifications': jsonEncode(
-        payload.certificationFiles
-            .map((f) => f.path.split('/').last)
-            .toList(),
+        payload.certificationFiles.map((f) => f.path.split('/').last).toList(),
       ),
       'social_media_links': jsonEncode(payload.socialMediaLinks),
       'portfolio_links': jsonEncode(payload.portfolioLinks),
@@ -206,8 +274,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<List<LookupOption>> fetchRoles() async {
-    final response =
-        await _client.dio.get<dynamic>(ApiEndpoints.register_roles);
+    final response = await _client.dio.get<dynamic>(
+      ApiEndpoints.register_roles,
+    );
     return _parseLookups(
       response.data,
       idKey: 'role_id',
@@ -218,8 +287,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<List<LookupOption>> fetchSkills() async {
-    final response =
-        await _client.dio.get<dynamic>(ApiEndpoints.register_Skill);
+    final response = await _client.dio.get<dynamic>(
+      ApiEndpoints.register_Skill,
+    );
     return _parseLookups(
       response.data,
       idKey: 'id',

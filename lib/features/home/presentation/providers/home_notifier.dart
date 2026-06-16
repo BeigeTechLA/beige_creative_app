@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/core_providers.dart';
+import '../../../../core/session/session_store.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/create_dashboard_details_model.dart';
 import '../../../../model_class/crewstatus_model.dart';
@@ -314,7 +315,25 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
 
   Future<profile.MyProfileData?> _safeFetchProfile(HomeRepository repo) async {
     try {
-      return await repo.fetchProfile();
+      final profileData = await repo.fetchProfile();
+      try {
+        final session = ref.read(sessionStoreProvider);
+        final currentUser = await session.readUser();
+        final updatedUser = UserSnapshot(
+          id: profileData.user.id.toString(),
+          name: profileData.user.name,
+          email: profileData.user.email,
+          role: currentUser?.role ?? (profileData.user.primaryRole.isNotEmpty ? profileData.user.primaryRole : null),
+          userType: currentUser?.userType ?? profileData.user.userType.toString(),
+          profileImageUrl: profileData.user.profileImageUrl.isNotEmpty
+              ? profileData.user.profileImageUrl
+              : currentUser?.profileImageUrl,
+        );
+        await session.writeUser(updatedUser);
+      } catch (e) {
+        AppLogger.w('Failed to update session user snapshot: $e');
+      }
+      return profileData;
     } catch (e, st) {
       AppLogger.e('Home fetchProfile failed', e, st);
       return null;

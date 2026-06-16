@@ -184,7 +184,10 @@ void main() {
         () => dio.post<dynamic>(captureAny(), data: captureAny(named: 'data')),
       ).captured;
       expect(captured.first, ApiEndpoints.acceptdeclineproject);
-      expect(captured.last, {'project_id': 7, 'status': 'accepted'});
+      expect(captured.last, {
+        'project_id': 7,
+        'crew_accept': 1,
+      });
     });
 
     test('happy: includes reason + comment when provided', () async {
@@ -203,7 +206,7 @@ void main() {
       ).captured.single;
       expect(body, {
         'project_id': 9,
-        'status': 'declined',
+        'crew_accept': 2,
         'reason': 'unavailable',
         'comment': 'next week',
       });

@@ -1,33 +1,6 @@
 import '../../domain/entities/message.dart';
 
 class MessageDto {
-  /// Canonical dummy-fixture shape (camelCase, nested `file` object).
-  /// Used by `MessagesDummySource`. Do not call from real REST/socket paths.
-  static Message fromJson(Map<String, dynamic> json) {
-    final fileRaw = json['file'] as Map<String, dynamic>?;
-    return Message(
-      id: json['id'] as String,
-      senderId: json['senderId'] as String,
-      senderName: json['senderName'] as String,
-      type: _parseType(json['type'] as String?),
-      body: json['body'] as String?,
-      file: fileRaw == null
-          ? null
-          : MessageFile(
-              url: fileRaw['url'] as String,
-              name: fileRaw['name'] as String,
-              mimeType: fileRaw['mimeType'] as String,
-              sizeBytes: (fileRaw['sizeBytes'] as num).toInt(),
-              durationMs: (fileRaw['durationMs'] as num?)?.toInt(),
-            ),
-      sentAt: DateTime.parse(json['sentAt'] as String).toLocal(),
-      isEdited: (json['isEdited'] as bool?) ?? false,
-      isDeleted: (json['isDeleted'] as bool?) ?? false,
-      replyToId: json['replyToId'] as String?,
-      deliveryStatus: _parseStatus(json['deliveryStatus'] as String?),
-    );
-  }
-
   /// REST list shape (`GET /external-chat/messages/:roomId`).
   /// snake_case, flat `file_url` / `file_name` / `file_type` fields.
   /// Assumed shape — verify with backend.
@@ -35,13 +8,34 @@ class MessageDto {
     Map<String, dynamic> json, {
     required String currentUserId,
   }) {
-    final senderId = (json['sent_by'] ?? json['senderId'] ?? '').toString();
+    // Backend may populate `sent_by` as `{_id, name, profile_image, ...}`
+    // (Mongo ref expansion) or ship the bare id string. Handle both.
+    final rawSentBy = json['sent_by'] ?? json['senderId'];
+    final String senderId;
+    String? sentByName;
+    if (rawSentBy is Map<String, dynamic>) {
+      senderId = (rawSentBy['_id'] ??
+              rawSentBy['id'] ??
+              rawSentBy['userId'] ??
+              rawSentBy['user_id'] ??
+              '')
+          .toString();
+      sentByName = (rawSentBy['name'] ??
+          rawSentBy['full_name'] ??
+          rawSentBy['fullName']) as String?;
+    } else {
+      senderId = (rawSentBy ?? '').toString();
+    }
     final fileUrl = json['file_url'] as String?;
     final fileType = json['file_type'] as String?;
     return Message(
       id: (json['id'] ?? json['_id'] ?? json['messageId']).toString(),
       senderId: senderId,
-      senderName: (json['sender_name'] ?? json['senderName'] ?? '') as String,
+      senderName: (json['sender_name'] ??
+              json['senderName'] ??
+              sentByName ??
+              '')
+          as String,
       type: _parseType(json['message_type'] as String?),
       body: (json['message'] ?? json['content']) as String?,
       file: fileUrl == null
@@ -67,12 +61,32 @@ class MessageDto {
   /// camelCase, flat `fileUrl` / `fileName` / `fileType`. Always treated as
   /// just-delivered (status = `delivered`) — recipient state is local.
   static Message fromSocketJson(Map<String, dynamic> json) {
+    final rawSender = json['senderId'] ?? json['sent_by'];
+    final String senderId;
+    String? sentByName;
+    if (rawSender is Map<String, dynamic>) {
+      senderId = (rawSender['_id'] ??
+              rawSender['id'] ??
+              rawSender['userId'] ??
+              rawSender['user_id'] ??
+              '')
+          .toString();
+      sentByName = (rawSender['name'] ??
+          rawSender['full_name'] ??
+          rawSender['fullName']) as String?;
+    } else {
+      senderId = (rawSender ?? '').toString();
+    }
     final fileUrl = json['fileUrl'] as String?;
     final fileType = json['fileType'] as String?;
     return Message(
       id: (json['messageId'] ?? json['_id'] ?? json['id']).toString(),
-      senderId: (json['senderId'] ?? json['sent_by'] ?? '').toString(),
-      senderName: (json['senderName'] ?? json['sender_name'] ?? '') as String,
+      senderId: senderId,
+      senderName: (json['senderName'] ??
+              json['sender_name'] ??
+              sentByName ??
+              '')
+          as String,
       type: _parseType(json['message_type'] as String?),
       body: json['message'] as String?,
       file: fileUrl == null
@@ -104,21 +118,6 @@ class MessageDto {
         return MessageType.system;
       default:
         return MessageType.text;
-    }
-  }
-
-  static DeliveryStatus _parseStatus(String? raw) {
-    switch (raw) {
-      case 'sending':
-        return DeliveryStatus.sending;
-      case 'delivered':
-        return DeliveryStatus.delivered;
-      case 'read':
-        return DeliveryStatus.read;
-      case 'failed':
-        return DeliveryStatus.failed;
-      default:
-        return DeliveryStatus.sent;
     }
   }
 

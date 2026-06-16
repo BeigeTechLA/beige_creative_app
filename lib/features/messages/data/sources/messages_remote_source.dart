@@ -2,8 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../../../core/network/exceptions/app_exception.dart';
-import '../../../../core/network/exceptions/exception_handler.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/session/session_store.dart';
 import '../../domain/entities/chat_details.dart';
 import '../../domain/entities/chat_thread.dart';
@@ -30,12 +29,14 @@ class MessagesRemoteSource {
 
   Dio get _dio => _client.dio;
 
+  /// Used only for client-side `fromMe` / read-receipt derivation in DTOs.
+  /// REST auth itself rides the bearer token attached by the Dio interceptor —
+  /// the userId here never goes on the wire. Backend login may not return a
+  /// user object, so fall back to empty string (degrades to "not me" for
+  /// preview text + "delivered" for receipts until login persists the user).
   Future<String> _currentUserId() async {
     final user = await _session.readUser();
-    if (user == null) {
-      throw const UnauthorizedException(message: 'No active session');
-    }
-    return user.id;
+    return user?.id ?? '';
   }
 
   /// Single funnel for `DioException` → `AppException`. Keeps method bodies
@@ -88,7 +89,8 @@ class MessagesRemoteSource {
       String? nextCursor;
       if (PaginationEnvelope.hasMore(raw, limit: limit)) {
         final nextRaw = PaginationEnvelope.nextCursor(raw);
-        nextCursor = nextRaw ??
+        nextCursor =
+            nextRaw ??
             (int.tryParse(cursor ?? '1') ?? 1).let((p) => (p + 1).toString());
       }
 
@@ -109,10 +111,7 @@ class MessagesRemoteSource {
       final userId = await _currentUserId();
       final resp = await _dio.post<dynamic>(
         ApiEndpoints.chatMessages(conversationId),
-        data: {
-          'message': body,
-          'replyTo': replyToId,
-        },
+        data: {'message': body, 'replyTo': replyToId},
       );
       final json = PaginationEnvelope.unwrapItem(resp.data);
       return MessageDto.fromRestJson(json, currentUserId: userId);
@@ -155,10 +154,7 @@ class MessagesRemoteSource {
       // inconsistency, deliberate.
       await _dio.post<dynamic>(
         ApiEndpoints.chatEditMessage(messageId),
-        data: {
-          'content': newBody,
-          'roomId': conversationId,
-        },
+        data: {'content': newBody, 'roomId': conversationId},
       );
     });
   }
@@ -167,9 +163,7 @@ class MessagesRemoteSource {
     return _guard(() async {
       await _dio.post<dynamic>(
         ApiEndpoints.chatDeleteMessage(messageId),
-        data: {
-          'roomId': conversationId,
-        },
+        data: {'roomId': conversationId},
       );
     });
   }
@@ -189,10 +183,7 @@ class MessagesRemoteSource {
         ApiEndpoints.chatRoomDetails(conversationId),
       );
       final json = PaginationEnvelope.unwrapItem(resp.data);
-      return ChatDetailsDto.fromRestJson(
-        json,
-        conversationId: conversationId,
-      );
+      return ChatDetailsDto.fromRestJson(json, conversationId: conversationId);
     });
   }
 }

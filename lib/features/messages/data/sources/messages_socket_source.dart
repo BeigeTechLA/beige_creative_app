@@ -69,7 +69,8 @@ class MessagesSocketSource {
     final socket = io.io(
       Env.socketUrl,
       io.OptionBuilder()
-          .setTransports(const ['websocket', 'polling'])
+          .setPath('/socket.io')
+          .setTransports(const ['websocket'])
           .setExtraHeaders({
             if (token != null && token.isNotEmpty) 'Authorization': token,
           })
@@ -114,6 +115,12 @@ class MessagesSocketSource {
   }
 
   void _emitJoinRoom(String roomId, UserSnapshot user) {
+    if (kDebugMode) {
+      debugPrint(
+        '[sock] EMIT joinRoom roomId=$roomId userId=${user.id} '
+        'connected=${_socket?.connected}',
+      );
+    }
     _socket?.emit('joinRoom', {
       'roomId': roomId,
       'userId': user.id,
@@ -149,10 +156,7 @@ class MessagesSocketSource {
   void emitStopTyping(String conversationId) {
     final user = _user;
     if (user == null) return;
-    _socket?.emit('stopTyping', {
-      'roomId': conversationId,
-      'userId': user.id,
-    });
+    _socket?.emit('stopTyping', {'roomId': conversationId, 'userId': user.id});
   }
 
   /// Disconnect + close all per-room streams. Called on logout via
@@ -185,6 +189,12 @@ class MessagesSocketSource {
 
       final user = _user;
       if (user == null) return;
+      if (kDebugMode) {
+        debugPrint(
+          '[sock] CONNECT id=${socket.id} user=${user.id} '
+          'activeRooms=$_activeRoomIds',
+        );
+      }
       // Auto-join notification room on every (re)connect so unread counts
       // resume after transient drops.
       socket.emit('joinNotificationRoom', {
@@ -198,6 +208,12 @@ class MessagesSocketSource {
         _emitJoinRoom(roomId, user);
       }
     });
+
+    if (kDebugMode) {
+      socket.onAny((event, data) {
+        debugPrint('[sock] ANY event=$event data=$data');
+      });
+    }
 
     socket.onConnectError((data) {
       _emitSocketError('Socket connect error: $data');
@@ -234,8 +250,21 @@ class MessagesSocketSource {
   void _bindServerEvents(io.Socket socket) {
     socket.on('message', (raw) {
       final payload = _asMap(raw);
+      if (kDebugMode) {
+        debugPrint(
+          '[sock] RECV message raw=$raw '
+          'roomControllers=${_roomControllers.keys.toList()} '
+          'activeRooms=$_activeRoomIds',
+        );
+      }
       if (payload == null) return;
       final roomId = (payload['roomId'] ?? payload['chat_room_id'])?.toString();
+      if (kDebugMode) {
+        debugPrint(
+          '[sock] message resolved roomId=$roomId '
+          'hasController=${_roomControllers.containsKey(roomId)}',
+        );
+      }
       if (roomId == null) return;
       final msg = MessageDto.fromSocketJson(payload);
       _fan(roomId, MessageReceived(roomId, msg));
@@ -283,7 +312,9 @@ class MessagesSocketSource {
       final roomId = p?['roomId']?.toString();
       final body = (p?['body'] ?? p?['message'] ?? '') as String;
       _emitGlobal(NotificationReceived(body, conversationId: roomId));
-      if (roomId != null) _fan(roomId, NotificationReceived(body, conversationId: roomId));
+      if (roomId != null) {
+        _fan(roomId, NotificationReceived(body, conversationId: roomId));
+      }
     });
 
     socket.on('userTyping', (raw) {

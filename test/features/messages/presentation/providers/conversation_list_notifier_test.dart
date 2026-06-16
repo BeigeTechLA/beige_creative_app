@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:beige_creative_app/core/network/exceptions/exceptions.dart';
+import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
+import 'package:beige_creative_app/core/providers/core_providers.dart';
+import 'package:beige_creative_app/core/session/session_store.dart';
 import 'package:beige_creative_app/features/messages/domain/entities/chat_details.dart';
 import 'package:beige_creative_app/features/messages/domain/entities/chat_thread.dart';
 import 'package:beige_creative_app/features/messages/domain/entities/conversation.dart';
@@ -10,15 +14,20 @@ import 'package:beige_creative_app/features/messages/presentation/providers/conv
 import 'package:beige_creative_app/features/messages/presentation/providers/messages_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _DriverRepo implements MessagesRepository {
   final StreamController<ChatSocketEvent> globalCtrl =
       StreamController.broadcast();
   int listCalls = 0;
+  Object? listError;
 
   @override
   Future<List<Conversation>> listConversations({String? query}) async {
     listCalls++;
+    if (listError != null) {
+      throw listError!;
+    }
     return [
       Conversation(
         id: 'room_1',
@@ -104,10 +113,15 @@ void main() {
     }
   }
 
-  setUp(() {
+  setUp(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
     repo = _DriverRepo();
     container = ProviderContainer(overrides: [
       messagesRepositoryProvider.overrideWithValue(repo),
+      sessionStoreProvider.overrideWithValue(_FakeSession()),
+      prefsProvider.overrideWithValue(prefs),
     ]);
   });
 
@@ -164,4 +178,56 @@ void main() {
 
     expect(repo.listCalls, 0);
   });
+
+  test('unauthorized exception triggers session logout', () async {
+    repo.listError = const UnauthorizedException();
+
+    container.read(authStateProvider.notifier).markLoggedIn();
+    expect(container.read(authStateProvider), true);
+
+    activeSub = container.listen<ConversationListState>(
+      conversationListProvider,
+      (_, _) {},
+    );
+
+    for (var i = 0; i < 20; i++) {
+      if (!container.read(conversationListProvider).isLoading) break;
+      await Future<void>.delayed(Duration.zero);
+    }
+
+    expect(container.read(authStateProvider), false);
+  });
+}
+
+class _FakeSession implements SessionStore {
+  @override
+  Future<void> writeToken(String token) async {}
+  @override
+  Future<void> writeUser(UserSnapshot user) async {}
+  @override
+  Future<void> writeLastLoginAt(DateTime when) async {}
+  @override
+  Future<String?> readToken() async => null;
+  @override
+  Future<void> clearToken() async {}
+  @override
+  Future<String?> readRefreshToken() async => null;
+  @override
+  Future<void> writeRefreshToken(String token) async {}
+  @override
+  Future<void> clearRefreshToken() async {}
+  @override
+  Future<UserSnapshot?> readUser() async => null;
+  @override
+  Future<void> clearUser() async {}
+  @override
+  Future<DateTime?> readLastLoginAt() async => null;
+  @override
+  Future<bool> readOnboardingSeen() async => false;
+  @override
+  Future<void> writeOnboardingSeen(bool seen) async {}
+  @override
+  Future<bool> isLoggedIn() async => false;
+  @override
+  Future<void> clearSession() async {}
 }

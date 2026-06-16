@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/events/chat_socket_event.dart';
@@ -102,6 +104,9 @@ class ConversationListNotifier
         isLoading: false,
         errorMessage: 'Failed to load conversations',
       );
+      if (e is UnauthorizedException) {
+        unawaited(ref.read(authStateProvider.notifier).logout());
+      }
     }
   }
 

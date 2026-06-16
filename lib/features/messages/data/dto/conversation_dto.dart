@@ -1,69 +1,74 @@
 import '../../domain/entities/conversation.dart';
 
 class ConversationDto {
-  /// Canonical dummy-fixture shape (camelCase). Used by `MessagesDummySource`.
-  static Conversation fromJson(Map<String, dynamic> json) {
-    final last = json['lastMessage'] as Map<String, dynamic>?;
-    return Conversation(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      avatarUrl: json['avatarUrl'] as String?,
-      lastMessage: last == null
-          ? null
-          : ConversationPreview(
-              preview: last['preview'] as String,
-              sentAt: DateTime.parse(last['sentAt'] as String).toLocal(),
-              fromMe: last['fromMe'] as bool,
-            ),
-      unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
-      isOnline: (json['isOnline'] as bool?) ?? false,
-      linkedShootId: json['linkedShootId'] as String?,
-      participantIds: ((json['participants'] as List?) ?? const [])
-          .cast<String>(),
-    );
-  }
-
-  /// REST shape from `GET /external-chat/rooms`. Assumed snake_case fields —
-  /// confirm with backend (plan §3.1, §11 Q1).
+  /// REST shape from `GET /external-chat/rooms`.
   ///
-  /// `currentUserId` drives `lastMessage.fromMe`.
+  /// Real backend shape (observed 2026-06-16):
+  /// - `id`: Mongo `_id`
+  /// - `chat_id`: human-readable id
+  /// - `display_name` / `name`: title (prefer display_name)
+  /// - `cp_ids` + `manager_ids`: arrays of participants (id, name, role, profileImage)
+  /// - `last_message`: STRING id of last msg (no embedded preview/timestamp)
+  /// - `unread_counts`: map { userId: count }
+  /// - `order_id` / `external_order_ref`: linked booking
+  /// - `updatedAt`: room-level last-activity timestamp
   static Conversation fromRestJson(
     Map<String, dynamic> json, {
     required String currentUserId,
   }) {
-    final last = (json['last_message'] ?? json['lastMessage']) as Map<String, dynamic>?;
-    final participantsRaw = (json['participants'] as List?) ?? const [];
-    final participantIds = participantsRaw.map((p) {
-      if (p is String) return p;
-      if (p is Map) return (p['id'] ?? p['_id'] ?? '').toString();
-      return '';
-    }).where((s) => s.isNotEmpty).toList(growable: false);
+    final cpIds = _readParticipants(json['cp_ids']);
+    final managerIds = _readParticipants(json['manager_ids']);
+    final participantIds = [...cpIds, ...managerIds];
+
+    final unreadMap = json['unread_counts'];
+    int unread = 0;
+    if (unreadMap is Map && currentUserId.isNotEmpty) {
+      final v = unreadMap[currentUserId];
+      if (v is num) unread = v.toInt();
+    }
 
     return Conversation(
-      id: (json['id'] ?? json['_id']).toString(),
-      title: (json['room_name'] ?? json['roomName'] ?? json['title'] ?? '') as String,
-      avatarUrl: (json['avatar_url'] ?? json['avatarUrl']) as String?,
-      lastMessage: last == null ? null : _previewFromRest(last, currentUserId: currentUserId),
-      unreadCount: ((json['unread_count'] ?? json['unreadCount'] ?? 0) as num).toInt(),
-      isOnline: (json['is_online'] ?? json['isOnline'] ?? false) as bool,
-      linkedShootId: (json['linked_booking_id'] ??
-          json['linkedBookingId'] ??
-          json['linked_shoot_id']) as String?,
+      id: (json['id'] ?? json['_id'] ?? json['chat_id']).toString(),
+      title: (json['display_name'] ?? json['name'] ?? '') as String,
+      avatarUrl: _firstAvatar(json['cp_ids']) ?? _firstAvatar(json['manager_ids']),
+      lastMessage: _previewFromRoom(json),
+      unreadCount: unread,
+      isOnline: false,
+      linkedShootId: (json['external_order_ref'] ?? json['order_id']) as String?,
       participantIds: participantIds,
     );
   }
 
-  static ConversationPreview _previewFromRest(
-    Map<String, dynamic> json, {
-    required String currentUserId,
-  }) {
-    final sentBy = (json['sent_by'] ?? json['senderId'] ?? '').toString();
+  static List<String> _readParticipants(Object? raw) {
+    if (raw is! List) return const [];
+    return raw
+        .whereType<Map>()
+        .map((m) => (m['id'] ?? m['_id'] ?? '').toString())
+        .where((s) => s.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  static String? _firstAvatar(Object? raw) {
+    if (raw is! List) return null;
+    for (final item in raw) {
+      if (item is Map) {
+        final v = item['profileImage'] ?? item['profile_image'] ?? item['avatar_url'];
+        if (v is String && v.isNotEmpty) return v;
+      }
+    }
+    return null;
+  }
+
+  /// Backend serves `last_message` as a String id only. Without a hydrated
+  /// preview/timestamp, show the room as having no preview but stamp `sentAt`
+  /// from `updatedAt` so list ordering still works upstream.
+  static ConversationPreview? _previewFromRoom(Map<String, dynamic> json) {
+    final updatedAt = json['updatedAt'] ?? json['updated_at'];
+    if (updatedAt == null) return null;
     return ConversationPreview(
-      preview: (json['message'] ?? json['preview'] ?? '') as String,
-      sentAt: DateTime.parse(
-        (json['sent_at'] ?? json['sentAt'] ?? json['createdAt']).toString(),
-      ).toLocal(),
-      fromMe: sentBy == currentUserId,
+      preview: '',
+      sentAt: DateTime.parse(updatedAt.toString()).toLocal(),
+      fromMe: false,
     );
   }
 }

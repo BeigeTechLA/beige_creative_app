@@ -4,9 +4,7 @@ import '../entities/conversation.dart';
 import '../entities/message.dart';
 import '../events/chat_socket_event.dart';
 
-/// Stable interface for messaging. Backed by `MessagesDummySource` in UI
-/// phases (M1-M5). M6 swaps in REST + socket.io implementations behind the
-/// same contract — UI never changes.
+/// Stable interface for messaging. Backed by REST + socket.io.
 abstract class MessagesRepository {
   Future<List<Conversation>> listConversations({String? query});
 
@@ -17,7 +15,7 @@ abstract class MessagesRepository {
   Stream<ChatSocketEvent> events(String conversationId);
 
   /// Cross-room event firehose for the conversation list (preview / unread
-  /// refresh). Dummy impl returns an empty stream.
+  /// refresh).
   Stream<ChatSocketEvent> globalEvents();
 
   /// Emit `joinRoom` to backend so this client starts receiving room events.
@@ -28,7 +26,7 @@ abstract class MessagesRepository {
   /// dispose via `ref.onDispose`.
   Future<void> leaveConversation(String conversationId);
 
-  /// Composer typing pulses. No-op when running on dummy.
+  /// Composer typing pulses.
   void notifyTyping(String conversationId);
   void notifyStopTyping(String conversationId);
 

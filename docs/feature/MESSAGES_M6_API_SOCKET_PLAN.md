@@ -24,7 +24,7 @@
 
 | Task | Status | Output |
 |---|---|---|
-| M6.01 — Env + pubspec | ✅ (2026-06-15) | `socket_io_client: ^2.0.3+1` added; `Env.socketUrl` field, dev = `https://api.dev.beige.app` (backend-confirmed), prod = `https://api.prod.beige.app` (provisional TODO); `flutter analyze` clean |
+| M6.01 — Env + pubspec | ✅ (2026-06-15; corrected 2026-06-16) | `socket_io_client: ^2.0.3+1` added; `Env.socketUrl` field, dev corrected to `https://api2.dev.beige.app` after live probes showed `api.dev.beige.app/socket.io` returns 404 while `api2.dev.beige.app/socket.io` returns Engine.IO 200/101; prod = `https://api.prod.beige.app` (provisional TODO); `CHAT_SOCKET_URL` dart-define override supported; `flutter analyze` clean |
 | M6.02 — Response DTOs | ✅ (2026-06-15) | `pagination_envelope.dart`, `participant_dto.dart`, `shared_file_dto.dart` new; `MessageDto.fromRestJson` + `fromSocketJson`, `ConversationDto.fromRestJson`, `ChatDetailsDto.fromRestJson` added (dummy `fromJson` retained). Analyze + messages tests green. |
 | M6.03 — `MessagesRemoteSource` impl | ✅ (2026-06-15) | 9 methods (sendAudio/sendAttachment block on Q3); endpoints added to `ApiEndpoints`; `editMessage`/`deleteMessage` contract widened to take `conversationId`; `DioException` funnel via `ExceptionHandler.mapDioException`; `MessagesRemoteSource(DioClient, SessionStore)` ctor wired in provider; impl + dummy + test fake updated; analyze + tests green. |
 | M6.04 — `MessagesSocketSource` impl | ✅ (2026-06-15) | Singleton owner; `io.io(Env.socketUrl, ...)` w/ websocket+polling, `setAuth({token,userId,userRole})` + `Authorization` header, auto-reconnect 2–15s backoff; binds 11 server events (`message`, `messageEdited`, `messageDeleted`, `updateChatRoom`, `participantAdded/Removed`, `chatRoomStatusChanged`, `notification:new`, `userTyping`, `stopTyping`, `socketError`) → sealed `ChatSocketEvent` via `_fan` (per-room + global); `emitTyping/StopTyping`; own-typing echo suppressed; `disconnect` closes all controllers; `ref.onDispose` hook in provider. |
@@ -37,7 +37,7 @@
 | M6.10 — Error + reconnect UX | ✅ (2026-06-15) | Socket source: `_emitSocketError()` coalesces `SocketErrored` to ≤1 per 30s during reconnect storms; gate reopens on next successful `onConnect`. Thread notifier consumes `SocketErrored` → `errorMessage = "Connection lost. Reconnecting…"` → existing M3 snackbar wire surfaces banner. Auto-reconnect retains 2–15s backoff from M6.04. **Room rejoin patch**: `_activeRoomIds` set tracks current joins; `onConnect` replays `joinRoom` for every id (socket.io v4 does not auto-rejoin rooms). Offline send-queue / tap-to-retry deferred (out of M6 scope per §8). |
 | M6.11 — Flag flip + dummy retention | ✅ (2026-06-15) | `useDummyMessagesProvider` default flipped `true → false`. Production traffic now hits real REST + socket.io via `chatSocketLifecycleProvider` (post-login). Dummy source + fixtures retained — widget tests override `messagesRepositoryProvider` wholesale (not the dummy flag), so they remain untouched. Analyze + messages tests + goldens green; 2 pre-existing unrelated `shoots_repository_impl_test.dart` failures persist. |
 | M6.12 — Integration tests | ✅ (2026-06-15) | 23 new tests across 3 files. **Remote source** (12): `listConversations` payload mapping + `search` param + `ServerException` on 500; `fetchThread` reverses to chronological asc; `sendText` body `{message,replyTo}`; `editMessage` body `{content,roomId}` (key divergence); `deleteMessage` body `{roomId}`; `markRead` PATCH no body; `fetchDetails` map; `UnauthorizedException` on missing session; `sendAudio`/`sendAttachment` UnimplementedError. **Thread notifier** (7): `MessageEdited`/`MessageDeleted` patch state; `MessageReceived` dedupe vs append; markRead skip on own echo; typing flips; `SocketErrored` banner; cross-room filter. **List notifier** (4): initial fetch; `RoomPreviewUpdated` throttled refetch; burst coalescing; non-list events ignored. Socket source omitted (no easy `io.Socket` test double; covered by smoke). Analyze clean. |
-| M6.13 — Analyze + smoke | ✅ (2026-06-15) | Static: `flutter analyze` clean; full `flutter test` = 512 pass / 2 fail (both pre-existing in `shoots_repository_impl_test.dart`, unrelated to M6 — `crew_accept` vs `status` body-key drift). Manual smoke runbook documented in §12 below; user-driven on dev backend (`wss://api.dev.beige.app/socket.io/?EIO=4&transport=websocket`). |
+| M6.13 — Analyze + smoke | ✅ (2026-06-15; socket host corrected 2026-06-16) | Static: `flutter analyze` clean; full `flutter test` = 512 pass / 2 fail (both pre-existing in `shoots_repository_impl_test.dart`, unrelated to M6 — `crew_accept` vs `status` body-key drift). Manual smoke runbook documented in §12 below; dev backend socket host now verified as `wss://api2.dev.beige.app/socket.io/?EIO=4&transport=websocket`. |
 
 ---
 
@@ -55,15 +55,16 @@ Existing `Env` (`lib/config/env.dart`) hardcodes URLs per `Environment` in `init
 
 Added to `lib/config/env.dart`:
 - `static late String socketUrl;`
-- `Environment.dev`  → `https://api.dev.beige.app` *(confirmed by backend 2026-06-15)*
+- `Environment.dev`  → `https://api2.dev.beige.app` *(verified live 2026-06-16; sibling `biegeapp` uses same host)*
 - `Environment.prod` → `https://api.prod.beige.app` *(TODO — provisional, mirrors dev pattern; backend to confirm)*
+- `CHAT_SOCKET_URL` dart-define can override either value for backend smoke tests.
 
 #### Confirmed dev backend socket URL
 
 Full handshake URL provided by backend:
 
 ```
-wss://api.dev.beige.app/socket.io/?EIO=4&transport=websocket
+wss://api2.dev.beige.app/socket.io/?EIO=4&transport=websocket
 ```
 
 - Scheme `wss://` → encrypted WebSocket transport
@@ -71,7 +72,12 @@ wss://api.dev.beige.app/socket.io/?EIO=4&transport=websocket
 - Query `EIO=4` → Engine.IO protocol v4 (matches backend `socket.io` v4.7.5)
 - Query `transport=websocket` → skips polling upgrade
 
-`socket_io_client` accepts the bare host (`https://api.dev.beige.app`); it appends `/socket.io/?EIO=4&transport=…` automatically when `OptionBuilder().setTransports(['websocket'])` is used. **Do not** put the `/socket.io/?EIO=4…` suffix in `socketUrl` — it would be duplicated.
+`socket_io_client` accepts the bare host (`https://api2.dev.beige.app`); mobile sets `.setPath('/socket.io')` and `.setTransports(['websocket'])`, so do not put the `/socket.io/?EIO=4…` suffix in `socketUrl`.
+
+2026-06-16 probe results:
+- `https://api.dev.beige.app/socket.io/?EIO=4&transport=websocket` → HTTP 404 `Route not found`.
+- `https://api2.dev.beige.app/socket.io/?EIO=4&transport=polling` → Engine.IO 200 open packet.
+- `https://api2.dev.beige.app/socket.io/?EIO=4&transport=websocket` with upgrade headers → HTTP 101 Switching Protocols.
 
 Q7 resolved → strike from §11 open questions.
 
@@ -490,7 +496,7 @@ In `ChatThreadScreen`:
 4. **Read-receipt event** — does backend emit anything, or is "delivered" the terminal status?
 5. **Presence events** — does backend emit user-online/offline, or is `is_online` only on room payload?
 6. **Tab taxonomy** — how does `room_type` map to `all|shoots|admin`?
-7. ~~**Socket URL** — same origin as REST, or dedicated?~~ **RESOLVED 2026-06-15** — dedicated host: dev = `wss://api.dev.beige.app/socket.io/?EIO=4&transport=websocket`. Prod still TBD.
+7. ~~**Socket URL** — same origin as REST, or dedicated?~~ **RESOLVED 2026-06-15, corrected 2026-06-16** — dedicated host: dev = `wss://api2.dev.beige.app/socket.io/?EIO=4&transport=websocket`. Prod still TBD.
 8. **Auth handshake on socket** — `Authorization` header sufficient, or also `auth: { token }` in `io()` options?
 9. **DELETE-with-body** for participant removal — confirm Dio passes body (flagged in REST ref §11).
 10. **`leaveRoom` socket event** — does backend handle it, or does disconnect suffice?
@@ -554,7 +560,7 @@ Watch console for `[MessagesSocketSource]` debug lines (printed on disconnect).
 
 | # | Action | Expected | What it verifies |
 |---|---|---|---|
-| 1 | Cold start, log in | Console: socket opens against `api.dev.beige.app`; `joinNotificationRoom` emit visible in backend logs | `chatSocketLifecycleProvider`, auth handshake |
+| 1 | Cold start, log in | Console: socket opens against `api2.dev.beige.app`; `joinNotificationRoom` emit visible in backend logs | `chatSocketLifecycleProvider`, auth handshake |
 | 2 | Open Messages tab | List renders from `/external-chat/rooms` REST; no tab bar visible | `listConversations`, tab removal |
 | 3 | Tap a conversation | Thread loads from `/external-chat/messages/:roomId`; rendered chronological asc | `fetchThread`, reverse mapping |
 | 4 | Type "hello" in composer (don't send) | Other party sees "typing…" within ~1s | `userTyping` emit, typing state machine |

@@ -7,6 +7,9 @@ class Env {
   static late String socketUrl;
 
   static const String googleMapsKey = String.fromEnvironment('GOOGLE_MAPS_KEY');
+  static const String chatSocketUrlOverride = String.fromEnvironment(
+    'CHAT_SOCKET_URL',
+  );
 
   static void init(Environment environment) {
     current = environment;
@@ -14,16 +17,18 @@ class Env {
       case Environment.dev:
         apiUrl = 'https://mobile.beige.app/api/';
         imageUrl = 'https://d1pgtgqp0jru64.cloudfront.net/';
-        // socket.io v4 handshake URL — `socket_io_client` appends
-        // `/socket.io/?EIO=4&transport=…` itself, so only host root here.
-        // Full backend URL: wss://api.dev.beige.app/socket.io/?EIO=4&transport=websocket
-        socketUrl = 'https://api.dev.beige.app';
+        // socket.io v4 host. Keep the path/query out of this value; the
+        // client sets `/socket.io` + `transport=websocket`.
+        socketUrl = chatSocketUrlOverride.isNotEmpty
+            ? chatSocketUrlOverride
+            : 'https://api2.dev.beige.app';
       case Environment.prod:
         apiUrl = 'https://mobile.prod.beige.app/api/';
         imageUrl = 'https://d2jhn32fsulyac.cloudfront.net/';
-        // TODO(M6): prod socket URL — backend to confirm. Placeholder
-        // mirrors dev pattern (`api.<env>.beige.app`).
-        socketUrl = 'https://api.prod.beige.app';
+        // TODO(M6): prod socket URL — backend to confirm.
+        socketUrl = chatSocketUrlOverride.isNotEmpty
+            ? chatSocketUrlOverride
+            : 'https://api.prod.beige.app';
     }
   }
 }

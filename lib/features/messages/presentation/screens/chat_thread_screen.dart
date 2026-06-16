@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/durations.dart';
 import '../../../../app/routes.dart';
+import '../../../../config/env.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../domain/entities/message.dart';
+import '../../domain/entities/participant.dart';
 import '../providers/chat_thread_providers.dart';
 import '../routes/messages_args.dart';
 import 'widgets/attach_action_sheet.dart';
@@ -111,9 +113,14 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
       body: Column(
         children: [
           ChatAppBar(
-            contactName: widget.contactName ?? 'Chat',
+            // Title matches the list tile (`conversation.title` / room name).
+            // Don't override with `state.peerName` — chat details may resolve
+            // a different display name and that would diverge from the list.
+            contactName: widget.contactName ?? state.peerName ?? 'Chat',
+            avatarUrl: state.peerAvatarUrl,
             isOnline: state.peerOnline,
             isTyping: state.peerTyping,
+            peerRole: state.peerRole,
             onOpenDetails: _openDetails,
           ),
           Expanded(
@@ -188,7 +195,15 @@ class _ThreadBody extends StatelessWidget {
           prev == null ||
           prev.senderId != m.senderId ||
           m.sentAt.difference(prev.sentAt).inMinutes > 5;
-      items.add(_Item.msg(m, showSenderHeader: showSenderHeader));
+      items.add(_Item.msg(
+        m,
+        showSenderHeader: showSenderHeader,
+        currentUserId: state.currentUserId,
+        participant: state.participantsById[m.senderId],
+        peerName: state.peerName,
+        peerRole: state.peerRole,
+        peerAvatarUrl: state.peerAvatarUrl,
+      ));
     }
     return ListView.builder(
       controller: scrollController,
@@ -200,18 +215,59 @@ class _ThreadBody extends StatelessWidget {
 }
 
 class _Item {
-  _Item.day(this.day) : message = null, showSenderHeader = false;
-  _Item.msg(this.message, {required this.showSenderHeader}) : day = null;
+  _Item.day(this.day)
+      : message = null,
+        showSenderHeader = false,
+        currentUserId = null,
+        participant = null,
+        peerName = null,
+        peerRole = null,
+        peerAvatarUrl = null;
+  _Item.msg(
+    this.message, {
+    required this.showSenderHeader,
+    required this.currentUserId,
+    this.participant,
+    this.peerName,
+    this.peerRole,
+    this.peerAvatarUrl,
+  }) : day = null;
 
   final DateTime? day;
   final Message? message;
   final bool showSenderHeader;
+  final String? currentUserId;
+  /// Resolved by id match (`message.senderId` == `participant.id`) from the
+  /// chat-details `participants.items` list. Null = unknown sender → fall
+  /// back to peer/room-level identity.
+  final Participant? participant;
+  final String? peerName;
+  final String? peerRole;
+  final String? peerAvatarUrl;
+
+  String? _absoluteAvatar(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    if (raw.startsWith('http')) return raw;
+    return '${Env.imageUrl}$raw';
+  }
 
   Widget build() {
     if (day != null) return DaySeparator(day: day!);
     final m = message!;
-    final isMine = m.senderId == 'user_me';
+    final isMine =
+        m.senderId == 'user_me' ||
+        (currentUserId != null && m.senderId == currentUserId);
     final isAudio = m.type == MessageType.file && (m.file?.isAudio ?? false);
+    final senderRole = participant?.role ?? (isMine ? null : peerRole);
+    final resolvedName = (participant?.name.isNotEmpty ?? false)
+        ? participant!.name
+        : (m.senderName.isNotEmpty
+            ? m.senderName
+            : (isMine ? 'You' : (peerName ?? '')));
+    final senderName = resolvedName;
+    final senderAvatarUrl = _absoluteAvatar(
+      participant?.avatarUrl ?? (isMine ? null : peerAvatarUrl),
+    );
     if (isAudio) {
       return _BubbleEntrance(
         key: ValueKey('message_${m.id}'),
@@ -219,6 +275,9 @@ class _Item {
           message: m,
           isMine: isMine,
           showSenderHeader: showSenderHeader,
+          senderRole: senderRole,
+          senderName: senderName,
+          senderAvatarUrl: senderAvatarUrl,
         ),
       );
     }
@@ -228,6 +287,9 @@ class _Item {
         message: m,
         isMine: isMine,
         showSenderHeader: showSenderHeader,
+        senderRole: senderRole,
+        senderName: senderName,
+        senderAvatarUrl: senderAvatarUrl,
       ),
     );
   }

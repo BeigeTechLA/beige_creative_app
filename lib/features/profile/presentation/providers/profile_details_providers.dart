@@ -9,6 +9,7 @@ import '../../../../core/firebase/analytics_events.dart';
 import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
 import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../../core/session/session_store.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/edit_profile_model.dart';
 import '../../../../model_class/myprofile_model.dart';
@@ -69,6 +70,23 @@ class ProfileDetailsViewNotifier
       final data = await ref
           .read(profileFilesRepositoryProvider)
           .fetchProfile();
+      try {
+        final session = ref.read(sessionStoreProvider);
+        final currentUser = await session.readUser();
+        final updatedUser = UserSnapshot(
+          id: data.user.id.toString(),
+          name: data.user.name,
+          email: data.user.email,
+          role: currentUser?.role ?? (data.user.primaryRole.isNotEmpty ? data.user.primaryRole : null),
+          userType: currentUser?.userType ?? data.user.userType.toString(),
+          profileImageUrl: data.user.profileImageUrl.isNotEmpty
+              ? data.user.profileImageUrl
+              : currentUser?.profileImageUrl,
+        );
+        await session.writeUser(updatedUser);
+      } catch (e) {
+        AppLogger.w('Failed to update session user snapshot: $e');
+      }
       state = state.copyWith(profile: data, isLoading: false);
     } catch (e, st) {
       AppLogger.e('Profile details fetch failed', e, st);

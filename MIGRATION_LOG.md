@@ -5,6 +5,142 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-06-16: iOS Google Maps Configuration Alignment, remote source, and location tests
+
+Aligned iOS native Google Maps API keys with local environment configuration, resolved a failing REST details endpoint unit test, and implemented unit tests for LocationService and LocationException.
+
+- **Files touched:**
+  - `ios/Flutter/GoogleMaps-dev.xcconfig` — regenerated using `pod install` to update the native dev Google Maps API key caching.
+  - `ios/Flutter/GoogleMaps-prod.xcconfig` — regenerated using `pod install` to update the native prod Google Maps API key caching.
+  - `lib/features/messages/data/dto/chat_details_dto.dart` — added root-level JSON fallbacks for ContactInfo (id, name, email, phone, avatarUrl) to support both flat and wrapped backend response schemas.
+  - `test/utility/location_exception_test.dart` — new unit tests covering `LocationException` and `LocationStatus` enum formatting.
+  - `test/utility/location_service_test.dart` — new unit tests verifying reverse geocoding placemark parsing and geolocator location retrieval under all permission states.
+
+- **Decisions:**
+  - **Flat + Wrapped REST fallbacks in DTO**: Supported both structures in `ChatDetailsDto.fromRestJson` to maintain robust compatibility with both client-side test fixtures and varied backend response formats.
+  - **Geolocator Platform Mocking**: Mocked Geolocator and Geocoding by setting custom instances on `GeolocatorPlatform` and `GeocodingPlatform` using `MockPlatformInterfaceMixin` to bypass platform-interface checks hermetically.
+
+- **Verification:**
+  - `flutter analyze` — zero issues.
+  - `flutter test` — all 528 tests passed successfully, including the new location service and updated messages remote source tests.
+
+---
+
+### 2026-06-16: Fix stuck retry, unauthorized logout, and bubble headers
+
+Implemented session self-healing (automatic logout on `UnauthorizedException`) to fix stuck retry bugs, and styled message/audio bubbles with sender name and role badge inside the bubble.
+
+- **Files touched:**
+  - `lib/features/messages/presentation/providers/conversation_list_providers.dart` — caught `UnauthorizedException` in `ConversationListNotifier.refresh()` and called `logout()`.
+  - `lib/features/messages/presentation/providers/chat_thread_providers.dart` — caught `UnauthorizedException` in `ChatThreadNotifier` operations (`_hydrate`, `sendText`, `finishRecording`, `markRead`) to trigger `logout()`; added `senderRoles` map to state and populated it.
+  - `lib/features/messages/presentation/providers/chat_details_providers.dart` — caught `UnauthorizedException` in `chatDetailsProvider` to trigger `logout()`.
+  - `lib/features/messages/presentation/screens/chat_thread_screen.dart` — passed `senderRole` from thread state `senderRoles` to message and audio bubbles.
+  - `lib/features/messages/presentation/screens/widgets/message_bubble.dart` — refactored bubble to display capitalized sender name and a title-cased `_RoleBadge` pill inside the bubble container.
+  - `lib/features/messages/presentation/screens/widgets/audio_bubble.dart` — wrapped internal row in a column and displayed name and `_RoleBadge` pill inside the audio bubble container.
+  - `test/features/messages/presentation/providers/conversation_list_notifier_test.dart` — added unit test verifying that `UnauthorizedException` triggers session logout.
+  - `test/golden/goldens/messages_bubbles_dark.png` — updated golden screenshot to reflect the new bubble layouts.
+
+- **Decisions:**
+  - **Inside-bubble headers**: Renders sender name and role badge in the same bubble colors using a soft opacity border/background to fit seamlessly into the design.
+  - **Self-healing logout**: When encountering `UnauthorizedException` (e.g. from session expiration or backend token invalidation), automatically sign the user out via `authStateProvider.notifier.logout()`, immediately bringing them back to the login screen and breaking infinite retry/reload loops.
+
+- **Verification:**
+  - `flutter test test/features/messages` — 27 / 27 passing.
+  - `flutter test test/golden/messages_test.dart` — All golden tests passed.
+  - `flutter analyze` — clean.
+
+---
+
+### 2026-06-16: Fix Messages socket dev host 404
+
+Fixed the Socket.IO connect error:
+`WebSocketException ... api.dev.beige.app:0/socket.io ... HTTP status code: 404`.
+
+- **Findings:**
+  - `socket_io_client` 2.0.3+1 derives `Uri.port` as `0` when no explicit port
+    is supplied, explaining the `:0` in the debug URL.
+  - Live unauthenticated probes showed `api.dev.beige.app/socket.io` is not
+    mounted: both polling and WebSocket upgrade returned Express 404
+    `Route not found`.
+  - Sibling app `biegeapp` uses `https://api2.dev.beige.app`; live probes
+    verified `api2.dev.beige.app/socket.io` returns an Engine.IO open packet
+    and WebSocket upgrade returns HTTP 101.
+
+- **Files touched:**
+  - `lib/config/env.dart` — dev `socketUrl` default corrected to
+    `https://api2.dev.beige.app`; added `CHAT_SOCKET_URL` dart-define override.
+  - `lib/features/messages/data/sources/messages_socket_source.dart` — set
+    explicit `/socket.io` path and WebSocket-only transport.
+  - `env/dev.example.json`, `env/prod.example.json` — documented
+    `CHAT_SOCKET_URL`.
+  - `docs/feature/MESSAGES_M6_API_SOCKET_PLAN.md`, `docs/AI_HANDOFF.md` —
+    recorded the corrected host and probe results.
+
+- **Verification:**
+  - `curl https://api.dev.beige.app/socket.io/?EIO=4&transport=websocket` with
+    upgrade headers — HTTP 404.
+  - `curl https://api2.dev.beige.app/socket.io/?EIO=4&transport=polling` —
+    HTTP 200 Engine.IO open packet.
+  - `curl https://api2.dev.beige.app/socket.io/?EIO=4&transport=websocket` with
+    upgrade headers — HTTP 101 Switching Protocols.
+  - `flutter test test/features/messages` — 26 / 26 passing.
+  - `flutter analyze --fatal-infos` — clean.
+
+---
+
+### 2026-06-16: Fix Messages screen forcing logout after login
+
+Fixed the post-login Messages redirect-to-login bug. Root cause: the real
+login fixture documents `data.token + data.crew_member`, but
+`AuthRepositoryImpl` only persisted a session user when `data.user` existed.
+After login, Messages tried to derive `currentUserId` from `SessionStore`;
+missing local user was converted into `UnauthorizedException`, and the
+messages Notifiers respond to that exception by calling app logout.
+
+- **Files touched:**
+  - `lib/features/auth/data/repositories/auth_repository_impl.dart` — parses
+    `crew_member` as a fallback `UserSnapshot`, including first/last name.
+  - `lib/features/messages/data/sources/messages_remote_source.dart` — missing
+    local user snapshot now falls back to `''` for DTO-only ownership/read
+    derivation instead of manufacturing `UnauthorizedException`.
+  - `test/features/auth/data/repositories/auth_repository_impl_test.dart` —
+    pinned `crew_member` login parsing.
+  - `test/features/messages/data/sources/messages_remote_source_test.dart` —
+    pinned that missing local user still lets REST conversations load.
+
+- **Decisions:**
+  - Real backend 401s still map to `UnauthorizedException` through Dio and can
+    trigger the existing app logout path. Only the local "no cached user
+    snapshot" case stopped being treated as auth failure.
+  - Kept the messages debug payload prints already present in the worktree;
+    this fix did not remove or broaden them.
+
+- **Verification:**
+  - `flutter test test/features/auth/data/repositories/auth_repository_impl_test.dart test/features/messages/data/sources/messages_remote_source_test.dart` — all tests passed.
+  - `flutter analyze --fatal-infos` — clean.
+  - `flutter test test/features/messages` — 26 / 26 passing.
+
+---
+
+### 2026-06-16: Fix socket event messages not reflecting in UI
+
+Fixed socket connection failures by removing handshake suffixes from the configured socket URLs in `Env`, and resolved rendering/alignment bugs in the message bubble UI.
+
+- **Files touched:**
+  - `lib/config/env.dart` — removed the duplicated `/socket.io/?...` suffix from `socketUrl` for both dev and prod environments.
+  - `lib/features/messages/presentation/providers/chat_thread_providers.dart` — added `currentUserId` to state, populated it during hydration with defensive testing fallback, and solved REST vs socket receipt race conditions.
+  - `lib/features/messages/presentation/screens/chat_thread_screen.dart` — updated `isMine` check to compare sender ID with `currentUserId`.
+  - `lib/features/messages/data/sources/messages_remote_source.dart` — threw `UnauthorizedException` when user is null in `_currentUserId()`.
+  - `test/features/messages/data/sources/messages_remote_source_test.dart` — aligned mock response fields with modern `ConversationDto` backend contracts.
+
+- **Decisions:**
+  - **Let socket_io_client build the path.** Removed suffix from `socketUrl` so the client can construct the connection correctly.
+  - **Defensive fallback in _hydrate.** Wrapped the sessionStore read in a try-catch to keep widget tests running safely where `sessionStoreProvider` is not overridden.
+  - **Dynamic deduplication.** Solved the race condition where socket echos arrive before REST call completes by checking if the returned ID exists and removing the local placeholder rather than appending.
+
+- **Verification:**
+  - `flutter test test/features/messages` — all 26 tests passed.
+
 ---
 
 ### 2026-06-15: ShootsScreen accept/decline button color tokens

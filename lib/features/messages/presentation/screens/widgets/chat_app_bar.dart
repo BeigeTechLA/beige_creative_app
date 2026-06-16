@@ -4,6 +4,7 @@ import '../../../../../app/colors.dart';
 import '../../../../../app/spacing.dart';
 import '../../../../../app/text_styles.dart';
 import '../../../../../shared/widgets/app_avatar.dart';
+import '../../../domain/role_label.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ChatAppBar({
@@ -12,6 +13,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.avatarUrl,
     this.isOnline = false,
     this.isTyping = false,
+    this.peerRole,
     this.onBack,
     this.onVideoCall,
     this.onOpenDetails,
@@ -21,6 +23,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? avatarUrl;
   final bool isOnline;
   final bool isTyping;
+  final String? peerRole;
   final VoidCallback? onBack;
   final VoidCallback? onVideoCall;
   final VoidCallback? onOpenDetails;
@@ -60,13 +63,24 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    contactName,
-                    style: AppTextStyles.headingOutfitLg.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          contactName,
+                          style: AppTextStyles.headingOutfitLg.copyWith(
+                            color: AppColors.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (peerRole != null && peerRole!.isNotEmpty) ...[
+                        const SizedBox(width: AppSpacing.xs),
+                        _RoleBadge(role: peerRole!, fgColor: AppColors.primary),
+                      ],
+                    ],
                   ),
                   Text(
                     subtitle,
@@ -93,6 +107,35 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               icon: const Icon(Icons.more_vert, color: AppColors.textPrimary),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RoleBadge extends StatelessWidget {
+  const _RoleBadge({required this.role, required this.fgColor});
+
+  final String role;
+  final Color fgColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final formatted = roleLabel(role);
+    if (formatted.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: fgColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: fgColor.withValues(alpha: 0.3), width: 1),
+      ),
+      child: Text(
+        formatted,
+        style: AppTextStyles.body10.copyWith(
+          color: fgColor.withValues(alpha: 0.8),
+          fontWeight: FontWeight.w500,
         ),
       ),
     );

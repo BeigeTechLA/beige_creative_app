@@ -1,6 +1,6 @@
 # Phase 6 — Testing & CI gating
 
-**Overall status:** 🟡 In Progress · 12 / 15 tasks done · **Est:** 18.5 effort-days
+**Overall status:** 🟡 In Progress · 13 / 15 tasks done · **Est:** 18.5 effort-days
 
 | Field | Value |
 |---|---|
@@ -30,7 +30,7 @@
 | [6.12](task_12_integration_signup.md) | Integration test — signup1 → 2 → 3 | 🟢 | 2 | 1d |
 | [6.13](task_13_ci_coverage_gate.md) | CI coverage gating (lcov, 70% gate, emulator job) | 🟡 | 2 | 1d |
 | [6.14](task_14_models_utils_tests.md) | Unit tests — models + utils + validators + extensions | 🔴 | 4–8 | 1d |
-| [6.15](task_15_location_map_consolidation.md) | Location service + Google Maps consolidation (iOS key fix, key rotation, style dedup, typed exceptions) | 🔴 | 9–12 | 1.5d |
+| [6.15](task_15_location_map_consolidation.md) | Location service + Google Maps consolidation (iOS key fix, key rotation, style dedup, typed exceptions) | 🟢 | 9–12 | 1.5d |
 
 ---
 
