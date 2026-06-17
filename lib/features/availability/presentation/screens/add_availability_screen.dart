@@ -11,6 +11,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
+import '../../../../shared/util/picker_theme.dart';
 import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../providers/availability_providers.dart';
@@ -91,30 +92,7 @@ class _AddAvailabilityScreenState
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
-      builder: (ctx, child) => Theme(
-        data: ThemeData.dark().copyWith(
-          dialogTheme: const DialogThemeData(
-            backgroundColor: AppColors.surfaceGradientDark,
-          ),
-          colorScheme: const ColorScheme.dark(
-            primary: AppColors.goldSand,
-            onPrimary: AppColors.white,
-            surface: AppColors.surfaceStats,
-            onSurface: AppColors.white,
-          ),
-          timePickerTheme: const TimePickerThemeData(
-            backgroundColor: AppColors.surfaceGradientDark,
-            dialBackgroundColor: AppColors.surfaceGradientDark,
-            dialHandColor: AppColors.white,
-            dialTextColor: AppColors.neutralGrey,
-            hourMinuteColor: AppColors.goldSand,
-            hourMinuteTextColor: AppColors.black,
-            dayPeriodColor: AppColors.goldSand,
-            dayPeriodTextColor: AppColors.white,
-          ),
-        ),
-        child: child!,
-      ),
+      builder: appTimePickerTheme,
     );
     if (picked != null) {
       controller.text = DateTimeUtils.formatTimeOfDay12Hour(picked);

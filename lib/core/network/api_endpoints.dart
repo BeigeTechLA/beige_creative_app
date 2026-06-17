@@ -56,6 +56,10 @@ class ApiEndpoints {
 
   // ───── Meetings (MT8) ────────────────────────────────────────────────────
   static const String meetings = 'external-meetings';
+  /// Per-user list endpoint. Caller supplies the auth'd user's id.
+  /// Example: `external-meetings/user/626?limit=100&page=1&sortBy=...`.
+  static String meetingsByUser(String userId) =>
+      'external-meetings/user/$userId';
   static String meetingById(String id) => 'external-meetings/$id';
   static String meetingParticipants(String id) =>
       'external-meetings/$id/participants';

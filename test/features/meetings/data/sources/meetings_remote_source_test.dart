@@ -74,10 +74,10 @@ void main() {
   });
 
   group('list', () {
-    test('GET external-meetings — envelope maps to MeetingsPage', () async {
+    test('GET external-meetings/user/:id — envelope maps to MeetingsPage', () async {
       when(
         () => dio.get<dynamic>(
-          ApiEndpoints.meetings,
+          ApiEndpoints.meetingsByUser('248'),
           queryParameters: any(named: 'queryParameters'),
         ),
       ).thenAnswer(
@@ -111,7 +111,7 @@ void main() {
       final captured =
           verify(
                 () => dio.get<dynamic>(
-                  ApiEndpoints.meetings,
+                  ApiEndpoints.meetingsByUser('248'),
                   queryParameters: captureAny(named: 'queryParameters'),
                 ),
               ).captured.single
@@ -130,6 +130,18 @@ void main() {
       ).thenThrow(_serverError(statusCode: 500));
 
       expect(() => source.list(), throwsA(isA<ServerException>()));
+    });
+
+    test('missing session userId throws UnauthorizedException', () async {
+      when(session.readUser).thenAnswer((_) async => null);
+
+      expect(() => source.list(), throwsA(isA<UnauthorizedException>()));
+      verifyNever(
+        () => dio.get<dynamic>(
+          any(),
+          queryParameters: any(named: 'queryParameters'),
+        ),
+      );
     });
   });
 

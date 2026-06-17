@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/util/picker_theme.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../providers/create_meeting_notifier.dart';
 import '../providers/create_meeting_state.dart';
@@ -619,22 +620,8 @@ String _formatTime(TimeOfDayValue t) {
   return '$h:$mm $ampm';
 }
 
-Widget _datePickerTheme(BuildContext ctx, Widget? child) {
-  return Theme(
-    data: ThemeData.dark(useMaterial3: true).copyWith(
-      dialogTheme: const DialogThemeData(
-        backgroundColor: AppColors.surfaceGradientDark,
-      ),
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        onPrimary: AppColors.onPrimary,
-        surface: AppColors.surfaceGradientDark,
-        onSurface: AppColors.white,
-      ),
-    ),
-    child: child ?? const SizedBox.shrink(),
-  );
-}
+Widget _datePickerTheme(BuildContext ctx, Widget? child) =>
+    appDatePickerTheme(ctx, child);
 
 Widget _timePickerTheme(BuildContext ctx, Widget? child) =>
-    _datePickerTheme(ctx, child);
+    appTimePickerTheme(ctx, child);

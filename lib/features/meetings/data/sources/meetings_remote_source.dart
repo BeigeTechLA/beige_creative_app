@@ -51,8 +51,15 @@ class MeetingsRemoteSource {
     String sortBy = 'meeting_date_time:desc',
   }) {
     return _guard(() async {
+      final user = await _session.readUser();
+      final userId = user?.id ?? '';
+      if (userId.isEmpty) {
+        throw const UnauthorizedException(
+          message: 'Cannot list meetings without an authenticated user',
+        );
+      }
       final resp = await _dio.get<dynamic>(
-        ApiEndpoints.meetings,
+        ApiEndpoints.meetingsByUser(userId),
         queryParameters: {
           'page': page,
           'limit': limit,
