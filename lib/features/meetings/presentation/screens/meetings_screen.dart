@@ -9,9 +9,9 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
-import '../../domain/models/meeting_status.dart';
 import '../providers/meetings_list_notifier.dart';
 import '../providers/meetings_list_state.dart';
+import '../util/launch_meeting_link.dart';
 import '../widgets/meeting_card.dart';
 import '../widgets/meeting_details_sheet.dart';
 import '../widgets/meeting_filter_sheet.dart';
@@ -29,9 +29,7 @@ class MeetingsScreen extends ConsumerWidget {
   }
 
   void _onJoin(BuildContext context, String link) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Join link: $link')),
-    );
+    launchMeetingLink(context, link);
   }
 
   void _onCardTap(BuildContext context, String meetingId) {
@@ -178,19 +176,13 @@ class _ListBody extends StatelessWidget {
       );
     }
     if (state.items.isEmpty) {
-      final tabLabel = state.tab == MeetingStatus.completed
-          ? 'No completed meetings yet.'
-          : 'No upcoming meetings yet.';
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        children: [
-          const SizedBox(height: 60),
+        children: const [
+          SizedBox(height: 60),
           AppEmptyState(
             icon: Icons.event_outlined,
-            title: 'Nothing here',
-            description: state.isFiltered
-                ? 'No meetings match the current filter.'
-                : tabLabel,
+            title: 'No meetings data found',
           ),
         ],
       );

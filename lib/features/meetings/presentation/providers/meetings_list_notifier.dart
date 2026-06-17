@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/providers/auth_state_provider.dart';
 import '../../domain/models/meeting_filter.dart';
 import '../../domain/models/meeting_status.dart';
 import '../../domain/repositories/meetings_repository.dart';
@@ -30,9 +34,17 @@ class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
     } catch (e) {
       state = state.copyWith(
         status: MeetingsListStatus.error,
-        error: e.toString(),
+        error: _messageFor(e),
       );
+      if (e is UnauthorizedException) {
+        unawaited(ref.read(authStateProvider.notifier).logout());
+      }
     }
+  }
+
+  String _messageFor(Object e) {
+    if (e is AppException) return e.message;
+    return 'Failed to load meetings';
   }
 
   void selectTab(MeetingStatus tab) {

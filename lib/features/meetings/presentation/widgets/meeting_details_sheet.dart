@@ -9,6 +9,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../domain/models/meeting.dart';
 import '../providers/meeting_details_providers.dart';
+import '../util/launch_meeting_link.dart';
 import 'meeting_agenda_tile.dart';
 import 'meeting_participant_tile.dart';
 
@@ -136,9 +137,7 @@ class _DetailsBody extends StatelessWidget {
   }
 
   void _onJoin(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Join link: ${meeting.link}')),
-    );
+    launchMeetingLink(context, meeting.link);
   }
 
   @override

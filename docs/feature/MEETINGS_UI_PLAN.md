@@ -18,7 +18,7 @@
 | MT5 — Meeting Scheduled success | ✅ Complete (2026-06-09) | Lottie success + heading + subtext + 2s timer → `goNamed(meetings)`. `PopScope` redirects hardware back to list. Analyze clean. |
 | MT6 — Meeting Details bottom sheet | ✅ Complete (2026-06-09) | Family `FutureProvider`, `DraggableScrollableSheet` (0.85/0.95), summary + date/time chips + project + agenda + participants + sticky Join CTA, loading/error branches, wired from `MeetingCard` tap. Analyze clean. |
 | MT7 — Polish + tests | ✅ Complete (2026-06-09) | Motion / a11y already shipped in MT2–MT6; 5 new tests (list render, tab swap, notifier filter shrink, create-form valid/invalid). Golden skipped per plan. Analyze + meetings test suite green. |
-| MT8 — API integration | ⏳ Pending (out of UI scope) | Swap dummy repo for Dio impl. |
+| MT8 — API integration | ✅ Complete (2026-06-17) | All 13 tasks shipped. Detailed plan in [`MEETINGS_MT8_API_PLAN.md`](MEETINGS_MT8_API_PLAN.md). REST-only (no socket); 2-step create flow (POST + add-participants); client-side `tab`/`MeetingFilter`; flag flipped `useDummyMeetingsProvider → false`. +14 tests (19/19 meetings green); `flutter analyze` clean. |
 
 ---
 
@@ -145,22 +145,34 @@
 
 ## MT8 — API integration (out of UI scope)
 
+Detailed plan: [`MEETINGS_MT8_API_PLAN.md`](MEETINGS_MT8_API_PLAN.md). Summary task ledger below; full ledger lives in the plan doc.
+
 | Task | Output |
 |---|---|
-| MT8.01 Repository impl | `data/repositories/meetings_repository_impl.dart` Dio-backed; reuse `dioClientProvider`. |
-| MT8.02 DTOs + mappers | `data/dto/meeting_dto.dart` + `toDomain()` extensions. |
-| MT8.03 Flip flag | `useDummyMeetingsProvider` default → `false`; keep dummy path for tests. |
-| MT8.04 Error envelope handling | Match Phase 4 pattern — throw `Exception` on envelope-error, let notifier catch + surface via `ref.listen`. |
+| MT8.01 Env + auth header check | Verify `dioClientProvider` raw token vs `Bearer`; add `url_launcher` dep. |
+| MT8.02 Response DTOs | `meeting_dto.dart`, `meeting_user_dto.dart`, `meeting_order_dto.dart`, `meeting_participant_response_dto.dart`; reuse `pagination_envelope.dart` from messages M6. |
+| MT8.03 `MeetingsRemoteSource` impl | 6 methods (`list`, `getById`, `create`, `addParticipants`, `update`, `delete`); endpoints added to `ApiEndpoints`. |
+| MT8.04 Repository impl (composition) | `meetings_repository_impl.dart` — 2-step create (POST then optional POST `/participants`); client-side `tab` + `MeetingFilter`. |
+| MT8.05 Contract widening (additive) | `update` / `delete` / `addParticipants` added to `MeetingsRepository`; dummy stubs `UnimplementedError`. |
+| MT8.06 Enum mapping layer | `meeting_enum_mapper.dart` — server ↔ client status/category translation, open-enum-safe fallbacks. |
+| MT8.07 Platform derivation from `meetLink` | Host-match `meet.google.com` / `zoom.us` / `teams.microsoft.com`; default `meet`. |
+| MT8.08 Provider wiring | `_remoteMeetingsRepositoryProvider` arm under `useDummyMeetingsProvider` flag. |
+| MT8.09 Notifier adjustments | Surface `mapDioException` error envelope via existing `MeetingsListStatus.error` / `CreateMeetingSubmitStatus.error`. |
+| MT8.10 `url_launcher` for Join CTA | Replace MT2.02 + MT6.06 snackbar stubs w/ `launchUrl(... externalApplication)`. |
+| MT8.11 Flag flip + dummy retention | `useDummyMeetingsProvider` default → `false`; tests override provider wholesale. |
+| MT8.12 Integration tests | `http_mock_adapter` for remote source (~8 tests) + repository impl 2-step + client-filter (~4 tests). |
+| MT8.13 Analyze + smoke | `flutter analyze` clean; manual runbook in MT8 plan §15. |
 
 ---
 
 ## Decisions / open questions
 
-- **`url_launcher` dep:** confirm presence in `pubspec.yaml` before MT2.02 + MT6.06; if absent, stub Join CTA w/ snackbar and add dep in MT8.
-- **Edit icon on details sheet:** present in mock, no spec — stub for now, log follow-up.
-- **Reminder options:** 5 / 10 / 15 / 30 / 60 min — confirm w/ backend later.
+- **`url_launcher` dep:** confirm presence in `pubspec.yaml` before MT2.02 + MT6.06; if absent, stub Join CTA w/ snackbar and add dep in MT8 (MT8.10).
+- **Edit icon on details sheet:** present in mock, no spec — stub for now, log follow-up. MT8.05 lands PATCH plumbing; UI ships separately.
+- **Reminder options:** 5 / 10 / 15 / 30 / 60 min — backend `reminder_minutes` acceptance open (MT8 plan §11 Q4).
 - **Timezone display:** show device timezone abbreviation under time row for now; revisit when API ships timezone field.
 - **Localization:** hardcoded English strings, mirror current features. No `intl` keys until app-wide i18n lands.
+- **API-driven open questions** consolidated in [`MEETINGS_MT8_API_PLAN.md` §11](MEETINGS_MT8_API_PLAN.md) — filter query params, `sortBy` allowed fields, auth header format, `meeting_type` allowed set, create response code, DELETE response shape, etc.
 
 ---
 

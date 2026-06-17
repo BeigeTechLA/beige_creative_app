@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/providers/auth_state_provider.dart';
 import '../../domain/models/create_meeting_input.dart';
 import '../../domain/models/meeting_category.dart';
 import '../../domain/models/meeting_participant.dart';
@@ -78,9 +82,17 @@ class CreateMeetingNotifier extends AutoDisposeNotifier<CreateMeetingState> {
     } catch (err) {
       state = state.copyWith(
         status: CreateMeetingSubmitStatus.error,
-        error: err.toString(),
+        error: _messageFor(err),
       );
+      if (err is UnauthorizedException) {
+        unawaited(ref.read(authStateProvider.notifier).logout());
+      }
     }
+  }
+
+  String _messageFor(Object e) {
+    if (e is AppException) return e.message;
+    return 'Could not create meeting';
   }
 }
 

@@ -54,6 +54,12 @@ class ApiEndpoints {
   static const String accountDeleted = 'auth/user/delete-account/request';
   static const String account_deleted_otp = 'auth/user/delete-account/confirm';
 
+  // ───── Meetings (MT8) ────────────────────────────────────────────────────
+  static const String meetings = 'external-meetings';
+  static String meetingById(String id) => 'external-meetings/$id';
+  static String meetingParticipants(String id) =>
+      'external-meetings/$id/participants';
+
   // ───── Messages / External Chat (M6) ─────────────────────────────────────
   static const String chatRooms = 'external-chat/rooms';
   static const String chatDirectory = 'external-chat/directory';
