@@ -20,6 +20,7 @@ import '../../../../utility/location_service.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/custom_multi_selectfield.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
+import '../../../../shared/widgets/location_permission_dialog.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/profile_details_providers.dart';
 
@@ -114,8 +115,12 @@ class _EditPersonalDetailsScreenState
         currentLatLng = latLng;
         showMap = true;
       });
-    } on LocationException catch (_) {
-      // Edit profile screen: silent fail, user can search manually.
+    } on LocationException catch (e) {
+      if (!mounted) return;
+      final retry = await showLocationPermissionDialog(context, e.status);
+      if (retry && e.status == LocationStatus.denied && mounted) {
+        await loadCurrentLocation();
+      }
     }
   }
 

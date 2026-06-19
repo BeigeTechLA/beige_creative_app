@@ -230,7 +230,7 @@ Future<void> showSignup3FeaturedSheet({
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
-                    height: 48,
+                    height: 50,
                     child: Builder(
                       builder: (context) {
                         final isValid = controller.titleController.text
@@ -239,9 +239,7 @@ Future<void> showSignup3FeaturedSheet({
                             controller.tempImages.length >= 5;
                         return ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isValid
-                                ? AppColors.primary
-                                : AppColors.lavenderGrey,
+                            backgroundColor: AppColors.goldSoft,
                             shape: RoundedRectangleBorder(
                               borderRadius: AppRadii.xlAll,
                             ),

@@ -5,6 +5,26 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-06-16: Sidecar UX — Adaptive location permission dialog
+
+Replaced inconsistent location-denial UX (mixed snackbar + direct settings open in signup, silent fail in edit profile) with a single shared adaptive dialog. No phase-6 task touched.
+
+- **Files touched:**
+  - `lib/shared/widgets/location_permission_dialog.dart` — new shared widget. `showLocationPermissionDialog(BuildContext, LocationStatus)` returning `Future<bool>`. Mirrors `no_internet_dialog.dart` pattern: `showAdaptiveDialog` + `AlertDialog.adaptive` + `_adaptiveAction` helper (iOS = `CupertinoDialogAction`, Android = `TextButton`). Branches copy + settings target per `LocationStatus` (`serviceDisabled` → `openLocationSettings`, `permanentlyDenied` → `openAppSettings`, `denied` → caller retries, `unknown` → no-op).
+  - `lib/features/auth/presentation/screens/signup1_screen.dart` — `_getCurrentLocation` now calls the dialog on `LocationException`; retries once if user grants on `denied`. Dropped direct `Geolocator.openLocationSettings` / `openAppSettings` / `SnackBar` calls. Removed unused `package:geolocator/geolocator.dart` import.
+  - `lib/features/profile/presentation/screens/edit_personal_details_screen.dart` — `loadCurrentLocation` swapped silent `catch (_)` for the dialog with the same retry-on-`denied` behavior.
+
+- **Decisions:**
+  - **Dialog owns settings navigation**: callers pass the status and await the dialog; the dialog itself calls `Geolocator.openLocationSettings()` / `openAppSettings()`. Keeps screen code slim and copy/behavior consistent across screens.
+  - **Retry only on `denied`**: `serviceDisabled` and `permanentlyDenied` route to a settings surface, so retry on return is the user's choice (and a fresh navigation event). `denied` bounces back through the OS prompt — single recursive retry is bounded since the next deny escalates to `deniedForever`.
+  - **No tests this pass**: shared widget, not entry-point screen. Phase-6 widget-test guidance is screen-scoped; deferred.
+
+- **Verification:**
+  - `flutter analyze` — zero issues.
+  - Manual smoke pending (signup + edit profile on iOS/Android with location off, soft-denied, hard-denied).
+
+---
+
 ### 2026-06-16: iOS Google Maps Configuration Alignment, remote source, and location tests
 
 Aligned iOS native Google Maps API keys with local environment configuration, resolved a failing REST details endpoint unit test, and implemented unit tests for LocationService and LocationException.

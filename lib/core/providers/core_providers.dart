@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../firebase/telemetry_client.dart';
 import '../network/dio_client.dart';
+import '../network/interceptors/app_headers_interceptor.dart';
 import '../network/interceptors/auth_interceptor.dart';
 import '../network/interceptors/error_interceptor.dart';
 import '../network/interceptors/retry_interceptor.dart';
@@ -45,12 +46,15 @@ final sessionStoreProvider = Provider<SessionStore>(
 );
 
 /// Single Dio holder with interceptors attached in canonical order:
-/// `Auth → Retry → Error → Logging` (dev only). Per `MIGRATION_RULES.md` §5.4.
+/// `AppHeaders → Auth → Retry → Error → Logging` (dev only).
+/// Per `MIGRATION_RULES.md` §5.4. `AppHeaders` runs first so device / user-type
+/// stamps are present on retries and on the request copy seen by error logging.
 final dioClientProvider = Provider<DioClient>(
   (ref) {
     final session = ref.watch(sessionStoreProvider);
     final client = DioClient();
     client.attachInterceptors([
+      AppHeadersInterceptor(),
       AuthInterceptor(
         tokenReader: session.readToken,
         onUnauthorized: () async {
