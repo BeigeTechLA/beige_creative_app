@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
-import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_button.dart';
@@ -87,21 +85,6 @@ class MeetingsScreen extends ConsumerWidget {
                 onJoin: _onJoin,
                 onRetry: notifier.refresh,
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.base,
-              AppSpacing.sm,
-              AppSpacing.base,
-              AppSpacing.base,
-            ),
-            child: AppButton(
-              label: 'Create Meeting',
-              fullWidth: true,
-              icon: Icons.add,
-              onPressed: () =>
-                  context.pushNamed(Routes.meetingCreate.name),
             ),
           ),
         ],

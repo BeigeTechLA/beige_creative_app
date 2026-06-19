@@ -130,12 +130,6 @@ class _DetailsBody extends StatelessWidget {
   static final _dateFmt = DateFormat('dd MMM yyyy');
   static final _timeFmt = DateFormat('hh:mm a');
 
-  void _onEdit(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Edit meeting — coming soon')),
-    );
-  }
-
   void _onJoin(BuildContext context) {
     launchMeetingLink(context, meeting.link);
   }
@@ -155,26 +149,11 @@ class _DetailsBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          meeting.title,
-                          style: AppTextStyles.titleMedium.copyWith(
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: 'Edit meeting',
-                        onPressed: () => _onEdit(context),
-                        icon: const Icon(
-                          Icons.edit_outlined,
-                          color: AppColors.primary,
-                          size: 20,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    meeting.title,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   AppSpacing.verticalMd,
                   Wrap(
