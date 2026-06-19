@@ -22,6 +22,41 @@ String? _absoluteAvatar(String? raw) {
   return '${Env.imageUrl}$raw';
 }
 
+/// Resolves the session user against the room's participant list. Tries id
+/// match first (cheap, exact), then email (unique, stable across name edits),
+/// then case-insensitive name. Returns the participant id when found —
+/// callers replace [currentUserId] with this so message-level `isMine`
+/// resolves even when login persisted a non-canonical id (e.g.
+/// crew_member_id while messages carry user_id).
+String? _resolveSelfId({
+  required List<Participant> participants,
+  required String? currentUserId,
+  required String? email,
+  required String? name,
+}) {
+  if (participants.isEmpty) return null;
+  if (currentUserId != null && currentUserId.isNotEmpty) {
+    for (final p in participants) {
+      if (p.id == currentUserId) return p.id;
+    }
+  }
+  final normalizedEmail = email?.trim().toLowerCase();
+  if (normalizedEmail != null && normalizedEmail.isNotEmpty) {
+    for (final p in participants) {
+      if ((p.email?.trim().toLowerCase() ?? '') == normalizedEmail) {
+        return p.id;
+      }
+    }
+  }
+  final normalizedName = name?.trim().toLowerCase();
+  if (normalizedName != null && normalizedName.isNotEmpty) {
+    for (final p in participants) {
+      if (p.name.trim().toLowerCase() == normalizedName) return p.id;
+    }
+  }
+  return null;
+}
+
 @immutable
 class ChatThreadState {
   final List<Message> messages;
@@ -111,10 +146,12 @@ class ChatThreadNotifier
       final Map<String, Participant> participantsById = {};
       String? currentUserId;
       String? sessionUserName;
+      String? sessionUserEmail;
       try {
         final user = await ref.read(sessionStoreProvider).readUser();
         currentUserId = user?.id;
         sessionUserName = user?.name;
+        sessionUserEmail = user?.email;
       } catch (_) {
         // Fallback for tests where sessionStoreProvider is not overridden.
       }
@@ -128,21 +165,25 @@ class ChatThreadNotifier
         }
         // Resolve self against participants. Login may persist a
         // crew_member_id while messages carry the underlying user_id —
-        // fall back to name match so `isMine` works regardless.
-        final selfById = details.participants
-            .where((p) => currentUserId != null && p.id == currentUserId)
-            .toList();
-        if (selfById.isEmpty &&
-            sessionUserName != null &&
-            sessionUserName.trim().isNotEmpty) {
-          final selfByName = details.participants.where(
-            (p) =>
-                p.name.trim().toLowerCase() ==
-                sessionUserName!.trim().toLowerCase(),
+        // fall back to email then name match so `isMine` works regardless.
+        final resolvedSelfId = _resolveSelfId(
+          participants: details.participants,
+          currentUserId: currentUserId,
+          email: sessionUserEmail,
+          name: sessionUserName,
+        );
+        if (resolvedSelfId != null) {
+          currentUserId = resolvedSelfId;
+        }
+        if (kDebugMode) {
+          debugPrint(
+            '[thread] self-resolve conversationId=$arg '
+            'sessionId=${currentUserId ?? '∅'} '
+            'sessionEmail=${sessionUserEmail ?? '∅'} '
+            'sessionName=${sessionUserName ?? '∅'} '
+            'resolvedSelfId=${resolvedSelfId ?? '∅'} '
+            'participantIds=${details.participants.map((p) => p.id).toList()}',
           );
-          if (selfByName.isNotEmpty) {
-            currentUserId = selfByName.first.id;
-          }
         }
         // AppBar shows chat-room identity, not per-message sender.
         // Prefer the room-level contact (room display_name + avatar). Only
@@ -277,13 +318,22 @@ class ChatThreadNotifier
       final saved = await ref
           .read(messagesRepositoryProvider)
           .sendText(arg, trimmed);
+      // Backend's `sent_by` is the canonical sender id. Session may persist a
+      // different id (e.g. crew_member_id vs user_id) — adopt the saved id so
+      // `isMine` resolves correctly for this and any prior socket-echoed own
+      // messages on the next rebuild.
+      final selfId = saved.senderId.isNotEmpty
+          ? saved.senderId
+          : state.currentUserId;
       final alreadyReceived = state.messages.any((m) => m.id == saved.id);
       if (alreadyReceived) {
         state = state.copyWith(
+          currentUserId: selfId,
           messages: state.messages.where((m) => m.id != localId).toList(),
         );
       } else {
         state = state.copyWith(
+          currentUserId: selfId,
           messages: [
             for (final m in state.messages)
               if (m.id == localId) saved else m,

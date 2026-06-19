@@ -51,11 +51,14 @@ class ParticipantDto {
         user['avatarUrl'] ??
         user['avatar_url']) as String?;
 
+    final email = (json['email'] ?? user['email']) as String?;
+
     return Participant(
       id: id,
       name: name,
       role: role,
       avatarUrl: avatar,
+      email: email,
     );
   }
 }
