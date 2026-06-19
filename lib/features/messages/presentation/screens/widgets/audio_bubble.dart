@@ -19,7 +19,6 @@ class AudioBubble extends StatefulWidget {
     required this.showSenderHeader,
     this.senderRole,
     this.senderName,
-    this.senderAvatarUrl,
   });
 
   final Message message;
@@ -29,8 +28,6 @@ class AudioBubble extends StatefulWidget {
   /// Resolved from chat-details `participants.items` via id match. Falls back
   /// to `message.senderName` when null/empty.
   final String? senderName;
-  /// Resolved from `participants.items` via id match (already absolute).
-  final String? senderAvatarUrl;
 
   String get _displayName =>
       (senderName != null && senderName!.isNotEmpty)
@@ -71,7 +68,6 @@ class _AudioBubbleState extends State<AudioBubble> {
           if (!widget.isMine) ...[
             AppAvatar(
               name: widget._displayName,
-              imageUrl: widget.senderAvatarUrl,
               size: AppAvatarSize.xs,
             ),
             const SizedBox(width: AppSpacing.sm),

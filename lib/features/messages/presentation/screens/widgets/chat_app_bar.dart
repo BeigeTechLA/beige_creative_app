@@ -3,29 +3,26 @@ import 'package:flutter/material.dart';
 import '../../../../../app/colors.dart';
 import '../../../../../app/spacing.dart';
 import '../../../../../app/text_styles.dart';
-import '../../../../../shared/widgets/app_avatar.dart';
 import '../../../domain/role_label.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ChatAppBar({
     super.key,
     required this.contactName,
-    this.avatarUrl,
     this.isOnline = false,
     this.isTyping = false,
     this.peerRole,
     this.onBack,
-    this.onVideoCall,
+    this.onSearch,
     this.onOpenDetails,
   });
 
   final String contactName;
-  final String? avatarUrl;
   final bool isOnline;
   final bool isTyping;
   final String? peerRole;
   final VoidCallback? onBack;
-  final VoidCallback? onVideoCall;
+  final VoidCallback? onSearch;
   final VoidCallback? onOpenDetails;
 
   static const double _height = 64;
@@ -52,10 +49,19 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: onBack ?? () => Navigator.of(context).maybePop(),
               icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
             ),
-            AppAvatar(
-              name: contactName,
-              imageUrl: avatarUrl,
-              size: AppAvatarSize.sm,
+            Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(
+                color: AppColors.surfaceInput,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.groups_outlined,
+                size: 18,
+                color: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
@@ -94,10 +100,10 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Video call',
-              onPressed: onVideoCall,
+              tooltip: 'Search messages',
+              onPressed: onSearch,
               icon: const Icon(
-                Icons.videocam_outlined,
+                Icons.search,
                 color: AppColors.textPrimary,
               ),
             ),

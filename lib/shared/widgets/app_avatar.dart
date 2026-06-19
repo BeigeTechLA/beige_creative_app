@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../../app/colors.dart';
 import '../../app/text_styles.dart';
 
 enum AppAvatarSize { xs, sm, md, lg, xl }
@@ -92,11 +91,21 @@ class AppAvatar extends StatelessWidget {
     return Container(
       width: diameter,
       height: diameter,
-      color: AppColors.surfaceVariant,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFE8EFEC), Color(0xFFBFCBC4)],
+        ),
+      ),
       alignment: Alignment.center,
       child: Text(
         initials,
-        style: _initialsStyle.copyWith(color: AppColors.textPrimary),
+        style: _initialsStyle.copyWith(
+          color: const Color(0xFF1F1F1F),
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

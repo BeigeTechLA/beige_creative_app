@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/durations.dart';
+import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
-import '../../../../config/env.dart';
+import '../../../../app/spacing.dart';
+import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/entities/participant.dart';
@@ -35,13 +37,17 @@ class ChatThreadScreen extends ConsumerStatefulWidget {
 class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
     with WidgetsBindingObserver {
   late final TextEditingController _composerCtrl;
+  late final TextEditingController _searchCtrl;
   late final ScrollController _scrollCtrl;
   int _lastCount = 0;
+  bool _isSearching = false;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _composerCtrl = TextEditingController();
+    _searchCtrl = TextEditingController();
     _scrollCtrl = ScrollController();
     WidgetsBinding.instance.addObserver(this);
   }
@@ -50,8 +56,19 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _composerCtrl.dispose();
+    _searchCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) {
+        _searchCtrl.clear();
+        _searchQuery = '';
+      }
+    });
   }
 
   @override
@@ -117,14 +134,24 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
             // Don't override with `state.peerName` — chat details may resolve
             // a different display name and that would diverge from the list.
             contactName: widget.contactName ?? state.peerName ?? 'Chat',
-            avatarUrl: state.peerAvatarUrl,
             isOnline: state.peerOnline,
             isTyping: state.peerTyping,
             peerRole: state.peerRole,
+            onSearch: _toggleSearch,
             onOpenDetails: _openDetails,
           ),
+          if (_isSearching)
+            _SearchRow(
+              controller: _searchCtrl,
+              onChanged: (v) => setState(() => _searchQuery = v),
+              onClose: _toggleSearch,
+            ),
           Expanded(
-            child: _ThreadBody(state: state, scrollController: _scrollCtrl),
+            child: _ThreadBody(
+              state: state,
+              scrollController: _scrollCtrl,
+              searchQuery: _searchQuery,
+            ),
           ),
           ChatComposer(
             controller: _composerCtrl,
@@ -152,10 +179,15 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
 }
 
 class _ThreadBody extends StatelessWidget {
-  const _ThreadBody({required this.state, required this.scrollController});
+  const _ThreadBody({
+    required this.state,
+    required this.scrollController,
+    this.searchQuery = '',
+  });
 
   final ChatThreadState state;
   final ScrollController scrollController;
+  final String searchQuery;
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +211,27 @@ class _ThreadBody extends StatelessWidget {
       );
     }
 
-    final sorted = [...state.messages]
+    final query = searchQuery.trim().toLowerCase();
+    final filtered = query.isEmpty
+        ? state.messages
+        : state.messages.where((m) {
+            if ((m.body ?? '').toLowerCase().contains(query)) return true;
+            final p = state.participantsById[m.senderId];
+            final name = (p?.name.isNotEmpty ?? false)
+                ? p!.name
+                : m.senderName;
+            return name.toLowerCase().contains(query);
+          }).toList();
+
+    if (filtered.isEmpty) {
+      return AppEmptyState(
+        icon: Icons.search_off,
+        title: 'No matches',
+        description: 'No messages matched "$searchQuery".',
+      );
+    }
+
+    final sorted = [...filtered]
       ..sort((a, b) => a.sentAt.compareTo(b.sentAt));
     final items = <_Item>[];
     DateTime? prevDay;
@@ -202,7 +254,6 @@ class _ThreadBody extends StatelessWidget {
         participant: state.participantsById[m.senderId],
         peerName: state.peerName,
         peerRole: state.peerRole,
-        peerAvatarUrl: state.peerAvatarUrl,
       ));
     }
     return ListView.builder(
@@ -221,8 +272,7 @@ class _Item {
         currentUserId = null,
         participant = null,
         peerName = null,
-        peerRole = null,
-        peerAvatarUrl = null;
+        peerRole = null;
   _Item.msg(
     this.message, {
     required this.showSenderHeader,
@@ -230,7 +280,6 @@ class _Item {
     this.participant,
     this.peerName,
     this.peerRole,
-    this.peerAvatarUrl,
   }) : day = null;
 
   final DateTime? day;
@@ -243,13 +292,6 @@ class _Item {
   final Participant? participant;
   final String? peerName;
   final String? peerRole;
-  final String? peerAvatarUrl;
-
-  String? _absoluteAvatar(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    if (raw.startsWith('http')) return raw;
-    return '${Env.imageUrl}$raw';
-  }
 
   Widget build() {
     if (day != null) return DaySeparator(day: day!);
@@ -265,9 +307,6 @@ class _Item {
             ? m.senderName
             : (isMine ? 'You' : (peerName ?? '')));
     final senderName = resolvedName;
-    final senderAvatarUrl = _absoluteAvatar(
-      participant?.avatarUrl ?? (isMine ? null : peerAvatarUrl),
-    );
     if (isAudio) {
       return _BubbleEntrance(
         key: ValueKey('message_${m.id}'),
@@ -277,7 +316,6 @@ class _Item {
           showSenderHeader: showSenderHeader,
           senderRole: senderRole,
           senderName: senderName,
-          senderAvatarUrl: senderAvatarUrl,
         ),
       );
     }
@@ -289,7 +327,6 @@ class _Item {
         showSenderHeader: showSenderHeader,
         senderRole: senderRole,
         senderName: senderName,
-        senderAvatarUrl: senderAvatarUrl,
       ),
     );
   }
@@ -334,6 +371,78 @@ class _BubbleEntranceState extends State<_BubbleEntrance>
     return FadeTransition(
       opacity: _opacity,
       child: SlideTransition(position: _offset, child: widget.child),
+    );
+  }
+}
+
+class _SearchRow extends StatelessWidget {
+  const _SearchRow({
+    required this.controller,
+    required this.onChanged,
+    required this.onClose,
+  });
+
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screenH,
+        AppSpacing.xs,
+        AppSpacing.screenH,
+        AppSpacing.sm,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceInput,
+          borderRadius: AppRadii.lgAll,
+          border: Border.all(color: AppColors.dividerDark),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.search,
+              color: AppColors.textTertiary,
+              size: 20,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: TextField(
+                controller: controller,
+                onChanged: onChanged,
+                autofocus: true,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.md,
+                  ),
+                  hintText: 'Search in conversation...',
+                  hintStyle: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: 'Close search',
+              onPressed: onClose,
+              icon: const Icon(
+                Icons.close,
+                color: AppColors.textTertiary,
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

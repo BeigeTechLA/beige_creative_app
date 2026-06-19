@@ -67,6 +67,25 @@ class MessagesRemoteSource {
     });
   }
 
+  /// Latest single message for room. Used by list-screen preview hydration —
+  /// backend's `/rooms` payload ships `last_message` as ID-only.
+  Future<Message?> fetchLatestMessage(String conversationId) {
+    return _guard(() async {
+      final userId = await _currentUserId();
+      final resp = await _dio.get<dynamic>(
+        ApiEndpoints.chatMessages(conversationId),
+        queryParameters: {
+          'page': 1,
+          'limit': 1,
+          'sortBy': '-createdAt',
+        },
+      );
+      final list = PaginationEnvelope.unwrapList(resp.data);
+      if (list.isEmpty) return null;
+      return MessageDto.fromRestJson(list.first, currentUserId: userId);
+    });
+  }
+
   Future<ChatThread> fetchThread(String conversationId, {String? cursor}) {
     return _guard(() async {
       final userId = await _currentUserId();

@@ -76,6 +76,9 @@ class _FakeMessagesRepository implements MessagesRepository {
   }
 
   @override
+  Future<Message?> fetchLatestMessage(String conversationId) async => null;
+
+  @override
   Stream<ChatSocketEvent> events(String conversationId) => const Stream.empty();
 
   @override

@@ -27,6 +27,11 @@ class MessagesRepositoryImpl implements MessagesRepository {
   }
 
   @override
+  Future<Message?> fetchLatestMessage(String conversationId) {
+    return remote.fetchLatestMessage(conversationId);
+  }
+
+  @override
   Stream<ChatSocketEvent> events(String conversationId) {
     return socket.events(conversationId);
   }

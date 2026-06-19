@@ -10,6 +10,10 @@ abstract class MessagesRepository {
 
   Future<ChatThread> fetchThread(String conversationId, {String? cursor});
 
+  /// Fetches the latest single message for a room. Used by the list-screen
+  /// preview hydration since backend returns only `last_message` as id.
+  Future<Message?> fetchLatestMessage(String conversationId);
+
   /// socket.io-backed per-room event stream. UI never imports `socket_io_client`.
   /// Caller must pair with [joinConversation]/[leaveConversation] for lifecycle.
   Stream<ChatSocketEvent> events(String conversationId);

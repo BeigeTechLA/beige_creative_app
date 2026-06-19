@@ -21,7 +21,6 @@ class MessageBubble extends StatelessWidget {
     required this.showSenderHeader,
     this.senderRole,
     this.senderName,
-    this.senderAvatarUrl,
   });
 
   final Message message;
@@ -31,8 +30,6 @@ class MessageBubble extends StatelessWidget {
   /// Resolved from chat-details `participants.items` via id match. Falls back
   /// to `message.senderName` when null/empty.
   final String? senderName;
-  /// Resolved from `participants.items` via id match (already absolute).
-  final String? senderAvatarUrl;
 
   String get _displayName {
     if (senderName != null && senderName!.isNotEmpty) return senderName!;
@@ -60,7 +57,6 @@ class MessageBubble extends StatelessWidget {
             if (showSenderHeader)
               AppAvatar(
                 name: _displayName,
-                imageUrl: senderAvatarUrl,
                 size: AppAvatarSize.xs,
               )
             else

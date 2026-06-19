@@ -29,6 +29,9 @@ class _DriverRepo implements MessagesRepository {
   }
 
   @override
+  Future<Message?> fetchLatestMessage(String conversationId) async => null;
+
+  @override
   Stream<ChatSocketEvent> events(String conversationId) => eventsCtrl.stream;
 
   @override

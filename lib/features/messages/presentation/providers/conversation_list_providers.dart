@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/auth_state_provider.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../domain/entities/conversation.dart';
+import '../../domain/entities/message.dart';
 import '../../domain/events/chat_socket_event.dart';
 import 'messages_repository_provider.dart';
 
@@ -94,10 +96,13 @@ class ConversationListNotifier
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final items = await ref
-          .read(messagesRepositoryProvider)
-          .listConversations(query: state.query);
+      final repo = ref.read(messagesRepositoryProvider);
+      final items = await repo.listConversations(query: state.query);
       state = state.copyWith(items: items, isLoading: false);
+      // Backend `/rooms` ships `last_message` as an id only — hydrate the
+      // preview text per room in parallel so the list shows a WhatsApp-style
+      // snippet. Failures are swallowed: the row keeps its empty preview.
+      unawaited(_hydratePreviews(items));
     } catch (e, st) {
       AppLogger.e('Conversations refresh failed', e, st);
       state = state.copyWith(
@@ -107,6 +112,65 @@ class ConversationListNotifier
       if (e is UnauthorizedException) {
         unawaited(ref.read(authStateProvider.notifier).logout());
       }
+    }
+  }
+
+  Future<void> _hydratePreviews(List<Conversation> items) async {
+    if (items.isEmpty) return;
+    final repo = ref.read(messagesRepositoryProvider);
+    String? currentUserId;
+    try {
+      final user = await ref.read(sessionStoreProvider).readUser();
+      currentUserId = user?.id;
+    } catch (_) {
+      // Tests / unauthenticated path — fromMe falls back to false.
+    }
+    final results = await Future.wait(
+      items.map((c) async {
+        try {
+          return await repo.fetchLatestMessage(c.id);
+        } catch (e, st) {
+          AppLogger.w('Latest-message hydration failed for ${c.id}: $e\n$st');
+          return null;
+        }
+      }),
+      eagerError: false,
+    );
+    final byId = <String, Message>{};
+    for (var i = 0; i < items.length; i++) {
+      final m = results[i];
+      if (m != null) byId[items[i].id] = m;
+    }
+    if (byId.isEmpty) return;
+    final patched = state.items.map((c) {
+      final m = byId[c.id];
+      if (m == null) return c;
+      final fromMe = currentUserId != null && m.senderId == currentUserId;
+      return c.copyWith(
+        lastMessage: ConversationPreview(
+          preview: _previewText(m),
+          sentAt: m.sentAt,
+          fromMe: fromMe,
+        ),
+      );
+    }).toList(growable: false);
+    state = state.copyWith(items: patched);
+  }
+
+  String _previewText(Message m) {
+    if (m.isDeleted) return 'This message was deleted';
+    switch (m.type) {
+      case MessageType.text:
+        return (m.body ?? '').trim();
+      case MessageType.image:
+        return 'Photo';
+      case MessageType.file:
+        if (m.file?.isAudio ?? false) return 'Voice message';
+        if (m.file?.isImage ?? false) return 'Photo';
+        final name = m.file?.name ?? '';
+        return name.isNotEmpty ? name : 'Attachment';
+      case MessageType.system:
+        return m.body ?? '';
     }
   }
 
