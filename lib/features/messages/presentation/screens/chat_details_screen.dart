@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -26,20 +25,17 @@ class ChatDetailsScreen extends ConsumerStatefulWidget {
 
 class _ChatDetailsScreenState extends ConsumerState<ChatDetailsScreen> {
   late final TextEditingController _searchCtrl;
-  late final TextEditingController _notesCtrl;
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _searchCtrl = TextEditingController();
-    _notesCtrl = TextEditingController();
   }
 
   @override
   void dispose() {
     _searchCtrl.dispose();
-    _notesCtrl.dispose();
     super.dispose();
   }
 
@@ -64,13 +60,9 @@ class _ChatDetailsScreenState extends ConsumerState<ChatDetailsScreen> {
           ),
         ),
         data: (details) {
-          if (_notesCtrl.text.isEmpty && details.notes.isNotEmpty) {
-            _notesCtrl.text = details.notes;
-          }
           return _Body(
             details: details,
             searchCtrl: _searchCtrl,
-            notesCtrl: _notesCtrl,
             searchQuery: _searchQuery,
             onSearchChanged: (v) => setState(() => _searchQuery = v),
             onBack: () => Navigator.of(context).maybePop(),
@@ -85,7 +77,6 @@ class _Body extends StatelessWidget {
   const _Body({
     required this.details,
     required this.searchCtrl,
-    required this.notesCtrl,
     required this.searchQuery,
     required this.onSearchChanged,
     required this.onBack,
@@ -93,7 +84,6 @@ class _Body extends StatelessWidget {
 
   final ChatDetails details;
   final TextEditingController searchCtrl;
-  final TextEditingController notesCtrl;
   final String searchQuery;
   final ValueChanged<String> onSearchChanged;
   final VoidCallback onBack;
@@ -106,7 +96,6 @@ class _Body extends StatelessWidget {
           child: DetailsHeroHeader(
             contact: details.contact,
             onBack: onBack,
-            onMenu: () {},
           ),
         ),
         SliverToBoxAdapter(
@@ -134,15 +123,6 @@ class _Body extends StatelessWidget {
         ),
         SliverToBoxAdapter(
           child: DetailsSectionCard(
-            icon: Icons.movie_outlined,
-            title: 'Linked Shoot',
-            body: details.linkedShoot == null
-                ? const _EmptyText('No shoot linked.')
-                : _LinkedShootBody(shoot: details.linkedShoot!),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: DetailsSectionCard(
             icon: Icons.folder_outlined,
             title: 'Shared Files',
             trailingCount: details.sharedFiles.length,
@@ -152,17 +132,7 @@ class _Body extends StatelessWidget {
                 : _SharedFilesBody(items: details.sharedFiles),
           ),
         ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screenH,
-              AppSpacing.md,
-              AppSpacing.screenH,
-              AppSpacing.xxl,
-            ),
-            child: _NotesCard(controller: notesCtrl),
-          ),
-        ),
+        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
       ],
     );
   }
@@ -265,58 +235,6 @@ class _ParticipantsBody extends StatelessWidget {
   }
 }
 
-class _LinkedShootBody extends StatelessWidget {
-  const _LinkedShootBody({required this.shoot});
-  final LinkedShoot shoot;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceInput,
-              borderRadius: AppRadii.mdAll,
-            ),
-            child: const Icon(
-              Icons.movie_outlined,
-              color: AppColors.primary,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  shoot.title,
-                  style: AppTextStyles.bodyMediumStrong.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xxs),
-                Text(
-                  DateFormat('dd MMM yyyy').format(shoot.date),
-                  style: AppTextStyles.body11.copyWith(
-                    color: AppColors.textTertiary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.chevron_right, color: AppColors.textTertiary),
-        ],
-      ),
-    );
-  }
-}
-
 class _SharedFilesBody extends StatelessWidget {
   const _SharedFilesBody({required this.items});
   final List<SharedFile> items;
@@ -343,55 +261,3 @@ class _EmptyText extends StatelessWidget {
   }
 }
 
-class _NotesCard extends StatelessWidget {
-  const _NotesCard({required this.controller});
-  final TextEditingController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppRadii.xlAll,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.lock_outline,
-                color: AppColors.primary,
-                size: 18,
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                'Notes',
-                style: AppTextStyles.body15Medium.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          TextField(
-            controller: controller,
-            maxLines: 4,
-            style: AppTextStyles.body14.copyWith(color: AppColors.textPrimary),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              isCollapsed: true,
-              hintText:
-                  'Add private notes about this conversation '
-                  '(visible to admins only).',
-              hintStyle: AppTextStyles.body13.copyWith(
-                color: AppColors.textTertiary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

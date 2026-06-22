@@ -12,17 +12,24 @@ import '../../domain/models/meeting_status.dart';
 /// Single meeting summary card — title, platform chip, date/time meta,
 /// timezone, and a full-width Join CTA. Tap anywhere outside the CTA opens
 /// the meeting-details bottom sheet (wired by parent).
+///
+/// Accept / Reject row renders above the Join CTA when [onAccept] and
+/// [onReject] are both provided and the meeting is not yet completed.
 class MeetingCard extends StatefulWidget {
   const MeetingCard({
     super.key,
     required this.meeting,
     required this.onTap,
     required this.onJoin,
+    this.onAccept,
+    this.onReject,
   });
 
   final Meeting meeting;
   final VoidCallback onTap;
   final VoidCallback onJoin;
+  final VoidCallback? onAccept;
+  final VoidCallback? onReject;
 
   @override
   State<MeetingCard> createState() => _MeetingCardState();
@@ -37,6 +44,11 @@ class _MeetingCardState extends State<MeetingCard> {
   String get _dateLabel => _date.format(widget.meeting.startAt);
   String get _timeLabel =>
       '${_time.format(widget.meeting.startAt)} to ${_time.format(widget.meeting.endAt)}';
+
+  bool get _showRsvp =>
+      widget.onAccept != null &&
+      widget.onReject != null &&
+      widget.meeting.status != MeetingStatus.completed;
 
   Color _getStatusBgColor(MeetingStatus status) {
     switch (status) {
@@ -281,7 +293,33 @@ class _MeetingCardState extends State<MeetingCard> {
               ),
               const SizedBox(height: 12),
 
-              // 6. Action buttons
+              // 6a. Accept / Reject row (CP invitation response).
+              if (_showRsvp) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: _RsvpButton(
+                        label: 'Accept',
+                        backgroundColor: const Color(0xFFD8FDE6),
+                        textColor: const Color(0xFF1DAA23),
+                        onTap: widget.onAccept!,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _RsvpButton(
+                        label: 'Reject',
+                        backgroundColor: const Color(0xFFEECCC9),
+                        textColor: const Color(0xFFD33732),
+                        onTap: widget.onReject!,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ],
+
+              // 6b. Action buttons
               Row(
                 children: [
                   Expanded(
@@ -338,6 +376,48 @@ class _MeetingCardState extends State<MeetingCard> {
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RsvpButton extends StatelessWidget {
+  const _RsvpButton({
+    required this.label,
+    required this.backgroundColor,
+    required this.textColor,
+    required this.onTap,
+  });
+
+  final String label;
+  final Color backgroundColor;
+  final Color textColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: AppTextStyles.buttonMedium.copyWith(
+              color: textColor,
+              fontFamily: 'Outfit',
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),

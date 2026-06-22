@@ -184,7 +184,6 @@ class _FakeMessagesRepository implements MessagesRepository {
           uploadedAt: DateTime(2026, 1, 23, 9, 25),
         ),
       ],
-      notes: 'VIP client',
     );
   }
 }

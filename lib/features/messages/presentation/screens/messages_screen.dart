@@ -60,9 +60,6 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen> {
             child: _SearchRow(
               controller: _searchCtrl,
               onChanged: notifier.updateSearch,
-              onNewChat: () {
-                // Stubbed for M1-M5. New-chat flow lands post-M6.
-              },
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -88,86 +85,50 @@ class _SearchRow extends StatelessWidget {
   const _SearchRow({
     required this.controller,
     required this.onChanged,
-    required this.onNewChat,
   });
 
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
-  final VoidCallback onNewChat;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceInput,
-              borderRadius: AppRadii.lgAll,
-              border: Border.all(color: AppColors.dividerDark),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.search,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceInput,
+        borderRadius: AppRadii.lgAll,
+        border: Border.all(color: AppColors.dividerDark),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.search,
+            color: AppColors.textTertiary,
+            size: 20,
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              onChanged: onChanged,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textPrimary,
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.md,
+                ),
+                hintText: 'Search conversation...',
+                hintStyle: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textTertiary,
-                  size: 20,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    onChanged: onChanged,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      isCollapsed: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: AppSpacing.md,
-                      ),
-                      hintText: 'Search conversation...',
-                      hintStyle: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textTertiary,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Material(
-          color: AppColors.surfaceInput,
-          shape: RoundedRectangleBorder(
-            borderRadius: AppRadii.lgAll,
-            side: const BorderSide(color: AppColors.dividerDark),
-          ),
-          child: Semantics(
-            button: true,
-            label: 'Start new conversation',
-            child: InkWell(
-              borderRadius: AppRadii.lgAll,
-              onTap: onNewChat,
-              child: const SizedBox(
-                width: 48,
-                height: 48,
-                child: Tooltip(
-                  message: 'Start new conversation',
-                  child: Icon(
-                    Icons.add,
-                    color: AppColors.textPrimary,
-                    size: 22,
-                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

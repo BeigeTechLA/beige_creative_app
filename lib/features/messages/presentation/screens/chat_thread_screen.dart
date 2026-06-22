@@ -13,7 +13,6 @@ import '../../domain/entities/message.dart';
 import '../../domain/entities/participant.dart';
 import '../providers/chat_thread_providers.dart';
 import '../routes/messages_args.dart';
-import 'widgets/attach_action_sheet.dart';
 import 'widgets/audio_bubble.dart';
 import 'widgets/chat_app_bar.dart';
 import 'widgets/chat_composer.dart';
@@ -92,14 +91,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
     });
   }
 
-  Future<void> _openAttach(BuildContext ctx) async {
-    final kind = await showAttachActionSheet(ctx);
-    if (kind == null || !mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${kind.name} attach — wired in M6')),
-    );
-  }
-
   void _openDetails() {
     context.pushNamed(
       Routes.chatDetails.name,
@@ -157,8 +148,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
             controller: _composerCtrl,
             isRecording: state.isRecording,
             onSendText: notifier.sendText,
-            onAttachPressed: () => _openAttach(context),
-            onCameraPressed: () => _openAttach(context),
             onEmojiPressed: () {
               FocusScope.of(context).unfocus();
             },

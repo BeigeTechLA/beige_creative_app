@@ -12,16 +12,15 @@ import '../../../../../app/text_styles.dart';
 /// clients (WhatsApp ≈ 3s).
 const Duration kComposerTypingIdle = Duration(seconds: 3);
 
-/// Composer row — attach, text field, emoji, camera, mic. Send button replaces
-/// the mic icon once the field is non-empty. Mic toggles a dummy record state
-/// for now; real capture wires later.
+/// Composer row — text field, emoji, mic. Send button replaces the mic icon
+/// once the field is non-empty. Mic toggles a dummy record state for now;
+/// real capture wires later. Attach + camera affordances intentionally
+/// absent — file attach is Admin-side on web per booking spec.
 class ChatComposer extends StatefulWidget {
   const ChatComposer({
     super.key,
     required this.controller,
     required this.onSendText,
-    required this.onAttachPressed,
-    required this.onCameraPressed,
     required this.onEmojiPressed,
     required this.onMicToggle,
     required this.isRecording,
@@ -31,8 +30,6 @@ class ChatComposer extends StatefulWidget {
 
   final TextEditingController controller;
   final ValueChanged<String> onSendText;
-  final VoidCallback onAttachPressed;
-  final VoidCallback onCameraPressed;
   final VoidCallback onEmojiPressed;
   final VoidCallback onMicToggle;
   final bool isRecording;
@@ -152,14 +149,7 @@ class _ChatComposerState extends State<ChatComposer> {
           ),
           child: Row(
             children: [
-              IconButton(
-                tooltip: 'Attach',
-                onPressed: widget.onAttachPressed,
-                icon: const Icon(
-                  Icons.attach_file,
-                  color: AppColors.textSecondary,
-                ),
-              ),
+              const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: TextField(
                   controller: widget.controller,
@@ -185,14 +175,6 @@ class _ChatComposerState extends State<ChatComposer> {
                 onPressed: widget.onEmojiPressed,
                 icon: const Icon(
                   Icons.emoji_emotions_outlined,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Camera',
-                onPressed: widget.onCameraPressed,
-                icon: const Icon(
-                  Icons.camera_alt_outlined,
                   color: AppColors.textSecondary,
                 ),
               ),

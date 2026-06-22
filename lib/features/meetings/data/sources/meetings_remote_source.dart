@@ -4,10 +4,8 @@ import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/session/session_store.dart';
-import '../../domain/models/create_meeting_input.dart';
 import '../../domain/models/meeting.dart';
 import '../dto/meeting_dto.dart';
-import '../mappers/meeting_enum_mapper.dart';
 
 /// One page of meetings + a cursor-style `hasMore` flag.
 ///
@@ -25,9 +23,6 @@ class MeetingsPage {
 /// All methods translate `DioException` → typed `AppException` via
 /// [ExceptionHandler.mapDioException] so the notifier layer sees the same
 /// error taxonomy as the rest of the app.
-///
-/// Two-step create flow lives in the repository impl — this source exposes
-/// `create` and `addParticipants` as discrete calls.
 class MeetingsRemoteSource {
   MeetingsRemoteSource(this._client, this._session);
 
@@ -79,37 +74,6 @@ class MeetingsRemoteSource {
   Future<Meeting> getById(String id) {
     return _guard(() async {
       final resp = await _dio.get<dynamic>(ApiEndpoints.meetingById(id));
-      return MeetingDto.fromRestJson(_unwrapItem(resp.data));
-    });
-  }
-
-  Future<Meeting> create(CreateMeetingInput input) {
-    return _guard(() async {
-      final user = await _session.readUser();
-      final body = <String, dynamic>{
-        'meeting_date_time': input.startAt.toUtc().toIso8601String(),
-        'meeting_end_time': input.endAt.toUtc().toIso8601String(),
-        'meeting_status': 'pending',
-        'meeting_type': MeetingEnumMapper.categoryToServer(input.category),
-        'meeting_title': input.title,
-        'description': input.description,
-        'meetLink': input.link,
-        'cp_ids': const <int>[],
-        'send_notification': true,
-        // Backend behavior unconfirmed (MT8 plan §11 Q4). Forward for now;
-        // if backend rejects, drop the key.
-        'reminder_minutes': input.reminderMinutes,
-      };
-      final createdById = int.tryParse(user?.id ?? '');
-      if (createdById != null) {
-        body['created_by_id'] = createdById;
-      }
-      // `participants` deliberately omitted — confirmed dead path on create
-      // (MEETINGS_API.md §3). Two-step flow handled by repository impl.
-      final resp = await _dio.post<dynamic>(
-        ApiEndpoints.meetings,
-        data: body,
-      );
       return MeetingDto.fromRestJson(_unwrapItem(resp.data));
     });
   }

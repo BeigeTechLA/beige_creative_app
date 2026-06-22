@@ -1,6 +1,5 @@
 import 'package:beige_creative_app/features/meetings/data/repositories/meetings_repository_impl.dart';
 import 'package:beige_creative_app/features/meetings/data/sources/meetings_remote_source.dart';
-import 'package:beige_creative_app/features/meetings/domain/models/create_meeting_input.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_category.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_filter.dart';
@@ -36,7 +35,6 @@ class _FakeRemote implements MeetingsRemoteSource {
   _FakeRemote({List<Meeting>? seed}) : items = List<Meeting>.from(seed ?? const []);
 
   final List<Meeting> items;
-  int createCalls = 0;
   int addParticipantsCalls = 0;
   List<String>? lastAddedUserIds;
   String? lastAddedMeetingId;
@@ -51,14 +49,6 @@ class _FakeRemote implements MeetingsRemoteSource {
   @override
   Future<Meeting> getById(String id) async =>
       items.firstWhere((m) => m.id == id);
-
-  @override
-  Future<Meeting> create(CreateMeetingInput input) async {
-    createCalls += 1;
-    final m = _m(id: 'created');
-    items.add(m);
-    return m;
-  }
 
   @override
   Future<Meeting> addParticipants(
@@ -87,20 +77,6 @@ class _FakeRemote implements MeetingsRemoteSource {
     items.removeWhere((m) => m.id == id);
   }
 }
-
-CreateMeetingInput _input({List<MeetingParticipant> participants = const []}) =>
-    CreateMeetingInput(
-      title: 'New',
-      description: 'd',
-      project: 'p',
-      startAt: DateTime(2026, 6, 11, 13),
-      endAt: DateTime(2026, 6, 11, 14),
-      platform: MeetingPlatform.meet,
-      link: 'https://meet.google.com/x',
-      reminderMinutes: 15,
-      category: MeetingCategory.commercial,
-      participants: participants,
-    );
 
 void main() {
   group('list — client-side filtering', () {
@@ -162,52 +138,6 @@ void main() {
       );
 
       expect(result.map((m) => m.id).toList(), ['c', 'a']); // asc by startAt
-    });
-  });
-
-  group('create — two-step chain', () {
-    test('input without participants → single POST only', () async {
-      final remote = _FakeRemote();
-      final repo = MeetingsRepositoryImpl(remote);
-
-      await repo.create(_input(participants: const []));
-
-      expect(remote.createCalls, 1);
-      expect(remote.addParticipantsCalls, 0);
-    });
-
-    test('input with participants → POST then addParticipants', () async {
-      final remote = _FakeRemote();
-      final repo = MeetingsRepositoryImpl(remote);
-
-      final result = await repo.create(
-        _input(
-          participants: const [
-            MeetingParticipant(id: '4', name: 'A'),
-            MeetingParticipant(id: '7', name: 'B'),
-          ],
-        ),
-      );
-
-      expect(remote.createCalls, 1);
-      expect(remote.addParticipantsCalls, 1);
-      expect(remote.lastAddedMeetingId, 'created');
-      expect(remote.lastAddedUserIds, ['4', '7']);
-      expect(result.participants.map((p) => p.id).toList(), ['4', '7']);
-    });
-
-    test('input with only empty-id participants → no add-participants call', () async {
-      final remote = _FakeRemote();
-      final repo = MeetingsRepositoryImpl(remote);
-
-      await repo.create(
-        _input(
-          participants: const [MeetingParticipant(id: '', name: 'Blank')],
-        ),
-      );
-
-      expect(remote.createCalls, 1);
-      expect(remote.addParticipantsCalls, 0);
     });
   });
 }

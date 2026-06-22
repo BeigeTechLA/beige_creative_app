@@ -1,4 +1,3 @@
-import '../../domain/models/create_meeting_input.dart';
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_filter.dart';
 import '../../domain/models/meeting_status.dart';
@@ -8,11 +7,6 @@ import '../mappers/meeting_enum_mapper.dart';
 import '../sources/meetings_remote_source.dart';
 
 /// Dio-backed implementation of [MeetingsRepository].
-///
-/// Two-step create flow is hidden from callers — the create-body `participants`
-/// field is a confirmed dead path (`MEETINGS_API.md` §3 + Q3), so the impl
-/// POSTs the meeting then POSTs `/participants` when the input has any. UI
-/// still sees one `Future<Meeting>`.
 ///
 /// Server only exposes `limit`/`page`/`sortBy` query params today
 /// (`MEETINGS_API.md` §1) — `tab` and [MeetingFilter] are applied client-side
@@ -34,20 +28,6 @@ class MeetingsRepositoryImpl implements MeetingsRepository {
 
   @override
   Future<Meeting> getById(String id) => _remote.getById(id);
-
-  @override
-  Future<Meeting> create(CreateMeetingInput input) async {
-    final created = await _remote.create(input);
-    if (input.participants.isEmpty) return created;
-    final ids = input.participants
-        .map((p) => p.id)
-        .where((id) => id.isNotEmpty)
-        .toList(growable: false);
-    if (ids.isEmpty) return created;
-    // Server response on add-participants is the full updated Meeting — no
-    // extra GET needed.
-    return _remote.addParticipants(created.id, ids);
-  }
 
   @override
   Future<Meeting> update(String id, UpdateMeetingInput patch) {

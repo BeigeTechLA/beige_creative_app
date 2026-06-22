@@ -2,8 +2,6 @@ import 'package:beige_creative_app/core/network/api_endpoints.dart';
 import 'package:beige_creative_app/core/network/exceptions/exceptions.dart';
 import 'package:beige_creative_app/core/session/session_store.dart';
 import 'package:beige_creative_app/features/meetings/data/sources/meetings_remote_source.dart';
-import 'package:beige_creative_app/features/meetings/domain/models/create_meeting_input.dart';
-import 'package:beige_creative_app/features/meetings/domain/models/meeting_category.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_platform.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_status.dart';
 import 'package:dio/dio.dart';
@@ -156,45 +154,6 @@ void main() {
       expect(m.id, '36');
       expect(m.title, 'X');
       expect(m.status, MeetingStatus.upcoming); // 'pending' → upcoming
-    });
-  });
-
-  group('create', () {
-    test('POST omits participants/duration, sends created_by_id', () async {
-      when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
-        (_) async => _ok(_meetingJson(id: '99')),
-      );
-
-      final input = CreateMeetingInput(
-        title: 'New',
-        description: 'd',
-        project: 'p',
-        startAt: DateTime.utc(2026, 6, 11, 13, 30),
-        endAt: DateTime.utc(2026, 6, 11, 14, 30),
-        platform: MeetingPlatform.meet,
-        link: 'https://meet.google.com/x',
-        reminderMinutes: 15,
-        category: MeetingCategory.commercial,
-        participants: const [],
-      );
-      final m = await source.create(input);
-
-      expect(m.id, '99');
-      final captured = verify(
-        () => dio.post<dynamic>(
-          ApiEndpoints.meetings,
-          data: captureAny(named: 'data'),
-        ),
-      ).captured.single as Map;
-      expect(captured.containsKey('participants'), isFalse);
-      expect(captured.containsKey('duration'), isFalse);
-      expect(captured['created_by_id'], 248);
-      expect(captured['meeting_title'], 'New');
-      expect(captured['meeting_status'], 'pending');
-      expect(captured['meetLink'], 'https://meet.google.com/x');
-      expect(captured['cp_ids'], <int>[]);
-      expect(captured['send_notification'], true);
-      expect(captured['reminder_minutes'], 15);
     });
   });
 

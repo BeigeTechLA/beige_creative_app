@@ -12,12 +12,10 @@ class DetailsHeroHeader extends StatelessWidget {
     super.key,
     required this.contact,
     required this.onBack,
-    required this.onMenu,
   });
 
   final ContactInfo contact;
   final VoidCallback onBack;
-  final VoidCallback onMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -57,14 +55,7 @@ class DetailsHeroHeader extends StatelessWidget {
                       ),
                     ),
                   ),
-                  IconButton(
-                    tooltip: 'More options',
-                    onPressed: onMenu,
-                    icon: const Icon(
-                      Icons.more_vert,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
+                  const SizedBox(width: 48),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),

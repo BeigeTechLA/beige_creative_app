@@ -1,4 +1,3 @@
-import '../models/create_meeting_input.dart';
 import '../models/meeting.dart';
 import '../models/meeting_filter.dart';
 import '../models/meeting_status.dart';
@@ -18,8 +17,6 @@ abstract class MeetingsRepository {
   });
 
   Future<Meeting> getById(String id);
-
-  Future<Meeting> create(CreateMeetingInput input);
 
   /// Partial update — every field on [patch] nullable, `null` = unchanged.
   /// Server recomputes `duration`; impl never sends it.
