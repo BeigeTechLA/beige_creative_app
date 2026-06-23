@@ -5,6 +5,24 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-06-23: Messages chat-details participant role labels
+
+Reused the chat thread role formatter in the chat details participants list so backend role codes render consistently everywhere messages show user roles.
+
+- **Files touched:**
+  - `lib/features/messages/presentation/screens/chat_details_screen.dart` — imports `roleLabel` and formats each participant role through the same messages-domain helper used by chat thread bubbles.
+  - `test/features/messages/presentation/screens/messages_screen_test.dart` — added a `ChatDetailsScreen` regression asserting backend `cp` renders as `Creative Partner`.
+
+- **Decisions:**
+  - **Use existing formatter, not a new mapper**: `lib/features/messages/domain/role_label.dart` remains the single display mapping for message roles (`cp`, `creative_partner`, `sales_rep`, unknown title-casing).
+  - **No phase task status change**: this is a small sidecar messages UI consistency fix, not active Phase 6 task 6.14 scope.
+
+- **Verification:**
+  - `flutter test test/features/messages/presentation/screens/messages_screen_test.dart` — all tests passed.
+  - `flutter analyze --fatal-infos` — no issues found.
+
+---
+
 ### 2026-06-16: Sidecar UX — Adaptive location permission dialog
 
 Replaced inconsistent location-denial UX (mixed snackbar + direct settings open in signup, silent fail in edit profile) with a single shared adaptive dialog. No phase-6 task touched.

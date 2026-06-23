@@ -7,6 +7,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../domain/entities/chat_details.dart';
 import '../../domain/entities/participant.dart';
+import '../../domain/role_label.dart';
 import '../providers/chat_details_providers.dart';
 import 'widgets/details_hero_header.dart';
 import 'widgets/details_section_card.dart';
@@ -55,10 +56,7 @@ class _Body extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
-          child: DetailsHeroHeader(
-            roomName: details.roomName,
-            onBack: onBack,
-          ),
+          child: DetailsHeroHeader(roomName: details.roomName, onBack: onBack),
         ),
         SliverToBoxAdapter(
           child: DetailsSectionCard(
@@ -84,41 +82,54 @@ class _ParticipantsBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final p in items)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 14,
-                  backgroundColor: AppColors.surfaceInput,
-                  child: Text(
-                    p.name.isEmpty ? '?' : p.name.characters.first,
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    p.name,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-                Text(
-                  p.role,
-                  style: AppTextStyles.body11.copyWith(
-                    color: AppColors.textTertiary,
-                  ),
-                ),
-              ],
+      children: [for (final p in items) _ParticipantRow(participant: p)],
+    );
+  }
+}
+
+class _ParticipantRow extends StatelessWidget {
+  const _ParticipantRow({required this.participant});
+
+  final Participant participant;
+
+  @override
+  Widget build(BuildContext context) {
+    final role = roleLabel(participant.role);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 14,
+            backgroundColor: AppColors.surfaceInput,
+            child: Text(
+              participant.name.isEmpty
+                  ? '?'
+                  : participant.name.characters.first,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
-      ],
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              participant.name,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+          if (role.isNotEmpty)
+            Text(
+              role,
+              style: AppTextStyles.body11.copyWith(
+                color: AppColors.textTertiary,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:beige_creative_app/features/messages/domain/entities/shared_file
 import 'package:beige_creative_app/features/messages/domain/events/chat_socket_event.dart';
 import 'package:beige_creative_app/features/messages/domain/repositories/messages_repository.dart';
 import 'package:beige_creative_app/features/messages/presentation/providers/messages_repository_provider.dart';
+import 'package:beige_creative_app/features/messages/presentation/screens/chat_details_screen.dart';
 import 'package:beige_creative_app/features/messages/presentation/screens/chat_thread_screen.dart';
 import 'package:beige_creative_app/features/messages/presentation/screens/messages_screen.dart';
 import 'package:beige_creative_app/features/messages/presentation/screens/widgets/details_section_card.dart';
@@ -173,8 +174,8 @@ class _FakeMessagesRepository implements MessagesRepository {
       roomName: 'Angela Kia',
       contact: const ContactInfo(id: 'p1', name: 'Angela Kia'),
       participants: const [
-        Participant(id: 'user_me', name: 'Me', role: 'Crew'),
-        Participant(id: 'user_angela', name: 'Angela Kia', role: 'Producer'),
+        Participant(id: 'user_me', name: 'Me', role: 'crew'),
+        Participant(id: 'user_angela', name: 'Angela Kia', role: 'cp'),
       ],
       sharedFiles: [
         SharedFile(
@@ -303,5 +304,24 @@ void main() {
           .crossFadeState,
       CrossFadeState.showFirst,
     );
+  });
+
+  testWidgets('ChatDetailsScreen formats participant role labels', (
+    tester,
+  ) async {
+    final repo = _FakeMessagesRepository();
+    await _pumpWithRepo(
+      tester,
+      const ChatDetailsScreen(conversationId: 'conv_001'),
+      repo,
+    );
+
+    expect(
+      find.textContaining('Participants', findRichText: true),
+      findsOneWidget,
+    );
+    expect(find.text('Angela Kia'), findsWidgets);
+    expect(find.text('Creative Partner'), findsOneWidget);
+    expect(find.text('cp'), findsNothing);
   });
 }
