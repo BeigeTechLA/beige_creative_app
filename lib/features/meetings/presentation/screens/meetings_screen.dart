@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 
+import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
@@ -59,9 +61,13 @@ class MeetingsScreen extends ConsumerWidget {
                 IconButton(
                   tooltip: 'Filter meetings',
                   onPressed: () => _openFilter(context, ref),
-                  icon: const Icon(
-                    Icons.tune_rounded,
-                    color: AppColors.textPrimary,
+                  icon: SvgPicture.asset(
+                    AppAssets.iconFilter,
+                    height: 20,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.textPrimary,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
                 if (state.isFiltered)

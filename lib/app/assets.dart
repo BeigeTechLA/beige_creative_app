@@ -61,6 +61,7 @@ class AppAssets {
   static const String calendar = '$_svg/calendar.svg';
   static const String myCalendar = '$_svg/my_calendar.svg';
   static const String editCircle = '$_svg/edit_circle.svg';
+  static const String iconFilter = '$_svg/icon_filter.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — Social

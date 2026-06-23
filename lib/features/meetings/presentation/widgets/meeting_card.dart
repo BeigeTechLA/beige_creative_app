@@ -153,6 +153,7 @@ class _MeetingCardState extends State<MeetingCard> {
                       style: AppTextStyles.titleSmall.copyWith(
                         color: AppColors.primary,
                         fontFamily: 'Outfit',
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
@@ -201,13 +202,14 @@ class _MeetingCardState extends State<MeetingCard> {
                   const Icon(
                     Icons.calendar_today_outlined,
                     size: 16,
-                    color: AppColors.textSecondary,
+                    color: AppColors.white,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     _dateLabel,
                     style: AppTextStyles.body14.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.white,
+                      fontSize: 12,
                       fontFamily: 'Outfit',
                     ),
                   ),
@@ -219,13 +221,14 @@ class _MeetingCardState extends State<MeetingCard> {
                   const Icon(
                     Icons.schedule_outlined,
                     size: 16,
-                    color: AppColors.textSecondary,
+                    color: AppColors.white,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     _timeLabel,
                     style: AppTextStyles.body14.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.white,
+                      fontSize: 12,
                       fontFamily: 'Outfit',
                     ),
                   ),
@@ -327,7 +330,7 @@ class _MeetingCardState extends State<MeetingCard> {
                       onTap: widget.onJoin,
                       borderRadius: BorderRadius.circular(24),
                       child: Container(
-                        height: 48,
+                        height: 38,
                         decoration: BoxDecoration(
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(24),
@@ -360,8 +363,8 @@ class _MeetingCardState extends State<MeetingCard> {
                     onTap: widget.onTap,
                     borderRadius: BorderRadius.circular(24),
                     child: Container(
-                      width: 48,
-                      height: 48,
+                      width: 38,
+                      height: 38,
                       decoration: BoxDecoration(
                         color: AppColors.white.withValues(alpha: 0.08),
                         shape: BoxShape.circle,
@@ -405,7 +408,7 @@ class _RsvpButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(24),
         child: Container(
-          height: 48,
+          height: 28,
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: BorderRadius.circular(24),
