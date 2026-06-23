@@ -125,9 +125,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
             // Don't override with `state.peerName` — chat details may resolve
             // a different display name and that would diverge from the list.
             contactName: widget.contactName ?? state.peerName ?? 'Chat',
-            isOnline: state.peerOnline,
+            participantCount: state.participantsById.length,
             isTyping: state.peerTyping,
-            peerRole: state.peerRole,
             onSearch: _toggleSearch,
             onOpenDetails: _openDetails,
           ),
@@ -146,18 +145,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
           ),
           ChatComposer(
             controller: _composerCtrl,
-            isRecording: state.isRecording,
             onSendText: notifier.sendText,
-            onEmojiPressed: () {
-              FocusScope.of(context).unfocus();
-            },
-            onMicToggle: () {
-              if (state.isRecording) {
-                notifier.finishRecording(const Duration(seconds: 3));
-              } else {
-                notifier.toggleRecording();
-              }
-            },
             onTypingPulse: notifier.notifyTyping,
             onTypingStop: notifier.notifyStopTyping,
           ),

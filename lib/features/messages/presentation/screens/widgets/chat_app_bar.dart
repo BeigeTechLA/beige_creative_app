@@ -1,41 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
+import '../../../../../app/assets.dart';
 import '../../../../../app/colors.dart';
 import '../../../../../app/spacing.dart';
 import '../../../../../app/text_styles.dart';
-import '../../../domain/role_label.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ChatAppBar({
     super.key,
     required this.contactName,
-    this.isOnline = false,
+    required this.participantCount,
     this.isTyping = false,
-    this.peerRole,
     this.onBack,
     this.onSearch,
     this.onOpenDetails,
   });
 
   final String contactName;
-  final bool isOnline;
+  final int participantCount;
   final bool isTyping;
-  final String? peerRole;
   final VoidCallback? onBack;
   final VoidCallback? onSearch;
   final VoidCallback? onOpenDetails;
 
-  static const double _height = 64;
+  static const double _height = 72;
+  static const double _avatarDiameter = 44;
 
   @override
   Size get preferredSize => const Size.fromHeight(_height);
 
   @override
   Widget build(BuildContext context) {
-    final subtitle = isTyping
-        ? 'typing...'
-        : (isOnline ? 'Active now' : 'Offline');
-
     return SafeArea(
       bottom: false,
       child: Container(
@@ -47,20 +43,27 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               tooltip: 'Back',
               onPressed: onBack ?? () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+              icon: SvgPicture.asset(
+                AppAssets.back,
+                height: 20,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.textPrimary,
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
             Container(
-              width: 32,
-              height: 32,
+              width: _avatarDiameter,
+              height: _avatarDiameter,
               decoration: const BoxDecoration(
-                color: AppColors.surfaceInput,
+                color: AppColors.surfaceWarm,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: const Icon(
                 Icons.groups_outlined,
-                size: 18,
-                color: AppColors.textPrimary,
+                size: 24,
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
@@ -69,32 +72,18 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          contactName,
-                          style: AppTextStyles.headingOutfitLg.copyWith(
-                            color: AppColors.textPrimary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (peerRole != null && peerRole!.isNotEmpty) ...[
-                        const SizedBox(width: AppSpacing.xs),
-                        _RoleBadge(role: peerRole!, fgColor: AppColors.primary),
-                      ],
-                    ],
-                  ),
                   Text(
-                    subtitle,
-                    style: AppTextStyles.body12.copyWith(
-                      color: isOnline || isTyping
-                          ? AppColors.online
-                          : AppColors.textSecondary,
+                    contactName,
+                    style: AppTextStyles.headingOutfitLg.copyWith(
+                      color: AppColors.textPrimary,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  _Subtitle(
+                    participantCount: participantCount,
+                    isTyping: isTyping,
                   ),
                 ],
               ),
@@ -102,10 +91,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               tooltip: 'Search messages',
               onPressed: onSearch,
-              icon: const Icon(
-                Icons.search,
-                color: AppColors.textPrimary,
-              ),
+              icon: const Icon(Icons.search, color: AppColors.textPrimary),
             ),
             IconButton(
               tooltip: 'Conversation details',
@@ -119,31 +105,35 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-class _RoleBadge extends StatelessWidget {
-  const _RoleBadge({required this.role, required this.fgColor});
+class _Subtitle extends StatelessWidget {
+  const _Subtitle({required this.participantCount, required this.isTyping});
 
-  final String role;
-  final Color fgColor;
+  final int participantCount;
+  final bool isTyping;
 
   @override
   Widget build(BuildContext context) {
-    final formatted = roleLabel(role);
-    if (formatted.isEmpty) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: fgColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: fgColor.withValues(alpha: 0.3), width: 1),
-      ),
-      child: Text(
-        formatted,
-        style: AppTextStyles.body10.copyWith(
-          color: fgColor.withValues(alpha: 0.8),
-          fontWeight: FontWeight.w500,
+    if (isTyping) {
+      return Text(
+        'typing...',
+        style: AppTextStyles.body12.copyWith(color: AppColors.online),
+      );
+    }
+    final label = participantCount == 1 ? 'Participant' : 'Participants';
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.groups_outlined,
+          size: 14,
+          color: AppColors.primary,
         ),
-      ),
+        const SizedBox(width: AppSpacing.xxs),
+        Text(
+          '$participantCount $label',
+          style: AppTextStyles.body12.copyWith(color: AppColors.textSecondary),
+        ),
+      ],
     );
   }
 }

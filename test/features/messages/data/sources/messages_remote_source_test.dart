@@ -122,17 +122,17 @@ void main() {
       ).thenAnswer(
         (_) async => _ok([
           {
-            'id': 'm_2',
+            '_id': 'm_2',
             'sent_by': 'user_angela',
-            'sender_name': 'Angela',
+            'sent_by_name': 'Angela',
             'message': 'second',
             'message_type': 'text',
             'createdAt': '2026-06-14T10:01:00.000Z',
           },
           {
-            'id': 'm_1',
+            '_id': 'm_1',
             'sent_by': 'user_me',
-            'sender_name': 'Me',
+            'sent_by_name': 'Me',
             'message': 'first',
             'message_type': 'text',
             'createdAt': '2026-06-14T10:00:00.000Z',
@@ -150,9 +150,9 @@ void main() {
     test('POST body uses `message` + `replyTo` keys', () async {
       when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
         (_) async => _ok({
-          'id': 'm_99',
+          '_id': 'm_99',
           'sent_by': 'user_me',
-          'sender_name': 'Me',
+          'sent_by_name': 'Me',
           'message': 'hi',
           'message_type': 'text',
           'createdAt': '2026-06-14T10:00:00.000Z',
@@ -234,12 +234,30 @@ void main() {
     test('GET /external-chat/room/:roomId/details — maps response', () async {
       when(() => dio.get<dynamic>(any())).thenAnswer(
         (_) async => _ok({
-          'room_name': 'Angela',
-          'contact_email': 'angela@example.com',
-          'participants': [
-            {'id': 'user_angela', 'name': 'Angela', 'role': 'client'},
-          ],
-          'shared_files': const [],
+          'success': true,
+          'data': {
+            'room': {'id': 'room_1', 'display_name': 'corporate_krunal_#4727'},
+            'profile': {
+              'id': '133',
+              'name': 'Angela',
+              'email': 'angela@example.com',
+              'phone': '8956320147',
+              'profileImage': null,
+            },
+            'participants': {
+              'count': 1,
+              'items': [
+                {
+                  'id': 'user_angela',
+                  'name': 'Angela',
+                  'email': 'angela@example.com',
+                  'role': 'client',
+                  'profileImage': null,
+                },
+              ],
+            },
+            'sharedFiles': {'count': 0, 'items': const []},
+          },
         }),
       );
 
@@ -250,6 +268,7 @@ void main() {
       expect(details.contact.email, 'angela@example.com');
       expect(details.participants, hasLength(1));
       expect(details.participants.first.id, 'user_angela');
+      expect(details.participants.first.role, 'client');
     });
   });
 

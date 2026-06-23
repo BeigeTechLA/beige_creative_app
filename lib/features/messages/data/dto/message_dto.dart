@@ -2,57 +2,42 @@ import '../../domain/entities/message.dart';
 
 class MessageDto {
   /// REST list shape (`GET /external-chat/messages/:roomId`).
-  /// snake_case, flat `file_url` / `file_name` / `file_type` fields.
-  /// Assumed shape — verify with backend.
+  /// snake_case payload. `sent_by` is an expanded user ref with the canonical
+  /// numeric `id` (matches session `currentUserId`); flat `sent_by_name`
+  /// mirrors `sent_by.name`. File messages add `file_url` / `file_name` /
+  /// `file_type` / `file_size` (+ optional `duration_ms` for audio).
   static Message fromRestJson(
     Map<String, dynamic> json, {
     required String currentUserId,
   }) {
-    // Backend may populate `sent_by` as `{_id, name, profile_image, ...}`
-    // (Mongo ref expansion) or ship the bare id string. Handle both.
-    final rawSentBy = json['sent_by'] ?? json['senderId'];
-    final String senderId;
-    String? sentByName;
-    if (rawSentBy is Map<String, dynamic>) {
-      senderId = (rawSentBy['_id'] ??
-              rawSentBy['id'] ??
-              rawSentBy['userId'] ??
-              rawSentBy['user_id'] ??
-              '')
-          .toString();
-      sentByName = (rawSentBy['name'] ??
-          rawSentBy['full_name'] ??
-          rawSentBy['fullName']) as String?;
-    } else {
-      senderId = (rawSentBy ?? '').toString();
-    }
+    // `sent_by` is either an expanded user ref `{id, name, email, ...}`
+    // (preferred — canonical numeric `id` matches session `currentUserId`)
+    // or a bare id string when the backend skips ref expansion.
+    final rawSentBy = json['sent_by'];
+    final Map<String, dynamic>? sentBy =
+        rawSentBy is Map<String, dynamic> ? rawSentBy : null;
+    final senderId =
+        (sentBy?['id'] ?? (rawSentBy is String ? rawSentBy : '')).toString();
     final fileUrl = json['file_url'] as String?;
-    final fileType = json['file_type'] as String?;
     return Message(
-      id: (json['id'] ?? json['_id'] ?? json['messageId']).toString(),
+      id: json['_id'].toString(),
       senderId: senderId,
-      senderName: (json['sender_name'] ??
-              json['senderName'] ??
-              sentByName ??
-              '')
-          as String,
+      senderName: (json['sent_by_name'] ?? sentBy?['name'] ?? '') as String,
       type: _parseType(json['message_type'] as String?),
-      body: (json['message'] ?? json['content']) as String?,
+      body: json['message'] as String?,
       file: fileUrl == null
           ? null
           : MessageFile(
               url: fileUrl,
               name: (json['file_name'] ?? '') as String,
-              mimeType: fileType ?? 'application/octet-stream',
-              sizeBytes: ((json['file_size'] ?? json['size_bytes'] ?? 0) as num).toInt(),
+              mimeType: (json['file_type'] as String?) ?? 'application/octet-stream',
+              sizeBytes: ((json['file_size'] ?? 0) as num).toInt(),
               durationMs: (json['duration_ms'] as num?)?.toInt(),
             ),
-      sentAt: DateTime.parse(
-        (json['createdAt'] ?? json['created_at'] ?? json['sentAt']).toString(),
-      ).toLocal(),
+      sentAt: DateTime.parse(json['createdAt'].toString()).toLocal(),
       isEdited: (json['is_edited'] as bool?) ?? false,
       isDeleted: (json['is_deleted'] as bool?) ?? false,
-      replyToId: (json['reply_to'] ?? json['replyTo']) as String?,
+      replyToId: json['reply_to'] as String?,
       deliveryStatus: _restStatus(json, currentUserId: currentUserId, senderId: senderId),
     );
   }
@@ -65,10 +50,11 @@ class MessageDto {
     final String senderId;
     String? sentByName;
     if (rawSender is Map<String, dynamic>) {
-      senderId = (rawSender['_id'] ??
-              rawSender['id'] ??
+      // Prefer canonical `id` over Mongo `_id` — see REST DTO note above.
+      senderId = (rawSender['id'] ??
               rawSender['userId'] ??
               rawSender['user_id'] ??
+              rawSender['_id'] ??
               '')
           .toString();
       sentByName = (rawSender['name'] ??
@@ -121,18 +107,32 @@ class MessageDto {
     }
   }
 
-  /// Derives status from REST payload. Backend doesn't ship explicit status —
-  /// historical messages are at least `delivered`. Tighten when read receipts
-  /// land (plan §11 Q4).
+  /// Derives status from REST payload. Honors explicit `status` when shipped;
+  /// otherwise outgoing messages reflect recipient read state and incoming
+  /// messages are treated as `delivered` (local recipient state).
   static DeliveryStatus _restStatus(
     Map<String, dynamic> json, {
     required String currentUserId,
     required String senderId,
   }) {
-    final readBy = (json['read_by'] as List?)?.cast<dynamic>().map((e) => e.toString()).toSet() ?? const <String>{};
+    switch ((json['status'] as String?)?.toLowerCase()) {
+      case 'sent':
+        return DeliveryStatus.sent;
+      case 'delivered':
+        return DeliveryStatus.delivered;
+      case 'read':
+        return DeliveryStatus.read;
+      case 'failed':
+        return DeliveryStatus.failed;
+    }
     if (senderId == currentUserId) {
-      final othersRead = readBy.any((id) => id != currentUserId);
-      return othersRead ? DeliveryStatus.read : DeliveryStatus.delivered;
+      final readBy = (json['read_by'] as List?)
+              ?.map((e) => e.toString())
+              .toSet() ??
+          const <String>{};
+      return readBy.any((id) => id != currentUserId)
+          ? DeliveryStatus.read
+          : DeliveryStatus.delivered;
     }
     return DeliveryStatus.delivered;
   }

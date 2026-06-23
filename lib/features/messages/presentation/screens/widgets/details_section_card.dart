@@ -13,6 +13,7 @@ class DetailsSectionCard extends StatefulWidget {
     required this.title,
     this.trailingCount,
     this.initiallyExpanded = false,
+    this.collapsible = true,
     this.body,
   });
 
@@ -20,6 +21,9 @@ class DetailsSectionCard extends StatefulWidget {
   final String title;
   final int? trailingCount;
   final bool initiallyExpanded;
+  /// When false, the body is always rendered and the chevron + tap toggle are
+  /// suppressed. Use for sections that must stay open (e.g. participants).
+  final bool collapsible;
   final Widget? body;
 
   @override
@@ -32,7 +36,7 @@ class _DetailsSectionCardState extends State<DetailsSectionCard> {
   @override
   void initState() {
     super.initState();
-    _expanded = widget.initiallyExpanded;
+    _expanded = widget.collapsible ? widget.initiallyExpanded : true;
   }
 
   @override
@@ -49,13 +53,14 @@ class _DetailsSectionCardState extends State<DetailsSectionCard> {
       child: Column(
         children: [
           Semantics(
-            button: widget.body != null,
-            label:
-                '${widget.title} section, '
-                '${_expanded ? 'expanded' : 'collapsed'}',
+            button: widget.body != null && widget.collapsible,
+            label: widget.collapsible
+                ? '${widget.title} section, '
+                    '${_expanded ? 'expanded' : 'collapsed'}'
+                : '${widget.title} section',
             child: InkWell(
               borderRadius: AppRadii.xlAll,
-              onTap: widget.body == null
+              onTap: (widget.body == null || !widget.collapsible)
                   ? null
                   : () => setState(() => _expanded = !_expanded),
               child: Padding(
@@ -86,7 +91,7 @@ class _DetailsSectionCardState extends State<DetailsSectionCard> {
                         ),
                       ),
                     ),
-                    if (widget.body != null)
+                    if (widget.body != null && widget.collapsible)
                       AnimatedRotation(
                         duration: AppDurations.fast,
                         turns: _expanded ? 0.25 : 0,

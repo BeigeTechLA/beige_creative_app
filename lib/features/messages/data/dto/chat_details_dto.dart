@@ -8,70 +8,43 @@ class ChatDetailsDto {
   /// Backend returns:
   /// ```
   /// { success, data: { room, profile, participants: { items, ... },
-  ///   sharedFiles: { items, ... } } }
+  ///   sharedFiles: { items, ... }, linkedShoot, notes } }
   /// ```
   /// `PaginationEnvelope.unwrapItem` strips `data`, so this receives the
   /// inner object.
   ///
-  /// `conversationId` is passed in because backend response may not echo it
-  /// under a stable key.
+  /// `conversationId` is passed in because the room is keyed by `room.id`
+  /// (Mongo doc id) and we want to stay aligned with the caller's id.
   static ChatDetails fromRestJson(
     Map<String, dynamic> json, {
     required String conversationId,
   }) {
     final room = (json['room'] as Map<String, dynamic>?) ?? const {};
-    final profile = (json['profile'] ??
-            room['client_snapshot'] ??
-            json['contact'] ??
-            json['client'])
-        as Map<String, dynamic>?;
+    final profile = (json['profile'] as Map<String, dynamic>?) ?? const {};
 
-    final participantsBlock = json['participants'];
-    final List participantsRaw = participantsBlock is Map<String, dynamic>
-        ? (participantsBlock['items'] as List? ?? const [])
-        : (participantsBlock as List? ?? const []);
+    final participantsItems =
+        ((json['participants'] as Map<String, dynamic>?)?['items'] as List?) ??
+            const [];
 
-    final filesBlock = json['sharedFiles'] ?? json['shared_files'];
-    final List filesRaw = filesBlock is Map<String, dynamic>
-        ? (filesBlock['items'] as List? ?? const [])
-        : (filesBlock as List? ?? const []);
+    final filesItems =
+        ((json['sharedFiles'] as Map<String, dynamic>?)?['items'] as List?) ??
+            const [];
 
     return ChatDetails(
       conversationId: conversationId,
+      roomName: (room['display_name'] ?? room['name'] ?? '') as String,
       contact: ContactInfo(
-        id: (profile?['id'] ??
-                profile?['_id'] ??
-                json['id'] ??
-                json['_id'] ??
-                '')
-            .toString(),
-        name: (profile?['name'] ??
-                room['display_name'] ??
-                room['name'] ??
-                json['room_name'] ??
-                json['name'] ??
-                '')
-            as String,
-        email: (profile?['email'] ??
-            room['contact_email'] ??
-            json['contact_email'] ??
-            json['email']) as String?,
-        phone: (profile?['phone'] ??
-            room['contact_phone'] ??
-            json['contact_phone'] ??
-            json['phone']) as String?,
-        avatarUrl: (profile?['profileImage'] ??
-            profile?['profile_image'] ??
-            profile?['avatar_url'] ??
-            json['avatar_url'] ??
-            json['profileImage'] ??
-            json['profile_image']) as String?,
+        id: (profile['id'] ?? '').toString(),
+        name: (profile['name'] ?? '') as String,
+        email: profile['email'] as String?,
+        phone: profile['phone'] as String?,
+        avatarUrl: profile['profileImage'] as String?,
       ),
-      participants: participantsRaw
+      participants: participantsItems
           .cast<Map<String, dynamic>>()
           .map(ParticipantDto.fromRestJson)
           .toList(growable: false),
-      sharedFiles: filesRaw
+      sharedFiles: filesItems
           .cast<Map<String, dynamic>>()
           .map(SharedFileDto.fromRestJson)
           .toList(growable: false),

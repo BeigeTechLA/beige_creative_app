@@ -12,27 +12,21 @@ import '../../../../../app/text_styles.dart';
 /// clients (WhatsApp ≈ 3s).
 const Duration kComposerTypingIdle = Duration(seconds: 3);
 
-/// Composer row — text field, emoji, mic. Send button replaces the mic icon
-/// once the field is non-empty. Mic toggles a dummy record state for now;
-/// real capture wires later. Attach + camera affordances intentionally
-/// absent — file attach is Admin-side on web per booking spec.
+/// Composer row — text field + send button. Send is the only trailing
+/// affordance; it dims when the field is empty. Emoji / mic / attach /
+/// camera affordances intentionally absent — file attach is Admin-side on
+/// web per booking spec.
 class ChatComposer extends StatefulWidget {
   const ChatComposer({
     super.key,
     required this.controller,
     required this.onSendText,
-    required this.onEmojiPressed,
-    required this.onMicToggle,
-    required this.isRecording,
     this.onTypingPulse,
     this.onTypingStop,
   });
 
   final TextEditingController controller;
   final ValueChanged<String> onSendText;
-  final VoidCallback onEmojiPressed;
-  final VoidCallback onMicToggle;
-  final bool isRecording;
 
   /// Fires once when text becomes non-empty after being empty, then is
   /// suppressed until [onTypingStop] runs.
@@ -122,8 +116,6 @@ class _ChatComposerState extends State<ChatComposer> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isRecording) return _RecordingBar(onCancel: widget.onMicToggle);
-
     return SafeArea(
       top: false,
       child: Padding(
@@ -170,22 +162,7 @@ class _ChatComposerState extends State<ChatComposer> {
                   ),
                 ),
               ),
-              IconButton(
-                tooltip: 'Emoji',
-                onPressed: widget.onEmojiPressed,
-                icon: const Icon(
-                  Icons.emoji_emotions_outlined,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              if (_hasText)
-                _SendButton(onTap: _submit)
-              else
-                IconButton(
-                  tooltip: 'Record voice message',
-                  onPressed: widget.onMicToggle,
-                  icon: const Icon(Icons.mic_none, color: AppColors.primary),
-                ),
+              _SendButton(enabled: _hasText, onTap: _submit),
             ],
           ),
         ),
@@ -195,8 +172,9 @@ class _ChatComposerState extends State<ChatComposer> {
 }
 
 class _SendButton extends StatelessWidget {
-  const _SendButton({required this.onTap});
+  const _SendButton({required this.enabled, required this.onTap});
 
+  final bool enabled;
   final VoidCallback onTap;
 
   @override
@@ -205,71 +183,25 @@ class _SendButton extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.xxs),
       child: Semantics(
         button: true,
+        enabled: enabled,
         label: 'Send message',
         child: Material(
-          color: AppColors.primary,
+          color: enabled ? AppColors.primary : AppColors.disabled,
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
-            onTap: onTap,
-            child: const SizedBox(
+            onTap: enabled ? onTap : null,
+            child: SizedBox(
               width: 44,
               height: 44,
-              child: Icon(Icons.send, color: AppColors.onPrimary, size: 18),
+              child: Icon(
+                Icons.send,
+                color: enabled
+                    ? AppColors.onPrimary
+                    : AppColors.textTertiary,
+                size: 18,
+              ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RecordingBar extends StatelessWidget {
-  const _RecordingBar({required this.onCancel});
-
-  final VoidCallback onCancel;
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.screenH,
-          vertical: AppSpacing.sm,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.surfaceInput,
-            borderRadius: AppRadii.fullAll,
-            border: Border.all(color: AppColors.dividerDark),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.fiber_manual_record,
-                color: AppColors.error,
-                size: 14,
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(
-                  'Recording... tap mic to stop',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ),
-              IconButton(
-                tooltip: 'Stop recording',
-                onPressed: onCancel,
-                icon: const Icon(Icons.stop_circle, color: AppColors.primary),
-              ),
-            ],
           ),
         ),
       ),

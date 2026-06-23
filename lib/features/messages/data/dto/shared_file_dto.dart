@@ -1,27 +1,22 @@
 import '../../domain/entities/shared_file.dart';
 
-/// REST mapper for shared-file rows under chat-details.
+/// REST mapper for `sharedFiles.items[]` under chat-details.
 ///
-/// Backend returns folder-style rows today (mime/size null) and may return
-/// real files later — keep this tolerant. Folders fall back to `path` for id
-/// and `updatedAt` for the timestamp.
+/// Items today are folder rows (`mimeType` / `size` null); real file rows
+/// will reuse the same keys when backend ships them. `path` is the stable
+/// id for folder rows; size and timestamps default safely.
 class SharedFileDto {
   static SharedFile fromRestJson(Map<String, dynamic> json) {
-    final id = (json['id'] ?? json['_id'] ?? json['path'] ?? json['fullPath'] ?? '')
-        .toString();
-    final mime = (json['mime_type'] ?? json['mimeType'] ?? json['file_type']) as String?;
-    final size = json['size_bytes'] ?? json['sizeBytes'] ?? json['size'];
-    final dateStr =
-        (json['uploaded_at'] ?? json['uploadedAt'] ?? json['updatedAt'] ?? json['createdAt'])
-            ?.toString();
+    final updatedAt = json['updatedAt'] as String?;
+    final size = json['size'];
     return SharedFile(
-      id: id,
-      name: (json['name'] ?? json['file_name'] ?? '') as String,
-      mimeType: mime ?? 'application/octet-stream',
+      id: (json['path'] ?? json['name'] ?? '').toString(),
+      name: (json['name'] ?? '') as String,
+      mimeType: (json['mimeType'] as String?) ?? 'application/octet-stream',
       sizeBytes: size is num ? size.toInt() : 0,
-      uploadedAt: dateStr == null
+      uploadedAt: updatedAt == null
           ? DateTime.fromMillisecondsSinceEpoch(0)
-          : DateTime.parse(dateStr).toLocal(),
+          : DateTime.parse(updatedAt).toLocal(),
     );
   }
 }

@@ -170,6 +170,7 @@ class _FakeMessagesRepository implements MessagesRepository {
   Future<ChatDetails> fetchDetails(String conversationId) async {
     return ChatDetails(
       conversationId: conversationId,
+      roomName: 'Angela Kia',
       contact: const ContactInfo(id: 'p1', name: 'Angela Kia'),
       participants: const [
         Participant(id: 'user_me', name: 'Me', role: 'Crew'),

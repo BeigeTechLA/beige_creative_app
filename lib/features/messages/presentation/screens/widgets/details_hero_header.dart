@@ -1,106 +1,148 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
+import '../../../../../app/assets.dart';
 import '../../../../../app/colors.dart';
 import '../../../../../app/radii.dart';
 import '../../../../../app/spacing.dart';
 import '../../../../../app/text_styles.dart';
-import '../../../../../shared/widgets/app_avatar.dart';
-import '../../../domain/entities/chat_details.dart';
 
+/// Beige curved header + dark name strip, matching the profile-screen pattern
+/// (`ProfileHeader`). Avatar straddles the boundary between the beige hero
+/// and the dark body; room name renders below on the dark surface. Avatar
+/// always shows initials derived from the room name (no contact image).
 class DetailsHeroHeader extends StatelessWidget {
   const DetailsHeroHeader({
     super.key,
-    required this.contact,
+    required this.roomName,
     required this.onBack,
   });
 
-  final ContactInfo contact;
+  static const double _avatarDiameter = 112;
+  static const double _avatarOverlap = 56;
+
+  final String roomName;
   final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceWarm,
-        borderRadius: AppRadii.bottomHeader,
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.sm,
-            AppSpacing.sm,
-            AppSpacing.sm,
-            AppSpacing.xxl,
-          ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    tooltip: 'Back',
-                    onPressed: onBack,
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Details',
-                        style: AppTextStyles.titleLarge.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
-              AppAvatar(
-                name: contact.name,
-                imageUrl: contact.avatarUrl,
-                size: AppAvatarSize.xl,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                contact.name,
-                style: AppTextStyles.displayBold20.copyWith(
-                  color: AppColors.textPrimary,
+    final topInset = MediaQuery.of(context).padding.top;
+    return Column(
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: ClipRRect(
+                borderRadius: AppRadii.bottomHeader,
+                child: SvgPicture.asset(
+                  AppAssets.rectangleProfile,
+                  fit: BoxFit.fill,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xs),
-              _MetaLine(email: contact.email, phone: contact.phone),
-            ],
+            ),
+            Positioned(
+              top: topInset + AppSpacing.lg,
+              left: AppSpacing.md,
+              child: InkWell(
+                onTap: onBack,
+                child: SvgPicture.asset(
+                  AppAssets.back,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.textHeading,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: topInset + AppSpacing.lg,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Text(
+                  'Details',
+                  style: AppTextStyles.displayLabel16.copyWith(
+                    color: AppColors.textHeading,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -_avatarOverlap,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: _Avatar(
+                  diameter: _avatarDiameter,
+                  name: roomName,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: _avatarOverlap + AppSpacing.md),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
+          child: Text(
+            roomName,
+            style: AppTextStyles.displayBold20.copyWith(
+              color: AppColors.textPrimary,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-      ),
+        const SizedBox(height: AppSpacing.lg),
+        const Divider(
+          height: 1,
+          thickness: 1,
+          color: AppColors.dividerDark,
+          indent: AppSpacing.screenH,
+          endIndent: AppSpacing.screenH,
+        ),
+      ],
     );
   }
 }
 
-class _MetaLine extends StatelessWidget {
-  const _MetaLine({this.email, this.phone});
-  final String? email;
-  final String? phone;
+class _Avatar extends StatelessWidget {
+  const _Avatar({required this.diameter, required this.name});
+
+  final double diameter;
+  final String name;
+
+  String get _initials {
+    final cleaned = name
+        .replaceAll(RegExp(r'[_#]+'), ' ')
+        .trim();
+    if (cleaned.isEmpty) return '?';
+    final parts = cleaned.split(RegExp(r'\s+'));
+    if (parts.length == 1) {
+      return parts.first.characters.first.toUpperCase();
+    }
+    return (parts.first.characters.first + parts.last.characters.first)
+        .toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final parts = [
-      if (email != null && email!.isNotEmpty) email!,
-      if (phone != null && phone!.isNotEmpty) phone!,
-    ];
-    if (parts.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
+    return Container(
+      width: diameter,
+      height: diameter,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.surfaceMid,
+      ),
+      alignment: Alignment.center,
       child: Text(
-        parts.join(' · '),
-        style: AppTextStyles.body12.copyWith(color: AppColors.textSecondary),
-        textAlign: TextAlign.center,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
+        _initials,
+        style: AppTextStyles.displayBold20.copyWith(
+          color: AppColors.textPrimary,
+        ),
       ),
     );
   }
