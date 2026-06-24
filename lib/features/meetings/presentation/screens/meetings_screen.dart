@@ -78,28 +78,31 @@ class MeetingsScreen extends ConsumerWidget {
         children: [
           AppMainToolbar(
             title: 'Meetings',
-            trailing: Stack(
-              alignment: Alignment.topRight,
-              children: [
-                IconButton(
-                  tooltip: 'Filter meetings',
-                  onPressed: () => _openFilter(context, ref),
-                  icon: SvgPicture.asset(
-                    AppAssets.iconFilter,
-                    height: 20,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.textPrimary,
-                      BlendMode.srcIn,
+            trailing: Visibility(
+              visible: false,
+              child: Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  IconButton(
+                    tooltip: 'Filter meetings',
+                    onPressed: () => _openFilter(context, ref),
+                    icon: SvgPicture.asset(
+                      AppAssets.iconFilter,
+                      height: 20,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.textPrimary,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
-                ),
-                if (state.isFiltered)
-                  const Positioned(
-                    top: 10,
-                    right: 10,
-                    child: _FilterDot(),
-                  ),
-              ],
+                  if (state.isFiltered)
+                    const Positioned(
+                      top: 10,
+                      right: 10,
+                      child: _FilterDot(),
+                    ),
+                ],
+              ),
             ),
           ),
           Padding(
