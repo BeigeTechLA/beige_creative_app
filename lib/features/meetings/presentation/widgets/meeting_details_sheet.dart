@@ -342,7 +342,7 @@ class _StatusPill extends StatelessWidget {
         return AppColors.lightGoldenBg;
       case MeetingStatus.completed:
         return AppColors.softMint;
-      case MeetingStatus.reviewer:
+      case MeetingStatus.revision:
         return const Color(0xFFFFEAE0);
       case MeetingStatus.upcoming:
         return AppColors.blueIce;
@@ -355,7 +355,7 @@ class _StatusPill extends StatelessWidget {
         return const Color(0xFF8A5C1F);
       case MeetingStatus.completed:
         return AppColors.greenForest;
-      case MeetingStatus.reviewer:
+      case MeetingStatus.revision:
         return AppColors.orangeBright;
       case MeetingStatus.upcoming:
         return AppColors.blueRoyal;

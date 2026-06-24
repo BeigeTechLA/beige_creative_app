@@ -1,6 +1,6 @@
 enum MeetingCategory {
   commercial,
-  editorial,
+  wedding,
   corporate,
   podcast,
   privateEvents,
@@ -13,8 +13,8 @@ extension MeetingCategoryX on MeetingCategory {
     switch (this) {
       case MeetingCategory.commercial:
         return 'Commercial & Advertising';
-      case MeetingCategory.editorial:
-        return 'Editorial';
+      case MeetingCategory.wedding:
+        return 'Wedding';
       case MeetingCategory.corporate:
         return 'Corporate';
       case MeetingCategory.podcast:

@@ -88,7 +88,7 @@ final _defaultSeed = <Meeting>[
     link: 'https://example.com/u2',
     reminderMinutes: 15,
     status: MeetingStatus.upcoming,
-    category: MeetingCategory.editorial,
+    category: MeetingCategory.wedding,
     agenda: const ['a1'],
     participants: const [],
   ),
@@ -163,7 +163,7 @@ void main() {
       expect(container.read(meetingsListNotifierProvider).items.length, 2);
 
       notifier.applyFilter(
-        const MeetingFilter(categories: {MeetingCategory.editorial}),
+        const MeetingFilter(categories: {MeetingCategory.wedding}),
       );
       // applyFilter triggers _load(); await its completion via refresh().
       await notifier.refresh();

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_avatar.dart';
+import '../../../../shared/widgets/app_toggle_switch.dart';
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_participant.dart';
 import '../../domain/models/meeting_platform.dart';
@@ -63,7 +64,7 @@ class _MeetingCardState extends State<MeetingCard> {
         return const Color(0xFFFEF5E5);
       case MeetingStatus.completed:
         return AppColors.softMint;
-      case MeetingStatus.reviewer:
+      case MeetingStatus.revision:
         return const Color(0xFFFFEAE0);
       case MeetingStatus.upcoming:
         return const Color(0xFFE0E7F8);
@@ -76,7 +77,7 @@ class _MeetingCardState extends State<MeetingCard> {
         return const Color(0xFF8A5C1F);
       case MeetingStatus.completed:
         return const Color(0xFF2F855A);
-      case MeetingStatus.reviewer:
+      case MeetingStatus.revision:
         return const Color(0xFFFF9D25);
       case MeetingStatus.upcoming:
         return const Color(0xFF2D66D2);
@@ -286,18 +287,9 @@ class _MeetingCardState extends State<MeetingCard> {
                     ),
                   ),
                   const Spacer(),
-                  Switch(
+                  AppToggleSwitch(
                     value: _syncMeeting,
-                    onChanged: (val) {
-                      setState(() {
-                        _syncMeeting = val;
-                      });
-                    },
-                    activeTrackColor: AppColors.primary,
-                    activeThumbColor: Colors.white,
-                    inactiveThumbColor: Colors.white,
-                    inactiveTrackColor: AppColors.white.withValues(alpha: 0.08),
-                    trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+                    onChanged: (val) => setState(() => _syncMeeting = val),
                   ),
                 ],
               ),

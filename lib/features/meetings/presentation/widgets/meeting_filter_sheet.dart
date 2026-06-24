@@ -37,6 +37,16 @@ class _MeetingFilterSheetState extends State<MeetingFilterSheet> {
   late MeetingFilter _draft = widget.current;
   static final _rangeFmt = DateFormat('dd MMM yyyy');
 
+  bool _categoryOpen = true;
+  bool _dateOpen = false;
+  bool _statusOpen = false;
+
+  static const _statusOrder = <MeetingStatus>[
+    MeetingStatus.initiated,
+    MeetingStatus.completed,
+    MeetingStatus.revision,
+  ];
+
   bool get _hasChanges =>
       _draft.categories != widget.current.categories ||
       _draft.statuses != widget.current.statuses ||
@@ -77,9 +87,17 @@ class _MeetingFilterSheetState extends State<MeetingFilterSheet> {
           dialogTheme: const DialogThemeData(
             backgroundColor: AppColors.surfaceGradientDark,
           ),
-          colorScheme: const ColorScheme.dark(
+          // Range fill in M3 date-range picker reads from
+          // `secondaryContainer`; endpoints read from `primary`. Override
+          // both with brand gold tokens so the picker matches the app theme
+          // instead of the default M3 teal.
+          colorScheme: ColorScheme.dark(
             primary: AppColors.primary,
             onPrimary: AppColors.onPrimary,
+            secondary: AppColors.primary,
+            onSecondary: AppColors.onPrimary,
+            secondaryContainer: AppColors.primary.withValues(alpha: 0.25),
+            onSecondaryContainer: AppColors.textPrimary,
             surface: AppColors.surfaceGradientDark,
             onSurface: AppColors.white,
           ),
@@ -105,7 +123,7 @@ class _MeetingFilterSheetState extends State<MeetingFilterSheet> {
     return SafeArea(
       top: false,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: mq.size.height * 0.85),
+        constraints: BoxConstraints(maxHeight: mq.size.height * 0.9),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -120,12 +138,15 @@ class _MeetingFilterSheetState extends State<MeetingFilterSheet> {
             ),
             AppSpacing.verticalBase,
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xl,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
               child: Row(
                 children: [
-                  Text('Filter', style: AppTextStyles.titleMedium),
+                  Text(
+                    'Filter',
+                    style: AppTextStyles.titleMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const Spacer(),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
@@ -139,88 +160,83 @@ class _MeetingFilterSheetState extends State<MeetingFilterSheet> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.xl,
-                  AppSpacing.lg,
+                  AppSpacing.xl,
                   AppSpacing.xl,
                   AppSpacing.xl,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _SectionLabel('Filter By Category'),
-                    AppSpacing.verticalMd,
-                    Wrap(
-                      spacing: AppSpacing.sm,
-                      runSpacing: AppSpacing.sm,
+                    _ExpandableSection(
+                      title: 'Filter By Category',
+                      expanded: _categoryOpen,
+                      onToggle: () =>
+                          setState(() => _categoryOpen = !_categoryOpen),
                       children: [
                         for (final c in MeetingCategory.values)
-                          _SelectableChip(
+                          _CheckboxRow(
                             label: c.label,
-                            isSelected: _draft.categories.contains(c),
+                            checked: _draft.categories.contains(c),
                             onTap: () => _toggleCategory(c),
                           ),
                       ],
                     ),
-                    AppSpacing.verticalXxl,
-                    _SectionLabel('Filter By Date'),
-                    AppSpacing.verticalMd,
-                    _DateRangeField(
-                      range: _draft.dateRange,
-                      onTap: _pickDateRange,
-                      onClear: _clearDateRange,
-                      formatter: _rangeFmt,
-                    ),
-                    AppSpacing.verticalXxl,
-                    _SectionLabel('Filter By Status'),
-                    AppSpacing.verticalMd,
-                    Wrap(
-                      spacing: AppSpacing.sm,
-                      runSpacing: AppSpacing.sm,
+                    AppSpacing.verticalBase,
+                    _ExpandableSection(
+                      title: 'Filter By Date',
+                      expanded: _dateOpen,
+                      onToggle: () => setState(() => _dateOpen = !_dateOpen),
                       children: [
-                        for (final s in const [
-                          MeetingStatus.initiated,
-                          MeetingStatus.reviewer,
-                          MeetingStatus.completed,
-                        ])
-                          _SelectableChip(
+                        _DateRangeField(
+                          range: _draft.dateRange,
+                          onTap: _pickDateRange,
+                          onClear: _clearDateRange,
+                          formatter: _rangeFmt,
+                        ),
+                      ],
+                    ),
+                    AppSpacing.verticalBase,
+                    _ExpandableSection(
+                      title: 'Filter By Status',
+                      expanded: _statusOpen,
+                      onToggle: () =>
+                          setState(() => _statusOpen = !_statusOpen),
+                      children: [
+                        for (final s in _statusOrder)
+                          _CheckboxRow(
                             label: s.label,
-                            isSelected: _draft.statuses.contains(s),
+                            checked: _draft.statuses.contains(s),
                             onTap: () => _toggleStatus(s),
                           ),
                       ],
                     ),
+                    AppSpacing.verticalXl,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppButton(
+                            label: 'Clear All',
+                            variant: AppButtonVariant.outline,
+                            onPressed: _draft.isEmpty
+                                ? null
+                                : () => setState(
+                                      () => _draft = MeetingFilter.empty,
+                                    ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: AppButton(
+                            label: 'Apply',
+                            onPressed: _hasChanges
+                                ? () => Navigator.of(context).pop(_draft)
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ),
-            ),
-            const Divider(color: AppColors.dividerDark, height: 1),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.xl,
-                AppSpacing.base,
-                AppSpacing.xl,
-                AppSpacing.base,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: AppButton(
-                      label: 'Clear All',
-                      variant: AppButtonVariant.outline,
-                      onPressed: _draft.isEmpty
-                          ? null
-                          : () => setState(() => _draft = MeetingFilter.empty),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: AppButton(
-                      label: 'Apply',
-                      onPressed: _hasChanges
-                          ? () => Navigator.of(context).pop(_draft)
-                          : null,
-                    ),
-                  ),
-                ],
               ),
             ),
           ],
@@ -230,63 +246,143 @@ class _MeetingFilterSheetState extends State<MeetingFilterSheet> {
   }
 }
 
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.text);
-  final String text;
+class _ExpandableSection extends StatelessWidget {
+  const _ExpandableSection({
+    required this.title,
+    required this.expanded,
+    required this.onToggle,
+    required this.children,
+  });
+
+  final String title;
+  final bool expanded;
+  final VoidCallback onToggle;
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: AppTextStyles.body14Medium.copyWith(
-        color: AppColors.textPrimary,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.xlAll,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: onToggle,
+            borderRadius: AppRadii.xlAll,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.base,
+                vertical: AppSpacing.base,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: AppTextStyles.titleSmall.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    expanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textPrimary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (expanded) ...[
+            const Divider(color: AppColors.dividerDark, height: 1),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.base,
+                AppSpacing.sm,
+                AppSpacing.base,
+                AppSpacing.base,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: children,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
 }
 
-class _SelectableChip extends StatelessWidget {
-  const _SelectableChip({
+class _CheckboxRow extends StatelessWidget {
+  const _CheckboxRow({
     required this.label,
-    required this.isSelected,
+    required this.checked,
     required this.onTap,
   });
 
   final String label;
-  final bool isSelected;
+  final bool checked;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      selected: isSelected,
+      checked: checked,
       label: label,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
+      child: InkWell(
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
+        borderRadius: AppRadii.smAll,
+        child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
+            vertical: AppSpacing.smd,
+            horizontal: AppSpacing.xs,
           ),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : AppColors.surface,
-            borderRadius: AppRadii.smAll,
-            border: Border.all(
-              color: isSelected ? AppColors.primary : AppColors.dividerDark,
-            ),
-          ),
-          child: Text(
-            label,
-            style: AppTextStyles.body14.copyWith(
-              color: isSelected ? AppColors.onPrimary : AppColors.textPrimary,
-              fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-            ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTextStyles.body14.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              _SquareCheckbox(checked: checked),
+            ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SquareCheckbox extends StatelessWidget {
+  const _SquareCheckbox({required this.checked});
+  final bool checked;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 22,
+      height: 22,
+      decoration: BoxDecoration(
+        color: checked ? AppColors.primary : AppColors.transparent,
+        borderRadius: AppRadii.xsAll,
+        border: Border.all(
+          color: checked ? AppColors.primary : AppColors.textTertiary,
+          width: 1.4,
+        ),
+      ),
+      child: checked
+          ? const Icon(Icons.check, size: 14, color: AppColors.onPrimary)
+          : null,
     );
   }
 }
@@ -319,7 +415,7 @@ class _DateRangeField extends StatelessWidget {
           vertical: AppSpacing.mld,
         ),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.background,
           borderRadius: AppRadii.mdAll,
           border: Border.all(color: AppColors.dividerDark),
         ),

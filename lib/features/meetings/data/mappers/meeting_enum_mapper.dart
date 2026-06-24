@@ -32,7 +32,7 @@ class MeetingEnumMapper {
     switch (status) {
       case MeetingStatus.upcoming:
       case MeetingStatus.initiated:
-      case MeetingStatus.reviewer:
+      case MeetingStatus.revision:
         return 'pending';
       case MeetingStatus.completed:
         return 'completed';

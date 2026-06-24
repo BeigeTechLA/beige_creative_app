@@ -1,4 +1,4 @@
-enum MeetingStatus { upcoming, completed, initiated, reviewer }
+enum MeetingStatus { upcoming, completed, initiated, revision }
 
 extension MeetingStatusX on MeetingStatus {
   String get label {
@@ -9,8 +9,8 @@ extension MeetingStatusX on MeetingStatus {
         return 'Completed';
       case MeetingStatus.initiated:
         return 'Initiated';
-      case MeetingStatus.reviewer:
-        return 'Reviewer';
+      case MeetingStatus.revision:
+        return 'Revision';
     }
   }
 }

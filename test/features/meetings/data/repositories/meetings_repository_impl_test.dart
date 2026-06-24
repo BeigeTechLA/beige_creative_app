@@ -124,7 +124,7 @@ void main() {
           ),
           _m(
             id: 'b',
-            category: MeetingCategory.editorial,
+            category: MeetingCategory.wedding,
             startAt: DateTime(2026, 6, 10, 13),
           ),
           _m(
