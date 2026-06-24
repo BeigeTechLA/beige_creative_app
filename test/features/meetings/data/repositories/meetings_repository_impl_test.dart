@@ -76,6 +76,11 @@ class _FakeRemote implements MeetingsRemoteSource {
   Future<void> delete(String id) async {
     items.removeWhere((m) => m.id == id);
   }
+
+  @override
+  Future<Meeting> respond(String id, String response) async {
+    return items.firstWhere((m) => m.id == id);
+  }
 }
 
 void main() {

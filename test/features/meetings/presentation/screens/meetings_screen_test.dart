@@ -2,6 +2,7 @@ import 'package:beige_creative_app/features/meetings/domain/models/meeting.dart'
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_category.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_filter.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_platform.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/meeting_response.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_status.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/update_meeting_input.dart';
 import 'package:beige_creative_app/features/meetings/domain/repositories/meetings_repository.dart';
@@ -52,6 +53,10 @@ class _FakeMeetingsRepository implements MeetingsRepository {
   @override
   Future<Meeting> addParticipants(String id, List<String> userIds) =>
       throw UnimplementedError();
+
+  @override
+  Future<Meeting> respond(String id, MeetingResponse response) async =>
+      _items.firstWhere((m) => m.id == id);
 }
 
 final _now = DateTime(2026, 1, 1, 10);

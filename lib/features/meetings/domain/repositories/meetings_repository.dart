@@ -1,5 +1,6 @@
 import '../models/meeting.dart';
 import '../models/meeting_filter.dart';
+import '../models/meeting_response.dart';
 import '../models/meeting_status.dart';
 import '../models/update_meeting_input.dart';
 
@@ -31,4 +32,8 @@ abstract class MeetingsRepository {
   /// `create` to complete the 2-step create flow; also surfaced for future
   /// "add participant" UI affordance.
   Future<Meeting> addParticipants(String id, List<String> userIds);
+
+  /// CP RSVP — PATCH `:id/respond` with `accepted` or `declined`. Returns the
+  /// updated Meeting so callers can patch list/details state without refetch.
+  Future<Meeting> respond(String id, MeetingResponse response);
 }

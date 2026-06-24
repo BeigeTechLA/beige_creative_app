@@ -9,6 +9,8 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
+import '../../../../shared/widgets/top_message.dart';
+import '../../domain/models/meeting_response.dart';
 import '../providers/meetings_list_notifier.dart';
 import '../providers/meetings_list_state.dart';
 import '../util/launch_meeting_link.dart';
@@ -36,19 +38,40 @@ class MeetingsScreen extends ConsumerWidget {
     showMeetingDetailsSheet(context, meetingId: meetingId);
   }
 
-  void _onRsvp(BuildContext context, {required bool accept}) {
-    // RSVP endpoint not wired yet — see BOOKING_FEATURES_GUIDELINES.md §3.3.
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(accept ? 'Meeting accepted' : 'Meeting rejected'),
-      ),
+  Future<void> _onRsvp(
+    BuildContext context,
+    WidgetRef ref, {
+    required String meetingId,
+    required bool accept,
+  }) async {
+    final notifier = ref.read(meetingsListNotifierProvider.notifier);
+    final ok = await notifier.respond(
+      meetingId,
+      accept ? MeetingResponse.accepted : MeetingResponse.declined,
     );
+    if (!context.mounted) return;
+    if (ok) {
+      TopMessage.show(
+        context,
+        accept ? 'Meeting accepted' : 'Meeting rejected',
+        type: accept ? TopMessageType.success : TopMessageType.error,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(meetingsListNotifierProvider);
     final notifier = ref.read(meetingsListNotifierProvider.notifier);
+
+    ref.listen<String?>(
+      meetingsListNotifierProvider.select((s) => s.rsvpError),
+      (prev, next) {
+        if (next == null || next == prev) return;
+        TopMessage.show(context, next);
+        notifier.clearRsvpError();
+      },
+    );
 
     return SafeArea(
       child: Column(
@@ -98,7 +121,8 @@ class MeetingsScreen extends ConsumerWidget {
                 state: state,
                 onTap: _onCardTap,
                 onJoin: _onJoin,
-                onRsvp: _onRsvp,
+                onRsvp: (ctx, {required meetingId, required accept}) =>
+                    _onRsvp(ctx, ref, meetingId: meetingId, accept: accept),
                 onRetry: notifier.refresh,
               ),
             ),
@@ -121,7 +145,11 @@ class _ListBody extends StatelessWidget {
   final MeetingsListState state;
   final void Function(BuildContext, String meetingId) onTap;
   final void Function(BuildContext, String link) onJoin;
-  final void Function(BuildContext, {required bool accept}) onRsvp;
+  final void Function(
+    BuildContext, {
+    required String meetingId,
+    required bool accept,
+  }) onRsvp;
   final Future<void> Function() onRetry;
 
   @override
@@ -204,8 +232,9 @@ class _ListBody extends StatelessWidget {
           meeting: m,
           onTap: () => onTap(context, m.id),
           onJoin: () => onJoin(context, m.link),
-          onAccept: () => onRsvp(context, accept: true),
-          onReject: () => onRsvp(context, accept: false),
+          onAccept: () => onRsvp(context, meetingId: m.id, accept: true),
+          onReject: () => onRsvp(context, meetingId: m.id, accept: false),
+          rsvpPending: state.isRsvpPending(m.id),
         );
       },
     );

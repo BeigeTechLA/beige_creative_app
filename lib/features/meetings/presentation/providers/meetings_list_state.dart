@@ -13,6 +13,8 @@ class MeetingsListState {
   final MeetingsListStatus status;
   final List<Meeting> items;
   final String? error;
+  final Set<String> pendingRsvpIds;
+  final String? rsvpError;
 
   const MeetingsListState({
     this.tab = MeetingStatus.upcoming,
@@ -20,9 +22,13 @@ class MeetingsListState {
     this.status = MeetingsListStatus.idle,
     this.items = const [],
     this.error,
+    this.pendingRsvpIds = const <String>{},
+    this.rsvpError,
   });
 
   bool get isFiltered => !filter.isEmpty;
+
+  bool isRsvpPending(String meetingId) => pendingRsvpIds.contains(meetingId);
 
   MeetingsListState copyWith({
     MeetingStatus? tab,
@@ -31,6 +37,9 @@ class MeetingsListState {
     List<Meeting>? items,
     String? error,
     bool clearError = false,
+    Set<String>? pendingRsvpIds,
+    String? rsvpError,
+    bool clearRsvpError = false,
   }) {
     return MeetingsListState(
       tab: tab ?? this.tab,
@@ -38,6 +47,8 @@ class MeetingsListState {
       status: status ?? this.status,
       items: items ?? this.items,
       error: clearError ? null : (error ?? this.error),
+      pendingRsvpIds: pendingRsvpIds ?? this.pendingRsvpIds,
+      rsvpError: clearRsvpError ? null : (rsvpError ?? this.rsvpError),
     );
   }
 }

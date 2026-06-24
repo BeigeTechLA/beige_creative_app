@@ -1,5 +1,6 @@
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_participant.dart';
+import '../../domain/models/meeting_response.dart';
 import '../mappers/meeting_enum_mapper.dart';
 import 'meeting_user_dto.dart';
 
@@ -16,13 +17,20 @@ import 'meeting_user_dto.dart';
 /// Nullables observed in live data: `description`, `client`, `admin`,
 /// `created_by`, `change_request`, `order`. Each guarded individually.
 class MeetingDto {
-  static Meeting fromRestJson(Map<String, dynamic> json) {
+  /// [currentUserId] is the session-resolved CP user id used to populate
+  /// `myResponse` from the `participant_responses` array. Pass empty when no
+  /// user is in session — caller already guards against that for list calls.
+  static Meeting fromRestJson(
+    Map<String, dynamic> json, {
+    String currentUserId = '',
+  }) {
     final order = json['order'];
     final projectName = order is Map<String, dynamic>
         ? (order['name'] as String?) ?? ''
         : '';
 
     final link = (json['meetLink'] ?? json['meet_link'] ?? '') as String;
+    final responses = _readParticipantResponses(json['participant_responses']);
 
     return Meeting(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
@@ -45,7 +53,36 @@ class MeetingDto {
       // renders the empty list as no agenda section content.
       agenda: const <String>[],
       participants: _readParticipants(json['participants']),
+      participantResponses: responses,
+      myResponse: currentUserId.isEmpty ? null : responses[currentUserId],
     );
+  }
+
+  /// Server shape: `participant_responses: [{ user_id, response }]`.
+  /// Unknown response strings are dropped (treated as no response).
+  static Map<String, MeetingResponse> _readParticipantResponses(Object? raw) {
+    if (raw is! List) return const {};
+    final out = <String, MeetingResponse>{};
+    for (final entry in raw) {
+      if (entry is! Map<String, dynamic>) continue;
+      final userId = (entry['user_id'] ?? entry['userId'] ?? '').toString();
+      if (userId.isEmpty) continue;
+      final r = _parseResponse(entry['response']);
+      if (r != null) out[userId] = r;
+    }
+    return out;
+  }
+
+  static MeetingResponse? _parseResponse(Object? raw) {
+    if (raw is! String) return null;
+    switch (raw.toLowerCase()) {
+      case 'accepted':
+        return MeetingResponse.accepted;
+      case 'declined':
+      case 'rejected':
+        return MeetingResponse.declined;
+    }
+    return null;
   }
 
   static List<MeetingParticipant> _readParticipants(Object? raw) {

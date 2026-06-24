@@ -7,6 +7,7 @@ import '../../../../shared/widgets/app_avatar.dart';
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_participant.dart';
 import '../../domain/models/meeting_platform.dart';
+import '../../domain/models/meeting_response.dart';
 import '../../domain/models/meeting_status.dart';
 import '../../domain/util/can_rsvp.dart';
 
@@ -24,6 +25,7 @@ class MeetingCard extends StatefulWidget {
     required this.onJoin,
     this.onAccept,
     this.onReject,
+    this.rsvpPending = false,
   });
 
   final Meeting meeting;
@@ -31,6 +33,10 @@ class MeetingCard extends StatefulWidget {
   final VoidCallback onJoin;
   final VoidCallback? onAccept;
   final VoidCallback? onReject;
+
+  /// True while an Accept/Reject network call for this meeting is in flight.
+  /// Disables both RSVP buttons and renders a spinner on each.
+  final bool rsvpPending;
 
   @override
   State<MeetingCard> createState() => _MeetingCardState();
@@ -297,28 +303,50 @@ class _MeetingCardState extends State<MeetingCard> {
               ),
               const SizedBox(height: 12),
 
-              // 6a. Accept / Reject row (CP invitation response).
+              // 6a. CP RSVP — status line + Accept / Reject buttons.
+              // Once the CP has responded, hide the matching action button
+              // (Accept once accepted, Reject once declined) and show a
+              // "Your Response: ..." label so they can flip the answer with
+              // the remaining button.
               if (_showRsvp) ...[
-                Row(
-                  children: [
-                    Expanded(
-                      child: _RsvpButton(
-                        label: 'Accept',
-                        backgroundColor: const Color(0xFFD8FDE6),
-                        textColor: const Color(0xFF1DAA23),
-                        onTap: widget.onAccept!,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _RsvpButton(
-                        label: 'Reject',
-                        backgroundColor: const Color(0xFFEECCC9),
-                        textColor: const Color(0xFFD33732),
-                        onTap: widget.onReject!,
-                      ),
-                    ),
-                  ],
+                if (widget.meeting.myResponse != null) ...[
+                  _ResponseStatusLine(response: widget.meeting.myResponse!),
+                  const SizedBox(height: 12),
+                ],
+                Builder(
+                  builder: (_) {
+                    final showAccept =
+                        widget.meeting.myResponse != MeetingResponse.accepted;
+                    final showReject =
+                        widget.meeting.myResponse != MeetingResponse.declined;
+                    final accept = _RsvpButton(
+                      label: 'Accept',
+                      backgroundColor: const Color(0xFFD8FDE6),
+                      textColor: const Color(0xFF1DAA23),
+                      onTap: widget.onAccept!,
+                      loading: widget.rsvpPending,
+                    );
+                    final reject = _RsvpButton(
+                      label: 'Reject',
+                      backgroundColor: const Color(0xFFEECCC9),
+                      textColor: const Color(0xFFD33732),
+                      onTap: widget.onReject!,
+                      loading: widget.rsvpPending,
+                    );
+                    // Single visible button always sits in the left half so
+                    // it never drifts to the right column.
+                    final Widget left = showAccept ? accept : reject;
+                    final bool showBoth = showAccept && showReject;
+                    return Row(
+                      children: [
+                        Expanded(child: left),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: showBoth ? reject : const SizedBox.shrink(),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 12),
               ],
@@ -393,20 +421,23 @@ class _RsvpButton extends StatelessWidget {
     required this.backgroundColor,
     required this.textColor,
     required this.onTap,
+    this.loading = false,
   });
 
   final String label;
   final Color backgroundColor;
   final Color textColor;
   final VoidCallback onTap;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
       label: label,
+      enabled: !loading,
       child: InkWell(
-        onTap: onTap,
+        onTap: loading ? null : onTap,
         borderRadius: BorderRadius.circular(24),
         child: Container(
           height: 28,
@@ -415,16 +446,67 @@ class _RsvpButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
           ),
           alignment: Alignment.center,
-          child: Text(
-            label,
-            style: AppTextStyles.buttonMedium.copyWith(
-              color: textColor,
-              fontFamily: 'Outfit',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          child: loading
+              ? SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(textColor),
+                  ),
+                )
+              : Text(
+                  label,
+                  style: AppTextStyles.buttonMedium.copyWith(
+                    color: textColor,
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
+    );
+  }
+}
+
+class _ResponseStatusLine extends StatelessWidget {
+  const _ResponseStatusLine({required this.response});
+
+  final MeetingResponse response;
+
+  @override
+  Widget build(BuildContext context) {
+    final isAccepted = response == MeetingResponse.accepted;
+    final color = isAccepted
+        ? const Color(0xFF1DAA23)
+        : const Color(0xFFD33732);
+    final label = isAccepted ? 'Accepted' : 'Rejected';
+    return Row(
+      children: [
+        Icon(
+          isAccepted ? Icons.check_circle_outline : Icons.cancel_outlined,
+          size: 16,
+          color: color,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'Your Response: ',
+          style: AppTextStyles.body14.copyWith(
+            color: AppColors.textSecondary,
+            fontFamily: 'Outfit',
+            fontSize: 12,
+          ),
+        ),
+        Text(
+          label,
+          style: AppTextStyles.body14.copyWith(
+            color: color,
+            fontFamily: 'Outfit',
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 }

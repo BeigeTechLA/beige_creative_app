@@ -63,6 +63,7 @@ class ApiEndpoints {
   static String meetingById(String id) => 'external-meetings/$id';
   static String meetingParticipants(String id) =>
       'external-meetings/$id/participants';
+  static String meetingRespond(String id) => 'external-meetings/$id/respond';
 
   // ───── Messages / External Chat (M6) ─────────────────────────────────────
   static const String chatRooms = 'external-chat/rooms';

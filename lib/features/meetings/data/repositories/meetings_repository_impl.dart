@@ -1,5 +1,6 @@
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_filter.dart';
+import '../../domain/models/meeting_response.dart';
 import '../../domain/models/meeting_status.dart';
 import '../../domain/models/update_meeting_input.dart';
 import '../../domain/repositories/meetings_repository.dart';
@@ -41,6 +42,10 @@ class MeetingsRepositoryImpl implements MeetingsRepository {
   @override
   Future<Meeting> addParticipants(String id, List<String> userIds) =>
       _remote.addParticipants(id, userIds);
+
+  @override
+  Future<Meeting> respond(String id, MeetingResponse response) =>
+      _remote.respond(id, response.serverValue);
 
   /// Serializes [UpdateMeetingInput] to the server's snake_case patch body.
   /// Skips `null` fields so PATCH stays truly partial (`MEETINGS_API.md` §5).
