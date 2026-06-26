@@ -54,3 +54,6 @@ ios/Flutter/GoogleMaps-prod.xcconfig
 
 # Local scratch / design references
 /testing/
+
+# Golden-test failure artifacts (diffs + masters re-emitted on every run)
+/test/golden/failures/

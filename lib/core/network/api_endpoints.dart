@@ -65,6 +65,18 @@ class ApiEndpoints {
       'external-meetings/$id/participants';
   static String meetingRespond(String id) => 'external-meetings/$id/respond';
 
+  // ───── File Manager (FM6) ────────────────────────────────────────────────
+  // Backend endpoints not yet confirmed — paths follow
+  // FILE_MANAGER_UI_PLAN.md §8. Adjust when the API contract is finalized.
+  static const String fileManagerRoot = 'file-manager/root';
+  static String fileManagerFolder(String id) => 'file-manager/folders/$id';
+  static String fileManagerFolderDelete(String id) =>
+      'file-manager/folders/$id';
+  static String fileManagerFileDelete(String id) => 'file-manager/files/$id';
+  static String fileManagerFileDownload(String id) =>
+      'file-manager/files/$id/download';
+  static const String fileManagerShare = 'file-manager/share';
+
   // ───── Messages / External Chat (M6) ─────────────────────────────────────
   static const String chatRooms = 'external-chat/rooms';
   static const String chatDirectory = 'external-chat/directory';

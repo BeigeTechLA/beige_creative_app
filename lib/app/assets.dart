@@ -116,6 +116,9 @@ class AppAssets {
 
   static const String eyeOpen = '$_svg/eyes1.svg';
   static const String eyeClose = '$_svg/eyes2.svg';
+  static const String icFolder = '$_svg/ic_folder.svg';
+  static const String icLink = '$_svg/ic_link.svg';
+  static const String icUnlink = '$_svg/ic_unlink.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — Upload

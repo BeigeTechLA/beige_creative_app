@@ -265,7 +265,7 @@ class AppColors {
 
   static const Color mapBlue = Color(0xFF1A73E8);
   static const Color mapGrey = Color(0xFF757575);
-
+  static const Color lightGrey = Color(0xFFCDC5C5);
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // EXTENDED — Phase 1 additions (harvested from widget literals)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -5,6 +5,34 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-06-26: File Manager UI mockups design alignment enhancements
+
+Aligned the File Manager UI widgets with the provided Figma mockup screenshots, polishing search input borders, scrollable flat tab bars, folder card colors and spacing, portrait file previews, custom project badge initial blocks, and actions sheet dividers.
+
+- **Files touched:**
+  - `lib/features/file_manager/presentation/widgets/fm_search_field.dart` — changed border corners from standard 8px (`AppRadii.mdAll`) to fully rounded capsule pill (`AppRadii.fullAll`).
+  - `lib/features/file_manager/presentation/widgets/fm_tab_bar.dart` — changed from a capsule container to a flat, horizontally scrollable tab row with active bottom underline indicator matching Option A (Brand Gold).
+  - `lib/features/file_manager/presentation/screens/file_manager_screen.dart` — removed horizontal padding wrapping the tab bar, letting the scrollable bar scroll to screen edges natively.
+  - `lib/features/file_manager/presentation/widgets/fm_folder_card.dart` — updated folder icon to use `AppAssets.icFolder` SVG with `AppColors.warning` (amber-yellow), file count text to secondary color, and opened-ago timestamp to small muted style.
+  - `lib/features/file_manager/presentation/widgets/fm_file_card.dart` — replaced square preview block file icon with portrait vertical document preview (`_DocumentPreview`) displaying custom text/icons.
+  - `lib/features/file_manager/presentation/widgets/fm_linked_badge.dart` — added support for outline chip style variant using a boolean flag, and adjusted padding/font to make it compact (height ~28px).
+  - `lib/features/file_manager/presentation/widgets/fm_tag_chip.dart` — adjusted padding/font to make it compact (height ~28px), aligning with the linked badge.
+  - `lib/features/file_manager/presentation/widgets/fm_project_badge_card.dart` — updated project initial preview `_Thumb` to display raw badge label (e.g. `L#1`) and styled badge background with light blue-grey and dark text.
+  - `lib/features/file_manager/presentation/widgets/fm_actions_sheet.dart` — added divider lines between action rows.
+
+- **Decisions:**
+  - **Option A for tab underline and folder icon**: Kept design options aligned with brand colors using warning-amber and brand-gold.
+  - **Option B for linked badge**: Implemented outline constructor flag but kept standard folder card badge solid as shown on left screen of the mockup.
+  - **Update all goldens**: Re-generated both file manager and other pre-existing failing golden screenshots (`messages_test.dart` and `cards_test.dart`) to keep global checks green.
+
+- **Verification:**
+  - `flutter test test/features/file_manager/` — all tests passed.
+  - `flutter test test/golden/file_manager_test.dart` — all tests passed.
+  - `flutter test` — all tests passed.
+  - `flutter analyze --no-fatal-infos` — zero issues.
+
+---
+
 ### 2026-06-23: Messages chat-details participant role labels
 
 Reused the chat thread role formatter in the chat details participants list so backend role codes render consistently everywhere messages show user roles.

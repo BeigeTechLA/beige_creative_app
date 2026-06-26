@@ -105,10 +105,10 @@ abstract class Routes {
   // Availability
   static const addAvailability = RouteSpec(name: 'add_availability', path: '/add-availability', featureArea: 'availability');
 
-  // File manager
-  static const postProduction = RouteSpec(name: 'post_production', path: '/post-production');
-  static const preProduction = RouteSpec(name: 'pre_production', path: '/pre-production');
-  static const fileViewer = RouteSpec(name: 'file_viewer', path: '/file-viewer');
+  // File manager — see docs/feature/FILE_MANAGER_UI_PLAN.md.
+  // Root tab is `files` above. Folder details is nested; file open is
+  // inline via CommonFileViewer (no in-app screen needed).
+  static const filesFolder = RouteSpec(name: 'files_folder', path: '/files/folder/:id', featureArea: 'files');
 
   // Messages
   static const chat = RouteSpec(name: 'chat', path: '/chat', featureArea: 'messages');
@@ -127,7 +127,7 @@ abstract class Routes {
     deleteAccount, deleteAccountOtp, deleteAccountSuccess,
     upcomingShootDetails, cancelShoot, shootCancelotties,
     addAvailability,
-    postProduction, preProduction, fileViewer,
+    filesFolder,
     chat, chatDetails,
   ];
 
