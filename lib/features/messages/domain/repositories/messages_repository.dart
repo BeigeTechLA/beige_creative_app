@@ -69,4 +69,13 @@ abstract class MessagesRepository {
   Future<void> markRead(String conversationId, String upToMessageId);
 
   Future<ChatDetails> fetchDetails(String conversationId);
+
+  /// Reacts to [messageId] in [conversationId] with [emoji]. Returns the
+  /// emoji + reactor id so callers can patch state optimistically before
+  /// the socket echo lands.
+  Future<({String emoji, String userId})> sendReaction({
+    required String conversationId,
+    required String messageId,
+    required String emoji,
+  });
 }

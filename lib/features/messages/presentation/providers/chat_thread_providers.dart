@@ -132,6 +132,9 @@ class ChatThreadState {
   final String? peerName;
   final String? peerAvatarUrl;
   final String? peerRole;
+  /// Message the composer will quote in the next send. Set via
+  /// `setReplyTarget`, cleared via `clearReply` or after successful send.
+  final Message? replyTarget;
 
   const ChatThreadState({
     this.messages = const [],
@@ -145,6 +148,7 @@ class ChatThreadState {
     this.peerName,
     this.peerAvatarUrl,
     this.peerRole,
+    this.replyTarget,
   });
 
   ChatThreadState copyWith({
@@ -160,6 +164,8 @@ class ChatThreadState {
     String? peerName,
     String? peerAvatarUrl,
     String? peerRole,
+    Message? replyTarget,
+    bool clearReplyTarget = false,
   }) {
     return ChatThreadState(
       messages: messages ?? this.messages,
@@ -173,6 +179,8 @@ class ChatThreadState {
       peerName: peerName ?? this.peerName,
       peerAvatarUrl: peerAvatarUrl ?? this.peerAvatarUrl,
       peerRole: peerRole ?? this.peerRole,
+      replyTarget:
+          clearReplyTarget ? null : (replyTarget ?? this.replyTarget),
     );
   }
 }
@@ -374,9 +382,99 @@ class ChatThreadNotifier
     }
   }
 
+  /// Sets/replaces the reply target. Composer picks it up via `state.replyTarget`.
+  void setReplyTarget(Message m) {
+    state = state.copyWith(replyTarget: m);
+  }
+
+  /// Drops the reply target — called by composer's X button or after send.
+  void clearReply() {
+    state = state.copyWith(clearReplyTarget: true);
+  }
+
+  /// Emoji reaction. POSTs `external-chat/messages/:id/reaction` and patches
+  /// the target message's reactions map optimistically so the pill appears
+  /// before the socket echo lands. On error, rolls back + surfaces a hint.
+  Future<void> sendReaction(String messageId, String emoji) async {
+    final selfId = state.currentUserId ?? '';
+    state = state.copyWith(
+      messages: [
+        for (final m in state.messages)
+          if (m.id == messageId)
+            m.copyWith(reactions: _addReactor(m.reactions, emoji, selfId))
+          else
+            m,
+      ],
+    );
+    try {
+      await ref.read(messagesRepositoryProvider).sendReaction(
+            conversationId: arg,
+            messageId: messageId,
+            emoji: emoji,
+          );
+    } catch (e, st) {
+      AppLogger.e('Send reaction failed', e, st);
+      state = state.copyWith(
+        messages: [
+          for (final m in state.messages)
+            if (m.id == messageId)
+              m.copyWith(reactions: _removeReactor(m.reactions, emoji, selfId))
+            else
+              m,
+        ],
+        errorMessage: 'Could not add reaction',
+      );
+      if (e is UnauthorizedException) {
+        unawaited(ref.read(authStateProvider.notifier).logout());
+      }
+    }
+  }
+
+  Map<String, Set<String>> _addReactor(
+    Map<String, Set<String>> current,
+    String emoji,
+    String userId,
+  ) {
+    final next = <String, Set<String>>{
+      for (final entry in current.entries) entry.key: {...entry.value},
+    };
+    next[emoji] = {...?next[emoji], userId};
+    return next;
+  }
+
+  Map<String, Set<String>> _removeReactor(
+    Map<String, Set<String>> current,
+    String emoji,
+    String userId,
+  ) {
+    final next = <String, Set<String>>{
+      for (final entry in current.entries) entry.key: {...entry.value},
+    };
+    final set = next[emoji];
+    if (set == null) return next;
+    set.remove(userId);
+    if (set.isEmpty) next.remove(emoji);
+    return next;
+  }
+
   Future<void> sendText(String body) async {
     final trimmed = body.trim();
     if (trimmed.isEmpty) return;
+
+    // Snapshot the reply target so the optimistic bubble + POST use the same
+    // id even if the user changes/clears it mid-flight.
+    final replyTarget = state.replyTarget;
+    final replyToId = replyTarget?.id;
+    final replyPreview = replyTarget == null
+        ? null
+        : MessageReplyPreview(
+            id: replyTarget.id,
+            senderId: replyTarget.senderId,
+            senderName: replyTarget.senderName,
+            type: replyTarget.type,
+            body: replyTarget.body,
+            fileName: replyTarget.file?.name,
+          );
 
     final localId = 'local_${DateTime.now().microsecondsSinceEpoch}';
     final optimistic = Message(
@@ -387,13 +485,18 @@ class ChatThreadNotifier
       body: trimmed,
       sentAt: DateTime.now(),
       deliveryStatus: DeliveryStatus.sending,
+      replyToId: replyToId,
+      replyTo: replyPreview,
     );
-    state = state.copyWith(messages: [...state.messages, optimistic]);
+    state = state.copyWith(
+      messages: [...state.messages, optimistic],
+      clearReplyTarget: true,
+    );
 
     try {
       final saved = await ref
           .read(messagesRepositoryProvider)
-          .sendText(arg, trimmed);
+          .sendText(arg, trimmed, replyToId: replyToId);
       // Backend's `sent_by` is the canonical sender id. Session may persist a
       // different id (e.g. crew_member_id vs user_id) — adopt the saved id so
       // `isMine` resolves correctly for this and any prior socket-echoed own
@@ -401,7 +504,26 @@ class ChatThreadNotifier
       final selfId = saved.senderId.isNotEmpty
           ? saved.senderId
           : state.currentUserId;
-      final alreadyReceived = state.messages.any((m) => m.id == saved.id);
+      // Preserve the local reply preview if the server echo dropped it —
+      // socket payload sometimes omits the expanded `replyTo` block.
+      final merged = (saved.replyTo == null && replyPreview != null)
+          ? Message(
+              id: saved.id,
+              senderId: saved.senderId,
+              senderName: saved.senderName,
+              type: saved.type,
+              sentAt: saved.sentAt,
+              body: saved.body,
+              file: saved.file,
+              isEdited: saved.isEdited,
+              isDeleted: saved.isDeleted,
+              replyToId: saved.replyToId ?? replyToId,
+              replyTo: replyPreview,
+              deliveryStatus: saved.deliveryStatus,
+              reactions: saved.reactions,
+            )
+          : saved;
+      final alreadyReceived = state.messages.any((m) => m.id == merged.id);
       if (alreadyReceived) {
         state = state.copyWith(
           currentUserId: selfId,
@@ -412,7 +534,7 @@ class ChatThreadNotifier
           currentUserId: selfId,
           messages: [
             for (final m in state.messages)
-              if (m.id == localId) saved else m,
+              if (m.id == localId) merged else m,
           ],
         );
       }

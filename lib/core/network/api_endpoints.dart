@@ -85,6 +85,8 @@ class ApiEndpoints {
       'external-chat/messages/$messageId/edit';
   static String chatDeleteMessage(String messageId) =>
       'external-chat/messages/$messageId/delete';
+  static String chatMessageReaction(String messageId) =>
+      'external-chat/messages/$messageId/reaction';
   static String chatMarkRead(String roomId) =>
       'external-chat/room/$roomId/mark-read';
   static String chatRoomDetails(String roomId) =>

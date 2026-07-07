@@ -61,6 +61,8 @@ class Message {
   final String? replyToId;
   final MessageReplyPreview? replyTo;
   final DeliveryStatus deliveryStatus;
+  /// Emoji → set of user ids that reacted with it. Empty map = no reactions.
+  final Map<String, Set<String>> reactions;
 
   const Message({
     required this.id,
@@ -75,6 +77,7 @@ class Message {
     this.replyToId,
     this.replyTo,
     this.deliveryStatus = DeliveryStatus.sent,
+    this.reactions = const {},
   });
 
   Message copyWith({
@@ -84,6 +87,7 @@ class Message {
     bool? isEdited,
     bool? isDeleted,
     DateTime? sentAt,
+    Map<String, Set<String>>? reactions,
   }) {
     return Message(
       id: id ?? this.id,
@@ -97,6 +101,7 @@ class Message {
       isDeleted: isDeleted ?? this.isDeleted,
       replyToId: replyToId,
       replyTo: replyTo,
+      reactions: reactions ?? this.reactions,
       deliveryStatus: deliveryStatus ?? this.deliveryStatus,
     );
   }

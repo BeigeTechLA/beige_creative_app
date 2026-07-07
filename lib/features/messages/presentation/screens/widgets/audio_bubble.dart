@@ -51,7 +51,7 @@ class _AudioBubbleState extends State<AudioBubble> {
   Widget build(BuildContext context) {
     final file = widget.message.file;
     final duration = Duration(milliseconds: file?.durationMs ?? 0);
-    final bg = widget.isMine ? AppColors.primary : AppColors.surfaceCharcoal;
+    final bg = widget.isMine ? AppColors.primary : AppColors.surfaceMid;
     final fg = widget.isMine ? AppColors.textDark : AppColors.textPrimary;
 
     return Padding(

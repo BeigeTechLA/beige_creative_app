@@ -119,4 +119,17 @@ class MessagesRepositoryImpl implements MessagesRepository {
   Future<ChatDetails> fetchDetails(String conversationId) {
     return remote.fetchDetails(conversationId);
   }
+
+  @override
+  Future<({String emoji, String userId})> sendReaction({
+    required String conversationId,
+    required String messageId,
+    required String emoji,
+  }) {
+    return remote.sendReaction(
+      messageId: messageId,
+      roomId: conversationId,
+      emoji: emoji,
+    );
+  }
 }
