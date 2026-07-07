@@ -37,7 +37,8 @@ class MessageDto {
       sentAt: DateTime.parse(json['createdAt'].toString()).toLocal(),
       isEdited: (json['is_edited'] as bool?) ?? false,
       isDeleted: (json['is_deleted'] as bool?) ?? false,
-      replyToId: json['reply_to'] as String?,
+      replyToId: _extractReplyId(json['reply_to']),
+      replyTo: _extractReplyPreview(json['reply_to']),
       deliveryStatus: _restStatus(json, currentUserId: currentUserId, senderId: senderId),
     );
   }
@@ -89,8 +90,62 @@ class MessageDto {
       ).toLocal(),
       isEdited: (json['is_edited'] as bool?) ?? false,
       isDeleted: (json['is_deleted'] as bool?) ?? false,
-      replyToId: (json['replyTo'] ?? json['reply_to']) as String?,
+      replyToId: _extractReplyId(json['replyTo'] ?? json['reply_to']),
+      replyTo: _extractReplyPreview(json['replyTo'] ?? json['reply_to']),
       deliveryStatus: DeliveryStatus.delivered,
+    );
+  }
+
+  /// Backend ships `replyTo` either as a bare id string OR an expanded map
+  /// `{_id, message, sent_by, ...}`. Cast-to-String fails on the map shape —
+  /// pull the id out of both forms.
+  static String? _extractReplyId(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is String) return raw.isEmpty ? null : raw;
+    if (raw is Map) {
+      final id = raw['_id'] ?? raw['id'] ?? raw['messageId'];
+      return id?.toString();
+    }
+    return raw.toString();
+  }
+
+  /// Extracts the full quoted-message preview from `replyTo`. Only present
+  /// when backend expanded the ref (`{_id, message, sent_by, message_type,
+  /// file_name, ...}`); bare-id form returns null and the UI falls back to
+  /// `replyToId` alone.
+  static MessageReplyPreview? _extractReplyPreview(dynamic raw) {
+    if (raw is! Map) return null;
+    final id =
+        (raw['_id'] ?? raw['id'] ?? raw['messageId'])?.toString();
+    if (id == null || id.isEmpty) return null;
+    final sentBy = raw['sent_by'];
+    String senderId = '';
+    String senderName = '';
+    if (sentBy is Map) {
+      senderId = (sentBy['id'] ??
+              sentBy['userId'] ??
+              sentBy['user_id'] ??
+              sentBy['_id'] ??
+              '')
+          .toString();
+      senderName = (sentBy['name'] ??
+              sentBy['full_name'] ??
+              sentBy['fullName'] ??
+              '')
+          .toString();
+    } else if (sentBy != null) {
+      senderId = sentBy.toString();
+    }
+    if (senderName.isEmpty) {
+      senderName = (raw['sent_by_name'] ?? raw['senderName'] ?? '').toString();
+    }
+    return MessageReplyPreview(
+      id: id,
+      senderId: senderId,
+      senderName: senderName,
+      type: _parseType(raw['message_type'] as String?),
+      body: raw['message'] as String?,
+      fileName: (raw['file_name'] ?? raw['fileName']) as String?,
     );
   }
 

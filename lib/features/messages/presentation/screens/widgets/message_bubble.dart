@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../app/colors.dart';
+import '../../../../../app/radii.dart';
 import '../../../../../app/spacing.dart';
 import '../../../../../app/text_styles.dart';
 import '../../../../../shared/widgets/app_avatar.dart';
@@ -159,10 +160,88 @@ class _Bubble extends StatelessWidget {
                 fontStyle: FontStyle.italic,
               ),
             )
-          : Text(
-              message.body ?? '',
-              style: AppTextStyles.body14.copyWith(color: fg),
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (message.replyTo != null) ...[
+                  _ReplyPreview(preview: message.replyTo!, isMine: isMine),
+                  const SizedBox(height: AppSpacing.xs),
+                ],
+                Text(
+                  message.body ?? '',
+                  style: AppTextStyles.body14.copyWith(color: fg),
+                ),
+              ],
             ),
+    );
+  }
+}
+
+/// Quoted-message strip rendered above the bubble body when the current
+/// message is a reply. Author name + one-line body preview; image/file
+/// replies get a type-appropriate placeholder label.
+class _ReplyPreview extends StatelessWidget {
+  const _ReplyPreview({required this.preview, required this.isMine});
+
+  final MessageReplyPreview preview;
+  final bool isMine;
+
+  String get _previewText {
+    final body = preview.body?.trim();
+    if (body != null && body.isNotEmpty) return body;
+    switch (preview.type) {
+      case MessageType.image:
+        return 'Photo';
+      case MessageType.file:
+        return preview.fileName ?? 'Attachment';
+      case MessageType.system:
+      case MessageType.text:
+        return '';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = isMine
+        ? AppColors.onPrimary.withValues(alpha: 0.85)
+        : AppColors.primary;
+    final bg = isMine
+        ? AppColors.onPrimary.withValues(alpha: 0.12)
+        : AppColors.surfaceCharcoal.withValues(alpha: 0.6);
+    final nameColor = isMine ? AppColors.onPrimary : AppColors.textPrimary;
+    final bodyColor = isMine
+        ? AppColors.onPrimary.withValues(alpha: 0.8)
+        : AppColors.textSecondary;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(AppRadii.sm),
+        border: Border(left: BorderSide(color: accent, width: 3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            preview.senderName.isNotEmpty ? preview.senderName : 'Message',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.bodySmallStrong.copyWith(color: nameColor),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            _previewText,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.body12.copyWith(color: bodyColor),
+          ),
+        ],
+      ),
     );
   }
 }
