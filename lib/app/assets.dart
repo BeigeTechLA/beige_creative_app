@@ -15,7 +15,14 @@ class AppAssets {
   static const String _active = 'assets/active';
   static const String _inactive = 'assets/inactive';
   static const String _shootSvg = 'assets/svg/shoots';
+  static const String _messageSvg = 'assets/svg/message';
   static const String _onboarding = 'assets/onboarding';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Message
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String icGroupChat = '$_messageSvg/ic_group_chat.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Active Icons (Bottom Nav / Drawer)

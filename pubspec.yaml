@@ -108,6 +108,7 @@ flutter:
     - assets/onboarding/
     - assets/svg/
     - assets/svg/shoots/
+    - assets/svg/message/
 
   #   - images/a_dot_ham.jpeg
 

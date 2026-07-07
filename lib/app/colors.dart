@@ -16,6 +16,9 @@ class AppColors {
   /// Primary gold accent — buttons, CTAs, highlights
   static const Color primary = Color(0xFFE8D1AB);
 
+  /// 20% opacity of [primary] — used for tinted avatar/icon backgrounds.
+  static const Color primary20 = Color(0x33E8D1AB);
+
   /// Darker gold — pressed states, gradients
   static const Color primaryDark = Color(0xFFD4A14D);
 
@@ -85,6 +88,10 @@ class AppColors {
 
   /// Dark text — for use on light/gold surfaces
   static const Color textDark = Color(0xFF4E4B44);
+
+  /// Golden-tinted subdued text used for meta rows (conversation list count +
+  /// stamp).
+  static const Color textDarkGolden = Color(0xFF898181);
 
   /// Heading text on dark backgrounds
   static const Color textHeading = Color(0xFF1D1D1B);
