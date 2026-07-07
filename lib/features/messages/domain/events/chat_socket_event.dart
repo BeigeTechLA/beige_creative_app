@@ -84,3 +84,21 @@ class SocketErrored extends ChatSocketEvent {
   final String message;
   const SocketErrored(this.message);
 }
+
+/// Emitted once the socket transitions from disconnected → connected after a
+/// prior drop. Signal for consumers (conversation list) to force-refresh so
+/// events missed during the outage are recovered.
+class SocketReconnected extends ChatSocketEvent {
+  const SocketReconnected();
+}
+
+class ReactionUpdated extends ChatSocketEvent {
+  final String conversationId;
+  final String messageId;
+  final Map<String, Set<String>> reactions;
+  const ReactionUpdated(
+    this.conversationId,
+    this.messageId,
+    this.reactions,
+  );
+}

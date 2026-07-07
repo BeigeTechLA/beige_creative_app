@@ -188,6 +188,14 @@ class _FakeMessagesRepository implements MessagesRepository {
       ],
     );
   }
+
+  @override
+  Future<({String emoji, String userId})> sendReaction({
+    required String conversationId,
+    required String messageId,
+    required String emoji,
+  }) async =>
+      throw UnimplementedError();
 }
 
 final _stamp = DateTime(2026, 1, 23, 9, 25);

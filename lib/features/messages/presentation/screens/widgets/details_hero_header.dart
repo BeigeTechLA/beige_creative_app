@@ -6,6 +6,7 @@ import '../../../../../app/colors.dart';
 import '../../../../../app/radii.dart';
 import '../../../../../app/spacing.dart';
 import '../../../../../app/text_styles.dart';
+import '../../../../../shared/util/conversation_title.dart';
 
 /// Beige curved header + dark name strip, matching the profile-screen pattern
 /// (`ProfileHeader`). Avatar straddles the boundary between the beige hero
@@ -27,6 +28,7 @@ class DetailsHeroHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.of(context).padding.top;
+    final displayName = displayConversationTitle(roomName);
     return Column(
       children: [
         Stack(
@@ -77,7 +79,7 @@ class DetailsHeroHeader extends StatelessWidget {
               child: Center(
                 child: _Avatar(
                   diameter: _avatarDiameter,
-                  name: roomName,
+                  name: displayName,
                 ),
               ),
             ),
@@ -87,7 +89,7 @@ class DetailsHeroHeader extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
           child: Text(
-            roomName,
+            displayName,
             style: AppTextStyles.displayBold20.copyWith(
               color: AppColors.textPrimary,
             ),

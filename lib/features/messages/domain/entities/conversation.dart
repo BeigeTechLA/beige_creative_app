@@ -35,6 +35,10 @@ class Conversation {
   final bool isOnline;
   final String? linkedShootId;
   final List<String> participantIds;
+  /// Room-level last-activity timestamp from server `updatedAt`. Used by the
+  /// unread reconcile pass to detect rooms that moved forward while the
+  /// socket was down.
+  final DateTime? updatedAt;
 
   const Conversation({
     required this.id,
@@ -45,6 +49,7 @@ class Conversation {
     this.avatarUrl,
     this.lastMessage,
     this.linkedShootId,
+    this.updatedAt,
   });
 
   Conversation copyWith({
@@ -56,6 +61,7 @@ class Conversation {
     bool? isOnline,
     String? linkedShootId,
     List<String>? participantIds,
+    DateTime? updatedAt,
   }) {
     return Conversation(
       id: id ?? this.id,
@@ -66,6 +72,7 @@ class Conversation {
       isOnline: isOnline ?? this.isOnline,
       linkedShootId: linkedShootId ?? this.linkedShootId,
       participantIds: participantIds ?? this.participantIds,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

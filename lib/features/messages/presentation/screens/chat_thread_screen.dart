@@ -20,6 +20,7 @@ import 'widgets/day_separator.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/message_gesture_wrapper.dart';
 import 'widgets/reply_composer_strip.dart';
+import '../../../../shared/util/conversation_title.dart';
 
 class ChatThreadScreen extends ConsumerStatefulWidget {
   const ChatThreadScreen({
@@ -126,7 +127,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
             // Title matches the list tile (`conversation.title` / room name).
             // Don't override with `state.peerName` — chat details may resolve
             // a different display name and that would diverge from the list.
-            contactName: widget.contactName ?? state.peerName ?? 'Chat',
+            contactName: displayConversationTitle(
+              widget.contactName ?? state.peerName ?? 'Chat',
+            ),
             participantCount: state.participantsById.length,
             isTyping: state.peerTyping,
             onSearch: _toggleSearch,

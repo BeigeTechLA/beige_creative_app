@@ -32,6 +32,12 @@ class MessagesSocketSource {
   Timer? _errorSuppressionTimer;
   static const Duration _errorThrottleWindow = Duration(seconds: 30);
 
+  /// Tracks whether we've seen at least one successful connect. Used to
+  /// distinguish "first connect" from "reconnect after drop" so we only
+  /// broadcast [SocketReconnected] in the latter case.
+  bool _hasConnectedBefore = false;
+  bool _wasDisconnected = false;
+
   /// Per-room broadcast streams. Lazily created in [events]. Cleaned up
   /// in [leaveRoom] + [disconnect].
   final Map<String, StreamController<ChatSocketEvent>> _roomControllers = {};
@@ -66,25 +72,29 @@ class MessagesSocketSource {
     final token = await _session.readToken();
     _user = user;
 
-    final socket = io.io(
-      Env.socketUrl,
-      io.OptionBuilder()
-          .setPath('/socket.io')
-          .setTransports(const ['websocket'])
-          .setExtraHeaders({
-            if (token != null && token.isNotEmpty) 'Authorization': token,
-          })
-          .setAuth({
-            if (token != null && token.isNotEmpty) 'token': token,
-            'userId': user.id,
-            if (user.role != null) 'userRole': user.role,
-          })
-          .enableAutoConnect()
-          .enableReconnection()
-          .setReconnectionDelay(2000)
-          .setReconnectionDelayMax(15000)
-          .build(),
-    );
+    final options = io.OptionBuilder()
+        .setPath('/socket.io')
+        .setTransports(const ['websocket'])
+        .setExtraHeaders({
+          if (token != null && token.isNotEmpty) 'Authorization': token,
+        })
+        .setAuth({
+          if (token != null && token.isNotEmpty) 'token': token,
+          'userId': user.id,
+          if (user.role != null) 'userRole': user.role,
+        })
+        .enableAutoConnect()
+        .enableReconnection()
+        .setReconnectionDelay(2000)
+        .setReconnectionDelayMax(15000)
+        .build();
+    // Force a fresh Manager on every call. `socket_io_client` caches Managers
+    // by URL — after user A logout the disposed manager stays in the cache,
+    // so user B's `io.io()` returns the broken instance and never reconnects.
+    // `forceNew` bypasses the Manager cache (option not exposed by
+    // `OptionBuilder` in v2.x; passed via the raw options map).
+    options['forceNew'] = true;
+    final socket = io.io(Env.socketUrl, options);
 
     _socket = socket;
     _bindLifecycle(socket);
@@ -169,6 +179,8 @@ class MessagesSocketSource {
     _socket = null;
     _user = null;
     _activeRoomIds.clear();
+    _hasConnectedBefore = false;
+    _wasDisconnected = false;
     for (final ctrl in _roomControllers.values) {
       await ctrl.close();
     }
@@ -207,6 +219,14 @@ class MessagesSocketSource {
       for (final roomId in _activeRoomIds) {
         _emitJoinRoom(roomId, user);
       }
+      // Broadcast reconnect signal (only after prior successful connect +
+      // an intervening disconnect) so the conversation list can force a
+      // catch-up refresh for events missed during the outage.
+      if (_hasConnectedBefore && _wasDisconnected) {
+        _emitGlobal(const SocketReconnected());
+      }
+      _hasConnectedBefore = true;
+      _wasDisconnected = false;
     });
 
     if (kDebugMode) {
@@ -229,6 +249,7 @@ class MessagesSocketSource {
     });
 
     socket.onDisconnect((reason) {
+      _wasDisconnected = true;
       if (kDebugMode) {
         debugPrint('[MessagesSocketSource] disconnected: $reason');
       }
@@ -287,6 +308,17 @@ class MessagesSocketSource {
       final messageId = (p['messageId'] ?? p['_id'])?.toString();
       if (roomId == null || messageId == null) return;
       _fan(roomId, MessageDeleted(roomId, messageId));
+    });
+
+    socket.on('reactionUpdated', (raw) {
+      final p = _asMap(raw);
+      if (p == null) return;
+      final roomId = (p['roomId'] ?? p['chat_room_id'])?.toString();
+      final messageId = p['messageId']?.toString();
+      final reactionsRaw = p['reactions'];
+      if (roomId == null || messageId == null) return;
+      final reactions = MessageDto.parseReactions(reactionsRaw);
+      _fan(roomId, ReactionUpdated(roomId, messageId, reactions));
     });
 
     socket.on('updateChatRoom', (raw) {

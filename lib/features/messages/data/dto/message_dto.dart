@@ -40,6 +40,7 @@ class MessageDto {
       replyToId: _extractReplyId(json['reply_to']),
       replyTo: _extractReplyPreview(json['reply_to']),
       deliveryStatus: _restStatus(json, currentUserId: currentUserId, senderId: senderId),
+      reactions: parseReactions(json['reactions']),
     );
   }
 
@@ -93,6 +94,7 @@ class MessageDto {
       replyToId: _extractReplyId(json['replyTo'] ?? json['reply_to']),
       replyTo: _extractReplyPreview(json['replyTo'] ?? json['reply_to']),
       deliveryStatus: DeliveryStatus.delivered,
+      reactions: parseReactions(json['reactions']),
     );
   }
 
@@ -190,5 +192,20 @@ class MessageDto {
           : DeliveryStatus.delivered;
     }
     return DeliveryStatus.delivered;
+  }
+
+  static Map<String, Set<String>> parseReactions(dynamic raw) {
+    if (raw is! List) return const {};
+    final map = <String, Set<String>>{};
+    for (final item in raw) {
+      if (item is Map) {
+        final emoji = item['emoji']?.toString();
+        final userId = (item['user_id'] ?? item['userId'])?.toString();
+        if (emoji != null && userId != null) {
+          map.putIfAbsent(emoji, () => <String>{}).add(userId);
+        }
+      }
+    }
+    return map;
   }
 }

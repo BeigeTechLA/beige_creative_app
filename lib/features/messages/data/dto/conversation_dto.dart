@@ -27,6 +27,10 @@ class ConversationDto {
       if (v is num) unread = v.toInt();
     }
 
+    final rawUpdated = json['updatedAt'] ?? json['updated_at'];
+    final updatedAt = rawUpdated == null
+        ? null
+        : DateTime.tryParse(rawUpdated.toString())?.toLocal();
     return Conversation(
       id: (json['id'] ?? json['_id'] ?? json['chat_id']).toString(),
       title: (json['display_name'] ?? json['name'] ?? '') as String,
@@ -36,6 +40,7 @@ class ConversationDto {
       isOnline: false,
       linkedShootId: (json['external_order_ref'] ?? json['order_id']) as String?,
       participantIds: participantIds,
+      updatedAt: updatedAt,
     );
   }
 

@@ -13,6 +13,8 @@ import '../../../../core/utils/app_logger.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/entities/participant.dart';
 import '../../domain/events/chat_socket_event.dart';
+import 'active_chat_room_provider.dart';
+import 'conversation_list_providers.dart';
 import 'messages_repository_provider.dart';
 
 /// Resolved once per process — backend's canonical `user.id` for the current
@@ -192,9 +194,22 @@ class ChatThreadNotifier
   @override
   ChatThreadState build(String arg) {
     final repo = ref.read(messagesRepositoryProvider);
+    // Publish this thread as the active room so the conversation-list
+    // notifier skips bumping its badge on inbound socket events. Deferred
+    // to a microtask — Riverpod forbids provider mutations during another
+    // provider's build phase.
+    Future.microtask(() {
+      ref.read(activeChatRoomProvider.notifier).state = arg;
+    });
     ref.onDispose(() {
       _eventsSub?.cancel();
       _eventsSub = null;
+      // Only clear the active-room pointer if it still points at us — rapid
+      // room switch may have reassigned already.
+      final current = ref.read(activeChatRoomProvider);
+      if (current == arg) {
+        ref.read(activeChatRoomProvider.notifier).state = null;
+      }
       // Best-effort leave — socket source closes per-room stream regardless
       // of connection state.
       unawaited(repo.leaveConversation(arg));
@@ -361,6 +376,17 @@ class ChatThreadNotifier
           messages: [
             for (final m in state.messages)
               if (m.id == messageId) m.copyWith(isDeleted: true) else m,
+          ],
+        );
+      case ReactionUpdated(:final conversationId, :final messageId, :final reactions)
+          when conversationId == arg:
+        state = state.copyWith(
+          messages: [
+            for (final m in state.messages)
+              if (m.id == messageId)
+                m.copyWith(reactions: reactions)
+              else
+                m,
           ],
         );
       case TypingStarted(:final conversationId) when conversationId == arg:
@@ -570,6 +596,9 @@ class ChatThreadNotifier
   /// field today (REST §4) — `upToMessageId` is forwarded for future
   /// per-message granularity but currently dropped server-side.
   Future<void> markRead() async {
+    // Zero the list badge locally first — instant feedback, independent of
+    // the REST call succeeding. Client owns the unread count for self.
+    ref.read(conversationListProvider.notifier).clearUnread(arg);
     final latestId = state.messages.isEmpty ? '' : state.messages.last.id;
     try {
       await ref.read(messagesRepositoryProvider).markRead(arg, latestId);

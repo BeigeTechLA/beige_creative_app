@@ -161,15 +161,21 @@ void main() {
 
       await source.sendText('room_1', 'hi', replyToId: 'm_3');
 
-      final captured =
-          verify(
-                () => dio.post<dynamic>(
-                  ApiEndpoints.chatMessages('room_1'),
-                  data: captureAny(named: 'data'),
-                ),
-              ).captured.single
-              as Map;
-      expect(captured, {'message': 'hi', 'replyTo': 'm_3'});
+      final captured = verify(
+        () => dio.post<dynamic>(
+          ApiEndpoints.chatMessages('room_1'),
+          data: captureAny(named: 'data'),
+        ),
+      ).captured.single as Map;
+      expect(captured, {
+        'message': 'hi',
+        'sender': {
+          'id': 'user_me',
+          'name': 'Me',
+          'email': '',
+        },
+        'replyTo': 'm_3',
+      });
     });
   });
 

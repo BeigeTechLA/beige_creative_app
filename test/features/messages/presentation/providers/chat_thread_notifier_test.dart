@@ -85,6 +85,14 @@ class _DriverRepo implements MessagesRepository {
   @override
   Future<ChatDetails> fetchDetails(String conversationId) async =>
       throw UnimplementedError();
+
+  @override
+  Future<({String emoji, String userId})> sendReaction({
+    required String conversationId,
+    required String messageId,
+    required String emoji,
+  }) async =>
+      throw UnimplementedError();
 }
 
 Message _msg({
