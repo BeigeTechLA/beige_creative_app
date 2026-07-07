@@ -12,6 +12,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/top_message.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_platform.dart';
 import '../../domain/models/meeting_response.dart';
@@ -62,10 +63,7 @@ class MeetingDetailsSheet extends ConsumerWidget {
               loading: () => _SheetShell(
                 scrollController: scrollController,
                 child: const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: AppSpacing.xxxl),
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  ),
+                  child: AppScreenLoader(size: 40),
                 ),
               ),
               error: (e, _) => _SheetShell(

@@ -14,6 +14,7 @@ import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/util/picker_theme.dart';
 import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../providers/availability_providers.dart';
 
 class AddAvailabilityScreen extends ConsumerStatefulWidget {
@@ -397,15 +398,10 @@ class _AddAvailabilityScreenState
                       ),
                       child: Center(
                         child: state.isSubmitting
-                            ? const SizedBox(
-                                height: 22,
-                                width: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation(
-                                    AppColors.black,
-                                  ),
-                                ),
+                            ? const AppCircularLoader(
+                                size: 22,
+                                strokeWidth: 2,
+                                color: AppColors.black,
                               )
                             : const Text(
                                 'Save',

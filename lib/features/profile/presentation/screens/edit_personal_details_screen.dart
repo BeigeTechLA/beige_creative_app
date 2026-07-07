@@ -22,6 +22,7 @@ import '../../../../shared/widgets/custom_multi_selectfield.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/location_permission_dialog.dart';
 import '../../../../shared/widgets/top_message.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../providers/profile_details_providers.dart';
 
 const _distanceList = <String>[
@@ -251,7 +252,7 @@ class _EditPersonalDetailsScreenState
                       ),
                       child: currentLatLng == null
                           ? const Center(
-                              child: CircularProgressIndicator(),
+                              child: AppCircularLoader(),
                             )
                           : GoogleMap(
                               style: GoogleConfig.darkMapStyle,
@@ -331,10 +332,7 @@ class _EditPersonalDetailsScreenState
               ),
             ),
           if (state.isLoadingInitial || state.isSubmitting)
-            const ColoredBox(
-              color: Color(0x66000000),
-              child: Center(child: CircularProgressIndicator()),
-            ),
+            const AppLoadingOverlay(dimOpacity: 0.4),
         ],
       ),
       bottomNavigationBar: Padding(

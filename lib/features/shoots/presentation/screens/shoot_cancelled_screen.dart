@@ -8,6 +8,7 @@ import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../providers/shoots_providers.dart';
 
 class ShootCancelledScreen extends ConsumerStatefulWidget {
@@ -246,13 +247,10 @@ class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
                                         : null,
                                   ),
                           child: state.isSubmitting
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.white,
-                                  ),
+                              ? const AppCircularLoader(
+                                  size: 18,
+                                  strokeWidth: 2,
+                                  color: AppColors.white,
                                 )
                               : const Text(
                                   'Decline',

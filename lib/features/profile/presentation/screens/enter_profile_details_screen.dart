@@ -13,6 +13,7 @@ import '../../../../shared/widgets/custom_multi_selectfield.dart'
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../providers/profile_details_providers.dart';
 
 class EnterProfileDetailsScreen extends ConsumerStatefulWidget {
@@ -154,10 +155,7 @@ class _EnterProfileDetailsScreenState
               ),
             ),
             if (state.isLoadingInitial || state.isSubmitting)
-              const ColoredBox(
-                color: Color(0x66000000),
-                child: Center(child: CircularProgressIndicator()),
-              ),
+              const AppLoadingOverlay(dimOpacity: 0.4),
           ],
         ),
       bottomNavigationBar: Padding(

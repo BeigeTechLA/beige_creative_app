@@ -9,6 +9,7 @@ import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/entities/participant.dart';
 import '../providers/chat_thread_providers.dart';
@@ -187,9 +188,7 @@ class _ThreadBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state.isLoading && state.messages.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
-      );
+      return const AppScreenLoader();
     }
     if (state.errorMessage != null && state.messages.isEmpty) {
       return AppEmptyState(

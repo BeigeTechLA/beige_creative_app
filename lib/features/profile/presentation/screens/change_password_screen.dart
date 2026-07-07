@@ -13,6 +13,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/new_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../providers/change_password_providers.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -127,14 +128,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     ),
                   ),
                   child: state.isSubmitting
-                      ? const SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation(AppColors.black),
-                          ),
+                      ? const AppCircularLoader(
+                          size: 22,
+                          strokeWidth: 2,
+                          color: AppColors.black,
                         )
                       : Text(
                           'Send OTP',

@@ -11,7 +11,7 @@ import '../routes/signup_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
-import '../../../../shared/widgets/app_loader.dart' show AppLoader;
+import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/custom_multi_selectfield.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -353,7 +353,8 @@ class _EquipmentSection extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.only(top: AppSpacing.md),
             child: Center(
-              child: CircularProgressIndicator(
+              child: AppCircularLoader(
+                size: 22,
                 strokeWidth: 2,
                 color: AppColors.primary,
               ),

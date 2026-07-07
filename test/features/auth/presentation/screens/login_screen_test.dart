@@ -2,6 +2,7 @@ import 'package:beige_creative_app/app/routes.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/login_notifier.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/login_state.dart';
 import 'package:beige_creative_app/features/auth/presentation/screens/login_screen.dart';
+import 'package:beige_creative_app/shared/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -144,5 +145,17 @@ void main() {
 
     expect(find.text('saved@x.io'), findsOneWidget);
     expect(find.text('saved-pw'), findsOneWidget);
+  });
+
+  testWidgets('renders AppLoadingOverlay when isLoggingIn=true', (tester) async {
+    await _pump(
+      tester,
+      initial: const LoginState(
+        savedCredentialsLoaded: true,
+        isLoggingIn: true,
+      ),
+    );
+
+    expect(find.byType(AppLoadingOverlay), findsOneWidget);
   });
 }

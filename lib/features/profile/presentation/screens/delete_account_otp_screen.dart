@@ -13,6 +13,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../providers/delete_account_providers.dart';
 
 class DeleteAccountOtpScreen extends ConsumerStatefulWidget {
@@ -234,14 +235,10 @@ class _DeleteAccountOtpScreenState
                     ),
                   ),
                   child: state.isSubmitting
-                      ? const SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation(AppColors.black),
-                          ),
+                      ? const AppCircularLoader(
+                          size: 22,
+                          strokeWidth: 2,
+                          color: AppColors.black,
                         )
                       : Text(
                           'Continue',

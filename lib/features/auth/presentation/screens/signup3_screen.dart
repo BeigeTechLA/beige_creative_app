@@ -12,7 +12,7 @@ import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
-import '../../../../shared/widgets/app_loader.dart' show AppLoader;
+import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/signup_notifier.dart';
 import '../providers/signup_state.dart';

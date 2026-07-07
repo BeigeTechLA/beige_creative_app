@@ -15,7 +15,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../core/utils/validators.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
-import '../../../../shared/widgets/app_loader.dart' show AppLoader;
+import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/location_permission_dialog.dart';
 import '../../../../shared/widgets/top_message.dart';

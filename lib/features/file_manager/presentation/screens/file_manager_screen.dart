@@ -20,6 +20,7 @@ import '../widgets/fm_error_view.dart';
 import '../widgets/fm_recursive_list.dart';
 import '../widgets/fm_search_field.dart';
 import '../widgets/fm_tab_bar.dart';
+import '../../../../shared/widgets/loading.dart';
 
 class FileManagerScreen extends ConsumerWidget {
   const FileManagerScreen({super.key});
@@ -138,9 +139,7 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state.status == FmListStatus.loading && state.items.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
-      );
+      return const AppScreenLoader();
     }
     if (state.status == FmListStatus.error && state.items.isEmpty) {
       return FmErrorView(

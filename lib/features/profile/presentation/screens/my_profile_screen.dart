@@ -8,7 +8,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
-import '../../../../shared/widgets/app_loader.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/my_profile_providers.dart';

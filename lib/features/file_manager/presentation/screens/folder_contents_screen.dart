@@ -23,6 +23,7 @@ import '../widgets/fm_delete_confirm_dialog.dart';
 import '../widgets/fm_empty_view.dart';
 import '../widgets/fm_error_view.dart';
 import '../widgets/fm_project_badge_card.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../widgets/fm_recursive_list.dart';
 import '../widgets/fm_search_field.dart';
 
@@ -197,9 +198,7 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state.status == FmListStatus.loading && state.items.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
-      );
+      return const AppScreenLoader();
     }
     if (state.status == FmListStatus.error && state.items.isEmpty) {
       return FmErrorView(

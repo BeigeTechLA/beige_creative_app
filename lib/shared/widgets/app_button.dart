@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
-
+import 'loading.dart';
 import '../../app/assets.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
@@ -54,13 +53,10 @@ class AppButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (isLoading) ...[
-          SizedBox(
-            height: 24,
-            width: 24,
-            child: Lottie.asset(
-              AppAssets.lottieLoader,
-              fit: BoxFit.contain,
-            ),
+          AppCircularLoader(
+            size: 20,
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(colors.foreground),
           ),
           const SizedBox(width: AppSpacing.sm),
         ] else if (icon != null) ...[

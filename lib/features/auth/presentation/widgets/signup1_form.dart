@@ -17,6 +17,7 @@ import 'package:beige_creative_app/app/assets.dart';
 import '../../../../service/google_config.dart';
 import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
+import '../../../../shared/widgets/loading.dart';
 import 'signup1_profile_card.dart';
 
 const List<String> _distances = [
@@ -136,7 +137,7 @@ class SignUp1Form extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: AppRadii.xxlAll,
                 child: currentLatLng == null
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(child: AppCircularLoader())
                     : GoogleMap(
                         initialCameraPosition: CameraPosition(
                           target: currentLatLng!,

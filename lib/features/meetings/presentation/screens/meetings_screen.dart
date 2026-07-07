@@ -10,6 +10,7 @@ import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/top_message.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../domain/models/meeting_response.dart';
 import '../providers/meetings_list_notifier.dart';
 import '../providers/meetings_list_state.dart';
@@ -165,9 +166,7 @@ class _ListBody extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         children: const [
           SizedBox(height: 120),
-          Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          ),
+          AppScreenLoader(),
         ],
       );
     }

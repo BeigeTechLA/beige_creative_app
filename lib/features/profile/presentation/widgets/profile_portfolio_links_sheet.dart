@@ -6,6 +6,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
+import '../../../../shared/widgets/loading.dart';
 
 typedef PortfolioLinkChange = void Function(VoidCallback mutator);
 
@@ -318,13 +319,10 @@ class _ProfilePortfolioLinksSheetState
                                   setState(() => showForm = false),
                             ),
                     child: isUpdating
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColors.black,
-                            ),
+                        ? const AppCircularLoader(
+                            size: 20,
+                            strokeWidth: 2,
+                            color: AppColors.black,
                           )
                         : const Text(
                             'Save Link',

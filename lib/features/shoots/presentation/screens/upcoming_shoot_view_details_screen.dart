@@ -12,7 +12,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
-import '../../../../shared/widgets/app_loader.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/upcoming_shoot_providers.dart';
 

@@ -11,6 +11,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../../auth/presentation/widgets/signup1_crop_sheet.dart'
     show CircleHolePainter;
 
@@ -213,14 +214,10 @@ class _ProfileImageCropSheetState extends State<ProfileImageCropSheet> {
                       }
                     },
               child: isSaving
-                  ? const SizedBox(
-                      height: 22,
-                      width: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(AppColors.black),
-                      ),
+                  ? const AppCircularLoader(
+                      size: 22,
+                      strokeWidth: 2.5,
+                      color: AppColors.black,
                     )
                   : const Text(
                       'Save',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/spacing.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../domain/models/fm_node.dart';
 import 'fm_file_card.dart';
 import 'fm_folder_card.dart';
@@ -76,13 +77,10 @@ class _FmRecursiveListState extends State<FmRecursiveList> {
               return const Padding(
                 padding: EdgeInsets.all(AppSpacing.base),
                 child: Center(
-                  child: SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.4,
-                      color: AppColors.primary,
-                    ),
+                  child: AppCircularLoader(
+                    size: 22,
+                    strokeWidth: 2.4,
+                    color: AppColors.primary,
                   ),
                 ),
               );

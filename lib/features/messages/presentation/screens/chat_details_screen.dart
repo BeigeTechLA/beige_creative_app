@@ -7,6 +7,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../domain/entities/chat_details.dart';
 import '../../domain/entities/participant.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../domain/role_label.dart';
 import '../providers/chat_details_providers.dart';
 import 'widgets/details_hero_header.dart';
@@ -24,9 +25,7 @@ class ChatDetailsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: detailsAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
+        loading: () => const AppScreenLoader(),
         error: (e, _) => Center(
           child: AppEmptyState(
             icon: Icons.error_outline,

@@ -2,7 +2,7 @@ import 'package:beige_creative_app/config/env.dart';
 import 'package:beige_creative_app/features/shoots/presentation/providers/upcoming_shoot_providers.dart';
 import 'package:beige_creative_app/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart';
 import 'package:beige_creative_app/model_class/upcoming_shootview_model.dart';
-import 'package:beige_creative_app/shared/widgets/app_loader.dart';
+import 'package:beige_creative_app/shared/widgets/loading.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 

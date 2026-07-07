@@ -180,9 +180,10 @@ class AppAssets {
   // Lottie
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const String lottieSuccess = '$_lottie/untitled_file.json';
+  static const String lottieSuccess = '$_lottie/success_animation.json';
   static const String lottieSplash = '$_lottie/Component10.json';
   static const String lottieLoader = '$_lottie/loader.json';
+  static const String lottieCircleLoader = '$_lottie/circleLoader.json';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // FONT FAMILIES

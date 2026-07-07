@@ -1,7 +1,7 @@
 import 'package:beige_creative_app/features/profile/presentation/providers/my_profile_providers.dart';
 import 'package:beige_creative_app/features/profile/presentation/screens/my_profile_screen.dart';
 import 'package:beige_creative_app/model_class/myprofile_model.dart';
-import 'package:beige_creative_app/shared/widgets/app_loader.dart';
+import 'package:beige_creative_app/shared/widgets/loading.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../helpers/pump_app.dart';

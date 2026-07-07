@@ -15,7 +15,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../model_class/shoots_model.dart';
 import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
-import '../../../../shared/widgets/app_loader.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../providers/shoots_providers.dart';
 
@@ -356,13 +356,10 @@ class _ShootCard extends StatelessWidget {
                             ),
                             onPressed: isAcceptInFlight ? null : onAccept,
                             child: isAcceptInFlight
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppColors.shootAcceptButtonText,
-                                    ),
+                                ? const AppCircularLoader(
+                                    size: 16,
+                                    strokeWidth: 2,
+                                    color: AppColors.shootAcceptButtonText,
                                   )
                                 : Text(
                                     'Accept',

@@ -13,6 +13,7 @@ import '../../domain/models/meeting_platform.dart';
 import '../../domain/models/meeting_response.dart';
 import '../../domain/models/meeting_status.dart';
 import '../../domain/util/can_rsvp.dart';
+import '../../../../shared/widgets/loading.dart';
 
 /// Single meeting summary card — title, platform chip, date/time meta,
 /// participants, and a full-width Join CTA. Tap anywhere outside the CTA opens
@@ -462,13 +463,10 @@ class _RsvpButton extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: loading
-              ? SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(textColor),
-                  ),
+              ? AppCircularLoader(
+                  size: 14,
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(textColor),
                 )
               : Text(
                   label,

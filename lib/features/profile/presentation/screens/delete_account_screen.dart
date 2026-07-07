@@ -10,6 +10,7 @@ import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../providers/delete_account_providers.dart';
 
 class DeleteAccountScreen extends ConsumerWidget {
@@ -140,14 +141,10 @@ class DeleteAccountScreen extends ConsumerWidget {
                     ),
                   ),
                   child: state.isSubmitting
-                      ? const SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation(AppColors.black),
-                          ),
+                      ? const AppCircularLoader(
+                          size: 22,
+                          strokeWidth: 2,
+                          color: AppColors.black,
                         )
                       : Text(
                           'Continue',

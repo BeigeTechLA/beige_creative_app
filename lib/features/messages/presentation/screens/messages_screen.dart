@@ -9,6 +9,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../providers/conversation_list_providers.dart';
 import '../routes/messages_args.dart';
 import 'widgets/conversation_tile.dart';
@@ -147,9 +148,7 @@ class _ListBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state.isLoading && state.items.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
-      );
+      return const AppScreenLoader();
     }
     if (state.errorMessage != null && state.items.isEmpty) {
       return ListView(

@@ -1,5 +1,6 @@
 import 'package:beige_creative_app/features/availability/presentation/providers/availability_providers.dart';
 import 'package:beige_creative_app/features/availability/presentation/screens/add_availability_screen.dart';
+import 'package:beige_creative_app/shared/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -110,6 +111,6 @@ void main() {
     );
 
     expect(find.text('Save'), findsNothing);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(AppCircularLoader), findsOneWidget);
   });
 }

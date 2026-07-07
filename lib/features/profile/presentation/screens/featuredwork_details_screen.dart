@@ -11,7 +11,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../model_class/myprofile_model.dart';
 import '../../../../config/env.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
-import '../../../../shared/widgets/app_loader.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/profile_files_providers.dart';
 
