@@ -5,11 +5,10 @@ import '../../../../app/durations.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
-import '../../domain/models/meeting_status.dart';
+import '../../domain/models/meetings_tab.dart';
 
-/// Pill segmented tab bar — Upcoming / Completed. Mirrors MessagesTabBar.
-/// Active pill uses the gold horizontal gradient; inactive pills sit flat
-/// on the surface.
+/// Pill segmented tab bar — Upcoming / Completed. Active pill uses
+/// the gold horizontal gradient; inactive pills sit flat on the surface.
 class MeetingsTabBar extends StatelessWidget {
   const MeetingsTabBar({
     super.key,
@@ -17,31 +16,26 @@ class MeetingsTabBar extends StatelessWidget {
     required this.onChanged,
   });
 
-  final MeetingStatus selected;
-  final ValueChanged<MeetingStatus> onChanged;
-
-  static const _items = <(MeetingStatus, String)>[
-    (MeetingStatus.upcoming, 'Upcoming'),
-    (MeetingStatus.completed, 'Completed'),
-  ];
+  final MeetingsTab selected;
+  final ValueChanged<MeetingsTab> onChanged;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 53,
-      padding: const EdgeInsets.all(AppSpacing.tabInnerPad),
+      padding: const EdgeInsets.all(AppSpacing.xxs),
       decoration: BoxDecoration(
         color: AppColors.surfaceMid,
         borderRadius: AppRadii.xlAll,
       ),
       child: Row(
         children: [
-          for (final entry in _items)
+          for (final tab in MeetingsTab.values)
             Expanded(
               child: _Pill(
-                label: entry.$2,
-                isActive: entry.$1 == selected,
-                onTap: () => onChanged(entry.$1),
+                label: tab.label,
+                isActive: tab == selected,
+                onTap: () => onChanged(tab),
               ),
             ),
         ],
@@ -80,7 +74,7 @@ class _Pill extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             label,
-            style: AppTextStyles.body14Medium.copyWith(
+            style: AppTextStyles.labelLarge.copyWith(
               color: isActive ? AppColors.textHeading : AppColors.white30,
             ),
           ),

@@ -487,4 +487,44 @@ class AppColors {
     colors: [goldGradientLight, goldGradientCream],
     stops: [0.0, 1.0],
   );
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // MEETING STATUS + RSVP PALETTE
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// 0xFFFFF4C9 — Meeting status: pending / scheduled bg
+  static const Color meetingPendingBg = Color(0xFFFFF4C9);
+
+  /// 0xFFBA6605 — Meeting status: pending / scheduled fg
+  static const Color meetingPendingFg = Color(0xFFBA6605);
+
+  /// 0xFFC3E7FD — Meeting status: ongoing bg
+  static const Color meetingOngoingBg = Color(0xFFC3E7FD);
+
+  /// 0xFF0575BA — Meeting status: ongoing fg
+  static const Color meetingOngoingFg = Color(0xFF0575BA);
+
+  /// 0xFFD4FFE4 — Meeting status: completed bg
+  static const Color meetingCompletedBg = Color(0xFFD4FFE4);
+
+  /// 0xFF16A34A — Meeting status: completed fg
+  static const Color meetingCompletedFg = Color(0xFF16A34A);
+
+  /// 0xFFFFDDAD — Meeting status: rescheduled bg
+  static const Color meetingRescheduledBg = Color(0xFFFFDDAD);
+
+  /// 0xFF8A5C1F — Meeting status: rescheduled fg
+  static const Color meetingRescheduledFg = Color(0xFF8A5C1F);
+
+  /// 0xFFFFD3D3 — Meeting status: cancelled bg
+  static const Color meetingCancelledBg = Color(0xFFFFD3D3);
+
+  /// 0xFFD33732 — Meeting status: cancelled / reject fg
+  static const Color meetingCancelledFg = Color(0xFFD33732);
+
+  /// 0xFFD33732 — RSVP reject fg (alias of cancelled)
+  static const Color meetingRejected = meetingCancelledFg;
+
+  /// 0xFFEECCC9 — RSVP reject soft bg (alias of softPeach)
+  static const Color meetingRejectSoftBg = softPeach;
 }

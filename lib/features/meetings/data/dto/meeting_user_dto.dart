@@ -12,6 +12,9 @@ import '../../domain/models/meeting_participant.dart';
 ///
 /// Server does not include an avatar URL in the observed payload — keep the
 /// extractor defensive in case it lands later.
+///
+/// Per-user RSVP is NOT carried on this object — it lives in the meeting-level
+/// `participant_responses[]` array. See [MeetingDto].
 class MeetingUserDto {
   static MeetingParticipant fromRestJson(Map<String, dynamic> json) {
     final id = (json['id'] ?? json['_id'] ?? '').toString();
@@ -20,11 +23,13 @@ class MeetingUserDto {
         json['profileImage'] ??
         json['avatar_url'] ??
         json['avatarUrl']) as String?;
+    final role = json['role'] as String?;
 
     return MeetingParticipant(
       id: id,
       name: name,
       avatarUrl: avatar,
+      role: role,
     );
   }
 }

@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../core/utils/date_time_utils.dart';
+import '../../../../shared/widgets/app_button.dart';
+import '../../../../shared/widgets/top_message.dart';
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_platform.dart';
 import '../../domain/models/meeting_response.dart';
@@ -88,10 +93,11 @@ class MeetingDetailsSheet extends ConsumerWidget {
                         textAlign: TextAlign.center,
                       ),
                       AppSpacing.verticalBase,
-                      TextButton(
+                      AppButton(
+                        label: 'Retry',
+                        variant: AppButtonVariant.outline,
                         onPressed: () =>
                             ref.invalidate(meetingDetailsProvider(meetingId)),
-                        child: const Text('Retry'),
                       ),
                     ],
                   ),
@@ -129,11 +135,16 @@ class _DetailsBody extends StatelessWidget {
   final Meeting meeting;
   final ScrollController scrollController;
 
-  static final _dateFmt = DateFormat('MMM d');
   static final _timeFmt = DateFormat('hh:mm a');
 
   String get _dateTimeLabel =>
-      '${_dateFmt.format(meeting.startAt)}, ${_timeFmt.format(meeting.startAt)} - ${_timeFmt.format(meeting.endAt)}';
+      '${DateTimeUtils.formatMeetingDate(meeting.startAt)}, '
+      '${_timeFmt.format(meeting.startAt)} - ${_timeFmt.format(meeting.endAt)}';
+
+  /// Current user's RSVP — precomputed at the DTO boundary from the
+  /// meeting-level `participant_responses[]` array against the session id.
+  /// `null` when the user has not responded yet.
+  MeetingResponse? get _myRsvp => meeting.myResponse;
 
   void _onJoin(BuildContext context) {
     launchMeetingLink(context, meeting.link);
@@ -142,13 +153,20 @@ class _DetailsBody extends StatelessWidget {
   Future<void> _onCopyLink(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: meeting.link));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Link copied')),
+    TopMessage.show(
+      context,
+      'Link copied',
+      type: TopMessageType.success,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final myRsvp = _myRsvp;
+    final agendaText = meeting.description.isNotEmpty
+        ? meeting.description
+        : meeting.agenda.join('\n');
+
     return Stack(
       children: [
         ListView(
@@ -171,16 +189,17 @@ class _DetailsBody extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  if (meeting.myResponse != null) ...[
+                  if (myRsvp == MeetingResponse.accepted ||
+                      myRsvp == MeetingResponse.declined) ...[
                     const SizedBox(height: 4),
                     Text(
-                      meeting.myResponse == MeetingResponse.accepted
+                      myRsvp == MeetingResponse.accepted
                           ? '(Accepted)'
                           : '(Rejected)',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: meeting.myResponse == MeetingResponse.accepted
+                        color: myRsvp == MeetingResponse.accepted
                             ? AppColors.greenBright
-                            : const Color(0xFFD33732),
+                            : AppColors.meetingRejected,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -189,14 +208,14 @@ class _DetailsBody extends StatelessWidget {
                   _InfoCard(
                     children: [
                       _InfoRow(
-                        icon: Icons.calendar_today_outlined,
+                        iconAsset: AppAssets.icMeetingDatetime,
                         label: 'Date & Time',
                         value: _dateTimeLabel,
                       ),
                       AppSpacing.verticalBase,
                       _InfoRow(
-                        icon: Icons.videocam_outlined,
-                        label: meeting.platform.label.toLowerCase(),
+                        iconAsset: AppAssets.icMeetingLink,
+                        label: meeting.platform.label,
                         value: meeting.link,
                         trailing: _SquareIconButton(
                           icon: Icons.copy_outlined,
@@ -207,15 +226,15 @@ class _DetailsBody extends StatelessWidget {
                       if (meeting.project.isNotEmpty) ...[
                         AppSpacing.verticalBase,
                         _InfoRow(
-                          icon: Icons.work_outline,
+                          iconAsset: AppAssets.icRelatedShoot,
                           label: 'Related Shoot',
                           value: meeting.project,
+                          valueColor: AppColors.primary,
                         ),
                       ],
                     ],
                   ),
-                  if (meeting.description.isNotEmpty ||
-                      meeting.agenda.isNotEmpty) ...[
+                  if (agendaText.isNotEmpty) ...[
                     AppSpacing.verticalXl,
                     Text(
                       'Agenda',
@@ -225,11 +244,7 @@ class _DetailsBody extends StatelessWidget {
                       ),
                     ),
                     AppSpacing.verticalSm,
-                    _AgendaCard(
-                      text: meeting.description.isNotEmpty
-                          ? meeting.description
-                          : meeting.agenda.join('\n'),
-                    ),
+                    _AgendaCard(text: agendaText),
                   ],
                   AppSpacing.verticalXl,
                   Text(
@@ -244,6 +259,7 @@ class _DetailsBody extends StatelessWidget {
                     MeetingParticipantTile(participant: p),
                     AppSpacing.verticalSm,
                   ],
+                  AppSpacing.verticalXl,
                 ],
               ),
             ),
@@ -266,7 +282,12 @@ class _DetailsBody extends StatelessWidget {
               AppSpacing.xl,
               AppSpacing.base,
             ),
-            child: _JoinButton(onTap: () => _onJoin(context)),
+            child: AppButton(
+              label: 'Join Meeting',
+              fullWidth: true,
+              icon: Icons.videocam_outlined,
+              onPressed: () => _onJoin(context),
+            ),
           ),
         ),
       ],
@@ -314,13 +335,17 @@ class _SheetHeader extends StatelessWidget {
               Text(
                 'Meeting Details',
                 style: AppTextStyles.titleMedium.copyWith(
+                  color: AppColors.white,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close, color: AppColors.textPrimary),
+                icon: const Icon(
+                  Icons.close,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ],
           ),
@@ -338,27 +363,37 @@ class _StatusPill extends StatelessWidget {
 
   Color get _bg {
     switch (status) {
-      case MeetingStatus.initiated:
-        return AppColors.lightGoldenBg;
-      case MeetingStatus.completed:
-        return AppColors.softMint;
-      case MeetingStatus.revision:
-        return const Color(0xFFFFEAE0);
+      case MeetingStatus.pending:
       case MeetingStatus.upcoming:
-        return AppColors.blueIce;
+      case MeetingStatus.scheduled:
+        return AppColors.meetingPendingBg;
+      case MeetingStatus.initiated:
+        return AppColors.meetingOngoingBg;
+      case MeetingStatus.completed:
+        return AppColors.meetingCompletedBg;
+      case MeetingStatus.rescheduled:
+      case MeetingStatus.revision:
+        return AppColors.meetingRescheduledBg;
+      case MeetingStatus.cancelled:
+        return AppColors.meetingCancelledBg;
     }
   }
 
   Color get _fg {
     switch (status) {
-      case MeetingStatus.initiated:
-        return const Color(0xFF8A5C1F);
-      case MeetingStatus.completed:
-        return AppColors.greenForest;
-      case MeetingStatus.revision:
-        return AppColors.orangeBright;
+      case MeetingStatus.pending:
       case MeetingStatus.upcoming:
-        return AppColors.blueRoyal;
+      case MeetingStatus.scheduled:
+        return AppColors.meetingPendingFg;
+      case MeetingStatus.initiated:
+        return AppColors.meetingOngoingFg;
+      case MeetingStatus.completed:
+        return AppColors.meetingCompletedFg;
+      case MeetingStatus.rescheduled:
+      case MeetingStatus.revision:
+        return AppColors.meetingRescheduledFg;
+      case MeetingStatus.cancelled:
+        return AppColors.meetingCancelledFg;
     }
   }
 
@@ -438,16 +473,18 @@ class _InfoCard extends StatelessWidget {
 
 class _InfoRow extends StatelessWidget {
   const _InfoRow({
-    required this.icon,
+    required this.iconAsset,
     required this.label,
     required this.value,
     this.trailing,
+    this.valueColor,
   });
 
-  final IconData icon;
+  final String iconAsset;
   final String label;
   final String value;
   final Widget? trailing;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -456,7 +493,12 @@ class _InfoRow extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 2),
-          child: Icon(icon, size: 18, color: AppColors.textSecondary),
+          child: SvgPicture.asset(
+            iconAsset,
+            width: 18,
+            height: 18,
+            fit: BoxFit.contain,
+          ),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
@@ -474,7 +516,7 @@ class _InfoRow extends StatelessWidget {
               Text(
                 value,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
+                  color: valueColor ?? AppColors.textSecondary,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -508,51 +550,6 @@ class _AgendaCard extends StatelessWidget {
         text,
         style: AppTextStyles.bodyMedium.copyWith(
           color: AppColors.textSecondary,
-        ),
-      ),
-    );
-  }
-}
-
-class _JoinButton extends StatelessWidget {
-  const _JoinButton({required this.onTap});
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: 'Join Meeting',
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadii.fullAll,
-        child: Container(
-          height: 52,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: AppRadii.fullAll,
-          ),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Join Meeting',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.onPrimary,
-                  fontWeight: FontWeight.w600,
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColors.onPrimary,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              const Icon(
-                Icons.open_in_new,
-                size: 18,
-                color: AppColors.onPrimary,
-              ),
-            ],
-          ),
         ),
       ),
     );

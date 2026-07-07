@@ -61,7 +61,9 @@ class TopMessage {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => overlayEntry.remove(),
+                      onTap: () {
+                        if (overlayEntry.mounted) overlayEntry.remove();
+                      },
                       child: const Icon(Icons.close, color: AppColors.white),
                     ),
                   ],
@@ -76,7 +78,7 @@ class TopMessage {
     overlay.insert(overlayEntry);
 
     Future.delayed(const Duration(seconds: 3), () {
-      overlayEntry.remove();
+      if (overlayEntry.mounted) overlayEntry.remove();
     });
   }
 }

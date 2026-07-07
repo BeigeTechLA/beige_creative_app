@@ -53,7 +53,7 @@ class MeetingsScreen extends ConsumerWidget {
     if (ok) {
       TopMessage.show(
         context,
-        accept ? 'Meeting accepted' : 'Meeting rejected',
+        accept ? 'You have Accepted Meeting' : 'You Have Rejected Meeting',
         type: accept ? TopMessageType.success : TopMessageType.error,
       );
     }
@@ -80,6 +80,9 @@ class MeetingsScreen extends ConsumerWidget {
             title: 'Meetings',
             trailing: Visibility(
               visible: false,
+              maintainSize: false,
+              maintainAnimation: false,
+              maintainState: false,
               child: Stack(
                 alignment: Alignment.topRight,
                 children: [
@@ -175,9 +178,7 @@ class _ListBody extends StatelessWidget {
           const SizedBox(height: 80),
           Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xxl,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
               child: Column(
                 children: [
                   const Icon(
@@ -193,7 +194,7 @@ class _ListBody extends StatelessWidget {
                   AppSpacing.verticalSm,
                   Text(
                     state.error ?? 'Unknown error',
-                    style: AppTextStyles.body14.copyWith(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textSecondary,
                     ),
                     textAlign: TextAlign.center,

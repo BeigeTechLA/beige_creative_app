@@ -6,6 +6,7 @@ import 'package:beige_creative_app/features/meetings/domain/models/meeting_filte
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_participant.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_platform.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_status.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/meetings_tab.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Meeting _m({
@@ -32,19 +33,25 @@ Meeting _m({
 /// Hand-rolled fake source — mocktail mocks of `MeetingsRemoteSource` would
 /// drag in DioClient/SessionStore setup the repo doesn't need.
 class _FakeRemote implements MeetingsRemoteSource {
-  _FakeRemote({List<Meeting>? seed}) : items = List<Meeting>.from(seed ?? const []);
+  _FakeRemote({List<Meeting>? seed})
+      : items = List<Meeting>.from(seed ?? const []);
 
   final List<Meeting> items;
   int addParticipantsCalls = 0;
   List<String>? lastAddedUserIds;
   String? lastAddedMeetingId;
+  String? lastMeetingTimeStatus;
 
   @override
   Future<MeetingsPage> list({
     int page = 1,
     int limit = 100,
     String sortBy = 'meeting_date_time:desc',
-  }) async => MeetingsPage(items: items, hasMore: false);
+    String? meetingTimeStatus,
+  }) async {
+    lastMeetingTimeStatus = meetingTimeStatus;
+    return MeetingsPage(items: items, hasMore: false);
+  }
 
   @override
   Future<Meeting> getById(String id) async =>
@@ -69,7 +76,9 @@ class _FakeRemote implements MeetingsRemoteSource {
   @override
   Future<Meeting> update(String id, Map<String, dynamic> patch) async {
     final base = items.firstWhere((m) => m.id == id);
-    return base.copyWith(title: (patch['meeting_title'] as String?) ?? base.title);
+    return base.copyWith(
+      title: (patch['meeting_title'] as String?) ?? base.title,
+    );
   }
 
   @override
@@ -84,37 +93,42 @@ class _FakeRemote implements MeetingsRemoteSource {
 }
 
 void main() {
+  group('list — tab drives server query', () {
+    test('tab=upcoming maps to meeting_time_status=upcoming', () async {
+      final remote = _FakeRemote(
+        seed: [_m(id: 'a'), _m(id: 'b')],
+      );
+      final repo = MeetingsRepositoryImpl(remote);
+
+      await repo.list(tab: MeetingsTab.upcoming);
+
+      expect(remote.lastMeetingTimeStatus, 'upcoming');
+    });
+
+    test('tab=completed maps to meeting_time_status=completed', () async {
+      final remote = _FakeRemote(
+        seed: [_m(id: 'a')],
+      );
+      final repo = MeetingsRepositoryImpl(remote);
+
+      await repo.list(tab: MeetingsTab.completed);
+
+      expect(remote.lastMeetingTimeStatus, 'completed');
+    });
+
+    test('tab=null sends no meeting_time_status filter', () async {
+      final remote = _FakeRemote(seed: [_m(id: 'a')]);
+      final repo = MeetingsRepositoryImpl(remote);
+
+      await repo.list();
+
+      expect(remote.lastMeetingTimeStatus, isNull);
+    });
+  });
+
   group('list — client-side filtering', () {
-    test('tab=upcoming excludes completed', () async {
-      final remote = _FakeRemote(
-        seed: [
-          _m(id: 'a', status: MeetingStatus.upcoming),
-          _m(id: 'b', status: MeetingStatus.completed),
-          _m(id: 'c', status: MeetingStatus.upcoming),
-        ],
-      );
-      final repo = MeetingsRepositoryImpl(remote);
-
-      final result = await repo.list(tab: MeetingStatus.upcoming);
-
-      expect(result.map((m) => m.id).toSet(), {'a', 'c'});
-    });
-
-    test('tab=completed keeps only completed', () async {
-      final remote = _FakeRemote(
-        seed: [
-          _m(id: 'a', status: MeetingStatus.upcoming),
-          _m(id: 'b', status: MeetingStatus.completed),
-        ],
-      );
-      final repo = MeetingsRepositoryImpl(remote);
-
-      final result = await repo.list(tab: MeetingStatus.completed);
-
-      expect(result.map((m) => m.id).toList(), ['b']);
-    });
-
-    test('MeetingFilter category shrinks result + sorts by startAt desc', () async {
+    test('MeetingFilter category shrinks result + sorts by startAt desc',
+        () async {
       final remote = _FakeRemote(
         seed: [
           _m(

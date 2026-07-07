@@ -44,6 +44,7 @@ class MeetingsRemoteSource {
     int page = 1,
     int limit = 100,
     String sortBy = 'meeting_date_time:desc',
+    String? meetingTimeStatus,
   }) {
     return _guard(() async {
       final user = await _session.readUser();
@@ -59,6 +60,7 @@ class MeetingsRemoteSource {
           'page': page,
           'limit': limit,
           'sortBy': sortBy,
+          'meeting_time_status': ?meetingTimeStatus,
         },
       );
       final raw = resp.data;

@@ -1,7 +1,7 @@
 import '../models/meeting.dart';
 import '../models/meeting_filter.dart';
 import '../models/meeting_response.dart';
-import '../models/meeting_status.dart';
+import '../models/meetings_tab.dart';
 import '../models/update_meeting_input.dart';
 
 /// Stable interface for meetings. Backed by `MeetingsRepositoryImpl` (Dio)
@@ -9,12 +9,16 @@ import '../models/update_meeting_input.dart';
 /// contract directly (see `_FakeMeetingsRepository` in the meetings screen
 /// widget test) so production code never branches on test vs prod.
 ///
-/// `update`/`delete`/`addParticipants` were added in MT8.05 ahead of any UI
-/// surface — wire them when Edit/Delete/Invite affordances ship.
+/// `update`/`delete`/`addParticipants` carry plumbing parity with the
+/// crew-side app — wire them when Edit/Delete/Invite UI affordances ship.
 abstract class MeetingsRepository {
+  /// Tab drives the server-side `meeting_time_status` filter.
+  /// [filter] runs client-side over the fetched page.
+  /// [currentUserId] is threaded to the DTO for `myResponse` derivation.
   Future<List<Meeting>> list({
-    MeetingStatus? tab,
+    MeetingsTab? tab,
     MeetingFilter? filter,
+    String? currentUserId,
   });
 
   Future<Meeting> getById(String id);
@@ -23,17 +27,16 @@ abstract class MeetingsRepository {
   /// Server recomputes `duration`; impl never sends it.
   Future<Meeting> update(String id, UpdateMeetingInput patch);
 
-  /// Hard or soft delete — backend behavior undocumented
-  /// (`MEETINGS_API.md` §6). Caller treats 2xx as success.
+  /// Hard or soft delete — backend behavior undocumented. Caller treats 2xx
+  /// as success.
   Future<void> delete(String id);
 
   /// Attaches participants to an existing meeting. Returns the full updated
-  /// Meeting (server response per `MEETINGS_API.md` §4). Used internally by
-  /// `create` to complete the 2-step create flow; also surfaced for future
-  /// "add participant" UI affordance.
+  /// Meeting. Used internally by `create` to complete the 2-step create flow;
+  /// also surfaced for a future "add participant" UI affordance.
   Future<Meeting> addParticipants(String id, List<String> userIds);
 
-  /// CP RSVP — PATCH `:id/respond` with `accepted` or `declined`. Returns the
-  /// updated Meeting so callers can patch list/details state without refetch.
+  /// Records the signed-in user's RSVP on the meeting. Server returns the
+  /// updated Meeting so callers can refresh local state.
   Future<Meeting> respond(String id, MeetingResponse response);
 }

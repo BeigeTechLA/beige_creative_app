@@ -4,6 +4,7 @@ import 'package:beige_creative_app/features/meetings/domain/models/meeting_filte
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_platform.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_response.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_status.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/meetings_tab.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/update_meeting_input.dart';
 import 'package:beige_creative_app/features/meetings/domain/repositories/meetings_repository.dart';
 import 'package:beige_creative_app/features/meetings/presentation/providers/meetings_list_notifier.dart';
@@ -24,13 +25,14 @@ class _FakeMeetingsRepository implements MeetingsRepository {
 
   @override
   Future<List<Meeting>> list({
-    MeetingStatus? tab,
+    MeetingsTab? tab,
     MeetingFilter? filter,
+    String? currentUserId,
   }) async {
     Iterable<Meeting> r = _items;
-    if (tab == MeetingStatus.upcoming) {
+    if (tab == MeetingsTab.upcoming) {
       r = r.where((m) => m.status != MeetingStatus.completed);
-    } else if (tab == MeetingStatus.completed) {
+    } else if (tab == MeetingsTab.completed) {
       r = r.where((m) => m.status == MeetingStatus.completed);
     }
     if (filter != null && filter.categories.isNotEmpty) {

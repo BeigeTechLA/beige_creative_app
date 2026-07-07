@@ -153,7 +153,7 @@ void main() {
 
       expect(m.id, '36');
       expect(m.title, 'X');
-      expect(m.status, MeetingStatus.upcoming); // 'pending' → upcoming
+      expect(m.status, MeetingStatus.pending);
     });
   });
 

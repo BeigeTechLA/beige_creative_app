@@ -16,6 +16,7 @@ class AppAssets {
   static const String _inactive = 'assets/inactive';
   static const String _shootSvg = 'assets/svg/shoots';
   static const String _messageSvg = 'assets/svg/message';
+  static const String _meetingSvg = 'assets/svg/meeting';
   static const String _onboarding = 'assets/onboarding';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -23,6 +24,15 @@ class AppAssets {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   static const String icGroupChat = '$_messageSvg/ic_group_chat.svg';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Meeting
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String icMeetingDatetime = '$_meetingSvg/ic_meeting_datetime.svg';
+  static const String icMeetingLink = '$_meetingSvg/ic_meeting_link.svg';
+  static const String icRelatedShoot = '$_meetingSvg/ic_related_shoot.svg';
+  static const String icGoogleMeet = '$_meetingSvg/ic_google_meet.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Active Icons (Bottom Nav / Drawer)

@@ -14,28 +14,45 @@ class MeetingEnumMapper {
   MeetingEnumMapper._();
 
   static MeetingStatus statusFromServer(String? raw) {
-    switch (raw) {
+    switch (raw?.toLowerCase()) {
       case 'pending':
+        return MeetingStatus.pending;
       case 'rescheduled':
-        return MeetingStatus.upcoming;
-      case 'completed':
+        return MeetingStatus.rescheduled;
       case 'cancelled':
+      case 'canceled':
+        return MeetingStatus.cancelled;
+      case 'completed':
         return MeetingStatus.completed;
-      default:
+      case 'scheduled':
+        return MeetingStatus.scheduled;
+      case 'initiated':
+        return MeetingStatus.initiated;
+      case 'revision':
+        return MeetingStatus.revision;
+      case 'upcoming':
         return MeetingStatus.upcoming;
+      default:
+        return MeetingStatus.pending;
     }
   }
 
   /// Client → server for create/update bodies. Client only ever submits
-  /// `upcoming` on create (status defaults to `pending` server-side).
+  /// `pending` on create (status defaults to `pending` server-side).
   static String statusToServer(MeetingStatus status) {
     switch (status) {
       case MeetingStatus.upcoming:
       case MeetingStatus.initiated:
       case MeetingStatus.revision:
+      case MeetingStatus.pending:
+      case MeetingStatus.scheduled:
         return 'pending';
       case MeetingStatus.completed:
         return 'completed';
+      case MeetingStatus.rescheduled:
+        return 'rescheduled';
+      case MeetingStatus.cancelled:
+        return 'cancelled';
     }
   }
 

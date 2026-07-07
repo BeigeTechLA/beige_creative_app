@@ -1,7 +1,7 @@
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_filter.dart';
 import '../../domain/models/meeting_response.dart';
-import '../../domain/models/meeting_status.dart';
+import '../../domain/models/meetings_tab.dart';
 import '../../domain/models/update_meeting_input.dart';
 import '../../domain/repositories/meetings_repository.dart';
 import '../mappers/meeting_enum_mapper.dart';
@@ -9,10 +9,11 @@ import '../sources/meetings_remote_source.dart';
 
 /// Dio-backed implementation of [MeetingsRepository].
 ///
-/// Server only exposes `limit`/`page`/`sortBy` query params today
-/// (`MEETINGS_API.md` §1) — `tab` and [MeetingFilter] are applied client-side
-/// on the fetched page. Volumes today (≤30 records observed) make in-memory
-/// filtering acceptable; re-evaluate when pagination ships.
+/// Server only exposes `limit`/`page`/`sortBy` query params today — plus the
+/// `meeting_time_status` filter used by the tab bar. [MeetingFilter] (category
+/// / status / date range) still applies locally. Volumes today (≤30 records
+/// observed) make in-memory filtering acceptable; re-evaluate when pagination
+/// ships.
 class MeetingsRepositoryImpl implements MeetingsRepository {
   MeetingsRepositoryImpl(this._remote);
 
@@ -20,11 +21,23 @@ class MeetingsRepositoryImpl implements MeetingsRepository {
 
   @override
   Future<List<Meeting>> list({
-    MeetingStatus? tab,
+    MeetingsTab? tab,
     MeetingFilter? filter,
+    String? currentUserId,
   }) async {
-    final page = await _remote.list();
-    return _applyClientFilters(page.items, tab: tab, filter: filter);
+    final page = await _remote.list(meetingTimeStatus: _tabToServer(tab));
+    return _applyClientFilters(page.items, filter: filter);
+  }
+
+  static String? _tabToServer(MeetingsTab? tab) {
+    switch (tab) {
+      case MeetingsTab.upcoming:
+        return 'upcoming';
+      case MeetingsTab.completed:
+        return 'completed';
+      case null:
+        return null;
+    }
   }
 
   @override
@@ -48,8 +61,8 @@ class MeetingsRepositoryImpl implements MeetingsRepository {
       _remote.respond(id, response.serverValue);
 
   /// Serializes [UpdateMeetingInput] to the server's snake_case patch body.
-  /// Skips `null` fields so PATCH stays truly partial (`MEETINGS_API.md` §5).
-  /// `duration` never included — server recomputes from times.
+  /// Skips `null` fields so PATCH stays truly partial. `duration` never
+  /// included — server recomputes from times.
   Map<String, dynamic> _buildUpdateBody(UpdateMeetingInput p) {
     final body = <String, dynamic>{};
     if (p.title != null) body['meeting_title'] = p.title;
@@ -71,24 +84,13 @@ class MeetingsRepositoryImpl implements MeetingsRepository {
     return body;
   }
 
-  /// Server only exposes `limit/page/sortBy` query params today, so `tab` +
-  /// [MeetingFilter] are applied client-side. `tab=upcoming` includes anything
-  /// that isn't `completed`; `tab=completed` includes completed only. Other
-  /// tabs fall through (no filter applied — defensive, no UI surface today).
+  /// Tab is now server-side (`meeting_time_status`). [MeetingFilter]
+  /// (category / status / date range) still applies locally; sort stays local.
   List<Meeting> _applyClientFilters(
     List<Meeting> items, {
-    MeetingStatus? tab,
     MeetingFilter? filter,
   }) {
     Iterable<Meeting> result = items;
-
-    if (tab != null) {
-      if (tab == MeetingStatus.upcoming) {
-        result = result.where((m) => m.status != MeetingStatus.completed);
-      } else if (tab == MeetingStatus.completed) {
-        result = result.where((m) => m.status == MeetingStatus.completed);
-      }
-    }
 
     if (filter != null && !filter.isEmpty) {
       if (filter.categories.isNotEmpty) {

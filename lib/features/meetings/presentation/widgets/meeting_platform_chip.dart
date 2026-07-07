@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
@@ -7,21 +9,34 @@ import '../../../../app/text_styles.dart';
 import '../../domain/models/meeting_platform.dart';
 
 /// Rounded chip identifying the meeting platform (Zoom / Google Meet /
-/// Microsoft Teams). Material icon fallbacks are used until brand SVGs
-/// land in `lib/assets/`.
+/// Microsoft Teams). Meet uses the brand SVG; other platforms fall back to
+/// Material glyphs until dedicated SVGs land.
 class MeetingPlatformChip extends StatelessWidget {
   const MeetingPlatformChip({super.key, required this.platform});
 
   final MeetingPlatform platform;
 
-  IconData get _icon {
+  Widget _iconWidget() {
     switch (platform) {
-      case MeetingPlatform.zoom:
-        return Icons.videocam_outlined;
       case MeetingPlatform.meet:
-        return Icons.duo_outlined;
+        return SvgPicture.asset(
+          AppAssets.icGoogleMeet,
+          width: 14,
+          height: 14,
+          fit: BoxFit.contain,
+        );
+      case MeetingPlatform.zoom:
+        return const Icon(
+          Icons.videocam_outlined,
+          size: 14,
+          color: AppColors.primary,
+        );
       case MeetingPlatform.teams:
-        return Icons.groups_outlined;
+        return const Icon(
+          Icons.groups_outlined,
+          size: 14,
+          color: AppColors.primary,
+        );
     }
   }
 
@@ -40,11 +55,13 @@ class MeetingPlatformChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(_icon, size: 14, color: AppColors.primary),
+          _iconWidget(),
           const SizedBox(width: AppSpacing.xs),
           Text(
             platform.label,
-            style: AppTextStyles.body11.copyWith(color: AppColors.textPrimary),
+            style: AppTextStyles.labelSmall.copyWith(
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),

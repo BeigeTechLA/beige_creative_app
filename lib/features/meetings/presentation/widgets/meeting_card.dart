@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../../shared/widgets/app_avatar.dart';
-import '../../../../shared/widgets/app_toggle_switch.dart';
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_participant.dart';
 import '../../domain/models/meeting_platform.dart';
@@ -13,7 +15,7 @@ import '../../domain/models/meeting_status.dart';
 import '../../domain/util/can_rsvp.dart';
 
 /// Single meeting summary card — title, platform chip, date/time meta,
-/// timezone, and a full-width Join CTA. Tap anywhere outside the CTA opens
+/// participants, and a full-width Join CTA. Tap anywhere outside the CTA opens
 /// the meeting-details bottom sheet (wired by parent).
 ///
 /// Accept / Reject row renders above the Join CTA when [onAccept] and
@@ -44,12 +46,10 @@ class MeetingCard extends StatefulWidget {
 }
 
 class _MeetingCardState extends State<MeetingCard> {
-  bool _syncMeeting = true;
-
-  static final _date = DateFormat('dd MMM,yyyy');
   static final _time = DateFormat('hh:mm a');
 
-  String get _dateLabel => _date.format(widget.meeting.startAt);
+  String get _dateLabel =>
+      DateTimeUtils.formatMeetingDate(widget.meeting.startAt);
   String get _timeLabel =>
       '${_time.format(widget.meeting.startAt)} to ${_time.format(widget.meeting.endAt)}';
 
@@ -60,29 +60,44 @@ class _MeetingCardState extends State<MeetingCard> {
 
   Color _getStatusBgColor(MeetingStatus status) {
     switch (status) {
-      case MeetingStatus.initiated:
-        return const Color(0xFFFEF5E5);
-      case MeetingStatus.completed:
-        return AppColors.softMint;
-      case MeetingStatus.revision:
-        return const Color(0xFFFFEAE0);
+      case MeetingStatus.pending:
       case MeetingStatus.upcoming:
-        return const Color(0xFFE0E7F8);
+      case MeetingStatus.scheduled:
+        return AppColors.meetingPendingBg;
+      case MeetingStatus.initiated:
+        return AppColors.meetingOngoingBg;
+      case MeetingStatus.completed:
+        return AppColors.meetingCompletedBg;
+      case MeetingStatus.rescheduled:
+      case MeetingStatus.revision:
+        return AppColors.meetingRescheduledBg;
+      case MeetingStatus.cancelled:
+        return AppColors.meetingCancelledBg;
     }
   }
 
   Color _getStatusTextColor(MeetingStatus status) {
     switch (status) {
-      case MeetingStatus.initiated:
-        return const Color(0xFF8A5C1F);
-      case MeetingStatus.completed:
-        return const Color(0xFF2F855A);
-      case MeetingStatus.revision:
-        return const Color(0xFFFF9D25);
+      case MeetingStatus.pending:
       case MeetingStatus.upcoming:
-        return const Color(0xFF2D66D2);
+      case MeetingStatus.scheduled:
+        return AppColors.meetingPendingFg;
+      case MeetingStatus.initiated:
+        return AppColors.meetingOngoingFg;
+      case MeetingStatus.completed:
+        return AppColors.meetingCompletedFg;
+      case MeetingStatus.rescheduled:
+      case MeetingStatus.revision:
+        return AppColors.meetingRescheduledFg;
+      case MeetingStatus.cancelled:
+        return AppColors.meetingCancelledFg;
     }
   }
+
+  /// Current user's RSVP — precomputed at the DTO boundary from the
+  /// meeting-level `participant_responses[]` array against the session id.
+  /// `null` when the user has not responded yet.
+  MeetingResponse? get _myRsvp => widget.meeting.myResponse;
 
   Widget _buildOverlappingAvatars(List<MeetingParticipant> participants) {
     if (participants.isEmpty) return const SizedBox.shrink();
@@ -138,44 +153,67 @@ class _MeetingCardState extends State<MeetingCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Title Row with Camera Icon
+              // 1. Title row with camera icon
               Row(
                 children: [
                   Container(
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.white.withValues(alpha: 0.06),
+                      color: AppColors.textPrimary.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
-                      Icons.videocam_outlined,
-                      size: 20,
-                      color: AppColors.primary,
+                    padding: const EdgeInsets.all(8),
+                    child: SvgPicture.asset(
+                      AppAssets.icMeetingLink,
+                      width: 18,
+                      height: 18,
+                      fit: BoxFit.contain,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.primary,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      widget.meeting.title,
-                      style: AppTextStyles.titleSmall.copyWith(
-                        color: AppColors.primary,
-                        fontFamily: 'Outfit',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.meeting.title,
+                          style: AppTextStyles.titleSmall.copyWith(
+                            color: AppColors.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (widget.meeting.meetingTypeDisplay != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.meeting.meetingTypeDisplay!,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textSecondary,
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w300,
+                              fontSize: 11,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
 
-              // 2. Status & Platform badges
+              // 2. Status + platform badges
               Row(
                 children: [
-                  // Status Badge
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -195,16 +233,18 @@ class _MeetingCardState extends State<MeetingCard> {
                     ),
                   ),
                   const SizedBox(width: 8),
-
-                  // Platform Badge
                   _PlatformBadge(platform: widget.meeting.platform),
                 ],
               ),
               const SizedBox(height: 12),
-              const Divider(color: AppColors.dividerDark, height: 1, thickness: 1),
+              const Divider(
+                color: AppColors.dividerDark,
+                height: 1,
+                thickness: 1,
+              ),
               const SizedBox(height: 12),
 
-              // 3. Calendar & Time rows
+              // 3. Calendar + time rows
               Row(
                 children: [
                   const Icon(
@@ -243,10 +283,14 @@ class _MeetingCardState extends State<MeetingCard> {
                 ],
               ),
               const SizedBox(height: 12),
-              const Divider(color: AppColors.dividerDark, height: 1, thickness: 1),
+              const Divider(
+                color: AppColors.dividerDark,
+                height: 1,
+                thickness: 1,
+              ),
               const SizedBox(height: 12),
 
-              // 4. Participants Section
+              // 4. Participants
               Row(
                 children: [
                   _buildOverlappingAvatars(widget.meeting.participants),
@@ -258,7 +302,7 @@ class _MeetingCardState extends State<MeetingCard> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.white.withValues(alpha: 0.08),
+                        color: AppColors.textPrimary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -273,55 +317,33 @@ class _MeetingCardState extends State<MeetingCard> {
                 ],
               ),
               const SizedBox(height: 12),
-              const Divider(color: AppColors.dividerDark, height: 1, thickness: 1),
-              const SizedBox(height: 12),
 
-              // 5. Sync Meeting toggle
-              Row(
-                children: [
-                  Text(
-                    'Sync Meeting',
-                    style: AppTextStyles.body14.copyWith(
-                      color: AppColors.textPrimary,
-                      fontFamily: 'Outfit',
-                    ),
-                  ),
-                  const Spacer(),
-                  AppToggleSwitch(
-                    value: _syncMeeting,
-                    onChanged: (val) => setState(() => _syncMeeting = val),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // 6a. CP RSVP — status line + Accept / Reject buttons.
-              // Once the CP has responded, hide the matching action button
+              // 5a. RSVP — status line + Accept / Reject buttons.
+              // Once the user has responded, hide the matching action button
               // (Accept once accepted, Reject once declined) and show a
               // "Your Response: ..." label so they can flip the answer with
               // the remaining button.
               if (_showRsvp) ...[
-                if (widget.meeting.myResponse != null) ...[
-                  _ResponseStatusLine(response: widget.meeting.myResponse!),
+                if (_myRsvp == MeetingResponse.accepted ||
+                    _myRsvp == MeetingResponse.declined) ...[
+                  _ResponseStatusLine(response: _myRsvp!),
                   const SizedBox(height: 12),
                 ],
                 Builder(
                   builder: (_) {
-                    final showAccept =
-                        widget.meeting.myResponse != MeetingResponse.accepted;
-                    final showReject =
-                        widget.meeting.myResponse != MeetingResponse.declined;
+                    final showAccept = _myRsvp != MeetingResponse.accepted;
+                    final showReject = _myRsvp != MeetingResponse.declined;
                     final accept = _RsvpButton(
                       label: 'Accept',
-                      backgroundColor: const Color(0xFFD8FDE6),
-                      textColor: const Color(0xFF1DAA23),
+                      backgroundColor: AppColors.softMint,
+                      textColor: AppColors.greenBright,
                       onTap: widget.onAccept!,
                       loading: widget.rsvpPending,
                     );
                     final reject = _RsvpButton(
                       label: 'Reject',
-                      backgroundColor: const Color(0xFFEECCC9),
-                      textColor: const Color(0xFFD33732),
+                      backgroundColor: AppColors.meetingRejectSoftBg,
+                      textColor: AppColors.meetingRejected,
                       onTap: widget.onReject!,
                       loading: widget.rsvpPending,
                     );
@@ -334,7 +356,8 @@ class _MeetingCardState extends State<MeetingCard> {
                         Expanded(child: left),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: showBoth ? reject : const SizedBox.shrink(),
+                          child:
+                              showBoth ? reject : const SizedBox.shrink(),
                         ),
                       ],
                     );
@@ -343,7 +366,7 @@ class _MeetingCardState extends State<MeetingCard> {
                 const SizedBox(height: 12),
               ],
 
-              // 6b. Action buttons
+              // 5b. Action buttons
               Row(
                 children: [
                   Expanded(
@@ -387,7 +410,7 @@ class _MeetingCardState extends State<MeetingCard> {
                       width: 38,
                       height: 38,
                       decoration: BoxDecoration(
-                        color: AppColors.white.withValues(alpha: 0.08),
+                        color: AppColors.textPrimary.withValues(alpha: 0.08),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -469,9 +492,8 @@ class _ResponseStatusLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAccepted = response == MeetingResponse.accepted;
-    final color = isAccepted
-        ? const Color(0xFF1DAA23)
-        : const Color(0xFFD33732);
+    final color =
+        isAccepted ? AppColors.greenBright : AppColors.meetingRejected;
     final label = isAccepted ? 'Accepted' : 'Rejected';
     return Row(
       children: [
@@ -513,7 +535,12 @@ class _PlatformBadge extends StatelessWidget {
     Widget icon;
     switch (platform) {
       case MeetingPlatform.meet:
-        icon = const _GoogleMeetLogo(size: 14);
+        icon = SvgPicture.asset(
+          AppAssets.icGoogleMeet,
+          width: 14,
+          height: 14,
+          fit: BoxFit.contain,
+        );
         break;
       case MeetingPlatform.zoom:
         icon = const Icon(Icons.videocam, size: 14, color: Color(0xFF2D8CFF));
@@ -549,87 +576,4 @@ class _PlatformBadge extends StatelessWidget {
       ),
     );
   }
-}
-
-class _GoogleMeetLogo extends StatelessWidget {
-  const _GoogleMeetLogo({this.size = 14.0});
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        painter: _GoogleMeetLogoPainter(),
-      ),
-    );
-  }
-}
-
-class _GoogleMeetLogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-    final w = size.width;
-    final h = size.height;
-
-    // Body area is left 75% of size, lens is right 25%
-
-    // 1. Blue (bottom-left)
-    paint.color = const Color(0xFF1A73E8);
-    final pathBlue = Path()
-      ..moveTo(0, h * 0.5)
-      ..lineTo(w * 0.5, h * 0.5)
-      ..lineTo(w * 0.5, h)
-      ..lineTo(w * 0.2, h)
-      ..quadraticBezierTo(0, h, 0, h * 0.8)
-      ..close();
-    canvas.drawPath(pathBlue, paint);
-
-    // 2. Green (top-left)
-    paint.color = const Color(0xFF00A859);
-    final pathGreen = Path()
-      ..moveTo(0, h * 0.5)
-      ..lineTo(0, h * 0.2)
-      ..quadraticBezierTo(0, 0, w * 0.2, 0)
-      ..lineTo(w * 0.5, 0)
-      ..lineTo(w * 0.5, h * 0.5)
-      ..close();
-    canvas.drawPath(pathGreen, paint);
-
-    // 3. Yellow (top-right corner of body)
-    paint.color = const Color(0xFFFFBA00);
-    final pathYellow = Path()
-      ..moveTo(w * 0.5, 0)
-      ..lineTo(w * 0.7, 0)
-      ..quadraticBezierTo(w * 0.75, 0, w * 0.75, h * 0.15)
-      ..lineTo(w * 0.75, h * 0.5)
-      ..lineTo(w * 0.5, h * 0.5)
-      ..close();
-    canvas.drawPath(pathYellow, paint);
-
-    // 4. Red (lens and bottom-right of body)
-    paint.color = const Color(0xFFEA4335);
-    final pathRedBody = Path()
-      ..moveTo(w * 0.5, h * 0.5)
-      ..lineTo(w * 0.75, h * 0.5)
-      ..lineTo(w * 0.75, h * 0.85)
-      ..quadraticBezierTo(w * 0.75, h, w * 0.65, h)
-      ..lineTo(w * 0.5, h)
-      ..close();
-    canvas.drawPath(pathRedBody, paint);
-
-    // Lens
-    final pathLens = Path()
-      ..moveTo(w * 0.75, h * 0.3)
-      ..lineTo(w, h * 0.15)
-      ..lineTo(w, h * 0.85)
-      ..lineTo(w * 0.75, h * 0.7)
-      ..close();
-    canvas.drawPath(pathLens, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -37,6 +37,19 @@ boots `App`.
 
 ## Commands
 
+A Makefile at the repository root handles common run, build, clean, and verification tasks:
+- `make run-dev` / `make run-prod` — Run app on device/simulator
+- `make build-dev` / `make build-prod` — Full release build (iOS IPA + Android APK + AAB)
+- `make build-dev-ios` / `make build-prod-ios` — iOS IPA only
+- `make build-dev-android` / `make build-prod-android` — Android APK only
+- `make build-dev-aab` / `make build-prod-aab` — Android AAB only
+- `make pub` — Run flutter pub get
+- `make clean` — Clean builds
+- `make analyze` — Run flutter analyze
+- `make test` — Run unit/widget tests
+
+Or run manual commands:
+
 ```bash
 flutter pub get
 flutter analyze
@@ -57,11 +70,11 @@ flutter run --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod
 
 flutter build apk       --flavor dev  --dart-define-from-file=env/dev.json  -t lib/main_dev.dart  --release
 flutter build appbundle --flavor dev  --dart-define-from-file=env/dev.json  -t lib/main_dev.dart  --release
-flutter build ios       --flavor dev  --dart-define-from-file=env/dev.json  -t lib/main_dev.dart  --release
+flutter build ipa       --flavor dev  --dart-define-from-file=env/dev.json  -t lib/main_dev.dart  --release
 
 flutter build apk       --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart --release
 flutter build appbundle --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart --release
-flutter build ios       --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart --release
+flutter build ipa       --flavor prod --dart-define-from-file=env/prod.json -t lib/main_prod.dart --release
 ```
 
 ## Architecture Rules

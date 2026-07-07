@@ -7,7 +7,7 @@ import '../../../../core/providers/auth_state_provider.dart';
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_filter.dart';
 import '../../domain/models/meeting_response.dart';
-import '../../domain/models/meeting_status.dart';
+import '../../domain/models/meetings_tab.dart';
 import '../../domain/repositories/meetings_repository.dart';
 import 'meetings_list_state.dart';
 import 'meetings_repository_provider.dart';
@@ -28,9 +28,14 @@ class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
       clearError: true,
     );
     try {
-      final items = await _repo.list(tab: state.tab, filter: state.filter);
+      final all = await _repo.list(tab: state.tab);
       state = state.copyWith(
-        items: items,
+        allItems: all,
+        items: applyLocalMeetingFilters(
+          all,
+          tab: null,
+          filter: state.filter,
+        ),
         status: MeetingsListStatus.ready,
       );
     } catch (e) {
@@ -49,26 +54,44 @@ class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
     return 'Failed to load meetings';
   }
 
-  void selectTab(MeetingStatus tab) {
+  /// Tab drives a server-side `meeting_time_status` filter. Switching tab
+  /// kicks off a fresh fetch — clear the current list so the previous tab's
+  /// items don't flash while the new fetch is in flight.
+  void selectTab(MeetingsTab tab) {
     if (tab == state.tab) return;
-    state = state.copyWith(tab: tab);
+    state = state.copyWith(
+      tab: tab,
+      allItems: const [],
+      items: const [],
+      status: MeetingsListStatus.loading,
+      clearError: true,
+    );
     _load();
   }
 
   void applyFilter(MeetingFilter filter) {
-    state = state.copyWith(filter: filter);
-    _load();
+    final items = applyLocalMeetingFilters(
+      state.allItems,
+      tab: null,
+      filter: filter,
+    );
+    state = state.copyWith(filter: filter, items: items);
   }
 
   void clearFilter() {
-    state = state.copyWith(filter: MeetingFilter.empty);
-    _load();
+    final items = applyLocalMeetingFilters(
+      state.allItems,
+      tab: null,
+      filter: MeetingFilter.empty,
+    );
+    state = state.copyWith(filter: MeetingFilter.empty, items: items);
   }
 
   Future<void> refresh() => _load();
 
-  /// CP RSVP — call server, mark id pending while in-flight, patch the item
-  /// in [items] on success, surface error via [rsvpError] otherwise.
+  /// RSVP — call server, mark id pending while in-flight, patch the item
+  /// in `allItems` + `items` on success, surface error via `rsvpError`
+  /// otherwise.
   ///
   /// Re-entrancy guarded: ignores a second call for the same meeting while
   /// the first is in flight.
@@ -82,9 +105,14 @@ class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
 
     try {
       final updated = await _repo.respond(meetingId, response);
-      final next = _replaceItem(state.items, updated);
+      final nextAll = _replaceItem(state.allItems, updated);
       state = state.copyWith(
-        items: next,
+        allItems: nextAll,
+        items: applyLocalMeetingFilters(
+          nextAll,
+          tab: null,
+          filter: state.filter,
+        ),
         pendingRsvpIds: state.pendingRsvpIds.difference({meetingId}),
       );
       return true;
