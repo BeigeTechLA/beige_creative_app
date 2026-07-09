@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/auth_state_provider.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_filter.dart';
 import '../../domain/models/meeting_response.dart';
@@ -29,7 +30,11 @@ class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
     );
     try {
       final all = await _repo.list(tab: state.tab);
+      final user = await ref.read(sessionStoreProvider).readUser();
+      // ignore: avoid_print
+      print('[MEETINGS_NOTIFIER_DEBUG] user.id = ${user?.id}');
       state = state.copyWith(
+        currentUserId: user?.id,
         allItems: all,
         items: applyLocalMeetingFilters(
           all,

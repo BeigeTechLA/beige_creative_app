@@ -154,7 +154,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
           if (state.replyTarget != null)
             ReplyComposerStrip(
               target: state.replyTarget!,
-              isTargetMine: state.currentUserId != null &&
+              isTargetMine:
+                  state.currentUserId != null &&
                   state.replyTarget!.senderId == state.currentUserId,
               onClose: notifier.clearReply,
             ),
@@ -209,12 +210,13 @@ class _ThreadBody extends StatelessWidget {
     final filtered = query.isEmpty
         ? state.messages
         : state.messages.where((m) {
-            if ((m.body ?? '').toLowerCase().contains(query)) return true;
-            final p = state.participantsById[m.senderId];
-            final name = (p?.name.isNotEmpty ?? false)
-                ? p!.name
-                : m.senderName;
-            return name.toLowerCase().contains(query);
+            if ((m.body ?? '').toLowerCase().contains(query)) {
+              return true;
+            }
+            if (m.file != null && m.file!.name.toLowerCase().contains(query)) {
+              return true;
+            }
+            return false;
           }).toList();
 
     if (filtered.isEmpty) {
@@ -225,8 +227,7 @@ class _ThreadBody extends StatelessWidget {
       );
     }
 
-    final sorted = [...filtered]
-      ..sort((a, b) => a.sentAt.compareTo(b.sentAt));
+    final sorted = [...filtered]..sort((a, b) => a.sentAt.compareTo(b.sentAt));
     final items = <_Item>[];
     DateTime? prevDay;
     for (var i = 0; i < sorted.length; i++) {
@@ -241,19 +242,22 @@ class _ThreadBody extends StatelessWidget {
           prev == null ||
           prev.senderId != m.senderId ||
           m.sentAt.difference(prev.sentAt).inMinutes > 5;
-      items.add(_Item.msg(
-        m,
-        showSenderHeader: showSenderHeader,
-        currentUserId: state.currentUserId,
-        participant: state.participantsById[m.senderId],
-        peerName: state.peerName,
-        peerRole: state.peerRole,
-        onReply: onReply,
-        onReact: onReact,
-      ));
+      items.add(
+        _Item.msg(
+          m,
+          showSenderHeader: showSenderHeader,
+          currentUserId: state.currentUserId,
+          participant: state.participantsById[m.senderId],
+          peerName: state.peerName,
+          peerRole: state.peerRole,
+          onReply: onReply,
+          onReact: onReact,
+        ),
+      );
     }
     return ListView.builder(
       controller: scrollController,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: items.length,
       itemBuilder: (context, index) => items[index].build(),
@@ -263,14 +267,14 @@ class _ThreadBody extends StatelessWidget {
 
 class _Item {
   _Item.day(this.day)
-      : message = null,
-        showSenderHeader = false,
-        currentUserId = null,
-        participant = null,
-        peerName = null,
-        peerRole = null,
-        onReply = null,
-        onReact = null;
+    : message = null,
+      showSenderHeader = false,
+      currentUserId = null,
+      participant = null,
+      peerName = null,
+      peerRole = null,
+      onReply = null,
+      onReact = null;
   _Item.msg(
     this.message, {
     required this.showSenderHeader,
@@ -286,6 +290,7 @@ class _Item {
   final Message? message;
   final bool showSenderHeader;
   final String? currentUserId;
+
   /// Resolved by id match (`message.senderId` == `participant.id`) from the
   /// chat-details `participants.items` list. Null = unknown sender → fall
   /// back to peer/room-level identity.
@@ -306,8 +311,8 @@ class _Item {
     final resolvedName = (participant?.name.isNotEmpty ?? false)
         ? participant!.name
         : (m.senderName.isNotEmpty
-            ? m.senderName
-            : (isMine ? 'You' : (peerName ?? '')));
+              ? m.senderName
+              : (isMine ? 'You' : (peerName ?? '')));
     final senderName = resolvedName;
     final Widget bubble = isAudio
         ? AudioBubble(
@@ -412,11 +417,7 @@ class _SearchRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
         child: Row(
           children: [
-            const Icon(
-              Icons.search,
-              color: AppColors.textTertiary,
-              size: 20,
-            ),
+            const Icon(Icons.search, color: AppColors.textTertiary, size: 20),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: TextField(

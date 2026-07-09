@@ -31,6 +31,9 @@ class MeetingsListState {
   /// surfacing the toast.
   final String? rsvpError;
 
+  /// Logged-in user's ID. Used to check if a meeting is self-created.
+  final String? currentUserId;
+
   const MeetingsListState({
     this.tab = MeetingsTab.upcoming,
     this.filter = MeetingFilter.empty,
@@ -40,6 +43,7 @@ class MeetingsListState {
     this.error,
     this.pendingRsvpIds = const <String>{},
     this.rsvpError,
+    this.currentUserId,
   });
 
   bool get isFiltered => !filter.isEmpty;
@@ -57,6 +61,7 @@ class MeetingsListState {
     Set<String>? pendingRsvpIds,
     String? rsvpError,
     bool clearRsvpError = false,
+    String? currentUserId,
   }) {
     return MeetingsListState(
       tab: tab ?? this.tab,
@@ -67,6 +72,7 @@ class MeetingsListState {
       error: clearError ? null : (error ?? this.error),
       pendingRsvpIds: pendingRsvpIds ?? this.pendingRsvpIds,
       rsvpError: clearRsvpError ? null : (rsvpError ?? this.rsvpError),
+      currentUserId: currentUserId ?? this.currentUserId,
     );
   }
 }

@@ -47,13 +47,15 @@ class AppLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.background,
-      child: Center(
-        child: Lottie.asset(
-          AppAssets.lottieCircleLoader,
-          height: 70,
-          width: 70,
+    return Positioned.fill(
+      child: Container(
+        color: AppColors.background,
+        child: Center(
+          child: Lottie.asset(
+            AppAssets.lottieCircleLoader,
+            height: 70,
+            width: 70,
+          ),
         ),
       ),
     );

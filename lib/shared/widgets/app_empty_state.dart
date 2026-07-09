@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../app/colors.dart';
 import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
 import 'app_button.dart';
 
-/// Empty-state placeholder. Icon + title + optional description + optional CTA.
-///
-/// Use anywhere a list, grid, or detail screen has no content — keep the
-/// message specific to the absent thing ("No upcoming shoots yet" beats "No
-/// data").
+/// Empty-state placeholder. Icon or SVG + title + optional description +
+/// optional CTA. Use anywhere a list, grid, or detail screen has no content
+/// — keep the message specific to the absent thing ("No upcoming shoots yet"
+/// beats "No data").
 class AppEmptyState extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
+  final double iconSize;
   final String title;
   final String? description;
   final String? ctaLabel;
@@ -19,7 +21,9 @@ class AppEmptyState extends StatelessWidget {
 
   const AppEmptyState({
     super.key,
-    required this.icon,
+    this.icon,
+    this.svgAsset,
+    this.iconSize = 56,
     required this.title,
     this.description,
     this.ctaLabel,
@@ -36,8 +40,13 @@ class AppEmptyState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, size: 56, color: AppColors.textTertiary),
-          SizedBox(height: AppSpacing.base),
+          if (svgAsset != null) ...[
+            SvgPicture.asset(svgAsset!, height: iconSize),
+            SizedBox(height: AppSpacing.base),
+          ] else if (icon != null) ...[
+            Icon(icon, size: iconSize, color: AppColors.textTertiary),
+            SizedBox(height: AppSpacing.base),
+          ],
           Text(
             title,
             style: AppTextStyles.titleMedium.copyWith(

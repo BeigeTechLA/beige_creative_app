@@ -24,6 +24,7 @@ class AppAssets {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   static const String icGroupChat = '$_messageSvg/ic_group_chat.svg';
+  static const String msgEmptyState = '$_messageSvg/msg_empty_state_svg.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — Meeting
@@ -33,6 +34,7 @@ class AppAssets {
   static const String icMeetingLink = '$_meetingSvg/ic_meeting_link.svg';
   static const String icRelatedShoot = '$_meetingSvg/ic_related_shoot.svg';
   static const String icGoogleMeet = '$_meetingSvg/ic_google_meet.svg';
+  static const String meetingEmptyState = '$_meetingSvg/meeting_empty_state.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Active Icons (Bottom Nav / Drawer)

@@ -150,18 +150,47 @@ class ConversationListNotifier
     }
   }
 
-  /// Applies the bump rule for an inbound message:
-  ///   - not our own echo
-  ///   - not the room the user is currently viewing
   void _handleInbound(String roomId, Message message) {
-    if (_selfUserId != null &&
-        _selfUserId!.isNotEmpty &&
-        message.senderId == _selfUserId) {
-      return;
-    }
     final active = ref.read(activeChatRoomProvider);
-    if (active == roomId) return;
-    _mutateUnread(roomId, delta: 1);
+    final isMe =
+        _selfUserId != null &&
+        _selfUserId!.isNotEmpty &&
+        message.senderId == _selfUserId;
+
+    final shouldBump = !isMe && active != roomId;
+    if (shouldBump) {
+      final current = _localUnread[roomId] ?? 0;
+      _localUnread[roomId] = current + 1;
+    }
+
+    final nextUnread = _localUnread[roomId] ?? 0;
+    final preview = ConversationPreview(
+      preview: _previewText(message),
+      sentAt: message.sentAt,
+      fromMe: isMe,
+    );
+
+    final patched = <Conversation>[];
+    var found = false;
+    for (final c in state.items) {
+      if (c.id == roomId) {
+        found = true;
+        patched.add(
+          c.copyWith(
+            unreadCount: nextUnread,
+            lastMessage: preview,
+            updatedAt: message.sentAt,
+          ),
+        );
+      } else {
+        patched.add(c);
+      }
+    }
+
+    if (found) {
+      state = state.copyWith(items: patched);
+    }
+    _persist();
   }
 
   void _scheduleRefresh() {
@@ -171,9 +200,15 @@ class ConversationListNotifier
 
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
+    // Snapshot query at fetch-start so a stale in-flight result (issued
+    // for an older query) doesn't stomp state after the user has already
+    // typed / cleared. Without this guard, clearing while a filtered fetch
+    // is in flight briefly flashes the illustrated empty view.
+    final startedQuery = state.query;
     try {
       final repo = ref.read(messagesRepositoryProvider);
-      final items = await repo.listConversations(query: state.query);
+      final items = await repo.listConversations(query: startedQuery);
+      if (state.query != startedQuery) return;
       final reconciled = _reconcile(items);
       state = state.copyWith(items: reconciled, isLoading: false);
       // Backend `/rooms` ships `last_message` as an id only — hydrate the
@@ -181,6 +216,7 @@ class ConversationListNotifier
       // snippet. Failures are swallowed: the row keeps its empty preview.
       unawaited(_hydratePreviews(reconciled));
     } catch (e, st) {
+      if (state.query != startedQuery) return;
       AppLogger.e('Conversations refresh failed', e, st);
       state = state.copyWith(
         isLoading: false,
@@ -203,22 +239,35 @@ class ConversationListNotifier
   List<Conversation> _reconcile(List<Conversation> serverItems) {
     final seenIds = <String>{};
     final reconciled = <Conversation>[];
+    final existingConvs = {for (final c in state.items) c.id: c};
+
     for (final c in serverItems) {
       seenIds.add(c.id);
       final localCount = _localUnread[c.id];
       final serverUpdated = c.updatedAt;
+
+      final existing = existingConvs[c.id];
+      var reconciledConv = c;
+      if (existing != null &&
+          (c.lastMessage == null || c.lastMessage!.preview.isEmpty) &&
+          existing.lastMessage != null &&
+          existing.lastMessage!.preview.isNotEmpty) {
+        reconciledConv = c.copyWith(lastMessage: existing.lastMessage);
+      }
+
       if (localCount == null) {
         _localUnread[c.id] = c.unreadCount;
         if (serverUpdated != null) {
           _lastKnownUpdatedAt[c.id] = serverUpdated;
         }
-        reconciled.add(c);
+        reconciled.add(reconciledConv);
         continue;
       }
       // Reconnect-catch-up hint: server says the room moved forward and the
       // user is not currently viewing it → bump conservatively by 1.
       final previousStamp = _lastKnownUpdatedAt[c.id];
-      final movedForward = serverUpdated != null &&
+      final movedForward =
+          serverUpdated != null &&
           (previousStamp == null || serverUpdated.isAfter(previousStamp));
       final active = ref.read(activeChatRoomProvider);
       if (movedForward && active != c.id) {
@@ -227,7 +276,7 @@ class ConversationListNotifier
       if (serverUpdated != null) {
         _lastKnownUpdatedAt[c.id] = serverUpdated;
       }
-      reconciled.add(c.copyWith(unreadCount: _localUnread[c.id]!));
+      reconciled.add(reconciledConv.copyWith(unreadCount: _localUnread[c.id]!));
     }
     _localUnread.removeWhere((id, _) => !seenIds.contains(id));
     _lastKnownUpdatedAt.removeWhere((id, _) => !seenIds.contains(id));
@@ -256,18 +305,20 @@ class ConversationListNotifier
       if (m != null) byId[items[i].id] = m;
     }
     if (byId.isEmpty) return;
-    final patched = state.items.map((c) {
-      final m = byId[c.id];
-      if (m == null) return c;
-      final fromMe = currentUserId != null && m.senderId == currentUserId;
-      return c.copyWith(
-        lastMessage: ConversationPreview(
-          preview: _previewText(m),
-          sentAt: m.sentAt,
-          fromMe: fromMe,
-        ),
-      );
-    }).toList(growable: false);
+    final patched = state.items
+        .map((c) {
+          final m = byId[c.id];
+          if (m == null) return c;
+          final fromMe = currentUserId != null && m.senderId == currentUserId;
+          return c.copyWith(
+            lastMessage: ConversationPreview(
+              preview: _previewText(m),
+              sentAt: m.sentAt,
+              fromMe: fromMe,
+            ),
+          );
+        })
+        .toList(growable: false);
     state = state.copyWith(items: patched);
   }
 
@@ -289,7 +340,11 @@ class ConversationListNotifier
   }
 
   void updateSearch(String query) {
-    state = state.copyWith(query: query);
+    // Flip isLoading synchronously so the empty-state / hide-search branch
+    // doesn't render during the debounce window (before refresh() fires).
+    // Without this, a clear-to-empty transition briefly shows the illustrated
+    // empty view + hides the search bar, then snaps back once results land.
+    state = state.copyWith(query: query, isLoading: true);
     _debounce?.cancel();
     _debounce = Timer(kConversationSearchDebounce, refresh);
   }

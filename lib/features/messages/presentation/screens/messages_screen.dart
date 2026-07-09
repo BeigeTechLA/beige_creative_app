@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
@@ -51,18 +52,26 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen> {
     final state = ref.watch(conversationListProvider);
     final notifier = ref.read(conversationListProvider.notifier);
 
+    final showEmptyState = state.items.isEmpty &&
+        state.query.isEmpty &&
+        !state.isLoading &&
+        state.errorMessage == null;
+
     return SafeArea(
       child: Column(
         children: [
           const AppMainToolbar(title: 'Message'),
-          const SizedBox(height: AppSpacing.md),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
-            child: _SearchRow(
-              controller: _searchCtrl,
-              onChanged: notifier.updateSearch,
+          if (!showEmptyState) ...[
+            const SizedBox(height: AppSpacing.md),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
+              child: _SearchRow(
+                controller: _searchCtrl,
+                onChanged: notifier.updateSearch,
+              ),
             ),
-          ),
+          ],
           const SizedBox(height: AppSpacing.md),
           Expanded(
             child: RefreshIndicator(
@@ -166,16 +175,27 @@ class _ListBody extends StatelessWidget {
       );
     }
     if (state.items.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 80),
-          AppEmptyState(
-            icon: Icons.forum_outlined,
-            title: 'No conversations',
-            description: 'New messages will appear here.',
+      final isSearching = state.query.isNotEmpty;
+      return LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: constraints.maxHeight,
+            child: isSearching
+                ? AppEmptyState(
+                    icon: Icons.search_off,
+                    title: 'No results',
+                    description:
+                        'No conversations match "${state.query}".',
+                  )
+                : const AppEmptyState(
+                    svgAsset: AppAssets.msgEmptyState,
+                    iconSize: 120,
+                    title: 'No conversations',
+                    description: 'New messages will appear here.',
+                  ),
           ),
-        ],
+        ),
       );
     }
     return ListView.separated(

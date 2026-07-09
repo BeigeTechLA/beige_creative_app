@@ -1,3 +1,5 @@
+import 'package:beige_creative_app/core/providers/core_providers.dart';
+import 'package:beige_creative_app/core/session/session_store.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_category.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting_filter.dart';
@@ -14,8 +16,20 @@ import 'package:beige_creative_app/features/meetings/presentation/widgets/meetin
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/pump_app.dart';
+
+class _FakeSessionStore extends Mock implements SessionStore {
+  _FakeSessionStore({this.userId});
+  final String? userId;
+
+  @override
+  Future<UserSnapshot?> readUser() async {
+    if (userId == null) return null;
+    return UserSnapshot(id: userId!);
+  }
+}
 
 class _FakeMeetingsRepository implements MeetingsRepository {
   _FakeMeetingsRepository({List<Meeting>? seed})
@@ -115,9 +129,13 @@ void main() {
   group('MeetingsScreen', () {
     testWidgets('renders upcoming meetings from repo', (tester) async {
       final repo = _FakeMeetingsRepository();
+      final sessionStore = _FakeSessionStore();
       await tester.pumpProviderApp(
         const Scaffold(body: MeetingsScreen()),
-        overrides: [meetingsRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          meetingsRepositoryProvider.overrideWithValue(repo),
+          sessionStoreProvider.overrideWithValue(sessionStore),
+        ],
       );
       await tester.pumpAndSettle();
 
@@ -129,9 +147,13 @@ void main() {
 
     testWidgets('tab switch shows completed list', (tester) async {
       final repo = _FakeMeetingsRepository();
+      final sessionStore = _FakeSessionStore();
       await tester.pumpProviderApp(
         const Scaffold(body: MeetingsScreen()),
-        overrides: [meetingsRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          meetingsRepositoryProvider.overrideWithValue(repo),
+          sessionStoreProvider.overrideWithValue(sessionStore),
+        ],
       );
       await tester.pumpAndSettle();
 
@@ -142,13 +164,96 @@ void main() {
       expect(find.text('Completed One'), findsOneWidget);
       expect(find.byType(MeetingCard), findsOneWidget);
     });
+
+    testWidgets('hides RSVP buttons for self-created meetings', (tester) async {
+      final myUserId = 'user_123';
+      final futureTime = DateTime.now().add(const Duration(days: 1));
+
+      // Meeting created by current user
+      final selfCreatedMeeting = Meeting(
+        id: 'self',
+        title: 'Self Created',
+        description: 'd',
+        project: 'p',
+        platform: MeetingPlatform.meet,
+        startAt: futureTime,
+        endAt: futureTime.add(const Duration(hours: 1)),
+        link: 'https://example.com/self',
+        reminderMinutes: 15,
+        status: MeetingStatus.upcoming,
+        category: MeetingCategory.commercial,
+        agenda: const ['agenda'],
+        participants: const [],
+        createdById: myUserId,
+      );
+
+      final repo = _FakeMeetingsRepository(seed: [selfCreatedMeeting]);
+      final sessionStore = _FakeSessionStore(userId: myUserId);
+
+      await tester.pumpProviderApp(
+        const Scaffold(body: MeetingsScreen()),
+        overrides: [
+          meetingsRepositoryProvider.overrideWithValue(repo),
+          sessionStoreProvider.overrideWithValue(sessionStore),
+        ],
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Self Created'), findsOneWidget);
+      expect(find.text('Accept'), findsNothing);
+      expect(find.text('Reject'), findsNothing);
+    });
+
+    testWidgets('shows RSVP buttons for meetings created by others', (tester) async {
+      final myUserId = 'user_123';
+      final otherUserId = 'user_456';
+      final futureTime = DateTime.now().add(const Duration(days: 1));
+
+      // Meeting created by another user
+      final otherCreatedMeeting = Meeting(
+        id: 'other',
+        title: 'Other Created',
+        description: 'd',
+        project: 'p',
+        platform: MeetingPlatform.meet,
+        startAt: futureTime,
+        endAt: futureTime.add(const Duration(hours: 1)),
+        link: 'https://example.com/other',
+        reminderMinutes: 15,
+        status: MeetingStatus.upcoming,
+        category: MeetingCategory.commercial,
+        agenda: const ['agenda'],
+        participants: const [],
+        createdById: otherUserId,
+      );
+
+      final repo = _FakeMeetingsRepository(seed: [otherCreatedMeeting]);
+      final sessionStore = _FakeSessionStore(userId: myUserId);
+
+      await tester.pumpProviderApp(
+        const Scaffold(body: MeetingsScreen()),
+        overrides: [
+          meetingsRepositoryProvider.overrideWithValue(repo),
+          sessionStoreProvider.overrideWithValue(sessionStore),
+        ],
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Other Created'), findsOneWidget);
+      expect(find.text('Accept'), findsOneWidget);
+      expect(find.text('Reject'), findsOneWidget);
+    });
   });
 
   group('MeetingsListNotifier', () {
     test('applyFilter shrinks list by category', () async {
       final repo = _FakeMeetingsRepository();
+      final sessionStore = _FakeSessionStore();
       final container = ProviderContainer(
-        overrides: [meetingsRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          meetingsRepositoryProvider.overrideWithValue(repo),
+          sessionStoreProvider.overrideWithValue(sessionStore),
+        ],
       );
       addTearDown(container.dispose);
 

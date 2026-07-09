@@ -162,13 +162,7 @@ class _ListBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state.status == MeetingsListStatus.loading && state.items.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 120),
-          AppScreenLoader(),
-        ],
-      );
+      return const AppScreenLoader();
     }
     if (state.status == MeetingsListStatus.error && state.items.isEmpty) {
       return ListView(
@@ -208,15 +202,19 @@ class _ListBody extends StatelessWidget {
       );
     }
     if (state.items.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 60),
-          AppEmptyState(
-            icon: Icons.event_outlined,
-            title: 'No meetings data found',
+      return LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: constraints.maxHeight,
+            child: const AppEmptyState(
+              svgAsset: AppAssets.meetingEmptyState,
+              iconSize: 120,
+              title: 'No meetings yet',
+              description: 'Scheduled meetings will appear here.',
+            ),
           ),
-        ],
+        ),
       );
     }
     return ListView.separated(
@@ -233,6 +231,7 @@ class _ListBody extends StatelessWidget {
         final m = state.items[i];
         return MeetingCard(
           meeting: m,
+          currentUserId: state.currentUserId,
           onTap: () => onTap(context, m.id),
           onJoin: () => onJoin(context, m.link),
           onAccept: () => onRsvp(context, meetingId: m.id, accept: true),

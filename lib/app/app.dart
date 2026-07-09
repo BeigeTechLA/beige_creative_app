@@ -26,7 +26,13 @@ class App extends ConsumerWidget {
       title: 'BEIGE',
       theme: AppTheme.dark(),
       routerConfig: router,
-      builder: (context, child) => ConnectivityListener(child: child!),
+      builder: (context, child) {
+        return GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          behavior: HitTestBehavior.translucent,
+          child: ConnectivityListener(child: child!),
+        );
+      },
     );
   }
 }

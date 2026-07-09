@@ -30,6 +30,7 @@ class MeetingCard extends StatefulWidget {
     this.onAccept,
     this.onReject,
     this.rsvpPending = false,
+    this.currentUserId,
   });
 
   final Meeting meeting;
@@ -37,6 +38,9 @@ class MeetingCard extends StatefulWidget {
   final VoidCallback onJoin;
   final VoidCallback? onAccept;
   final VoidCallback? onReject;
+
+  /// ID of the currently logged-in user. Used to check if the meeting is self-created.
+  final String? currentUserId;
 
   /// True while an Accept/Reject network call for this meeting is in flight.
   /// Disables both RSVP buttons and renders a spinner on each.
@@ -54,10 +58,17 @@ class _MeetingCardState extends State<MeetingCard> {
   String get _timeLabel =>
       '${_time.format(widget.meeting.startAt)} to ${_time.format(widget.meeting.endAt)}';
 
-  bool get _showRsvp =>
-      widget.onAccept != null &&
-      widget.onReject != null &&
-      canRsvpToMeeting(widget.meeting);
+  bool get _showRsvp {
+    debugPrint('[MEETING_CARD_DEBUG] title="${widget.meeting.title}" meeting.createdById="${widget.meeting.createdById}" widget.currentUserId="${widget.currentUserId}"');
+    final isSelfCreated = widget.currentUserId != null &&
+        widget.meeting.createdById == widget.currentUserId;
+    debugPrint('[MEETING_CARD_DEBUG] isSelfCreated=$isSelfCreated');
+    if (isSelfCreated) return false;
+
+    return widget.onAccept != null &&
+        widget.onReject != null &&
+        canRsvpToMeeting(widget.meeting);
+  }
 
   Color _getStatusBgColor(MeetingStatus status) {
     switch (status) {
