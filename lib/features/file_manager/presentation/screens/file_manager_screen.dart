@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
-import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../../domain/models/fm_node.dart';
@@ -88,8 +86,8 @@ class FileManagerScreen extends ConsumerWidget {
       },
     );
 
-    return AppScaffold(
-      body: Column(
+    return SafeArea(
+      child: Column(
         children: [
           const AppMainToolbar(title: 'File Manager'),
           Padding(

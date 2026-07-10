@@ -277,10 +277,10 @@ void main() {
       const MaterialApp(
         home: Scaffold(
           body: DetailsSectionCard(
-            icon: Icons.folder_outlined,
+            leading: const Icon(Icons.folder_outlined),
             title: 'Shared Files',
             trailingCount: 1,
-            body: Text('Call sheet.pdf'),
+            body: const Text('Call sheet.pdf'),
           ),
         ),
       ),

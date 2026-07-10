@@ -58,56 +58,61 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
-              Container(
-                width: _avatarDiameter,
-                height: _avatarDiameter,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary20,
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: SvgPicture.asset(
-                  AppAssets.icGroupChat,
-                  width: 24,
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      contactName,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
+                child: InkWell(
+                  onTap: onOpenDetails,
+                  borderRadius: BorderRadius.circular(_avatarDiameter),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: _avatarDiameter,
+                        height: _avatarDiameter,
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary20,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: SvgPicture.asset(
+                          AppAssets.icGroupChat,
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.primary,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    _Subtitle(
-                      participantCount: participantCount,
-                      isTyping: isTyping,
-                    ),
-                  ],
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              contactName,
+                              style: AppTextStyles.bodyLarge.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            _Subtitle(
+                              participantCount: participantCount,
+                              isTyping: isTyping,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               IconButton(
                 tooltip: 'Search messages',
                 onPressed: onSearch,
                 icon: const Icon(Icons.search, color: AppColors.textPrimary),
-              ),
-              IconButton(
-                tooltip: 'Conversation details',
-                onPressed: onOpenDetails,
-                icon: const Icon(Icons.more_vert, color: AppColors.textPrimary),
               ),
             ],
           ),

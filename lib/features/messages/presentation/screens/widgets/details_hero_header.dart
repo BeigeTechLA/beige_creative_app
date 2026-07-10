@@ -6,6 +6,7 @@ import '../../../../../app/colors.dart';
 import '../../../../../app/radii.dart';
 import '../../../../../app/spacing.dart';
 import '../../../../../app/text_styles.dart';
+import '../../../../../features/home/presentation/widgets/common/home_section_divider.dart';
 import '../../../../../shared/util/conversation_title.dart';
 
 /// Beige curved header + dark name strip, matching the profile-screen pattern
@@ -66,7 +67,7 @@ class DetailsHeroHeader extends StatelessWidget {
               child: Center(
                 child: Text(
                   'Details',
-                  style: AppTextStyles.displayLabel16.copyWith(
+                  style: AppTextStyles.titleSmall.copyWith(
                     color: AppColors.textHeading,
                   ),
                 ),
@@ -90,7 +91,7 @@ class DetailsHeroHeader extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
           child: Text(
             displayName,
-            style: AppTextStyles.displayBold20.copyWith(
+            style: AppTextStyles.titleLarge.copyWith(
               color: AppColors.textPrimary,
             ),
             textAlign: TextAlign.center,
@@ -98,14 +99,7 @@ class DetailsHeroHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
-        const Divider(
-          height: 1,
-          thickness: 1,
-          color: AppColors.dividerDark,
-          indent: AppSpacing.screenH,
-          endIndent: AppSpacing.screenH,
-        ),
+        const HomeSectionDivider(),
       ],
     );
   }
@@ -142,7 +136,7 @@ class _Avatar extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         _initials,
-        style: AppTextStyles.displayBold20.copyWith(
+        style: AppTextStyles.titleLarge.copyWith(
           color: AppColors.textPrimary,
         ),
       ),

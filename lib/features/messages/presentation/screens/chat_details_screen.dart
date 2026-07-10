@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 
+import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
+import '../../../../shared/widgets/loading.dart';
 import '../../domain/entities/chat_details.dart';
 import '../../domain/entities/participant.dart';
-import '../../../../shared/widgets/loading.dart';
 import '../../domain/role_label.dart';
 import '../providers/chat_details_providers.dart';
 import 'widgets/details_hero_header.dart';
@@ -59,11 +61,21 @@ class _Body extends StatelessWidget {
         ),
         SliverToBoxAdapter(
           child: DetailsSectionCard(
-            icon: Icons.people_outline,
+            leading: SvgPicture.asset(
+              AppAssets.icGroupChat,
+              width: 16,
+              height: 16,
+              colorFilter: const ColorFilter.mode(
+                AppColors.primary,
+                BlendMode.srcIn,
+              ),
+            ),
             title: 'Participants',
             trailingCount: details.participants.length,
             initiallyExpanded: true,
             collapsible: false,
+            backgroundColor: AppColors.participantBoxBg,
+            titleColor: AppColors.primary,
             body: _ParticipantsBody(items: details.participants),
           ),
         ),
@@ -77,58 +89,63 @@ class _ParticipantsBody extends StatelessWidget {
   const _ParticipantsBody({required this.items});
   final List<Participant> items;
 
+  String _getInitials(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return '?';
+    final parts = trimmed.split(RegExp(r'\s+'));
+    if (parts.length > 1) {
+      final first = parts[0].isNotEmpty ? parts[0][0] : '';
+      final second = parts[1].isNotEmpty ? parts[1][0] : '';
+      return (first + second).toUpperCase();
+    }
+    return trimmed[0].toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [for (final p in items) _ParticipantRow(participant: p)],
-    );
-  }
-}
-
-class _ParticipantRow extends StatelessWidget {
-  const _ParticipantRow({required this.participant});
-
-  final Participant participant;
-
-  @override
-  Widget build(BuildContext context) {
-    final role = roleLabel(participant.role);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 14,
-            backgroundColor: AppColors.surfaceInput,
-            child: Text(
-              participant.name.isEmpty
-                  ? '?'
-                  : participant.name.characters.first,
-              style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.textPrimary,
-              ),
+      children: [
+        for (final p in items)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColors.primary20,
+                  child: Text(
+                    _getInitials(p.name),
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(
+                    p.name,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (roleLabel(p.role).isNotEmpty) ...[
+                  const SizedBox(width: AppSpacing.md),
+                  Text(
+                    roleLabel(p.role),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              participant.name,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ),
-          if (role.isNotEmpty)
-            Text(
-              role,
-              style: AppTextStyles.body11.copyWith(
-                color: AppColors.textTertiary,
-              ),
-            ),
-        ],
-      ),
+      ],
     );
   }
 }

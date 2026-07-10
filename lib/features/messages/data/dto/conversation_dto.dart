@@ -16,9 +16,22 @@ class ConversationDto {
     Map<String, dynamic> json, {
     required String currentUserId,
   }) {
-    final cpIds = _readParticipants(json['cp_ids']);
-    final managerIds = _readParticipants(json['manager_ids']);
-    final participantIds = [...cpIds, ...managerIds];
+    // Prefer canonical `participants` array (same shape as details endpoint's
+    // `participants.items`) so list count matches the details screen. Falls
+    // back to `cp_ids + manager_ids` for legacy payloads. Deduped by id.
+    final canonical = _readParticipantsFromCanonical(json['participants']);
+    final List<String> participantIds;
+    if (canonical.isNotEmpty) {
+      participantIds = canonical;
+    } else {
+      final cpIds = _readParticipants(json['cp_ids']);
+      final managerIds = _readParticipants(json['manager_ids']);
+      final seen = <String>{};
+      participantIds = [
+        for (final id in [...cpIds, ...managerIds])
+          if (seen.add(id)) id,
+      ];
+    }
 
     final unreadMap = json['unread_counts'];
     int unread = 0;
@@ -51,6 +64,32 @@ class ConversationDto {
         .map((m) => (m['id'] ?? m['_id'] ?? '').toString())
         .where((s) => s.isNotEmpty)
         .toList(growable: false);
+  }
+
+  /// Reads canonical `participants` from the rooms payload. Accepts either
+  /// a bare list of participant maps or a `{ items: [...] }` envelope
+  /// (mirrors the details endpoint's `participants.items` shape). Deduped
+  /// by id to keep count aligned with the details screen.
+  static List<String> _readParticipantsFromCanonical(Object? raw) {
+    final List list;
+    if (raw is List) {
+      list = raw;
+    } else if (raw is Map && raw['items'] is List) {
+      list = raw['items'] as List;
+    } else {
+      return const [];
+    }
+    final seen = <String>{};
+    final ids = <String>[];
+    for (final item in list) {
+      if (item is Map) {
+        final id = (item['id'] ?? item['_id'] ?? '').toString();
+        if (id.isNotEmpty && seen.add(id)) ids.add(id);
+      } else if (item is String && item.isNotEmpty && seen.add(item)) {
+        ids.add(item);
+      }
+    }
+    return List.unmodifiable(ids);
   }
 
   static String? _firstAvatar(Object? raw) {

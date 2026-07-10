@@ -527,4 +527,10 @@ class AppColors {
 
   /// 0xFFEECCC9 — RSVP reject soft bg (alias of softPeach)
   static const Color meetingRejectSoftBg = softPeach;
+
+  /// Participant box background — 8% white opacity
+  static const Color participantBoxBg = Color(0x14FFFFFF);
+
+  /// Participant box border — 8% white opacity
+  static const Color participantBoxBorder = Color(0x14FFFFFF);
 }

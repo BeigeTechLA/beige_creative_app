@@ -122,7 +122,7 @@ void main() {
     await _pumpFrame(
       tester,
       DetailsSectionCard(
-        icon: Icons.folder_outlined,
+        leading: const Icon(Icons.folder_outlined),
         title: 'Shared Files',
         trailingCount: 2,
         initiallyExpanded: true,

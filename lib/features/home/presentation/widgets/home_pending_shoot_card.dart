@@ -137,64 +137,76 @@ class HomePendingShootCard extends StatelessWidget {
                     ),
                     Divider(color: AppColors.dividerDark, thickness: 0.8),
                     AppSpacing.verticalMd,
-                    Wrap(
-                      spacing: AppSpacing.mld,
-                      runSpacing: AppSpacing.sm,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final rowMaxWidth = constraints.maxWidth;
+                        return Wrap(
+                          spacing: AppSpacing.mld,
+                          runSpacing: AppSpacing.sm,
                           children: [
-                            SvgPicture.asset(
-                              AppAssets.calendar,
-                              width: 14,
-                              height: 14,
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SvgPicture.asset(
+                                  AppAssets.calendar,
+                                  width: 14,
+                                  height: 14,
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  DateTimeUtils.formatDateValue(data.eventDate),
+                                  style: AppTextStyles.body10.copyWith(
+                                    color: AppColors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(width: 6),
-                            Text(
-                              DateTimeUtils.formatDateValue(data.eventDate),
-                              style: AppTextStyles.body10.copyWith(
-                                color: AppColors.white,
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SvgPicture.asset(
+                                  AppAssets.time,
+                                  width: 14,
+                                  height: 14,
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "${DateTimeUtils.formatTime(data.startTime)} - ${DateTimeUtils.formatTime(data.endTime)}",
+                                  style: AppTextStyles.body10.copyWith(
+                                    color: AppColors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: rowMaxWidth,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SvgPicture.asset(
+                                    AppAssets.location,
+                                    width: 14,
+                                    height: 14,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      data.eventLocation,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyles.body10.copyWith(
+                                        color: AppColors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.time,
-                              width: 14,
-                              height: 14,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              "${DateTimeUtils.formatTime(data.startTime)} - ${DateTimeUtils.formatTime(data.endTime)}",
-                              style: AppTextStyles.body10.copyWith(
-                                color: AppColors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.location,
-                              width: 14,
-                              height: 14,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              data.eventLocation,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.body10.copyWith(
-                                color: AppColors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                        );
+                      },
                     ),
                     AppSpacing.verticalLg,
                     Row(
