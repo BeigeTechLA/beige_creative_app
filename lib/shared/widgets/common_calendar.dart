@@ -31,6 +31,7 @@ class _CommonCalendarState extends State<CommonCalendar>
         final width = constraints.maxWidth;
         final cellHeight = width * 0.20;
         final daysRowHeight = width * 0.13;
+        final weekdayFontSize = (width * 0.034).clamp(12.0, 16.0);
         return Container(
           color: AppColors.calendarCell,
           child: Column(
@@ -41,7 +42,7 @@ class _CommonCalendarState extends State<CommonCalendar>
                 height: 0.5,
                 color: AppColors.calendarGrid,
               ),
-              _buildDaysRow(width),
+              _buildDaysRow(width, weekdayFontSize),
               Container(
                 width: double.infinity,
                 height: 0.5,
@@ -102,7 +103,7 @@ class _CommonCalendarState extends State<CommonCalendar>
     );
   }
 
-  Widget _buildDaysRow(double width) {
+  Widget _buildDaysRow(double width, double fontSize) {
     final days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     return Container(
       decoration: BoxDecoration(
@@ -120,7 +121,7 @@ class _CommonCalendarState extends State<CommonCalendar>
                 days[index],
                 style: AppTextStyles.body14.copyWith(
                   color: AppColors.white,
-                  fontSize: width * 0.034,
+                  fontSize: fontSize,
                 ),
               ),
             ),
@@ -134,6 +135,7 @@ class _CommonCalendarState extends State<CommonCalendar>
   Widget _buildCell(double width, DateTime day, {required bool isOutside}) {
     final dateKey = DateTime(day.year, day.month, day.day);
     final eventText = widget.events[dateKey];
+    final dayFontSize = (width * 0.045).clamp(14.0, 20.0);
 
     // 🔥 FILTER LOGIC
     bool shouldShowEvent = false;
@@ -156,7 +158,7 @@ class _CommonCalendarState extends State<CommonCalendar>
           Text(
             "${day.day}",
             style: AppTextStyles.inherit.copyWith(
-              fontSize: width * 0.045,
+              fontSize: dayFontSize,
               color: isOutside || isStrikethrough
                   ? AppColors.white24
                   : AppColors.white,
@@ -180,6 +182,7 @@ class _CommonCalendarState extends State<CommonCalendar>
 
   Widget _buildEventTag(double width, String text) {
     bool isAvailable = text.toLowerCase() == "available";
+    final eventFontSize = (width * 0.021).clamp(11.0, 14.0);
     return Container(
       width: width * 0.155,
       alignment: Alignment.center,
@@ -201,7 +204,7 @@ class _CommonCalendarState extends State<CommonCalendar>
         textAlign: TextAlign.center,
         style: AppTextStyles.inheritSemiBold.copyWith(
           color: isAvailable ? AppColors.greenForest : AppColors.indigoDeep,
-          fontSize: width * 0.021,
+          fontSize: eventFontSize,
         ),
       ),
     );

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -46,13 +47,14 @@ class _ProfileNewPasswordScreenState
   }
 
   Future<void> _onSave() async {
-    final ok =
-        await ref.read(newPasswordNotifierProvider.notifier).submit(
-              email: widget.email,
-              otp: widget.otp,
-              password: _passwordController.text,
-              confirm: _confirmController.text,
-            );
+    final ok = await ref
+        .read(newPasswordNotifierProvider.notifier)
+        .submit(
+          email: widget.email,
+          otp: widget.otp,
+          password: _passwordController.text,
+          confirm: _confirmController.text,
+        );
     if (ok && mounted) {
       context.pushNamed(Routes.profilePasswordSuccess.name);
     }
@@ -79,8 +81,10 @@ class _ProfileNewPasswordScreenState
             child: Column(
               children: [
                 SizedBox(
-                  height: (MediaQuery.of(context).size.height * 0.28)
-                      .clamp(180.0, 240.0),
+                  height: (MediaQuery.of(context).size.height * 0.28).clamp(
+                    180.0,
+                    240.0,
+                  ),
                   child: Stack(
                     children: [
                       Positioned.fill(
@@ -96,9 +100,10 @@ class _ProfileNewPasswordScreenState
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            InkWell(
+                            AppIconTapTarget(
+                              semanticLabel: 'Back',
                               onTap: () => context.pop(),
-                              child: SvgPicture.asset(
+                              icon: SvgPicture.asset(
                                 AppAssets.back,
                                 height: 24,
                                 // ignore: deprecated_member_use
@@ -184,8 +189,7 @@ class _ProfileNewPasswordScreenState
                               width: double.infinity,
                               height: 50,
                               child: ElevatedButton(
-                                onPressed:
-                                    state.isSubmitting ? null : _onSave,
+                                onPressed: state.isSubmitting ? null : _onSave,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.borderGold,
                                   shape: RoundedRectangleBorder(
@@ -202,8 +206,8 @@ class _ProfileNewPasswordScreenState
                                         'Save New Password',
                                         style: AppTextStyles.displayLabel13
                                             .copyWith(
-                                          color: AppColors.textHeading,
-                                        ),
+                                              color: AppColors.textHeading,
+                                            ),
                                       ),
                               ),
                             ),

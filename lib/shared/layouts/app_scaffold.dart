@@ -9,10 +9,14 @@ import '../../app/colors.dart';
 /// (`top: true, bottom: false, left: true, right: true` by default), and
 /// `resizeToAvoidBottomInset: true`.
 ///
-/// SafeArea bottom defaults to `false` because `bottomNavigationBar` and
-/// the home-indicator are already inset by Flutter. Decorative screens
-/// that intentionally bleed under the status bar set `safeTop: false` and
-/// handle their own top offset with `MediaQuery.padding.top`.
+/// Body SafeArea bottom defaults to `false` because `bottomNavigationBar` and
+/// the home-indicator are already inset by Flutter for framework navigation
+/// bars. Custom footers can opt into bottom safe area by setting
+/// `safeBottomNavigationBar: true`.
+///
+/// Decorative screens that intentionally bleed under the status bar set
+/// `safeTop: false` and handle their own top offset with
+/// `MediaQuery.padding.top`.
 ///
 /// Do not use inside `AppShell` itself — the shell is the route host.
 class AppScaffold extends StatelessWidget {
@@ -31,6 +35,7 @@ class AppScaffold extends StatelessWidget {
 
   final bool resizeToAvoidBottomInset;
   final bool extendBodyBehindAppBar;
+  final bool safeBottomNavigationBar;
 
   const AppScaffold({
     super.key,
@@ -47,6 +52,7 @@ class AppScaffold extends StatelessWidget {
     this.safeRight = true,
     this.resizeToAvoidBottomInset = true,
     this.extendBodyBehindAppBar = false,
+    this.safeBottomNavigationBar = false,
   });
 
   @override
@@ -61,11 +67,20 @@ class AppScaffold extends StatelessWidget {
             child: body,
           )
         : body;
+    final navBar = bottomNavigationBar == null || !safeBottomNavigationBar
+        ? bottomNavigationBar
+        : SafeArea(
+            top: false,
+            left: safeLeft,
+            right: safeRight,
+            child: bottomNavigationBar!,
+          );
+
     return Scaffold(
       backgroundColor: backgroundColor ?? AppColors.background,
       appBar: appBar,
       body: content,
-      bottomNavigationBar: bottomNavigationBar,
+      bottomNavigationBar: navBar,
       floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: floatingActionButtonLocation,
       drawer: drawer,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -45,9 +46,10 @@ class ProfileHeader extends StatelessWidget {
         Positioned(
           top: MediaQuery.of(context).padding.top + AppSpacing.lg,
           left: 16,
-          child: InkWell(
+          child: AppIconTapTarget(
+            semanticLabel: 'Back',
             onTap: () => context.pop(true),
-            child: SvgPicture.asset(
+            icon: SvgPicture.asset(
               AppAssets.back,
               height: 24,
               colorFilter: const ColorFilter.mode(
@@ -95,42 +97,39 @@ class ProfileHeader extends StatelessWidget {
                               fit: BoxFit.cover,
                             )
                           : profileImageUrl.isNotEmpty
-                              ? CachedNetworkImage(
-                                  imageUrl:
-                                      '${Env.imageUrl}$profileImageUrl',
-                                  width: 96,
-                                  height: 96,
-                                  fit: BoxFit.cover,
-                                )
-                              : SvgPicture.asset(
-                                  AppAssets.userCircle,
-                                  width: 96,
-                                  height: 96,
-                                ),
+                          ? CachedNetworkImage(
+                              imageUrl: '${Env.imageUrl}$profileImageUrl',
+                              width: 96,
+                              height: 96,
+                              fit: BoxFit.cover,
+                            )
+                          : SvgPicture.asset(
+                              AppAssets.userCircle,
+                              width: 96,
+                              height: 96,
+                            ),
                     ),
                   ),
                 ),
                 Positioned(
                   bottom: 0,
                   right: 2,
-                  child: Material(
-                    color: AppColors.transparent,
-                    child: GestureDetector(
-                      onTap: onEditTap,
-                      child: Container(
-                        width: 35,
-                        height: 40,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.white),
-                          color: AppColors.borderGold,
-                          shape: BoxShape.circle,
-                        ),
-                        child: SvgPicture.asset(
-                          AppAssets.editCircle,
-                          height: 18,
-                          width: 18,
-                        ),
+                  child: AppIconTapTarget(
+                    semanticLabel: 'Edit profile photo',
+                    onTap: onEditTap,
+                    icon: Container(
+                      width: 35,
+                      height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.white),
+                        color: AppColors.borderGold,
+                        shape: BoxShape.circle,
+                      ),
+                      child: SvgPicture.asset(
+                        AppAssets.editCircle,
+                        height: 18,
+                        width: 18,
                       ),
                     ),
                   ),

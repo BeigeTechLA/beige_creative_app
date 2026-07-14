@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'loading.dart';
-import '../../app/assets.dart';
 import '../../app/colors.dart';
 import '../../app/radii.dart';
 import '../../app/spacing.dart';
@@ -64,11 +63,7 @@ class AppButton extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
         ],
         Flexible(
-          child: Text(
-            label,
-            style: textStyle,
-            overflow: TextOverflow.ellipsis,
-          ),
+          child: Text(label, style: textStyle, overflow: TextOverflow.ellipsis),
         ),
       ],
     );
@@ -90,9 +85,7 @@ class AppButton extends StatelessWidget {
       ),
     );
 
-    return fullWidth
-        ? SizedBox(width: double.infinity, child: button)
-        : button;
+    return fullWidth ? SizedBox(width: double.infinity, child: button) : button;
   }
 
   EdgeInsets _paddingFor(AppButtonSize s) {

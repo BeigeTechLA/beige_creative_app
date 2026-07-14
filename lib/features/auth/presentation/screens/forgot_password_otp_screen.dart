@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
@@ -29,8 +30,10 @@ class _ForgotPasswordOtpScreenState
     extends ConsumerState<ForgotPasswordOtpScreen> {
   static const int _timerStart = 59;
 
-  final List<TextEditingController> controllers =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
 
   int seconds = _timerStart;
@@ -100,7 +103,10 @@ class _ForgotPasswordOtpScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(forgotPasswordNotifierProvider);
 
-    ref.listen<ForgotPasswordState>(forgotPasswordNotifierProvider, (prev, next) {
+    ref.listen<ForgotPasswordState>(forgotPasswordNotifierProvider, (
+      prev,
+      next,
+    ) {
       if (next.errorMessage != null &&
           next.errorMessage != prev?.errorMessage) {
         TopMessage.show(context, next.errorMessage!);
@@ -116,16 +122,19 @@ class _ForgotPasswordOtpScreenState
         child: Column(
           children: [
             SizedBox(
-              height:
-                  (MediaQuery.of(context).size.height * 0.32).clamp(200.0, 280.0),
+              height: (MediaQuery.of(context).size.height * 0.32).clamp(
+                200.0,
+                280.0,
+              ),
               child: Stack(
                 children: [
                   Positioned(
                     top: AppSpacing.md,
                     left: 16,
-                    child: InkWell(
+                    child: AppIconTapTarget(
+                      semanticLabel: 'Back',
                       onTap: () => context.pop(),
-                      child: SvgPicture.asset(
+                      icon: SvgPicture.asset(
                         AppAssets.back,
                         height: 24,
                         colorFilter: const ColorFilter.mode(
@@ -194,7 +203,8 @@ class _ForgotPasswordOtpScreenState
                                   decoration: BoxDecoration(
                                     borderRadius: AppRadii.lgAll,
                                     border: Border.all(
-                                      color: (focusNodes[index].hasFocus ||
+                                      color:
+                                          (focusNodes[index].hasFocus ||
                                               controllers[index]
                                                   .text
                                                   .isNotEmpty)

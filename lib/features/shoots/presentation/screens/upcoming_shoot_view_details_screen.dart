@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -64,15 +65,38 @@ class UpcomingShootViewDetails extends ConsumerWidget {
                       ),
                     ),
                     Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height:
+                          MediaQuery.of(context).padding.top +
+                          AppSpacing.xxxl,
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withValues(alpha: 0.55),
+                                Colors.black.withValues(alpha: 0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
                       top: MediaQuery.of(context).padding.top + AppSpacing.sm,
                       left: AppSpacing.lg,
                       right: AppSpacing.lg,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          InkWell(
+                          AppIconTapTarget(
+                            semanticLabel: 'Back',
                             onTap: () => context.pop(),
-                            child: SvgPicture.asset(AppAssets.back),
+                            icon: SvgPicture.asset(AppAssets.back),
                           ),
                         ],
                       ),
@@ -87,15 +111,17 @@ class UpcomingShootViewDetails extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               '${mydata?.clientContact.fullName}',
-                              style: AppTextStyles.displayLabel16
-                                  .copyWith(color: AppColors.white),
+                              style: AppTextStyles.displayLabel16.copyWith(
+                                color: AppColors.white,
+                              ),
                             ),
                           ),
                           const SizedBox(width: AppSpacing.xs),
                           Text(
                             'ID: ${mydata?.project.idLabel}',
-                            style: AppTextStyles.bodyMediumStrong
-                                .copyWith(color: AppColors.primary),
+                            style: AppTextStyles.bodyMediumStrong.copyWith(
+                              color: AppColors.primary,
+                            ),
                           ),
                         ],
                       ),
@@ -137,7 +163,8 @@ class _InfoCard extends StatelessWidget {
                 _InfoRow(
                   icon: Icons.calendar_today,
                   text: DateTimeUtils.formatDate(
-                      '${mydata?.project.eventDate}'),
+                    '${mydata?.project.eventDate}',
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 _InfoRow(
@@ -160,15 +187,17 @@ class _InfoCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             'Shoot Type',
-                            style: AppTextStyles.body12
-                                .copyWith(color: AppColors.white30),
+                            style: AppTextStyles.body12.copyWith(
+                              color: AppColors.white30,
+                            ),
                           ),
                         ),
                         Expanded(
                           child: Text(
                             'Booking Type',
-                            style: AppTextStyles.body12
-                                .copyWith(color: AppColors.white30),
+                            style: AppTextStyles.body12.copyWith(
+                              color: AppColors.white30,
+                            ),
                           ),
                         ),
                       ],
@@ -185,8 +214,9 @@ class _InfoCard extends StatelessWidget {
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerLeft,
-                            child:
-                                _Chip(text: '${mydata?.project.bookingType}'),
+                            child: _Chip(
+                              text: '${mydata?.project.bookingType}',
+                            ),
                           ),
                         ),
                       ],
@@ -207,8 +237,9 @@ class _InfoCard extends StatelessWidget {
                     children: [
                       Text(
                         'Shoot Status',
-                        style: AppTextStyles.bodyMediumStrong
-                            .copyWith(color: AppColors.primary),
+                        style: AppTextStyles.bodyMediumStrong.copyWith(
+                          color: AppColors.primary,
+                        ),
                       ),
                       const Divider(
                         color: AppColors.dividerDark,
@@ -220,13 +251,15 @@ class _InfoCard extends StatelessWidget {
                         children: [
                           Text(
                             'Current Stage',
-                            style: AppTextStyles.body12
-                                .copyWith(color: AppColors.white30),
+                            style: AppTextStyles.body12.copyWith(
+                              color: AppColors.white30,
+                            ),
                           ),
                           Text(
                             'Pre Production',
-                            style: AppTextStyles.body12
-                                .copyWith(color: AppColors.white),
+                            style: AppTextStyles.body12.copyWith(
+                              color: AppColors.white,
+                            ),
                           ),
                         ],
                       ),
@@ -236,15 +269,17 @@ class _InfoCard extends StatelessWidget {
                         children: [
                           Text(
                             'Last Updated',
-                            style: AppTextStyles.body12
-                                .copyWith(color: AppColors.white30),
+                            style: AppTextStyles.body12.copyWith(
+                              color: AppColors.white30,
+                            ),
                           ),
                           Text(
                             DateTimeUtils.formatReadableDateTime(
                               mydata?.project.lastUpdated?.toString(),
                             ),
-                            style: AppTextStyles.body12
-                                .copyWith(color: AppColors.white),
+                            style: AppTextStyles.body12.copyWith(
+                              color: AppColors.white,
+                            ),
                           ),
                         ],
                       ),
@@ -262,8 +297,9 @@ class _InfoCard extends StatelessWidget {
             children: [
               Text(
                 'Time & Budget',
-                style: AppTextStyles.displayLabel14Strong
-                    .copyWith(color: AppColors.white),
+                style: AppTextStyles.displayLabel14Strong.copyWith(
+                  color: AppColors.white,
+                ),
               ),
             ],
           ),
@@ -478,14 +514,16 @@ class _ContactItem extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: AppTextStyles.bodySmall
-                    .copyWith(color: AppColors.white30),
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.white30,
+                ),
               ),
               const SizedBox(height: AppSpacing.xxs),
               Text(
                 value,
-                style: AppTextStyles.bodyMediumStrong
-                    .copyWith(color: AppColors.white),
+                style: AppTextStyles.bodyMediumStrong.copyWith(
+                  color: AppColors.white,
+                ),
               ),
             ],
           ),

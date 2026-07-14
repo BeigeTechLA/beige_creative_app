@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
@@ -71,9 +72,10 @@ class ViewDetailsScreen extends StatelessWidget {
                       color: AppColors.white,
                     ),
                   ),
-                  GestureDetector(
+                  AppIconTapTarget(
+                    semanticLabel: 'Close',
                     onTap: () => context.pop(),
-                    child: const Icon(Icons.close, color: AppColors.white),
+                    icon: const Icon(Icons.close, color: AppColors.white),
                   ),
                 ],
               ),

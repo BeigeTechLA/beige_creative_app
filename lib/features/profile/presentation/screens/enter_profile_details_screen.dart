@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -49,12 +50,13 @@ class _EnterProfileDetailsScreenState
   }
 
   Future<void> _save() async {
-    final ok =
-        await ref.read(enterProfessionalNotifierProvider.notifier).submit(
-              experience: experienceController.text,
-              hourlyRate: rateController.text,
-              bio: bioController.text,
-            );
+    final ok = await ref
+        .read(enterProfessionalNotifierProvider.notifier)
+        .submit(
+          experience: experienceController.text,
+          hourlyRate: rateController.text,
+          bio: bioController.text,
+        );
     if (!mounted) return;
     if (ok) {
       TopMessage.show(context, 'Profile Updated');
@@ -64,8 +66,10 @@ class _EnterProfileDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<EnterProfessionalState>(enterProfessionalNotifierProvider,
-        (prev, next) {
+    ref.listen<EnterProfessionalState>(enterProfessionalNotifierProvider, (
+      prev,
+      next,
+    ) {
       _hydrateOnce(next);
       final v = next.validationMessage;
       if (v != null && v != prev?.validationMessage) {
@@ -81,83 +85,85 @@ class _EnterProfileDetailsScreenState
     _hydrateOnce(state);
 
     return AppScaffold(
+      safeBottomNavigationBar: true,
       body: Stack(
-          children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () => context.pop(true),
-                        child: SvgPicture.asset(
-                          AppAssets.back,
-                          height: 24,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white,
-                            BlendMode.srcIn,
-                          ),
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    AppIconTapTarget(
+                      semanticLabel: 'Back',
+                      onTap: () => context.pop(true),
+                      icon: SvgPicture.asset(
+                        AppAssets.back,
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.white,
+                          BlendMode.srcIn,
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Edit Professional Details',
-                      style: AppTextStyles.headingOutfitLg,
                     ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Edit Professional Details',
+                    style: AppTextStyles.headingOutfitLg,
                   ),
-                  const SizedBox(height: 30),
-                  CustomMultiSelectField(
-                    label: 'Primary Role*',
-                    value: state.selectedRoles.join(', '),
-                    hasValue: state.selectedRoles.isNotEmpty,
-                    onTap: () async => _openRolesBottomSheet(),
+                ),
+                const SizedBox(height: 30),
+                CustomMultiSelectField(
+                  label: 'Primary Role*',
+                  value: state.selectedRoles.join(', '),
+                  hasValue: state.selectedRoles.isNotEmpty,
+                  onTap: () async => _openRolesBottomSheet(),
+                ),
+                const SizedBox(height: 22),
+                CustomTextField(
+                  label: 'Year of Experience',
+                  controller: experienceController,
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 22),
+                CustomTextField(
+                  label: 'Hourly Rate',
+                  controller: rateController,
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 22),
+                CustomTextField(
+                  label: 'Bio / About',
+                  controller: bioController,
+                  maxLines: 4,
+                ),
+                const SizedBox(height: 22),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Highlight your creative focus.',
+                    style: AppTextStyles.bodyMedium,
                   ),
-                  const SizedBox(height: 22),
-                  CustomTextField(
-                    label: 'Year of Experience',
-                    controller: experienceController,
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 22),
-                  CustomTextField(
-                    label: 'Hourly Rate',
-                    controller: rateController,
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 22),
-                  CustomTextField(
-                    label: 'Bio / About',
-                    controller: bioController,
-                    maxLines: 4,
-                  ),
-                  const SizedBox(height: 22),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Highlight your creative focus.',
-                      style: AppTextStyles.bodyMedium,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  CustomMultiSelectField(
-                    label: 'Edit Skills',
-                    value: state.selectedSkills.join(', '),
-                    hasValue: state.selectedSkills.isNotEmpty,
-                    onTap: () async => _openSkillsBottomSheet(),
-                  ),
-                  const SizedBox(height: 40),
-                ],
-              ),
+                ),
+                const SizedBox(height: 12),
+                CustomMultiSelectField(
+                  label: 'Edit Skills',
+                  value: state.selectedSkills.join(', '),
+                  hasValue: state.selectedSkills.isNotEmpty,
+                  onTap: () async => _openSkillsBottomSheet(),
+                ),
+                const SizedBox(height: 40),
+              ],
             ),
-            if (state.isLoadingInitial || state.isSubmitting)
-              const AppLoadingOverlay(dimOpacity: 0.4),
-          ],
-        ),
+          ),
+          if (state.isLoadingInitial || state.isSubmitting)
+            const AppLoadingOverlay(dimOpacity: 0.4),
+        ],
+      ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: SizedBox(
@@ -221,8 +227,7 @@ class _EnterProfileDetailsScreenState
                         final isSelected = draft.contains(role);
                         return CheckboxListTile(
                           value: isSelected,
-                          title: Text(role,
-                              style: AppTextStyles.body14Medium),
+                          title: Text(role, style: AppTextStyles.body14Medium),
                           activeColor: AppColors.primary,
                           checkColor: AppColors.black,
                           side: BorderSide(
@@ -232,7 +237,8 @@ class _EnterProfileDetailsScreenState
                             width: 1.5,
                           ),
                           shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.smAll),
+                            borderRadius: AppRadii.smAll,
+                          ),
                           onChanged: (val) {
                             setModalState(() {
                               if (val == true) {
@@ -259,9 +265,13 @@ class _EnterProfileDetailsScreenState
                         backgroundColor: AppColors.primary,
                         foregroundColor: const Color(0xFF1D1D1B),
                         shape: RoundedRectangleBorder(
-                            borderRadius: AppRadii.lgAll),
+                          borderRadius: AppRadii.lgAll,
+                        ),
                       ),
-                      child: const Text('Done', style: AppTextStyles.buttonMedium),
+                      child: const Text(
+                        'Done',
+                        style: AppTextStyles.buttonMedium,
+                      ),
                     ),
                   ),
                 ],
@@ -321,8 +331,7 @@ class _EnterProfileDetailsScreenState
                           value: isSelected,
                           activeColor: AppColors.primary,
                           checkColor: AppColors.black,
-                          title: Text(skill,
-                              style: AppTextStyles.bodyMedium),
+                          title: Text(skill, style: AppTextStyles.bodyMedium),
                           onChanged: (checked) {
                             setModalState(() {
                               if (checked == true) {
@@ -349,9 +358,13 @@ class _EnterProfileDetailsScreenState
                         backgroundColor: AppColors.primary,
                         foregroundColor: const Color(0xFF1D1D1B),
                         shape: RoundedRectangleBorder(
-                            borderRadius: AppRadii.lgAll),
+                          borderRadius: AppRadii.lgAll,
+                        ),
                       ),
-                      child: const Text('Done', style: AppTextStyles.buttonMedium),
+                      child: const Text(
+                        'Done',
+                        style: AppTextStyles.buttonMedium,
+                      ),
                     ),
                   ),
                 ],

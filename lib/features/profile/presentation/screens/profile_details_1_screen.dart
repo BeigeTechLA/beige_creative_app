@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -28,85 +29,85 @@ class ProfileDetails1Screen extends ConsumerWidget {
       body: Stack(
         children: [
           Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xl,
-                    vertical: AppSpacing.smd,
-                  ),
-                  child: Row(
-                    children: [
-                      InkWell(
-                        onTap: () => context.pop(),
-                        child: SvgPicture.asset(
-                          AppAssets.back,
-                          height: 24,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl,
+                  vertical: AppSpacing.smd,
+                ),
+                child: Row(
+                  children: [
+                    AppIconTapTarget(
+                      semanticLabel: 'Back',
+                      onTap: () => context.pop(),
+                      icon: SvgPicture.asset(AppAssets.back, height: 24),
+                    ),
+                    const Expanded(
+                      child: Center(
+                        child: Text(
+                          'Profile Details',
+                          style: AppTextStyles.displayLabel16,
                         ),
                       ),
-                      const Expanded(
-                        child: Center(
-                          child: Text(
-                            'Profile Details',
-                            style: AppTextStyles.displayLabel16,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.xxl),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 44),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xl,
-                    vertical: AppSpacing.xxs,
-                  ),
-                  padding: const EdgeInsets.all(AppSpacing.tabInnerPad),
-                  height: 53,
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceMid,
-                    borderRadius: AppRadii.xlAll,
-                  ),
-                  child: Row(
-                    children: [
-                      _Tab(
-                        title: 'Personal',
-                        index: 0,
-                        selected: state.selectedTab == 0,
-                        onTap: notifier.selectTab,
-                      ),
-                      _Tab(
-                        title: 'Professional',
-                        index: 1,
-                        selected: state.selectedTab == 1,
-                        onTap: notifier.selectTab,
-                      ),
-                    ],
-                  ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl,
+                  vertical: AppSpacing.xxs,
                 ),
-                const SizedBox(height: 30),
-                Expanded(
-                  child: state.selectedTab == 0
-                      ? _PersonalCard(
-                          profile: state.profile,
-                          onEdit: () async {
-                            final result = await context
-                                .pushNamed(Routes.editPersonalDetails.name);
-                            if (result == true) notifier.refresh();
-                          },
-                        )
-                      : _ProfessionalCard(
-                          profile: state.profile,
-                          onEdit: () async {
-                            final result = await context.pushNamed(
-                                Routes.enterProfessionalDetails.name);
-                            if (result == true) notifier.refresh();
-                          },
-                        ),
+                padding: const EdgeInsets.all(AppSpacing.tabInnerPad),
+                height: 53,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceMid,
+                  borderRadius: AppRadii.xlAll,
                 ),
-              ],
-            ),
+                child: Row(
+                  children: [
+                    _Tab(
+                      title: 'Personal',
+                      index: 0,
+                      selected: state.selectedTab == 0,
+                      onTap: notifier.selectTab,
+                    ),
+                    _Tab(
+                      title: 'Professional',
+                      index: 1,
+                      selected: state.selectedTab == 1,
+                      onTap: notifier.selectTab,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+              Expanded(
+                child: state.selectedTab == 0
+                    ? _PersonalCard(
+                        profile: state.profile,
+                        onEdit: () async {
+                          final result = await context.pushNamed(
+                            Routes.editPersonalDetails.name,
+                          );
+                          if (result == true) notifier.refresh();
+                        },
+                      )
+                    : _ProfessionalCard(
+                        profile: state.profile,
+                        onEdit: () async {
+                          final result = await context.pushNamed(
+                            Routes.enterProfessionalDetails.name,
+                          );
+                          if (result == true) notifier.refresh();
+                        },
+                      ),
+              ),
+            ],
+          ),
           if (state.isLoading) AppLoader(),
         ],
       ),
@@ -323,8 +324,9 @@ class _ProfessionalCard extends StatelessWidget {
                           ),
                           child: Text(
                             skill.name,
-                            style: AppTextStyles.bodyCompact
-                                .copyWith(color: AppColors.white),
+                            style: AppTextStyles.bodyCompact.copyWith(
+                              color: AppColors.white,
+                            ),
                           ),
                         ),
                       )
@@ -337,8 +339,9 @@ class _ProfessionalCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   profile?.bio.isNotEmpty == true ? profile!.bio : '-',
-                  style:
-                      AppTextStyles.bodyCompact.copyWith(color: AppColors.white),
+                  style: AppTextStyles.bodyCompact.copyWith(
+                    color: AppColors.white,
+                  ),
                 ),
               ],
             ),
@@ -362,10 +365,7 @@ class _Avatar extends StatelessWidget {
       height: 104,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.goldSoftSand,
-          width: 3,
-        ),
+        border: Border.all(color: AppColors.goldSoftSand, width: 3),
       ),
       child: ClipOval(
         child: profileImageUrl.isNotEmpty
@@ -379,10 +379,7 @@ class _Avatar extends StatelessWidget {
                   );
                 },
               )
-            : SvgPicture.asset(
-                AppAssets.userCircle,
-                fit: BoxFit.cover,
-              ),
+            : SvgPicture.asset(AppAssets.userCircle, fit: BoxFit.cover),
       ),
     );
   }

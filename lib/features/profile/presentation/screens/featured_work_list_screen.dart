@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -92,7 +93,9 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
       context.pop();
       return;
     }
-    final ok = await ref.read(featuredWorkNotifierProvider.notifier).upload(
+    final ok = await ref
+        .read(featuredWorkNotifierProvider.notifier)
+        .upload(
           title: enterWorkTitleController.text.trim(),
           tags: List<String>.from(selectedTags),
           files: List<File>.from(tempFeaturedImages),
@@ -129,48 +132,47 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
     final state = ref.watch(featuredWorkNotifierProvider);
 
     return AppScaffold(
+      safeBottomNavigationBar: true,
       body: Stack(
         children: [
           Padding(
-              padding: const EdgeInsets.all(AppSpacing.cardCompactInset),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () => context.pop(),
-                        child: SvgPicture.asset(
-                          AppAssets.back,
-                          height: 24,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white,
-                            BlendMode.srcIn,
-                          ),
+            padding: const EdgeInsets.all(AppSpacing.cardCompactInset),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    AppIconTapTarget(
+                      semanticLabel: 'Back',
+                      onTap: () => context.pop(),
+                      icon: SvgPicture.asset(
+                        AppAssets.back,
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.white,
+                          BlendMode.srcIn,
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  const Row(
-                    children: [
-                      Text(
-                        'Featured work',
-                        style: AppTextStyles.displayLabel16,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: FeaturedWorkGrid(
-                      featuredWorkFiles: state.files,
-                      onEdit: _onEditTapped,
-                      onDelete: _onDelete,
-                      onNavigate: _onNavigate,
                     ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                const Row(
+                  children: [
+                    Text('Featured work', style: AppTextStyles.displayLabel16),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: FeaturedWorkGrid(
+                    featuredWorkFiles: state.files,
+                    onEdit: _onEditTapped,
+                    onDelete: _onDelete,
+                    onNavigate: _onNavigate,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
           if (state.isLoading) const AppLoader(),
         ],
       ),

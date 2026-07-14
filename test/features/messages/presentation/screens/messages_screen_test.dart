@@ -194,8 +194,7 @@ class _FakeMessagesRepository implements MessagesRepository {
     required String conversationId,
     required String messageId,
     required String emoji,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 }
 
 final _stamp = DateTime(2026, 1, 23, 9, 25);
@@ -277,10 +276,10 @@ void main() {
       const MaterialApp(
         home: Scaffold(
           body: DetailsSectionCard(
-            leading: const Icon(Icons.folder_outlined),
+            leading: Icon(Icons.folder_outlined),
             title: 'Shared Files',
             trailingCount: 1,
-            body: const Text('Call sheet.pdf'),
+            body: Text('Call sheet.pdf'),
           ),
         ),
       ),

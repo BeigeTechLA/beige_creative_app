@@ -5,6 +5,53 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-13: iPhone/iPad responsive safety fixes
+
+- **Changes**:
+  - Added opt-in custom-footer safe-area handling in `lib/shared/layouts/app_scaffold.dart` and enabled it on login/profile custom-footer screens.
+  - Added `lib/shared/widgets/app_icon_tap_target.dart` and migrated high-risk back, close, edit, and delete-style icon-only controls across auth, profile, and shoots screens to a 44x44 default hit target.
+  - Clamped compact calendar text sizes in `lib/shared/widgets/common_calendar.dart` and added focused coverage for compact event-label readability.
+  - Fixed the messages provider dispose-read failure by guarding `activeChatRoomProvider` cleanup through a captured mounted controller.
+  - Updated `docs/IPHONE_IPAD_RESPONSIVE_FIX_PLAN.md` from plan-only to execution tracker.
+
+- **Decisions**:
+  - Used an opt-in `safeBottomNavigationBar` instead of globally wrapping every bottom navigation bar, preserving existing shell/bottom-nav behavior.
+  - Kept icon artwork at existing visual sizes while expanding touch boxes through `AppIconTapTarget`; signup header row alignment was adjusted to keep the existing device-matrix goldens unchanged.
+  - Deferred broad iPad max-width wrappers and modal bottom-sheet consistency work to a later visual pass because both affect many screens and should be driven by dedicated device-matrix coverage.
+  - No phase task file updated because this remains a cross-cutting responsive review task, not a specific active phase migration item.
+
+- **Verification**:
+  - `dart format <touched Dart files>` — 32 files checked, 0 changed.
+  - `flutter analyze --fatal-infos` — passed.
+  - `git diff --check` — passed.
+  - `flutter test test/shared/layouts/app_scaffold_test.dart test/shared/widgets/app_icon_tap_target_test.dart test/shared/widgets/common_calendar_test.dart test/features/messages/presentation/screens/messages_screen_test.dart test/golden/device_matrix_test.dart` — passed.
+  - Main screen widget batch — passed for login, signup3, forgot/reset password, home, my profile, shoots, upcoming shoot details, availability, meetings, and messages.
+
+- **Remaining Risk**:
+  - No physical device or simulator manual smoke was run for iPhone/iPad.
+  - R-05 tablet max-width polish and R-08 modal bottom-sheet consistency remain deferred in `docs/IPHONE_IPAD_RESPONSIVE_FIX_PLAN.md`.
+
+---
+
+### 2026-07-13: iPhone/iPad responsive fix plan
+
+- **Changes**:
+  - Added `docs/IPHONE_IPAD_RESPONSIVE_FIX_PLAN.md` with status-tracked fix rows for the responsive/design review findings.
+
+- **Decisions**:
+  - Plan-only update; no source fixes applied.
+  - Implementation remains gated on explicit approval.
+  - No phase task file updated because this is a cross-cutting review plan, not an active Phase 6 task.
+
+- **Verification**:
+  - Documentation-only change; no tests run after the doc edit.
+  - Review baseline captured in the plan: analyzer currently fails on one unused import and two test infos; the messages screen test has an existing provider-dispose failure; device-matrix and shell/scaffold tests passed during review.
+
+- **Remaining Risk**:
+  - iPhone home-indicator footer overlap, sub-44px custom icon hit targets, calendar micro text, limited iPad whole-screen coverage, and the messages lifecycle failure remain unfixed until implementation is approved.
+
+---
+
 ### 2026-06-26: File Manager UI mockups design alignment enhancements
 
 Aligned the File Manager UI widgets with the provided Figma mockup screenshots, polishing search input borders, scrollable flat tab bars, folder card colors and spacing, portrait file previews, custom project badge initial blocks, and actions sheet dividers.

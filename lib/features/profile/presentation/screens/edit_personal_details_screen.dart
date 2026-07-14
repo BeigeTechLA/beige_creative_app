@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -94,9 +95,7 @@ class _EditPersonalDetailsScreenState
         Marker(
           markerId: const MarkerId('selected_location'),
           position: latLng,
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueRed,
-          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         ),
       };
     });
@@ -140,7 +139,9 @@ class _EditPersonalDetailsScreenState
   }
 
   Future<void> _save() async {
-    final ok = await ref.read(editPersonalNotifierProvider.notifier).submit(
+    final ok = await ref
+        .read(editPersonalNotifierProvider.notifier)
+        .submit(
           firstName: firstnamecontroller.text,
           lastName: lastnamecontroller.text,
           email: emailcontroller.text,
@@ -177,160 +178,156 @@ class _EditPersonalDetailsScreenState
     final workingDistance = state.workingDistance;
 
     return AppScaffold(
+      safeBottomNavigationBar: true,
       body: Stack(
         children: [
           SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () => context.pop(true),
-                        child: SvgPicture.asset(
-                          AppAssets.back,
-                          height: 24,
-                        ),
-                      ),
-                    ],
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    AppIconTapTarget(
+                      semanticLabel: 'Back',
+                      onTap: () => context.pop(true),
+                      icon: SvgPicture.asset(AppAssets.back, height: 24),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Text(
+                      'Edit Personal Details',
+                      style: AppTextStyles.headingOutfitLg,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  label: 'First name*',
+                  controller: firstnamecontroller,
+                ),
+                const SizedBox(height: 22),
+                CustomTextField(
+                  label: 'Last name*',
+                  controller: lastnamecontroller,
+                ),
+                const SizedBox(height: 22),
+                CustomTextField(
+                  label: 'Email Address*',
+                  controller: emailcontroller,
+                ),
+                const SizedBox(height: 22),
+                CustomTextField(
+                  label: 'Contact Number*',
+                  controller: phonecontroller,
+                ),
+                const SizedBox(height: 22),
+                _LocationField(
+                  controller: locationController,
+                  focusNode: locationFocusNode,
+                  onSelected: (latLng, description) {
+                    _updateMarker(latLng);
+                    setState(() => selectedAddress = description);
+                    locationController.text = description;
+                    locationController.selection = TextSelection.fromPosition(
+                      TextPosition(offset: locationController.text.length),
+                    );
+                    locationFocusNode.unfocus();
+                    mapController?.animateCamera(
+                      CameraUpdate.newLatLngZoom(latLng, 14),
+                    );
+                  },
+                ),
+                AppSpacing.verticalXl,
+                ClipRRect(
+                  borderRadius: AppRadii.xxlAll,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: 200,
+                      maxHeight: MediaQuery.of(context).size.height * 0.35,
+                    ),
+                    child: currentLatLng == null
+                        ? const Center(child: AppCircularLoader())
+                        : GoogleMap(
+                            style: GoogleConfig.darkMapStyle,
+                            initialCameraPosition: CameraPosition(
+                              target: currentLatLng!,
+                              zoom: 14,
+                            ),
+                            myLocationEnabled: true,
+                            myLocationButtonEnabled: true,
+                            zoomControlsEnabled: true,
+                            compassEnabled: true,
+                            markers: markers,
+                            gestureRecognizers:
+                                <Factory<OneSequenceGestureRecognizer>>{
+                                  Factory<OneSequenceGestureRecognizer>(
+                                    () => EagerGestureRecognizer(),
+                                  ),
+                                },
+                            onMapCreated: (controller) {
+                              mapController = controller;
+                              if (currentLatLng != null) {
+                                mapController!.animateCamera(
+                                  CameraUpdate.newLatLngZoom(
+                                    currentLatLng!,
+                                    14,
+                                  ),
+                                );
+                              }
+                            },
+                            onTap: (latLng) async {
+                              _updateMarker(latLng);
+                              await getAddressFromLatLng(latLng);
+                              locationController.text = selectedAddress;
+                              mapController?.animateCamera(
+                                CameraUpdate.newLatLngZoom(latLng, 14),
+                              );
+                            },
+                          ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text(
-                        'Edit Personal Details',
-                        style: AppTextStyles.headingOutfitLg,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                  const SizedBox(height: 12),
-                  CustomTextField(
-                    label: 'First name*',
-                    controller: firstnamecontroller,
-                  ),
-                  const SizedBox(height: 22),
-                  CustomTextField(
-                    label: 'Last name*',
-                    controller: lastnamecontroller,
-                  ),
-                  const SizedBox(height: 22),
-                  CustomTextField(
-                    label: 'Email Address*',
-                    controller: emailcontroller,
-                  ),
-                  const SizedBox(height: 22),
-                  CustomTextField(
-                    label: 'Contact Number*',
-                    controller: phonecontroller,
-                  ),
-                  const SizedBox(height: 22),
-                  _LocationField(
-                    controller: locationController,
-                    focusNode: locationFocusNode,
-                    onSelected: (latLng, description) {
-                      _updateMarker(latLng);
-                      setState(() => selectedAddress = description);
-                      locationController.text = description;
-                      locationController.selection =
-                          TextSelection.fromPosition(
-                        TextPosition(offset: locationController.text.length),
-                      );
-                      locationFocusNode.unfocus();
-                      mapController?.animateCamera(
-                        CameraUpdate.newLatLngZoom(latLng, 14),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: 22),
+                CustomMultiSelectField(
+                  label: 'Working Distance',
+                  value: workingDistance,
+                  hasValue: workingDistance.isNotEmpty,
+                  onTap: () async => _openWorkingDistanceBottomSheet(),
+                ),
+                const SizedBox(height: 22),
+                CustomTextField(
+                  isPassword: true,
+                  label: 'Change Password*',
+                  controller: TextEditingController(text: '********'),
+                  readOnly: true,
+                  suffixIcon: GestureDetector(
+                    onTap: () {
+                      context.pushNamed(
+                        Routes.changePassword.name,
+                        extra: ChangePasswordArgs(
+                          email: emailcontroller.text.trim(),
+                        ).toExtra(),
                       );
                     },
-                  ),
-                  AppSpacing.verticalXl,
-                  ClipRRect(
-                    borderRadius: AppRadii.xxlAll,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: 200,
-                        maxHeight: MediaQuery.of(context).size.height * 0.35,
-                      ),
-                      child: currentLatLng == null
-                          ? const Center(
-                              child: AppCircularLoader(),
-                            )
-                          : GoogleMap(
-                              style: GoogleConfig.darkMapStyle,
-                              initialCameraPosition: CameraPosition(
-                                target: currentLatLng!,
-                                zoom: 14,
-                              ),
-                              myLocationEnabled: true,
-                              myLocationButtonEnabled: true,
-                              zoomControlsEnabled: true,
-                              compassEnabled: true,
-                              markers: markers,
-                              gestureRecognizers: <Factory<
-                                  OneSequenceGestureRecognizer>>{
-                                Factory<OneSequenceGestureRecognizer>(
-                                  () => EagerGestureRecognizer(),
-                                ),
-                              },
-                              onMapCreated: (controller) {
-                                mapController = controller;
-                                if (currentLatLng != null) {
-                                  mapController!.animateCamera(
-                                    CameraUpdate.newLatLngZoom(
-                                      currentLatLng!,
-                                      14,
-                                    ),
-                                  );
-                                }
-                              },
-                              onTap: (latLng) async {
-                                _updateMarker(latLng);
-                                await getAddressFromLatLng(latLng);
-                                locationController.text = selectedAddress;
-                                mapController?.animateCamera(
-                                  CameraUpdate.newLatLngZoom(latLng, 14),
-                                );
-                              },
-                            ),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                  const SizedBox(height: 22),
-                  CustomMultiSelectField(
-                    label: 'Working Distance',
-                    value: workingDistance,
-                    hasValue: workingDistance.isNotEmpty,
-                    onTap: () async => _openWorkingDistanceBottomSheet(),
-                  ),
-                  const SizedBox(height: 22),
-                  CustomTextField(
-                    isPassword: true,
-                    label: 'Change Password*',
-                    controller: TextEditingController(text: '********'),
-                    readOnly: true,
-                    suffixIcon: GestureDetector(
-                      onTap: () {
-                        context.pushNamed(
-                          Routes.changePassword.name,
-                          extra: ChangePasswordArgs(
-                            email: emailcontroller.text.trim(),
-                          ).toExtra(),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.sm),
-                        child: SvgPicture.asset(
-                          AppAssets.boxEdit,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white30,
-                            BlendMode.srcIn,
-                          ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.sm),
+                      child: SvgPicture.asset(
+                        AppAssets.boxEdit,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.white30,
+                          BlendMode.srcIn,
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
           if (state.isLoadingInitial || state.isSubmitting)
             const AppLoadingOverlay(dimOpacity: 0.4),
         ],
@@ -343,9 +340,7 @@ class _EditPersonalDetailsScreenState
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.goldSandPale,
               foregroundColor: const Color(0xFF1D1D1B),
-              shape: RoundedRectangleBorder(
-                borderRadius: AppRadii.xlAll,
-              ),
+              shape: RoundedRectangleBorder(borderRadius: AppRadii.xlAll),
             ),
             onPressed: state.isSubmitting ? null : _save,
             child: const Text('Save', style: AppTextStyles.buttonMedium),
@@ -357,7 +352,9 @@ class _EditPersonalDetailsScreenState
 
   void _openWorkingDistanceBottomSheet() {
     FocusScope.of(context).unfocus();
-    final workingDistance = ref.read(editPersonalNotifierProvider).workingDistance;
+    final workingDistance = ref
+        .read(editPersonalNotifierProvider)
+        .workingDistance;
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.background,
@@ -397,7 +394,9 @@ class _EditPersonalDetailsScreenState
                       title: Text(
                         distance,
                         style: AppTextStyles.body14Medium.copyWith(
-                          color: isSelected ? AppColors.primary : AppColors.white,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.white,
                         ),
                       ),
                       trailing: isSelected
@@ -442,18 +441,13 @@ class _LocationField extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             IconTheme(
-              data: const IconThemeData(
-                color: AppColors.white30,
-                size: 20,
-              ),
+              data: const IconThemeData(color: AppColors.white30, size: 20),
               child: GooglePlaceAutoCompleteTextField(
                 boxDecoration: BoxDecoration(
                   color: AppColors.transparent,
                   borderRadius: AppRadii.lgAll,
                   border: Border.all(
-                    color: highlight
-                        ? AppColors.borderGold
-                        : AppColors.white30,
+                    color: highlight ? AppColors.borderGold : AppColors.white30,
                     width: 0.5,
                   ),
                 ),
@@ -462,8 +456,9 @@ class _LocationField extends StatelessWidget {
                 googleAPIKey: GoogleConfig.placesApiKey,
                 debounceTime: 600,
                 isLatLngRequired: true,
-                textStyle:
-                    AppTextStyles.body15.copyWith(color: AppColors.white),
+                textStyle: AppTextStyles.body15.copyWith(
+                  color: AppColors.white,
+                ),
                 inputDecoration: const InputDecoration(
                   filled: true,
                   fillColor: AppColors.transparent,
@@ -503,15 +498,11 @@ class _LocationField extends StatelessWidget {
               top: -8,
               child: Container(
                 color: AppColors.background,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xxs,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
                 child: Text(
                   'Location*',
                   style: AppTextStyles.inherit14.copyWith(
-                    color: highlight
-                        ? AppColors.primary
-                        : AppColors.white60,
+                    color: highlight ? AppColors.primary : AppColors.white60,
                     fontFamily: AppTextStyles.fontFamilyBody,
                   ),
                 ),

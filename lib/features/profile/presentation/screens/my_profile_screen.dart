@@ -139,16 +139,16 @@ class _MyprofileState extends ConsumerState<Myprofile> {
           mutator();
           notifier.commitPortfolio();
         },
-        onSaveLink: ({
-          required void Function(bool) setUpdating,
-          required bool Function() getUpdating,
-          VoidCallback? onAdded,
-        }) =>
-            _handlePortfolioSaveLink(
-          setUpdating: setUpdating,
-          getUpdating: getUpdating,
-          onAdded: onAdded,
-        ),
+        onSaveLink:
+            ({
+              required void Function(bool) setUpdating,
+              required bool Function() getUpdating,
+              VoidCallback? onAdded,
+            }) => _handlePortfolioSaveLink(
+              setUpdating: setUpdating,
+              getUpdating: getUpdating,
+              onAdded: onAdded,
+            ),
         onSaveAll: notifier.savePortfolioLinksToApi,
         onSelectionChanged: (selected, editing) {
           notifier.setPortfolioSelection(
@@ -167,8 +167,7 @@ class _MyprofileState extends ConsumerState<Myprofile> {
   }) async {
     final s = ref.read(myProfileNotifierProvider);
     final notifier = ref.read(myProfileNotifierProvider.notifier);
-    if (s.selectedPortfolioIndex == -1 ||
-        linkController.text.trim().isEmpty) {
+    if (s.selectedPortfolioIndex == -1 || linkController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Select platform & enter link'),
@@ -234,6 +233,7 @@ class _MyprofileState extends ConsumerState<Myprofile> {
 
     return AppScaffold(
       safeTop: false,
+      safeBottomNavigationBar: true,
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -247,16 +247,18 @@ class _MyprofileState extends ConsumerState<Myprofile> {
                 const SizedBox(height: 60),
                 Text(
                   '${profile?.firstName ?? ''} ${profile?.lastName ?? ''}',
-                  style: AppTextStyles.body20Medium
-                      .copyWith(color: AppColors.white),
+                  style: AppTextStyles.body20Medium.copyWith(
+                    color: AppColors.white,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 _identityRow(profile?.email ?? '', profile?.location ?? ''),
                 const SizedBox(height: 14),
                 const SizedBox(height: 20),
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.base,
+                  ),
                   child: Column(
                     children: [
                       ProfileStatsPanel(
@@ -316,8 +318,7 @@ class _MyprofileState extends ConsumerState<Myprofile> {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
             child: Text(
               '|',
-              style: AppTextStyles.inherit14
-                  .copyWith(color: AppColors.white60),
+              style: AppTextStyles.inherit14.copyWith(color: AppColors.white60),
             ),
           ),
           Flexible(

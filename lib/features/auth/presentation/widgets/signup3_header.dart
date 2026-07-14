@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
@@ -26,22 +27,33 @@ class SignUp3Header extends StatelessWidget {
             right: 16,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                InkWell(
+                AppIconTapTarget(
+                  semanticLabel: 'Back',
                   onTap: () => context.pop(),
-                  child: SvgPicture.asset(
+                  alignment: Alignment.topLeft,
+                  icon: SvgPicture.asset(
                     AppAssets.back,
                     height: 24,
+                    width: 24,
                     colorFilter: const ColorFilter.mode(
                       AppColors.white,
                       BlendMode.srcIn,
                     ),
                   ),
                 ),
-                Text(
-                  '3/3',
-                  style: AppTextStyles.body14Medium
-                      .copyWith(color: AppColors.white),
+                SizedBox(
+                  height: 24,
+                  child: Align(
+                    widthFactor: 1,
+                    child: Text(
+                      '3/3',
+                      style: AppTextStyles.body14Medium.copyWith(
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -53,15 +65,17 @@ class SignUp3Header extends StatelessWidget {
               children: [
                 Text(
                   'Social Engagement',
-                  style: AppTextStyles.displayStrong16
-                      .copyWith(color: AppColors.white),
+                  style: AppTextStyles.displayStrong16.copyWith(
+                    color: AppColors.white,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   'Complete your profile and connect with \ntop studios and filmmakers.',
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.body14
-                      .copyWith(color: AppColors.white30),
+                  style: AppTextStyles.body14.copyWith(
+                    color: AppColors.white30,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Row(

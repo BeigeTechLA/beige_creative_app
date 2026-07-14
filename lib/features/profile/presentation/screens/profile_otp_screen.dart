@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -27,10 +28,14 @@ class ProfileOtpScreen extends ConsumerStatefulWidget {
 
 class _ProfileOtpScreenState extends ConsumerState<ProfileOtpScreen> {
   static const _otpLength = 6;
-  final List<TextEditingController> _controllers =
-      List.generate(_otpLength, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes =
-      List.generate(_otpLength, (_) => FocusNode());
+  final List<TextEditingController> _controllers = List.generate(
+    _otpLength,
+    (_) => TextEditingController(),
+  );
+  final List<FocusNode> _focusNodes = List.generate(
+    _otpLength,
+    (_) => FocusNode(),
+  );
 
   int _seconds = 59;
   Timer? _timer;
@@ -80,11 +85,9 @@ class _ProfileOtpScreenState extends ConsumerState<ProfileOtpScreen> {
   String get _enteredOtp => _controllers.map((c) => c.text).join();
 
   Future<void> _onVerify() async {
-    final ok =
-        await ref.read(verifyOtpNotifierProvider.notifier).verifyOtp(
-              email: widget.email,
-              otp: _enteredOtp,
-            );
+    final ok = await ref
+        .read(verifyOtpNotifierProvider.notifier)
+        .verifyOtp(email: widget.email, otp: _enteredOtp);
     if (ok && mounted) {
       context.pushNamed(
         Routes.newPassword.name,
@@ -98,9 +101,7 @@ class _ProfileOtpScreenState extends ConsumerState<ProfileOtpScreen> {
 
   Future<void> _onResend() async {
     if (_seconds != 0) return;
-    await ref
-        .read(verifyOtpNotifierProvider.notifier)
-        .resendOtp(widget.email);
+    await ref.read(verifyOtpNotifierProvider.notifier).resendOtp(widget.email);
     if (mounted) _resetTimer();
   }
 
@@ -120,160 +121,158 @@ class _ProfileOtpScreenState extends ConsumerState<ProfileOtpScreen> {
 
     return AppScaffold(
       body: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xl,
-            vertical: AppSpacing.cardCompactInset,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      InkWell(
-                        onTap: () => context.pop(),
-                        child: SvgPicture.asset(AppAssets.back),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Enter OTP code',
-                        style: AppTextStyles.inherit20Bold.copyWith(
-                          color: AppColors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Enter 6 digit OTP sent to your registered email ID\nreset your password.',
-                        style: AppTextStyles.inherit.copyWith(
-                          fontSize: 12,
-                          color: AppColors.white60,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: List.generate(_otpLength, (index) {
-                          return Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.xxs,
-                              ),
-                              child: Container(
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  borderRadius: AppRadii.lgAll,
-                                  border: Border.all(
-                                    color: (_focusNodes[index].hasFocus ||
-                                            _controllers[index]
-                                                .text
-                                                .isNotEmpty)
-                                        ? AppColors.borderGold
-                                        : AppColors.white60,
-                                    width: 0.5,
-                                  ),
-                                ),
-                                child: TextField(
-                                  controller: _controllers[index],
-                                  focusNode: _focusNodes[index],
-                                  textAlign: TextAlign.center,
-                                  keyboardType: TextInputType.number,
-                                  maxLength: 1,
-                                  style: AppTextStyles.inherit19Bold,
-                                  decoration: const InputDecoration(
-                                    counterText: '',
-                                    border: InputBorder.none,
-                                  ),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _isOtpFilled = _controllers.every(
-                                        (c) => c.text.trim().isNotEmpty,
-                                      );
-                                    });
-                                    if (value.isNotEmpty &&
-                                        index < _otpLength - 1) {
-                                      FocusScope.of(context).nextFocus();
-                                    }
-                                    if (value.isEmpty && index > 0) {
-                                      FocusScope.of(context).previousFocus();
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Text(
-                            _seconds == 0
-                                ? '00:00'
-                                : '00:${_seconds.toString().padLeft(2, '0')}',
-                            style: AppTextStyles.bodyLargeStrong.copyWith(
-                              color: AppColors.white60,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: _seconds == 0 ? _onResend : null,
-                    child: Text(
-                      'Resend OTP',
-                      style: AppTextStyles.inherit15Bold.copyWith(
-                        color: AppColors.white,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: (_isOtpFilled && !state.isSubmitting)
-                      ? _onVerify
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isOtpFilled
-                        ? AppColors.primary
-                        : AppColors.goldOpacity40,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadii.xlAll,
-                    ),
-                  ),
-                  child: state.isSubmitting
-                      ? const AppCircularLoader(
-                          size: 22,
-                          strokeWidth: 2,
-                          color: AppColors.black,
-                        )
-                      : Text(
-                          'Continue',
-                          style: AppTextStyles.inherit18Strong.copyWith(
-                            color: _isOtpFilled
-                                ? AppColors.textHeading
-                                : AppColors.black38,
-                          ),
-                        ),
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xl,
+          vertical: AppSpacing.cardCompactInset,
         ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppIconTapTarget(
+                      semanticLabel: 'Back',
+                      onTap: () => context.pop(),
+                      icon: SvgPicture.asset(AppAssets.back),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Enter OTP code',
+                      style: AppTextStyles.inherit20Bold.copyWith(
+                        color: AppColors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Enter 6 digit OTP sent to your registered email ID\nreset your password.',
+                      style: AppTextStyles.inherit.copyWith(
+                        fontSize: 12,
+                        color: AppColors.white60,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: List.generate(_otpLength, (index) {
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.xxs,
+                            ),
+                            child: Container(
+                              height: 60,
+                              decoration: BoxDecoration(
+                                borderRadius: AppRadii.lgAll,
+                                border: Border.all(
+                                  color:
+                                      (_focusNodes[index].hasFocus ||
+                                          _controllers[index].text.isNotEmpty)
+                                      ? AppColors.borderGold
+                                      : AppColors.white60,
+                                  width: 0.5,
+                                ),
+                              ),
+                              child: TextField(
+                                controller: _controllers[index],
+                                focusNode: _focusNodes[index],
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                maxLength: 1,
+                                style: AppTextStyles.inherit19Bold,
+                                decoration: const InputDecoration(
+                                  counterText: '',
+                                  border: InputBorder.none,
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _isOtpFilled = _controllers.every(
+                                      (c) => c.text.trim().isNotEmpty,
+                                    );
+                                  });
+                                  if (value.isNotEmpty &&
+                                      index < _otpLength - 1) {
+                                    FocusScope.of(context).nextFocus();
+                                  }
+                                  if (value.isEmpty && index > 0) {
+                                    FocusScope.of(context).previousFocus();
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text(
+                          _seconds == 0
+                              ? '00:00'
+                              : '00:${_seconds.toString().padLeft(2, '0')}',
+                          style: AppTextStyles.bodyLargeStrong.copyWith(
+                            color: AppColors.white60,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: _seconds == 0 ? _onResend : null,
+                  child: Text(
+                    'Resend OTP',
+                    style: AppTextStyles.inherit15Bold.copyWith(
+                      color: AppColors.white,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: (_isOtpFilled && !state.isSubmitting)
+                    ? _onVerify
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isOtpFilled
+                      ? AppColors.primary
+                      : AppColors.goldOpacity40,
+                  shape: RoundedRectangleBorder(borderRadius: AppRadii.xlAll),
+                ),
+                child: state.isSubmitting
+                    ? const AppCircularLoader(
+                        size: 22,
+                        strokeWidth: 2,
+                        color: AppColors.black,
+                      )
+                    : Text(
+                        'Continue',
+                        style: AppTextStyles.inherit18Strong.copyWith(
+                          color: _isOtpFilled
+                              ? AppColors.textHeading
+                              : AppColors.black38,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 }

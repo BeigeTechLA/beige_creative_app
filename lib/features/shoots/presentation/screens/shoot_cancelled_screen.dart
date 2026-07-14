@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
@@ -16,7 +17,8 @@ class ShootCancelledScreen extends ConsumerStatefulWidget {
   const ShootCancelledScreen({super.key, this.projectId});
 
   @override
-  ConsumerState<ShootCancelledScreen> createState() => _ShootCancelledScreenState();
+  ConsumerState<ShootCancelledScreen> createState() =>
+      _ShootCancelledScreenState();
 }
 
 class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
@@ -43,8 +45,10 @@ class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
     final state = ref.watch(cancelShootProvider(id));
     final notifier = ref.read(cancelShootProvider(id).notifier);
 
-    ref.listen(cancelShootProvider(id).select((s) => s.submittedSignal),
-        (prev, next) {
+    ref.listen(cancelShootProvider(id).select((s) => s.submittedSignal), (
+      prev,
+      next,
+    ) {
       if ((prev ?? 0) < next) {
         context.goNamed(Routes.shootCancelotties.name);
       }
@@ -93,9 +97,10 @@ class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
                       'Decline Shoot Request',
                       style: AppTextStyles.displayLabel16,
                     ),
-                    InkWell(
+                    AppIconTapTarget(
+                      semanticLabel: 'Close',
                       onTap: () => context.pop(),
-                      child: const Icon(Icons.close, color: AppColors.white),
+                      icon: const Icon(Icons.close, color: AppColors.white),
                     ),
                   ],
                 ),
@@ -108,10 +113,7 @@ class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
                 ),
 
                 const SizedBox(height: AppSpacing.lg),
-                const Divider(
-                  color: AppColors.dividerDark,
-                  thickness: 0.8,
-                ),
+                const Divider(color: AppColors.dividerDark, thickness: 0.8),
                 const SizedBox(height: AppSpacing.lg),
 
                 const Text(
@@ -135,7 +137,8 @@ class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                                vertical: AppSpacing.smd),
+                              vertical: AppSpacing.smd,
+                            ),
                             child: Row(
                               children: [
                                 Container(
@@ -174,17 +177,21 @@ class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
                         duration: const Duration(milliseconds: 250),
                         child: _isOtherSelected
                             ? Padding(
-                                padding:
-                                    const EdgeInsets.only(top: AppSpacing.smd),
+                                padding: const EdgeInsets.only(
+                                  top: AppSpacing.smd,
+                                ),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: AppSpacing.mld),
+                                    horizontal: AppSpacing.mld,
+                                  ),
                                   decoration: BoxDecoration(
                                     borderRadius: AppRadii.xlAll,
-                                    border:
-                                        Border.all(color: AppColors.white24),
-                                    color: AppColors.black
-                                        .withValues(alpha: 0.2),
+                                    border: Border.all(
+                                      color: AppColors.white24,
+                                    ),
+                                    color: AppColors.black.withValues(
+                                      alpha: 0.2,
+                                    ),
                                   ),
                                   child: TextField(
                                     controller: _commentController,
@@ -238,14 +245,14 @@ class _ShootCancelledScreenState extends ConsumerState<ShootCancelledScreen> {
                               borderRadius: AppRadii.xxlAll,
                             ),
                           ),
-                          onPressed: state.selectedReason.isEmpty ||
-                                  state.isSubmitting
+                          onPressed:
+                              state.selectedReason.isEmpty || state.isSubmitting
                               ? null
                               : () => notifier.submit(
-                                    comment: _isOtherSelected
-                                        ? _commentController.text.trim()
-                                        : null,
-                                  ),
+                                  comment: _isOtherSelected
+                                      ? _commentController.text.trim()
+                                      : null,
+                                ),
                           child: state.isSubmitting
                               ? const AppCircularLoader(
                                   size: 18,

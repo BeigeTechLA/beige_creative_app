@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -35,113 +36,117 @@ class CertificatesScreen extends ConsumerWidget {
 
     return AppScaffold(
       body: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () => context.pop(),
-                        child: SvgPicture.asset(
-                          AppAssets.back,
-                          height: 24,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white,
-                            BlendMode.srcIn,
-                          ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    AppIconTapTarget(
+                      semanticLabel: 'Back',
+                      onTap: () => context.pop(),
+                      icon: SvgPicture.asset(
+                        AppAssets.back,
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.white,
+                          BlendMode.srcIn,
                         ),
                       ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        'Certificates',
-                        style: AppTextStyles.displayLabel16,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 45,
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
-                            borderRadius: AppRadii.lgAll,
-                          ),
-                          child: TextField(
-                            style: AppTextStyles.bodyMedium
-                                .copyWith(color: AppColors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Search',
-                              hintStyle: AppTextStyles.bodyMedium
-                                  .copyWith(color: AppColors.white24),
-                              prefixIcon: const Icon(
-                                Icons.search,
-                                color: AppColors.white24,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Certificates', style: AppTextStyles.displayLabel16),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
                         height: 45,
-                        width: 45,
                         decoration: BoxDecoration(
                           color: AppColors.surfaceVariant,
                           borderRadius: AppRadii.lgAll,
                         ),
-                        child: const Icon(Icons.tune, color: AppColors.white),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: certs.length,
-                      itemBuilder: (context, index) {
-                        final cert = certs[index];
-                        return _CertificateRow(
-                          cert: cert,
-                          onMenuTap: () => _openOptions(context, ref, cert),
-                        );
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadii.xxlAll,
+                        child: TextField(
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.white,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Search',
+                            hintStyle: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.white24,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: AppColors.white24,
+                            ),
+                            border: InputBorder.none,
+                          ),
                         ),
                       ),
-                      onPressed: () => _openUploadDialog(context, ref),
-                      child: Text(
-                        'Add New Certificate',
-                        style: AppTextStyles.displayLabel14
-                            .copyWith(color: AppColors.black),
+                    ),
+                    const SizedBox(width: 10),
+                    Container(
+                      height: 45,
+                      width: 45,
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceVariant,
+                        borderRadius: AppRadii.lgAll,
+                      ),
+                      child: const Icon(Icons.tune, color: AppColors.white),
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: certs.length,
+                    itemBuilder: (context, index) {
+                      final cert = certs[index];
+                      return _CertificateRow(
+                        cert: cert,
+                        onMenuTap: () => _openOptions(context, ref, cert),
+                      );
+                    },
+                  ),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppRadii.xxlAll,
+                      ),
+                    ),
+                    onPressed: () => _openUploadDialog(context, ref),
+                    child: Text(
+                      'Add New Certificate',
+                      style: AppTextStyles.displayLabel14.copyWith(
+                        color: AppColors.black,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            if (state.isLoading) AppLoader(),
-          ],
-        ),
+          ),
+          if (state.isLoading) AppLoader(),
+        ],
+      ),
     );
   }
 
   void _openUploadDialog(BuildContext context, WidgetRef ref) {
-    Future<void> handlePick(BuildContext sheetCtx, Future<dynamic> picker) async {
+    Future<void> handlePick(
+      BuildContext sheetCtx,
+      Future<dynamic> picker,
+    ) async {
       sheetCtx.pop();
       final file = await picker;
       if (file == null) return;
@@ -233,8 +238,9 @@ class CertificatesScreen extends ConsumerWidget {
                     const SizedBox(width: 12),
                     Text(
                       'View Details',
-                      style: AppTextStyles.bodyMedium
-                          .copyWith(color: AppColors.white),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -253,8 +259,9 @@ class CertificatesScreen extends ConsumerWidget {
                     const SizedBox(width: 12),
                     Text(
                       'Delete',
-                      style: AppTextStyles.bodyMedium
-                          .copyWith(color: AppColors.error),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.error,
+                      ),
                     ),
                   ],
                 ),
@@ -360,8 +367,7 @@ class _UploadOption extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               title,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.white),
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
             ),
           ],
         ),

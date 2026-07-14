@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -25,8 +26,7 @@ class DeleteAccountScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<DeleteAccountState>(deleteAccountNotifierProvider,
-        (prev, next) {
+    ref.listen<DeleteAccountState>(deleteAccountNotifierProvider, (prev, next) {
       final messenger = ScaffoldMessenger.maybeOf(context);
       if (messenger == null) return;
       if (next.validationMessage != null &&
@@ -37,9 +37,7 @@ class DeleteAccountScreen extends ConsumerWidget {
       }
       if (next.errorMessage != null &&
           next.errorMessage != prev?.errorMessage) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
+        messenger.showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
     });
 
@@ -47,72 +45,74 @@ class DeleteAccountScreen extends ConsumerWidget {
     final notifier = ref.read(deleteAccountNotifierProvider.notifier);
 
     return AppScaffold(
+      safeBottomNavigationBar: true,
       body: Padding(
-          padding: const EdgeInsets.all(AppSpacing.base),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () => context.pop(),
-                child: SvgPicture.asset(
-                  AppAssets.back,
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.white,
-                    BlendMode.srcIn,
-                  ),
+        padding: const EdgeInsets.all(AppSpacing.base),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppIconTapTarget(
+              semanticLabel: 'Back',
+              onTap: () => context.pop(),
+              icon: SvgPicture.asset(
+                AppAssets.back,
+                height: 24,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.white,
+                  BlendMode.srcIn,
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Delete Account',
-                style: AppTextStyles.displayStrong16w600.copyWith(
-                  color: AppColors.white,
-                ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Delete Account',
+              style: AppTextStyles.displayStrong16w600.copyWith(
+                color: AppColors.white,
               ),
-              const SizedBox(height: 20),
-              Text(
-                'This action will permanently delete your account and all associated data. If you need help or have questions, please contact us at support@beige.com',
-                style: AppTextStyles.body14LineRelaxed.copyWith(
-                  color: AppColors.white30,
-                ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'This action will permanently delete your account and all associated data. If you need help or have questions, please contact us at support@beige.com',
+              style: AppTextStyles.body14LineRelaxed.copyWith(
+                color: AppColors.white30,
               ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                decoration: const BoxDecoration(color: AppColors.surfaceMid),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Why do you wish to leave Beige?',
-                          style: AppTextStyles.body14Medium.copyWith(
-                            color: AppColors.white,
-                          ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              decoration: const BoxDecoration(color: AppColors.surfaceMid),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Why do you wish to leave Beige?',
+                        style: AppTextStyles.body14Medium.copyWith(
+                          color: AppColors.white,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Please let us know the reason for deleting your account.',
-                      style: AppTextStyles.body12.copyWith(
-                        color: AppColors.white30,
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Please let us know the reason for deleting your account.',
+                    style: AppTextStyles.body12.copyWith(
+                      color: AppColors.white30,
                     ),
-                    ..._reasons.map(
-                      (reason) => _ReasonOption(
-                        reason: reason,
-                        isSelected: state.selectedReason == reason,
-                        onTap: () => notifier.selectReason(reason),
-                      ),
+                  ),
+                  ..._reasons.map(
+                    (reason) => _ReasonOption(
+                      reason: reason,
+                      isSelected: state.selectedReason == reason,
+                      onTap: () => notifier.selectReason(reason),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(AppSpacing.base),
         child: Row(
@@ -136,9 +136,7 @@ class DeleteAccountScreen extends ConsumerWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadii.xlAll,
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: AppRadii.xlAll),
                   ),
                   child: state.isSubmitting
                       ? const AppCircularLoader(
@@ -208,9 +206,7 @@ class _ReasonOption extends StatelessWidget {
             Expanded(
               child: Text(
                 reason,
-                style: AppTextStyles.body14.copyWith(
-                  color: AppColors.white30,
-                ),
+                style: AppTextStyles.body14.copyWith(color: AppColors.white30),
               ),
             ),
           ],

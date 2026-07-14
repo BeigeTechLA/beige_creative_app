@@ -128,18 +128,18 @@ class _ChatComposerState extends State<ChatComposer> {
           curve: Curves.easeOut,
           decoration: BoxDecoration(
             color: AppColors.surfaceInput,
-            borderRadius: AppRadii.fullAll,
+            borderRadius: AppRadii.massiveAll,
             border: Border.all(
               color: _isFocused
                   ? AppColors.primary.withValues(alpha: 0.45)
                   : AppColors.dividerDark,
             ),
           ),
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm,
-            vertical: _isFocused ? AppSpacing.xxs : 0,
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const SizedBox(width: AppSpacing.sm),
               Expanded(
@@ -149,12 +149,16 @@ class _ChatComposerState extends State<ChatComposer> {
                   minLines: 1,
                   maxLines: 5,
                   textInputAction: TextInputAction.newline,
+                  textAlignVertical: TextAlignVertical.center,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.textPrimary,
                   ),
                   decoration: InputDecoration(
                     border: InputBorder.none,
-                    isCollapsed: true,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                    ),
                     hintText: 'Write a message...',
                     hintStyle: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textTertiary,

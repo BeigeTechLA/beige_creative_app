@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
@@ -53,7 +54,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(forgotPasswordNotifierProvider);
 
-    ref.listen<ForgotPasswordState>(forgotPasswordNotifierProvider, (prev, next) {
+    ref.listen<ForgotPasswordState>(forgotPasswordNotifierProvider, (
+      prev,
+      next,
+    ) {
       if (next.errorMessage != null &&
           next.errorMessage != prev?.errorMessage) {
         TopMessage.show(context, next.errorMessage!);
@@ -65,8 +69,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         child: Column(
           children: [
             SizedBox(
-              height:
-                  (MediaQuery.of(context).size.height * 0.32).clamp(200.0, 280.0),
+              height: (MediaQuery.of(context).size.height * 0.32).clamp(
+                200.0,
+                280.0,
+              ),
               child: Stack(
                 children: [
                   Positioned.fill(
@@ -75,9 +81,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   Positioned(
                     top: AppSpacing.md,
                     left: 16,
-                    child: InkWell(
+                    child: AppIconTapTarget(
+                      semanticLabel: 'Back',
                       onTap: () => context.pop(),
-                      child: SvgPicture.asset(AppAssets.back, height: 24),
+                      icon: SvgPicture.asset(AppAssets.back, height: 24),
                     ),
                   ),
                   Align(

@@ -79,16 +79,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       children: [
         AppScaffold(
           safeTop: false,
+          safeBottomNavigationBar: true,
           body: SingleChildScrollView(
             child: Column(
               children: [
                 SizedBox(
-                  height:
-                      (MediaQuery.of(context).size.height * 0.35).clamp(220.0, 320.0),
+                  height: (MediaQuery.of(context).size.height * 0.35).clamp(
+                    220.0,
+                    320.0,
+                  ),
                   child: Stack(
                     children: [
                       Positioned.fill(
-                        child: Image.asset(AppAssets.rectangle, fit: BoxFit.fill),
+                        child: Image.asset(
+                          AppAssets.rectangle,
+                          fit: BoxFit.fill,
+                        ),
                       ),
                       Align(
                         alignment: Alignment.center,
@@ -128,7 +134,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.background,
                           borderRadius: AppRadii.massiveAll,
-                          border: Border.all(color: AppColors.white24, width: 1),
+                          border: Border.all(
+                            color: AppColors.white24,
+                            width: 1,
+                          ),
                         ),
                         child: AutofillGroup(
                           child: Column(
@@ -173,16 +182,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 children: [
                                   TextButton(
                                     onPressed: () {
-                                      context.pushNamed(Routes.forgotPassword.name);
+                                      context.pushNamed(
+                                        Routes.forgotPassword.name,
+                                      );
                                     },
                                     child: Text(
                                       "Forgot Password?",
-                                      style: AppTextStyles.bodySmallBold.copyWith(
-                                        color: AppColors.primary,
-                                        decoration: TextDecoration.underline,
-                                        decorationThickness: 1.8,
-                                        decorationColor: AppColors.primary,
-                                      ),
+                                      style: AppTextStyles.bodySmallBold
+                                          .copyWith(
+                                            color: AppColors.primary,
+                                            decoration:
+                                                TextDecoration.underline,
+                                            decorationThickness: 1.8,
+                                            decorationColor: AppColors.primary,
+                                          ),
                                     ),
                                   ),
                                 ],
@@ -196,9 +209,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       ? null
                                       : () {
                                           TextInput.finishAutofillContext();
-                                          ref.read(loginNotifierProvider.notifier).login(
+                                          ref
+                                              .read(
+                                                loginNotifierProvider.notifier,
+                                              )
+                                              .login(
                                                 email: emailController.text,
-                                                password: passwordController.text,
+                                                password:
+                                                    passwordController.text,
                                               );
                                         },
                                   style: ElevatedButton.styleFrom(
@@ -211,11 +229,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                   child: Text(
                                     "Login",
-                                    style: AppTextStyles.displayLabel13.copyWith(
-                                      color: isFormValid
-                                          ? AppColors.textHeading
-                                          : AppColors.surfaceMid,
-                                    ),
+                                    style: AppTextStyles.displayLabel13
+                                        .copyWith(
+                                          color: isFormValid
+                                              ? AppColors.textHeading
+                                              : AppColors.surfaceMid,
+                                        ),
                                   ),
                                 ),
                               ),
