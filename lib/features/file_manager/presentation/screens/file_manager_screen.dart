@@ -6,11 +6,13 @@ import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/top_message.dart';
+import '../../domain/models/fm_folder_key.dart';
 import '../../domain/models/fm_node.dart';
 import '../providers/file_manager_root_notifier.dart';
 import '../providers/file_manager_root_state.dart';
 import '../providers/node_action_notifier.dart';
 import '../providers/node_action_state.dart';
+import '../routes/file_manager_args.dart';
 import '../widgets/fm_actions_sheet.dart';
 import '../widgets/fm_delete_confirm_dialog.dart';
 import '../widgets/fm_empty_view.dart';
@@ -24,13 +26,15 @@ class FileManagerScreen extends ConsumerWidget {
   const FileManagerScreen({super.key});
 
   void _openFolder(BuildContext context, FmFolder folder) {
+    final key = folder.nextKey ?? FmFolderKey(externalId: folder.id);
     context.pushNamed(
       Routes.filesFolder.name,
-      pathParameters: {'id': folder.id},
-      extra: <String, dynamic>{
-        'title': folder.name,
-        if (folder.linkedProject != null) 'linkedProject': folder.linkedProject,
-      },
+      pathParameters: {'id': key.externalId},
+      extra: FolderContentsArgs.toExtra(
+        key: key,
+        title: folder.name,
+        linkedProject: folder.linkedProject,
+      ),
     );
   }
 
@@ -42,14 +46,22 @@ class FileManagerScreen extends ConsumerWidget {
     final action = await showFmActionsSheet(context, kind: FmNodeKind.folder);
     if (action == null || !context.mounted) return;
     final actions = ref.read(nodeActionNotifierProvider.notifier);
+    final folderPath = folder.filepath ?? folder.id;
     switch (action) {
       case FmNodeAction.open:
         _openFolder(context, folder);
       case FmNodeAction.share:
-        await actions.share(nodeId: folder.id, kind: FmNodeKind.folder);
+        // Workspace-root share = whole-workspace ZIP URL via the OS
+        // share sheet. Real `/share` OTP flow deferred to FM9.03.
+        await actions.downloadFolder(
+          trackingKey: folderPath,
+          externalId: folder.id,
+        );
       case FmNodeAction.download:
-        // unreachable — folder sheet omits download
-        break;
+        await actions.downloadFolder(
+          trackingKey: folderPath,
+          externalId: folder.id,
+        );
       case FmNodeAction.delete:
         final ok = await showFmDeleteConfirmDialog(
           context,
@@ -58,8 +70,7 @@ class FileManagerScreen extends ConsumerWidget {
               'contents. This cannot be undone.',
         );
         if (ok != true || !context.mounted) return;
-        final deleted =
-            await actions.delete(nodeId: folder.id, kind: FmNodeKind.folder);
+        final deleted = await actions.delete(filepath: folderPath);
         if (deleted) {
           ref.invalidate(fileManagerRootNotifierProvider);
         }

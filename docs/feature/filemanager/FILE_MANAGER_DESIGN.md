@@ -120,7 +120,7 @@ Icon (check + confetti) → headline → 2-line body → single primary CTA that
 Universal 4-item set: `Open`, `Share`, `Download`, `Delete` (destructive). Same set for folders and files. Delete should trigger a confirm dialog before executing.
 
 ### 3.16 File Preview Sheet
-Header: filename + close. Chip row: version tag + current status pill. Action row: `Request Revision` (warning-styled) · Download · Share. Preview media. Metadata block (Uploaded by · Last updated · File type · Current version). Comments block (empty-state message + input + `Post Comment`).
+Header: filename + close. Chip row: version tag + current status pill. Action row: `Request Revision` (warning-styled) · Download · Share. **Media block = tap-through only** — no in-app player / viewer. Tap opens the file in the OS handler (`url_launcher` externalApplication). Metadata block (Uploaded by · Last updated · File type · Current version). Comments block (empty-state message + input + `Post Comment`). See `FILE_MANAGER_API_PLAN.md` §4.9.
 
 ### 3.17 Bottom Nav
 4 tabs: Dashboard · Shoots · **File Manager** · Messages. File Manager is a top-level destination.

@@ -1,112 +1,176 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:open_file/open_file.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-import '../../domain/models/fm_node.dart';
-import '../../domain/repositories/file_manager_repository.dart';
-import 'file_manager_repository_provider.dart';
+import '../../domain/models/fm_phase.dart';
+import '../../domain/repositories/file_ops_repository.dart';
+import 'file_ops_repository_provider.dart';
 import 'node_action_state.dart';
 
+/// Universal kebab action handler. Every action goes through
+/// [FileOpsRepository] to fetch a short-lived signed URL, then hands the
+/// URL to the OS (`url_launcher` / `share_plus`) — the app never renders
+/// file bytes inline (§4.9 of `FILE_MANAGER_API_PLAN.md`).
+///
+/// State is keyed by the resource's `filepath` (or fallback id for
+/// dummy nodes). Widgets read `isSharing / isDownloading / isDeleting`
+/// on the same string they pass into the command.
 class NodeActionNotifier extends AutoDisposeNotifier<NodeActionState> {
-  late FileManagerRepository _repo;
+  late FileOpsRepository _repo;
 
   @override
   NodeActionState build() {
-    _repo = ref.watch(fileManagerRepositoryProvider);
+    _repo = ref.watch(fileOpsRepositoryProvider);
     return const NodeActionState();
   }
 
-  /// Copies a share URL to the clipboard. (`share_plus` not yet on the
-  /// dependency list — copy + snackbar matches the existing meetings link
-  /// affordance. Swap to native share when product asks for it.)
-  Future<void> share({required String nodeId, required FmNodeKind kind}) async {
-    if (state.isSharing(nodeId)) return;
+  /// Shares a file via the system share sheet. Fetches a signed
+  /// view-URL, then hands it to `share_plus`. Folders defer to the real
+  /// `/share` OTP flow in FM9 — until then, folder share is disabled
+  /// upstream (kebab omits the item).
+  Future<void> shareFile({required String filepath, String? subject}) async {
+    if (state.isSharing(filepath)) return;
     state = state.copyWith(
-      sharingIds: {...state.sharingIds, nodeId},
+      sharingIds: {...state.sharingIds, filepath},
       clearSignal: true,
     );
     try {
-      final url = await _repo.getShareLink(nodeId: nodeId, kind: kind);
-      await Clipboard.setData(ClipboardData(text: url));
+      final signed = await _repo.viewUrl(filepath);
+      // share_plus 10.x — `subject` not supported on `shareUri`; the
+      // system share sheet uses the URL as its subject on iOS.
+      await Share.shareUri(Uri.parse(signed.url));
       state = state.copyWith(
-        sharingIds: state.sharingIds.difference({nodeId}),
+        sharingIds: state.sharingIds.difference({filepath}),
         lastSignal: const FmActionSignal(
           kind: FmActionSignalKind.shareCopied,
-          message: 'Share link copied to clipboard',
+          message: 'Share sheet opened',
         ),
       );
     } catch (e) {
       state = state.copyWith(
-        sharingIds: state.sharingIds.difference({nodeId}),
-        lastSignal: FmActionSignal(
+        sharingIds: state.sharingIds.difference({filepath}),
+        lastSignal: const FmActionSignal(
           kind: FmActionSignalKind.error,
-          message: 'Failed to generate share link',
+          message: 'Failed to share file',
         ),
       );
     }
   }
 
-  /// Downloads a file to a temp path then opens it via [OpenFile]. Updates
-  /// `downloadProgress[fileId]` 0..1 along the way.
-  Future<void> download({required String fileId}) async {
-    if (state.isDownloading(fileId)) return;
-    final progress = {...state.downloadProgress, fileId: 0.0};
-    state = state.copyWith(downloadProgress: progress, clearSignal: true);
-
+  /// Downloads a file by handing the signed URL to the OS browser (which
+  /// prompts the user for save location).
+  Future<void> downloadFile(String filepath) async {
+    if (state.isDownloading(filepath)) return;
+    state = state.copyWith(
+      downloadProgress: {...state.downloadProgress, filepath: 0.0},
+      clearSignal: true,
+    );
     try {
-      final path = await _repo.downloadFile(
-        fileId: fileId,
-        onProgress: (p) {
-          final next = {...state.downloadProgress, fileId: p};
-          state = state.copyWith(downloadProgress: next);
-        },
-      );
-      final next = {...state.downloadProgress}..remove(fileId);
+      final signed = await _repo.downloadUrl(filepath);
+      await _openExternal(signed.url);
+      final next = {...state.downloadProgress}..remove(filepath);
       state = state.copyWith(
         downloadProgress: next,
         lastSignal: const FmActionSignal(
           kind: FmActionSignalKind.downloaded,
-          message: 'Download complete',
+          message: 'Opened in browser',
         ),
       );
-      await OpenFile.open(path);
     } catch (e) {
-      final next = {...state.downloadProgress}..remove(fileId);
+      final next = {...state.downloadProgress}..remove(filepath);
       state = state.copyWith(
         downloadProgress: next,
         lastSignal: const FmActionSignal(
           kind: FmActionSignalKind.error,
-          message: 'Download failed',
+          message: 'Failed to open download',
         ),
       );
     }
   }
 
-  /// Deletes a node. Caller invalidates the appropriate listing notifier on
-  /// success so the row drops without a refetch — returned bool reports
-  /// whether the call succeeded.
-  Future<bool> delete({
-    required String nodeId,
-    required FmNodeKind kind,
+  /// Downloads a folder (server-generated ZIP). Same OS handoff as
+  /// [downloadFile]. Progress keyed by [trackingKey] so the UI can gate
+  /// its spinner — pass the folder's path so widgets share the same id.
+  Future<void> downloadFolder({
+    required String trackingKey,
+    required String externalId,
+    FmPhase? phase,
+    String? path,
   }) async {
-    if (state.isDeleting(nodeId)) return false;
+    if (state.isDownloading(trackingKey)) return;
     state = state.copyWith(
-      deletingIds: {...state.deletingIds, nodeId},
+      downloadProgress: {...state.downloadProgress, trackingKey: 0.0},
       clearSignal: true,
     );
     try {
-      await _repo.deleteNode(nodeId: nodeId, kind: kind);
+      final signed = await _repo.folderDownloadUrl(
+        externalId: externalId,
+        phase: phase,
+        path: path,
+      );
+      await _openExternal(signed.url);
+      final next = {...state.downloadProgress}..remove(trackingKey);
       state = state.copyWith(
-        deletingIds: state.deletingIds.difference({nodeId}),
+        downloadProgress: next,
+        lastSignal: const FmActionSignal(
+          kind: FmActionSignalKind.downloaded,
+          message: 'Opened folder download in browser',
+        ),
+      );
+    } catch (e) {
+      final next = {...state.downloadProgress}..remove(trackingKey);
+      state = state.copyWith(
+        downloadProgress: next,
+        lastSignal: const FmActionSignal(
+          kind: FmActionSignalKind.error,
+          message: 'Failed to download folder',
+        ),
+      );
+    }
+  }
+
+  /// Opens a file for viewing — same signed-URL + OS-handoff dance as
+  /// [downloadFile], but backed by the view-url endpoint (which returns
+  /// a URL that renders inline in the OS handler rather than triggering
+  /// a download).
+  Future<void> openFile(String filepath) async {
+    try {
+      final signed = await _repo.viewUrl(filepath);
+      await _openExternal(signed.url);
+    } catch (e) {
+      state = state.copyWith(
+        lastSignal: const FmActionSignal(
+          kind: FmActionSignalKind.error,
+          message: 'Failed to open file',
+        ),
+      );
+    }
+  }
+
+  /// Deletes a file or folder. Folder deletes must carry a trailing `/`
+  /// on [filepath] — callers should pass `FmPath.forDelete(...)` output
+  /// or the folder's own `filepath` field. Returns whether the delete
+  /// succeeded so the caller can decide whether to invalidate the
+  /// folder-contents notifier.
+  Future<bool> delete({required String filepath}) async {
+    if (state.isDeleting(filepath)) return false;
+    state = state.copyWith(
+      deletingIds: {...state.deletingIds, filepath},
+      clearSignal: true,
+    );
+    try {
+      final result = await _repo.delete(filepath);
+      state = state.copyWith(
+        deletingIds: state.deletingIds.difference({filepath}),
         lastSignal: const FmActionSignal(
           kind: FmActionSignalKind.deleted,
           message: 'Deleted',
         ),
       );
-      return true;
+      return result.deleted;
     } catch (e) {
       state = state.copyWith(
-        deletingIds: state.deletingIds.difference({nodeId}),
+        deletingIds: state.deletingIds.difference({filepath}),
         lastSignal: const FmActionSignal(
           kind: FmActionSignalKind.error,
           message: 'Delete failed',
@@ -119,6 +183,14 @@ class NodeActionNotifier extends AutoDisposeNotifier<NodeActionState> {
   void clearSignal() {
     if (state.lastSignal == null) return;
     state = state.copyWith(clearSignal: true);
+  }
+
+  Future<void> _openExternal(String url) async {
+    final uri = Uri.parse(url);
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok) {
+      throw StateError('launchUrl returned false for $url');
+    }
   }
 }
 

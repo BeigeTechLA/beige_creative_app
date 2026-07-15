@@ -21,6 +21,10 @@ class FmFileDto {
       downloadUrl: _resolveUrl(j['download_url']?.toString()) ?? '',
       previewUrl: _resolveUrl(j['preview_url']?.toString()),
       openedAt: _parseDate(j['opened_at']),
+      version: _asInt(j['version']),
+      isLatest: j['is_latest'] as bool? ?? true,
+      statusLabel: j['status_label']?.toString(),
+      uploaderName: j['uploader_name']?.toString(),
     );
   }
 

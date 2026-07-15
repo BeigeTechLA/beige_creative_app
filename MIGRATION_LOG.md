@@ -5,6 +5,51 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-14: File Manager API plan status audit
+
+- **Changes**:
+  - Reconciled `docs/feature/filemanager/FILE_MANAGER_API_PLAN.md` against the current File Manager repositories, providers, routes, widgets, and tests.
+  - Recorded the overall rollout as 9/20 complete, 1 partial, 7 blocked, and 3 pending; clarified FM7's remote-activation caveat and corrected FM8/FM9 summary counts.
+  - Added the API follow-up status to the original Phase 4 file-manager task and shared AI handoff.
+- **Decisions**:
+  - Counted FM9.02 as partial, not complete: Common Events listing exists, but creator-folder repository/CTA work does not.
+  - Kept FM7 at implementation-complete while explicitly noting that `useDummyFileManagerProvider` defaults to `true`; remote code presence is not the same as production activation.
+- **Verification**:
+  - `flutter test test/features/file_manager/` — 17/17 passed.
+  - `flutter test test/golden/file_manager_test.dart` — 5/5 passed.
+  - `flutter analyze --fatal-infos` — no issues.
+- **Remaining Risk**:
+  - FM8.01 and dependent upload tasks remain blocked on backend confirmation of storage protocol, presign response, completion, and abort semantics.
+  - Remote browse/file-ops behavior has not been enabled against the live API; FM9 comments/share/common-event creation remain incomplete.
+
+---
+
+### 2026-07-14: File Manager UI Expansion (Indicators, Previews, Uploads & Selection Flows)
+
+- **Changes**:
+  - Created `fm_version_tag.dart` displaying version badges (e.g. `V1`, `V2 Latest`) with Tinted Gold Sand styles (Option A).
+  - Created `fm_status_pill.dart` showing accessible semantic statuses like `Raw Files Uploaded` (blue) and `File Selected For Edits` (warning amber).
+  - Created `fm_file_preview_sheet.dart` supporting media previews, metadata rows, action links, and comments.
+  - Created `fm_choose_document_sheet.dart` allowing source picking.
+  - Created `fm_upload_sheet.dart` implementing direct-to-S3 multi-part limits (5GB, 50 files max), cellular Wi-Fi warnings, simulated progress bars, and appending to dummy repository.
+  - Created `success_screen.dart` featuring celebratory confetti particles and dynamic deep-link CTA support.
+  - Updated `folder_contents_screen.dart` to support multi-select mode, Version filter dropdown next to search, opening file previews, and sticky upload/edits CTAs.
+  - Added unit/widget tests in `test/features/file_manager/presentation/screens/file_manager_expanded_test.dart` verifying version tags, status pills, upload sheets, and preview sheets.
+
+- **Decisions**:
+  - Converted `FolderContentsScreen` to a `ConsumerStatefulWidget` to cleanly maintain multi-select and version filtering states locally without global state pollution.
+  - Fixed deprecated warnings (like `withOpacity` to `withValues` and `activeColor` to `activeThumbColor`) to achieve clean compile checks.
+  - Placed the upload files CTA on folders containing `post production`, `raw footage`, `edit`, or `revision` in name to handle local dummy routing correctly.
+
+- **Verification**:
+  - `flutter analyze` — 0 issues (warnings and errors).
+  - `flutter test test/features/file_manager/` — all 15 tests passed.
+
+- **Remaining Risk**:
+  - Stubs only; real S3 direct upload APIs and WebSockets comments sync must be implemented in the next phase.
+
+---
+
 ### 2026-07-13: iPhone/iPad responsive safety fixes
 
 - **Changes**:

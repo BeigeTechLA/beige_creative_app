@@ -19,6 +19,7 @@ final _remoteFileManagerSourceProvider = Provider<FileManagerRemoteSource>(
 
 /// Single source of truth the UI watches. `ref.watch`es the flag so the
 /// remote swap is a one-line change at app boot.
+// ignore: deprecated_member_use_from_same_package
 final fileManagerRepositoryProvider = Provider<FileManagerRepository>((ref) {
   final useDummy = ref.watch(useDummyFileManagerProvider);
   if (useDummy) {

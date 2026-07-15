@@ -1,0 +1,54 @@
+import '../../domain/models/fm_folder_key.dart';
+import '../../domain/models/fm_folder_contents.dart';
+import '../../domain/models/fm_node.dart';
+import '../../domain/models/fm_phase.dart';
+import 'fm_envelope_dto.dart';
+import 'fm_file_node_dto.dart';
+import 'fm_folder_node_dto.dart';
+import 'fm_workspace_dto.dart';
+
+/// Response of `GET /external-file-manager/workspace/{externalId}` and
+/// `GET /external-file-manager/workspace/{externalId}/files`.
+///
+/// Both endpoints share the same envelope shape:
+///
+/// ```json
+/// {
+///   "workspace": { … FmWorkspaceDto … },
+///   "phase": "root" | "pre" | "post",   // /files only
+///   "path": "…",                         // /files only
+///   "basePath": "corporate_harsh_#4833/",
+///   "folders": [ FmFolderNodeDto ],
+///   "files":   [ FmFileNodeDto ]
+/// }
+/// ```
+///
+/// The detail endpoint omits `phase` + `path`; treat them as `root` / ``.
+class FmWorkspaceDetailDto {
+  static FmFolderContents fromJson(
+    Map<String, dynamic> j, {
+    required String externalId,
+  }) {
+    final workspaceJson = FmJson.asMap(j['workspace']);
+    final workspace = workspaceJson != null
+        ? FmWorkspaceDto.fromJson(workspaceJson)
+        : null;
+
+    final phase = FmPhaseX.fromApi(j['phase']?.toString());
+    final path = (j['path'] ?? '').toString();
+    final basePath = (j['basePath'] ?? '').toString();
+
+    final key = FmFolderKey(externalId: externalId, phase: phase, path: path);
+    final folders = FmJson.asList(j['folders'])
+        .map((f) => FmFolderNodeDto.fromJson(f, parent: key))
+        .toList();
+    final files = FmJson.asList(j['files']).map(FmFileNodeDto.fromJson).toList();
+
+    return FmFolderContents(
+      key: key,
+      basePath: basePath,
+      workspace: workspace,
+      items: <FmNode>[...folders, ...files],
+    );
+  }
+}

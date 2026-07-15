@@ -8,6 +8,7 @@ import '../sources/file_manager_remote_source.dart';
 
 /// Dio-backed implementation. Pure pass-through to
 /// [FileManagerRemoteSource] — feature lives at the source layer.
+// ignore: deprecated_member_use_from_same_package
 class FileManagerRepositoryRemote implements FileManagerRepository {
   FileManagerRepositoryRemote(this._remote);
 
@@ -49,4 +50,12 @@ class FileManagerRepositoryRemote implements FileManagerRepository {
     onProgress: onProgress,
     cancelToken: cancelToken,
   );
+
+  @override
+  Future<void> uploadFiles({
+    required String folderId,
+    required List<FmFile> files,
+  }) {
+    throw UnimplementedError('Remote upload is direct-to-S3 in multipart');
+  }
 }

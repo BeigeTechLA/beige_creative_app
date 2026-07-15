@@ -22,6 +22,9 @@ class FmRecursiveList extends StatefulWidget {
   final void Function(FmFile) onFileTap;
   final void Function(FmFile)? onFileMore;
   final double loadMoreThreshold;
+  final bool isMultiSelectMode;
+  final Set<String> selectedFileIds;
+  final void Function(String fileId, bool selected)? onFileSelectedChanged;
 
   const FmRecursiveList({
     super.key,
@@ -35,6 +38,9 @@ class FmRecursiveList extends StatefulWidget {
     this.onFolderMore,
     this.onFileMore,
     this.loadMoreThreshold = 240,
+    this.isMultiSelectMode = false,
+    this.selectedFileIds = const {},
+    this.onFileSelectedChanged,
   });
 
   @override
@@ -100,6 +106,11 @@ class _FmRecursiveListState extends State<FmRecursiveList> {
                 onMore: widget.onFileMore == null
                     ? null
                     : () => widget.onFileMore!(node),
+                isMultiSelectMode: widget.isMultiSelectMode,
+                isSelected: widget.selectedFileIds.contains(node.id),
+                onSelectedChanged: widget.onFileSelectedChanged == null
+                    ? null
+                    : (val) => widget.onFileSelectedChanged!(node.id, val ?? false),
               ),
             };
           },

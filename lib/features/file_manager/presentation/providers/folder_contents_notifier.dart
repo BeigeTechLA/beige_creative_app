@@ -1,19 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/repositories/file_manager_repository.dart';
-import 'file_manager_repository_provider.dart';
+import '../../domain/models/fm_folder_key.dart';
+import '../../domain/repositories/folder_browse_repository.dart';
 import 'file_manager_root_state.dart' show FmListStatus;
+import 'folder_browse_repository_provider.dart';
 import 'folder_contents_state.dart';
 
+/// Folder listing notifier keyed by [FmFolderKey]. Backed by
+/// [FolderBrowseRepository]. Current API returns a single unpaginated
+/// page per folder — [loadMore] is a no-op until the endpoint adds
+/// paging, and [refresh] is the only way to re-fetch.
 class FolderContentsNotifier
-    extends AutoDisposeFamilyNotifier<FolderContentsState, String> {
-  late FileManagerRepository _repo;
-  late String _folderId;
+    extends AutoDisposeFamilyNotifier<FolderContentsState, FmFolderKey> {
+  late FolderBrowseRepository _repo;
+  late FmFolderKey _key;
 
   @override
-  FolderContentsState build(String folderId) {
-    _repo = ref.watch(fileManagerRepositoryProvider);
-    _folderId = folderId;
+  FolderContentsState build(FmFolderKey key) {
+    _repo = ref.watch(folderBrowseRepositoryProvider);
+    _key = key;
     Future.microtask(_loadFirst);
     return const FolderContentsState(status: FmListStatus.loading);
   }
@@ -23,14 +28,16 @@ class FolderContentsNotifier
       status: FmListStatus.loading,
       items: const [],
       clearCursor: true,
+      clearWorkspace: true,
       clearError: true,
     );
     try {
-      final page = await _repo.listFolder(folderId: _folderId);
+      final contents = await _repo.open(_key);
       state = state.copyWith(
-        items: page.items,
-        cursor: page.nextCursor,
-        clearCursor: page.nextCursor == null,
+        items: contents.items,
+        basePath: contents.basePath,
+        workspace: contents.workspace,
+        clearWorkspace: contents.workspace == null,
         status: FmListStatus.ready,
       );
     } catch (e) {
@@ -41,27 +48,9 @@ class FolderContentsNotifier
     }
   }
 
-  Future<void> loadMore() async {
-    if (state.status == FmListStatus.loadingMore || !state.hasMore) return;
-    state = state.copyWith(status: FmListStatus.loadingMore);
-    try {
-      final page = await _repo.listFolder(
-        folderId: _folderId,
-        cursor: state.cursor,
-      );
-      state = state.copyWith(
-        items: [...state.items, ...page.items],
-        cursor: page.nextCursor,
-        clearCursor: page.nextCursor == null,
-        status: FmListStatus.ready,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        status: FmListStatus.ready,
-        errorMessage: 'Failed to load more',
-      );
-    }
-  }
+  /// Pagination not implemented server-side — no-op. Kept so consumers
+  /// that call `loadMore()` from an infinite scroll trigger don't break.
+  Future<void> loadMore() async {}
 
   Future<void> refresh() => _loadFirst();
 
@@ -72,6 +61,6 @@ class FolderContentsNotifier
 }
 
 final folderContentsNotifierProvider = AutoDisposeNotifierProvider
-    .family<FolderContentsNotifier, FolderContentsState, String>(
+    .family<FolderContentsNotifier, FolderContentsState, FmFolderKey>(
       FolderContentsNotifier.new,
     );

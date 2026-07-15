@@ -4,16 +4,20 @@ import '../models/fm_node.dart';
 import '../models/fm_page.dart';
 import '../models/fm_tab.dart';
 
-/// Stable interface for the file-manager surface. Two implementations live
-/// side-by-side and are selected via `useDummyFileManagerProvider`:
+/// **DEPRECATED — being removed in FM8.**
 ///
-/// - [FileManagerRepositoryDummy] (FM1.04) — in-memory recursive tree, used
-///   while UI ships against fake data.
-/// - [FileManagerRepositoryRemote] (FM6.02) — Dio against
-///   `/api/file-manager/...` (see `FILE_MANAGER_UI_PLAN.md` §8).
+/// Superseded by the four path-addressed repositories introduced in the
+/// FM7 series:
 ///
-/// Test fakes implement this contract directly so production code never
-/// branches on test vs prod.
+/// - `WorkspacesRepository` — root workspaces + common events.
+/// - `FolderBrowseRepository` — open folder + create folder.
+/// - `FileOpsRepository` — view / download / folder-download / delete.
+/// - Upload flow rewrites through a dedicated multipart source in FM8.
+///
+/// Only remaining production caller is `FmUploadSheet._completeUpload`
+/// (dummy-only save path). Delete once FM8.03 lands a real
+/// `UploadNotifier`.
+@Deprecated('Use Workspaces / FolderBrowse / FileOps repositories. Removed in FM8.')
 abstract class FileManagerRepository {
   /// Root tab — only folders show at the root per the reference design.
   /// `cursor == null` requests the first page; backend returns
@@ -53,5 +57,11 @@ abstract class FileManagerRepository {
     required String fileId,
     void Function(double progress)? onProgress,
     CancelToken? cancelToken,
+  });
+
+  /// Uploads a batch of files to a specific target folder.
+  Future<void> uploadFiles({
+    required String folderId,
+    required List<FmFile> files,
   });
 }

@@ -65,9 +65,10 @@ class ApiEndpoints {
       'external-meetings/$id/participants';
   static String meetingRespond(String id) => 'external-meetings/$id/respond';
 
-  // ───── File Manager (FM6) ────────────────────────────────────────────────
-  // Backend endpoints not yet confirmed — paths follow
-  // FILE_MANAGER_UI_PLAN.md §8. Adjust when the API contract is finalized.
+  // ───── File Manager (FM6) — legacy stubs ────────────────────────────────
+  // Retained while the dummy repo still ships the old contract. Real
+  // endpoints below (FM7 series) supersede these. Delete once
+  // `FileManagerRepository` facade is removed (FM7.06+).
   static const String fileManagerRoot = 'file-manager/root';
   static String fileManagerFolder(String id) => 'file-manager/folders/$id';
   static String fileManagerFolderDelete(String id) =>
@@ -76,6 +77,49 @@ class ApiEndpoints {
   static String fileManagerFileDownload(String id) =>
       'file-manager/files/$id/download';
   static const String fileManagerShare = 'file-manager/share';
+
+  // ───── File Manager (FM7 real endpoints) ────────────────────────────────
+  // See `docs/feature/filemanager/FILE_MANAGER_API_PLAN.md` §5.4 for the
+  // canonical list. Base path is `external-file-manager/` for everything
+  // except comments (which live at top-level `comments/`).
+  static const String fmWorkspaces = 'external-file-manager/workspaces';
+  static String fmWorkspace(String extId) =>
+      'external-file-manager/workspace/$extId';
+  static String fmWorkspaceFiles(String extId) =>
+      'external-file-manager/workspace/$extId/files';
+  static const String fmFolder = 'external-file-manager/folder';
+  static const String fmFolderDownloadUrl =
+      'external-file-manager/folder-download-url';
+  static const String fmUploadPolicies =
+      'external-file-manager/upload-policies/batch';
+  static const String fmFilesUploaded =
+      'external-file-manager/files-uploaded/batch';
+  static const String fmFileViewUrl = 'external-file-manager/file-view-url';
+  static const String fmFileDownloadUrl =
+      'external-file-manager/file-download-url';
+  static const String fmDelete = 'external-file-manager/delete';
+  static const String fmCopyFiles = 'external-file-manager/copy-files';
+  static const String fmRevisionReview =
+      'external-file-manager/revision-file/review';
+  static const String fmShare = 'external-file-manager/share';
+  static const String fmShareRequestOtp =
+      'external-file-manager/share/request-otp';
+  static const String fmShareVerifyOtp =
+      'external-file-manager/share/verify-otp';
+  static String fmShareContent(String token) =>
+      'external-file-manager/share/$token/content';
+  static String fmShareViewUrl(String token) =>
+      'external-file-manager/share/$token/view-url';
+  static String fmShareDownloadUrl(String token) =>
+      'external-file-manager/share/$token/download-url';
+  static const String comments = 'comments';
+  static String commentReply(String id) => 'comments/$id/reply';
+  static String commentById(String id) => 'comments/$id';
+  static const String fmCommonEvents = 'external-file-manager/common-events';
+  static String fmCommonEvent(String extId) =>
+      'external-file-manager/common-events/$extId';
+  static String fmCommonEventCreatorFolder(String extId) =>
+      'external-file-manager/common-events/$extId/creator-folder';
 
   // ───── Messages / External Chat (M6) ─────────────────────────────────────
   static const String chatRooms = 'external-chat/rooms';

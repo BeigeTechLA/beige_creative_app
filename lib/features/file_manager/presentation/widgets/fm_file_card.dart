@@ -8,15 +8,28 @@ import '../../domain/models/file_type.dart';
 import '../../domain/models/fm_node.dart';
 import '../util/relative_time.dart';
 import 'fm_file_type_icon.dart';
+import 'fm_version_tag.dart';
+import 'fm_status_pill.dart';
 
 /// File row with header (small icon + name + ⋮), large preview block
-/// (icon-only per FM4 scope), and footer (opened ago).
+/// (icon-only per FM4 scope), status badges, and footer.
 class FmFileCard extends StatelessWidget {
   final FmFile file;
   final VoidCallback? onTap;
   final VoidCallback? onMore;
+  final bool isMultiSelectMode;
+  final bool isSelected;
+  final ValueChanged<bool?>? onSelectedChanged;
 
-  const FmFileCard({super.key, required this.file, this.onTap, this.onMore});
+  const FmFileCard({
+    super.key,
+    required this.file,
+    this.onTap,
+    this.onMore,
+    this.isMultiSelectMode = false,
+    this.isSelected = false,
+    this.onSelectedChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +37,9 @@ class FmFileCard extends StatelessWidget {
       color: AppColors.surface,
       borderRadius: AppRadii.lgAll,
       child: InkWell(
-        onTap: onTap,
+        onTap: isMultiSelectMode && onSelectedChanged != null
+            ? () => onSelectedChanged!(!isSelected)
+            : onTap,
         borderRadius: AppRadii.lgAll,
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.cardPadding),
@@ -33,6 +48,15 @@ class FmFileCard extends StatelessWidget {
             children: [
               Row(
                 children: [
+                  if (isMultiSelectMode) ...[
+                    Checkbox(
+                      value: isSelected,
+                      onChanged: onSelectedChanged,
+                      activeColor: AppColors.primary,
+                      checkColor: AppColors.onPrimary,
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                  ],
                   FmFileTypeIcon(type: file.type, size: 28),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
@@ -45,15 +69,16 @@ class FmFileCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  IconButton(
-                    tooltip: 'More actions',
-                    icon: const Icon(
-                      Icons.more_vert,
-                      color: AppColors.textTertiary,
-                      size: 20,
+                  if (!isMultiSelectMode)
+                    IconButton(
+                      tooltip: 'More actions',
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: AppColors.textTertiary,
+                        size: 20,
+                      ),
+                      onPressed: onMore,
                     ),
-                    onPressed: onMore,
-                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
@@ -68,6 +93,23 @@ class FmFileCard extends StatelessWidget {
                   child: _DocumentPreview(type: file.type),
                 ),
               ),
+              if (file.version != null || file.statusLabel != null) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    if (file.version != null)
+                      FmVersionTag(
+                        version: file.version,
+                        isLatest: file.isLatest,
+                        fontSize: 10,
+                      ),
+                    if (file.statusLabel != null)
+                      FmStatusPill(label: widgetFileStatusLabel(file)),
+                  ],
+                ),
+              ],
               const SizedBox(height: AppSpacing.md),
               const Divider(
                 height: 1,
@@ -75,17 +117,33 @@ class FmFileCard extends StatelessWidget {
                 color: AppColors.dividerDark,
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text(
-                formatOpenedAgo(file.openedAt),
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textTertiary,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    formatOpenedAgo(file.openedAt),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                  if (file.uploaderName != null)
+                    Text(
+                      'By ${file.uploaderName}',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  String widgetFileStatusLabel(FmFile file) {
+    return file.statusLabel ?? '';
   }
 }
 

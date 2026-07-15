@@ -12,6 +12,7 @@ import '../dummy/dummy_file_tree.dart';
 ///
 /// Mutations (delete) operate on the shared `DummyFileTree.tree` map so the
 /// effect persists across notifier rebuilds within a single app session.
+// ignore: deprecated_member_use_from_same_package
 class FileManagerRepositoryDummy implements FileManagerRepository {
   static const Duration _latency = Duration(milliseconds: 300);
 
@@ -91,6 +92,34 @@ class FileManagerRepositoryDummy implements FileManagerRepository {
       onProgress?.call(i / 6);
     }
     return '/tmp/file_manager_dummy/$fileId';
+  }
+
+  @override
+  Future<void> uploadFiles({
+    required String folderId,
+    required List<FmFile> files,
+  }) async {
+    await Future<void>.delayed(_latency);
+    final current = _tree[folderId] ?? [];
+    _tree[folderId] = [...current, ...files];
+
+    // Find the folder in _tree and increment its fileCount
+    for (final entry in _tree.entries) {
+      for (int i = 0; i < entry.value.length; i++) {
+        final node = entry.value[i];
+        if (node is FmFolder && node.id == folderId) {
+          entry.value[i] = FmFolder(
+            id: node.id,
+            name: node.name,
+            fileCount: node.fileCount + files.length,
+            openedAt: node.openedAt,
+            tagLabel: node.tagLabel,
+            linkState: node.linkState,
+            linkedProject: node.linkedProject,
+          );
+        }
+      }
+    }
   }
 
   // ── Internal helpers ────────────────────────────────────────────────

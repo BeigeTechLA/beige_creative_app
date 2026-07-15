@@ -57,3 +57,6 @@ ios/Flutter/GoogleMaps-prod.xcconfig
 
 # Golden-test failure artifacts (diffs + masters re-emitted on every run)
 /test/golden/failures/
+
+# Large design reference PDF (kept local only)
+docs/feature/filemanager/Beige App Design.pdf

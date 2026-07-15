@@ -1,44 +1,35 @@
 import 'package:beige_creative_app/features/file_manager/domain/models/file_type.dart';
+import 'package:beige_creative_app/features/file_manager/domain/models/fm_folder_contents.dart';
+import 'package:beige_creative_app/features/file_manager/domain/models/fm_folder_created.dart';
+import 'package:beige_creative_app/features/file_manager/domain/models/fm_folder_key.dart';
 import 'package:beige_creative_app/features/file_manager/domain/models/fm_node.dart';
-import 'package:beige_creative_app/features/file_manager/domain/models/fm_page.dart';
-import 'package:beige_creative_app/features/file_manager/domain/models/fm_tab.dart';
-import 'package:beige_creative_app/features/file_manager/domain/repositories/file_manager_repository.dart';
-import 'package:beige_creative_app/features/file_manager/presentation/providers/file_manager_repository_provider.dart';
+import 'package:beige_creative_app/features/file_manager/domain/models/fm_phase.dart';
+import 'package:beige_creative_app/features/file_manager/domain/repositories/folder_browse_repository.dart';
 import 'package:beige_creative_app/features/file_manager/presentation/providers/file_manager_root_state.dart';
+import 'package:beige_creative_app/features/file_manager/presentation/providers/folder_browse_repository_provider.dart';
 import 'package:beige_creative_app/features/file_manager/presentation/providers/folder_contents_notifier.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _Repo implements FileManagerRepository {
+class _Repo implements FolderBrowseRepository {
   _Repo(this.children);
   final List<FmNode> children;
 
   @override
-  Future<FmPage<FmFolder>> listRoot({
-    required FmTab tab,
-    String? cursor,
-    int limit = 20,
-  }) async => const FmPage<FmFolder>(items: []);
+  Future<FmFolderContents> open(FmFolderKey key) async {
+    return FmFolderContents(
+      key: key,
+      basePath: '${key.externalId}/',
+      items: children,
+    );
+  }
 
   @override
-  Future<FmPage<FmNode>> listFolder({
-    required String folderId,
-    String? cursor,
-    int limit = 20,
-  }) async => FmPage<FmNode>(items: children, nextCursor: null);
-
-  @override
-  Future<String> getShareLink({required nodeId, required kind}) async =>
-      throw UnimplementedError();
-  @override
-  Future<void> deleteNode({required nodeId, required kind}) async =>
-      throw UnimplementedError();
-  @override
-  Future<String> downloadFile({
-    required fileId,
-    void Function(double)? onProgress,
-    CancelToken? cancelToken,
+  Future<FmFolderCreated> createFolder({
+    required String externalId,
+    required FmPhase phase,
+    String path = '',
+    required String folderName,
   }) async => throw UnimplementedError();
 }
 
@@ -63,31 +54,32 @@ void main() {
     ]);
 
     final container = ProviderContainer(overrides: [
-      fileManagerRepositoryProvider.overrideWithValue(repo),
+      folderBrowseRepositoryProvider.overrideWithValue(repo),
     ]);
     addTearDown(container.dispose);
 
-    const folderId = 'fld';
+    const key = FmFolderKey(externalId: 'fld');
     final sub = container.listen(
-      folderContentsNotifierProvider(folderId),
+      folderContentsNotifierProvider(key),
       (_, _) {},
       fireImmediately: true,
     );
     addTearDown(sub.close);
 
     final notifier =
-        container.read(folderContentsNotifierProvider(folderId).notifier);
+        container.read(folderContentsNotifierProvider(key).notifier);
     await notifier.refresh();
-    var state = container.read(folderContentsNotifierProvider(folderId));
+    var state = container.read(folderContentsNotifierProvider(key));
     expect(state.status, FmListStatus.ready);
     expect(state.items.length, 3);
+    expect(state.basePath, 'fld/');
 
     notifier.setSearchQuery('pdf');
-    state = container.read(folderContentsNotifierProvider(folderId));
+    state = container.read(folderContentsNotifierProvider(key));
     expect(state.visibleItems.map((n) => n.id), ['fil_pdf']);
 
     notifier.setSearchQuery('');
-    state = container.read(folderContentsNotifierProvider(folderId));
+    state = container.read(folderContentsNotifierProvider(key));
     expect(state.visibleItems.length, 3);
   });
 }

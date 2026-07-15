@@ -6,8 +6,9 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../domain/models/fm_node.dart';
 
-/// Actions surfaced from the `⋮` menu on a folder or file. `download` is
-/// folder-invalid (handled by [showFmActionsSheet] which omits it).
+/// Actions surfaced from the `⋮` menu on a folder or file. Same 4 items
+/// for both — files use `POST /file-download-url`, folders use
+/// `POST /folder-download-url` (server-generated ZIP).
 enum FmNodeAction { open, share, download, delete }
 
 Future<FmNodeAction?> showFmActionsSheet(
@@ -47,14 +48,12 @@ class _Sheet extends StatelessWidget {
               onTap: () => Navigator.of(context).pop(FmNodeAction.share),
             ),
             const Divider(height: 1, thickness: 1, color: AppColors.dividerDark),
-            if (kind == FmNodeKind.file) ...[
-              _Row(
-                icon: Icons.file_download_outlined,
-                label: 'Download',
-                onTap: () => Navigator.of(context).pop(FmNodeAction.download),
-              ),
-              const Divider(height: 1, thickness: 1, color: AppColors.dividerDark),
-            ],
+            _Row(
+              icon: Icons.file_download_outlined,
+              label: 'Download',
+              onTap: () => Navigator.of(context).pop(FmNodeAction.download),
+            ),
+            const Divider(height: 1, thickness: 1, color: AppColors.dividerDark),
             _Row(
               icon: Icons.delete_outline,
               label: 'Delete',

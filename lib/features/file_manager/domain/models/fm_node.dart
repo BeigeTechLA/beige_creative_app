@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 import 'file_type.dart';
+import 'fm_folder_key.dart';
 import 'fm_linked_project.dart';
+import 'fm_workspace_meta.dart';
 import 'link_state.dart';
 
 part 'fm_folder.dart';

@@ -109,6 +109,12 @@ abstract class Routes {
   // Root tab is `files` above. Folder details is nested; file open is
   // inline via CommonFileViewer (no in-app screen needed).
   static const filesFolder = RouteSpec(name: 'files_folder', path: '/files/folder/:id', featureArea: 'files');
+  static const filesSuccess = RouteSpec(
+    name: 'files_success',
+    path: '/files/success',
+    trackScreenView: false,
+    featureArea: 'files',
+  );
 
   // Messages
   static const chat = RouteSpec(name: 'chat', path: '/chat', featureArea: 'messages');
@@ -127,7 +133,7 @@ abstract class Routes {
     deleteAccount, deleteAccountOtp, deleteAccountSuccess,
     upcomingShootDetails, cancelShoot, shootCancelotties,
     addAvailability,
-    filesFolder,
+    filesFolder, filesSuccess,
     chat, chatDetails,
   ];
 

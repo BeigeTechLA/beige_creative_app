@@ -46,3 +46,10 @@ Migrate the four file-manager screens (1,462 LOC combined) to Clean Architecture
 **Class rename:** `view_details_screen.dart` exports `FileManagerViewDetailsScreen` to disambiguate from `lib/auth/view_details_screen.dart` (which the router already exposes under `RouteNames.viewDetails`). Reached via `Navigator.push` from pre-production, not the GoRouter — matches legacy behavior.
 
 **Calibration:** ~30 min vs. 3.5d budget. Multi-screen no-repo task — still does not establish baseline for repository-bound tasks. Group B-E budgets remain as posted until the first feature with a non-stub repository lands (likely 4.05 Availability or 4.13 Upcoming Details, which have real endpoints in `ApiEndpoints`).
+
+**API follow-up (audited 2026-07-14):** The original Phase 4 migration remains
+complete. Post-migration API work is tracked separately in
+[`../feature/filemanager/FILE_MANAGER_API_PLAN.md`](../feature/filemanager/FILE_MANAGER_API_PLAN.md):
+FM7 is 6/6 implementation-complete, FM8 is 3/10 complete with 7 tasks blocked
+on upload-protocol confirmation, and FM9 has 1/4 tasks partial. Dummy
+repositories still default on, so remote activation is not yet shipped.

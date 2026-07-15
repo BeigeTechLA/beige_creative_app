@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-06-16 (Messages socket host correction & self-healing logout & bubble headers).
+Last updated: 2026-07-14 (File Manager UI Expansion completed).
 
 ## Read Order
 
@@ -21,7 +21,7 @@ Every AI session should read:
 - Phase 1: complete. Audit output lives in `docs/audit/`.
 - Phase 2: complete. Folder casing, security hotfixes, env secrets, CI, and target folders are done.
 - Phase 3: complete. Foundations are in place.
-- Phase 4: **complete**. `23 / 23` tasks done.
+- Phase 4: **complete** (extended File Manager UI Expansion is 🟢 complete).
 - Phase 5: **complete** — `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31.
 - Phase 6: in progress — 13 / 15 tasks done. Tasks 6.01 (test helpers) closed 2026-05-31; 6.02–6.12 closed 2026-06-03. 6.13 implementation is in place but the task remains 🟡 pending the first GitHub Actions Android/iOS run and coverage lift: `.github/workflows/ci.yml` now runs `flutter test --coverage`, uploads LCOV, writes a summary, and enforces `COVERAGE_MINIMUM=70`; `.github/workflows/integration.yml` runs Android emulator + iOS simulator integration tests on `push` to `main`. Current refreshed LCOV is `5358 / 11129 = 48.14%`, so the new gate will fail until coverage is raised. 6.11 added the login → home → logout journey; 6.12 added signup1 → signup2 → signup3. Both integration files still pass locally with `flutter test <file> -d macos`; device CI may require the documented binding swap to `IntegrationTestWidgetsFlutterBinding`. Next: `6.14` (models/utils/validators tests) and first remote CI feedback for `6.13`.
 - Task 6.15 (Location service + Google Maps consolidation) is 🟢 complete. Native iOS Maps wiring is fixed and aligned with rotated keys. LocationService and LocationException are fully unit tested (all 9 test cases passing) and verified clean.
@@ -30,6 +30,7 @@ Every AI session should read:
 - Messages post-login logout fix (2026-06-16): `AuthRepositoryImpl` now persists a `UserSnapshot` from `data.crew_member` when `data.user` is absent, matching the documented real login shape. `MessagesRemoteSource` no longer turns a missing local user snapshot into `UnauthorizedException`; it uses an empty `currentUserId` only for DTO ownership/read derivation. Real REST 401s still map through Dio and can trigger the existing logout path.
 - Messages socket host correction (2026-06-16): live probes showed `https://api.dev.beige.app/socket.io/?EIO=4&transport=websocket` returns Express 404 `Route not found`, while `https://api2.dev.beige.app/socket.io/?EIO=4&transport=polling` returns an Engine.IO open packet and WebSocket upgrade returns HTTP 101. `Env.socketUrl` dev default is now `https://api2.dev.beige.app`, with `CHAT_SOCKET_URL` dart-define override support; `MessagesSocketSource` sets path `/socket.io` and WebSocket-only transport.
 - Messages self-healing logout & inside-bubble headers (2026-06-16): Caught `UnauthorizedException` in messages and chat thread providers to automatically invoke `authStateProvider.notifier.logout()` to resolve retry/reload bugs. Relocated sender headers inside the message and audio bubbles, styling them with bold uppercase name text and title-cased role badge pills.
+- File Manager API integration status (audited 2026-07-14): `docs/feature/filemanager/FILE_MANAGER_API_PLAN.md` is 🟡 in progress at 9/20 complete, 1 partial, 7 blocked, and 3 pending. FM7 browse/open/preview/actions is implementation-complete, but `useDummyFileManagerProvider` still defaults to `true`; remote browse/file-ops code exists but is not production-enabled. FM8 has the real picker, send-for-edits, revision review, and version-folder flows; multipart/background upload work is blocked on storage-protocol and abort semantics. FM9 only has the Common Events list portion of 9.02.
 
 Active Phase 6 entry-point: `docs/phase6/README.md`.
 
