@@ -1,5 +1,15 @@
 import 'dart:convert';
 
+/// API sometimes double-encodes strings (e.g. `location` arrives as
+/// `"\"Dallas Street...\""`). Strip one layer of wrapping quotes.
+String _cleanString(dynamic value) {
+  final s = value?.toString() ?? "";
+  if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
+    return s.substring(1, s.length - 1);
+  }
+  return s;
+}
+
 class CrewFile {
   final int crewFilesId; // 🔥 ADD THIS
   final String fileType;
@@ -16,7 +26,7 @@ class CrewFile {
   });
 
   factory CrewFile.fromJson(Map<String, dynamic> json) => CrewFile(
-    crewFilesId: json["crew_files_id"] ?? 0, // 🔥 ADD THIS
+    crewFilesId: (json["crew_files_id"] as num?)?.toInt() ?? 0, // 🔥 ADD THIS
     fileType: json["file_type"] ?? "",
     filePath: json["file_path"] ?? "",
     tag: json["tag"] ?? "",
@@ -42,7 +52,7 @@ class MyProfileModel {
 
   factory MyProfileModel.fromJson(Map<String, dynamic> json) => MyProfileModel(
     error: json["error"] ?? false,
-    code: json["code"] ?? 0,
+    code: (json["code"] as num?)?.toInt() ?? 0,
     message: json["message"] ?? "",
     data: MyProfileData.fromJson(json["data"] ?? {}),
   );
@@ -104,7 +114,8 @@ class MyProfileData {
   factory MyProfileData.fromJson(Map<String, dynamic> json) => MyProfileData(
     stats: json["stats"] ?? {},
     availability: json["availability"],
-    equipmentOwnership: json["equipment_ownership"] ?? [],
+    equipmentOwnership:
+        json["equipment_ownership"] is List ? json["equipment_ownership"] : [],
     bio: json["bio"] ?? "",
     primaryRole: json["primary_role"]?.toString() ?? "",
     crewMemberFiles: json["crew_member_files"] is List
@@ -117,16 +128,16 @@ class MyProfileData {
             json["portfolio_links"].map((x) => CrewFile.fromJson(x)),
           )
         : [],
-    crewMemberId: json["crew_member_id"] ?? 0,
+    crewMemberId: (json["crew_member_id"] as num?)?.toInt() ?? 0,
     firstName: json["first_name"] ?? "",
     lastName: json["last_name"] ?? "",
     email: json["email"] ?? "",
     phoneNumber: json["phone_number"] ?? "",
-    location: json["location"] ?? "",
+    location: _cleanString(json["location"]),
     workingDistance: json["working_distance"] ?? "",
-    yearsOfExperience: json["years_of_experience"] ?? 0,
+    yearsOfExperience: (json["years_of_experience"] as num?)?.toInt() ?? 0,
     hourlyRate: json["hourly_rate"]?.toString() ?? "",
-    isAvailable: json["is_available"] ?? 0,
+    isAvailable: (json["is_available"] as num?)?.toInt() ?? 0,
 
     // 🔥 ADD THIS
     featuredWorkFiles: json["featured_work_files"] is List
@@ -166,7 +177,35 @@ class MyProfileData {
       }
       return <String, dynamic>{};
     }(),
-    user: User.fromJson(json["user"] ?? {}),
+    // API may return `user: null`; synthesize from the top-level crew fields
+    // so consumers reading `user.*` (screens, session snapshot) keep working.
+    user: User.fromJson(
+      json["user"] is Map<String, dynamic>
+          ? json["user"]
+          : <String, dynamic>{
+              "id": json["user_id"],
+              "name": json["display_name"] ??
+                  "${json["first_name"] ?? ""} ${json["last_name"] ?? ""}"
+                      .trim(),
+              "email": json["email"],
+              "phone_number": json["phone_number"],
+              "location": json["location"],
+              "latitude": json["latitude"],
+              "longitude": json["longitude"],
+              "working_distance": json["working_distance"],
+              "hourly_rate": json["hourly_rate"],
+              "years_of_experience": json["years_of_experience"],
+              "bio": json["bio"],
+              "primary_role": json["primary_role"],
+              "is_available": json["is_available"],
+              "skills": json["skills"],
+              "equipment_ownership": json["equipment_ownership"],
+              "certifications": json["certifications"],
+              "social_media_links": json["social_media_links"],
+              "profile_image_url": json["profile_image_url"],
+              "user_profile_image_url": json["profile_image_url"],
+            },
+    ),
     profileImageUrl: json["profile_image_url"]?.toString() ?? "",
   );
 }
@@ -224,30 +263,41 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-    isAvailable: json["is_available"] ?? 0,
+    isAvailable: (json["is_available"] as num?)?.toInt() ?? 0,
     workingDistance: json["working_distance"]?.toString() ?? "",
-    id: json["id"] ?? 0,
+    id: (json["id"] as num?)?.toInt() ?? 0,
     name: json["name"]?.toString() ?? "",
     email: json["email"]?.toString() ?? "",
-    userType: json["user_type"] ?? 0,
-    location: json["location"]?.toString() ?? "",
+    userType: (json["user_type"] as num?)?.toInt() ?? 0,
+    location: _cleanString(json["location"]),
     latitude: json["latitude"]?.toString() ?? "",
     longitude: json["longitude"]?.toString() ?? "",
     phoneNumber: json["phone_number"]?.toString() ?? "",
     userProfileImageUrl: json["user_profile_image_url"]?.toString() ?? "",
     hourlyRate: json["hourly_rate"]?.toString() ?? "",
-    yearsOfExperience: json["years_of_experience"] ?? 0,
+    yearsOfExperience: (json["years_of_experience"] as num?)?.toInt() ?? 0,
     bio: json["bio"]?.toString() ?? "",
-    primaryRole: json["primary_role"] != null
-        ? (jsonDecode(json["primary_role"]) as List).join(", ")
-        : "",
+    primaryRole: () {
+      final raw = json["primary_role"];
+      if (raw == null) return "";
+      if (raw is List) return raw.join(", ");
+      if (raw is String) {
+        try {
+          final parsed = jsonDecode(raw);
+          if (parsed is List) return parsed.join(", ");
+        } catch (_) {}
+        return raw;
+      }
+      return raw.toString();
+    }(),
 
     /// 🔥 SKILLS FIX
     skills: json["skills"] is List
         ? List<Skill>.from(json["skills"].map((x) => Skill.fromJson(x)))
         : [],
 
-    equipmentOwnership: json["equipment_ownership"] ?? [],
+    equipmentOwnership:
+        json["equipment_ownership"] is List ? json["equipment_ownership"] : [],
     availability: json["availability"]?.toString() ?? "",
     certifications: json["certifications"] is List
         ? (json["certifications"] as List).join(", ")
@@ -283,5 +333,8 @@ class Skill {
   Skill({required this.id, required this.name});
 
   factory Skill.fromJson(Map<String, dynamic> json) =>
-      Skill(id: json["id"] ?? 0, name: json["name"] ?? "");
+      Skill(
+        id: (json["id"] as num?)?.toInt() ?? 0,
+        name: json["name"]?.toString() ?? "",
+      );
 }

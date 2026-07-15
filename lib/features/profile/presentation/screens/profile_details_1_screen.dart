@@ -25,6 +25,15 @@ class ProfileDetails1Screen extends ConsumerWidget {
     final state = ref.watch(profileDetailsViewProvider);
     final notifier = ref.read(profileDetailsViewProvider.notifier);
 
+    ref.listen(profileDetailsViewProvider, (previous, next) {
+      final message = next.errorMessage;
+      if (message != null && message != previous?.errorMessage) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(message)));
+      }
+    });
+
     return AppScaffold(
       body: Stack(
         children: [

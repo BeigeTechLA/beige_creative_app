@@ -74,7 +74,9 @@ class ProfileDetailsViewNotifier
         final session = ref.read(sessionStoreProvider);
         final currentUser = await session.readUser();
         final updatedUser = UserSnapshot(
-          id: data.user.id.toString(),
+          id: data.user.id != 0
+              ? data.user.id.toString()
+              : (currentUser?.id ?? '0'),
           name: data.user.name,
           email: data.user.email,
           role: currentUser?.role ?? (data.user.primaryRole.isNotEmpty ? data.user.primaryRole : null),
