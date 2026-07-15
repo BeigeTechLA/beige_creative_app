@@ -8,13 +8,13 @@ import 'package:go_router/go_router.dart';
 import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
-import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../routes/profile_args.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/profile_files_providers.dart';
 import '../widgets/featured_work_grid.dart';
@@ -178,21 +178,10 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(AppSpacing.cardCompactInset),
-        child: SizedBox(
-          width: double.infinity,
+        child: AppCtaButton(
+          label: 'Add Featured Works',
           height: 50,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: const Color(0xFF1D1D1B),
-              shape: RoundedRectangleBorder(borderRadius: AppRadii.xxlAll),
-            ),
-            onPressed: _openUploadSheet,
-            child: const Text(
-              'Add Featured Works',
-              style: AppTextStyles.displayLabel14,
-            ),
-          ),
+          onPressed: _openUploadSheet,
         ),
       ),
     );

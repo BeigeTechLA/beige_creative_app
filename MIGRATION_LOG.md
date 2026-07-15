@@ -5,6 +5,27 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-15: Unified CTA Buttons & Loading State Option
+
+- **Changes**:
+  - Created `AppCtaButton` component under `lib/shared/widgets/app_cta_button.dart` using the `Unbounded` font family, font weight `w500`, and font size `14`.
+  - Migrated onboarding, login, forgot password, OTP, reset password, signup forms (Step 1, 2, 3), success screens, and post-login profile edit screens to use `AppCtaButton`.
+  - Removed all pre-login and post-login button-level loading states and spinners (`isLoading` property and circular loader) per initial user request.
+  - Added an optional `isLoading` parameter (default `false`) to `AppCtaButton` to support opt-in loading indicators and automatic button disablement.
+  - Migrated Availability screens (`manage_availability_screen.dart` and `add_availability_screen.dart`) to use `AppCtaButton`, with `add_availability_screen.dart` using the new `isLoading` property for its save button.
+  - Added location permission dialog auto-dismissal helper to `SignupRobot` in integration tests.
+
+- **Decisions**:
+  - Implemented the `visuallyEnabled` property in `AppCtaButton` to allow Step 1 of the signup form button to look visually disabled (using Option 1 colors) while remaining clickable to trigger standard validation error toasts and overlays.
+  - Kept other forms' buttons disabled/enabled using the `enabled` parameter when their corresponding form values are invalid, keeping consistency with original designs.
+
+- **Verification**:
+  - `flutter analyze` — passed (No issues found).
+  - `flutter test` (Onboarding, Login, Forgot Password, and Availability screens) — passed.
+  - Integration tests successfully dismiss LocationPermissionDialog on test start.
+
+---
+
 ### 2026-07-13: iPhone/iPad responsive safety fixes
 
 - **Changes**:

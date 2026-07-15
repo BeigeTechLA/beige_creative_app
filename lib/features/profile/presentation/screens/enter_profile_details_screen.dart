@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,7 @@ import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../providers/profile_details_providers.dart';
 
 class EnterProfileDetailsScreen extends ConsumerStatefulWidget {
@@ -128,12 +130,37 @@ class _EnterProfileDetailsScreenState
                   label: 'Year of Experience',
                   controller: experienceController,
                   keyboardType: TextInputType.number,
+                  maxLength: 2,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
                 ),
                 const SizedBox(height: 22),
                 CustomTextField(
                   label: 'Hourly Rate',
                   controller: rateController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  hint: '0.00',
+                  prefixIcon: SizedBox(
+                    width: 30,
+                    child: Center(
+                      child: Text(
+                        '\$',
+                        style: AppTextStyles.body15.copyWith(
+                          color: AppColors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  inputFormatters: [
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      final regExp = RegExp(r'^\d*\.?\d{0,2}$');
+                      if (regExp.hasMatch(newValue.text)) {
+                        return newValue;
+                      }
+                      return oldValue;
+                    }),
+                  ],
                 ),
                 const SizedBox(height: 22),
                 CustomTextField(
@@ -152,10 +179,50 @@ class _EnterProfileDetailsScreenState
                 const SizedBox(height: 12),
                 CustomMultiSelectField(
                   label: 'Edit Skills',
-                  value: state.selectedSkills.join(', '),
-                  hasValue: state.selectedSkills.isNotEmpty,
+                  value: '',
+                  hasValue: false,
                   onTap: () async => _openSkillsBottomSheet(),
                 ),
+                if (state.selectedSkills.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: state.selectedSkills
+                          .map(
+                            (item) => Chip(
+                              label: Text(
+                                item,
+                                style: AppTextStyles.inherit.copyWith(
+                                  color: AppColors.white,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              backgroundColor: AppColors.white.withValues(alpha: 0.15),
+                              side: BorderSide.none,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                              deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.white),
+                              onDeleted: () {
+                                final draft = List<String>.from(state.selectedSkills)
+                                  ..remove(item);
+                                ref
+                                    .read(enterProfessionalNotifierProvider.notifier)
+                                    .setSelectedSkills(draft);
+                              },
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 40),
               ],
             ),
@@ -166,17 +233,11 @@ class _EnterProfileDetailsScreenState
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
-        child: SizedBox(
+        child: AppCtaButton(
+          label: 'Save',
           height: 55,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: const Color(0xFF1D1D1B),
-              shape: RoundedRectangleBorder(borderRadius: AppRadii.xlAll),
-            ),
-            onPressed: state.isSubmitting ? null : _save,
-            child: const Text('Save', style: AppTextStyles.buttonMedium),
-          ),
+          enabled: !state.isSubmitting,
+          onPressed: _save,
         ),
       ),
     );
@@ -294,80 +355,87 @@ class _EnterProfileDetailsScreenState
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: AppRadii.topHuge),
       builder: (sheetCtx) {
+        final sheetHeight = MediaQuery.of(sheetCtx).size.height * 0.9;
         return StatefulBuilder(
           builder: (sheetCtx, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.base,
-                AppSpacing.base,
-                AppSpacing.base,
-                AppSpacing.xxl,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.white24,
-                      borderRadius: AppRadii.xsAll,
+            return SafeArea(
+              bottom: false,
+              child: Container(
+                height: sheetHeight,
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.base,
+                  AppSpacing.base,
+                  AppSpacing.base,
+                  MediaQuery.of(sheetCtx).padding.bottom + AppSpacing.xxl,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: AppColors.white24,
+                        borderRadius: AppRadii.xsAll,
+                      ),
                     ),
-                  ),
-                  const Text(
-                    'Select Skills',
-                    style: AppTextStyles.bodyLargeMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  Flexible(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: initial.skillList.length,
-                      itemBuilder: (sheetCtx, index) {
-                        final skill = initial.skillList[index];
-                        final isSelected = draft.contains(skill);
-                        return CheckboxListTile(
-                          value: isSelected,
-                          activeColor: AppColors.primary,
-                          checkColor: AppColors.black,
-                          title: Text(skill, style: AppTextStyles.bodyMedium),
-                          onChanged: (checked) {
-                            setModalState(() {
-                              if (checked == true) {
-                                if (!draft.contains(skill)) draft.add(skill);
-                              } else {
-                                draft.remove(skill);
-                              }
-                            });
-                          },
-                        );
-                      },
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Select Skills',
+                        style: AppTextStyles.bodyLargeMedium,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        notifier.setSelectedSkills(draft);
-                        sheetCtx.pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: const Color(0xFF1D1D1B),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadii.lgAll,
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: initial.skillList.length,
+                        itemBuilder: (sheetCtx, index) {
+                          final skill = initial.skillList[index];
+                          final isSelected = draft.contains(skill);
+                          return CheckboxListTile(
+                            value: isSelected,
+                            activeColor: AppColors.primary,
+                            checkColor: AppColors.black,
+                            title: Text(skill, style: AppTextStyles.bodyMedium),
+                            onChanged: (checked) {
+                              setModalState(() {
+                                if (checked == true) {
+                                  if (!draft.contains(skill)) draft.add(skill);
+                                } else {
+                                  draft.remove(skill);
+                                }
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          notifier.setSelectedSkills(draft);
+                          sheetCtx.pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: const Color(0xFF1D1D1B),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppRadii.lgAll,
+                          ),
+                        ),
+                        child: const Text(
+                          'Done',
+                          style: AppTextStyles.buttonMedium,
                         ),
                       ),
-                      child: const Text(
-                        'Done',
-                        style: AppTextStyles.buttonMedium,
-                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },

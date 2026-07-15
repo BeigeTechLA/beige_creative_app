@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
@@ -73,6 +74,46 @@ class ProfileSectionList extends StatelessWidget {
               const _MenuRow(
                 iconPath: AppAssets.notificationSetting,
                 title: 'Notifications Settings',
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Padding(
+            padding: EdgeInsets.all(AppSpacing.md),
+            child: Divider(color: AppColors.dividerDark),
+          ),
+          const _SectionHeader('Legal'),
+          const SizedBox(height: 10),
+          _SectionCard(
+            children: [
+              _MenuRow(
+                iconPath: AppAssets.profileTerms,
+                title: 'Terms & Condition',
+                onTap: () async {
+                  final uri = Uri.parse(
+                    "https://beige.app/terms-and-conditions",
+                  );
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(
+                      uri,
+                      mode: LaunchMode.externalApplication,
+                    );
+                  }
+                },
+              ),
+              const _SectionDivider(),
+              _MenuRow(
+                iconPath: AppAssets.profilePrivacy,
+                title: 'Privacy Policy',
+                onTap: () async {
+                  final uri = Uri.parse("https://beige.app/privacy-policy");
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(
+                      uri,
+                      mode: LaunchMode.externalApplication,
+                    );
+                  }
+                },
               ),
             ],
           ),

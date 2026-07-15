@@ -119,6 +119,8 @@ class AppAssets {
   static const String circleArrow = '$_svg/circle_arrow.svg';
   static const String moreVert = '$_svg/more_vert.svg';
   static const String infoFilled = '$_svg/Info.svg';
+  static const String profileTerms = '$_svg/terms_conditions.svg';
+  static const String profilePrivacy = '$_svg/privacy_policy.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — User & Profile

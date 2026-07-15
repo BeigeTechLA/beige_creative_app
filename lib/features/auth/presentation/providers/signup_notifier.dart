@@ -246,13 +246,9 @@ class SignupNotifier extends Notifier<SignupState> {
   }
 
   void addEquipment(String name) {
-    if (state.selectedEquipments.contains(name)) {
-      state = state.copyWith(equipmentSuggestions: const []);
-      return;
-    }
+    if (state.selectedEquipments.contains(name)) return;
     state = state.copyWith(
       selectedEquipments: [...state.selectedEquipments, name],
-      equipmentSuggestions: const [],
     );
   }
 
@@ -315,7 +311,7 @@ class SignupNotifier extends Notifier<SignupState> {
               crewMemberId: crewMemberId,
               primaryRoleIds: roleIds,
               yearsOfExperience: int.tryParse(yearsOfExperience.trim()) ?? 0,
-              hourlyRate: int.tryParse(hourlyRate.trim()) ?? 0,
+              hourlyRate: double.tryParse(hourlyRate.trim()) ?? 0.0,
               bio: bio.trim(),
               skillIds: skillIds,
               equipmentIds: equipmentIds,

@@ -66,6 +66,11 @@ class SignupRobot {
   }
 
   Future<void> tapStep1Next() async {
+    final notNowFinder = find.text('Not Now');
+    if (tester.any(notNowFinder)) {
+      await tester.tap(notNowFinder);
+      await settle();
+    }
     await _scrollToText('Next');
     await tester.tap(find.text('Next').last);
     await settle();

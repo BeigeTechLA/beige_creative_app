@@ -10,6 +10,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/new_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -201,42 +202,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ],
                               ),
                               const SizedBox(height: 10),
-                              SizedBox(
-                                width: double.infinity,
+                              AppCtaButton(
+                                label: 'Login',
                                 height: 50,
-                                child: ElevatedButton(
-                                  onPressed: (!isFormValid || state.isLoggingIn)
-                                      ? null
-                                      : () {
-                                          TextInput.finishAutofillContext();
-                                          ref
-                                              .read(
-                                                loginNotifierProvider.notifier,
-                                              )
-                                              .login(
-                                                email: emailController.text,
-                                                password:
-                                                    passwordController.text,
-                                              );
-                                        },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: isFormValid
-                                        ? AppColors.primary
-                                        : AppColors.borderGold,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: AppRadii.xlAll,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    "Login",
-                                    style: AppTextStyles.displayLabel13
-                                        .copyWith(
-                                          color: isFormValid
-                                              ? AppColors.textHeading
-                                              : AppColors.surfaceMid,
-                                        ),
-                                  ),
-                                ),
+                                enabled: isFormValid && !state.isLoggingIn,
+                                onPressed: () {
+                                  TextInput.finishAutofillContext();
+                                  ref
+                                      .read(
+                                        loginNotifierProvider.notifier,
+                                      )
+                                      .login(
+                                        email: emailController.text,
+                                        password:
+                                            passwordController.text,
+                                      );
+                                },
                               ),
                             ],
                           ),

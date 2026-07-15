@@ -14,6 +14,7 @@ import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/top_message.dart';
+import 'package:beige_creative_app/shared/widgets/app_cta_button.dart';
 import '../providers/forgot_password_notifier.dart';
 import '../providers/forgot_password_state.dart';
 
@@ -288,32 +289,11 @@ class _ForgotPasswordOtpScreenState
                           ],
                         ),
                         const SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
+                        AppCtaButton(
+                          label: isOtpFilled ? 'Submit' : 'Continue',
                           height: 50,
-                          child: ElevatedButton(
-                            onPressed: (isOtpFilled && !state.isSubmitting)
-                                ? _verify
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isOtpFilled
-                                  ? AppColors.primary
-                                  : AppColors.borderGold,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: AppRadii.xlAll,
-                              ),
-                            ),
-                            child: Text(
-                              isOtpFilled ? "Submit" : "Continue",
-                              style: AppTextStyles.buttonSmall.copyWith(
-                                fontSize: 13,
-                                fontFamily: AppTextStyles.fontFamilyDisplay,
-                                color: isOtpFilled
-                                    ? AppColors.textHeading
-                                    : AppColors.surfaceMid,
-                              ),
-                            ),
-                          ),
+                          enabled: isOtpFilled && !state.isSubmitting,
+                          onPressed: _verify,
                         ),
                       ],
                     ),

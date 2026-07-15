@@ -15,7 +15,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
-import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../providers/change_password_providers.dart';
 
 class ProfileOtpScreen extends ConsumerStatefulWidget {
@@ -240,34 +240,12 @@ class _ProfileOtpScreenState extends ConsumerState<ProfileOtpScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
+            AppCtaButton(
+              label: 'Continue',
               height: 55,
-              child: ElevatedButton(
-                onPressed: (_isOtpFilled && !state.isSubmitting)
-                    ? _onVerify
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isOtpFilled
-                      ? AppColors.primary
-                      : AppColors.goldOpacity40,
-                  shape: RoundedRectangleBorder(borderRadius: AppRadii.xlAll),
-                ),
-                child: state.isSubmitting
-                    ? const AppCircularLoader(
-                        size: 22,
-                        strokeWidth: 2,
-                        color: AppColors.black,
-                      )
-                    : Text(
-                        'Continue',
-                        style: AppTextStyles.inherit18Strong.copyWith(
-                          color: _isOtpFilled
-                              ? AppColors.textHeading
-                              : AppColors.black38,
-                        ),
-                      ),
-              ),
+              enabled: !state.isSubmitting,
+              visuallyEnabled: _isOtpFilled,
+              onPressed: _onVerify,
             ),
             const SizedBox(height: 20),
           ],

@@ -18,6 +18,7 @@ import '../../../../service/google_config.dart';
 import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import 'signup1_profile_card.dart';
 
 const List<String> _distances = [
@@ -279,27 +280,12 @@ class SignUp1Form extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 40),
-        SizedBox(
-          width: double.infinity,
+        AppCtaButton(
+          label: 'Next',
           height: 55,
-          child: ElevatedButton(
-            onPressed: isLoggingIn ? null : onNext,
-            style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isFormValid ? AppColors.primary : AppColors.borderGold,
-              shape: RoundedRectangleBorder(
-                borderRadius: AppRadii.lgAll,
-              ),
-            ),
-            child: Text(
-              "Next",
-              style: AppTextStyles.displayLabel13.copyWith(
-                color: isFormValid
-                    ? AppColors.textHeading
-                    : AppColors.surfaceMid,
-              ),
-            ),
-          ),
+          enabled: !isLoggingIn,
+          visuallyEnabled: isFormValid,
+          onPressed: onNext,
         ),
       ],
     );

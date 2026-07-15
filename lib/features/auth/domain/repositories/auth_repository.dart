@@ -46,7 +46,7 @@ class Step2Payload {
   final int crewMemberId;
   final List<int> primaryRoleIds;
   final int yearsOfExperience;
-  final int hourlyRate;
+  final double hourlyRate;
   final String bio;
   final List<int> skillIds;
   final List<int> equipmentIds;

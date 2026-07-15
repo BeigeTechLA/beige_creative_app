@@ -24,6 +24,7 @@ import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/location_permission_dialog.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../providers/profile_details_providers.dart';
 
 const _distanceList = <String>[
@@ -334,17 +335,11 @@ class _EditPersonalDetailsScreenState
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
-        child: SizedBox(
+        child: AppCtaButton(
+          label: 'Save',
           height: 55,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.goldSandPale,
-              foregroundColor: const Color(0xFF1D1D1B),
-              shape: RoundedRectangleBorder(borderRadius: AppRadii.xlAll),
-            ),
-            onPressed: state.isSubmitting ? null : _save,
-            child: const Text('Save', style: AppTextStyles.buttonMedium),
-          ),
+          enabled: !state.isSubmitting,
+          onPressed: _save,
         ),
       ),
     );

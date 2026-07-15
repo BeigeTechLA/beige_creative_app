@@ -13,6 +13,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../model_class/myprofile_model.dart';
 import '../../../../config/env.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/common_file_viewer.dart';
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -115,24 +116,10 @@ class ResumeScreen extends ConsumerWidget {
                   ),
                 ),
                 if (resumeList.isEmpty)
-                  SizedBox(
-                    width: double.infinity,
+                  AppCtaButton(
+                    label: 'Add resume',
                     height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadii.xxlAll,
-                        ),
-                      ),
-                      onPressed: () => _openUploadDialog(context, ref),
-                      child: Text(
-                        'Add resume',
-                        style: AppTextStyles.displayLabel14.copyWith(
-                          color: AppColors.black,
-                        ),
-                      ),
-                    ),
+                    onPressed: () => _openUploadDialog(context, ref),
                   ),
               ],
             ),

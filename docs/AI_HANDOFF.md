@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-06-16 (Messages socket host correction & self-healing logout & bubble headers).
+Last updated: 2026-07-15 (Unified CTA buttons and loading state removal).
 
 ## Read Order
 

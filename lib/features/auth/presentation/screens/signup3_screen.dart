@@ -13,6 +13,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/signup_notifier.dart';
 import '../providers/signup_state.dart';
@@ -190,7 +191,7 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
     final ok = await _notifier.submitStep3();
     if (!mounted) return;
     if (ok) {
-      context.goNamed(Routes.login.name);
+      context.goNamed(Routes.signupSuccess.name);
     }
   }
 
@@ -357,24 +358,11 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            SizedBox(
-                              width: double.infinity,
+                            AppCtaButton(
+                              label: 'Create Profile',
                               height: 55,
-                              child: ElevatedButton(
-                                onPressed:
-                                    state.isSubmittingStep3 ? null : _submit,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: AppRadii.xlAll,
-                                  ),
-                                ),
-                                child: Text(
-                                  'Create Profile',
-                                  style: AppTextStyles.displayLabel16
-                                      .copyWith(color: AppColors.textHeading),
-                                ),
-                              ),
+                              enabled: !state.isSubmittingStep3,
+                              onPressed: _submit,
                             ),
                             const SizedBox(height: 20),
                             Center(
