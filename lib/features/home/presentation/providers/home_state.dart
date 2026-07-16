@@ -59,6 +59,13 @@ class HomeState {
   final String selectedEvent;
   final DateTime focusedDay;
 
+  // ── Search & Filter for Upcoming Shoots ──
+  final String upcomingSearchQuery;
+  final String? upcomingSelectedDate;
+  final String? upcomingSelectedStatus;
+  final String? upcomingSelectedCategory;
+  final String? upcomingSelectedType;
+
   HomeState({
     this.completedShoots = 0,
     this.upcomingShoots = 0,
@@ -91,7 +98,106 @@ class HomeState {
     this.selectedDashboardIndex = 0,
     this.selectedEvent = 'All Events',
     DateTime? focusedDay,
+    this.upcomingSearchQuery = "",
+    this.upcomingSelectedDate,
+    this.upcomingSelectedStatus,
+    this.upcomingSelectedCategory,
+    this.upcomingSelectedType,
   }) : focusedDay = focusedDay ?? DateTime.now();
+
+  List<UpcomingShootDatum> get filteredUpcomingShootsList {
+    if (upcomingSearchQuery.isEmpty &&
+        upcomingSelectedDate == null &&
+        upcomingSelectedStatus == null &&
+        upcomingSelectedCategory == null &&
+        upcomingSelectedType == null) {
+      return upcomingShootsList;
+    }
+
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final startOfWeekDate = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
+    final endOfWeekDate = startOfWeekDate.add(const Duration(days: 7));
+
+    return upcomingShootsList.where((shoot) {
+      // 1. Search Query
+      if (upcomingSearchQuery.isNotEmpty) {
+        final query = upcomingSearchQuery.toLowerCase();
+        final matchesQuery = shoot.projectName.toLowerCase().contains(query) ||
+            shoot.eventLocation.toLowerCase().contains(query) ||
+            shoot.shootType.toLowerCase().contains(query);
+        if (!matchesQuery) return false;
+      }
+
+      // 2. Date Filter
+      if (upcomingSelectedDate != null && upcomingSelectedDate!.isNotEmpty) {
+        final dateFilter = upcomingSelectedDate!;
+        if (dateFilter == "Today") {
+          if (shoot.eventDate.isBefore(todayStart) || shoot.eventDate.isAfter(todayEnd)) {
+            return false;
+          }
+        } else if (dateFilter == "This Week") {
+          if (shoot.eventDate.isBefore(startOfWeekDate) || shoot.eventDate.isAfter(endOfWeekDate)) {
+            return false;
+          }
+        } else if (dateFilter == "This Month") {
+          if (shoot.eventDate.year != now.year || shoot.eventDate.month != now.month) {
+            return false;
+          }
+        } else if (dateFilter == "Marketing Analytics") {
+          final isMarketing = shoot.projectName.toLowerCase().contains("marketing") ||
+              shoot.projectName.toLowerCase().contains("analytics") ||
+              shoot.shootType.toLowerCase().contains("marketing") ||
+              shoot.shootType.toLowerCase().contains("analytics");
+          if (!isMarketing) return false;
+        }
+      }
+
+      // 3. Status Filter
+      if (upcomingSelectedStatus != null && upcomingSelectedStatus!.isNotEmpty) {
+        final statusFilter = upcomingSelectedStatus!.toLowerCase();
+        if (statusFilter == "upcoming") {
+          if (shoot.isCompleted) return false;
+        } else if (statusFilter == "completed") {
+          if (!shoot.isCompleted) return false;
+        } else if (statusFilter == "active") {
+          if (shoot.isCompleted) return false;
+        } else if (statusFilter == "cancelled") {
+          return false;
+        }
+      }
+
+      // 4. Category Filter
+      if (upcomingSelectedCategory != null && upcomingSelectedCategory!.isNotEmpty) {
+        final categoryFilter = upcomingSelectedCategory!.toLowerCase();
+        if (!shoot.shootType.toLowerCase().contains(categoryFilter) &&
+            !shoot.projectName.toLowerCase().contains(categoryFilter)) {
+          return false;
+        }
+      }
+
+      // 5. Type Filter
+      if (upcomingSelectedType != null && upcomingSelectedType!.isNotEmpty) {
+        final typeFilter = upcomingSelectedType!.toLowerCase();
+        if (typeFilter != "all") {
+          final isShoot = typeFilter == "shoots" || typeFilter == "shoot";
+          final isRental = typeFilter == "rental" || typeFilter == "rentals";
+          final shootTypeLower = shoot.shootType.toLowerCase();
+          if (isShoot && !(shootTypeLower.contains("shoot") || shootTypeLower.contains("photo") || shootTypeLower.contains("video"))) {
+            return false;
+          }
+          if (isRental && !shootTypeLower.contains("rental")) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    }).toList();
+  }
 
   HomeState copyWith({
     int? completedShoots,
@@ -126,6 +232,12 @@ class HomeState {
     int? selectedDashboardIndex,
     String? selectedEvent,
     DateTime? focusedDay,
+    String? upcomingSearchQuery,
+    String? upcomingSelectedDate,
+    String? upcomingSelectedStatus,
+    String? upcomingSelectedCategory,
+    String? upcomingSelectedType,
+    bool clearFilters = false,
   }) {
     return HomeState(
       completedShoots: completedShoots ?? this.completedShoots,
@@ -162,6 +274,11 @@ class HomeState {
           selectedDashboardIndex ?? this.selectedDashboardIndex,
       selectedEvent: selectedEvent ?? this.selectedEvent,
       focusedDay: focusedDay ?? this.focusedDay,
+      upcomingSearchQuery: upcomingSearchQuery ?? this.upcomingSearchQuery,
+      upcomingSelectedDate: clearFilters ? null : (upcomingSelectedDate ?? this.upcomingSelectedDate),
+      upcomingSelectedStatus: clearFilters ? null : (upcomingSelectedStatus ?? this.upcomingSelectedStatus),
+      upcomingSelectedCategory: clearFilters ? null : (upcomingSelectedCategory ?? this.upcomingSelectedCategory),
+      upcomingSelectedType: clearFilters ? null : (upcomingSelectedType ?? this.upcomingSelectedType),
     );
   }
 }

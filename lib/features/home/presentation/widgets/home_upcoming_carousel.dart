@@ -25,23 +25,61 @@ import '../../../../utility/date_time_utils.dart';
 /// large commented-out earlier version of this carousel (search filter + an
 /// alternate Stack layout). It was unreachable code; not carried over —
 /// Task 4.16 will formally close that out.
-class HomeUpcomingCarousel extends StatelessWidget {
+class HomeUpcomingCarousel extends StatefulWidget {
   final List<UpcomingShootDatum> upcomingShoots;
+  final bool hasOriginalShoots;
   final int currentIndex;
   final AnimationController controller;
   final VoidCallback onCardTap;
   final VoidCallback onSwipeNext;
   final VoidCallback onSwipePrevious;
+  final String searchQuery;
+  final ValueChanged<String> onSearchChanged;
+  final VoidCallback onFilterTap;
+  final bool isFilterActive;
 
   const HomeUpcomingCarousel({
     super.key,
     required this.upcomingShoots,
+    required this.hasOriginalShoots,
     required this.currentIndex,
     required this.controller,
     required this.onCardTap,
     required this.onSwipeNext,
     required this.onSwipePrevious,
+    required this.searchQuery,
+    required this.onSearchChanged,
+    required this.onFilterTap,
+    required this.isFilterActive,
   });
+
+  @override
+  State<HomeUpcomingCarousel> createState() => _HomeUpcomingCarouselState();
+}
+
+class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.searchQuery);
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeUpcomingCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.searchQuery != oldWidget.searchQuery &&
+        widget.searchQuery != _searchController.text) {
+      _searchController.text = widget.searchQuery;
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   // Helper to convert UpcomingShootDatum to a map for card display.
   static Map<String, dynamic> _cardFromDatum(UpcomingShootDatum datum) {
@@ -58,117 +96,234 @@ class HomeUpcomingCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (upcomingShoots.isEmpty) {
+    if (!widget.hasOriginalShoots) {
       return const SizedBox.shrink();
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        InkWell(
+          onTap: () => context.goNamed(Routes.shoots.name),
+          borderRadius: AppRadii.mdAll,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Upcoming Shoots",
+                  style: AppTextStyles.displayLabel14.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_right,
+                  color: AppColors.white,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.mld),
+        // Search & Filter Row
         Row(
           children: [
-            Text(
-              "Upcoming Shoots ",
-              style: AppTextStyles.displayLabel14.copyWith(
-                color: AppColors.white,
+            Expanded(
+              child: Container(
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  border: Border.all(
+                    color: AppColors.white.withValues(alpha: 0.12),
+                    width: 1.0,
+                  ),
+                  borderRadius: AppRadii.massiveAll,
+                ),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: SvgPicture.asset(
+                        AppAssets.searchIcon,
+                        colorFilter: ColorFilter.mode(
+                          AppColors.white.withValues(alpha: 0.4),
+                          BlendMode.srcIn,
+                        ),
+                        width: 18,
+                        height: 18,
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: widget.onSearchChanged,
+                        style: AppTextStyles.body14.copyWith(color: AppColors.white),
+                        cursorColor: AppColors.primary,
+                        decoration: InputDecoration(
+                          hintText: "Search events or crew...",
+                          hintStyle: AppTextStyles.body12.copyWith(
+                            color: AppColors.white.withValues(alpha: 0.4),
+                          ),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: widget.onFilterTap,
+              child: Container(
+                height: 44,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: widget.isFilterActive ? AppColors.primary20 : AppColors.surfaceVariant,
+                  border: Border.all(
+                    color: widget.isFilterActive 
+                        ? AppColors.primary
+                        : AppColors.white.withValues(alpha: 0.12),
+                    width: 1.0,
+                  ),
+                  borderRadius: AppRadii.massiveAll,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Filter",
+                      style: AppTextStyles.body12.copyWith(
+                        color: widget.isFilterActive ? AppColors.primary : AppColors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    SvgPicture.asset(
+                      AppAssets.iconFilter,
+                      colorFilter: ColorFilter.mode(
+                        widget.isFilterActive ? AppColors.primary : AppColors.white,
+                        BlendMode.srcIn,
+                      ),
+                      width: 16,
+                      height: 16,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
-        SizedBox(height: AppSpacing.sectionGapLg),
+        const SizedBox(height: AppSpacing.sectionGapLg),
         // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
-        Builder(
-          builder: (context) {
-            final n = upcomingShoots.length;
+        widget.upcomingShoots.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                child: Center(
+                  child: Text(
+                    "No upcoming shoots match filters.",
+                    style: AppTextStyles.body12.copyWith(
+                      color: AppColors.white.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              )
+            : Builder(
+                builder: (context) {
+                  final n = widget.upcomingShoots.length;
 
-            // ✅ 👉 ONLY 1 DATA → NO SWIPE, NO STACK
-            if (n == 1) {
-              final current = _cardFromDatum(upcomingShoots[0]);
-              return _buildCard(context, current, isMain: true);
-            }
+                  // ✅ 👉 ONLY 1 DATA → NO SWIPE, NO STACK
+                  if (n == 1) {
+                    final current = _cardFromDatum(widget.upcomingShoots[0]);
+                    return _buildCard(context, current, isMain: true);
+                  }
 
-            // ✅ 👉 MULTIPLE DATA → SWIPE + STACK
-            return GestureDetector(
-              onTap: onCardTap,
-              onHorizontalDragEnd: (details) {
-                if (details.primaryVelocity == null) return;
+                  // ✅ 👉 MULTIPLE DATA → SWIPE + STACK
+                  return GestureDetector(
+                    onTap: widget.onCardTap,
+                    onHorizontalDragEnd: (details) {
+                      if (details.primaryVelocity == null) return;
 
-                if (details.primaryVelocity! > 0) {
-                  onSwipePrevious();
-                } else if (details.primaryVelocity! < 0) {
-                  onSwipeNext();
-                }
-              },
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final totalWidth = constraints.maxWidth;
+                      if (details.primaryVelocity! > 0) {
+                        widget.onSwipePrevious();
+                      } else if (details.primaryVelocity! < 0) {
+                        widget.onSwipeNext();
+                      }
+                    },
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final totalWidth = constraints.maxWidth;
 
-                  final currentDatum = upcomingShoots[currentIndex % n];
-                  final nextDatum = upcomingShoots[(currentIndex + 1) % n];
-                  final next2Datum =
-                      n > 2 ? upcomingShoots[(currentIndex + 2) % n] : null;
+                        final currentDatum = widget.upcomingShoots[widget.currentIndex % n];
+                        final nextDatum = widget.upcomingShoots[(widget.currentIndex + 1) % n];
+                        final next2Datum =
+                            n > 2 ? widget.upcomingShoots[(widget.currentIndex + 2) % n] : null;
 
-                  final current = _cardFromDatum(currentDatum);
-                  final next = _cardFromDatum(nextDatum);
-                  final next2 =
-                      next2Datum != null ? _cardFromDatum(next2Datum) : null;
+                        final current = _cardFromDatum(currentDatum);
+                        final next = _cardFromDatum(nextDatum);
+                        final next2 =
+                            next2Datum != null ? _cardFromDatum(next2Datum) : null;
 
-                  return Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // 👉 3rd card
-                      if (next2 != null)
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 300),
-                          top: controller.isAnimating ? -32 : -24,
-                          left: totalWidth * 0.07,
-                          right: totalWidth * 0.07,
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 300),
-                            opacity: controller.isAnimating ? 0.5 : 1,
-                            child: _buildCard(context, next2, isBack: true),
-                          ),
-                        ),
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            // 👉 3rd card
+                            if (next2 != null)
+                              AnimatedPositioned(
+                                duration: const Duration(milliseconds: 300),
+                                top: widget.controller.isAnimating ? -32 : -24,
+                                left: totalWidth * 0.07,
+                                right: totalWidth * 0.07,
+                                child: AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 300),
+                                  opacity: widget.controller.isAnimating ? 0.5 : 1,
+                                  child: _buildCard(context, next2, isBack: true),
+                                ),
+                              ),
 
-                      // 👉 2nd card
-                      if (n >= 2)
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 300),
-                          top: controller.isAnimating ? -20 : -12,
-                          left: totalWidth * 0.035,
-                          right: totalWidth * 0.035,
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 300),
-                            opacity: controller.isAnimating ? 0.7 : 1,
-                            child: _buildCard(
-                              context,
-                              next,
-                              isBack: true,
-                              isMiddle: true,
+                            // 👉 2nd card
+                            if (n >= 2)
+                              AnimatedPositioned(
+                                duration: const Duration(milliseconds: 300),
+                                top: widget.controller.isAnimating ? -20 : -12,
+                                left: totalWidth * 0.035,
+                                right: totalWidth * 0.035,
+                                child: AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 300),
+                                  opacity: widget.controller.isAnimating ? 0.7 : 1,
+                                  child: _buildCard(
+                                    context,
+                                    next,
+                                    isBack: true,
+                                    isMiddle: true,
+                                  ),
+                                ),
+                              ),
+
+                            // 👉 MAIN CARD
+                            AnimatedBuilder(
+                              animation: widget.controller,
+                              builder: (context, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, widget.controller.value * 200),
+                                  child: Opacity(
+                                    opacity: 1 - widget.controller.value,
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: _buildCard(context, current, isMain: true),
                             ),
-                          ),
-                        ),
-
-                      // 👉 MAIN CARD
-                      AnimatedBuilder(
-                        animation: controller,
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(0, controller.value * 200),
-                            child: Opacity(
-                              opacity: 1 - controller.value,
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: _buildCard(context, current, isMain: true),
-                      ),
-                    ],
+                          ],
+                        );
+                      },
+                    ),
                   );
                 },
               ),
-            );
-          },
-        ),
         const SizedBox(height: AppSpacing.dashboardDividerGap),
         Divider(color: AppColors.dividerDark, thickness: 0.8),
       ],

@@ -17,16 +17,29 @@ import '../../../../app/text_styles.dart';
 /// lives inside a large commented-out block in the Upcoming Shoots header.
 /// Preserved verbatim for the migrate task (4.16) to either wire it up or
 /// formally strip it.
-void showHomeFilterBottomSheet(BuildContext context) {
-  String? selectedDate;
-  String? selectedStatus;
-  String? selectedCategory;
-  String? selectedType;
+void showHomeFilterBottomSheet({
+  required BuildContext context,
+  required String? initialDate,
+  required String? initialStatus,
+  required String? initialCategory,
+  required String? initialType,
+  required Function(String? date, String? status, String? category, String? type) onApply,
+  required VoidCallback onClearAll,
+}) {
+  String? selectedDate = (initialDate == null || initialDate.isEmpty) ? null : initialDate;
+  String? selectedStatus = (initialStatus == null || initialStatus.isEmpty) ? null : initialStatus;
+  String? selectedCategory = (initialCategory == null || initialCategory.isEmpty) ? null : initialCategory;
+  String? selectedType = (initialType == null || initialType.isEmpty) ? null : initialType;
 
-  bool isDateExpanded = true;
-  bool isStatusExpanded = false;
-  bool isCategoryExpanded = false;
-  bool isTypeExpanded = false;
+  bool isDateExpanded = selectedDate != null;
+  bool isStatusExpanded = selectedStatus != null;
+  bool isCategoryExpanded = selectedCategory != null;
+  bool isTypeExpanded = selectedType != null;
+
+  // Default to Date expanded if nothing else is selected
+  if (!isDateExpanded && !isStatusExpanded && !isCategoryExpanded && !isTypeExpanded) {
+    isDateExpanded = true;
+  }
 
   final DraggableScrollableController sheetController =
       DraggableScrollableController();
@@ -81,7 +94,7 @@ void showHomeFilterBottomSheet(BuildContext context) {
                         margin:
                             const EdgeInsets.only(bottom: AppSpacing.base),
                         decoration: BoxDecoration(
-                          color: AppColors.white,
+                           color: AppColors.white,
                           borderRadius: AppRadii.xsAll,
                         ),
                       ),
@@ -152,7 +165,7 @@ void showHomeFilterBottomSheet(BuildContext context) {
                                               label: label,
                                               selected: selectedDate == label,
                                               onTap: () => setState(
-                                                () => selectedDate = label,
+                                                () => selectedDate = selectedDate == label ? null : label,
                                               ),
                                             ),
                                           )
@@ -178,10 +191,9 @@ void showHomeFilterBottomSheet(BuildContext context) {
                                           .map(
                                             (label) => _radioOption(
                                               label: label,
-                                              selected:
-                                                  selectedStatus == label,
+                                              selected: selectedStatus == label,
                                               onTap: () => setState(
-                                                () => selectedStatus = label,
+                                                () => selectedStatus = selectedStatus == label ? null : label,
                                               ),
                                             ),
                                           )
@@ -211,7 +223,7 @@ void showHomeFilterBottomSheet(BuildContext context) {
                                                   selectedCategory == label,
                                               onTap: () => setState(
                                                 () =>
-                                                    selectedCategory = label,
+                                                    selectedCategory = selectedCategory == label ? null : label,
                                               ),
                                             ),
                                           )
@@ -239,7 +251,7 @@ void showHomeFilterBottomSheet(BuildContext context) {
                                               label: label,
                                               selected: selectedType == label,
                                               onTap: () => setState(
-                                                () => selectedType = label,
+                                                () => selectedType = selectedType == label ? null : label,
                                               ),
                                             ),
                                           )
@@ -255,15 +267,17 @@ void showHomeFilterBottomSheet(BuildContext context) {
                                       child: GestureDetector(
                                         onTap: () {
                                           setState(() {
-                                            selectedType = '';
-                                            selectedCategory = '';
-                                            selectedStatus = '';
-                                            selectedDate = '';
+                                            selectedType = null;
+                                            selectedCategory = null;
+                                            selectedStatus = null;
+                                            selectedDate = null;
                                             isDateExpanded = false;
                                             isStatusExpanded = false;
                                             isCategoryExpanded = false;
                                             isTypeExpanded = false;
                                           });
+                                          onClearAll();
+                                          Navigator.pop(context);
                                         },
                                         child: Container(
                                           margin: const EdgeInsets.only(
@@ -296,7 +310,15 @@ void showHomeFilterBottomSheet(BuildContext context) {
                                     AppSpacing.gapHMd,
                                     Expanded(
                                       child: GestureDetector(
-                                        onTap: () => Navigator.pop(context),
+                                        onTap: () {
+                                          onApply(
+                                            selectedDate,
+                                            selectedStatus,
+                                            selectedCategory,
+                                            selectedType,
+                                          );
+                                          Navigator.pop(context);
+                                        },
                                         child: Container(
                                           margin: const EdgeInsets.only(
                                             right: AppSpacing.md,

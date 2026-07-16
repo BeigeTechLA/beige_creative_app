@@ -13,6 +13,7 @@ import '../widgets/home_shoot_categories_panel.dart';
 import '../widgets/home_shoot_status_panel.dart';
 import '../widgets/home_upcoming_carousel.dart';
 import '../widgets/home_welcome_header.dart';
+import '../widgets/home_filter_sheet.dart';
 
 /// Dashboard ("Home") screen — Riverpod-backed (Task 4.16).
 ///
@@ -43,7 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        final upcoming = ref.read(homeNotifierProvider).upcomingShootsList;
+        final upcoming = ref.read(homeNotifierProvider).filteredUpcomingShootsList;
         if (upcoming.isNotEmpty) {
           setState(() {
             _currentIndex = (_currentIndex + 1) % upcoming.length;
@@ -61,14 +62,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   void _goToNext() {
-    final upcoming = ref.read(homeNotifierProvider).upcomingShootsList;
+    final upcoming = ref.read(homeNotifierProvider).filteredUpcomingShootsList;
     if (!_controller.isAnimating && upcoming.isNotEmpty) {
       _controller.forward();
     }
   }
 
   void _goToPrevious() {
-    final upcoming = ref.read(homeNotifierProvider).upcomingShootsList;
+    final upcoming = ref.read(homeNotifierProvider).filteredUpcomingShootsList;
     if (!_controller.isAnimating && upcoming.isNotEmpty) {
       setState(() {
         _currentIndex = (_currentIndex - 1 + upcoming.length) % upcoming.length;
@@ -77,7 +78,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   void _onCardTap() {
-    final upcoming = ref.read(homeNotifierProvider).upcomingShootsList;
+    final upcoming = ref.read(homeNotifierProvider).filteredUpcomingShootsList;
     if (!_controller.isAnimating && upcoming.isNotEmpty) {
       _controller.forward();
     }
@@ -89,8 +90,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final notifier = ref.read(homeNotifierProvider.notifier);
 
     // Reset carousel index when list shrinks.
-    if (_currentIndex >= homeState.upcomingShootsList.length &&
-        homeState.upcomingShootsList.isNotEmpty) {
+    if (_currentIndex >= homeState.filteredUpcomingShootsList.length &&
+        homeState.filteredUpcomingShootsList.isNotEmpty) {
       _currentIndex = 0;
     }
 
@@ -143,7 +144,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     AppSpacing.verticalMld,
                     if (homeState.upcomingShootsList.isNotEmpty)
                       HomeUpcomingCarousel(
-                        upcomingShoots: homeState.upcomingShootsList,
+                        upcomingShoots: homeState.filteredUpcomingShootsList,
+                        hasOriginalShoots: homeState.upcomingShootsList.isNotEmpty,
+                        searchQuery: homeState.upcomingSearchQuery,
+                        onSearchChanged: notifier.setUpcomingSearchQuery,
+                        isFilterActive: homeState.upcomingSelectedDate != null ||
+                            homeState.upcomingSelectedStatus != null ||
+                            homeState.upcomingSelectedCategory != null ||
+                            homeState.upcomingSelectedType != null,
+                        onFilterTap: () {
+                          showHomeFilterBottomSheet(
+                            context: context,
+                            initialDate: homeState.upcomingSelectedDate,
+                            initialStatus: homeState.upcomingSelectedStatus,
+                            initialCategory: homeState.upcomingSelectedCategory,
+                            initialType: homeState.upcomingSelectedType,
+                            onApply: (date, status, category, type) {
+                              notifier.setUpcomingFilters(
+                                date: date,
+                                status: status,
+                                category: category,
+                                type: type,
+                              );
+                            },
+                            onClearAll: () {
+                              notifier.clearUpcomingFilters();
+                            },
+                          );
+                        },
                         currentIndex: _currentIndex,
                         controller: _controller,
                         onCardTap: _onCardTap,

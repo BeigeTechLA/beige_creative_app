@@ -86,9 +86,9 @@ void main() {
         expect(find.text('12'), findsOneWidget);
         expect(find.text('04'), findsOneWidget);
         expect(find.text('07'), findsOneWidget);
-        expect(find.text('▲ +10% vs last month'), findsOneWidget);
-        expect(find.text('▲ +5% vs last month'), findsOneWidget);
-        expect(find.text('▼ -12% vs last month'), findsOneWidget);
+        expect(find.text('+10% vs last month'), findsOneWidget);
+        expect(find.text('+5% vs last month'), findsOneWidget);
+        expect(find.text('-12% vs last month'), findsOneWidget);
       },
     );
 

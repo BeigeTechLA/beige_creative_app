@@ -207,6 +207,28 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     state = state.copyWith(selectedEvent: event);
   }
 
+  void setUpcomingSearchQuery(String query) {
+    state = state.copyWith(upcomingSearchQuery: query);
+  }
+
+  void setUpcomingFilters({
+    String? date,
+    String? status,
+    String? category,
+    String? type,
+  }) {
+    state = state.copyWith(
+      upcomingSelectedDate: date,
+      upcomingSelectedStatus: status,
+      upcomingSelectedCategory: category,
+      upcomingSelectedType: type,
+    );
+  }
+
+  void clearUpcomingFilters() {
+    state = state.copyWith(clearFilters: true);
+  }
+
   /// Re-fetch profile only (used when returning from profile screen).
   Future<void> refreshAfterProfileReturn() async {
     final repo = ref.read(homeRepositoryProvider);

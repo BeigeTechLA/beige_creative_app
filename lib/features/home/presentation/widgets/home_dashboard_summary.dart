@@ -119,9 +119,9 @@ class _DashboardCard extends StatelessWidget {
   });
 
   Color _getTrendColor(String label, bool isSelected) {
-    final bool isNegative = label.startsWith('-') || label.contains('▼');
+    final bool isNegative = label.contains('-') || label.contains('▼');
     if (isSelected) {
-      return isNegative ? const Color(0xFFC62828) : const Color(0xFF1B5E20);
+      return isNegative ? const Color(0xFFB71C1C) : const Color(0xFF1B5E20);
     } else {
       return isNegative ? AppColors.errorAccent : AppColors.online;
     }
@@ -132,12 +132,22 @@ class _DashboardCard extends StatelessWidget {
     final bool isSelected = selectedIndex == index;
     final String countText = count.toString().padLeft(2, '0');
 
-    String formattedPercentLabel = percentLabel;
+    final String percentagePart;
+    final String restPart;
+
     if (percentLabel.isNotEmpty) {
-      final bool isNegative = percentLabel.startsWith('-') || percentLabel.contains('▼');
-      if (!percentLabel.contains('▲') && !percentLabel.contains('▼')) {
-        formattedPercentLabel = '${isNegative ? "▼ " : "▲ "}$percentLabel';
+      final percentageRegex = RegExp(r'^([▲▼]?\s*[+-]?\d+(?:\.\d+)?%)');
+      final match = percentageRegex.firstMatch(percentLabel);
+      if (match != null) {
+        percentagePart = match.group(1)!;
+        restPart = percentLabel.substring(percentagePart.length);
+      } else {
+        percentagePart = "";
+        restPart = percentLabel;
       }
+    } else {
+      percentagePart = "";
+      restPart = "";
     }
 
     return GestureDetector(
@@ -175,12 +185,30 @@ class _DashboardCard extends StatelessWidget {
                     color: isSelected ? AppColors.black : AppColors.white,
                   ),
                 ),
-                if (formattedPercentLabel.isNotEmpty) ...[
+                if (percentLabel.isNotEmpty) ...[
                   const SizedBox(height: 4),
-                  Text(
-                    formattedPercentLabel,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: percentagePart,
+                          style: TextStyle(
+                            color: _getTrendColor(percentagePart, isSelected),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (restPart.isNotEmpty)
+                          TextSpan(
+                            text: restPart,
+                            style: TextStyle(
+                              color: isSelected
+                                  ? AppColors.textDark
+                                  : AppColors.textTertiary,
+                            ),
+                          ),
+                      ],
+                    ),
                     style: AppTextStyles.caption.copyWith(
-                      color: _getTrendColor(formattedPercentLabel, isSelected),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
