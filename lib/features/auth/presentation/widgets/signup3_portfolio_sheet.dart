@@ -36,6 +36,7 @@ Future<void> showSignup3PortfolioSheet({
   required Signup3PortfolioSheetController controller,
 }) {
   bool showForm = controller.savedLinks.isEmpty;
+  final localLinks = List<Map<String, dynamic>>.from(controller.savedLinks);
 
   return showModalBottomSheet<void>(
     context: context,
@@ -145,14 +146,14 @@ Future<void> showSignup3PortfolioSheet({
                       ),
                     ),
                     const SizedBox(height: 20),
-                    if (controller.savedLinks.isNotEmpty) ...[
+                    if (localLinks.isNotEmpty) ...[
                       Text(
-                        '${controller.savedLinks.length}/3',
+                        '${localLinks.length}/3',
                         style: AppTextStyles.body12
                             .copyWith(color: AppColors.white24),
                       ),
                       const SizedBox(height: 10),
-                      ...controller.savedLinks.asMap().entries.map((entry) {
+                      ...localLinks.asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
                         return _SavedPortfolioRow(
@@ -167,9 +168,11 @@ Future<void> showSignup3PortfolioSheet({
                             });
                           },
                           onDelete: () {
-                            final next = [...controller.savedLinks]
+                            final next = List<Map<String, dynamic>>.from(localLinks)
                               ..removeAt(index);
                             controller.commitLinks(next);
+                            localLinks.clear();
+                            localLinks.addAll(next);
                             setModalState(() {});
                           },
                         );
@@ -202,7 +205,7 @@ Future<void> showSignup3PortfolioSheet({
                               );
                               return;
                             }
-                            final next = [...controller.savedLinks];
+                            final next = List<Map<String, dynamic>>.from(localLinks);
                             final entry = {
                               'name': kSignup3PortfolioNames[
                                   controller.selectedIndex],
@@ -216,6 +219,8 @@ Future<void> showSignup3PortfolioSheet({
                               next.add(entry);
                             }
                             controller.commitLinks(next);
+                            localLinks.clear();
+                            localLinks.addAll(next);
                             setModalState(() {
                               showForm = false;
                               controller.editingIndex = null;

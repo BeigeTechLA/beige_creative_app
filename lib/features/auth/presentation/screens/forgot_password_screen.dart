@@ -13,6 +13,7 @@ import 'package:beige_creative_app/app/assets.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/new_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
+import 'package:beige_creative_app/shared/widgets/app_cta_button.dart';
 import '../providers/forgot_password_notifier.dart';
 import '../providers/forgot_password_state.dart';
 
@@ -146,30 +147,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           autofillHints: const [AutofillHints.email],
                         ),
                         const SizedBox(height: 23),
-                        SizedBox(
-                          width: double.infinity,
+                        AppCtaButton(
+                          label: 'Send OTP',
                           height: 50,
-                          child: ElevatedButton(
-                            onPressed: (!isFormValid || state.isSubmitting)
-                                ? null
-                                : _submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isFormValid
-                                  ? AppColors.primary
-                                  : AppColors.borderGold,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: AppRadii.xlAll,
-                              ),
-                            ),
-                            child: Text(
-                              "Send OTP",
-                              style: AppTextStyles.displayLabel13.copyWith(
-                                color: isFormValid
-                                    ? AppColors.textHeading
-                                    : AppColors.surfaceMid,
-                              ),
-                            ),
-                          ),
+                          enabled: isFormValid && !state.isSubmitting,
+                          onPressed: _submit,
                         ),
                       ],
                     ),

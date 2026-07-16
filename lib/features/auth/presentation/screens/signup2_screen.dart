@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,6 +13,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/custom_multi_selectfield.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
@@ -52,7 +54,6 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
   final TextEditingController yearOfExperienceController =
       TextEditingController();
   final TextEditingController hourlyRateController = TextEditingController();
-  final TextEditingController equipmentController = TextEditingController();
 
   @override
   void initState() {
@@ -70,7 +71,6 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
     bioController.dispose();
     yearOfExperienceController.dispose();
     hourlyRateController.dispose();
-    equipmentController.dispose();
     super.dispose();
   }
 
@@ -179,12 +179,37 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                               label: 'Year of Experience*',
                               controller: yearOfExperienceController,
                               keyboardType: TextInputType.number,
+                              maxLength: 2,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
                             ),
                             const SizedBox(height: 20),
                             CustomTextField(
                               label: 'Hourly Rate*',
                               controller: hourlyRateController,
-                              keyboardType: TextInputType.number,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              hint: '0.00',
+                              prefixIcon: SizedBox(
+                                width: 30,
+                                child: Center(
+                                  child: Text(
+                                    '\$',
+                                    style: AppTextStyles.body15.copyWith(
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              inputFormatters: [
+                                TextInputFormatter.withFunction((oldValue, newValue) {
+                                  final regExp = RegExp(r'^\d*\.?\d{0,2}$');
+                                  if (regExp.hasMatch(newValue.text)) {
+                                    return newValue;
+                                  }
+                                  return oldValue;
+                                }),
+                              ],
                             ),
                             const SizedBox(height: 20),
                             CustomTextField(
@@ -207,8 +232,8 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                             const SizedBox(height: 20),
                             CustomMultiSelectField(
                               label: 'Add Skills',
-                              value: state.selectedSkills.join(', '),
-                              hasValue: state.selectedSkills.isNotEmpty,
+                              value: '',
+                              hasValue: false,
                               onTap: () async {
                                 await showSignUp2LookupSheet(
                                   context: context,
@@ -222,43 +247,101 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                                 );
                               },
                             ),
-                            const SizedBox(height: 20),
-                            _EquipmentSection(
-                              controller: equipmentController,
-                              suggestions: state.equipmentSuggestions
-                                  .map((e) => e.name)
-                                  .toList(),
-                              selected: state.selectedEquipments,
-                              isLoading: state.isLoadingEquipments,
-                              onQueryChanged: (value) async {
-                                await notifier.searchEquipments(value);
-                              },
-                              onPickSuggestion: (name) {
-                                equipmentController.clear();
-                                notifier.addEquipment(name);
-                              },
-                              onRemove: notifier.removeEquipment,
-                            ),
-                            const SizedBox(height: 30),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 55,
-                              child: ElevatedButton(
-                                onPressed: state.isSubmittingStep2
-                                    ? null
-                                    : _submit,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: AppRadii.xlAll,
-                                  ),
-                                ),
-                                child: Text(
-                                  'Next',
-                                  style: AppTextStyles.inherit16Medium
-                                      .copyWith(color: AppColors.textHeading),
+                            if (state.selectedSkills.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Wrap(
+                                  spacing: 6,
+                                  runSpacing: 6,
+                                  children: state.selectedSkills
+                                      .map(
+                                        (item) => Chip(
+                                          label: Text(
+                                            item,
+                                            style: AppTextStyles.inherit.copyWith(
+                                              color: AppColors.white,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          backgroundColor: AppColors.white.withValues(alpha: 0.15),
+                                          side: BorderSide.none,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          visualDensity: VisualDensity.compact,
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                          labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                                          deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.white),
+                                          onDeleted: () => notifier.toggleSkill(
+                                            item,
+                                            selected: false,
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
                                 ),
                               ),
+                            ],
+                            const SizedBox(height: 20),
+                            CustomMultiSelectField(
+                              label: 'Add Equipment',
+                              value: '',
+                              hasValue: false,
+                              onTap: () async {
+                                await showModalBottomSheet(
+                                  context: context,
+                                  backgroundColor: AppColors.surfaceCropSheet,
+                                  isScrollControlled: true,
+                                  useSafeArea: true,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: AppRadii.topHuge,
+                                  ),
+                                  builder: (_) => const _EquipmentSelectionSheet(),
+                                );
+                              },
+                            ),
+                            if (state.selectedEquipments.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Wrap(
+                                  spacing: 6,
+                                  runSpacing: 6,
+                                  children: state.selectedEquipments
+                                      .map(
+                                        (item) => Chip(
+                                          label: Text(
+                                            item,
+                                            style: AppTextStyles.inherit.copyWith(
+                                              color: AppColors.white,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          backgroundColor: AppColors.white.withValues(alpha: 0.15),
+                                          side: BorderSide.none,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          visualDensity: VisualDensity.compact,
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                          labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                                          deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.white),
+                                          onDeleted: () => notifier.removeEquipment(item),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 30),
+                            AppCtaButton(
+                              label: 'Next',
+                              height: 55,
+                              enabled: !state.isSubmittingStep2,
+                              onPressed: _submit,
                             ),
                             const SizedBox(height: 20),
                             Row(
@@ -320,96 +403,171 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
   }
 }
 
-class _EquipmentSection extends StatelessWidget {
-  final TextEditingController controller;
-  final List<String> suggestions;
-  final List<String> selected;
-  final bool isLoading;
-  final ValueChanged<String> onQueryChanged;
-  final ValueChanged<String> onPickSuggestion;
-  final ValueChanged<String> onRemove;
+class _EquipmentSelectionSheet extends ConsumerStatefulWidget {
+  const _EquipmentSelectionSheet();
 
-  const _EquipmentSection({
-    required this.controller,
-    required this.suggestions,
-    required this.selected,
-    required this.isLoading,
-    required this.onQueryChanged,
-    required this.onPickSuggestion,
-    required this.onRemove,
-  });
+  @override
+  ConsumerState<_EquipmentSelectionSheet> createState() =>
+      _EquipmentSelectionSheetState();
+}
+
+class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionSheet> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomTextField(
-          controller: controller,
-          label: 'Add Equipment',
-          onChanged: onQueryChanged,
-        ),
-        if (isLoading)
-          const Padding(
-            padding: EdgeInsets.only(top: AppSpacing.md),
-            child: Center(
-              child: AppCircularLoader(
-                size: 22,
-                strokeWidth: 2,
-                color: AppColors.primary,
+    final state = ref.watch(signupNotifierProvider);
+    final notifier = ref.read(signupNotifierProvider.notifier);
+    final sheetHeight = MediaQuery.of(context).size.height * 0.9;
+
+    return Container(
+      height: sheetHeight,
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.base,
+        AppSpacing.base,
+        AppSpacing.base,
+        MediaQuery.of(context).viewInsets.bottom + AppSpacing.xxl,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppColors.white24,
+              borderRadius: AppRadii.xsAll,
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Select Equipment',
+              style: AppTextStyles.bodyLargeMedium.copyWith(color: AppColors.white),
+            ),
+          ),
+          const SizedBox(height: 12),
+          CustomTextField(
+            controller: _searchController,
+            label: 'Search Equipment',
+            onChanged: (value) async {
+              await notifier.searchEquipments(value);
+            },
+          ),
+          if (state.selectedEquipments.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: state.selectedEquipments
+                    .map(
+                      (item) => Chip(
+                        label: Text(
+                          item,
+                          style: AppTextStyles.inherit.copyWith(
+                            color: AppColors.white,
+                            fontSize: 13,
+                          ),
+                        ),
+                        backgroundColor: AppColors.white.withValues(alpha: 0.15),
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                        deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.white),
+                        onDeleted: () => notifier.removeEquipment(item),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
+          Expanded(
+            child: state.isLoadingEquipments
+                ? const Center(
+                    child: AppCircularLoader(
+                      size: 22,
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : state.equipmentSuggestions.isEmpty
+                    ? Center(
+                        child: Text(
+                          _searchController.text.trim().isEmpty
+                              ? 'Search to find equipment'
+                              : 'No equipment found',
+                          style: AppTextStyles.body14.copyWith(color: AppColors.white60),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: state.equipmentSuggestions.length,
+                        itemBuilder: (context, index) {
+                          final item = state.equipmentSuggestions[index].name;
+                          final isSelected = state.selectedEquipments.contains(item);
+                          return CheckboxListTile(
+                            value: isSelected,
+                            title: Text(
+                              item,
+                              style: AppTextStyles.body14Medium.copyWith(color: AppColors.white),
+                            ),
+                            activeColor: AppColors.primary,
+                            checkColor: AppColors.black,
+                            side: BorderSide(
+                              color: isSelected ? AppColors.primary : AppColors.lavenderGrey,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: AppRadii.smAll,
+                            ),
+                            onChanged: (checked) {
+                              if (checked == true) {
+                                notifier.addEquipment(item);
+                              } else {
+                                notifier.removeEquipment(item);
+                              }
+                            },
+                          );
+                        },
+                      ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: () {
+                notifier.searchEquipments('');
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppRadii.lgAll,
+                ),
+              ),
+              child: Text(
+                'Done',
+                style: AppTextStyles.body15.copyWith(color: AppColors.textHeading),
               ),
             ),
           ),
-        if (suggestions.isNotEmpty)
-          Container(
-            margin: const EdgeInsets.only(top: AppSpacing.xs),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceCropSheet,
-              borderRadius: AppRadii.lgAll,
-              border: Border.all(color: AppColors.white24),
-            ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: suggestions.length,
-              itemBuilder: (context, index) {
-                final item = suggestions[index];
-                return ListTile(
-                  title: Text(
-                    item,
-                    style: AppTextStyles.inherit.copyWith(
-                      color: AppColors.white,
-                    ),
-                  ),
-                  onTap: () => onPickSuggestion(item),
-                );
-              },
-            ),
-          ),
-        if (selected.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: AppSpacing.md),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: selected
-                  .map(
-                    (item) => Chip(
-                      label: Text(
-                        item,
-                        style: AppTextStyles.inherit
-                            .copyWith(color: AppColors.white),
-                      ),
-                      backgroundColor:
-                          AppColors.textHeading.withValues(alpha: 0.9),
-                      deleteIconColor: AppColors.white,
-                      onDeleted: () => onRemove(item),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }

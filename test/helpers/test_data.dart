@@ -118,6 +118,9 @@ Map<String, dynamic> dashboardCountResponse({
   int upcoming = 3,
   int pending = 2,
   int equipment = 0,
+  String completedLabel = '+10% vs last month',
+  String upcomingLabel = '+5% vs last month',
+  String pendingLabel = '-12% vs last month',
 }) =>
     {
       'error': false,
@@ -127,6 +130,11 @@ Map<String, dynamic> dashboardCountResponse({
         'upcomingShoots': upcoming,
         'pendingRequests': pending,
         'equipmentRequests': equipment,
+        'percentages': {
+          'completedShoots': {'label': completedLabel},
+          'upcomingShoots': {'label': upcomingLabel},
+          'pendingRequests': {'label': pendingLabel},
+        },
       },
     };
 

@@ -4,10 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
-import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/onboarding_notifier.dart';
 
@@ -84,25 +84,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             const SizedBox(height: AppSpacing.xxxl),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: _onLoginTap,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadii.xxlAll,
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    'Login',
-                    style: AppTextStyles.bodyMediumStrongUnbounded.copyWith(
-                      color: AppColors.textHeading,
-                    ),
-                  ),
-                ),
+              child: AppCtaButton(
+                label: 'Login',
+                onPressed: _onLoginTap,
               ),
             ),
             const SizedBox(height: AppSpacing.lg),

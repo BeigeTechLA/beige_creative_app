@@ -67,28 +67,60 @@ class AppShell extends StatelessWidget {
       ),
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
       body: shell,
-      // Branches 4+ are drawer-only — hiding the bar on those branches tells
-      // the truth instead of clamping to Dashboard.
-      bottomNavigationBar: shell.currentIndex >= 4
-          ? null
-          : _AppShellBottomBar(
-              currentIndex: shell.currentIndex,
-              onTap: _goBranch,
-            ),
+      // File Manager (branch 2) hidden from bottom bar pre-release; branches
+      // 4+ are drawer-only. Hide the bar when current branch isn't in the
+      // visible set instead of clamping to Dashboard.
+      bottomNavigationBar: _bottomBarBranches.contains(shell.currentIndex)
+          ? _AppShellBottomBar(
+              currentBranchIndex: shell.currentIndex,
+              onSelectBranch: _goBranch,
+            )
+          : null,
     );
   }
 }
 
-class _AppShellBottomBar extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
+/// Branch indices surfaced in the bottom bar, in visual order. File Manager
+/// (branch 2) is intentionally omitted for release; code and route remain.
+const List<int> _bottomBarBranches = [0, 1, 3];
 
-  const _AppShellBottomBar({required this.currentIndex, required this.onTap});
+class _AppShellBottomBar extends StatelessWidget {
+  final int currentBranchIndex;
+  final ValueChanged<int> onSelectBranch;
+
+  const _AppShellBottomBar({
+    required this.currentBranchIndex,
+    required this.onSelectBranch,
+  });
 
   @override
   Widget build(BuildContext context) {
+    const items = <_BottomBarItemData>[
+      _BottomBarItemData(
+        branchIndex: 0,
+        label: 'Dashboard',
+        activeIcon: AppAssets.activeDashboard,
+        inactiveIcon: AppAssets.inactiveDashboard,
+      ),
+      _BottomBarItemData(
+        branchIndex: 1,
+        label: 'Shoots',
+        activeIcon: AppAssets.activeShoots,
+        inactiveIcon: AppAssets.inactiveShoots,
+        activeWidth: 46,
+      ),
+      _BottomBarItemData(
+        branchIndex: 3,
+        label: 'Messages',
+        activeIcon: AppAssets.activeMessages,
+        inactiveIcon: AppAssets.inactiveMessages,
+      ),
+    ];
+    final currentPosition = items.indexWhere(
+      (i) => i.branchIndex == currentBranchIndex,
+    );
     return BottomNavigationBar(
-      currentIndex: currentIndex,
+      currentIndex: currentPosition >= 0 ? currentPosition : 0,
       type: BottomNavigationBarType.fixed,
       backgroundColor: AppColors.background,
       selectedItemColor: AppColors.white,
@@ -97,31 +129,33 @@ class _AppShellBottomBar extends StatelessWidget {
       unselectedFontSize: 10,
       iconSize: 26,
       elevation: 0,
-      onTap: onTap,
+      onTap: (position) => onSelectBranch(items[position].branchIndex),
       items: [
-        BottomNavigationBarItem(
-          icon: _InactiveNavIcon(AppAssets.inactiveDashboard),
-          activeIcon: _ActiveNavIcon(AppAssets.activeDashboard),
-          label: 'Dashboard',
-        ),
-        BottomNavigationBarItem(
-          icon: _InactiveNavIcon(AppAssets.inactiveShoots),
-          activeIcon: _ActiveNavIcon(AppAssets.activeShoots, width: 46),
-          label: 'Shoots',
-        ),
-        BottomNavigationBarItem(
-          icon: _InactiveNavIcon(AppAssets.inactiveFileManager),
-          activeIcon: _ActiveNavIcon(AppAssets.activeFileManager, width: 48),
-          label: 'Files',
-        ),
-        BottomNavigationBarItem(
-          icon: _InactiveNavIcon(AppAssets.inactiveMessages),
-          activeIcon: _ActiveNavIcon(AppAssets.activeMessages),
-          label: 'Messages',
-        ),
+        for (final item in items)
+          BottomNavigationBarItem(
+            icon: _InactiveNavIcon(item.inactiveIcon),
+            activeIcon: _ActiveNavIcon(item.activeIcon, width: item.activeWidth),
+            label: item.label,
+          ),
       ],
     );
   }
+}
+
+class _BottomBarItemData {
+  final int branchIndex;
+  final String label;
+  final String activeIcon;
+  final String inactiveIcon;
+  final double? activeWidth;
+
+  const _BottomBarItemData({
+    required this.branchIndex,
+    required this.label,
+    required this.activeIcon,
+    required this.inactiveIcon,
+    this.activeWidth,
+  });
 }
 
 class _InactiveNavIcon extends StatelessWidget {
@@ -311,7 +345,7 @@ class _AppShellDrawer extends ConsumerWidget {
                     label: item.label,
                     activeIcon: item.activeIcon,
                     inactiveIcon: item.inactiveIcon,
-                    index: index,
+                    branchIndex: item.branchIndex,
                     currentIndex: currentIndex,
                     onTap: onSelect,
                   );
@@ -324,56 +358,50 @@ class _AppShellDrawer extends ConsumerWidget {
     );
   }
 
+  // File Manager (branch 2), Affiliate (branch 6), Payouts (branch 7)
+  // intentionally omitted for release; code and routes stay wired.
   static const List<_DrawerMenuItemData> _drawerItems = [
     _DrawerMenuItemData(
+      branchIndex: 0,
       label: 'Dashboard',
       activeIcon: AppAssets.activeDashboard,
       inactiveIcon: AppAssets.inactiveDashboard,
     ),
     _DrawerMenuItemData(
+      branchIndex: 1,
       label: 'Shoots',
       activeIcon: AppAssets.activeShoots,
       inactiveIcon: AppAssets.inactiveShoots,
     ),
     _DrawerMenuItemData(
-      label: 'File Manager',
-      activeIcon: AppAssets.activeFileManager,
-      inactiveIcon: AppAssets.inactiveFileManager,
-    ),
-    _DrawerMenuItemData(
+      branchIndex: 3,
       label: 'Messages',
       activeIcon: AppAssets.activeMessages,
       inactiveIcon: AppAssets.inactiveMessages,
     ),
     _DrawerMenuItemData(
+      branchIndex: 4,
       label: 'Meetings',
       activeIcon: AppAssets.activeMeetings,
       inactiveIcon: AppAssets.inactiveMeetings,
     ),
     _DrawerMenuItemData(
+      branchIndex: 5,
       label: 'Manage Availability',
       activeIcon: AppAssets.activeManageAvailability,
       inactiveIcon: AppAssets.inactiveManageAvailability,
-    ),
-    _DrawerMenuItemData(
-      label: 'Affiliate',
-      activeIcon: AppAssets.activeAffiliate,
-      inactiveIcon: AppAssets.inactiveAffiliate,
-    ),
-    _DrawerMenuItemData(
-      label: 'Payouts',
-      activeIcon: AppAssets.activePayouts,
-      inactiveIcon: AppAssets.inactivePayouts,
     ),
   ];
 }
 
 class _DrawerMenuItemData {
+  final int branchIndex;
   final String label;
   final String activeIcon;
   final String inactiveIcon;
 
   const _DrawerMenuItemData({
+    required this.branchIndex,
     required this.label,
     required this.activeIcon,
     required this.inactiveIcon,
@@ -384,7 +412,7 @@ class _DrawerItem extends StatelessWidget {
   final String label;
   final String activeIcon;
   final String inactiveIcon;
-  final int index;
+  final int branchIndex;
   final int currentIndex;
   final ValueChanged<int> onTap;
 
@@ -392,14 +420,14 @@ class _DrawerItem extends StatelessWidget {
     required this.label,
     required this.activeIcon,
     required this.inactiveIcon,
-    required this.index,
+    required this.branchIndex,
     required this.currentIndex,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isActive = currentIndex == index;
+    final isActive = currentIndex == branchIndex;
     return ListTile(
       minLeadingWidth: 32,
       minVerticalPadding: AppSpacing.base,
@@ -421,7 +449,7 @@ class _DrawerItem extends StatelessWidget {
           color: isActive ? AppColors.white : AppColors.white38,
         ),
       ),
-      onTap: () => onTap(index),
+      onTap: () => onTap(branchIndex),
     );
   }
 }

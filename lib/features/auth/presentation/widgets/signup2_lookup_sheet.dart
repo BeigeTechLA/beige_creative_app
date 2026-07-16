@@ -25,93 +25,100 @@ Future<void> showSignUp2LookupSheet({
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(borderRadius: AppRadii.topHuge),
     builder: (sheetCtx) {
+      final sheetHeight = MediaQuery.of(sheetCtx).size.height * 0.9;
       return StatefulBuilder(
         builder: (sheetCtx, setSheetState) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.base,
-              AppSpacing.base,
-              AppSpacing.base,
-              AppSpacing.xxl,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                  decoration: BoxDecoration(
-                    color: AppColors.white24,
-                    borderRadius: AppRadii.xsAll,
+          return SafeArea(
+            bottom: false,
+            child: Container(
+              height: sheetHeight,
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.base,
+                AppSpacing.base,
+                AppSpacing.base,
+                MediaQuery.of(sheetCtx).padding.bottom + AppSpacing.xxl,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.white24,
+                      borderRadius: AppRadii.xsAll,
+                    ),
                   ),
-                ),
-                Text(
-                  title,
-                  style: AppTextStyles.bodyLargeMedium
-                      .copyWith(color: AppColors.white),
-                ),
-                const SizedBox(height: 12),
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: options.length,
-                    itemBuilder: (_, index) {
-                      final name = options[index];
-                      final isSelected = selected.contains(name);
-                      return CheckboxListTile(
-                        value: isSelected,
-                        title: Text(
-                          name,
-                          style: AppTextStyles.body14Medium
-                              .copyWith(color: AppColors.white),
-                        ),
-                        activeColor: AppColors.primary,
-                        checkColor: AppColors.black,
-                        side: BorderSide(
-                          color: isSelected
-                              ? AppColors.primary
-                              : AppColors.lavenderGrey,
-                          width: 1.5,
-                        ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      title,
+                      style: AppTextStyles.bodyLargeMedium
+                          .copyWith(color: AppColors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: options.length,
+                      itemBuilder: (_, index) {
+                        final name = options[index];
+                        final isSelected = selected.contains(name);
+                        return CheckboxListTile(
+                          value: isSelected,
+                          title: Text(
+                            name,
+                            style: AppTextStyles.body14Medium
+                                .copyWith(color: AppColors.white),
+                          ),
+                          activeColor: AppColors.primary,
+                          checkColor: AppColors.black,
+                          side: BorderSide(
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.lavenderGrey,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppRadii.smAll,
+                          ),
+                          onChanged: (val) {
+                            final next = val ?? false;
+                            setSheetState(() {
+                              if (next) {
+                                selected.add(name);
+                              } else {
+                                selected.remove(name);
+                              }
+                            });
+                            onToggle(name, next);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(sheetCtx),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: AppRadii.smAll,
+                          borderRadius: AppRadii.lgAll,
                         ),
-                        onChanged: (val) {
-                          final next = val ?? false;
-                          setSheetState(() {
-                            if (next) {
-                              selected.add(name);
-                            } else {
-                              selected.remove(name);
-                            }
-                          });
-                          onToggle(name, next);
-                        },
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(sheetCtx),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: AppRadii.lgAll,
+                      ),
+                      child: Text(
+                        'Done',
+                        style: AppTextStyles.body15
+                            .copyWith(color: AppColors.textHeading),
                       ),
                     ),
-                    child: Text(
-                      'Done',
-                      style: AppTextStyles.body15
-                          .copyWith(color: AppColors.textHeading),
-                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },

@@ -77,7 +77,7 @@ class EditProfileModel {
       location: json["location"] ?? "",
       workingDistance: json["working_distance"] ?? "",
       primaryRole: json["primary_role"] ?? "",
-      yearsOfExperience: json["years_of_experience"] ?? 0,
+      yearsOfExperience: (json["years_of_experience"] as num?)?.toInt() ?? 0,
       hourlyRate:
       double.tryParse(json["hourly_rate"].toString()) ?? 0.0,
       bio: json["bio"] ?? "",
@@ -161,11 +161,11 @@ class Stats {
 
   factory Stats.fromJson(Map<String, dynamic> json) {
     return Stats(
-      hourlyRate: json["hourly_rate"] ?? 0,
-      yearsOfExperience: json["years_of_experience"] ?? 0,
+      hourlyRate: (json["hourly_rate"] as num?)?.toInt() ?? 0,
+      yearsOfExperience: (json["years_of_experience"] as num?)?.toInt() ?? 0,
       workingDistance: json["working_distance"] ?? "",
-      rating: json["rating"] ?? 0,
-      totalReviews: json["total_reviews"] ?? 0,
+      rating: (json["rating"] as num?)?.toInt() ?? 0,
+      totalReviews: (json["total_reviews"] as num?)?.toInt() ?? 0,
     );
   }
 }

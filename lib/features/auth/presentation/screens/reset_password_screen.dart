@@ -13,6 +13,7 @@ import 'package:beige_creative_app/app/assets.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/new_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
+import 'package:beige_creative_app/shared/widgets/app_cta_button.dart';
 import '../providers/forgot_password_notifier.dart';
 import '../providers/forgot_password_state.dart';
 
@@ -206,30 +207,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
+                        AppCtaButton(
+                          label: 'Save New Password',
                           height: 56,
-                          child: ElevatedButton(
-                            onPressed: (isPasswordFilled && !state.isSubmitting)
-                                ? _submit
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isPasswordFilled
-                                  ? AppColors.primary
-                                  : AppColors.borderGold,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: AppRadii.xlAll,
-                              ),
-                            ),
-                            child: Text(
-                              "Save New Password",
-                              style: AppTextStyles.displayLabel13.copyWith(
-                                color: isPasswordFilled
-                                    ? AppColors.textHeading
-                                    : AppColors.surfaceMid,
-                              ),
-                            ),
-                          ),
+                          enabled: isPasswordFilled && !state.isSubmitting,
+                          onPressed: _submit,
                         ),
                       ],
                     ),

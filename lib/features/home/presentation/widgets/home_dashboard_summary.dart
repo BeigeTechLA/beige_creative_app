@@ -16,6 +16,9 @@ class HomeDashboardSummary extends StatelessWidget {
   final int completedShoots;
   final int upcomingShoots;
   final int pendingRequests;
+  final String completedShootsLabel;
+  final String upcomingShootsLabel;
+  final String pendingRequestsLabel;
   final int selectedIndex;
   final ValueChanged<int> onSelect;
 
@@ -24,6 +27,9 @@ class HomeDashboardSummary extends StatelessWidget {
     required this.completedShoots,
     required this.upcomingShoots,
     required this.pendingRequests,
+    required this.completedShootsLabel,
+    required this.upcomingShootsLabel,
+    required this.pendingRequestsLabel,
     required this.selectedIndex,
     required this.onSelect,
   });
@@ -60,7 +66,7 @@ class HomeDashboardSummary extends StatelessWidget {
                 index: 0,
                 title: "Completed shoots",
                 count: completedShoots,
-                percentColor: AppColors.success,
+                percentLabel: completedShootsLabel,
                 iconPath: AppAssets.videoIcon,
                 selectedIndex: selectedIndex,
                 onSelect: onSelect,
@@ -70,7 +76,7 @@ class HomeDashboardSummary extends StatelessWidget {
                 index: 1,
                 title: "Upcoming shoots",
                 count: upcomingShoots,
-                percentColor: AppColors.success,
+                percentLabel: upcomingShootsLabel,
                 iconPath: AppAssets.calendarIcon,
                 selectedIndex: selectedIndex,
                 onSelect: onSelect,
@@ -80,7 +86,7 @@ class HomeDashboardSummary extends StatelessWidget {
                 index: 2,
                 title: "Pending Requests",
                 count: pendingRequests,
-                percentColor: AppColors.error,
+                percentLabel: pendingRequestsLabel,
                 iconPath: AppAssets.clockIcon,
                 selectedIndex: selectedIndex,
                 onSelect: onSelect,
@@ -97,8 +103,7 @@ class _DashboardCard extends StatelessWidget {
   final int index;
   final String title;
   final int count;
-  // ignore: unused_element_parameter
-  final Color percentColor;
+  final String percentLabel;
   final String iconPath;
   final int selectedIndex;
   final ValueChanged<int> onSelect;
@@ -107,15 +112,34 @@ class _DashboardCard extends StatelessWidget {
     required this.index,
     required this.title,
     required this.count,
-    required this.percentColor,
+    required this.percentLabel,
     required this.iconPath,
     required this.selectedIndex,
     required this.onSelect,
   });
 
+  Color _getTrendColor(String label, bool isSelected) {
+    final bool isNegative = label.startsWith('-') || label.contains('▼');
+    if (isSelected) {
+      return isNegative ? const Color(0xFFC62828) : const Color(0xFF1B5E20);
+    } else {
+      return isNegative ? AppColors.errorAccent : AppColors.online;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isSelected = selectedIndex == index;
+    final String countText = count.toString().padLeft(2, '0');
+
+    String formattedPercentLabel = percentLabel;
+    if (percentLabel.isNotEmpty) {
+      final bool isNegative = percentLabel.startsWith('-') || percentLabel.contains('▼');
+      if (!percentLabel.contains('▲') && !percentLabel.contains('▼')) {
+        formattedPercentLabel = '${isNegative ? "▼ " : "▲ "}$percentLabel';
+      }
+    }
+
     return GestureDetector(
       onTap: () => onSelect(index),
       child: AnimatedContainer(
@@ -146,11 +170,21 @@ class _DashboardCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.dropdownIconInset),
                 Text(
-                  count.toString(),
+                  countText,
                   style: AppTextStyles.body22w700.copyWith(
                     color: isSelected ? AppColors.black : AppColors.white,
                   ),
                 ),
+                if (formattedPercentLabel.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    formattedPercentLabel,
+                    style: AppTextStyles.caption.copyWith(
+                      color: _getTrendColor(formattedPercentLabel, isSelected),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
                 AppSpacing.verticalXxs,
               ],
             ),

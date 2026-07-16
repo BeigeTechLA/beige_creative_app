@@ -10,6 +10,7 @@ import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../utility/date_time_utils.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/common_calendar.dart';
 import '../../domain/entities/availability_entry.dart';
@@ -207,12 +208,12 @@ class ManageAvailabilityScreen extends ConsumerWidget {
                     ),
                   ),
                   AppSpacing.verticalXl,
-                  const SizedBox(height: 14),
                   Padding(
                     padding: AppSpacing.cardInsets,
-                    child: InkWell(
-                      borderRadius: AppRadii.hugeAll,
-                      onTap: () async {
+                    child: AppCtaButton(
+                      label: 'Add Availability',
+                      height: 56,
+                      onPressed: () async {
                         final result = await context.pushNamed(
                           Routes.addAvailability.name,
                         );
@@ -220,22 +221,6 @@ class ManageAvailabilityScreen extends ConsumerWidget {
                           notifier.refresh();
                         }
                       },
-                      child: Container(
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: AppRadii.lgAll,
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Add Availability',
-                            style: AppTextStyles.displayLabel16.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.circleGradientTop,
-                            ),
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ],

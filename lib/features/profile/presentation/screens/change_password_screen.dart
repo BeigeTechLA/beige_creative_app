@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
-import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../routes/profile_args.dart';
 import '../../../../app/spacing.dart';
@@ -14,7 +13,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/new_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
-import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../providers/change_password_providers.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -117,32 +116,12 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
+            AppCtaButton(
+              label: 'Send OTP',
               height: 55,
-              child: ElevatedButton(
-                onPressed: state.isSubmitting ? null : _onSendOtp,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isEmailFilled
-                      ? AppColors.primary
-                      : AppColors.borderGold,
-                  shape: RoundedRectangleBorder(borderRadius: AppRadii.xlAll),
-                ),
-                child: state.isSubmitting
-                    ? const AppCircularLoader(
-                        size: 22,
-                        strokeWidth: 2,
-                        color: AppColors.black,
-                      )
-                    : Text(
-                        'Send OTP',
-                        style: AppTextStyles.displayLabel14.copyWith(
-                          color: _isEmailFilled
-                              ? AppColors.textHeading
-                              : AppColors.surfaceMid,
-                        ),
-                      ),
-              ),
+              enabled: !state.isSubmitting,
+              visuallyEnabled: _isEmailFilled,
+              onPressed: _onSendOtp,
             ),
             const SizedBox(height: 20),
           ],

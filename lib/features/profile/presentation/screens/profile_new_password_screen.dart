@@ -13,7 +13,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
-import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../providers/change_password_providers.dart';
 
 class ProfileNewPasswordScreen extends ConsumerStatefulWidget {
@@ -185,31 +185,11 @@ class _ProfileNewPasswordScreenState
                               }),
                             ),
                             const SizedBox(height: 20),
-                            SizedBox(
-                              width: double.infinity,
+                            AppCtaButton(
+                              label: 'Save New Password',
                               height: 50,
-                              child: ElevatedButton(
-                                onPressed: state.isSubmitting ? null : _onSave,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.borderGold,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: AppRadii.xlAll,
-                                  ),
-                                ),
-                                child: state.isSubmitting
-                                    ? const AppCircularLoader(
-                                        size: 22,
-                                        strokeWidth: 2,
-                                        color: AppColors.black,
-                                      )
-                                    : Text(
-                                        'Save New Password',
-                                        style: AppTextStyles.displayLabel13
-                                            .copyWith(
-                                              color: AppColors.textHeading,
-                                            ),
-                                      ),
-                              ),
+                              enabled: !state.isSubmitting,
+                              onPressed: _onSave,
                             ),
                           ],
                         ),

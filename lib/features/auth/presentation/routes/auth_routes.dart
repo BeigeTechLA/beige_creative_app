@@ -13,6 +13,7 @@ import '../screens/reset_password_screen.dart';
 import '../screens/signup1_screen.dart';
 import '../screens/signup2_screen.dart';
 import '../screens/signup3_screen.dart';
+import '../screens/signup_success_screen.dart';
 import '../screens/view_details_screen.dart';
 import 'signup_args.dart';
 
@@ -70,6 +71,11 @@ final List<RouteBase> authRoutes = [
         step2Progress: args.step2Progress,
       );
     },
+  ),
+  GoRoute(
+    path: Routes.signupSuccess.path,
+    name: Routes.signupSuccess.name,
+    builder: (context, state) => const SignUpSuccessScreen(),
   ),
   GoRoute(
     path: Routes.forgotPassword.path,

@@ -327,7 +327,7 @@ void main() {
       expect(repo.capturedStep2?.primaryRoleIds, [2]);
       expect(repo.capturedStep2?.skillIds, [10]);
       expect(repo.capturedStep2?.yearsOfExperience, 5);
-      expect(repo.capturedStep2?.hourlyRate, 100);
+      expect(repo.capturedStep2?.hourlyRate, 100.0);
       expect(c.read(signupNotifierProvider).step2Success, isTrue);
       expect(c.read(signupNotifierProvider).step2Progress, greaterThan(0));
     });

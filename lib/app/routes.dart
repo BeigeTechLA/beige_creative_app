@@ -52,6 +52,7 @@ abstract class Routes {
   static const signupStep1 = RouteSpec(name: 'signup_step_1', path: '/signup-step-1', isPublic: true);
   static const signupStep2 = RouteSpec(name: 'signup_step_2', path: '/signup-step-2', isPublic: true);
   static const signupStep3 = RouteSpec(name: 'signup_step_3', path: '/signup-step-3', isPublic: true);
+  static const signupSuccess = RouteSpec(name: 'signup_success', path: '/signup-success', isPublic: true, trackScreenView: false);
   static const forgotPassword = RouteSpec(name: 'forgot_password', path: '/forgot-password', isPublic: true);
   static const forgotOtp = RouteSpec(name: 'forgot_otp', path: '/forgot-otp', isPublic: true);
   static const resetPassword = RouteSpec(name: 'reset_password', path: '/reset-password', isPublic: true);
@@ -123,7 +124,7 @@ abstract class Routes {
   /// Flat list — drives [publicPaths], [byName], and the route-completeness test.
   static const all = <RouteSpec>[
     splash, onboarding,
-    login, signupStep1, signupStep2, signupStep3,
+    login, signupStep1, signupStep2, signupStep3, signupSuccess,
     forgotPassword, forgotOtp, resetPassword, viewDetails,
     home, shoots, files, messages, meetings, manageAvailability, affiliate,
     payouts,

@@ -14,6 +14,9 @@ class HomeState {
   final int completedShoots;
   final int upcomingShoots;
   final int pendingRequests;
+  final String completedShootsLabel;
+  final String upcomingShootsLabel;
+  final String pendingRequestsLabel;
 
   // ── Upcoming shoots carousel ──
   final List<UpcomingShootDatum> upcomingShootsList;
@@ -60,6 +63,9 @@ class HomeState {
     this.completedShoots = 0,
     this.upcomingShoots = 0,
     this.pendingRequests = 0,
+    this.completedShootsLabel = "",
+    this.upcomingShootsLabel = "",
+    this.pendingRequestsLabel = "",
     this.upcomingShootsList = const [],
     this.pendingRequestCards = const [],
     this.successfulShoots = 0,
@@ -91,6 +97,9 @@ class HomeState {
     int? completedShoots,
     int? upcomingShoots,
     int? pendingRequests,
+    String? completedShootsLabel,
+    String? upcomingShootsLabel,
+    String? pendingRequestsLabel,
     List<UpcomingShootDatum>? upcomingShootsList,
     List<PendingRequestCard>? pendingRequestCards,
     int? successfulShoots,
@@ -122,6 +131,9 @@ class HomeState {
       completedShoots: completedShoots ?? this.completedShoots,
       upcomingShoots: upcomingShoots ?? this.upcomingShoots,
       pendingRequests: pendingRequests ?? this.pendingRequests,
+      completedShootsLabel: completedShootsLabel ?? this.completedShootsLabel,
+      upcomingShootsLabel: upcomingShootsLabel ?? this.upcomingShootsLabel,
+      pendingRequestsLabel: pendingRequestsLabel ?? this.pendingRequestsLabel,
       upcomingShootsList: upcomingShootsList ?? this.upcomingShootsList,
       pendingRequestCards: pendingRequestCards ?? this.pendingRequestCards,
       successfulShoots: successfulShoots ?? this.successfulShoots,

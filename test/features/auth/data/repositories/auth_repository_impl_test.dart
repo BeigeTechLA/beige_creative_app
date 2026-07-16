@@ -458,7 +458,7 @@ void main() {
       crewMemberId: 7,
       primaryRoleIds: [1, 2],
       yearsOfExperience: 3,
-      hourlyRate: 50,
+      hourlyRate: 50.0,
       bio: 'hi',
       skillIds: [9],
       equipmentIds: [4],

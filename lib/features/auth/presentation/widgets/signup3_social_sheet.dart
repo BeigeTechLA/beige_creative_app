@@ -39,6 +39,7 @@ Future<void> showSignup3SocialSheet({
   required Signup3SocialSheetController controller,
 }) {
   bool showForm = controller.savedLinks.isEmpty;
+  final localLinks = List<Map<String, dynamic>>.from(controller.savedLinks);
 
   return showModalBottomSheet<void>(
     context: context,
@@ -115,14 +116,14 @@ Future<void> showSignup3SocialSheet({
                       ),
                     ),
                     const SizedBox(height: 20),
-                    if (controller.savedLinks.isNotEmpty) ...[
+                    if (localLinks.isNotEmpty) ...[
                       Text(
-                        '${controller.savedLinks.length}/6',
+                        '${localLinks.length}/6',
                         style: AppTextStyles.body12
                             .copyWith(color: AppColors.white24),
                       ),
                       const SizedBox(height: 10),
-                      ...controller.savedLinks.asMap().entries.map((entry) {
+                      ...localLinks.asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
                         return _SavedSocialRow(
@@ -139,9 +140,11 @@ Future<void> showSignup3SocialSheet({
                             });
                           },
                           onDelete: () {
-                            final next = [...controller.savedLinks]
+                            final next = List<Map<String, dynamic>>.from(localLinks)
                               ..removeAt(index);
                             controller.commitLinks(next);
+                            localLinks.clear();
+                            localLinks.addAll(next);
                             setInnerState(() {});
                           },
                         );
@@ -185,7 +188,7 @@ Future<void> showSignup3SocialSheet({
                             final iconPath = kSignup3SocialIcons[
                                 controller.selectedSocialIndex];
                             final url = controller.linkController.text.trim();
-                            final next = [...controller.savedLinks];
+                            final next = List<Map<String, dynamic>>.from(localLinks);
                             if (controller.editingIndex != null) {
                               next[controller.editingIndex!] = {
                                 'name': platformName,
@@ -200,6 +203,8 @@ Future<void> showSignup3SocialSheet({
                               });
                             }
                             controller.commitLinks(next);
+                            localLinks.clear();
+                            localLinks.addAll(next);
                             setInnerState(() {
                               showForm = false;
                               controller.editingIndex = null;

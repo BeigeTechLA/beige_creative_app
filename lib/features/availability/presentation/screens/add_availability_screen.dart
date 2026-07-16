@@ -14,7 +14,7 @@ import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/util/picker_theme.dart';
 import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
-import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../providers/availability_providers.dart';
 
 class AddAvailabilityScreen extends ConsumerStatefulWidget {
@@ -387,29 +387,11 @@ class _AddAvailabilityScreenState
               ),
               AppSpacing.gapHMd,
               Expanded(
-                child: SizedBox(
+                child: AppCtaButton(
+                  label: 'Save',
                   height: 52,
-                  child: GestureDetector(
-                    onTap: state.isSubmitting ? null : _onSavePressed,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: AppRadii.lgAll,
-                      ),
-                      child: Center(
-                        child: state.isSubmitting
-                            ? const AppCircularLoader(
-                                size: 22,
-                                strokeWidth: 2,
-                                color: AppColors.black,
-                              )
-                            : const Text(
-                                'Save',
-                                style: AppTextStyles.displayLabelW500,
-                              ),
-                      ),
-                    ),
-                  ),
+                  isLoading: state.isSubmitting,
+                  onPressed: _onSavePressed,
                 ),
               ),
             ],
