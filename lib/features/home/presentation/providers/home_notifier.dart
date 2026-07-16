@@ -347,17 +347,35 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       try {
         final session = ref.read(sessionStoreProvider);
         final currentUser = await session.readUser();
-        final updatedUser = UserSnapshot(
-          id: profileData.user.id.toString(),
-          name: profileData.user.name,
-          email: profileData.user.email,
-          role: currentUser?.role ?? (profileData.user.primaryRole.isNotEmpty ? profileData.user.primaryRole : null),
-          userType: currentUser?.userType ?? profileData.user.userType.toString(),
-          profileImageUrl: profileData.user.profileImageUrl.isNotEmpty
-              ? profileData.user.profileImageUrl
-              : currentUser?.profileImageUrl,
-        );
-        await session.writeUser(updatedUser);
+        // Profile payload may omit the user id (drift, see d4b9fbb) — the
+        // model then defaults it to 0. Never let that clobber the id captured
+        // at login; if neither source has a real id, skip the write entirely.
+        final profileId = profileData.user.id != 0
+            ? profileData.user.id.toString()
+            : null;
+        final sessionId =
+            (currentUser?.id.isNotEmpty ?? false) && currentUser!.id != '0'
+                ? currentUser.id
+                : null;
+        final resolvedId = profileId ?? sessionId;
+        if (resolvedId == null) {
+          AppLogger.w(
+            'Skipping session user snapshot update: no valid user id '
+            '(profile=${profileData.user.id}, session=${currentUser?.id})',
+          );
+        } else {
+          final updatedUser = UserSnapshot(
+            id: resolvedId,
+            name: profileData.user.name,
+            email: profileData.user.email,
+            role: currentUser?.role ?? (profileData.user.primaryRole.isNotEmpty ? profileData.user.primaryRole : null),
+            userType: currentUser?.userType ?? profileData.user.userType.toString(),
+            profileImageUrl: profileData.user.profileImageUrl.isNotEmpty
+                ? profileData.user.profileImageUrl
+                : currentUser?.profileImageUrl,
+          );
+          await session.writeUser(updatedUser);
+        }
       } catch (e) {
         AppLogger.w('Failed to update session user snapshot: $e');
       }

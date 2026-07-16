@@ -5,6 +5,25 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-16: Fix Meetings "Invalid user ID" (session snapshot clobbered with 0)
+
+- **Changes**:
+  - `home_notifier.dart` `_safeFetchProfile`: no longer overwrites the session `UserSnapshot.id` with the profile payload's user id when that id parsed to `0`; falls back to the existing session id, and skips the snapshot write entirely when neither source has a valid id.
+  - `myprofile_model.dart`: `User.fromJson` id parsing now accepts int/num/numeric-string and falls back to the `user_id` key via a shared `_parseId` helper (returns `null`, not `0`, when absent so fallbacks can chain).
+  - `meetings_remote_source.dart` `list()`: treats session user id `'0'` the same as a missing id → `UnauthorizedException`, so the meetings notifier's existing logout path forces a re-login, which restores the real id from the login response (recovery path for devices whose snapshot was already corrupted).
+  - Removed the temporary `[MEETINGS_NOTIFIER_DEBUG]` print from `meetings_list_notifier.dart`.
+
+- **Decisions**:
+  - Root cause: `get-profile-detail` payload drift can omit the nested `user` object/id; the model defaulted `user.id` to `0`, and the home profile fetch wrote that over the correct login id — meetings then called `GET external-meetings/user/0` and the server rejected with "Invalid user ID".
+  - Did **not** fall back to the payload's top-level `id` when synthesizing the user object — that is the crew-member row id, not the user id; writing a wrong id is worse than keeping none.
+  - Recovery is dynamic (guard + re-login), no hardcoded user id.
+
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+  - `flutter test test/features/meetings test/features/home` — all 60 tests passed.
+
+---
+
 ### 2026-07-16: Dashboard Percentage Trend Labels and Figma Styling
 
 - **Changes**:
@@ -12,12 +31,13 @@
   - Added `completedShootsLabel`, `upcomingShootsLabel`, and `pendingRequestsLabel` fields (String, defaults to `""`) to `HomeState` and mapped them in `HomeNotifier.refresh()` and `HomeNotifier.acceptDecline()`.
   - Updated `HomeScreen` to pass the percentage labels to `HomeDashboardSummary`.
   - Refactored `HomeDashboardSummary` and `_DashboardCard` to render the trend percentage text under the count and pad single-digit counts with leading zeros (e.g. `03` instead of `3`) to match the Figma mockup.
-  - Dynamically prepended direction arrows (`▲` for positive/neutral trend, `▼` for negative trend) if missing.
+  - Used `Text.rich` to style the percentage value part (`+3%`/`-2%`) in green/red, and the rest of the text description (`from last month`) in a muted grey color, matching the design screenshot.
   - Styled trend labels with a contrast-safe color scheme (bright green/red for dark cards, dark green/dark red for the selected gold card).
   - Updated `test_data.dart` mock counts response to include `percentages` payload.
   - Updated `home_decompose_test.dart` to test trend label presentation and two-digit padded counts.
 
 - **Decisions**:
+  - Parsed the percentage value and description separately using RegExp (`r'^([▲▼]?\s*[+-]?\d+(?:\.\d+)?%)'`) to apply distinct text styles.
   - Kept counts formatting inline using `.toString().padLeft(2, '0')`.
   - Automatically derived positive/negative styling from trend label characters (`-` or `▼`), and adjusted colors dynamically when the card is selected to maintain high contrast and accessibility.
 

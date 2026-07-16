@@ -49,7 +49,11 @@ class MeetingsRemoteSource {
     return _guard(() async {
       final user = await _session.readUser();
       final userId = user?.id ?? '';
-      if (userId.isEmpty) {
+      // '0' is the corrupted-snapshot sentinel (profile payload drift used to
+      // overwrite the login id with a defaulted 0). Treat it like a missing
+      // session so the notifier's logout path forces a re-login, which
+      // rewrites the snapshot with the real id from the login response.
+      if (userId.isEmpty || userId == '0') {
         throw const UnauthorizedException(
           message: 'Cannot list meetings without an authenticated user',
         );

@@ -31,8 +31,6 @@ class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
     try {
       final all = await _repo.list(tab: state.tab);
       final user = await ref.read(sessionStoreProvider).readUser();
-      // ignore: avoid_print
-      print('[MEETINGS_NOTIFIER_DEBUG] user.id = ${user?.id}');
       state = state.copyWith(
         currentUserId: user?.id,
         allItems: all,

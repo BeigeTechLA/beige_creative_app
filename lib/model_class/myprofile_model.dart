@@ -10,6 +10,14 @@ String _cleanString(dynamic value) {
   return s;
 }
 
+/// Ids arrive as int, num, or numeric string depending on endpoint version.
+/// Returns null (not 0) when absent so callers can chain fallback keys.
+int? _parseId(dynamic value) {
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
 class CrewFile {
   final int crewFilesId; // 🔥 ADD THIS
   final String fileType;
@@ -183,6 +191,8 @@ class MyProfileData {
       json["user"] is Map<String, dynamic>
           ? json["user"]
           : <String, dynamic>{
+              // Only `user_id` — top-level `id` on this payload is the crew
+              // member row id, not the user id.
               "id": json["user_id"],
               "name": json["display_name"] ??
                   "${json["first_name"] ?? ""} ${json["last_name"] ?? ""}"
@@ -265,7 +275,7 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) => User(
     isAvailable: (json["is_available"] as num?)?.toInt() ?? 0,
     workingDistance: json["working_distance"]?.toString() ?? "",
-    id: (json["id"] as num?)?.toInt() ?? 0,
+    id: _parseId(json["id"]) ?? _parseId(json["user_id"]) ?? 0,
     name: json["name"]?.toString() ?? "",
     email: json["email"]?.toString() ?? "",
     userType: (json["user_type"] as num?)?.toInt() ?? 0,
