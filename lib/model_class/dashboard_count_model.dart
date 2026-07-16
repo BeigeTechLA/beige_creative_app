@@ -35,12 +35,14 @@ class DashboardCountData {
   final int upcomingShoots;
   final int pendingRequests;
   final int equipmentRequests;
+  final DashboardPercentages? percentages;
 
   DashboardCountData({
     required this.completedShoots,
     required this.upcomingShoots,
     required this.pendingRequests,
     required this.equipmentRequests,
+    this.percentages,
   });
 
   factory DashboardCountData.fromRawJson(String str) => DashboardCountData.fromJson(json.decode(str));
@@ -52,6 +54,9 @@ class DashboardCountData {
     upcomingShoots: json["upcomingShoots"],
     pendingRequests: json["pendingRequests"],
     equipmentRequests: json["equipmentRequests"],
+    percentages: json["percentages"] == null
+        ? null
+        : DashboardPercentages.fromJson(json["percentages"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -59,5 +64,46 @@ class DashboardCountData {
     "upcomingShoots": upcomingShoots,
     "pendingRequests": pendingRequests,
     "equipmentRequests": equipmentRequests,
+    "percentages": percentages?.toJson(),
   };
+}
+
+class DashboardPercentages {
+  final PercentageInfo completedShoots;
+  final PercentageInfo upcomingShoots;
+  final PercentageInfo pendingRequests;
+
+  DashboardPercentages({
+    required this.completedShoots,
+    required this.upcomingShoots,
+    required this.pendingRequests,
+  });
+
+  factory DashboardPercentages.fromJson(Map<String, dynamic> json) => DashboardPercentages(
+        completedShoots: PercentageInfo.fromJson(json["completedShoots"] ?? {}),
+        upcomingShoots: PercentageInfo.fromJson(json["upcomingShoots"] ?? {}),
+        pendingRequests: PercentageInfo.fromJson(json["pendingRequests"] ?? {}),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "completedShoots": completedShoots.toJson(),
+        "upcomingShoots": upcomingShoots.toJson(),
+        "pendingRequests": pendingRequests.toJson(),
+      };
+}
+
+class PercentageInfo {
+  final String label;
+
+  PercentageInfo({
+    required this.label,
+  });
+
+  factory PercentageInfo.fromJson(Map<String, dynamic> json) => PercentageInfo(
+        label: json["label"] ?? "",
+      );
+
+  Map<String, dynamic> toJson() => {
+        "label": label,
+      };
 }

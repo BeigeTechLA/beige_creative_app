@@ -75,6 +75,9 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       completedShoots: counts?.completedShoots,
       upcomingShoots: counts?.upcomingShoots,
       pendingRequests: counts?.pendingRequests,
+      completedShootsLabel: counts?.percentages?.completedShoots.label ?? "",
+      upcomingShootsLabel: counts?.percentages?.upcomingShoots.label ?? "",
+      pendingRequestsLabel: counts?.percentages?.pendingRequests.label ?? "",
       // Upcoming carousel
       upcomingShootsList: upcoming,
       // Pending requests
@@ -186,6 +189,9 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
         completedShoots: counts?.completedShoots,
         upcomingShoots: counts?.upcomingShoots,
         pendingRequests: counts?.pendingRequests,
+        completedShootsLabel: counts?.percentages?.completedShoots.label ?? "",
+        upcomingShootsLabel: counts?.percentages?.upcomingShoots.label ?? "",
+        pendingRequestsLabel: counts?.percentages?.pendingRequests.label ?? "",
       );
     } catch (e, st) {
       AppLogger.e('Home acceptDecline failed', e, st);

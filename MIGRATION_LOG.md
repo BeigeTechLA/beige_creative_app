@@ -5,6 +5,29 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-16: Dashboard Percentage Trend Labels and Figma Styling
+
+- **Changes**:
+  - Modified `DashboardCountModel` and `DashboardCountData` to parse the new `percentages` field containing `completedShoots.label`, `upcomingShoots.label`, and `pendingRequests.label`.
+  - Added `completedShootsLabel`, `upcomingShootsLabel`, and `pendingRequestsLabel` fields (String, defaults to `""`) to `HomeState` and mapped them in `HomeNotifier.refresh()` and `HomeNotifier.acceptDecline()`.
+  - Updated `HomeScreen` to pass the percentage labels to `HomeDashboardSummary`.
+  - Refactored `HomeDashboardSummary` and `_DashboardCard` to render the trend percentage text under the count and pad single-digit counts with leading zeros (e.g. `03` instead of `3`) to match the Figma mockup.
+  - Dynamically prepended direction arrows (`▲` for positive/neutral trend, `▼` for negative trend) if missing.
+  - Styled trend labels with a contrast-safe color scheme (bright green/red for dark cards, dark green/dark red for the selected gold card).
+  - Updated `test_data.dart` mock counts response to include `percentages` payload.
+  - Updated `home_decompose_test.dart` to test trend label presentation and two-digit padded counts.
+
+- **Decisions**:
+  - Kept counts formatting inline using `.toString().padLeft(2, '0')`.
+  - Automatically derived positive/negative styling from trend label characters (`-` or `▼`), and adjusted colors dynamically when the card is selected to maintain high contrast and accessibility.
+
+- **Verification**:
+  - `flutter analyze` — passed with 0 issues.
+  - `flutter test test/features/home/presentation/home_decompose_test.dart` — passed.
+  - `flutter test test/features/home/presentation/home_notifier_test.dart` — passed.
+
+---
+
 ### 2026-07-15: Unified CTA Buttons & Loading State Option
 
 - **Changes**:
