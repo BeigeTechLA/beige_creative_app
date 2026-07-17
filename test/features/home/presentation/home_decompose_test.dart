@@ -70,9 +70,6 @@ void main() {
                 completedShoots: 12,
                 upcomingShoots: 4,
                 pendingRequests: 7,
-                completedShootsLabel: '+10% vs last month',
-                upcomingShootsLabel: '+5% vs last month',
-                pendingRequestsLabel: '-12% vs last month',
                 selectedIndex: 0,
                 onSelect: (_) {},
               ),
@@ -80,15 +77,12 @@ void main() {
           ),
         );
         expect(find.text('Your Dashboard'), findsOneWidget);
-        expect(find.text('Completed shoots'), findsOneWidget);
-        expect(find.text('Upcoming shoots'), findsOneWidget);
+        expect(find.text('Completed Shoots'), findsOneWidget);
+        expect(find.text('Upcoming Shoots'), findsOneWidget);
         expect(find.text('Pending Requests'), findsOneWidget);
         expect(find.text('12'), findsOneWidget);
         expect(find.text('04'), findsOneWidget);
         expect(find.text('07'), findsOneWidget);
-        expect(find.text('+10% vs last month'), findsOneWidget);
-        expect(find.text('+5% vs last month'), findsOneWidget);
-        expect(find.text('-12% vs last month'), findsOneWidget);
       },
     );
 

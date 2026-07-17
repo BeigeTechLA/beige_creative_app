@@ -407,6 +407,9 @@ class AppColors {
   /// 0xFFF1F2F5 — Grey wash (near-white)
   static const Color greyWash = Color(0xFFF1F2F5);
 
+  /// 0xFF807E7E — Neutral toggle border grey
+  static const Color toggleBorderGrey = Color(0xFF807E7E);
+
   /// 0xFF3D3D3D — Dark charcoal (also dashboardPanelBorder)
   static const Color darkCharcoal = Color(0xFF3D3D3D);
 

@@ -105,27 +105,24 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
         InkWell(
           onTap: () => context.goNamed(Routes.shoots.name),
           borderRadius: AppRadii.mdAll,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Upcoming Shoots",
-                  style: AppTextStyles.displayLabel14.copyWith(
-                    color: AppColors.white,
-                  ),
-                ),
-                const Icon(
-                  Icons.keyboard_arrow_right,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Upcoming Shoots",
+                style: AppTextStyles.displayLabel16.copyWith(
                   color: AppColors.white,
-                  size: 20,
                 ),
-              ],
-            ),
+              ),
+              const Icon(
+                Icons.keyboard_arrow_right,
+                color: AppColors.white,
+                size: 20,
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: AppSpacing.mld),
+        const SizedBox(height: 16),
         // Search & Filter Row
         Row(
           children: [
@@ -138,7 +135,7 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
                     color: AppColors.white.withValues(alpha: 0.12),
                     width: 1.0,
                   ),
-                  borderRadius: AppRadii.massiveAll,
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
@@ -189,7 +186,7 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
                         : AppColors.white.withValues(alpha: 0.12),
                     width: 1.0,
                   ),
-                  borderRadius: AppRadii.massiveAll,
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -217,7 +214,7 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.sectionGapLg),
+        const SizedBox(height: 36),
         // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
         widget.upcomingShoots.isEmpty
             ? Padding(
@@ -324,8 +321,8 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
                   );
                 },
               ),
-        const SizedBox(height: AppSpacing.dashboardDividerGap),
-        Divider(color: AppColors.dividerDark, thickness: 0.8),
+        // const SizedBox(height: AppSpacing.dashboardDividerGap),
+        // Divider(color: AppColors.dividerDark, thickness: 0.8),
       ],
     );
   }

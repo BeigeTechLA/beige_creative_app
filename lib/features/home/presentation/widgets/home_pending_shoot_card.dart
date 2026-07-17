@@ -45,14 +45,14 @@ class HomePendingShootCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "shoots",
+              "Shoot Requests",
               style: AppTextStyles.displayLabel16.copyWith(
                 color: AppColors.white,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
             color: AppColors.surfaceMid,

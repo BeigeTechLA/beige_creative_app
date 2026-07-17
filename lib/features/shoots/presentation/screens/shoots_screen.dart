@@ -9,7 +9,6 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../routes/shoots_args.dart';
-import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/shoots_model.dart';
@@ -17,6 +16,7 @@ import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
+import '../../../../shared/widgets/app_count_card.dart';
 import '../providers/shoots_providers.dart';
 
 class ShootsScreen extends ConsumerStatefulWidget {
@@ -56,22 +56,22 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                     horizontal: AppSpacing.mld,
                   ),
                   children: [
-                    _CountCard(
+                    AppCountCard(
                       number: '${state.counts?.pendingRequests ?? 0}',
                       title: 'Pending Shoots',
                       iconPath: AppAssets.clockIcon,
                     ),
-                    _CountCard(
+                    AppCountCard(
                       number: '${state.counts?.confirmedRequests ?? 0}',
                       title: 'Confirmed Shoots',
                       iconPath: AppAssets.videoIcon,
                     ),
-                    _CountCard(
+                    AppCountCard(
                       number: '${state.counts?.completedShoots ?? 0}',
                       title: 'Completed Shoots',
                       iconPath: AppAssets.photoIcon,
                     ),
-                    _CountCard(
+                    AppCountCard(
                       number: '${state.counts?.rejectedRequests ?? 0}',
                       title: 'Declined',
                       iconPath: AppAssets.declinedIcon,
@@ -153,77 +153,6 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
             ],
           ),
           if (state.isLoading) const AppLoader(),
-        ],
-      ),
-    );
-  }
-}
-
-class _CountCard extends StatelessWidget {
-  final String number;
-  final String title;
-  final String iconPath;
-
-  const _CountCard({
-    required this.number,
-    required this.title,
-    required this.iconPath,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 174,
-      height: 74,
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.dropdownIconInset,
-        AppSpacing.md,
-        AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.shootStatsCardTop, AppColors.shootStatsCardBottom],
-        ),
-        borderRadius: AppRadii.xlAll,
-        border: Border.all(color: AppColors.shootStatsCardBorder, width: 0.8),
-        boxShadow: AppShadows.cardBlack12,
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  number.padLeft(2, '0'),
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    height: 0.95,
-                  ),
-                ),
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodyCompactMedium.copyWith(height: 1.1),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 10,
-            right: 4,
-            child: Container(
-              alignment: Alignment.center,
-              child: SvgPicture.asset(iconPath, width: 25, height: 25),
-            ),
-          ),
         ],
       ),
     );

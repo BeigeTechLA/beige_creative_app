@@ -57,16 +57,18 @@ class HomeAvailabilitySection extends StatelessWidget {
           children: [
             Text(
               "Availability",
-              style: AppTextStyles.displayLabel15.copyWith(
+              style: AppTextStyles.displayLabel16.copyWith(
                 color: AppColors.white,
               ),
             ),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
+                minimumSize: const Size(0, 28),
+                fixedSize: const Size.fromHeight(28),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.base,
-                  vertical: AppSpacing.dropdownIconInset,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: AppRadii.roundAll,
@@ -81,19 +83,21 @@ class HomeAvailabilitySection extends StatelessWidget {
               },
               icon: const Icon(
                 Icons.add,
-                size: 18,
+                size: 12,
                 color: AppColors.black,
               ),
               label: Text(
                 "Add",
                 style: AppTextStyles.bodySmallBold.copyWith(
                   color: AppColors.black,
+                  fontSize:12,
+                  fontWeight:FontWeight.w600
                 ),
               ),
             ),
           ],
         ),
-        AppSpacing.verticalSmd,
+        const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
             color: AppColors.surfaceMid,
@@ -152,14 +156,15 @@ class HomeAvailabilitySection extends StatelessWidget {
 
                     // RIGHT SIDE (dropdown)
                     Container(
+                      height: 34,
+                      alignment: Alignment.center,
                       margin: const EdgeInsets.only(right: AppSpacing.sm),
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.md,
-                        vertical: AppSpacing.dropdownPadV,
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.white,
-                        borderRadius: AppRadii.lgAll,
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(

@@ -56,7 +56,7 @@ class HomeShootStatusPanel extends StatelessWidget {
           children: [
             Text(
               "Shoot Status",
-              style: AppTextStyles.displayLabel15.copyWith(
+              style: AppTextStyles.displayLabel16.copyWith(
                 color: AppColors.white,
               ),
             ),
@@ -100,7 +100,7 @@ class HomeShootStatusPanel extends StatelessWidget {
             ),
           ],
         ),
-        AppSpacing.verticalBase,
+        const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.lg,

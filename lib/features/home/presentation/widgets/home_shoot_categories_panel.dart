@@ -73,7 +73,7 @@ class HomeShootCategoriesPanel extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.dashboardPanelDark,
                 borderRadius: AppRadii.roundAll,
-                border: Border.all(color: AppColors.darkCharcoal),
+                border: Border.all(color: AppColors.toggleBorderGrey),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
