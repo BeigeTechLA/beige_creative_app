@@ -5,6 +5,30 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-17: Upcoming Meetings Carousel Section on Home Page
+
+- **Changes**:
+  - `home_state.dart`: Added `upcomingMeetingsList` field to `HomeState` along with constructor and `copyWith` mapping.
+  - `home_notifier.dart`: Watch `meetingsRepositoryProvider` and fetch upcoming meetings in parallel during coordinated refresh. Added resilient `_safeFetchUpcomingMeetings` handler.
+  - `home_upcoming_meetings_carousel.dart`: Created stacked swipeable carousel specifically for upcoming meetings. Reuses the standard `MeetingCard` component directly and sets `onTap` to advance the stack and `onDetailTap` to open the details bottom sheet.
+  - `meeting_card.dart`: Added an optional `backgroundColor` parameter to support stacked depth background colors, and an optional `onDetailTap` callback for separating card tap from details tap actions.
+  - `meeting_details_sheet.dart`: Set `useRootNavigator: false` to force pushing bottom sheet inside branch navigator.
+  - `app_shell.dart`: Wrapped the shell branch content in a `ClipRect` to clip branch-navigator overlays at the top of the bottom navigation bar.
+  - `home_screen.dart`: Switched to `TickerProviderStateMixin`, added independent `_meetingsController` and `_meetingsCurrentIndex` states, and rendered `HomeUpcomingMeetingsCarousel` below `HomeUpcomingCarousel`.
+  - `home_notifier_test.dart`: Added `_FakeMeetingsRepo` stub, registered it in `_createContainer`, updated refresh hydration assertion, and added a resilient failure test case.
+
+- **Decisions**:
+  - Implemented Option A (Premium Calendar Leaf) for the left side of the meeting card since meetings don't have project feature images, ensuring visual alignment (117x169) and layout consistency with shoots.
+  - Created a separate `AnimationController` for meetings carousel so shoots and meetings stacks can be swiped and animated independently.
+
+- **Verification**:
+  - `flutter analyze` — 0 issues found.
+  - `flutter test test/features/home/presentation/home_notifier_test.dart` — passed.
+  - `flutter test test/features/home/presentation/home_decompose_test.dart` — passed.
+  - `flutter test test/features/home/presentation/screens/home_screen_test.dart` — passed.
+
+---
+
 ### 2026-07-16: Fix Meetings "Invalid user ID" (session snapshot clobbered with 0)
 
 - **Changes**:

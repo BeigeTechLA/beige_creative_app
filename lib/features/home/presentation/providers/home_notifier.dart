@@ -8,6 +8,9 @@ import '../../../../model_class/crewstatus_model.dart';
 import '../../../../model_class/dashboard_count_model.dart' as dashboard;
 import '../../../../model_class/myprofile_model.dart' as profile;
 import '../../../../model_class/upcoming_shoots_model.dart';
+import '../../../meetings/domain/models/meeting.dart';
+import '../../../meetings/domain/models/meetings_tab.dart';
+import '../../../meetings/presentation/providers/meetings_repository_provider.dart';
 import '../../data/repositories/home_repository_impl.dart';
 import '../../domain/repositories/home_repository.dart';
 import 'home_state.dart';
@@ -27,7 +30,7 @@ final homeNotifierProvider =
 // Notifier
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Orchestrates the 7 parallel fetchers that populate the Home dashboard.
+/// Orchestrates the parallel fetchers that populate the Home dashboard.
 ///
 /// `build()` kicks off a coordinated `Future.wait` via [refresh]. Each
 /// sub-fetch is wrapped in a `_safe*` helper so partial failures don't block
@@ -42,7 +45,7 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
 
   // ── Public API ──────────────────────────────────────────────────────────
 
-  /// Coordinated refresh of all 7 data domains. Each fetch is individually
+  /// Coordinated refresh of all dashboard data domains. Each fetch is individually
   /// guarded so partial failures don't block the rest.
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
@@ -60,6 +63,7 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       _safeFetchShootCategories(repo, tab), // 4
       _safeFetchAvailability(repo, day.month, day.year), // 5
       _safeFetchProfile(repo), // 6
+      _safeFetchUpcomingMeetings(), // 7
     ]);
 
     final counts = results[0] as dashboard.DashboardCountData?;
@@ -69,6 +73,7 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     final categories = results[4] as Map<String, dynamic>?;
     final availability = results[5] as Map<String, dynamic>?;
     final profileData = results[6] as profile.MyProfileData?;
+    final upcomingMeetings = results[7] as List<Meeting>?;
 
     state = state.copyWith(
       // Dashboard counts
@@ -80,6 +85,8 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       pendingRequestsLabel: counts?.percentages?.pendingRequests.label ?? "",
       // Upcoming carousel
       upcomingShootsList: upcoming,
+      // Upcoming meetings carousel
+      upcomingMeetingsList: upcomingMeetings,
       // Pending requests
       pendingRequestCards: pending,
       // Crew stats
@@ -92,10 +99,8 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       // Shoot categories
       categoryPhotoTotal: categories?['photo']?['total'] as int?,
       categoryVideoTotal: categories?['video']?['total'] as int?,
-      acceptPhotographyShoots:
-          categories?['photo']?['acceptedShoots'] as int?,
-      acceptVideographyShoots:
-          categories?['video']?['acceptedShoots'] as int?,
+      acceptPhotographyShoots: categories?['photo']?['acceptedShoots'] as int?,
+      acceptVideographyShoots: categories?['video']?['acceptedShoots'] as int?,
       rejectedPhoto: categories?['photo']?['rejectedShoots'] as int?,
       rejectedVideo: categories?['video']?['rejectedShoots'] as int?,
       requestPhoto: categories?['photo']?['shootRequests'] as int?,
@@ -157,8 +162,11 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     final next = DateTime(current.year, current.month + delta);
     state = state.copyWith(focusedDay: next);
     final repo = ref.read(homeRepositoryProvider);
-    final availability =
-        await _safeFetchAvailability(repo, next.month, next.year);
+    final availability = await _safeFetchAvailability(
+      repo,
+      next.month,
+      next.year,
+    );
     if (availability != null) {
       state = state.copyWith(events: _prepareAvailabilityEvents(availability));
     }
@@ -168,8 +176,11 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   Future<void> onPageChanged(DateTime day) async {
     state = state.copyWith(focusedDay: day);
     final repo = ref.read(homeRepositoryProvider);
-    final availability =
-        await _safeFetchAvailability(repo, day.month, day.year);
+    final availability = await _safeFetchAvailability(
+      repo,
+      day.month,
+      day.year,
+    );
     if (availability != null) {
       state = state.copyWith(events: _prepareAvailabilityEvents(availability));
     }
@@ -273,7 +284,9 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
 
   // ── Safe wrappers (partial-failure resilient) ───────────────────────────
 
-  Future<dashboard.DashboardCountData?> _safeFetchDashboardCount(HomeRepository repo) async {
+  Future<dashboard.DashboardCountData?> _safeFetchDashboardCount(
+    HomeRepository repo,
+  ) async {
     try {
       return await repo.fetchDashboardCount();
     } catch (e, st) {
@@ -355,8 +368,8 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
             : null;
         final sessionId =
             (currentUser?.id.isNotEmpty ?? false) && currentUser!.id != '0'
-                ? currentUser.id
-                : null;
+            ? currentUser.id
+            : null;
         final resolvedId = profileId ?? sessionId;
         if (resolvedId == null) {
           AppLogger.w(
@@ -368,8 +381,13 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
             id: resolvedId,
             name: profileData.user.name,
             email: profileData.user.email,
-            role: currentUser?.role ?? (profileData.user.primaryRole.isNotEmpty ? profileData.user.primaryRole : null),
-            userType: currentUser?.userType ?? profileData.user.userType.toString(),
+            role:
+                currentUser?.role ??
+                (profileData.user.primaryRole.isNotEmpty
+                    ? profileData.user.primaryRole
+                    : null),
+            userType:
+                currentUser?.userType ?? profileData.user.userType.toString(),
             profileImageUrl: profileData.user.profileImageUrl.isNotEmpty
                 ? profileData.user.profileImageUrl
                 : currentUser?.profileImageUrl,
@@ -382,6 +400,16 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       return profileData;
     } catch (e, st) {
       AppLogger.e('Home fetchProfile failed', e, st);
+      return null;
+    }
+  }
+
+  Future<List<Meeting>?> _safeFetchUpcomingMeetings() async {
+    try {
+      final repo = ref.read(meetingsRepositoryProvider);
+      return await repo.list(tab: MeetingsTab.upcoming);
+    } catch (e, st) {
+      AppLogger.e('Home fetchUpcomingMeetings failed', e, st);
       return null;
     }
   }

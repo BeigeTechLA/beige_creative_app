@@ -6,12 +6,14 @@ import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../providers/home_notifier.dart';
+import '../widgets/common/home_section_divider.dart';
 import '../widgets/home_availability_section.dart';
 import '../widgets/home_dashboard_summary.dart';
 import '../widgets/home_pending_shoot_card.dart';
 import '../widgets/home_shoot_categories_panel.dart';
 import '../widgets/home_shoot_status_panel.dart';
 import '../widgets/home_upcoming_carousel.dart';
+import '../widgets/home_upcoming_meetings_carousel.dart';
 import '../widgets/home_welcome_header.dart';
 import '../widgets/home_filter_sheet.dart';
 
@@ -31,9 +33,12 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   int _currentIndex = 0;
+
+  late AnimationController _meetingsController;
+  int _meetingsCurrentIndex = 0;
 
   @override
   void initState() {
@@ -44,7 +49,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        final upcoming = ref.read(homeNotifierProvider).filteredUpcomingShootsList;
+        final upcoming = ref
+            .read(homeNotifierProvider)
+            .filteredUpcomingShootsList;
         if (upcoming.isNotEmpty) {
           setState(() {
             _currentIndex = (_currentIndex + 1) % upcoming.length;
@@ -53,11 +60,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         }
       }
     });
+
+    _meetingsController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _meetingsController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        final upcoming = ref.read(homeNotifierProvider).upcomingMeetingsList;
+        if (upcoming.isNotEmpty) {
+          setState(() {
+            _meetingsCurrentIndex =
+                (_meetingsCurrentIndex + 1) % upcoming.length;
+          });
+          _meetingsController.reset();
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _meetingsController.dispose();
     super.dispose();
   }
 
@@ -84,6 +109,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
+  void _goToNextMeeting() {
+    final upcoming = ref.read(homeNotifierProvider).upcomingMeetingsList;
+    if (!_meetingsController.isAnimating && upcoming.isNotEmpty) {
+      _meetingsController.forward();
+    }
+  }
+
+  void _goToPreviousMeeting() {
+    final upcoming = ref.read(homeNotifierProvider).upcomingMeetingsList;
+    if (!_meetingsController.isAnimating && upcoming.isNotEmpty) {
+      setState(() {
+        _meetingsCurrentIndex =
+            (_meetingsCurrentIndex - 1 + upcoming.length) % upcoming.length;
+      });
+    }
+  }
+
+  void _onMeetingCardTap() {
+    final upcoming = ref.read(homeNotifierProvider).upcomingMeetingsList;
+    if (!_meetingsController.isAnimating && upcoming.isNotEmpty) {
+      _meetingsController.forward();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final homeState = ref.watch(homeNotifierProvider);
@@ -93,6 +142,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     if (_currentIndex >= homeState.filteredUpcomingShootsList.length &&
         homeState.filteredUpcomingShootsList.isNotEmpty) {
       _currentIndex = 0;
+    }
+
+    // Reset meetings carousel index when list shrinks.
+    if (_meetingsCurrentIndex >= homeState.upcomingMeetingsList.length &&
+        homeState.upcomingMeetingsList.isNotEmpty) {
+      _meetingsCurrentIndex = 0;
     }
 
     final data = homeState.pendingRequestCards.isNotEmpty
@@ -133,16 +188,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       completedShoots: homeState.completedShoots,
                       upcomingShoots: homeState.upcomingShoots,
                       pendingRequests: homeState.pendingRequests,
-                      completedShootsLabel: homeState.completedShootsLabel,
-                      upcomingShootsLabel: homeState.upcomingShootsLabel,
-                      pendingRequestsLabel: homeState.pendingRequestsLabel,
                       selectedIndex: homeState.selectedDashboardIndex,
                       onSelect: notifier.selectDashboardCard,
                     ),
-                    AppSpacing.verticalMld,
-                    Divider(color: AppColors.dividerDark),
-                    AppSpacing.verticalMld,
-                    if (homeState.upcomingShootsList.isNotEmpty)
+                    const SizedBox(height: 24),
+                    const HomeSectionDivider(centerAlpha: 0.24),
+
+                    if (homeState.upcomingShootsList.isNotEmpty) ...[
+                      const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
                       HomeUpcomingCarousel(
                         upcomingShoots: homeState.filteredUpcomingShootsList,
                         hasOriginalShoots: homeState.upcomingShootsList.isNotEmpty,
@@ -178,7 +231,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         onSwipeNext: _goToNext,
                         onSwipePrevious: _goToPrevious,
                       ),
-                    AppSpacing.verticalMld,
+                      const SizedBox(height: 24), // 24 visual gap above divider
+                      const HomeSectionDivider(centerAlpha: 0.24),
+                    ],
+
+                    if (homeState.upcomingMeetingsList.isNotEmpty) ...[
+                      const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
+                      HomeUpcomingMeetingsCarousel(
+                        upcomingMeetings: homeState.upcomingMeetingsList,
+                        currentIndex: _meetingsCurrentIndex,
+                        controller: _meetingsController,
+                        onCardTap: _onMeetingCardTap,
+                        onSwipeNext: _goToNextMeeting,
+                        onSwipePrevious: _goToPreviousMeeting,
+                      ),
+                      // meetings stack has 25px bottom centering padding, so we don't need additional SizedBox!
+                      const HomeSectionDivider(centerAlpha: 0.24),
+                    ],
+
+                    const SizedBox(height: 24), // 24 visual gap below divider
                     HomeAvailabilitySection(
                       focusedDay: homeState.focusedDay,
                       selectedEvent: homeState.selectedEvent,
@@ -192,10 +263,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       onSelectedEventChanged: notifier.selectEvent,
                       onPageChanged: notifier.onPageChanged,
                     ),
-                    AppSpacing.verticalMd,
-                    Divider(color: AppColors.dividerDark, thickness: 0.8),
-                    AppSpacing.verticalMd,
+                    const SizedBox(height: 24), // 24 visual gap above divider
+                    const HomeSectionDivider(centerAlpha: 0.24),
+
                     if (homeState.pendingRequestCards.isNotEmpty) ...[
+                      const SizedBox(height: 24), // 24 visual gap below divider
                       HomePendingShootCard(
                         pendingShoot: data,
                         onAccept: (projectId) {
@@ -205,11 +277,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           notifier.refresh();
                         },
                       ),
-                      AppSpacing.verticalMd,
-                      Divider(color: AppColors.dividerDark, thickness: 0.8),
+                      const SizedBox(height: 24), // 24 visual gap above divider
+                      const HomeSectionDivider(centerAlpha: 0.24),
                     ],
-                    AppSpacing.verticalMd,
-                    AppSpacing.verticalMld,
+
+                    const SizedBox(height: 24), // 24 visual gap below divider
                     HomeShootStatusPanel(
                       successfulShoots: homeState.successfulShoots,
                       pendingShoots: homeState.pendingShootsCount,
@@ -219,17 +291,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       rangeOptions: const ['Week', 'Month', 'Year'],
                       onRangeChanged: notifier.changeStatsRange,
                     ),
-                    AppSpacing.verticalBase,
-                    Divider(color: AppColors.dividerDark, thickness: 0.8),
-                    AppSpacing.verticalBase,
+                    const SizedBox(height: 24), // 24 visual gap above divider
+                    const HomeSectionDivider(centerAlpha: 0.24),
+
+                    const SizedBox(height: 24), // 24 visual gap below divider
                     HomeShootCategoriesPanel(
                       selectedTab: homeState.selectedTab,
                       categoryPhotoTotal: homeState.categoryPhotoTotal,
                       categoryVideoTotal: homeState.categoryVideoTotal,
-                      acceptPhotographyShoots:
-                          homeState.acceptPhotographyShoots,
-                      acceptVideographyShoots:
-                          homeState.acceptVideographyShoots,
+                      acceptPhotographyShoots: homeState.acceptPhotographyShoots,
+                      acceptVideographyShoots: homeState.acceptVideographyShoots,
                       rejectedPhoto: homeState.rejectedPhoto,
                       rejectedVideo: homeState.rejectedVideo,
                       requestPhoto: homeState.requestPhoto,

@@ -1,11 +1,20 @@
 import 'package:beige_creative_app/features/home/domain/repositories/home_repository.dart';
 import 'package:beige_creative_app/features/home/presentation/providers/home_notifier.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/meeting.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/meeting_category.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/meeting_filter.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/meeting_platform.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/meeting_response.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/meeting_status.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/meetings_tab.dart';
+import 'package:beige_creative_app/features/meetings/domain/models/update_meeting_input.dart';
+import 'package:beige_creative_app/features/meetings/domain/repositories/meetings_repository.dart';
+import 'package:beige_creative_app/features/meetings/presentation/providers/meetings_repository_provider.dart';
 import 'package:beige_creative_app/model_class/create_dashboard_details_model.dart';
 import 'package:beige_creative_app/model_class/crewstatus_model.dart';
 import 'package:beige_creative_app/model_class/dashboard_count_model.dart'
     as dashboard;
-import 'package:beige_creative_app/model_class/myprofile_model.dart'
-    as profile;
+import 'package:beige_creative_app/model_class/myprofile_model.dart' as profile;
 import 'package:beige_creative_app/model_class/upcoming_shoots_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,17 +101,16 @@ dashboard.DashboardCountData _makeDashboardCount({
   int completed = 5,
   int upcoming = 3,
   int pending = 2,
-}) =>
-    dashboard.DashboardCountModel.fromJson({
-      'error': false,
-      'message': 'ok',
-      'data': {
-        'completedShoots': completed,
-        'upcomingShoots': upcoming,
-        'pendingRequests': pending,
-        'equipmentRequests': 0,
-      },
-    }).data;
+}) => dashboard.DashboardCountModel.fromJson({
+  'error': false,
+  'message': 'ok',
+  'data': {
+    'completedShoots': completed,
+    'upcomingShoots': upcoming,
+    'pendingRequests': pending,
+    'equipmentRequests': 0,
+  },
+}).data;
 
 CrewStatsData _makeCrewStats({
   int completed = 10,
@@ -111,19 +119,18 @@ CrewStatsData _makeCrewStats({
   int requests = 7,
   int photo = 6,
   int video = 4,
-}) =>
-    CrewStatsModel.fromJson({
-      'error': false,
-      'message': 'ok',
-      'data': {
-        'completedShoots': completed,
-        'pendingShoots': pendingS,
-        'rejectedShoots': rejected,
-        'shootRequests': requests,
-        'photographyShoots': photo,
-        'videographyShoots': video,
-      },
-    }).data;
+}) => CrewStatsModel.fromJson({
+  'error': false,
+  'message': 'ok',
+  'data': {
+    'completedShoots': completed,
+    'pendingShoots': pendingS,
+    'rejectedShoots': rejected,
+    'shootRequests': requests,
+    'photographyShoots': photo,
+    'videographyShoots': video,
+  },
+}).data;
 
 /// Pumps microtasks until the notifier has finished its initial `refresh`.
 Future<void> _drain() async {
@@ -132,10 +139,45 @@ Future<void> _drain() async {
   }
 }
 
-ProviderContainer _createContainer(_FakeHomeRepo repo) {
+class _FakeMeetingsRepo implements MeetingsRepository {
+  List<Meeting> meetings = [];
+  bool shouldFail = false;
+
+  @override
+  Future<List<Meeting>> list({
+    MeetingsTab? tab,
+    MeetingFilter? filter,
+    String? currentUserId,
+  }) async {
+    if (shouldFail) throw Exception('meetings failed');
+    return meetings;
+  }
+
+  @override
+  Future<Meeting> getById(String id) => throw UnimplementedError();
+  @override
+  Future<Meeting> update(String id, UpdateMeetingInput patch) =>
+      throw UnimplementedError();
+  @override
+  Future<void> delete(String id) => throw UnimplementedError();
+  @override
+  Future<Meeting> addParticipants(String id, List<String> userIds) =>
+      throw UnimplementedError();
+  @override
+  Future<Meeting> respond(String id, MeetingResponse response) =>
+      throw UnimplementedError();
+}
+
+ProviderContainer _createContainer(
+  _FakeHomeRepo repo, [
+  _FakeMeetingsRepo? meetingsRepo,
+]) {
   final container = ProviderContainer(
     overrides: [
       homeRepositoryProvider.overrideWithValue(repo),
+      meetingsRepositoryProvider.overrideWithValue(
+        meetingsRepo ?? _FakeMeetingsRepo(),
+      ),
     ],
   );
   addTearDown(container.dispose);
@@ -150,7 +192,7 @@ ProviderContainer _createContainer(_FakeHomeRepo repo) {
 
 void main() {
   group('HomeNotifier', () {
-    test('refresh hydrates all 7 data domains', () async {
+    test('refresh hydrates all data domains including meetings', () async {
       final repo = _FakeHomeRepo()
         ..dashboardCountResult = _makeDashboardCount()
         ..crewStatsResult = _makeCrewStats()
@@ -169,7 +211,24 @@ void main() {
           },
         };
 
-      final container = _createContainer(repo);
+      final dummyMeeting = Meeting(
+        id: 'm1',
+        title: 'Sync Meeting',
+        description: '',
+        project: 'Project Alpha',
+        platform: MeetingPlatform.meet,
+        startAt: DateTime(2026, 7, 17, 10),
+        endAt: DateTime(2026, 7, 17, 11),
+        link: 'https://meet.google.com/abc',
+        reminderMinutes: 10,
+        status: MeetingStatus.upcoming,
+        category: MeetingCategory.commercial,
+        agenda: const [],
+        participants: const [],
+      );
+
+      final meetingsRepo = _FakeMeetingsRepo()..meetings = [dummyMeeting];
+      final container = _createContainer(repo, meetingsRepo);
       await _drain();
 
       final state = container.read(homeNotifierProvider);
@@ -180,6 +239,23 @@ void main() {
       expect(state.successfulShoots, 10);
       expect(state.categoryPhotoTotal, 12);
       expect(state.categoryVideoTotal, 7);
+      expect(state.upcomingMeetingsList.length, 1);
+      expect(state.upcomingMeetingsList.first.title, 'Sync Meeting');
+    });
+
+    test('partial failure — meetings fails but other succeed', () async {
+      final repo = _FakeHomeRepo()
+        ..dashboardCountResult = _makeDashboardCount(completed: 99);
+      final meetingsRepo = _FakeMeetingsRepo()..shouldFail = true;
+
+      final container = _createContainer(repo, meetingsRepo);
+      await _drain();
+
+      final state = container.read(homeNotifierProvider);
+      expect(state.isLoading, false);
+      expect(state.completedShoots, 99);
+      expect(state.upcomingMeetingsList, isEmpty);
+      expect(state.errorMessage, isNull);
     });
 
     test('partial failure — crew stats fails but others succeed', () async {
@@ -225,8 +301,18 @@ void main() {
         ..dashboardCountResult = _makeDashboardCount()
         ..crewStatsResult = _makeCrewStats()
         ..shootCategoriesResult = {
-          'photo': {'total': 0, 'acceptedShoots': 0, 'rejectedShoots': 0, 'shootRequests': 0},
-          'video': {'total': 15, 'acceptedShoots': 10, 'rejectedShoots': 3, 'shootRequests': 5},
+          'photo': {
+            'total': 0,
+            'acceptedShoots': 0,
+            'rejectedShoots': 0,
+            'shootRequests': 0,
+          },
+          'video': {
+            'total': 15,
+            'acceptedShoots': 10,
+            'rejectedShoots': 3,
+            'shootRequests': 5,
+          },
         };
 
       final container = _createContainer(repo);
@@ -244,8 +330,7 @@ void main() {
       expect(state.categoryVideoTotal, 15);
     });
 
-    test('acceptDecline posts accept and refreshes pending + counts',
-        () async {
+    test('acceptDecline posts accept and refreshes pending + counts', () async {
       final repo = _FakeHomeRepo()
         ..dashboardCountResult = _makeDashboardCount(pending: 1)
         ..crewStatsResult = _makeCrewStats()
@@ -255,9 +340,7 @@ void main() {
       await _drain();
 
       // Accept project 42.
-      await container
-          .read(homeNotifierProvider.notifier)
-          .acceptDecline(42, 1);
+      await container.read(homeNotifierProvider.notifier).acceptDecline(42, 1);
       await _drain();
 
       expect(repo.lastAcceptProjectId, 42);
@@ -275,40 +358,38 @@ void main() {
       final container = _createContainer(repo);
       await _drain();
 
-      await container
-          .read(homeNotifierProvider.notifier)
-          .acceptDecline(42, 1);
+      await container.read(homeNotifierProvider.notifier).acceptDecline(42, 1);
       await _drain();
 
       final state = container.read(homeNotifierProvider);
       expect(state.errorMessage, 'Failed to respond to shoot');
     });
 
-    test('changeMonth adjusts focusedDay and re-fetches availability',
-        () async {
-      final repo = _FakeHomeRepo()
-        ..dashboardCountResult = _makeDashboardCount()
-        ..crewStatsResult = _makeCrewStats()
-        ..availabilityResult = {
-          '2026-07-15': {'available': true, 'projectAssigned': false},
-          '2026-07-20': {'available': false, 'projectAssigned': true},
-        };
+    test(
+      'changeMonth adjusts focusedDay and re-fetches availability',
+      () async {
+        final repo = _FakeHomeRepo()
+          ..dashboardCountResult = _makeDashboardCount()
+          ..crewStatsResult = _makeCrewStats()
+          ..availabilityResult = {
+            '2026-07-15': {'available': true, 'projectAssigned': false},
+            '2026-07-20': {'available': false, 'projectAssigned': true},
+          };
 
-      final container = _createContainer(repo);
-      await _drain();
+        final container = _createContainer(repo);
+        await _drain();
 
-      // Move forward one month.
-      await container
-          .read(homeNotifierProvider.notifier)
-          .changeMonth(1);
-      await _drain();
+        // Move forward one month.
+        await container.read(homeNotifierProvider.notifier).changeMonth(1);
+        await _drain();
 
-      final state = container.read(homeNotifierProvider);
-      // Availability re-fetched with new month.
-      expect(repo.lastAvailabilityMonth, isNotNull);
-      // Events should be populated from availabilityResult.
-      expect(state.events.length, 2);
-      expect(state.events.values, containsAll(['Available', 'Shoot']));
-    });
+        final state = container.read(homeNotifierProvider);
+        // Availability re-fetched with new month.
+        expect(repo.lastAvailabilityMonth, isNotNull);
+        // Events should be populated from availabilityResult.
+        expect(state.events.length, 2);
+        expect(state.events.values, containsAll(['Available', 'Shoot']));
+      },
+    );
   });
 }

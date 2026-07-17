@@ -29,6 +29,7 @@ Future<void> showMeetingDetailsSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
+    useRootNavigator: false,
     builder: (_) => MeetingDetailsSheet(meetingId: meetingId),
   );
 }
@@ -56,15 +57,11 @@ class MeetingDetailsSheet extends ConsumerWidget {
           child: SafeArea(
             top: false,
             child: detailsAsync.when(
-              data: (m) => _DetailsBody(
-                meeting: m,
-                scrollController: scrollController,
-              ),
+              data: (m) =>
+                  _DetailsBody(meeting: m, scrollController: scrollController),
               loading: () => _SheetShell(
                 scrollController: scrollController,
-                child: const Center(
-                  child: AppScreenLoader(size: 40),
-                ),
+                child: const Center(child: AppScreenLoader(size: 40)),
               ),
               error: (e, _) => _SheetShell(
                 scrollController: scrollController,
@@ -118,11 +115,7 @@ class _SheetShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       controller: scrollController,
-      children: [
-        const _Handle(),
-        const _SheetHeader(),
-        child,
-      ],
+      children: [const _Handle(), const _SheetHeader(), child],
     );
   }
 }
@@ -151,11 +144,7 @@ class _DetailsBody extends StatelessWidget {
   Future<void> _onCopyLink(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: meeting.link));
     if (!context.mounted) return;
-    TopMessage.show(
-      context,
-      'Link copied',
-      type: TopMessageType.success,
-    );
+    TopMessage.show(context, 'Link copied', type: TopMessageType.success);
   }
 
   @override
@@ -340,10 +329,7 @@ class _SheetHeader extends StatelessWidget {
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(
-                  Icons.close,
-                  color: AppColors.textPrimary,
-                ),
+                icon: const Icon(Icons.close, color: AppColors.textPrimary),
               ),
             ],
           ),
@@ -402,10 +388,7 @@ class _StatusPill extends StatelessWidget {
         horizontal: AppSpacing.base,
         vertical: AppSpacing.xs,
       ),
-      decoration: BoxDecoration(
-        color: _bg,
-        borderRadius: AppRadii.fullAll,
-      ),
+      decoration: BoxDecoration(color: _bg, borderRadius: AppRadii.fullAll),
       child: Text(
         status.label,
         style: AppTextStyles.bodyMedium.copyWith(

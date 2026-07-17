@@ -31,6 +31,11 @@ class MeetingCard extends StatefulWidget {
     this.onReject,
     this.rsvpPending = false,
     this.currentUserId,
+    this.backgroundColor,
+    this.onDetailTap,
+    this.isBackCard = false,
+    this.height,
+    this.margin,
   });
 
   final Meeting meeting;
@@ -38,6 +43,8 @@ class MeetingCard extends StatefulWidget {
   final VoidCallback onJoin;
   final VoidCallback? onAccept;
   final VoidCallback? onReject;
+  final Color? backgroundColor;
+  final VoidCallback? onDetailTap;
 
   /// ID of the currently logged-in user. Used to check if the meeting is self-created.
   final String? currentUserId;
@@ -45,6 +52,10 @@ class MeetingCard extends StatefulWidget {
   /// True while an Accept/Reject network call for this meeting is in flight.
   /// Disables both RSVP buttons and renders a spinner on each.
   final bool rsvpPending;
+
+  final bool isBackCard;
+  final double? height;
+  final EdgeInsetsGeometry? margin;
 
   @override
   State<MeetingCard> createState() => _MeetingCardState();
@@ -59,8 +70,11 @@ class _MeetingCardState extends State<MeetingCard> {
       '${_time.format(widget.meeting.startAt)} to ${_time.format(widget.meeting.endAt)}';
 
   bool get _showRsvp {
-    debugPrint('[MEETING_CARD_DEBUG] title="${widget.meeting.title}" meeting.createdById="${widget.meeting.createdById}" widget.currentUserId="${widget.currentUserId}"');
-    final isSelfCreated = widget.currentUserId != null &&
+    debugPrint(
+      '[MEETING_CARD_DEBUG] title="${widget.meeting.title}" meeting.createdById="${widget.meeting.createdById}" widget.currentUserId="${widget.currentUserId}"',
+    );
+    final isSelfCreated =
+        widget.currentUserId != null &&
         widget.meeting.createdById == widget.currentUserId;
     debugPrint('[MEETING_CARD_DEBUG] isSelfCreated=$isSelfCreated');
     if (isSelfCreated) return false;
@@ -115,8 +129,9 @@ class _MeetingCardState extends State<MeetingCard> {
     if (participants.isEmpty) return const SizedBox.shrink();
     const double avatarSize = 24.0;
     const double overlap = 8.0;
-    final displayCount =
-        participants.length > 4 ? participants.sublist(0, 4) : participants;
+    final displayCount = participants.length > 4
+        ? participants.sublist(0, 4)
+        : participants;
     final stackWidth = displayCount.isEmpty
         ? 0.0
         : displayCount.length * (avatarSize - overlap) + overlap;
@@ -149,16 +164,213 @@ class _MeetingCardState extends State<MeetingCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
+    Widget details = IgnorePointer(
+      ignoring: widget.isBackCard,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: widget.isBackCard ? 0.0 : 1.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            const Divider(
+              color: AppColors.dividerDark,
+              height: 1,
+              thickness: 1,
+            ),
+            const SizedBox(height: 12),
+
+            // 3. Calendar + time rows
+            Row(
+              children: [
+                const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 16,
+                  color: AppColors.white,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  _dateLabel,
+                  style: AppTextStyles.body14.copyWith(
+                    color: AppColors.white,
+                    fontSize: 12,
+                    fontFamily: 'Outfit',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.schedule_outlined,
+                  size: 16,
+                  color: AppColors.white,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  _timeLabel,
+                  style: AppTextStyles.body14.copyWith(
+                    color: AppColors.white,
+                    fontSize: 12,
+                    fontFamily: 'Outfit',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(
+              color: AppColors.dividerDark,
+              height: 1,
+              thickness: 1,
+            ),
+            const SizedBox(height: 12),
+
+            // 4. Participants
+            Row(
+              children: [
+                _buildOverlappingAvatars(widget.meeting.participants),
+                if (widget.meeting.participants.length > 4) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.textPrimary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '+${widget.meeting.participants.length - 4} Participants',
+                      style: AppTextStyles.body11.copyWith(
+                        color: AppColors.textSecondary,
+                        fontFamily: 'Outfit',
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // 5a. RSVP — status line + Accept / Reject buttons.
+            if (_showRsvp) ...[
+              if (_myRsvp == MeetingResponse.accepted ||
+                  _myRsvp == MeetingResponse.declined) ...[
+                _ResponseStatusLine(response: _myRsvp!),
+                const SizedBox(height: 12),
+              ],
+              Builder(
+                builder: (_) {
+                  final showAccept = _myRsvp != MeetingResponse.accepted;
+                  final showReject = _myRsvp != MeetingResponse.declined;
+                  final accept = _RsvpButton(
+                    label: 'Accept',
+                    backgroundColor: AppColors.softMint,
+                    textColor: AppColors.greenBright,
+                    onTap: widget.onAccept!,
+                    loading: widget.rsvpPending,
+                  );
+                  final reject = _RsvpButton(
+                    label: 'Reject',
+                    backgroundColor: AppColors.meetingRejectSoftBg,
+                    textColor: AppColors.meetingRejected,
+                    onTap: widget.onReject!,
+                    loading: widget.rsvpPending,
+                  );
+                  final Widget left = showAccept ? accept : reject;
+                  final bool showBoth = showAccept && showReject;
+                  return Row(
+                    children: [
+                      Expanded(child: left),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: showBoth ? reject : const SizedBox.shrink(),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            // 5b. Action buttons
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: widget.onJoin,
+                    borderRadius: BorderRadius.circular(24),
+                    child: Container(
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Join Meeting',
+                            style: AppTextStyles.buttonMedium.copyWith(
+                              color: AppColors.onPrimary,
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.open_in_new,
+                            size: 16,
+                            color: AppColors.onPrimary,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                InkWell(
+                  onTap: widget.onDetailTap ?? widget.onTap,
+                  borderRadius: BorderRadius.circular(24),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: AppColors.textPrimary.withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.north_east,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (widget.height != null) {
+      details = Expanded(child: details);
+    }
+
+    Widget card = Semantics(
       button: true,
       label: 'Meeting ${widget.meeting.title} on $_dateLabel',
       child: InkWell(
         onTap: widget.onTap,
         borderRadius: BorderRadius.circular(24.0),
         child: Container(
+          height: widget.height,
           padding: const EdgeInsets.all(20.0),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: widget.backgroundColor ?? AppColors.surface,
             borderRadius: BorderRadius.circular(24.0),
             border: Border.all(color: AppColors.dividerDark),
           ),
@@ -248,197 +460,22 @@ class _MeetingCardState extends State<MeetingCard> {
                   _PlatformBadge(platform: widget.meeting.platform),
                 ],
               ),
-              const SizedBox(height: 12),
-              const Divider(
-                color: AppColors.dividerDark,
-                height: 1,
-                thickness: 1,
-              ),
-              const SizedBox(height: 12),
 
-              // 3. Calendar + time rows
-              Row(
-                children: [
-                  const Icon(
-                    Icons.calendar_today_outlined,
-                    size: 16,
-                    color: AppColors.white,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _dateLabel,
-                    style: AppTextStyles.body14.copyWith(
-                      color: AppColors.white,
-                      fontSize: 12,
-                      fontFamily: 'Outfit',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.schedule_outlined,
-                    size: 16,
-                    color: AppColors.white,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _timeLabel,
-                    style: AppTextStyles.body14.copyWith(
-                      color: AppColors.white,
-                      fontSize: 12,
-                      fontFamily: 'Outfit',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              const Divider(
-                color: AppColors.dividerDark,
-                height: 1,
-                thickness: 1,
-              ),
-              const SizedBox(height: 12),
-
-              // 4. Participants
-              Row(
-                children: [
-                  _buildOverlappingAvatars(widget.meeting.participants),
-                  if (widget.meeting.participants.length > 4) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.textPrimary.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '+${widget.meeting.participants.length - 4} Participants',
-                        style: AppTextStyles.body11.copyWith(
-                          color: AppColors.textSecondary,
-                          fontFamily: 'Outfit',
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // 5a. RSVP — status line + Accept / Reject buttons.
-              // Once the user has responded, hide the matching action button
-              // (Accept once accepted, Reject once declined) and show a
-              // "Your Response: ..." label so they can flip the answer with
-              // the remaining button.
-              if (_showRsvp) ...[
-                if (_myRsvp == MeetingResponse.accepted ||
-                    _myRsvp == MeetingResponse.declined) ...[
-                  _ResponseStatusLine(response: _myRsvp!),
-                  const SizedBox(height: 12),
-                ],
-                Builder(
-                  builder: (_) {
-                    final showAccept = _myRsvp != MeetingResponse.accepted;
-                    final showReject = _myRsvp != MeetingResponse.declined;
-                    final accept = _RsvpButton(
-                      label: 'Accept',
-                      backgroundColor: AppColors.softMint,
-                      textColor: AppColors.greenBright,
-                      onTap: widget.onAccept!,
-                      loading: widget.rsvpPending,
-                    );
-                    final reject = _RsvpButton(
-                      label: 'Reject',
-                      backgroundColor: AppColors.meetingRejectSoftBg,
-                      textColor: AppColors.meetingRejected,
-                      onTap: widget.onReject!,
-                      loading: widget.rsvpPending,
-                    );
-                    // Single visible button always sits in the left half so
-                    // it never drifts to the right column.
-                    final Widget left = showAccept ? accept : reject;
-                    final bool showBoth = showAccept && showReject;
-                    return Row(
-                      children: [
-                        Expanded(child: left),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child:
-                              showBoth ? reject : const SizedBox.shrink(),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 12),
-              ],
-
-              // 5b. Action buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: widget.onJoin,
-                      borderRadius: BorderRadius.circular(24),
-                      child: Container(
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        alignment: Alignment.center,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Join Meeting',
-                              style: AppTextStyles.buttonMedium.copyWith(
-                                color: AppColors.onPrimary,
-                                fontFamily: 'Outfit',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(
-                              Icons.open_in_new,
-                              size: 16,
-                              color: AppColors.onPrimary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  InkWell(
-                    onTap: widget.onTap,
-                    borderRadius: BorderRadius.circular(24),
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: AppColors.textPrimary.withValues(alpha: 0.08),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.north_east,
-                        size: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              details,
             ],
           ),
         ),
       ),
     );
+
+    if (widget.margin != null) {
+      card = Padding(
+        padding: widget.margin!,
+        child: card,
+      );
+    }
+
+    return card;
   }
 }
 
@@ -501,8 +538,9 @@ class _ResponseStatusLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAccepted = response == MeetingResponse.accepted;
-    final color =
-        isAccepted ? AppColors.greenBright : AppColors.meetingRejected;
+    final color = isAccepted
+        ? AppColors.greenBright
+        : AppColors.meetingRejected;
     final label = isAccepted ? 'Accepted' : 'Rejected';
     return Row(
       children: [
@@ -560,10 +598,7 @@ class _PlatformBadge extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),

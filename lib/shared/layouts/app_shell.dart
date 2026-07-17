@@ -13,9 +13,19 @@ import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
 import '../../config/env.dart';
 import '../../core/firebase/analytics_service.dart';
+import '../../features/availability/presentation/providers/availability_providers.dart'
+    show manageAvailabilityNotifierProvider;
+import '../../features/file_manager/presentation/providers/file_manager_root_notifier.dart'
+    show fileManagerRootNotifierProvider;
 import '../../features/home/presentation/providers/home_notifier.dart';
+import '../../features/meetings/presentation/providers/meetings_list_notifier.dart'
+    show meetingsListNotifierProvider;
+import '../../features/messages/presentation/providers/conversation_list_providers.dart'
+    show conversationListProvider;
 import '../../features/profile/presentation/providers/my_profile_providers.dart'
     show profileImageBustProvider;
+import '../../features/shoots/presentation/providers/shoots_providers.dart'
+    show shootsListProvider;
 
 /// Hosts the root branches (Dashboard, Shoots, Files, Messages, future
 /// drawer-only entries, Manage Availability) under a
@@ -25,19 +35,42 @@ import '../../features/profile/presentation/providers/my_profile_providers.dart'
 /// Replaces the legacy `Mainscreen` (also drops the per-frame
 /// `BackdropFilter(sigmaX: 80, sigmaY: 70)` which was costing 4-6 ms/frame
 /// per `AUDIT_PERF.md` D-1).
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   final StatefulNavigationShell shell;
 
   const AppShell({super.key, required this.shell});
 
-  void _goBranch(int index) {
+  void _goBranch(WidgetRef ref, int index) {
+    final isBranchSwitch = index != shell.currentIndex;
     shell.goBranch(index, initialLocation: index == shell.currentIndex);
-    // Phase F — StatefulShellRoute branch switches don't push on the root
-    // Navigator, so AppAnalyticsObserver doesn't see them. Log explicitly.
-    if (index != shell.currentIndex &&
-        index >= 0 &&
-        index < _branchRoutes.length) {
+    if (isBranchSwitch && index >= 0 && index < _branchRoutes.length) {
+      // Phase F — StatefulShellRoute branch switches don't push on the root
+      // Navigator, so AppAnalyticsObserver doesn't see them. Log explicitly.
       AnalyticsService.logScreenView(screenName: _branchRoutes[index].name);
+      // IndexedStack keeps branch widgets (and their notifiers) alive, so a
+      // switch alone never re-runs build(). Invalidate the destination
+      // branch's notifier to force a fresh API load on every menu change.
+      _invalidateBranchData(ref, index);
+    }
+  }
+
+  /// Branch index → root data notifier. Each listed notifier self-fetches in
+  /// `build()`, so invalidation triggers a full reload. Branches 6/7 are
+  /// static placeholders with no data.
+  static void _invalidateBranchData(WidgetRef ref, int index) {
+    switch (index) {
+      case 0:
+        ref.invalidate(homeNotifierProvider);
+      case 1:
+        ref.invalidate(shootsListProvider);
+      case 2:
+        ref.invalidate(fileManagerRootNotifierProvider);
+      case 3:
+        ref.invalidate(conversationListProvider);
+      case 4:
+        ref.invalidate(meetingsListNotifierProvider);
+      case 5:
+        ref.invalidate(manageAvailabilityNotifierProvider);
     }
   }
 
@@ -55,25 +88,25 @@ class AppShell extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.background,
       drawer: _AppShellDrawer(
         currentIndex: shell.currentIndex,
         onSelect: (i) {
           Navigator.of(context).pop();
-          _goBranch(i);
+          _goBranch(ref, i);
         },
       ),
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
-      body: shell,
+      body: ClipRect(child: shell),
       // File Manager (branch 2) hidden from bottom bar pre-release; branches
       // 4+ are drawer-only. Hide the bar when current branch isn't in the
       // visible set instead of clamping to Dashboard.
       bottomNavigationBar: _bottomBarBranches.contains(shell.currentIndex)
           ? _AppShellBottomBar(
               currentBranchIndex: shell.currentIndex,
-              onSelectBranch: _goBranch,
+              onSelectBranch: (i) => _goBranch(ref, i),
             )
           : null,
     );
@@ -134,7 +167,10 @@ class _AppShellBottomBar extends StatelessWidget {
         for (final item in items)
           BottomNavigationBarItem(
             icon: _InactiveNavIcon(item.inactiveIcon),
-            activeIcon: _ActiveNavIcon(item.activeIcon, width: item.activeWidth),
+            activeIcon: _ActiveNavIcon(
+              item.activeIcon,
+              width: item.activeWidth,
+            ),
             label: item.label,
           ),
       ],
@@ -241,17 +277,17 @@ class _AppShellDrawer extends ConsumerWidget {
 
     final userName = profileData != null
         ? ('${profileData.firstName} ${profileData.lastName}'.trim().isNotEmpty
-            ? '${profileData.firstName} ${profileData.lastName}'.trim()
-            : profileData.user.name.isNotEmpty
-                ? profileData.user.name
-                : 'No Name')
+              ? '${profileData.firstName} ${profileData.lastName}'.trim()
+              : profileData.user.name.isNotEmpty
+              ? profileData.user.name
+              : 'No Name')
         : 'Loading...';
     final userEmail = profileData != null
         ? (profileData.email.isNotEmpty
-            ? profileData.email
-            : profileData.user.email.isNotEmpty
-                ? profileData.user.email
-                : 'No Email')
+              ? profileData.email
+              : profileData.user.email.isNotEmpty
+              ? profileData.user.email
+              : 'No Email')
         : 'Loading...';
     return Drawer(
       backgroundColor: AppColors.surfaceAbyss,
@@ -303,10 +339,11 @@ class _AppShellDrawer extends ConsumerWidget {
                               children: [
                                 Text(
                                   userName,
-                                  style: AppTextStyles.bodyMediumStrong.copyWith(
-                                    color: AppColors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: AppTextStyles.bodyMediumStrong
+                                      .copyWith(
+                                        color: AppColors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                 ),
                                 Text(
                                   userEmail,

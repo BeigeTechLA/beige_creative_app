@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../model_class/create_dashboard_details_model.dart';
 import '../../../../model_class/myprofile_model.dart' as profile;
 import '../../../../model_class/upcoming_shoots_model.dart';
+import '../../../meetings/domain/models/meeting.dart';
 
 /// Combined immutable state for the Home dashboard.
 ///
@@ -20,6 +21,9 @@ class HomeState {
 
   // ── Upcoming shoots carousel ──
   final List<UpcomingShootDatum> upcomingShootsList;
+
+  // ── Upcoming meetings carousel ──
+  final List<Meeting> upcomingMeetingsList;
 
   // ── Pending requests (dashboard-details filtered to 'pending') ──
   final List<PendingRequestCard> pendingRequestCards;
@@ -74,6 +78,7 @@ class HomeState {
     this.upcomingShootsLabel = "",
     this.pendingRequestsLabel = "",
     this.upcomingShootsList = const [],
+    this.upcomingMeetingsList = const [],
     this.pendingRequestCards = const [],
     this.successfulShoots = 0,
     this.pendingShootsCount = 0,
@@ -119,14 +124,19 @@ class HomeState {
     final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
 
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final startOfWeekDate = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
+    final startOfWeekDate = DateTime(
+      startOfWeek.year,
+      startOfWeek.month,
+      startOfWeek.day,
+    );
     final endOfWeekDate = startOfWeekDate.add(const Duration(days: 7));
 
     return upcomingShootsList.where((shoot) {
       // 1. Search Query
       if (upcomingSearchQuery.isNotEmpty) {
         final query = upcomingSearchQuery.toLowerCase();
-        final matchesQuery = shoot.projectName.toLowerCase().contains(query) ||
+        final matchesQuery =
+            shoot.projectName.toLowerCase().contains(query) ||
             shoot.eventLocation.toLowerCase().contains(query) ||
             shoot.shootType.toLowerCase().contains(query);
         if (!matchesQuery) return false;
@@ -136,19 +146,23 @@ class HomeState {
       if (upcomingSelectedDate != null && upcomingSelectedDate!.isNotEmpty) {
         final dateFilter = upcomingSelectedDate!;
         if (dateFilter == "Today") {
-          if (shoot.eventDate.isBefore(todayStart) || shoot.eventDate.isAfter(todayEnd)) {
+          if (shoot.eventDate.isBefore(todayStart) ||
+              shoot.eventDate.isAfter(todayEnd)) {
             return false;
           }
         } else if (dateFilter == "This Week") {
-          if (shoot.eventDate.isBefore(startOfWeekDate) || shoot.eventDate.isAfter(endOfWeekDate)) {
+          if (shoot.eventDate.isBefore(startOfWeekDate) ||
+              shoot.eventDate.isAfter(endOfWeekDate)) {
             return false;
           }
         } else if (dateFilter == "This Month") {
-          if (shoot.eventDate.year != now.year || shoot.eventDate.month != now.month) {
+          if (shoot.eventDate.year != now.year ||
+              shoot.eventDate.month != now.month) {
             return false;
           }
         } else if (dateFilter == "Marketing Analytics") {
-          final isMarketing = shoot.projectName.toLowerCase().contains("marketing") ||
+          final isMarketing =
+              shoot.projectName.toLowerCase().contains("marketing") ||
               shoot.projectName.toLowerCase().contains("analytics") ||
               shoot.shootType.toLowerCase().contains("marketing") ||
               shoot.shootType.toLowerCase().contains("analytics");
@@ -157,7 +171,8 @@ class HomeState {
       }
 
       // 3. Status Filter
-      if (upcomingSelectedStatus != null && upcomingSelectedStatus!.isNotEmpty) {
+      if (upcomingSelectedStatus != null &&
+          upcomingSelectedStatus!.isNotEmpty) {
         final statusFilter = upcomingSelectedStatus!.toLowerCase();
         if (statusFilter == "upcoming") {
           if (shoot.isCompleted) return false;
@@ -171,7 +186,8 @@ class HomeState {
       }
 
       // 4. Category Filter
-      if (upcomingSelectedCategory != null && upcomingSelectedCategory!.isNotEmpty) {
+      if (upcomingSelectedCategory != null &&
+          upcomingSelectedCategory!.isNotEmpty) {
         final categoryFilter = upcomingSelectedCategory!.toLowerCase();
         if (!shoot.shootType.toLowerCase().contains(categoryFilter) &&
             !shoot.projectName.toLowerCase().contains(categoryFilter)) {
@@ -186,7 +202,10 @@ class HomeState {
           final isShoot = typeFilter == "shoots" || typeFilter == "shoot";
           final isRental = typeFilter == "rental" || typeFilter == "rentals";
           final shootTypeLower = shoot.shootType.toLowerCase();
-          if (isShoot && !(shootTypeLower.contains("shoot") || shootTypeLower.contains("photo") || shootTypeLower.contains("video"))) {
+          if (isShoot &&
+              !(shootTypeLower.contains("shoot") ||
+                  shootTypeLower.contains("photo") ||
+                  shootTypeLower.contains("video"))) {
             return false;
           }
           if (isRental && !shootTypeLower.contains("rental")) {
@@ -207,6 +226,7 @@ class HomeState {
     String? upcomingShootsLabel,
     String? pendingRequestsLabel,
     List<UpcomingShootDatum>? upcomingShootsList,
+    List<Meeting>? upcomingMeetingsList,
     List<PendingRequestCard>? pendingRequestCards,
     int? successfulShoots,
     int? pendingShootsCount,
@@ -247,6 +267,7 @@ class HomeState {
       upcomingShootsLabel: upcomingShootsLabel ?? this.upcomingShootsLabel,
       pendingRequestsLabel: pendingRequestsLabel ?? this.pendingRequestsLabel,
       upcomingShootsList: upcomingShootsList ?? this.upcomingShootsList,
+      upcomingMeetingsList: upcomingMeetingsList ?? this.upcomingMeetingsList,
       pendingRequestCards: pendingRequestCards ?? this.pendingRequestCards,
       successfulShoots: successfulShoots ?? this.successfulShoots,
       pendingShootsCount: pendingShootsCount ?? this.pendingShootsCount,
@@ -275,10 +296,18 @@ class HomeState {
       selectedEvent: selectedEvent ?? this.selectedEvent,
       focusedDay: focusedDay ?? this.focusedDay,
       upcomingSearchQuery: upcomingSearchQuery ?? this.upcomingSearchQuery,
-      upcomingSelectedDate: clearFilters ? null : (upcomingSelectedDate ?? this.upcomingSelectedDate),
-      upcomingSelectedStatus: clearFilters ? null : (upcomingSelectedStatus ?? this.upcomingSelectedStatus),
-      upcomingSelectedCategory: clearFilters ? null : (upcomingSelectedCategory ?? this.upcomingSelectedCategory),
-      upcomingSelectedType: clearFilters ? null : (upcomingSelectedType ?? this.upcomingSelectedType),
+      upcomingSelectedDate: clearFilters
+          ? null
+          : (upcomingSelectedDate ?? this.upcomingSelectedDate),
+      upcomingSelectedStatus: clearFilters
+          ? null
+          : (upcomingSelectedStatus ?? this.upcomingSelectedStatus),
+      upcomingSelectedCategory: clearFilters
+          ? null
+          : (upcomingSelectedCategory ?? this.upcomingSelectedCategory),
+      upcomingSelectedType: clearFilters
+          ? null
+          : (upcomingSelectedType ?? this.upcomingSelectedType),
     );
   }
 }
