@@ -25,7 +25,7 @@ class FmFolderDto {
   }
 
   static DateTime? _parseDate(dynamic v) {
-    if (v is String && v.isNotEmpty) return DateTime.tryParse(v);
+    if (v is String && v.isNotEmpty) return DateTime.tryParse(v)?.toLocal();
     return null;
   }
 

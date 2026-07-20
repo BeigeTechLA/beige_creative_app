@@ -180,6 +180,17 @@ class _ShootCard extends StatelessWidget {
     final formattedTime =
         '${DateTimeUtils.formatTime(shoot.startTime)} - ${DateTimeUtils.formatTime(shoot.endTime)}';
 
+    final isActionable = DateTimeUtils.isActionableBeforeOneHour(
+      eventDate: shoot.eventDate,
+      startTime: shoot.startTime,
+      status: shoot.status,
+      crewAccept: shoot.crewAccept,
+    );
+
+    final isConfirmed = shoot.status.toLowerCase() == 'confirmed' ||
+        shoot.status.toLowerCase() == 'accepted' ||
+        shoot.crewAccept == 1;
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.xl),
       decoration: BoxDecoration(
@@ -189,31 +200,100 @@ class _ShootCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: AppRadii.topHuge,
-            child: SizedBox(
-              height: 180,
-              width: double.infinity,
-              child: shoot.shootTypeImageUrl.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: Env.imageUrl + shoot.shootTypeImageUrl,
-                      height: 180,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      color: AppColors.surfaceStats,
-                      alignment: Alignment.center,
-                      child: SvgPicture.asset(
-                        AppAssets.imageHolder,
-                        height: 60,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.white24,
-                          BlendMode.srcIn,
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: AppRadii.topHuge,
+                child: SizedBox(
+                  height: 180,
+                  width: double.infinity,
+                  child: shoot.shootTypeImageUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: Env.imageUrl + shoot.shootTypeImageUrl,
+                          height: 180,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          color: AppColors.surfaceStats,
+                          alignment: Alignment.center,
+                          child: SvgPicture.asset(
+                            AppAssets.imageHolder,
+                            height: 60,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.white24,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                ),
+              ),
+              // Bottom-left status & category pills
+              Positioned(
+                bottom: 12,
+                left: 12,
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isConfirmed
+                            ? AppColors.shootAcceptButtonBackground
+                            : AppColors.lightGoldenBg,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isConfirmed
+                                ? Icons.check_circle
+                                : Icons.schedule,
+                            size: 14,
+                            color: isConfirmed
+                                ? AppColors.shootAcceptButtonText
+                                : AppColors.amber,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isConfirmed ? 'Confirmed' : 'Pending',
+                            style: AppTextStyles.body11.copyWith(
+                              color: isConfirmed
+                                  ? AppColors.shootAcceptButtonText
+                                  : AppColors.amber,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceWarmLight,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        shoot.shootType.isNotEmpty
+                            ? shoot.shootType
+                            : 'Commercial',
+                        style: AppTextStyles.body11.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
-            ),
+                  ],
+                ),
+              ),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.mld),
@@ -224,10 +304,11 @@ class _ShootCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'ID: ${shoot.id}',
+                      'ID: #${shoot.id}',
                       style: AppTextStyles.inherit.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
+                        color: AppColors.white70,
                       ),
                     ),
                     InkWell(
@@ -235,31 +316,45 @@ class _ShootCard extends StatelessWidget {
                       child: Text(
                         'View Details',
                         style: AppTextStyles.bodySmallStrong.copyWith(
+                          color: AppColors.white,
                           decoration: TextDecoration.underline,
+                          decorationColor: AppColors.white,
                         ),
                       ),
                     ),
                   ],
                 ),
-                Text(shoot.projectName, style: AppTextStyles.body15Strong),
+                const SizedBox(height: 4),
+                Text(
+                  shoot.projectName,
+                  style: AppTextStyles.body15Strong.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
                 AppSpacing.verticalSm,
                 const Divider(color: AppColors.dividerDark),
                 Row(
                   children: [
                     SvgPicture.asset(AppAssets.calendar, width: 14, height: 14),
                     AppSpacing.gapHXs,
-                    Text(formattedDate, style: AppTextStyles.body10),
+                    Text(
+                      formattedDate,
+                      style: AppTextStyles.body10.copyWith(color: AppColors.white70),
+                    ),
                     const SizedBox(width: AppSpacing.mld),
                     SvgPicture.asset(AppAssets.time, width: 14, height: 14),
                     AppSpacing.gapHXs,
-                    Text(formattedTime, style: AppTextStyles.body10),
+                    Text(
+                      formattedTime,
+                      style: AppTextStyles.body10.copyWith(color: AppColors.white70),
+                    ),
                     const SizedBox(width: AppSpacing.mld),
                     SvgPicture.asset(AppAssets.location, width: 14, height: 14),
                     AppSpacing.gapHXs,
                     Expanded(
                       child: Text(
                         shoot.eventLocation,
-                        style: AppTextStyles.body10,
+                        style: AppTextStyles.body10.copyWith(color: AppColors.white70),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -269,8 +364,9 @@ class _ShootCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const SizedBox(),
-                    if (shoot.status.toLowerCase() == 'pending')
+                    // Crew avatars stack
+                    _buildAvatarGroup(),
+                    if (isActionable)
                       Row(
                         children: [
                           ElevatedButton(
@@ -282,6 +378,12 @@ class _ShootCard extends StatelessWidget {
                                   AppColors.shootAcceptButtonBackground,
                               disabledForegroundColor:
                                   AppColors.shootAcceptButtonText,
+                              elevation: 0,
+                              shape: const StadiumBorder(),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 8,
+                              ),
                             ),
                             onPressed: isAcceptInFlight ? null : onAccept,
                             child: isAcceptInFlight
@@ -294,7 +396,7 @@ class _ShootCard extends StatelessWidget {
                                     'Accept',
                                     style: AppTextStyles.bodySmall.copyWith(
                                       color: AppColors.shootAcceptButtonText,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                           ),
@@ -304,13 +406,19 @@ class _ShootCard extends StatelessWidget {
                               backgroundColor:
                                   AppColors.shootDeclineButtonBackground,
                               foregroundColor: AppColors.shootDeclineButtonText,
+                              elevation: 0,
+                              shape: const StadiumBorder(),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 8,
+                              ),
                             ),
                             onPressed: onDecline,
                             child: Text(
                               'Decline',
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: AppColors.shootDeclineButtonText,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -319,6 +427,62 @@ class _ShootCard extends StatelessWidget {
                   ],
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatarGroup() {
+    const double avatarSize = 26.0;
+    const double overlap = 8.0;
+    const int maxDisplay = 3;
+
+    return SizedBox(
+      height: avatarSize,
+      width: maxDisplay * (avatarSize - overlap) + overlap + 18,
+      child: Stack(
+        children: [
+          for (int i = 0; i < maxDisplay; i++)
+            Positioned(
+              left: i * (avatarSize - overlap),
+              child: Container(
+                width: avatarSize,
+                height: avatarSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.surfaceMid, width: 1.5),
+                  color: AppColors.surfaceWarm,
+                ),
+                child: ClipOval(
+                  child: Icon(
+                    Icons.person,
+                    size: 14,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ),
+          Positioned(
+            left: maxDisplay * (avatarSize - overlap),
+            child: Container(
+              width: avatarSize,
+              height: avatarSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.surfaceMid, width: 1.5),
+                color: AppColors.surfaceDark,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                '+3',
+                style: AppTextStyles.body10.copyWith(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 10,
+                ),
+              ),
             ),
           ),
         ],

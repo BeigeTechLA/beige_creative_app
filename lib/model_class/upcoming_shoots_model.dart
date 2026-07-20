@@ -62,7 +62,7 @@ class UpcomingShootDatum {
     shootTypeImageUrl: json["shoot_type_image_url"] ?? "",
     projectId: json["project_id"],
     projectName: json["project_name"],
-    eventDate: DateTime.parse(json["event_date"]),
+    eventDate: DateTime.parse(json["event_date"]).toLocal(),
     startTime: json["start_time"],
     endTime: json["end_time"],
     eventLocation: json["event_location"],

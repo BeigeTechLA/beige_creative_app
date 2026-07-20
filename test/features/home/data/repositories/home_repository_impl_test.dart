@@ -76,6 +76,54 @@ void main() {
     repo = HomeRepositoryImpl(client);
   });
 
+  group('fetchCreatorDashboard', () {
+    test('happy: parses consolidated dashboard payload', () async {
+      when(() => dio.get<dynamic>(any())).thenAnswer(
+        (_) async => _ok({
+          'error': false,
+          'message': 'Dashboard details fetched successfully',
+          'data': {
+            'dashboard_counts': {
+              'completedShoots': 5,
+              'upcomingShoots': 2,
+              'pendingRequests': 1,
+              'equipmentRequests': 0,
+            },
+            'crew_stats': _crewStatsResponse()['data'],
+            'failed_sections': [],
+          },
+        }),
+      );
+
+      final data = await repo.fetchCreatorDashboard(
+        statsDateFilter: 'this_month',
+        categoriesTab: 'photo',
+        availabilityMonth: 7,
+        availabilityYear: 2026,
+      );
+
+      expect(data.dashboardCounts?.completedShoots, 5);
+      expect(data.crewStats?.completedShoots, 10);
+      expect(data.failedSections, isEmpty);
+    });
+
+    test('error envelope → throws server message', () async {
+      when(() => dio.get<dynamic>(any()))
+          .thenAnswer((_) async => _ok(errorResponse(message: 'unauthorized')));
+
+      await expectLater(
+        repo.fetchCreatorDashboard(
+          statsDateFilter: 'this_month',
+          categoriesTab: 'photo',
+          availabilityMonth: 7,
+          availabilityYear: 2026,
+        ),
+        throwsA(predicate(
+            (e) => e is Exception && e.toString().contains('unauthorized'))),
+      );
+    });
+  });
+
   group('fetchDashboardCount', () {
     test('happy: parses count payload', () async {
       when(() => dio.get<dynamic>(any())).thenAnswer(

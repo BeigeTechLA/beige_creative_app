@@ -49,7 +49,7 @@ class FmJson {
 
   static DateTime? asDate(dynamic v) {
     if (v is DateTime) return v;
-    if (v is String && v.isNotEmpty) return DateTime.tryParse(v);
+    if (v is String && v.isNotEmpty) return DateTime.tryParse(v)?.toLocal();
     return null;
   }
 

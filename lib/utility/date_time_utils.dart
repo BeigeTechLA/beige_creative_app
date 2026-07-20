@@ -70,7 +70,7 @@ class DateTimeUtils {
     try {
       if (date == null || date.isEmpty) return fallback;
 
-      final parsed = DateTime.parse(date);
+      final parsed = DateTime.parse(date).toLocal();
       return formatDateValue(parsed, fallback: fallback);
     } catch (_) {
       return fallback;
@@ -93,7 +93,7 @@ class DateTimeUtils {
     try {
       if (date == null || date.isEmpty) return fallback;
 
-      final parsed = DateTime.parse(date);
+      final parsed = DateTime.parse(date).toLocal();
       return DateFormat(kReadableDatePattern).format(parsed);
     } catch (_) {
       return fallback;
@@ -105,7 +105,7 @@ class DateTimeUtils {
     try {
       if (date == null || date.isEmpty) return fallback;
 
-      final parsed = DateTime.parse(date);
+      final parsed = DateTime.parse(date).toLocal();
       return DateFormat(kWeekdayDatePattern).format(parsed);
     } catch (_) {
       return fallback;
@@ -188,7 +188,7 @@ class DateTimeUtils {
       }
       /// 🔥 CASE 3: already ISO format
       else {
-        parsed = DateTime.parse(time);
+        parsed = DateTime.parse(time).toLocal();
       }
 
       return DateFormat(kTime12HourPattern).format(parsed);
@@ -431,7 +431,7 @@ class DateTimeUtils {
       if (rawDates.isEmpty) return fallback;
 
       final parsedDates = rawDates
-          .map((date) => DateTime.tryParse(date))
+          .map((date) => DateTime.tryParse(date)?.toLocal())
           .whereType<DateTime>()
           .toList();
 
@@ -468,7 +468,7 @@ class DateTimeUtils {
     try {
       if (date == null || time == null) return fallback;
 
-      final dateParsed = DateTime.parse(date);
+      final dateParsed = DateTime.parse(date).toLocal();
       final timeParsed = DateFormat(kTime24HmsPattern).parse(time);
 
       final combined = DateTime(
@@ -483,6 +483,66 @@ class DateTimeUtils {
     } catch (_) {
       return fallback;
     }
+  }
+
+  /// ✅ Combine date and time string into a single DateTime object
+  static DateTime? combineDateAndTime(DateTime? date, String? timeStr) {
+    if (date == null || timeStr == null || timeStr.trim().isEmpty) return date;
+
+    try {
+      final cleanTime = timeStr.trim();
+      DateTime timeParsed;
+
+      if (cleanTime.toUpperCase().contains("AM") ||
+          cleanTime.toUpperCase().contains("PM")) {
+        try {
+          timeParsed = DateFormat(kTime12HourPattern).parse(cleanTime);
+        } catch (_) {
+          timeParsed = DateFormat(kTime12HourShortPattern).parse(cleanTime);
+        }
+      } else if (cleanTime.split(":").length == 3) {
+        timeParsed = DateFormat(kTime24HmsPattern).parse(cleanTime);
+      } else {
+        timeParsed = DateFormat(kTime24HmPattern).parse(cleanTime);
+      }
+
+      return DateTime(
+        date.year,
+        date.month,
+        date.day,
+        timeParsed.hour,
+        timeParsed.minute,
+      );
+    } catch (_) {
+      return date;
+    }
+  }
+
+  /// ✅ Check if shoot is actionable (unaccepted and current time is > 1 hour before start time)
+  static bool isActionableBeforeOneHour({
+    required DateTime? eventDate,
+    required String? startTime,
+    required String? status,
+    int crewAccept = 0,
+    DateTime? now,
+  }) {
+    // Check acceptance status
+    final lowerStatus = (status ?? '').toLowerCase().trim();
+    if (lowerStatus == 'confirmed' || lowerStatus == 'accepted' || crewAccept == 1 || crewAccept == 2) {
+      return false;
+    }
+
+    if (eventDate == null || startTime == null || startTime.trim().isEmpty) {
+      return false;
+    }
+
+    final shootStart = combineDateAndTime(eventDate, startTime);
+    if (shootStart == null) return false;
+
+    final currentTime = now ?? DateTime.now();
+    final cutoffTime = shootStart.subtract(const Duration(hours: 1));
+
+    return currentTime.isBefore(cutoffTime);
   }
 
   static String _formatGroupedMonthDays(

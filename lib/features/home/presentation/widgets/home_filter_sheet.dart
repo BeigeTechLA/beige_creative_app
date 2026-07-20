@@ -61,6 +61,7 @@ void showHomeFilterBottomSheet({
   final List<String> typeOptions = ["All", "shoots", "Rental"];
 
   showModalBottomSheet(
+    useRootNavigator: true,
     isScrollControlled: true,
     context: context,
     builder: (_) {

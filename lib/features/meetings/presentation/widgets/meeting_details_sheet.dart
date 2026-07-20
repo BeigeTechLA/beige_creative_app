@@ -29,7 +29,7 @@ Future<void> showMeetingDetailsSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    useRootNavigator: false,
+    useRootNavigator: true,
     builder: (_) => MeetingDetailsSheet(meetingId: meetingId),
   );
 }

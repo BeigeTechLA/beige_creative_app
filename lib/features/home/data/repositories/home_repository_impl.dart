@@ -1,6 +1,7 @@
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../model_class/create_dashboard_details_model.dart';
+import '../../../../model_class/creator_dashboard_model.dart';
 import '../../../../model_class/crewstatus_model.dart';
 import '../../../../model_class/dashboard_count_model.dart' as dashboard;
 import '../../../../model_class/myprofile_model.dart' as profile;
@@ -11,6 +12,39 @@ class HomeRepositoryImpl implements HomeRepository {
   final DioClient _client;
 
   const HomeRepositoryImpl(this._client);
+
+  @override
+  Future<CreatorDashboardPayload> fetchCreatorDashboard({
+    required String statsDateFilter,
+    required String categoriesTab,
+    String projectsStatus = 'active',
+    required int availabilityMonth,
+    required int availabilityYear,
+    int meetingsLimit = 3,
+  }) async {
+    final endpoint = ApiEndpoints.creatorDashboard(
+      statsDateFilter: statsDateFilter,
+      categoriesTab: categoriesTab,
+      projectsStatus: projectsStatus,
+      availabilityMonth: availabilityMonth,
+      availabilityYear: availabilityYear,
+      meetingsLimit: meetingsLimit,
+    );
+    final response = await _client.dio.get<dynamic>(endpoint);
+    final data = response.data;
+    if (data is! Map<String, dynamic>) {
+      throw Exception('Creator dashboard returned unexpected payload');
+    }
+    final model = CreatorDashboardModel.fromJson(data);
+    if (model.error) {
+      throw Exception(
+        model.message.isNotEmpty
+            ? model.message
+            : 'Failed to load creator dashboard',
+      );
+    }
+    return model.data;
+  }
 
   @override
   Future<dashboard.DashboardCountData> fetchDashboardCount() async {

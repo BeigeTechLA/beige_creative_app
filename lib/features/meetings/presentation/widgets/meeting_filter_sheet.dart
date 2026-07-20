@@ -19,6 +19,7 @@ Future<MeetingFilter?> showMeetingFilterSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: AppColors.background,
+    useRootNavigator: true,
     shape: const RoundedRectangleBorder(borderRadius: AppRadii.topSheet),
     builder: (_) => MeetingFilterSheet(current: current),
   );

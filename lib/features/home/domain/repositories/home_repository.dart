@@ -1,14 +1,21 @@
 import '../../../../model_class/create_dashboard_details_model.dart';
+import '../../../../model_class/creator_dashboard_model.dart';
 import '../../../../model_class/crewstatus_model.dart';
 import '../../../../model_class/dashboard_count_model.dart' as dashboard;
 import '../../../../model_class/myprofile_model.dart' as profile;
 import '../../../../model_class/upcoming_shoots_model.dart';
 
 /// Domain contract for Home dashboard data.
-///
-/// Each method maps to one of the 7 legacy `initState` fetchers that were
-/// inlined in the pre-migration `HomeScreen`. See Task 4.16 for context.
 abstract class HomeRepository {
+  /// GET `creator/dashboard`. Consolidates all dashboard data into a single payload.
+  Future<CreatorDashboardPayload> fetchCreatorDashboard({
+    required String statsDateFilter,
+    required String categoriesTab,
+    String projectsStatus = 'active',
+    required int availabilityMonth,
+    required int availabilityYear,
+    int meetingsLimit = 3,
+  });
   /// GET `creator/dashboard-count`.
   Future<dashboard.DashboardCountData> fetchDashboardCount();
 

@@ -81,7 +81,7 @@ class PendingRequestCard {
         projectId: json["project_id"] ?? 0,
         crewMemberId: json["crew_member_id"] ?? 0,
         projectName: json["project_name"] ?? "",
-        eventDate: DateTime.parse(json["event_date"]),
+        eventDate: DateTime.parse(json["event_date"]).toLocal(),
         startTime: json["start_time"] ?? "",
         endTime: json["end_time"] ?? "",
         eventLocation: json["event_location"] ?? "",

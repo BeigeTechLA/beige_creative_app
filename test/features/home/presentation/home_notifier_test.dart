@@ -11,6 +11,7 @@ import 'package:beige_creative_app/features/meetings/domain/models/update_meetin
 import 'package:beige_creative_app/features/meetings/domain/repositories/meetings_repository.dart';
 import 'package:beige_creative_app/features/meetings/presentation/providers/meetings_repository_provider.dart';
 import 'package:beige_creative_app/model_class/create_dashboard_details_model.dart';
+import 'package:beige_creative_app/model_class/creator_dashboard_model.dart';
 import 'package:beige_creative_app/model_class/crewstatus_model.dart';
 import 'package:beige_creative_app/model_class/dashboard_count_model.dart'
     as dashboard;
@@ -31,6 +32,7 @@ class _FakeHomeRepo implements HomeRepository {
   Map<String, dynamic>? shootCategoriesResult;
   Map<String, dynamic>? availabilityResult;
   profile.MyProfileData? profileResult;
+  List<Meeting>? upcomingMeetingsResult;
 
   bool shouldFailCrewStats = false;
   bool shouldFailAcceptDecline = false;
@@ -41,6 +43,31 @@ class _FakeHomeRepo implements HomeRepository {
   int? lastAvailabilityYear;
   int? lastAcceptProjectId;
   int? lastAcceptCrewAccept;
+
+  @override
+  Future<CreatorDashboardPayload> fetchCreatorDashboard({
+    required String statsDateFilter,
+    required String categoriesTab,
+    String projectsStatus = 'active',
+    required int availabilityMonth,
+    required int availabilityYear,
+    int meetingsLimit = 3,
+  }) async {
+    lastStatsFilter = statsDateFilter;
+    lastCategoriesTab = categoriesTab;
+    lastAvailabilityMonth = availabilityMonth;
+    lastAvailabilityYear = availabilityYear;
+    return CreatorDashboardPayload(
+      dashboardCounts: dashboardCountResult,
+      upcomingShoots: upcomingShoots,
+      pendingRequests: pendingRequests,
+      crewStats: shouldFailCrewStats ? null : crewStatsResult,
+      shootCategories: shootCategoriesResult,
+      availability: availabilityResult,
+      profileDetail: profileResult,
+      upcomingMeetings: upcomingMeetingsResult,
+    );
+  }
 
   @override
   Future<dashboard.DashboardCountData> fetchDashboardCount() async {
@@ -193,24 +220,6 @@ ProviderContainer _createContainer(
 void main() {
   group('HomeNotifier', () {
     test('refresh hydrates all data domains including meetings', () async {
-      final repo = _FakeHomeRepo()
-        ..dashboardCountResult = _makeDashboardCount()
-        ..crewStatsResult = _makeCrewStats()
-        ..shootCategoriesResult = {
-          'photo': {
-            'total': 12,
-            'acceptedShoots': 8,
-            'rejectedShoots': 2,
-            'shootRequests': 3,
-          },
-          'video': {
-            'total': 7,
-            'acceptedShoots': 5,
-            'rejectedShoots': 1,
-            'shootRequests': 2,
-          },
-        };
-
       final dummyMeeting = Meeting(
         id: 'm1',
         title: 'Sync Meeting',
@@ -226,6 +235,25 @@ void main() {
         agenda: const [],
         participants: const [],
       );
+
+      final repo = _FakeHomeRepo()
+        ..dashboardCountResult = _makeDashboardCount()
+        ..crewStatsResult = _makeCrewStats()
+        ..upcomingMeetingsResult = [dummyMeeting]
+        ..shootCategoriesResult = {
+          'photo': {
+            'total': 12,
+            'acceptedShoots': 8,
+            'rejectedShoots': 2,
+            'shootRequests': 3,
+          },
+          'video': {
+            'total': 7,
+            'acceptedShoots': 5,
+            'rejectedShoots': 1,
+            'shootRequests': 2,
+          },
+        };
 
       final meetingsRepo = _FakeMeetingsRepo()..meetings = [dummyMeeting];
       final container = _createContainer(repo, meetingsRepo);

@@ -90,7 +90,7 @@ class Shoot {
       projectName: json["project_name"] ?? "",
 
       eventDate:
-      DateTime.tryParse(json["event_date"] ?? "") ??
+      DateTime.tryParse(json["event_date"] ?? "")?.toLocal() ??
           DateTime.now(),
 
       startTime: json["start_time"] ?? "",

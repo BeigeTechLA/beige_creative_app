@@ -4,6 +4,7 @@ import '../../../../core/providers/core_providers.dart';
 import '../../../../core/session/session_store.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/create_dashboard_details_model.dart';
+import '../../../../model_class/creator_dashboard_model.dart';
 import '../../../../model_class/crewstatus_model.dart';
 import '../../../../model_class/dashboard_count_model.dart' as dashboard;
 import '../../../../model_class/myprofile_model.dart' as profile;
@@ -30,12 +31,8 @@ final homeNotifierProvider =
 // Notifier
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Orchestrates the parallel fetchers that populate the Home dashboard.
-///
-/// `build()` kicks off a coordinated `Future.wait` via [refresh]. Each
-/// sub-fetch is wrapped in a `_safe*` helper so partial failures don't block
-/// the whole dashboard — individual sections simply retain their default
-/// values when their endpoint fails.
+/// Orchestrates fetching of the Home dashboard via the consolidated
+/// `GET creator/dashboard` endpoint.
 class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   @override
   HomeState build() {
@@ -45,8 +42,7 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
 
   // ── Public API ──────────────────────────────────────────────────────────
 
-  /// Coordinated refresh of all dashboard data domains. Each fetch is individually
-  /// guarded so partial failures don't block the rest.
+  /// Fetches consolidated dashboard data in a single GET creator/dashboard call.
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
     final repo = ref.read(homeRepositoryProvider);
@@ -55,155 +51,112 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     final tab = state.selectedTab == 0 ? 'photo' : 'video';
     final day = state.focusedDay;
 
-    final results = await Future.wait([
-      _safeFetchDashboardCount(repo), // 0
-      _safeFetchUpcomingShoots(repo), // 1
-      _safeFetchPendingRequests(repo), // 2
-      _safeFetchCrewStats(repo, filterValue), // 3
-      _safeFetchShootCategories(repo, tab), // 4
-      _safeFetchAvailability(repo, day.month, day.year), // 5
-      _safeFetchProfile(repo), // 6
-      _safeFetchUpcomingMeetings(), // 7
-    ]);
-
-    final counts = results[0] as dashboard.DashboardCountData?;
-    final upcoming = results[1] as List<UpcomingShootDatum>?;
-    final pending = results[2] as List<PendingRequestCard>?;
-    final stats = results[3] as CrewStatsData?;
-    final categories = results[4] as Map<String, dynamic>?;
-    final availability = results[5] as Map<String, dynamic>?;
-    final profileData = results[6] as profile.MyProfileData?;
-    final upcomingMeetings = results[7] as List<Meeting>?;
-
-    state = state.copyWith(
-      // Dashboard counts
-      completedShoots: counts?.completedShoots,
-      upcomingShoots: counts?.upcomingShoots,
-      pendingRequests: counts?.pendingRequests,
-      completedShootsLabel: counts?.percentages?.completedShoots.label ?? "",
-      upcomingShootsLabel: counts?.percentages?.upcomingShoots.label ?? "",
-      pendingRequestsLabel: counts?.percentages?.pendingRequests.label ?? "",
-      // Upcoming carousel
-      upcomingShootsList: upcoming,
-      // Upcoming meetings carousel
-      upcomingMeetingsList: upcomingMeetings,
-      // Pending requests
-      pendingRequestCards: pending,
-      // Crew stats
-      successfulShoots: stats?.completedShoots,
-      pendingShootsCount: stats?.pendingShoots,
-      rejectedShoots: stats?.rejectedShoots,
-      shootRequests: stats?.shootRequests,
-      photographyShoots: stats?.photographyShoots,
-      videographyShoots: stats?.videographyShoots,
-      // Shoot categories
-      categoryPhotoTotal: categories?['photo']?['total'] as int?,
-      categoryVideoTotal: categories?['video']?['total'] as int?,
-      acceptPhotographyShoots: categories?['photo']?['acceptedShoots'] as int?,
-      acceptVideographyShoots: categories?['video']?['acceptedShoots'] as int?,
-      rejectedPhoto: categories?['photo']?['rejectedShoots'] as int?,
-      rejectedVideo: categories?['video']?['rejectedShoots'] as int?,
-      requestPhoto: categories?['photo']?['shootRequests'] as int?,
-      requestVideo: categories?['video']?['shootRequests'] as int?,
-      // Availability
-      events: availability != null
-          ? _prepareAvailabilityEvents(availability)
-          : null,
-      // Profile
-      profileData: profileData,
-      // Done
-      isLoading: false,
+    final dashboardData = await _safeFetchCreatorDashboard(
+      repo,
+      filterValue,
+      tab,
+      day.month,
+      day.year,
     );
+
+    if (dashboardData == null) {
+      state = state.copyWith(isLoading: false);
+      return;
+    }
+
+    _applyDashboardData(dashboardData);
   }
 
-  /// Re-fetch crew stats with a new time-range filter.
+  /// Re-fetch crew stats with a new time-range filter via consolidated endpoint.
   Future<void> changeStatsRange(String range) async {
     state = state.copyWith(selectedRange: range);
     final repo = ref.read(homeRepositoryProvider);
     final filter = _filterValueForRange(range);
-    final stats = await _safeFetchCrewStats(repo, filter);
-    if (stats != null) {
-      state = state.copyWith(
-        successfulShoots: stats.completedShoots,
-        pendingShootsCount: stats.pendingShoots,
-        rejectedShoots: stats.rejectedShoots,
-        shootRequests: stats.shootRequests,
-        photographyShoots: stats.photographyShoots,
-        videographyShoots: stats.videographyShoots,
-      );
+    final tabStr = state.selectedTab == 0 ? 'photo' : 'video';
+    final day = state.focusedDay;
+
+    final dashboardData = await _safeFetchCreatorDashboard(
+      repo,
+      filter,
+      tabStr,
+      day.month,
+      day.year,
+    );
+
+    if (dashboardData != null) {
+      _applyDashboardData(dashboardData);
     }
   }
 
-  /// Re-fetch shoot categories with a new tab (0=photo, 1=video).
+  /// Re-fetch shoot categories with a new tab (0=photo, 1=video) via consolidated endpoint.
   Future<void> changeShootCategoryTab(int tab) async {
     state = state.copyWith(selectedTab: tab);
     final repo = ref.read(homeRepositoryProvider);
+    final filter = _filterValueForRange(state.selectedRange);
     final tabStr = tab == 0 ? 'photo' : 'video';
-    final categories = await _safeFetchShootCategories(repo, tabStr);
-    if (categories != null) {
-      state = state.copyWith(
-        categoryPhotoTotal: categories['photo']?['total'] as int? ?? 0,
-        categoryVideoTotal: categories['video']?['total'] as int? ?? 0,
-        acceptPhotographyShoots:
-            categories['photo']?['acceptedShoots'] as int? ?? 0,
-        acceptVideographyShoots:
-            categories['video']?['acceptedShoots'] as int? ?? 0,
-        rejectedPhoto: categories['photo']?['rejectedShoots'] as int? ?? 0,
-        rejectedVideo: categories['video']?['rejectedShoots'] as int? ?? 0,
-        requestPhoto: categories['photo']?['shootRequests'] as int? ?? 0,
-        requestVideo: categories['video']?['shootRequests'] as int? ?? 0,
-      );
+    final day = state.focusedDay;
+
+    final dashboardData = await _safeFetchCreatorDashboard(
+      repo,
+      filter,
+      tabStr,
+      day.month,
+      day.year,
+    );
+
+    if (dashboardData != null) {
+      _applyDashboardData(dashboardData);
     }
   }
 
-  /// Adjust focusedDay by [delta] months and re-fetch availability.
+  /// Adjust focusedDay by [delta] months and re-fetch availability via consolidated endpoint.
   Future<void> changeMonth(int delta) async {
     final current = state.focusedDay;
     final next = DateTime(current.year, current.month + delta);
     state = state.copyWith(focusedDay: next);
     final repo = ref.read(homeRepositoryProvider);
-    final availability = await _safeFetchAvailability(
+    final filter = _filterValueForRange(state.selectedRange);
+    final tabStr = state.selectedTab == 0 ? 'photo' : 'video';
+
+    final dashboardData = await _safeFetchCreatorDashboard(
       repo,
+      filter,
+      tabStr,
       next.month,
       next.year,
     );
-    if (availability != null) {
-      state = state.copyWith(events: _prepareAvailabilityEvents(availability));
+
+    if (dashboardData != null) {
+      _applyDashboardData(dashboardData);
     }
   }
 
-  /// Calendar page changed — update focusedDay and re-fetch availability.
+  /// Calendar page changed — update focusedDay and re-fetch availability via consolidated endpoint.
   Future<void> onPageChanged(DateTime day) async {
     state = state.copyWith(focusedDay: day);
     final repo = ref.read(homeRepositoryProvider);
-    final availability = await _safeFetchAvailability(
+    final filter = _filterValueForRange(state.selectedRange);
+    final tabStr = state.selectedTab == 0 ? 'photo' : 'video';
+
+    final dashboardData = await _safeFetchCreatorDashboard(
       repo,
+      filter,
+      tabStr,
       day.month,
       day.year,
     );
-    if (availability != null) {
-      state = state.copyWith(events: _prepareAvailabilityEvents(availability));
+
+    if (dashboardData != null) {
+      _applyDashboardData(dashboardData);
     }
   }
 
-  /// Accept or decline a pending shoot request. Refreshes pending list +
-  /// dashboard counts on success.
+  /// Accept or decline a pending shoot request. Refreshes dashboard on success.
   Future<void> acceptDecline(int projectId, int crewAccept) async {
     final repo = ref.read(homeRepositoryProvider);
     try {
       await repo.acceptDeclineProject(projectId, crewAccept);
-      // Refresh only the affected sections.
-      final pending = await _safeFetchPendingRequests(repo);
-      final counts = await _safeFetchDashboardCount(repo);
-      state = state.copyWith(
-        pendingRequestCards: pending,
-        completedShoots: counts?.completedShoots,
-        upcomingShoots: counts?.upcomingShoots,
-        pendingRequests: counts?.pendingRequests,
-        completedShootsLabel: counts?.percentages?.completedShoots.label ?? "",
-        upcomingShootsLabel: counts?.percentages?.upcomingShoots.label ?? "",
-        pendingRequestsLabel: counts?.percentages?.pendingRequests.label ?? "",
-      );
+      await refresh();
     } catch (e, st) {
       AppLogger.e('Home acceptDecline failed', e, st);
       state = state.copyWith(errorMessage: 'Failed to respond to shoot');
@@ -251,6 +204,98 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
 
   // ── Private helpers ─────────────────────────────────────────────────────
 
+  void _applyDashboardData(CreatorDashboardPayload data) {
+    final counts = data.dashboardCounts;
+    final stats = data.crewStats;
+    final categories = data.shootCategories;
+    final availability = data.availability;
+    final profileData = data.profileDetail;
+
+    if (profileData != null) {
+      _updateSessionUserSnapshot(profileData);
+    }
+
+    state = state.copyWith(
+      // Dashboard counts
+      completedShoots: counts?.completedShoots,
+      upcomingShoots: counts?.upcomingShoots,
+      pendingRequests: counts?.pendingRequests,
+      completedShootsLabel: counts?.percentages?.completedShoots.label ?? "",
+      upcomingShootsLabel: counts?.percentages?.upcomingShoots.label ?? "",
+      pendingRequestsLabel: counts?.percentages?.pendingRequests.label ?? "",
+      // Upcoming carousel
+      upcomingShootsList: data.upcomingShoots,
+      // Upcoming meetings carousel
+      upcomingMeetingsList: data.upcomingMeetings,
+      // Pending requests
+      pendingRequestCards: data.pendingRequests,
+      // Crew stats
+      successfulShoots: stats?.completedShoots,
+      pendingShootsCount: stats?.pendingShoots,
+      rejectedShoots: stats?.rejectedShoots,
+      shootRequests: stats?.shootRequests,
+      photographyShoots: stats?.photographyShoots,
+      videographyShoots: stats?.videographyShoots,
+      // Shoot categories
+      categoryPhotoTotal: categories?['photo']?['total'] as int?,
+      categoryVideoTotal: categories?['video']?['total'] as int?,
+      acceptPhotographyShoots: categories?['photo']?['acceptedShoots'] as int?,
+      acceptVideographyShoots: categories?['video']?['acceptedShoots'] as int?,
+      rejectedPhoto: categories?['photo']?['rejectedShoots'] as int?,
+      rejectedVideo: categories?['video']?['rejectedShoots'] as int?,
+      requestPhoto: categories?['photo']?['shootRequests'] as int?,
+      requestVideo: categories?['video']?['shootRequests'] as int?,
+      // Availability
+      events: availability != null
+          ? _prepareAvailabilityEvents(availability)
+          : null,
+      // Profile
+      profileData: profileData,
+      // Done
+      isLoading: false,
+    );
+  }
+
+  Future<void> _updateSessionUserSnapshot(profile.MyProfileData profileData) async {
+    try {
+      final session = ref.read(sessionStoreProvider);
+      final currentUser = await session.readUser();
+      final profileId = profileData.user.id != 0
+          ? profileData.user.id.toString()
+          : null;
+      final sessionId =
+          (currentUser?.id.isNotEmpty ?? false) && currentUser!.id != '0'
+              ? currentUser.id
+              : null;
+      final resolvedId = profileId ?? sessionId;
+      if (resolvedId == null) {
+        AppLogger.w(
+          'Skipping session user snapshot update: no valid user id '
+          '(profile=${profileData.user.id}, session=${currentUser?.id})',
+        );
+      } else {
+        final updatedUser = UserSnapshot(
+          id: resolvedId,
+          name: profileData.user.name,
+          email: profileData.user.email,
+          role:
+              currentUser?.role ??
+              (profileData.user.primaryRole.isNotEmpty
+                  ? profileData.user.primaryRole
+                  : null),
+          userType:
+              currentUser?.userType ?? profileData.user.userType.toString(),
+          profileImageUrl: profileData.user.profileImageUrl.isNotEmpty
+              ? profileData.user.profileImageUrl
+              : currentUser?.profileImageUrl,
+        );
+        await session.writeUser(updatedUser);
+      }
+    } catch (e) {
+      AppLogger.w('Failed to update session user snapshot: $e');
+    }
+  }
+
   String _filterValueForRange(String range) {
     switch (range) {
       case 'Week':
@@ -284,72 +329,22 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
 
   // ── Safe wrappers (partial-failure resilient) ───────────────────────────
 
-  Future<dashboard.DashboardCountData?> _safeFetchDashboardCount(
+  Future<CreatorDashboardPayload?> _safeFetchCreatorDashboard(
     HomeRepository repo,
-  ) async {
-    try {
-      return await repo.fetchDashboardCount();
-    } catch (e, st) {
-      AppLogger.e('Home fetchDashboardCount failed', e, st);
-      return null;
-    }
-  }
-
-  Future<List<UpcomingShootDatum>?> _safeFetchUpcomingShoots(
-    HomeRepository repo,
-  ) async {
-    try {
-      return await repo.fetchUpcomingShoots();
-    } catch (e, st) {
-      AppLogger.e('Home fetchUpcomingShoots failed', e, st);
-      return null;
-    }
-  }
-
-  Future<List<PendingRequestCard>?> _safeFetchPendingRequests(
-    HomeRepository repo,
-  ) async {
-    try {
-      return await repo.fetchPendingRequests();
-    } catch (e, st) {
-      AppLogger.e('Home fetchPendingRequests failed', e, st);
-      return null;
-    }
-  }
-
-  Future<CrewStatsData?> _safeFetchCrewStats(
-    HomeRepository repo,
-    String filter,
-  ) async {
-    try {
-      return await repo.fetchCrewStats(filter);
-    } catch (e, st) {
-      AppLogger.e('Home fetchCrewStats failed', e, st);
-      return null;
-    }
-  }
-
-  Future<Map<String, dynamic>?> _safeFetchShootCategories(
-    HomeRepository repo,
-    String tab,
-  ) async {
-    try {
-      return await repo.fetchShootCategories(tab);
-    } catch (e, st) {
-      AppLogger.e('Home fetchShootCategories failed', e, st);
-      return null;
-    }
-  }
-
-  Future<Map<String, dynamic>?> _safeFetchAvailability(
-    HomeRepository repo,
+    String statsFilter,
+    String categoriesTab,
     int month,
     int year,
   ) async {
     try {
-      return await repo.fetchAvailability(month, year);
+      return await repo.fetchCreatorDashboard(
+        statsDateFilter: statsFilter,
+        categoriesTab: categoriesTab,
+        availabilityMonth: month,
+        availabilityYear: year,
+      );
     } catch (e, st) {
-      AppLogger.e('Home fetchAvailability failed', e, st);
+      AppLogger.e('Home fetchCreatorDashboard failed', e, st);
       return null;
     }
   }
@@ -357,59 +352,10 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   Future<profile.MyProfileData?> _safeFetchProfile(HomeRepository repo) async {
     try {
       final profileData = await repo.fetchProfile();
-      try {
-        final session = ref.read(sessionStoreProvider);
-        final currentUser = await session.readUser();
-        // Profile payload may omit the user id (drift, see d4b9fbb) — the
-        // model then defaults it to 0. Never let that clobber the id captured
-        // at login; if neither source has a real id, skip the write entirely.
-        final profileId = profileData.user.id != 0
-            ? profileData.user.id.toString()
-            : null;
-        final sessionId =
-            (currentUser?.id.isNotEmpty ?? false) && currentUser!.id != '0'
-            ? currentUser.id
-            : null;
-        final resolvedId = profileId ?? sessionId;
-        if (resolvedId == null) {
-          AppLogger.w(
-            'Skipping session user snapshot update: no valid user id '
-            '(profile=${profileData.user.id}, session=${currentUser?.id})',
-          );
-        } else {
-          final updatedUser = UserSnapshot(
-            id: resolvedId,
-            name: profileData.user.name,
-            email: profileData.user.email,
-            role:
-                currentUser?.role ??
-                (profileData.user.primaryRole.isNotEmpty
-                    ? profileData.user.primaryRole
-                    : null),
-            userType:
-                currentUser?.userType ?? profileData.user.userType.toString(),
-            profileImageUrl: profileData.user.profileImageUrl.isNotEmpty
-                ? profileData.user.profileImageUrl
-                : currentUser?.profileImageUrl,
-          );
-          await session.writeUser(updatedUser);
-        }
-      } catch (e) {
-        AppLogger.w('Failed to update session user snapshot: $e');
-      }
+      await _updateSessionUserSnapshot(profileData);
       return profileData;
     } catch (e, st) {
       AppLogger.e('Home fetchProfile failed', e, st);
-      return null;
-    }
-  }
-
-  Future<List<Meeting>?> _safeFetchUpcomingMeetings() async {
-    try {
-      final repo = ref.read(meetingsRepositoryProvider);
-      return await repo.list(tab: MeetingsTab.upcoming);
-    } catch (e, st) {
-      AppLogger.e('Home fetchUpcomingMeetings failed', e, st);
       return null;
     }
   }

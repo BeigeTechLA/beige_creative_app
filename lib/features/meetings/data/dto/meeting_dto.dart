@@ -57,7 +57,7 @@ class MeetingDto {
       meetingTypeRaw: json['meeting_type'] as String?,
       // Server has no structured agenda — leave empty.
       agenda: const <String>[],
-      participants: _readParticipants(json['participants']),
+      participants: _readParticipants(json),
       createdById: _readCreatedById(json['created_by']),
       participantResponses: responses,
       myResponse: currentUserId.isEmpty ? null : responses[currentUserId],
@@ -96,12 +96,29 @@ class MeetingDto {
     return out;
   }
 
-  static List<MeetingParticipant> _readParticipants(Object? raw) {
+  static List<MeetingParticipant> _readParticipants(Map<String, dynamic> json) {
+    final raw = json['participants'] ??
+        json['participants_preview'] ??
+        json['participantsPreview'] ??
+        json['participants_list'] ??
+        json['participantsList'];
     if (raw is! List) return const [];
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .map(MeetingUserDto.fromRestJson)
-        .toList(growable: false);
+
+    final seen = <String>{};
+    final participants = <MeetingParticipant>[];
+    for (final entry in raw) {
+      if (entry is Map<String, dynamic>) {
+        final p = MeetingUserDto.fromRestJson(entry);
+        if (p.id.isNotEmpty) {
+          if (seen.add(p.id)) {
+            participants.add(p);
+          }
+        } else {
+          participants.add(p);
+        }
+      }
+    }
+    return List.unmodifiable(participants);
   }
 
   /// Server emits ISO 8601 UTC with `Z` suffix. Convert to local for display

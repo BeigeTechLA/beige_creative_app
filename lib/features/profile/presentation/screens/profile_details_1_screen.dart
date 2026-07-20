@@ -305,43 +305,8 @@ class _ProfessionalCard extends StatelessWidget {
                       ? '\$${profile!.hourlyRate}'
                       : 'No Rate Found',
                 ),
-                const SizedBox(height: 15),
-                const Text('Skills', style: AppTextStyles.body14),
-                const SizedBox(height: 8),
-                Wrap(
-                  alignment: WrapAlignment.end,
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: (profile?.skills ?? [])
-                      .map(
-                        (skill) => Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.mld,
-                            vertical: AppSpacing.sm,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: AppRadii.smAll,
-                            border: Border.all(
-                              color: AppColors.white.withValues(alpha: 0.08),
-                              width: 1,
-                            ),
-                            gradient: LinearGradient(
-                              colors: [AppColors.white10, AppColors.white10],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                          ),
-                          child: Text(
-                            skill.name,
-                            style: AppTextStyles.bodyCompact.copyWith(
-                              color: AppColors.white,
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
-                const SizedBox(height: 20),
+                _SkillsRow(skills: profile?.skills ?? []),
+                const SizedBox(height: 10),
                 const _Divider(),
                 const SizedBox(height: 20),
                 const Text('Bio / About', style: AppTextStyles.body14),
@@ -473,6 +438,176 @@ class _InfoRow extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SkillsRow extends StatelessWidget {
+  final List<Skill> skills;
+
+  const _SkillsRow({required this.skills});
+
+  void _showSkillsBottomSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surfaceMid,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.lg,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceMid,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.white30,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Skills (${skills.length})',
+                    style: AppTextStyles.displayBold20.copyWith(fontSize: 18),
+                  ),
+                  InkWell(
+                    onTap: () => Navigator.of(context).pop(),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.white10,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        color: AppColors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: skills
+                        .map((skill) => _SkillChip(name: skill.name))
+                        .toList(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (skills.isEmpty) {
+      return const _InfoRow(title: 'Skills', value: '-');
+    }
+
+    final firstSkill = skills.first.name;
+    final remainingCount = skills.length - 1;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.mld),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Skills',
+            style: AppTextStyles.body14.copyWith(color: AppColors.white),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: GestureDetector(
+              onTap: remainingCount > 0
+                  ? () => _showSkillsBottomSheet(context)
+                  : null,
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: _SkillChip(name: firstSkill),
+                  ),
+                  if (remainingCount > 0) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.mld,
+                        vertical: AppSpacing.sm,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: AppColors.white10,
+                      ),
+                      child: Text(
+                        '+$remainingCount',
+                        style: AppTextStyles.bodyCompact.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkillChip extends StatelessWidget {
+  final String name;
+
+  const _SkillChip({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.mld,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        color: AppColors.white10,
+      ),
+      child: Text(
+        name,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.bodyCompact.copyWith(
+          color: AppColors.white,
+        ),
       ),
     );
   }

@@ -209,76 +209,99 @@ class HomePendingShootCard extends StatelessWidget {
                       },
                     ),
                     AppSpacing.verticalLg,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Avatar stack left placeholder kept verbatim (was
-                        // commented out in legacy).
-                        SizedBox(),
-                        if (data.canTakeAction == true)
-                          Row(
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      AppColors.shootAcceptButtonBackground,
-                                  foregroundColor:
-                                      AppColors.shootAcceptButtonText,
-                                  disabledBackgroundColor:
-                                      AppColors.shootAcceptButtonBackground,
-                                  disabledForegroundColor:
-                                      AppColors.shootAcceptButtonText,
-                                ),
-                                onPressed: () {
-                                  onAccept(data.projectId);
-                                },
-                                child: Text(
-                                  data.cta?.primary.isNotEmpty == true
-                                      ? data.cta!.primary
-                                      : "Accept",
-                                  style: AppTextStyles.bodySmallStrong.copyWith(
-                                    color: AppColors.shootAcceptButtonText,
+                    Builder(
+                      builder: (context) {
+                        final isActionable = DateTimeUtils.isActionableBeforeOneHour(
+                          eventDate: data.eventDate,
+                          startTime: data.startTime,
+                          status: 'pending',
+                          crewAccept: 0,
+                        );
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const SizedBox(),
+                            if (data.canTakeAction == true || isActionable)
+                              Row(
+                                children: [
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          AppColors.shootAcceptButtonBackground,
+                                      foregroundColor:
+                                          AppColors.shootAcceptButtonText,
+                                      disabledBackgroundColor:
+                                          AppColors.shootAcceptButtonBackground,
+                                      disabledForegroundColor:
+                                          AppColors.shootAcceptButtonText,
+                                      elevation: 0,
+                                      shape: const StadiumBorder(),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 18,
+                                        vertical: 8,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      onAccept(data.projectId);
+                                    },
+                                    child: Text(
+                                      data.cta?.primary.isNotEmpty == true
+                                          ? data.cta!.primary
+                                          : "Accept",
+                                      style: AppTextStyles.bodySmallStrong.copyWith(
+                                        color: AppColors.shootAcceptButtonText,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              AppSpacing.gapHSmd,
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      AppColors.shootDeclineButtonBackground,
-                                  foregroundColor:
-                                      AppColors.shootDeclineButtonText,
-                                  disabledBackgroundColor:
-                                      AppColors.shootDeclineButtonBackground,
-                                  disabledForegroundColor:
-                                      AppColors.shootDeclineButtonText,
-                                ),
-                                onPressed: () async {
-                                  context
-                                      .pushNamed(
-                                        Routes.cancelShoot.name,
-                                        extra: CancelShootArgs(
-                                          projectId: data.projectId,
-                                        ).toExtra(),
-                                      )
-                                      .then((value) {
-                                        if (value == true) {
-                                          onRejectComplete();
-                                        }
-                                      });
-                                },
-                                child: Text(
-                                  data.cta?.secondary.isNotEmpty == true
-                                      ? data.cta!.secondary
-                                      : "Decline",
-                                  style: AppTextStyles.bodySmallStrong.copyWith(
-                                    color: AppColors.shootDeclineButtonText,
+                                  AppSpacing.gapHSmd,
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          AppColors.shootDeclineButtonBackground,
+                                      foregroundColor:
+                                          AppColors.shootDeclineButtonText,
+                                      disabledBackgroundColor:
+                                          AppColors.shootDeclineButtonBackground,
+                                      disabledForegroundColor:
+                                          AppColors.shootDeclineButtonText,
+                                      elevation: 0,
+                                      shape: const StadiumBorder(),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 18,
+                                        vertical: 8,
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      context
+                                          .pushNamed(
+                                            Routes.cancelShoot.name,
+                                            extra: CancelShootArgs(
+                                              projectId: data.projectId,
+                                            ).toExtra(),
+                                          )
+                                          .then((value) {
+                                            if (value == true) {
+                                              onRejectComplete();
+                                            }
+                                          });
+                                    },
+                                    child: Text(
+                                      data.cta?.secondary.isNotEmpty == true
+                                          ? data.cta!.secondary
+                                          : "Decline",
+                                      style: AppTextStyles.bodySmallStrong.copyWith(
+                                        color: AppColors.shootDeclineButtonText,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
-                      ],
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),

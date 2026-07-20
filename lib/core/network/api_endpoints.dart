@@ -17,6 +17,17 @@ class ApiEndpoints {
   /// Project detail by id. Caller supplies the id. (Hardcoded in
   /// upcoming_shoot_view_details.dart pre-migration.)
   static String projectDetails(int id) => "creator/project-details/$id";
+
+  static String creatorDashboard({
+    required String statsDateFilter,
+    required String categoriesTab,
+    String projectsStatus = 'active',
+    required int availabilityMonth,
+    required int availabilityYear,
+    int meetingsLimit = 3,
+  }) =>
+      'creator/dashboard?stats_date_filter=$statsDateFilter&categories_tab=$categoriesTab&projects_status=$projectsStatus&availability_month=$availabilityMonth&availability_year=$availabilityYear&meetings_limit=$meetingsLimit';
+
   static const String creatordashboarddetails = "creator/dashboard-details";
   static const String createavailability = "creator/availability";
   static const String shootstatus = "creator/get-crew-stats";
