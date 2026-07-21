@@ -17,6 +17,8 @@ import '../widgets/home_upcoming_meetings_carousel.dart';
 import '../widgets/home_welcome_header.dart';
 import '../widgets/home_filter_sheet.dart';
 
+import '../../../../shared/widgets/loading.dart';
+
 /// Dashboard ("Home") screen — Riverpod-backed (Task 4.16).
 ///
 /// All data state is owned by [homeNotifierProvider]. The widget retains only
@@ -154,165 +156,169 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         ? homeState.pendingRequestCards.first
         : null;
 
-    return Column(
+    return Stack(
       children: [
-        HomeWelcomeHeader(
-          firstName: homeState.profileData?.firstName,
-          profileImageUrl: homeState.profileData?.profileImageUrl ?? "",
-          onAvatarTap: () {
-            context.pushNamed(Routes.myProfile.name).then((value) {
-              if (value == true) {
-                notifier.refreshAfterProfileReturn();
-              }
-            });
-          },
-        ),
-        Expanded(
-          child: RefreshIndicator(
-            color: AppColors.primary,
-            backgroundColor: AppColors.surfaceMid,
-            onRefresh: () => notifier.refresh(),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xl,
-                  vertical: AppSpacing.lg,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    HomeDashboardSummary(
-                      completedShoots: homeState.completedShoots,
-                      upcomingShoots: homeState.upcomingShoots,
-                      pendingRequests: homeState.pendingRequests,
-                      selectedIndex: homeState.selectedDashboardIndex,
-                      onSelect: notifier.selectDashboardCard,
+        Column(
+          children: [
+            HomeWelcomeHeader(
+              firstName: homeState.profileData?.firstName,
+              profileImageUrl: homeState.profileData?.profileImageUrl ?? "",
+              onAvatarTap: () {
+                context.pushNamed(Routes.myProfile.name).then((value) {
+                  if (value == true) {
+                    notifier.refreshAfterProfileReturn();
+                  }
+                });
+              },
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                color: AppColors.primary,
+                backgroundColor: AppColors.surfaceMid,
+                onRefresh: () => notifier.refresh(),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xl,
+                      vertical: AppSpacing.lg,
                     ),
-                    const SizedBox(height: 24),
-                    const HomeSectionDivider(centerAlpha: 0.24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        HomeDashboardSummary(
+                          completedShoots: homeState.completedShoots,
+                          upcomingShoots: homeState.upcomingShoots,
+                          pendingRequests: homeState.pendingRequests,
+                          selectedIndex: homeState.selectedDashboardIndex,
+                          onSelect: notifier.selectDashboardCard,
+                        ),
+                        const SizedBox(height: 24),
+                        const HomeSectionDivider(centerAlpha: 0.24),
 
-                    if (homeState.upcomingShootsList.isNotEmpty) ...[
-                      const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
-                      HomeUpcomingCarousel(
-                        upcomingShoots: homeState.filteredUpcomingShootsList,
-                        hasOriginalShoots: homeState.upcomingShootsList.isNotEmpty,
-                        searchQuery: homeState.upcomingSearchQuery,
-                        onSearchChanged: notifier.setUpcomingSearchQuery,
-                        isFilterActive: homeState.upcomingSelectedDate != null ||
-                            homeState.upcomingSelectedStatus != null ||
-                            homeState.upcomingSelectedCategory != null ||
-                            homeState.upcomingSelectedType != null,
-                        onFilterTap: () {
-                          showHomeFilterBottomSheet(
-                            context: context,
-                            initialDate: homeState.upcomingSelectedDate,
-                            initialStatus: homeState.upcomingSelectedStatus,
-                            initialCategory: homeState.upcomingSelectedCategory,
-                            initialType: homeState.upcomingSelectedType,
-                            onApply: (date, status, category, type) {
-                              notifier.setUpcomingFilters(
-                                date: date,
-                                status: status,
-                                category: category,
-                                type: type,
+                        if (homeState.upcomingShootsList.isNotEmpty) ...[
+                          const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
+                          HomeUpcomingCarousel(
+                            upcomingShoots: homeState.filteredUpcomingShootsList,
+                            hasOriginalShoots: homeState.upcomingShootsList.isNotEmpty,
+                            searchQuery: homeState.upcomingSearchQuery,
+                            onSearchChanged: notifier.setUpcomingSearchQuery,
+                            isFilterActive: homeState.upcomingSelectedDate != null ||
+                                homeState.upcomingSelectedStatus != null ||
+                                homeState.upcomingSelectedType != null,
+                            onFilterTap: () {
+                              showHomeFilterBottomSheet(
+                                context: context,
+                                initialDate: homeState.upcomingSelectedDate,
+                                initialStatus: homeState.upcomingSelectedStatus,
+                                initialCategory: homeState.upcomingSelectedCategory,
+                                initialType: homeState.upcomingSelectedType,
+                                onApply: (date, status, category, type) {
+                                  notifier.setUpcomingFilters(
+                                    date: date,
+                                    status: status,
+                                    category: category,
+                                    type: type,
+                                  );
+                                },
+                                onClearAll: () {
+                                  notifier.clearUpcomingFilters();
+                                },
                               );
                             },
-                            onClearAll: () {
-                              notifier.clearUpcomingFilters();
+                            currentIndex: _currentIndex,
+                            controller: _controller,
+                            onCardTap: _onCardTap,
+                            onSwipeNext: _goToNext,
+                            onSwipePrevious: _goToPrevious,
+                          ),
+                          const SizedBox(height: 24), // 24 visual gap above divider
+                          const HomeSectionDivider(centerAlpha: 0.24),
+                        ],
+
+                        if (homeState.upcomingMeetingsList.isNotEmpty) ...[
+                          const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
+                          HomeUpcomingMeetingsCarousel(
+                            upcomingMeetings: homeState.upcomingMeetingsList,
+                            currentIndex: _meetingsCurrentIndex,
+                            controller: _meetingsController,
+                            onCardTap: _onMeetingCardTap,
+                            onSwipeNext: _goToNextMeeting,
+                            onSwipePrevious: _goToPreviousMeeting,
+                          ),
+                          // meetings stack has 25px bottom centering padding, so we don't need additional SizedBox!
+                          const HomeSectionDivider(centerAlpha: 0.24),
+                        ],
+
+                        const SizedBox(height: 24), // 24 visual gap below divider
+                        HomeAvailabilitySection(
+                          focusedDay: homeState.focusedDay,
+                          selectedEvent: homeState.selectedEvent,
+                          eventList: const ['All Events', 'Available', 'Shoot'],
+                          events: homeState.events,
+                          onAddPressed: () {
+                            notifier.onPageChanged(homeState.focusedDay);
+                          },
+                          onPrevMonth: () => notifier.changeMonth(-1),
+                          onNextMonth: () => notifier.changeMonth(1),
+                          onSelectedEventChanged: notifier.selectEvent,
+                          onPageChanged: notifier.onPageChanged,
+                        ),
+                        const SizedBox(height: 24), // 24 visual gap above divider
+                        const HomeSectionDivider(centerAlpha: 0.24),
+
+                        if (homeState.pendingRequestCards.isNotEmpty) ...[
+                          const SizedBox(height: 24), // 24 visual gap below divider
+                          HomePendingShootCard(
+                            pendingShoot: data,
+                            onAccept: (projectId) {
+                              notifier.acceptDecline(projectId, 1);
                             },
-                          );
-                        },
-                        currentIndex: _currentIndex,
-                        controller: _controller,
-                        onCardTap: _onCardTap,
-                        onSwipeNext: _goToNext,
-                        onSwipePrevious: _goToPrevious,
-                      ),
-                      const SizedBox(height: 24), // 24 visual gap above divider
-                      const HomeSectionDivider(centerAlpha: 0.24),
-                    ],
+                            onRejectComplete: () {
+                              notifier.refresh();
+                            },
+                          ),
+                          const SizedBox(height: 24), // 24 visual gap above divider
+                          const HomeSectionDivider(centerAlpha: 0.24),
+                        ],
 
-                    if (homeState.upcomingMeetingsList.isNotEmpty) ...[
-                      const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
-                      HomeUpcomingMeetingsCarousel(
-                        upcomingMeetings: homeState.upcomingMeetingsList,
-                        currentIndex: _meetingsCurrentIndex,
-                        controller: _meetingsController,
-                        onCardTap: _onMeetingCardTap,
-                        onSwipeNext: _goToNextMeeting,
-                        onSwipePrevious: _goToPreviousMeeting,
-                      ),
-                      // meetings stack has 25px bottom centering padding, so we don't need additional SizedBox!
-                      const HomeSectionDivider(centerAlpha: 0.24),
-                    ],
+                        const SizedBox(height: 24), // 24 visual gap below divider
+                        HomeShootStatusPanel(
+                          successfulShoots: homeState.successfulShoots,
+                          pendingShoots: homeState.pendingShootsCount,
+                          rejectedShoots: homeState.rejectedShoots,
+                          shootRequests: homeState.shootRequests,
+                          selectedRange: homeState.selectedRange,
+                          rangeOptions: const ['Week', 'Month', 'Year'],
+                          onRangeChanged: notifier.changeStatsRange,
+                        ),
+                        const SizedBox(height: 24), // 24 visual gap above divider
+                        const HomeSectionDivider(centerAlpha: 0.24),
 
-                    const SizedBox(height: 24), // 24 visual gap below divider
-                    HomeAvailabilitySection(
-                      focusedDay: homeState.focusedDay,
-                      selectedEvent: homeState.selectedEvent,
-                      eventList: const ['All Events', 'Available', 'Shoot'],
-                      events: homeState.events,
-                      onAddPressed: () {
-                        notifier.onPageChanged(homeState.focusedDay);
-                      },
-                      onPrevMonth: () => notifier.changeMonth(-1),
-                      onNextMonth: () => notifier.changeMonth(1),
-                      onSelectedEventChanged: notifier.selectEvent,
-                      onPageChanged: notifier.onPageChanged,
+                        const SizedBox(height: 24), // 24 visual gap below divider
+                        HomeShootCategoriesPanel(
+                          selectedTab: homeState.selectedTab,
+                          categoryPhotoTotal: homeState.categoryPhotoTotal,
+                          categoryVideoTotal: homeState.categoryVideoTotal,
+                          acceptPhotographyShoots: homeState.acceptPhotographyShoots,
+                          acceptVideographyShoots: homeState.acceptVideographyShoots,
+                          rejectedPhoto: homeState.rejectedPhoto,
+                          rejectedVideo: homeState.rejectedVideo,
+                          requestPhoto: homeState.requestPhoto,
+                          requestVideo: homeState.requestVideo,
+                          onTabChanged: notifier.changeShootCategoryTab,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 24), // 24 visual gap above divider
-                    const HomeSectionDivider(centerAlpha: 0.24),
-
-                    if (homeState.pendingRequestCards.isNotEmpty) ...[
-                      const SizedBox(height: 24), // 24 visual gap below divider
-                      HomePendingShootCard(
-                        pendingShoot: data,
-                        onAccept: (projectId) {
-                          notifier.acceptDecline(projectId, 1);
-                        },
-                        onRejectComplete: () {
-                          notifier.refresh();
-                        },
-                      ),
-                      const SizedBox(height: 24), // 24 visual gap above divider
-                      const HomeSectionDivider(centerAlpha: 0.24),
-                    ],
-
-                    const SizedBox(height: 24), // 24 visual gap below divider
-                    HomeShootStatusPanel(
-                      successfulShoots: homeState.successfulShoots,
-                      pendingShoots: homeState.pendingShootsCount,
-                      rejectedShoots: homeState.rejectedShoots,
-                      shootRequests: homeState.shootRequests,
-                      selectedRange: homeState.selectedRange,
-                      rangeOptions: const ['Week', 'Month', 'Year'],
-                      onRangeChanged: notifier.changeStatsRange,
-                    ),
-                    const SizedBox(height: 24), // 24 visual gap above divider
-                    const HomeSectionDivider(centerAlpha: 0.24),
-
-                    const SizedBox(height: 24), // 24 visual gap below divider
-                    HomeShootCategoriesPanel(
-                      selectedTab: homeState.selectedTab,
-                      categoryPhotoTotal: homeState.categoryPhotoTotal,
-                      categoryVideoTotal: homeState.categoryVideoTotal,
-                      acceptPhotographyShoots: homeState.acceptPhotographyShoots,
-                      acceptVideographyShoots: homeState.acceptVideographyShoots,
-                      rejectedPhoto: homeState.rejectedPhoto,
-                      rejectedVideo: homeState.rejectedVideo,
-                      requestPhoto: homeState.requestPhoto,
-                      requestVideo: homeState.requestVideo,
-                      onTabChanged: notifier.changeShootCategoryTab,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
+        if (homeState.isLoading) const AppLoadingOverlay(),
       ],
     );
   }

@@ -427,116 +427,35 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
                   ],
                 ),
                 AppSpacing.verticalMd,
-                Builder(
-                  builder: (context) {
-                    final isActionable = DateTimeUtils.isActionableBeforeOneHour(
-                      eventDate: data['rawEventDate'] as DateTime?,
-                      startTime: data['rawStartTime'] as String?,
-                      status: data['isCompleted'] == true ? 'completed' : 'pending',
-                      crewAccept: 0,
-                    );
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  backgroundColor: AppColors.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: AppRadii.hugeAll,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  context.pushNamed(
-                                    Routes.upcomingShootDetails.name,
-                                    extra: UpcomingShootDetailsArgs(
-                                      projectId: data['projectId'] as int?,
-                                    ).toExtra(),
-                                  );
-                                },
-                                child: Text(
-                                  "View Details",
-                                  style: AppTextStyles.body11.copyWith(
-                                    color: AppColors.black,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (isActionable) ...[
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        AppColors.shootAcceptButtonBackground,
-                                    foregroundColor:
-                                        AppColors.shootAcceptButtonText,
-                                    elevation: 0,
-                                    shape: const StadiumBorder(),
-                                    padding: const EdgeInsets.symmetric(vertical: 6),
-                                  ),
-                                  onPressed: () {
-                                    final projId = data['projectId'] as int?;
-                                    if (projId != null) {
-                                      // Action handle
-                                    }
-                                  },
-                                  child: Text(
-                                    "Accept",
-                                    style: AppTextStyles.body10.copyWith(
-                                      color: AppColors.shootAcceptButtonText,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        AppColors.shootDeclineButtonBackground,
-                                    foregroundColor:
-                                        AppColors.shootDeclineButtonText,
-                                    elevation: 0,
-                                    shape: const StadiumBorder(),
-                                    padding: const EdgeInsets.symmetric(vertical: 6),
-                                  ),
-                                  onPressed: () {
-                                    final projId = data['projectId'] as int?;
-                                    if (projId != null) {
-                                      context.pushNamed(
-                                        Routes.cancelShoot.name,
-                                        extra: CancelShootArgs(
-                                          projectId: projId,
-                                        ).toExtra(),
-                                      );
-                                    }
-                                  },
-                                  child: Text(
-                                    "Decline",
-                                    style: AppTextStyles.body10.copyWith(
-                                      color: AppColors.shootDeclineButtonText,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppRadii.hugeAll,
                           ),
-                        ],
-                      ],
-                    );
-                  },
+                        ),
+                        onPressed: () {
+                          context.pushNamed(
+                            Routes.upcomingShootDetails.name,
+                            extra: UpcomingShootDetailsArgs(
+                              projectId: data['projectId'] as int?,
+                            ).toExtra(),
+                          );
+                        },
+                        child: Text(
+                          "View Details",
+                          style: AppTextStyles.body11.copyWith(
+                            color: AppColors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

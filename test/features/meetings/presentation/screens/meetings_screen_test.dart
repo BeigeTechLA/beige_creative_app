@@ -201,7 +201,7 @@ void main() {
 
       expect(find.text('Self Created'), findsOneWidget);
       expect(find.text('Accept'), findsNothing);
-      expect(find.text('Reject'), findsNothing);
+      expect(find.text('Decline'), findsNothing);
     });
 
     testWidgets('shows RSVP buttons for meetings created by others', (tester) async {
@@ -241,7 +241,7 @@ void main() {
 
       expect(find.text('Other Created'), findsOneWidget);
       expect(find.text('Accept'), findsOneWidget);
-      expect(find.text('Reject'), findsOneWidget);
+      expect(find.text('Decline'), findsOneWidget);
     });
   });
 

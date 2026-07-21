@@ -70,9 +70,11 @@ class CreatorDashboardPayload {
 
     // 2. Upcoming shoots
     List<UpcomingShootDatum>? upcoming;
-    if (json['upcoming_accepted_project'] is List) {
+    final upcomingRaw =
+        json['upcoming_accepted_projects'] ?? json['upcoming_accepted_project'];
+    if (upcomingRaw is List) {
       try {
-        upcoming = (json['upcoming_accepted_project'] as List)
+        upcoming = upcomingRaw
             .whereType<Map<String, dynamic>>()
             .map(UpcomingShootDatum.fromJson)
             .toList();

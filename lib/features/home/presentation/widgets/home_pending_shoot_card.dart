@@ -45,7 +45,7 @@ class HomePendingShootCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Shoot Requests",
+              "Pending Request",
               style: AppTextStyles.displayLabel16.copyWith(
                 color: AppColors.white,
               ),
@@ -288,7 +288,8 @@ class HomePendingShootCard extends StatelessWidget {
                                           });
                                     },
                                     child: Text(
-                                      data.cta?.secondary.isNotEmpty == true
+                                      (data.cta?.secondary.isNotEmpty == true &&
+                                              data.cta!.secondary.toLowerCase() != 'reject')
                                           ? data.cta!.secondary
                                           : "Decline",
                                       style: AppTextStyles.bodySmallStrong.copyWith(

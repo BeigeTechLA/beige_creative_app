@@ -31,15 +31,9 @@ void showHomeFilterBottomSheet({
   String? selectedCategory = (initialCategory == null || initialCategory.isEmpty) ? null : initialCategory;
   String? selectedType = (initialType == null || initialType.isEmpty) ? null : initialType;
 
-  bool isDateExpanded = selectedDate != null;
+  bool isDateExpanded = true;
   bool isStatusExpanded = selectedStatus != null;
-  bool isCategoryExpanded = selectedCategory != null;
   bool isTypeExpanded = selectedType != null;
-
-  // Default to Date expanded if nothing else is selected
-  if (!isDateExpanded && !isStatusExpanded && !isCategoryExpanded && !isTypeExpanded) {
-    isDateExpanded = true;
-  }
 
   final DraggableScrollableController sheetController =
       DraggableScrollableController();
@@ -57,7 +51,6 @@ void showHomeFilterBottomSheet({
     "Completed",
     "Cancelled",
   ];
-  final List<String> categoryOptions = [];
   final List<String> typeOptions = ["All", "shoots", "Rental"];
 
   showModalBottomSheet(
@@ -69,7 +62,7 @@ void showHomeFilterBottomSheet({
         builder: (context, setState) {
           return DraggableScrollableSheet(
             controller: sheetController,
-            initialChildSize: 0.6,
+            initialChildSize: 0.9,
             minChildSize: 0.4,
             maxChildSize: 0.95,
             expand: false,
@@ -203,36 +196,6 @@ void showHomeFilterBottomSheet({
                                 ),
                                 _filterSection(
                                   showDivider: false,
-                                  title: "Filter By Category",
-                                  isExpanded: isCategoryExpanded,
-                                  onTap: () => setState(() {
-                                    isCategoryExpanded = !isCategoryExpanded;
-                                    if (isCategoryExpanded) {
-                                      sheetController.animateTo(
-                                        0.95,
-                                        duration: AppDurations.normal,
-                                        curve: Curves.easeInOut,
-                                      );
-                                    }
-                                  }),
-                                  children: isCategoryExpanded
-                                      ? categoryOptions
-                                          .map(
-                                            (label) => _radioOption(
-                                              label: label,
-                                              selected:
-                                                  selectedCategory == label,
-                                              onTap: () => setState(
-                                                () =>
-                                                    selectedCategory = selectedCategory == label ? null : label,
-                                              ),
-                                            ),
-                                          )
-                                          .toList()
-                                      : [],
-                                ),
-                                _filterSection(
-                                  showDivider: false,
                                   title: "Filter By Type",
                                   isExpanded: isTypeExpanded,
                                   onTap: () => setState(() {
@@ -260,104 +223,112 @@ void showHomeFilterBottomSheet({
                                       : [],
                                 ),
                                 const SizedBox(
-                                  height: AppSpacing.inlineNudge,
+                                  height: AppSpacing.md,
                                 ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            selectedType = null;
-                                            selectedCategory = null;
-                                            selectedStatus = null;
-                                            selectedDate = null;
-                                            isDateExpanded = false;
-                                            isStatusExpanded = false;
-                                            isCategoryExpanded = false;
-                                            isTypeExpanded = false;
-                                          });
-                                          onClearAll();
-                                          Navigator.pop(context);
-                                        },
-                                        child: Container(
-                                          margin: const EdgeInsets.only(
-                                            left: AppSpacing.md,
-                                          ),
-                                          padding: const EdgeInsets.all(
-                                            AppSpacing.md,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            borderRadius: AppRadii.lgAll,
-                                            border: Border.all(
-                                              width: 0.5,
-                                              color: AppColors.white
-                                                  .withValues(alpha: 0.6),
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              'Clear All',
-                                              style: AppTextStyles
-                                                  .displayLabelW500
-                                                  .copyWith(
-                                                color: AppColors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    AppSpacing.gapHMd,
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          onApply(
-                                            selectedDate,
-                                            selectedStatus,
-                                            selectedCategory,
-                                            selectedType,
-                                          );
-                                          Navigator.pop(context);
-                                        },
-                                        child: Container(
-                                          margin: const EdgeInsets.only(
-                                            right: AppSpacing.md,
-                                          ),
-                                          padding: const EdgeInsets.all(
-                                            AppSpacing.md,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary,
-                                            borderRadius: AppRadii.lgAll,
-                                            border: Border.all(
-                                              width: 0.5,
-                                              color: AppColors.white
-                                                  .withValues(alpha: 0.6),
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              'Apply',
-                                              style: AppTextStyles
-                                                  .displayLabelW500
-                                                  .copyWith(
-                                                color: AppColors.onPrimary,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                AppSpacing.verticalXl,
                               ],
                             ),
                           ),
                         ),
                       ),
-                      AppSpacing.verticalMd,
+                      Container(
+                        padding: EdgeInsets.only(
+                          left: AppSpacing.md,
+                          right: AppSpacing.md,
+                          top: AppSpacing.md,
+                          bottom: MediaQuery.of(context).padding.bottom + AppSpacing.md,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceMid,
+                          border: Border(
+                            top: BorderSide(
+                              color: AppColors.white.withValues(alpha: 0.12),
+                              width: 0.8,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedType = null;
+                                    selectedCategory = null;
+                                    selectedStatus = null;
+                                    selectedDate = null;
+                                    isDateExpanded = true;
+                                    isStatusExpanded = false;
+                                    isTypeExpanded = false;
+                                  });
+                                  onClearAll();
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(
+                                    AppSpacing.md,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: AppRadii.lgAll,
+                                    border: Border.all(
+                                      width: 0.5,
+                                      color: AppColors.white
+                                          .withValues(alpha: 0.6),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Clear All',
+                                      style: AppTextStyles
+                                          .displayLabelW500
+                                          .copyWith(
+                                        color: AppColors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            AppSpacing.gapHMd,
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  onApply(
+                                    selectedDate,
+                                    selectedStatus,
+                                    selectedCategory,
+                                    selectedType,
+                                  );
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(
+                                    AppSpacing.md,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: AppRadii.lgAll,
+                                    border: Border.all(
+                                      width: 0.5,
+                                      color: AppColors.white
+                                          .withValues(alpha: 0.6),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Apply',
+                                      style: AppTextStyles
+                                          .displayLabelW500
+                                          .copyWith(
+                                        color: AppColors.onPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

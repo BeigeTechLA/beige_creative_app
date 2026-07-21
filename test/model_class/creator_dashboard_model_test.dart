@@ -72,5 +72,32 @@ void main() {
       expect(meeting.participants[2].name, "Krunal CP Joshi");
       expect(meeting.participants[2].role, "cp");
     });
+
+    test('parses upcoming_accepted_projects correctly', () {
+      final json = {
+        "error": false,
+        "message": "Success",
+        "data": {
+          "upcoming_accepted_projects": [
+            {
+              "project_id": 101,
+              "project_name": "Test Project",
+              "event_date": "2026-08-01T00:00:00.000Z",
+              "start_time": "10:00 AM",
+              "end_time": "02:00 PM",
+              "event_location": "Studio A",
+              "shoot_type_image_url": "/path/img.png",
+              "is_completed": false
+            }
+          ]
+        }
+      };
+
+      final model = CreatorDashboardModel.fromJson(json);
+      expect(model.data.upcomingShoots, isNotNull);
+      expect(model.data.upcomingShoots!.length, 1);
+      expect(model.data.upcomingShoots!.first.projectId, 101);
+      expect(model.data.upcomingShoots!.first.projectName, "Test Project");
+    });
   });
 }

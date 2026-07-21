@@ -175,7 +175,7 @@ void main() {
         expect(find.text('Studio Sunset Test'), findsOneWidget);
         expect(find.text('View Details'), findsOneWidget);
         expect(find.text('Accept'), findsOneWidget);
-        expect(find.text('Reject'), findsOneWidget);
+        expect(find.text('Decline'), findsOneWidget);
         expect(find.text('Brooklyn, NY'), findsOneWidget);
       },
     );

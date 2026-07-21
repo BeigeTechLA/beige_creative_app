@@ -5,6 +5,83 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-21: Filter Bottom Sheet Enhancements (90% Height, Sticky Bottom Bar, Date Expanded Default)
+
+- **Changes**:
+  - `home_filter_sheet.dart`: Set `initialChildSize: 0.9` for 90% sheet height, set `isDateExpanded = true` by default, and refactored layout to pin "Clear All" & "Apply" CTAs in a sticky bottom container.
+
+- **Decisions**:
+  - Pinned action buttons at the bottom with top divider (`AppColors.white.withValues(alpha: 0.12)`) and safe-area padding for a solid, responsive user experience.
+
+- **Verification**:
+  - `flutter test test/features/home/presentation/home_notifier_test.dart test/model_class/creator_dashboard_model_test.dart` — Passed.
+  - `flutter analyze --fatal-infos` — 0 issues found.
+
+---
+
+### 2026-07-21: Remove Category Filter Option from Upcoming Shoots Filter
+
+- **Changes**:
+  - `home_filter_sheet.dart`: Removed the `"Filter By Category"` section from `showHomeFilterBottomSheet` and cleaned up unused category variables.
+  - `home_screen.dart`: Updated `isFilterActive` condition on `HomeUpcomingCarousel` to omit `upcomingSelectedCategory`.
+
+- **Decisions**:
+  - Upcoming Shoots filter bottom sheet now displays Date, Status, and Type filter sections.
+
+- **Verification**:
+  - `flutter test test/features/home/presentation/home_notifier_test.dart test/model_class/creator_dashboard_model_test.dart` — All 10 tests passed.
+  - `flutter analyze --fatal-infos` — 0 issues found.
+
+---
+
+### 2026-07-21: Dashboard Full-Screen Loader Integration
+
+- **Changes**:
+  - `home_screen.dart`: Imported `shared/widgets/loading.dart`, wrapped layout in a `Stack`, and rendered `const AppLoadingOverlay()` while `homeState.isLoading` is true.
+
+- **Decisions**:
+  - Reused standard `AppLoadingOverlay` widget from `lib/shared/widgets/loading.dart` to maintain app-wide visual consistency.
+
+- **Verification**:
+  - `flutter test test/features/home/presentation/home_notifier_test.dart` — All tests passed.
+  - `flutter analyze --fatal-infos` — 0 issues found.
+
+---
+
+### 2026-07-21: Dashboard Data Setup Correction (Upcoming Shoots & Pending Request Header)
+
+- **Changes**:
+  - `creator_dashboard_model.dart`: Updated `CreatorDashboardPayload.fromJson` to check `json['upcoming_accepted_projects']` (with fallback to `json['upcoming_accepted_project']`).
+  - `home_upcoming_carousel.dart`: Removed Accept / Decline action buttons from upcoming shoots card stack, retaining only the `"View Details"` CTA.
+  - `home_pending_shoot_card.dart`: Changed section header from `"Shoot Requests"` to `"Pending Request"`.
+  - `creator_dashboard_model_test.dart`: Added unit test case verifying `upcoming_accepted_projects` parsing.
+  - `home_notifier.dart`: Removed unused imports.
+
+- **Decisions**:
+  - Upcoming Shoots card displays only `"View Details"` (no Accept/Decline action buttons).
+  - Pending shoot requests display under section title `"Pending Request"` with Accept & Decline action CTAs.
+
+- **Verification**:
+  - `flutter test test/model_class/creator_dashboard_model_test.dart test/features/home/presentation/home_notifier_test.dart` — Passed cleanly.
+  - `flutter analyze --fatal-infos` — 0 issues found.
+
+---
+
+### 2026-07-21: Update Dashboard Shoots Card Action Label (Reject -> Decline)
+
+- **Changes**:
+  - `home_pending_shoot_card.dart`: Mapped secondary CTA text to display "Decline" when the secondary CTA text is "Reject".
+  - `meeting_card.dart`: Changed default RSVP action button label from `'Reject'` to `'Decline'`.
+  - `home_decompose_test.dart` & `meetings_screen_test.dart`: Updated widget tests to assert `'Decline'` label.
+
+- **Decisions**:
+  - Maintained original button design, colors, and styling (`AppColors.shootDeclineButtonBackground`, `AppColors.shootDeclineButtonText`), updating only text labels.
+
+- **Verification**:
+  - `flutter test test/features/home/presentation/home_decompose_test.dart test/features/meetings/presentation/screens/meetings_screen_test.dart` — All tests passed.
+
+---
+
 ### 2026-07-17: Upcoming Meetings Carousel Section on Home Page
 
 - **Changes**:
