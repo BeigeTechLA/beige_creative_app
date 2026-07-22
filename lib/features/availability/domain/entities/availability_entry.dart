@@ -1,5 +1,25 @@
 enum AvailabilityStatus { available, shoot, none }
 
+/// A calendar day's status plus, when [status] is `shoot`, the booking id
+/// (`projectDetails.booking_id` in the `creator/availability` response) so
+/// the UI can deep-link straight to that shoot's details without a second
+/// lookup.
+class AvailabilityDay {
+  final AvailabilityStatus status;
+  final int? bookingId;
+
+  const AvailabilityDay({required this.status, this.bookingId});
+
+  @override
+  bool operator ==(Object other) =>
+      other is AvailabilityDay &&
+      other.status == status &&
+      other.bookingId == bookingId;
+
+  @override
+  int get hashCode => Object.hash(status, bookingId);
+}
+
 class AvailabilityPayload {
   final String date;
   final int availabilityStatus;

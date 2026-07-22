@@ -14,14 +14,17 @@ class _FakeRepo implements AvailabilityRepository {
   bool throwOnCreate = false;
 
   @override
-  Future<Map<DateTime, AvailabilityStatus>> fetchMonth({
+  Future<Map<DateTime, AvailabilityDay>> fetchMonth({
     required int month,
     required int year,
   }) async {
     return {
-      DateTime(year, month, 5): AvailabilityStatus.available,
-      DateTime(year, month, 12): AvailabilityStatus.shoot,
-      DateTime(year, month, 14): AvailabilityStatus.available,
+      DateTime(year, month, 5):
+          const AvailabilityDay(status: AvailabilityStatus.available),
+      DateTime(year, month, 12):
+          const AvailabilityDay(status: AvailabilityStatus.shoot, bookingId: 12),
+      DateTime(year, month, 14):
+          const AvailabilityDay(status: AvailabilityStatus.available),
     };
   }
 

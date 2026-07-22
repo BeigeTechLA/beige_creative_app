@@ -1,9 +1,9 @@
 import '../entities/availability_entry.dart';
 
 abstract class AvailabilityRepository {
-  /// Returns a date→status map for the given month/year. Dates with neither
-  /// `projectAssigned` nor `available` flags are omitted.
-  Future<Map<DateTime, AvailabilityStatus>> fetchMonth({
+  /// Returns a date→day-info map for the given month/year. Dates with
+  /// neither `projectAssigned` nor `available` flags are omitted.
+  Future<Map<DateTime, AvailabilityDay>> fetchMonth({
     required int month,
     required int year,
   });

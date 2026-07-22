@@ -17,6 +17,7 @@ import '../widgets/home_upcoming_meetings_carousel.dart';
 import '../widgets/home_welcome_header.dart';
 
 import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/top_message.dart';
 
 /// Dashboard ("Home") screen — Riverpod-backed (Task 4.16).
 ///
@@ -247,10 +248,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           const SizedBox(height: 24), // 24 visual gap below divider
                           HomePendingShootCard(
                             pendingShoot: data,
-                            onAccept: (projectId) {
-                              notifier.acceptDecline(projectId, 1);
+                            onAccept: (projectId) async {
+                              final success =
+                                  await notifier.acceptDecline(projectId, 1);
+                              if (!context.mounted) return;
+                              if (success) {
+                                TopMessage.show(
+                                  context,
+                                  'Shoot accepted successfully',
+                                  type: TopMessageType.success,
+                                );
+                              } else {
+                                final err =
+                                    ref.read(homeNotifierProvider).errorMessage;
+                                TopMessage.show(
+                                  context,
+                                  err ?? 'Failed to accept shoot',
+                                  type: TopMessageType.error,
+                                );
+                              }
                             },
                             onRejectComplete: () {
+                              TopMessage.show(
+                                context,
+                                'Shoot declined successfully',
+                                type: TopMessageType.success,
+                              );
                               notifier.refresh();
                             },
                           ),
@@ -292,7 +315,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
           ],
         ),
-        if (homeState.isLoading) const AppLoadingOverlay(),
+        if (homeState.isLoading || homeState.actionInFlightProjectId != 0)
+          const AppLoadingOverlay(),
       ],
     );
   }

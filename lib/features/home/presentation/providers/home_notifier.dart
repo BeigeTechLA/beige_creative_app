@@ -135,14 +135,24 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   }
 
   /// Accept or decline a pending shoot request. Refreshes dashboard on success.
-  Future<void> acceptDecline(int projectId, int crewAccept) async {
+  Future<bool> acceptDecline(int projectId, int crewAccept) async {
+    state = state.copyWith(
+      actionInFlightProjectId: projectId,
+      clearError: true,
+    );
     final repo = ref.read(homeRepositoryProvider);
     try {
       await repo.acceptDeclineProject(projectId, crewAccept);
       await refresh();
+      state = state.copyWith(actionInFlightProjectId: 0);
+      return true;
     } catch (e, st) {
       AppLogger.e('Home acceptDecline failed', e, st);
-      state = state.copyWith(errorMessage: 'Failed to respond to shoot');
+      state = state.copyWith(
+        actionInFlightProjectId: 0,
+        errorMessage: 'Failed to respond to shoot',
+      );
+      return false;
     }
   }
 

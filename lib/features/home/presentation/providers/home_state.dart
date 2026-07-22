@@ -55,6 +55,7 @@ class HomeState {
   // ── Lifecycle ──
   final bool isLoading;
   final String? errorMessage;
+  final int actionInFlightProjectId;
 
   // ── UI-local state driven by notifier ──
   final String selectedRange;
@@ -100,6 +101,7 @@ class HomeState {
     this.profileData,
     this.isLoading = false,
     this.errorMessage,
+    this.actionInFlightProjectId = 0,
     this.selectedRange = 'Month',
     this.selectedTab = 0,
     this.selectedDashboardIndex = 0,
@@ -273,6 +275,7 @@ class HomeState {
     bool? isLoading,
     String? errorMessage,
     bool clearError = false,
+    int? actionInFlightProjectId,
     String? selectedRange,
     int? selectedTab,
     int? selectedDashboardIndex,
@@ -317,6 +320,8 @@ class HomeState {
       profileData: profileData ?? this.profileData,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      actionInFlightProjectId:
+          actionInFlightProjectId ?? this.actionInFlightProjectId,
       selectedRange: selectedRange ?? this.selectedRange,
       selectedTab: selectedTab ?? this.selectedTab,
       selectedDashboardIndex:

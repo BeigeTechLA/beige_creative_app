@@ -126,7 +126,9 @@ void main() {
   testWidgets('pending shoot action buttons use shoot action color tokens', (
     tester,
   ) async {
-    final shoot = Shoot.fromJson(singleShootJson());
+    final shoot = Shoot.fromJson(singleShootJson(
+      cta: {'primary': 'Accept', 'secondary': 'Decline'},
+    ));
 
     await _pump(
       tester,

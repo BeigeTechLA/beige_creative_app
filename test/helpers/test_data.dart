@@ -185,6 +185,7 @@ Map<String, dynamic> singleShootJson({
   int totalAmount = 1200,
   int crewAccept = 0,
   bool canTakeAction = true,
+  Map<String, dynamic>? cta,
 }) =>
     {
       'id': id,
@@ -204,7 +205,7 @@ Map<String, dynamic> singleShootJson({
       'status': status,
       'crew_accept': crewAccept,
       'can_take_action': canTakeAction,
-      'cta': null,
+      'cta': cta,
     };
 
 /// Stub for an error envelope — any endpoint can return this on failure.

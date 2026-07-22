@@ -8,6 +8,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../shoots/presentation/routes/shoots_args.dart';
+import '../../../shoots/presentation/screens/shoot_cancelled_screen.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../model_class/cp_profile_model.dart';
@@ -279,20 +280,13 @@ class HomePendingShootCard extends StatelessWidget {
                     AppSpacing.verticalLg,
                     Builder(
                       builder: (context) {
-                        final isActionable = DateTimeUtils.isActionableBeforeOneHour(
-                          eventDate: data.eventDate,
-                          startTime: data.startTime,
-                          status: 'pending',
-                          crewAccept: 0,
-                        );
-
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             data.cpProfiles.isNotEmpty
                                 ? _buildMembersStack(data.cpProfiles)
                                 : const SizedBox(),
-                            if (data.canTakeAction == true || isActionable)
+                            if (data.canTakeAction == true)
                               Row(
                                 children: [
                                   ElevatedButton(
@@ -343,19 +337,15 @@ class HomePendingShootCard extends StatelessWidget {
                                         vertical: 8,
                                       ),
                                     ),
-                                    onPressed: () async {
-                                      context
-                                          .pushNamed(
-                                            Routes.cancelShoot.name,
-                                            extra: CancelShootArgs(
-                                              projectId: data.projectId,
-                                            ).toExtra(),
-                                          )
-                                          .then((value) {
-                                            if (value == true) {
-                                              onRejectComplete();
-                                            }
-                                          });
+                                    onPressed: () {
+                                      showDeclineShootBottomSheet(
+                                        context,
+                                        projectId: data.projectId,
+                                      ).then((value) {
+                                        if (value == true) {
+                                          onRejectComplete();
+                                        }
+                                      });
                                     },
                                     child: Text(
                                       (data.cta?.secondary.isNotEmpty == true &&

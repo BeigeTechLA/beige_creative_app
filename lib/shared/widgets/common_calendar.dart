@@ -9,6 +9,7 @@ class CommonCalendar extends StatefulWidget {
   final Map<DateTime, String> events;
   final Function(DateTime) onPageChanged;
   final String selectedEvent;
+  final void Function(DateTime day, String? event)? onDaySelected;
 
   const CommonCalendar({
     super.key,
@@ -16,6 +17,7 @@ class CommonCalendar extends StatefulWidget {
     required this.events,
     required this.onPageChanged,
     required this.selectedEvent,
+    this.onDaySelected,
   });
 
   @override
@@ -61,6 +63,16 @@ class _CommonCalendarState extends State<CommonCalendar>
                     focusedDay: widget.focusedDay,
                     headerVisible: false,
                     onPageChanged: widget.onPageChanged,
+                    onDaySelected: widget.onDaySelected == null
+                        ? null
+                        : (selected, focused) {
+                            final key = DateTime(
+                              selected.year,
+                              selected.month,
+                              selected.day,
+                            );
+                            widget.onDaySelected!(key, widget.events[key]);
+                          },
                     pageAnimationEnabled: true,
                     pageAnimationDuration: const Duration(milliseconds: 70),
                     pageAnimationCurve: Curves.linear,

@@ -72,7 +72,11 @@ void main() {
                 'data': {
                   'availability': {
                     '2026-06-01': {'available': true},
-                    '2026-06-02': {'projectAssigned': true, 'available': true},
+                    '2026-06-02': {
+                      'projectAssigned': true,
+                      'available': true,
+                      'projectDetails': {'booking_id': 42},
+                    },
                     '2026-06-03': {'available': false},
                     '2026-06-04': 'not-a-map',
                     'not-a-date': {'available': true},
@@ -83,9 +87,13 @@ void main() {
       final out = await repo.fetchMonth(month: 6, year: 2026);
 
       expect(out, {
-        DateTime(2026, 6, 1): AvailabilityStatus.available,
-        // projectAssigned wins over available
-        DateTime(2026, 6, 2): AvailabilityStatus.shoot,
+        DateTime(2026, 6, 1):
+            const AvailabilityDay(status: AvailabilityStatus.available),
+        // projectAssigned wins over available; booking_id carried through
+        DateTime(2026, 6, 2): const AvailabilityDay(
+          status: AvailabilityStatus.shoot,
+          bookingId: 42,
+        ),
       });
       final captured = verify(
         () => dio.post<dynamic>(captureAny(), data: captureAny(named: 'data')),
@@ -99,7 +107,7 @@ void main() {
           .thenAnswer((_) async => _ok({'error': true, 'message': 'denied'}));
 
       expect(await repo.fetchMonth(month: 6, year: 2026),
-          isA<Map<DateTime, AvailabilityStatus>>().having((m) => m.isEmpty,
+          isA<Map<DateTime, AvailabilityDay>>().having((m) => m.isEmpty,
               'isEmpty', isTrue));
     });
 

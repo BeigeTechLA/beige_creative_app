@@ -47,13 +47,33 @@ class MyData {
 
   String toRawJson() => json.encode(toJson());
 
-  factory MyData.fromJson(Map<String, dynamic> json) => MyData(
-    project: Project.fromJson(json["project"]),
-    paymentStatus: json["payment_state"] ?? "",
-    teamMembers: List<TeamMember>.from(json["team_members"].map((x) => TeamMember.fromJson(x))),
-    teamSummary: TeamSummary.fromJson(json["team_summary"]),
-    clientContact: ClientContact.fromJson(json["client_contact"]),
-  );
+  factory MyData.fromJson(Map<String, dynamic> json) {
+    final rawMembers =
+        json["team_members"] ?? json["cp_profiles"] ?? json["cp_profile"];
+    final membersList = rawMembers is List
+        ? List<TeamMember>.from(
+            rawMembers
+                .whereType<Map<String, dynamic>>()
+                .map(TeamMember.fromJson),
+          )
+        : <TeamMember>[];
+
+    final summary =
+        json["team_summary"] != null && json["team_summary"] is Map<String, dynamic>
+            ? TeamSummary.fromJson(json["team_summary"])
+            : TeamSummary(
+                assignedCount: membersList.length,
+                totalRequired: membersList.length,
+              );
+
+    return MyData(
+      project: Project.fromJson(json["project"] ?? {}),
+      paymentStatus: json["payment_state"] ?? json["payment_status"] ?? "",
+      teamMembers: membersList,
+      teamSummary: summary,
+      clientContact: ClientContact.fromJson(json["client_contact"] ?? {}),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "project": project.toJson(),
@@ -182,17 +202,24 @@ class TeamMember {
   String toRawJson() => json.encode(toJson());
 
   factory TeamMember.fromJson(Map<String, dynamic> json) => TeamMember(
-    crewMemberId: json["crew_member_id"] ?? 0,
-    name: json["name"] ?? "",
-    roleName: json["role_name"] ?? "",
-    profileImageUrl: json["profile_image_url"] ?? "",
-  );
+        crewMemberId:
+            json["crew_member_id"] ?? json["id"] ?? json["user_id"] ?? 0,
+        name: json["name"] ??
+            json["full_name"] ??
+            json["first_name"] ??
+            "Member",
+        roleName: json["role_name"] ?? json["role"] ?? "",
+        profileImageUrl: json["profile_image_url"] ??
+            json["image_url"] ??
+            json["avatar"] ??
+            "",
+      );
   Map<String, dynamic> toJson() => {
-    "crew_member_id": crewMemberId,
-    "name": name,
-    "role_name": roleName,
-    "profile_image_url": profileImageUrl,
-  };
+        "crew_member_id": crewMemberId,
+        "name": name,
+        "role_name": roleName,
+        "profile_image_url": profileImageUrl,
+      };
 }
 
 class TeamSummary {
@@ -204,13 +231,14 @@ class TeamSummary {
     required this.totalRequired,
   });
 
-  factory TeamSummary.fromRawJson(String str) => TeamSummary.fromJson(json.decode(str));
+  factory TeamSummary.fromRawJson(String str) =>
+      TeamSummary.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
   factory TeamSummary.fromJson(Map<String, dynamic> json) => TeamSummary(
-    assignedCount: json["assigned_count"] ?? 0,
-    totalRequired: json["total_required"] ?? 0,
-  );
+        assignedCount: json["assigned_count"] ?? json["assigned"] ?? 0,
+        totalRequired: json["total_required"] ?? json["total"] ?? 0,
+      );
   Map<String, dynamic> toJson() => {
     "assigned_count": assignedCount,
     "total_required": totalRequired,

@@ -1,5 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../screens/shoot_cancelled_lotties_screen.dart';
 import '../screens/shoot_cancelled_screen.dart';
@@ -20,9 +22,27 @@ final List<RouteBase> shootsRoutes = [
   GoRoute(
     path: Routes.cancelShoot.path,
     name: Routes.cancelShoot.name,
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       final args = CancelShootArgs.fromExtra(state.extra);
-      return ShootCancelledScreen(projectId: args.projectId);
+      return CustomTransitionPage<bool>(
+        key: state.pageKey,
+        opaque: false,
+        barrierDismissible: true,
+        barrierColor: AppColors.black.withValues(alpha: 0.6),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            )),
+            child: child,
+          );
+        },
+        child: ShootCancelledScreen(projectId: args.projectId),
+      );
     },
   ),
   GoRoute(

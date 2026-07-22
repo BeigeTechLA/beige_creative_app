@@ -5,6 +5,126 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-22: Manage Availability — tap a "Shoot" day to open its shoot details
+
+- **Changes**:
+  - `lib/shared/widgets/common_calendar.dart`: Added optional `onDaySelected(day, event)` callback, wired to `TableCalendar.onDaySelected`.
+  - `lib/features/availability/domain/entities/availability_entry.dart`: New `AvailabilityDay{status, bookingId}` value type (with `==`/`hashCode`) replacing the bare `AvailabilityStatus` in the fetched-month map.
+  - `lib/features/availability/data/repositories/availability_repository_impl.dart`: Parses `projectDetails.booking_id` off the `creator/availability` per-day payload when `projectAssigned == true`.
+  - `lib/features/availability/domain/repositories/availability_repository.dart`: `fetchMonth` return type updated to `Map<DateTime, AvailabilityDay>`.
+  - `lib/features/availability/presentation/providers/availability_providers.dart`: `ManageAvailabilityState.events` updated to the new map type.
+  - `lib/features/availability/presentation/screens/manage_availability_screen.dart`: Tapping a day marked `Shoot` reads its `bookingId` from state and pushes `Routes.upcomingShootDetails` with it as `projectId`.
+
+- **Decisions**:
+  - Initial approach cross-queried `creator/dashboard-details` (the Shoots-tab list) to match a shoot by date — dropped in favor of reading `booking_id` directly off the availability response itself, since the backend already returns it. Avoids a second network call and date-match mismatches (independent endpoints, could disagree).
+
+- **Verification**:
+  - `flutter analyze` — 0 issues on touched files.
+  - `flutter test test/features/availability/ test/shared/widgets/common_calendar_test.dart` — 36/36 passing, including new widget tests asserting tap-to-navigate and that non-"Shoot" days don't navigate.
+
+---
+
+### 2026-07-22: Accept / Decline Action Buttons Visibility Condition (`can_take_action`)
+
+- **Changes**:
+  - `lib/features/home/presentation/widgets/home_pending_shoot_card.dart`: Updated action buttons visibility condition to `if (data.canTakeAction == true)`, hiding Accept/Decline action buttons strictly based on the `can_take_action` boolean flag from the API response.
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`: Updated `_ShootCard` action buttons visibility condition to `if (shoot.canTakeAction)`, hiding Accept/Decline action buttons strictly based on the `can_take_action` boolean flag from the API response.
+
+- **Decisions**:
+  - Removed local `isActionable` fallback overrides so button visibility strictly honors the backend `can_take_action` flag across both Dashboard and Shoots screens.
+
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/features/shoots/` and `flutter test test/features/home/` — all tests passing.
+
+---
+
+### 2026-07-22: Decline Shoot Request Modal Bottom Sheet & Disabled Comments Field
+
+- **Changes**:
+  - `lib/features/shoots/presentation/screens/shoot_cancelled_screen.dart`:
+    - Added `showDeclineShootBottomSheet(context, projectId: ...)` helper using `showModalBottomSheet(isScrollControlled: true, backgroundColor: Colors.transparent, useRootNavigator: true)` to ensure native modal bottom sheet presentation over the caller's view instead of full screen navigation.
+    - Updated `_buildCommentField` to be **disabled** (`enabled: isOtherSelected`) when any reason other than "Others" is selected, displaying dimmed borders/text and hint `"Select 'Others' to add details.."`. Enables `TextField` when "Others" is selected.
+  - `lib/features/home/presentation/widgets/home_pending_shoot_card.dart`: Updated Decline CTA button to invoke `showDeclineShootBottomSheet`.
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`: Updated Decline action in `_ShootCard` to invoke `showDeclineShootBottomSheet`.
+
+- **Decisions**:
+  - Standardized bottom sheet invocation using `showModalBottomSheet` matching existing app patterns (`showHomeFilterBottomSheet`, `showMeetingDetailsSheet`).
+  - Disabled the optional comments text field until "Others" is selected for cleaner UX and clear form focus.
+
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/features/shoots/` and `flutter test test/features/home/` — all tests passing.
+
+---
+
+### 2026-07-22: Decline Shoot Request Modal Bottom Sheet & Option 1 CTA Styling
+
+- **Changes**:
+  - `lib/features/shoots/presentation/routes/shoots_routes.dart`: Updated `Routes.cancelShoot` to use non-opaque `CustomTransitionPage` (`opaque: false`, `barrierColor: 60% black`) with a slide-up transition. Fixed the issue where `Routes.cancelShoot` opened as a separate screen instead of a modal bottom sheet overlay.
+  - `lib/features/shoots/presentation/screens/shoot_cancelled_screen.dart`:
+    - Updated background to `AppColors.transparent` and added `resizeToAvoidBottomInset: true` with `SingleChildScrollView` and bottom inset padding to prevent overflow when typing comments.
+    - Updated Decline CTA button to Option 1: Enabled background `AppColors.primary` (`#E8D1AB`), foreground text `AppColors.onPrimary` (`#1D1D1B` dark charcoal) for high contrast and legibility.
+    - Updated radio buttons to match Screenshot 3 (filled gold circle with inner dark dot when selected).
+    - Rendered explicit "Additional comments (optional)" input field.
+    - Updated `submittedSignal` listener to return `context.pop(true)` so the caller receives success signal and triggers toast & refresh.
+
+- **Decisions**:
+  - Standardized `Routes.cancelShoot` as a non-opaque modal route to prevent screen replacement/flashing.
+  - Applied Option 1 high-contrast typography (`AppColors.onPrimary` on `AppColors.primary`) for accessibility and visual polish.
+
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/features/shoots/` — 17/17 passing.
+  - `flutter test test/features/home/` — 47/47 passing.
+
+---
+
+### 2026-07-22: Shoot Accept/Decline Full-Screen Overlay Loader & App-Wide Toasts
+
+- **Changes**:
+  - `lib/features/home/presentation/providers/home_state.dart`: Added `actionInFlightProjectId` field to track in-flight accept/decline action on Dashboard.
+  - `lib/features/home/presentation/providers/home_notifier.dart`: Updated `acceptDecline` to track `actionInFlightProjectId` and return `Future<bool>`.
+  - `lib/features/home/presentation/screens/home_screen.dart`: Mounted `AppLoadingOverlay()` transparent overlay when `actionInFlightProjectId != 0`, and triggered `TopMessage` success/error toasts on Accept and Decline.
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`: Mounted `AppLoadingOverlay()` transparent overlay when `actionInFlightProjectId != 0`, updated `_ShootCard` action buttons, and triggered `TopMessage` success/error toasts on Accept and Decline.
+  - `test/helpers/test_data.dart`: Added `cta` parameter to `singleShootJson()`.
+
+- **Decisions**:
+  - Used `AppLoadingOverlay()` with 50% opacity backdrop to block double taps while preserving visibility of the underlying card during API calls.
+  - Aligned toast notifications across Shoots and Dashboard with app-wide `TopMessage` theme.
+
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/features/shoots/presentation/screens/shoots_screen_test.dart` — 4/4 passing.
+  - `flutter test test/features/home/` — 47/47 passing.
+
+---
+
+### 2026-07-22: Shoot Details UI & Team Members Integration
+
+- **Changes**:
+  - `lib/model_class/upcoming_shootview_model.dart`:
+    - Updated `MyData.fromJson` to parse `cp_profiles` / `cp_profile` array as fallback for `team_members`.
+    - Added key fallbacks to `TeamMember.fromJson` (`crew_member_id` / `id` / `user_id`, `name` / `full_name`, `role_name` / `role`, `profile_image_url` / `image_url` / `avatar`).
+    - Handled missing `team_summary` by deriving `assignedCount` and `totalRequired` from member list length.
+  - `lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart`:
+    - Hero header: Replaced text with `mydata.project.projectName`, added status pill badge (`🟢 Active`), and displayed `ID: #${mydata.project.idLabel}` in gold.
+    - Ticket Stub Card: Added custom ticket stub divider (`_TicketDashedDivider`) with left and right semi-circle cutouts and dashed separator line.
+    - Shoot Status Inner Card: Styled *"Shoot Status"* in gold, *"Current Stage"* in gold (`Pre Production`), and formatted *"Last Updated"* timestamp.
+    - Team Members Section: Added section header with assigned ratio `(06/06)` and horizontal list view of team member avatars (`CachedNetworkImage`), full names, and role labels.
+    - Time & Budget & Client Contact: Polished side-by-side cards and dark icon containers with gold icons.
+  - `test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart`: Added widget test coverage for team members rendering.
+
+- **Decisions**:
+  - Derived assigned count and total required from `teamMembers.length` if `team_summary` is missing from payload to prevent null crashes.
+  - Implemented pixel-accurate ticket stub cutout divider matching reference screenshot.
+
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 4/4 passing.
+
+---
+
 ### 2026-07-22: Dashboard API Updates (crew_stats, cp_profiles, request_time_ago, card formatting)
 
 - **Changes**:

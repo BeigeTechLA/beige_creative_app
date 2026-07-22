@@ -59,6 +59,14 @@ GoRouter _router() {
         name: Routes.addAvailability.name,
         builder: (_, _) => const Scaffold(body: Text('add-stub')),
       ),
+      GoRoute(
+        path: '/shoot-details',
+        name: Routes.upcomingShootDetails.name,
+        builder: (_, state) {
+          final projectId = (state.extra as Map?)?['projectId'];
+          return Scaffold(body: Text('shoot-details-$projectId'));
+        },
+      ),
     ],
   );
 }
@@ -101,9 +109,14 @@ void main() {
         isLoading: false,
         focusedDay: focused,
         events: {
-          DateTime(2026, 6, 1): AvailabilityStatus.available,
-          DateTime(2026, 6, 5): AvailabilityStatus.available,
-          DateTime(2026, 6, 8): AvailabilityStatus.shoot,
+          DateTime(2026, 6, 1):
+              const AvailabilityDay(status: AvailabilityStatus.available),
+          DateTime(2026, 6, 5):
+              const AvailabilityDay(status: AvailabilityStatus.available),
+          DateTime(2026, 6, 8): const AvailabilityDay(
+            status: AvailabilityStatus.shoot,
+            bookingId: 8,
+          ),
         },
       ),
     );
@@ -129,5 +142,50 @@ void main() {
 
     expect(fake.shiftCalls, greaterThanOrEqualTo(1));
     expect(fake.lastShiftDelta, 1);
+  });
+
+  testWidgets('tap a Shoot day opens shoot details with its booking id',
+      (tester) async {
+    final focused = DateTime(2026, 6, 15);
+    await _pump(
+      tester,
+      seed: ManageAvailabilityState(
+        isLoading: false,
+        focusedDay: focused,
+        events: {
+          DateTime(2026, 6, 15): const AvailabilityDay(
+            status: AvailabilityStatus.shoot,
+            bookingId: 77,
+          ),
+        },
+      ),
+    );
+
+    await tester.ensureVisible(find.text('Shoot'));
+    await tester.tap(find.text('Shoot'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('shoot-details-77'), findsOneWidget);
+  });
+
+  testWidgets('tap an Available day does not navigate', (tester) async {
+    final focused = DateTime(2026, 6, 15);
+    await _pump(
+      tester,
+      seed: ManageAvailabilityState(
+        isLoading: false,
+        focusedDay: focused,
+        events: {
+          DateTime(2026, 6, 15):
+              const AvailabilityDay(status: AvailabilityStatus.available),
+        },
+      ),
+    );
+
+    await tester.ensureVisible(find.text('Available'));
+    await tester.tap(find.text('Available'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Manage Availability'), findsOneWidget);
   });
 }

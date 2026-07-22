@@ -13,6 +13,7 @@ import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/common_calendar.dart';
+import '../../../shoots/presentation/routes/shoots_args.dart';
 import '../../domain/entities/availability_entry.dart';
 import '../providers/availability_providers.dart';
 
@@ -164,6 +165,17 @@ class ManageAvailabilityScreen extends ConsumerWidget {
                             events: calendarEvents,
                             selectedEvent: state.eventFilter,
                             onPageChanged: notifier.setFocusedDay,
+                            onDaySelected: (day, event) {
+                              if (event != 'Shoot') return;
+                              final bookingId = state.events[day]?.bookingId;
+                              if (bookingId == null) return;
+                              context.pushNamed(
+                                Routes.upcomingShootDetails.name,
+                                extra: UpcomingShootDetailsArgs(
+                                  projectId: bookingId,
+                                ).toExtra(),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -232,12 +244,10 @@ class ManageAvailabilityScreen extends ConsumerWidget {
     );
   }
 
-  Map<DateTime, String> _toCalendarMap(
-    Map<DateTime, AvailabilityStatus> events,
-  ) {
+  Map<DateTime, String> _toCalendarMap(Map<DateTime, AvailabilityDay> events) {
     return {
       for (final entry in events.entries)
-        entry.key: switch (entry.value) {
+        entry.key: switch (entry.value.status) {
           AvailabilityStatus.shoot => 'Shoot',
           AvailabilityStatus.available => 'Available',
           AvailabilityStatus.none => 'None',

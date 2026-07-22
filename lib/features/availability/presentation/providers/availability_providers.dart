@@ -23,7 +23,7 @@ final availabilityRepositoryProvider = Provider<AvailabilityRepository>(
 @immutable
 class ManageAvailabilityState {
   final DateTime focusedDay;
-  final Map<DateTime, AvailabilityStatus> events;
+  final Map<DateTime, AvailabilityDay> events;
   final String eventFilter;
   final bool isLoading;
 
@@ -36,7 +36,7 @@ class ManageAvailabilityState {
 
   ManageAvailabilityState copyWith({
     DateTime? focusedDay,
-    Map<DateTime, AvailabilityStatus>? events,
+    Map<DateTime, AvailabilityDay>? events,
     String? eventFilter,
     bool? isLoading,
   }) {
@@ -54,7 +54,7 @@ class ManageAvailabilityState {
           (e) =>
               e.key.year == focusedDay.year &&
               e.key.month == focusedDay.month &&
-              e.value == status,
+              e.value.status == status,
         )
         .length;
   }

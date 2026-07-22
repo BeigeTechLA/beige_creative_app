@@ -13,7 +13,7 @@ class AvailabilityRepositoryImpl implements AvailabilityRepository {
   Dio get _dio => _client.dio;
 
   @override
-  Future<Map<DateTime, AvailabilityStatus>> fetchMonth({
+  Future<Map<DateTime, AvailabilityDay>> fetchMonth({
     required int month,
     required int year,
   }) async {
@@ -26,18 +26,33 @@ class AvailabilityRepositoryImpl implements AvailabilityRepository {
       return const {};
     }
     final raw = (body['data']?['availability'] as Map?) ?? const {};
-    final out = <DateTime, AvailabilityStatus>{};
+    final out = <DateTime, AvailabilityDay>{};
     raw.forEach((key, value) {
       final date = DateTime.tryParse(key.toString());
       if (date == null || value is! Map) return;
       final clean = DateTime(date.year, date.month, date.day);
       if (value['projectAssigned'] == true) {
-        out[clean] = AvailabilityStatus.shoot;
+        final projectDetails = value['projectDetails'];
+        final bookingId = projectDetails is Map
+            ? _asInt(projectDetails['booking_id'])
+            : null;
+        out[clean] = AvailabilityDay(
+          status: AvailabilityStatus.shoot,
+          bookingId: bookingId,
+        );
       } else if (value['available'] == true) {
-        out[clean] = AvailabilityStatus.available;
+        out[clean] = const AvailabilityDay(status: AvailabilityStatus.available);
       }
     });
     return out;
+  }
+
+  int? _asInt(Object? v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    if (v is String) return int.tryParse(v);
+    return null;
   }
 
   @override

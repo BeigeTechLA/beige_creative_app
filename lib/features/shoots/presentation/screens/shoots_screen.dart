@@ -16,10 +16,12 @@ import '../../../../model_class/shoots_model.dart';
 import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/app_count_card.dart';
 import '../providers/shoots_providers.dart';
+import 'shoot_cancelled_screen.dart';
 
 class ShootsScreen extends ConsumerStatefulWidget {
   const ShootsScreen({super.key});
@@ -154,15 +156,40 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                           return _ShootCard(
                             shoot: shoot,
                             isAcceptInFlight: inFlight,
-                            onAccept: () => notifier.acceptShoot(shoot.projectId),
-                            onDecline: () => context
-                                .pushNamed(
-                                  Routes.cancelShoot.name,
-                                  extra: CancelShootArgs(
-                                    projectId: shoot.projectId,
-                                  ).toExtra(),
-                                )
-                                .then((_) => notifier.refresh()),
+                            onAccept: () async {
+                              final success =
+                                  await notifier.acceptShoot(shoot.projectId);
+                              if (!context.mounted) return;
+                              if (success) {
+                                TopMessage.show(
+                                  context,
+                                  'Shoot accepted successfully',
+                                  type: TopMessageType.success,
+                                );
+                              } else {
+                                final err =
+                                    ref.read(shootsListProvider).errorMessage;
+                                TopMessage.show(
+                                  context,
+                                  err ?? 'Failed to accept shoot',
+                                  type: TopMessageType.error,
+                                );
+                              }
+                            },
+                            onDecline: () => showDeclineShootBottomSheet(
+                                  context,
+                                  projectId: shoot.projectId,
+                                ).then((value) {
+                                  if (!context.mounted) return;
+                                  if (value == true) {
+                                    TopMessage.show(
+                                      context,
+                                      'Shoot declined successfully',
+                                      type: TopMessageType.success,
+                                    );
+                                  }
+                                  notifier.refresh();
+                                }),
                             onViewDetails: () => context.pushNamed(
                               Routes.upcomingShootDetails.name,
                               extra: UpcomingShootDetailsArgs(
@@ -176,6 +203,7 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
             ],
           ),
           if (state.isLoading) const AppLoader(),
+          if (state.actionInFlightProjectId != 0) const AppLoadingOverlay(),
         ],
       ),
     );
@@ -203,13 +231,6 @@ class _ShootCard extends StatelessWidget {
         DateTimeUtils.formatReadableDate(shoot.eventDate.toIso8601String());
     final formattedTime =
         '${DateTimeUtils.formatTime(shoot.startTime)} - ${DateTimeUtils.formatTime(shoot.endTime)}';
-
-    final isActionable = DateTimeUtils.isActionableBeforeOneHour(
-      eventDate: shoot.eventDate,
-      startTime: shoot.startTime,
-      status: shoot.status,
-      crewAccept: shoot.crewAccept,
-    );
 
     final isConfirmed = shoot.status.toLowerCase() == 'confirmed' ||
         shoot.status.toLowerCase() == 'accepted' ||
@@ -390,7 +411,7 @@ class _ShootCard extends StatelessWidget {
                   children: [
                     // Crew avatars stack
                     _buildAvatarGroup(shoot.cpProfiles),
-                    if (isActionable)
+                    if (shoot.canTakeAction)
                       Row(
                         children: [
                           ElevatedButton(

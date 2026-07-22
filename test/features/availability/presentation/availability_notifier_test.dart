@@ -19,10 +19,10 @@ class _FakeRepo implements AvailabilityRepository {
   int? lastMonth;
   int? lastYear;
 
-  Map<DateTime, AvailabilityStatus> events = const {};
+  Map<DateTime, AvailabilityDay> events = const {};
 
   @override
-  Future<Map<DateTime, AvailabilityStatus>> fetchMonth({
+  Future<Map<DateTime, AvailabilityDay>> fetchMonth({
     required int month,
     required int year,
   }) async {

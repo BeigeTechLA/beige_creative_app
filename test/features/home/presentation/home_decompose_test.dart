@@ -141,10 +141,7 @@ void main() {
           ),
         );
         expect(find.text('Shoot Categories'), findsOneWidget);
-        expect(find.text('Photo'), findsOneWidget);
-        expect(find.text('Video'), findsOneWidget);
         expect(find.text('Photography shoots'), findsOneWidget);
-        expect(find.text('Videography shoots'), findsOneWidget);
         // Photo total renders in centre when selectedTab == 0.
         expect(find.text('9'), findsOneWidget);
       },

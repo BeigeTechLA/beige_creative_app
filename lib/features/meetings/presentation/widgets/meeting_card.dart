@@ -273,7 +273,7 @@ class _MeetingCardState extends State<MeetingCard> {
                     loading: widget.rsvpPending,
                   );
                   final reject = _RsvpButton(
-                    label: 'Decline',
+                    label: 'Reject',
                     backgroundColor: AppColors.meetingRejectSoftBg,
                     textColor: AppColors.meetingRejected,
                     onTap: widget.onReject!,
