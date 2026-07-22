@@ -97,7 +97,6 @@ void main() {
 
       final data = await repo.fetchCreatorDashboard(
         statsDateFilter: 'this_month',
-        categoriesTab: 'photo',
         availabilityMonth: 7,
         availabilityYear: 2026,
       );
@@ -114,7 +113,6 @@ void main() {
       await expectLater(
         repo.fetchCreatorDashboard(
           statsDateFilter: 'this_month',
-          categoriesTab: 'photo',
           availabilityMonth: 7,
           availabilityYear: 2026,
         ),

@@ -20,13 +20,34 @@ class ApiEndpoints {
 
   static String creatorDashboard({
     required String statsDateFilter,
-    required String categoriesTab,
-    String projectsStatus = 'active',
+    String? projectsStatus,
     required int availabilityMonth,
     required int availabilityYear,
-    int meetingsLimit = 3,
-  }) =>
-      'creator/dashboard?stats_date_filter=$statsDateFilter&categories_tab=$categoriesTab&projects_status=$projectsStatus&availability_month=$availabilityMonth&availability_year=$availabilityYear&meetings_limit=$meetingsLimit';
+    String? projectsDateFilter,
+    String? projectsStartDate,
+    String? projectsEndDate,
+  }) {
+    final params = <String>[
+      'stats_date_filter=$statsDateFilter',
+      'availability_month=$availabilityMonth',
+      'availability_year=$availabilityYear',
+    ];
+    if (projectsStatus != null && projectsStatus.isNotEmpty) {
+      params.add('projects_status=$projectsStatus');
+    }
+    if (projectsDateFilter != null && projectsDateFilter.isNotEmpty) {
+      params.add('projects_date_filter=$projectsDateFilter');
+      if (projectsDateFilter == 'custom') {
+        if (projectsStartDate != null && projectsStartDate.isNotEmpty) {
+          params.add('projects_start_date=$projectsStartDate');
+        }
+        if (projectsEndDate != null && projectsEndDate.isNotEmpty) {
+          params.add('projects_end_date=$projectsEndDate');
+        }
+      }
+    }
+    return 'creator/dashboard?${params.join('&')}';
+  }
 
   static const String creatordashboarddetails = "creator/dashboard-details";
   static const String createavailability = "creator/availability";

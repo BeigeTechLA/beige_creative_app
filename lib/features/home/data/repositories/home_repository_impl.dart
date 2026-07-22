@@ -16,19 +16,21 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   Future<CreatorDashboardPayload> fetchCreatorDashboard({
     required String statsDateFilter,
-    required String categoriesTab,
-    String projectsStatus = 'active',
+    String? projectsStatus,
     required int availabilityMonth,
     required int availabilityYear,
-    int meetingsLimit = 3,
+    String? projectsDateFilter,
+    String? projectsStartDate,
+    String? projectsEndDate,
   }) async {
     final endpoint = ApiEndpoints.creatorDashboard(
       statsDateFilter: statsDateFilter,
-      categoriesTab: categoriesTab,
       projectsStatus: projectsStatus,
       availabilityMonth: availabilityMonth,
       availabilityYear: availabilityYear,
-      meetingsLimit: meetingsLimit,
+      projectsDateFilter: projectsDateFilter,
+      projectsStartDate: projectsStartDate,
+      projectsEndDate: projectsEndDate,
     );
     final response = await _client.dio.get<dynamic>(endpoint);
     final data = response.data;

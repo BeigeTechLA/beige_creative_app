@@ -14,10 +14,6 @@ void main() {
   Widget buildTestWidget({
     required List<UpcomingShootDatum> upcomingShoots,
     required bool hasOriginalShoots,
-    required String searchQuery,
-    required ValueChanged<String> onSearchChanged,
-    required VoidCallback onFilterTap,
-    required bool isFilterActive,
     required TickerProvider vsync,
   }) {
     animationController = AnimationController(
@@ -35,10 +31,6 @@ void main() {
             onCardTap: () {},
             onSwipeNext: () {},
             onSwipePrevious: () {},
-            searchQuery: searchQuery,
-            onSearchChanged: onSearchChanged,
-            onFilterTap: onFilterTap,
-            isFilterActive: isFilterActive,
           ),
         ),
       ),
@@ -46,7 +38,7 @@ void main() {
   }
 
   testWidgets(
-    'HomeUpcomingCarousel renders search bar and filter button when hasOriginalShoots is true',
+    'HomeUpcomingCarousel renders header and cards when hasOriginalShoots is true',
     (tester) async {
       final shoots = [
         UpcomingShootDatum(
@@ -63,17 +55,10 @@ void main() {
         ),
       ];
 
-      String updatedSearch = '';
-      bool filterTapped = false;
-
       await tester.pumpWidget(
         buildTestWidget(
           upcomingShoots: shoots,
           hasOriginalShoots: true,
-          searchQuery: '',
-          onSearchChanged: (val) => updatedSearch = val,
-          onFilterTap: () => filterTapped = true,
-          isFilterActive: false,
           vsync: tester,
         ),
       );
@@ -82,47 +67,26 @@ void main() {
       expect(find.text('Upcoming Shoots'), findsOneWidget);
       expect(find.byIcon(Icons.keyboard_arrow_right), findsOneWidget);
 
-      // Verify Search TextField and Hint
-      expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('Search events or crew...'), findsOneWidget);
-
-      // Verify Filter Button
-      expect(find.text('Filter'), findsOneWidget);
-
       // Verify Card items
       expect(find.text('Wedding Shoot'), findsOneWidget);
-
-      // Test Search interaction
-      await tester.enterText(find.byType(TextField), 'Wedding');
-      expect(updatedSearch, equals('Wedding'));
-
-      // Test Filter interaction
-      await tester.tap(find.text('Filter'));
-      expect(filterTapped, isTrue);
 
       animationController.dispose();
     },
   );
 
   testWidgets(
-    'HomeUpcomingCarousel displays empty message when filtered shoots list is empty but hasOriginalShoots is true',
+    'HomeUpcomingCarousel displays empty message when shoots list is empty but hasOriginalShoots is true',
     (tester) async {
       await tester.pumpWidget(
         buildTestWidget(
           upcomingShoots: [],
           hasOriginalShoots: true,
-          searchQuery: 'Non-existent',
-          onSearchChanged: (_) {},
-          onFilterTap: () {},
-          isFilterActive: true,
           vsync: tester,
         ),
       );
 
       expect(find.text('Upcoming Shoots'), findsOneWidget);
       expect(find.text('No upcoming shoots match filters.'), findsOneWidget);
-      expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('Filter'), findsOneWidget);
 
       animationController.dispose();
     },
@@ -135,16 +99,11 @@ void main() {
         buildTestWidget(
           upcomingShoots: [],
           hasOriginalShoots: false,
-          searchQuery: '',
-          onSearchChanged: (_) {},
-          onFilterTap: () {},
-          isFilterActive: false,
           vsync: tester,
         ),
       );
 
       expect(find.text('Upcoming Shoots'), findsNothing);
-      expect(find.byType(TextField), findsNothing);
 
       animationController.dispose();
     },

@@ -25,6 +25,10 @@ class CrewStatsData {
   final int shootRequests;
   final int photographyShoots;
   final int videographyShoots;
+  final int photoRejectedShoots;
+  final int photoShootRequests;
+  final int videoRejectedShoots;
+  final int videoShootRequests;
 
   CrewStatsData({
     required this.completedShoots,
@@ -33,6 +37,10 @@ class CrewStatsData {
     required this.shootRequests,
     required this.photographyShoots,
     required this.videographyShoots,
+    this.photoRejectedShoots = 0,
+    this.photoShootRequests = 0,
+    this.videoRejectedShoots = 0,
+    this.videoShootRequests = 0,
   });
 
   factory CrewStatsData.fromJson(Map<String, dynamic> json) =>
@@ -43,5 +51,9 @@ class CrewStatsData {
         shootRequests: json["shootRequests"] ?? 0,
         photographyShoots: json["photographyShoots"] ?? 0,
         videographyShoots: json["videographyShoots"] ?? 0,
+        photoRejectedShoots: json["photoRejectedShoots"] ?? 0,
+        photoShootRequests: json["photoShootRequests"] ?? 0,
+        videoRejectedShoots: json["videoRejectedShoots"] ?? 0,
+        videoShootRequests: json["videoShootRequests"] ?? 0,
       );
 }

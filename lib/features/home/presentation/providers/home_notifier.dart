@@ -41,13 +41,11 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     final repo = ref.read(homeRepositoryProvider);
 
     final filterValue = _filterValueForRange(state.selectedRange);
-    final tab = state.selectedTab == 0 ? 'photo' : 'video';
     final day = state.focusedDay;
 
     final dashboardData = await _safeFetchCreatorDashboard(
       repo,
       filterValue,
-      tab,
       day.month,
       day.year,
     );
@@ -65,13 +63,11 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     state = state.copyWith(selectedRange: range);
     final repo = ref.read(homeRepositoryProvider);
     final filter = _filterValueForRange(range);
-    final tabStr = state.selectedTab == 0 ? 'photo' : 'video';
     final day = state.focusedDay;
 
     final dashboardData = await _safeFetchCreatorDashboard(
       repo,
       filter,
-      tabStr,
       day.month,
       day.year,
     );
@@ -86,13 +82,11 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     state = state.copyWith(selectedTab: tab);
     final repo = ref.read(homeRepositoryProvider);
     final filter = _filterValueForRange(state.selectedRange);
-    final tabStr = tab == 0 ? 'photo' : 'video';
     final day = state.focusedDay;
 
     final dashboardData = await _safeFetchCreatorDashboard(
       repo,
       filter,
-      tabStr,
       day.month,
       day.year,
     );
@@ -109,12 +103,10 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     state = state.copyWith(focusedDay: next);
     final repo = ref.read(homeRepositoryProvider);
     final filter = _filterValueForRange(state.selectedRange);
-    final tabStr = state.selectedTab == 0 ? 'photo' : 'video';
 
     final dashboardData = await _safeFetchCreatorDashboard(
       repo,
       filter,
-      tabStr,
       next.month,
       next.year,
     );
@@ -129,12 +121,10 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     state = state.copyWith(focusedDay: day);
     final repo = ref.read(homeRepositoryProvider);
     final filter = _filterValueForRange(state.selectedRange);
-    final tabStr = state.selectedTab == 0 ? 'photo' : 'video';
 
     final dashboardData = await _safeFetchCreatorDashboard(
       repo,
       filter,
-      tabStr,
       day.month,
       day.year,
     );
@@ -168,22 +158,28 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     state = state.copyWith(upcomingSearchQuery: query);
   }
 
-  void setUpcomingFilters({
+  Future<void> setUpcomingFilters({
     String? date,
+    DateTime? customStartDate,
+    DateTime? customEndDate,
     String? status,
     String? category,
     String? type,
-  }) {
+  }) async {
     state = state.copyWith(
       upcomingSelectedDate: date,
+      upcomingCustomStartDate: customStartDate,
+      upcomingCustomEndDate: customEndDate,
       upcomingSelectedStatus: status,
       upcomingSelectedCategory: category,
       upcomingSelectedType: type,
     );
+    await refresh();
   }
 
-  void clearUpcomingFilters() {
+  Future<void> clearUpcomingFilters() async {
     state = state.copyWith(clearFilters: true);
+    await refresh();
   }
 
   /// Re-fetch profile only (used when returning from profile screen).
@@ -197,12 +193,51 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
 
   // ── Private helpers ─────────────────────────────────────────────────────
 
+  String? _mapDateFilterToApi(String? date) {
+    if (date == null || date.isEmpty) return null;
+    switch (date) {
+      case 'Today':
+        return 'today';
+      case 'This Week':
+        return 'this_week';
+      case 'This Month':
+        return 'this_month';
+      case 'Custom Range':
+        return 'custom';
+      default:
+        return date.toLowerCase().replaceAll(' ', '_');
+    }
+  }
+
+  String? _mapStatusToApi(String? status) {
+    if (status == null || status.isEmpty) return null;
+    return status.toLowerCase();
+  }
+
+  String? _formatDateForApi(DateTime? date) {
+    if (date == null) return null;
+    final y = date.year.toString().padLeft(4, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final d = date.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
+  }
+
   void _applyDashboardData(CreatorDashboardPayload data) {
     final counts = data.dashboardCounts;
     final stats = data.crewStats;
     final categories = data.shootCategories;
     final availability = data.availability;
     final profileData = data.profileDetail;
+
+    final hasPhotoCrewStats = stats != null &&
+        (stats.photographyShoots > 0 ||
+            stats.photoRejectedShoots > 0 ||
+            stats.photoShootRequests > 0);
+
+    final hasVideoCrewStats = stats != null &&
+        (stats.videographyShoots > 0 ||
+            stats.videoRejectedShoots > 0 ||
+            stats.videoShootRequests > 0);
 
     if (profileData != null) {
       _updateSessionUserSnapshot(profileData);
@@ -230,14 +265,42 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       photographyShoots: stats?.photographyShoots,
       videographyShoots: stats?.videographyShoots,
       // Shoot categories
-      categoryPhotoTotal: categories?['photo']?['total'] as int?,
-      categoryVideoTotal: categories?['video']?['total'] as int?,
-      acceptPhotographyShoots: categories?['photo']?['acceptedShoots'] as int?,
-      acceptVideographyShoots: categories?['video']?['acceptedShoots'] as int?,
-      rejectedPhoto: categories?['photo']?['rejectedShoots'] as int?,
-      rejectedVideo: categories?['video']?['rejectedShoots'] as int?,
-      requestPhoto: categories?['photo']?['shootRequests'] as int?,
-      requestVideo: categories?['video']?['shootRequests'] as int?,
+      categoryPhotoTotal: (hasPhotoCrewStats &&
+              (stats.photoRejectedShoots > 0 || stats.photoShootRequests > 0))
+          ? (stats.photographyShoots +
+              stats.photoRejectedShoots +
+              stats.photoShootRequests)
+          : (categories?['photo']?['total'] as int? ??
+              ((stats?.photographyShoots ?? categories?['photo']?['acceptedShoots'] as int? ?? 0) +
+                  (stats?.photoRejectedShoots ?? categories?['photo']?['rejectedShoots'] as int? ?? 0) +
+                  (stats?.photoShootRequests ?? categories?['photo']?['shootRequests'] as int? ?? 0))),
+      categoryVideoTotal: (hasVideoCrewStats &&
+              (stats.videoRejectedShoots > 0 || stats.videoShootRequests > 0))
+          ? (stats.videographyShoots +
+              stats.videoRejectedShoots +
+              stats.videoShootRequests)
+          : (categories?['video']?['total'] as int? ??
+              ((stats?.videographyShoots ?? categories?['video']?['acceptedShoots'] as int? ?? 0) +
+                  (stats?.videoRejectedShoots ?? categories?['video']?['rejectedShoots'] as int? ?? 0) +
+                  (stats?.videoShootRequests ?? categories?['video']?['shootRequests'] as int? ?? 0))),
+      acceptPhotographyShoots: hasPhotoCrewStats
+          ? stats.photographyShoots
+          : (categories?['photo']?['acceptedShoots'] as int?),
+      acceptVideographyShoots: hasVideoCrewStats
+          ? stats.videographyShoots
+          : (categories?['video']?['acceptedShoots'] as int?),
+      rejectedPhoto: (stats != null && stats.photoRejectedShoots > 0)
+          ? stats.photoRejectedShoots
+          : (categories?['photo']?['rejectedShoots'] as int?),
+      rejectedVideo: (stats != null && stats.videoRejectedShoots > 0)
+          ? stats.videoRejectedShoots
+          : (categories?['video']?['rejectedShoots'] as int?),
+      requestPhoto: (stats != null && stats.photoShootRequests > 0)
+          ? stats.photoShootRequests
+          : (categories?['photo']?['shootRequests'] as int?),
+      requestVideo: (stats != null && stats.videoShootRequests > 0)
+          ? stats.videoShootRequests
+          : (categories?['video']?['shootRequests'] as int?),
       // Availability
       events: availability != null
           ? _prepareAvailabilityEvents(availability)
@@ -325,16 +388,23 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   Future<CreatorDashboardPayload?> _safeFetchCreatorDashboard(
     HomeRepository repo,
     String statsFilter,
-    String categoriesTab,
     int month,
     int year,
   ) async {
+    final projectsStatus = _mapStatusToApi(state.upcomingSelectedStatus);
+    final projectsDateFilter = _mapDateFilterToApi(state.upcomingSelectedDate);
+    final projectsStartDate = _formatDateForApi(state.upcomingCustomStartDate);
+    final projectsEndDate = _formatDateForApi(state.upcomingCustomEndDate);
+
     try {
       return await repo.fetchCreatorDashboard(
         statsDateFilter: statsFilter,
-        categoriesTab: categoriesTab,
         availabilityMonth: month,
         availabilityYear: year,
+        projectsStatus: projectsStatus,
+        projectsDateFilter: projectsDateFilter,
+        projectsStartDate: projectsStartDate,
+        projectsEndDate: projectsEndDate,
       );
     } catch (e, st) {
       AppLogger.e('Home fetchCreatorDashboard failed', e, st);

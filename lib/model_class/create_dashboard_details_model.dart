@@ -1,4 +1,6 @@
 
+import 'cp_profile_model.dart';
+
 class CreatorDashboardDetailsModel {
   final bool error;
   final String message;
@@ -51,6 +53,8 @@ class PendingRequestCard {
   final int crewAccept;
   final bool canTakeAction;
   final Cta? cta; // ✅ NULL SAFE
+  final String requestTimeAgo;
+  final List<CpProfile> cpProfiles;
 
   PendingRequestCard({
     required this.id,
@@ -71,6 +75,8 @@ class PendingRequestCard {
     required this.shootType,
     required this.shootTypeImageUrl,
     this.cta,
+    this.requestTimeAgo = "",
+    this.cpProfiles = const [],
   });
 
   factory PendingRequestCard.fromJson(Map<String, dynamic> json) =>
@@ -81,7 +87,7 @@ class PendingRequestCard {
         projectId: json["project_id"] ?? 0,
         crewMemberId: json["crew_member_id"] ?? 0,
         projectName: json["project_name"] ?? "",
-        eventDate: DateTime.parse(json["event_date"]).toLocal(),
+        eventDate: json["event_date"] != null ? DateTime.parse(json["event_date"]).toLocal() : DateTime.now(),
         startTime: json["start_time"] ?? "",
         endTime: json["end_time"] ?? "",
         eventLocation: json["event_location"] ?? "",
@@ -96,6 +102,13 @@ class PendingRequestCard {
 
         /// ✅ SAFE CTA
         cta: json["cta"] != null ? Cta.fromJson(json["cta"]) : null,
+        requestTimeAgo: json["request_time_ago"] ?? "",
+        cpProfiles: json["cp_profiles"] != null && json["cp_profiles"] is List
+            ? (json["cp_profiles"] as List)
+                .whereType<Map<String, dynamic>>()
+                .map(CpProfile.fromJson)
+                .toList()
+            : const [],
       );
 }
 

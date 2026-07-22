@@ -41,12 +41,12 @@ class HomeShootCategoriesPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categoryStats = [
-      selectedTab == 0 ? acceptPhotographyShoots : acceptVideographyShoots,
-      selectedTab == 0 ? 0 : acceptVideographyShoots,
-      selectedTab == 0 ? rejectedPhoto : rejectedVideo,
-      selectedTab == 0 ? requestPhoto : requestVideo,
-    ];
+    final mainShootCount =
+        selectedTab == 0 ? acceptPhotographyShoots : acceptVideographyShoots;
+    final rejectedCount = selectedTab == 0 ? rejectedPhoto : rejectedVideo;
+    final requestCount = selectedTab == 0 ? requestPhoto : requestVideo;
+
+    final categoryStats = [mainShootCount, rejectedCount, requestCount];
     final categoryTotal = categoryStats.fold<int>(0, (sum, item) => sum + item);
     final categoryArcValues = categoryStats.map((e) {
       if (e == 0 || categoryTotal == 0) {
@@ -54,6 +54,9 @@ class HomeShootCategoriesPanel extends StatelessWidget {
       }
       return (e / categoryTotal).clamp(0.0, 1.0);
     }).toList();
+    final arcColors = selectedTab == 0
+        ? const [AppColors.arcPurple, AppColors.arcYellow, AppColors.arcGreen]
+        : const [AppColors.arcBlue, AppColors.arcYellow, AppColors.arcGreen];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,12 +164,7 @@ class HomeShootCategoriesPanel extends StatelessWidget {
                         size: const Size(700, 150),
                         painter: MultiArcPainter(
                           values: categoryArcValues,
-                          colors: const [
-                            AppColors.arcPurple,
-                            AppColors.arcBlue,
-                            AppColors.arcYellow,
-                            AppColors.arcGreen,
-                          ],
+                          colors: arcColors,
                         ),
                       ),
                       Column(
@@ -189,23 +187,28 @@ class HomeShootCategoriesPanel extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.statusGap),
               HomeStatusItem(
-                count: "$acceptPhotographyShoots",
-                label: "Photography shoots",
-                color: AppColors.arcPurple,
-              ),
-              HomeStatusItem(
-                count: "$acceptVideographyShoots",
-                label: "Videography shoots",
-                color: AppColors.arcBlue,
+                count: selectedTab == 0
+                    ? "$acceptPhotographyShoots"
+                    : "$acceptVideographyShoots",
+                label: selectedTab == 0
+                    ? "Photography shoots"
+                    : "Videography shoots",
+                color: selectedTab == 0
+                    ? AppColors.arcPurple
+                    : AppColors.arcBlue,
               ),
               HomeStatusItem(
                 count: selectedTab == 0 ? "$rejectedPhoto" : "$rejectedVideo",
-                label: "Rejected shoots",
+                label: selectedTab == 0
+                    ? "Photo Rejected shoots"
+                    : "Video Rejected shoots",
                 color: AppColors.arcYellow,
               ),
               HomeStatusItem(
                 count: selectedTab == 0 ? "$requestPhoto" : "$requestVideo",
-                label: "Shoot Requests",
+                label: selectedTab == 0
+                    ? "Photo Shoot Requests"
+                    : "Video Shoot Requests",
                 color: AppColors.arcGreen,
               ),
             ],

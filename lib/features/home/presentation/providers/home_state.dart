@@ -66,6 +66,8 @@ class HomeState {
   // ── Search & Filter for Upcoming Shoots ──
   final String upcomingSearchQuery;
   final String? upcomingSelectedDate;
+  final DateTime? upcomingCustomStartDate;
+  final DateTime? upcomingCustomEndDate;
   final String? upcomingSelectedStatus;
   final String? upcomingSelectedCategory;
   final String? upcomingSelectedType;
@@ -105,6 +107,8 @@ class HomeState {
     DateTime? focusedDay,
     this.upcomingSearchQuery = "",
     this.upcomingSelectedDate,
+    this.upcomingCustomStartDate,
+    this.upcomingCustomEndDate,
     this.upcomingSelectedStatus,
     this.upcomingSelectedCategory,
     this.upcomingSelectedType,
@@ -159,6 +163,28 @@ class HomeState {
           if (shoot.eventDate.year != now.year ||
               shoot.eventDate.month != now.month) {
             return false;
+          }
+        } else if (dateFilter == "Custom Range") {
+          if (upcomingCustomStartDate != null &&
+              upcomingCustomEndDate != null) {
+            final start = DateTime(
+              upcomingCustomStartDate!.year,
+              upcomingCustomStartDate!.month,
+              upcomingCustomStartDate!.day,
+            );
+            final end = DateTime(
+              upcomingCustomEndDate!.year,
+              upcomingCustomEndDate!.month,
+              upcomingCustomEndDate!.day,
+              23,
+              59,
+              59,
+              999,
+            );
+            if (shoot.eventDate.isBefore(start) ||
+                shoot.eventDate.isAfter(end)) {
+              return false;
+            }
           }
         } else if (dateFilter == "Marketing Analytics") {
           final isMarketing =
@@ -254,6 +280,8 @@ class HomeState {
     DateTime? focusedDay,
     String? upcomingSearchQuery,
     String? upcomingSelectedDate,
+    DateTime? upcomingCustomStartDate,
+    DateTime? upcomingCustomEndDate,
     String? upcomingSelectedStatus,
     String? upcomingSelectedCategory,
     String? upcomingSelectedType,
@@ -299,6 +327,12 @@ class HomeState {
       upcomingSelectedDate: clearFilters
           ? null
           : (upcomingSelectedDate ?? this.upcomingSelectedDate),
+      upcomingCustomStartDate: clearFilters
+          ? null
+          : (upcomingCustomStartDate ?? this.upcomingCustomStartDate),
+      upcomingCustomEndDate: clearFilters
+          ? null
+          : (upcomingCustomEndDate ?? this.upcomingCustomEndDate),
       upcomingSelectedStatus: clearFilters
           ? null
           : (upcomingSelectedStatus ?? this.upcomingSelectedStatus),

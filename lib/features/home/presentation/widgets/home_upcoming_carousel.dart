@@ -10,6 +10,7 @@ import '../../../../app/routes.dart';
 import '../../../shoots/presentation/routes/shoots_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../model_class/cp_profile_model.dart';
 import '../../../../model_class/upcoming_shoots_model.dart';
 import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
@@ -33,10 +34,6 @@ class HomeUpcomingCarousel extends StatefulWidget {
   final VoidCallback onCardTap;
   final VoidCallback onSwipeNext;
   final VoidCallback onSwipePrevious;
-  final String searchQuery;
-  final ValueChanged<String> onSearchChanged;
-  final VoidCallback onFilterTap;
-  final bool isFilterActive;
 
   const HomeUpcomingCarousel({
     super.key,
@@ -47,10 +44,6 @@ class HomeUpcomingCarousel extends StatefulWidget {
     required this.onCardTap,
     required this.onSwipeNext,
     required this.onSwipePrevious,
-    required this.searchQuery,
-    required this.onSearchChanged,
-    required this.onFilterTap,
-    required this.isFilterActive,
   });
 
   @override
@@ -58,29 +51,6 @@ class HomeUpcomingCarousel extends StatefulWidget {
 }
 
 class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
-  late TextEditingController _searchController;
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController = TextEditingController(text: widget.searchQuery);
-  }
-
-  @override
-  void didUpdateWidget(covariant HomeUpcomingCarousel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.searchQuery != oldWidget.searchQuery &&
-        widget.searchQuery != _searchController.text) {
-      _searchController.text = widget.searchQuery;
-    }
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   // Helper to convert UpcomingShootDatum to a map for card display.
   static Map<String, dynamic> _cardFromDatum(UpcomingShootDatum datum) {
     return {
@@ -94,6 +64,7 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
       'rawEventDate': datum.eventDate,
       'rawStartTime': datum.startTime,
       'isCompleted': datum.isCompleted,
+      'cpProfiles': datum.cpProfiles,
     };
   }
 
@@ -126,98 +97,6 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
           ),
         ),
         const SizedBox(height: 16),
-        // Search & Filter Row
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  border: Border.all(
-                    color: AppColors.white.withValues(alpha: 0.12),
-                    width: 1.0,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: SvgPicture.asset(
-                        AppAssets.searchIcon,
-                        colorFilter: ColorFilter.mode(
-                          AppColors.white.withValues(alpha: 0.4),
-                          BlendMode.srcIn,
-                        ),
-                        width: 18,
-                        height: 18,
-                      ),
-                    ),
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: widget.onSearchChanged,
-                        style: AppTextStyles.body14.copyWith(color: AppColors.white),
-                        cursorColor: AppColors.primary,
-                        decoration: InputDecoration(
-                          hintText: "Search events or crew...",
-                          hintStyle: AppTextStyles.body12.copyWith(
-                            color: AppColors.white.withValues(alpha: 0.4),
-                          ),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: widget.onFilterTap,
-              child: Container(
-                height: 44,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: widget.isFilterActive ? AppColors.primary20 : AppColors.surfaceVariant,
-                  border: Border.all(
-                    color: widget.isFilterActive 
-                        ? AppColors.primary
-                        : AppColors.white.withValues(alpha: 0.12),
-                    width: 1.0,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Filter",
-                      style: AppTextStyles.body12.copyWith(
-                        color: widget.isFilterActive ? AppColors.primary : AppColors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    SvgPicture.asset(
-                      AppAssets.iconFilter,
-                      colorFilter: ColorFilter.mode(
-                        widget.isFilterActive ? AppColors.primary : AppColors.white,
-                        BlendMode.srcIn,
-                      ),
-                      width: 16,
-                      height: 16,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 36),
         // ==================== UPCOMING SHOOTS CARD STACK (DYNAMIC) ====================
         widget.upcomingShoots.isEmpty
             ? Padding(
@@ -241,8 +120,10 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
                     return _buildCard(context, current, isMain: true);
                   }
 
-                  // ✅ 👉 MULTIPLE DATA → SWIPE + STACK
-                  return GestureDetector(
+                  // ✅ 👉 MULTIPLE DATA → SWIPE + STACK (Add top margin for stacked card overflow -24px/-32px)
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 24),
+                    child: GestureDetector(
                     onTap: widget.onCardTap,
                     onHorizontalDragEnd: (details) {
                       if (details.primaryVelocity == null) return;
@@ -321,9 +202,10 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
                         );
                       },
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
+            ),
         // const SizedBox(height: AppSpacing.dashboardDividerGap),
         // Divider(color: AppColors.dividerDark, thickness: 0.8),
       ],
@@ -426,6 +308,10 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
                     ),
                   ],
                 ),
+                if ((data['cpProfiles'] as List<CpProfile>?)?.isNotEmpty == true) ...[
+                  AppSpacing.verticalXs,
+                  _buildMembersStack(data['cpProfiles'] as List<CpProfile>),
+                ],
                 AppSpacing.verticalMd,
                 Row(
                   children: [
@@ -461,6 +347,94 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMembersStack(List<CpProfile> profiles) {
+    final displayProfiles = profiles.take(3).toList();
+    final remaining = profiles.length - displayProfiles.length;
+    const avatarSize = 22.0;
+
+    return Row(
+      children: [
+        SizedBox(
+          height: avatarSize,
+          width: displayProfiles.length * 15.0 + (remaining > 0 ? 20.0 : 8.0),
+          child: Stack(
+            children: [
+              for (int i = 0; i < displayProfiles.length; i++)
+                Positioned(
+                  left: i * 14.0,
+                  child: Container(
+                    width: avatarSize,
+                    height: avatarSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.surfaceMid, width: 1.5),
+                      color: AppColors.surfaceDim,
+                    ),
+                    child: ClipOval(
+                      child: displayProfiles[i].profileImageUrl.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: Env.imageUrl + displayProfiles[i].profileImageUrl,
+                              fit: BoxFit.cover,
+                              errorWidget: (context, url, error) => _buildAvatarFallback(displayProfiles[i].name),
+                            )
+                          : _buildAvatarFallback(displayProfiles[i].name),
+                    ),
+                  ),
+                ),
+              if (remaining > 0)
+                Positioned(
+                  left: displayProfiles.length * 14.0,
+                  child: Container(
+                    width: avatarSize,
+                    height: avatarSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.primary,
+                      border: Border.all(color: AppColors.surfaceMid, width: 1.5),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "+$remaining",
+                      style: AppTextStyles.body10.copyWith(
+                        color: AppColors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(
+          child: Text(
+            profiles.map((p) => p.name).join(", "),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.body10.copyWith(
+              color: AppColors.white.withValues(alpha: 0.6),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAvatarFallback(String name) {
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : "M";
+    return Container(
+      color: AppColors.dashboardPanelDark,
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: AppTextStyles.body10.copyWith(
+          color: AppColors.white,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

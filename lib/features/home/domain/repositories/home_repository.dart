@@ -10,11 +10,12 @@ abstract class HomeRepository {
   /// GET `creator/dashboard`. Consolidates all dashboard data into a single payload.
   Future<CreatorDashboardPayload> fetchCreatorDashboard({
     required String statsDateFilter,
-    required String categoriesTab,
-    String projectsStatus = 'active',
+    String? projectsStatus,
     required int availabilityMonth,
     required int availabilityYear,
-    int meetingsLimit = 3,
+    String? projectsDateFilter,
+    String? projectsStartDate,
+    String? projectsEndDate,
   });
   /// GET `creator/dashboard-count`.
   Future<dashboard.DashboardCountData> fetchDashboardCount();

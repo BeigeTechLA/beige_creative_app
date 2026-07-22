@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'cp_profile_model.dart';
 
 ShootsModel shootsModelFromJson(String str) =>
     ShootsModel.fromJson(json.decode(str));
@@ -60,6 +61,7 @@ class Shoot {
   final int crewAccept;
   final bool canTakeAction;
   final Cta? cta;
+  final List<CpProfile> cpProfiles;
 
   Shoot({
     required this.id,
@@ -80,6 +82,7 @@ class Shoot {
     required this.crewAccept,
     required this.canTakeAction,
     this.cta,
+    this.cpProfiles = const [],
   });
 
   factory Shoot.fromJson(Map<String, dynamic> json) {
@@ -118,6 +121,12 @@ class Shoot {
       cta: json["cta"] != null
           ? Cta.fromJson(json["cta"])
           : null,
+      cpProfiles: json["cp_profiles"] != null && json["cp_profiles"] is List
+          ? (json["cp_profiles"] as List)
+              .whereType<Map<String, dynamic>>()
+              .map(CpProfile.fromJson)
+              .toList()
+          : const [],
     );
   }
 }

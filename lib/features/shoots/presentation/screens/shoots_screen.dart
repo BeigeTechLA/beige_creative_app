@@ -11,10 +11,12 @@ import '../../../../app/routes.dart';
 import '../routes/shoots_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../model_class/cp_profile_model.dart';
 import '../../../../model_class/shoots_model.dart';
 import '../../../../config/env.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/app_count_card.dart';
 import '../providers/shoots_providers.dart';
@@ -121,34 +123,55 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
 
               /// LIST
               Expanded(
-                child: ListView.builder(
-                  padding: AppSpacing.insetsHBase,
-                  itemCount: state.visibleShoots.length,
-                  itemBuilder: (context, index) {
-                    final shoot = state.visibleShoots[index];
-                    final inFlight =
-                        state.actionInFlightProjectId == shoot.projectId;
-                    return _ShootCard(
-                      shoot: shoot,
-                      isAcceptInFlight: inFlight,
-                      onAccept: () => notifier.acceptShoot(shoot.projectId),
-                      onDecline: () => context
-                          .pushNamed(
-                            Routes.cancelShoot.name,
-                            extra: CancelShootArgs(
-                              projectId: shoot.projectId,
-                            ).toExtra(),
-                          )
-                          .then((_) => notifier.refresh()),
-                      onViewDetails: () => context.pushNamed(
-                        Routes.upcomingShootDetails.name,
-                        extra: UpcomingShootDetailsArgs(
-                          projectId: shoot.projectId,
-                        ).toExtra(),
+                child: state.visibleShoots.isEmpty && !state.isLoading
+                    ? Center(
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: state.searchQuery.trim().isNotEmpty
+                              ? AppEmptyState(
+                                  icon: Icons.search_off_rounded,
+                                  iconSize: 56,
+                                  title: 'No shoots found',
+                                  description:
+                                      'No shoots matched "${state.searchQuery.trim()}". Try searching with a different keyword.',
+                                )
+                              : const AppEmptyState(
+                                  icon: Icons.event_busy_rounded,
+                                  iconSize: 56,
+                                  title: 'No shoots available',
+                                  description:
+                                      'You don\'t have any shoots assigned at the moment.',
+                                ),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: AppSpacing.insetsHBase,
+                        itemCount: state.visibleShoots.length,
+                        itemBuilder: (context, index) {
+                          final shoot = state.visibleShoots[index];
+                          final inFlight =
+                              state.actionInFlightProjectId == shoot.projectId;
+                          return _ShootCard(
+                            shoot: shoot,
+                            isAcceptInFlight: inFlight,
+                            onAccept: () => notifier.acceptShoot(shoot.projectId),
+                            onDecline: () => context
+                                .pushNamed(
+                                  Routes.cancelShoot.name,
+                                  extra: CancelShootArgs(
+                                    projectId: shoot.projectId,
+                                  ).toExtra(),
+                                )
+                                .then((_) => notifier.refresh()),
+                            onViewDetails: () => context.pushNamed(
+                              Routes.upcomingShootDetails.name,
+                              extra: UpcomingShootDetailsArgs(
+                                projectId: shoot.projectId,
+                              ).toExtra(),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),
@@ -176,7 +199,8 @@ class _ShootCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateTimeUtils.formatDateValue(shoot.eventDate);
+    final formattedDate =
+        DateTimeUtils.formatReadableDate(shoot.eventDate.toIso8601String());
     final formattedTime =
         '${DateTimeUtils.formatTime(shoot.startTime)} - ${DateTimeUtils.formatTime(shoot.endTime)}';
 
@@ -365,7 +389,7 @@ class _ShootCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Crew avatars stack
-                    _buildAvatarGroup(),
+                    _buildAvatarGroup(shoot.cpProfiles),
                     if (isActionable)
                       Row(
                         children: [
@@ -434,58 +458,78 @@ class _ShootCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatarGroup() {
+  Widget _buildAvatarGroup(List<CpProfile> profiles) {
+    if (profiles.isEmpty) return const SizedBox();
+
+    final displayProfiles = profiles.take(3).toList();
+    final remaining = profiles.length - displayProfiles.length;
     const double avatarSize = 26.0;
-    const double overlap = 8.0;
-    const int maxDisplay = 3;
 
     return SizedBox(
       height: avatarSize,
-      width: maxDisplay * (avatarSize - overlap) + overlap + 18,
+      width: displayProfiles.length * 16.0 + (remaining > 0 ? 22.0 : 8.0),
       child: Stack(
         children: [
-          for (int i = 0; i < maxDisplay; i++)
+          for (int i = 0; i < displayProfiles.length; i++)
             Positioned(
-              left: i * (avatarSize - overlap),
+              left: i * 15.0,
               child: Container(
                 width: avatarSize,
                 height: avatarSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.surfaceMid, width: 1.5),
-                  color: AppColors.surfaceWarm,
+                  color: AppColors.surfaceDim,
                 ),
                 child: ClipOval(
-                  child: Icon(
-                    Icons.person,
-                    size: 14,
-                    color: AppColors.primary,
+                  child: displayProfiles[i].profileImageUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: Env.imageUrl + displayProfiles[i].profileImageUrl,
+                          fit: BoxFit.cover,
+                          errorWidget: (context, url, error) =>
+                              _buildAvatarFallback(displayProfiles[i].name),
+                        )
+                      : _buildAvatarFallback(displayProfiles[i].name),
+                ),
+              ),
+            ),
+          if (remaining > 0)
+            Positioned(
+              left: displayProfiles.length * 15.0,
+              child: Container(
+                width: avatarSize,
+                height: avatarSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary,
+                  border: Border.all(color: AppColors.surfaceMid, width: 1.5),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '+$remaining',
+                  style: AppTextStyles.body10.copyWith(
+                    color: AppColors.black,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
             ),
-          Positioned(
-            left: maxDisplay * (avatarSize - overlap),
-            child: Container(
-              width: avatarSize,
-              height: avatarSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.surfaceMid, width: 1.5),
-                color: AppColors.surfaceDark,
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                '+3',
-                style: AppTextStyles.body10.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 10,
-                ),
-              ),
-            ),
-          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAvatarFallback(String name) {
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'M';
+    return Container(
+      color: AppColors.surfaceStats,
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: AppTextStyles.body10.copyWith(
+          color: AppColors.white,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

@@ -42,21 +42,29 @@ class _FakeHomeRepo implements HomeRepository {
   int? lastAvailabilityMonth;
   int? lastAvailabilityYear;
   int? lastAcceptProjectId;
+  String? lastProjectsStatus;
+  String? lastProjectsDateFilter;
+  String? lastProjectsStartDate;
+  String? lastProjectsEndDate;
   int? lastAcceptCrewAccept;
 
   @override
   Future<CreatorDashboardPayload> fetchCreatorDashboard({
     required String statsDateFilter,
-    required String categoriesTab,
-    String projectsStatus = 'active',
+    String? projectsStatus,
     required int availabilityMonth,
     required int availabilityYear,
-    int meetingsLimit = 3,
+    String? projectsDateFilter,
+    String? projectsStartDate,
+    String? projectsEndDate,
   }) async {
     lastStatsFilter = statsDateFilter;
-    lastCategoriesTab = categoriesTab;
     lastAvailabilityMonth = availabilityMonth;
     lastAvailabilityYear = availabilityYear;
+    lastProjectsStatus = projectsStatus;
+    lastProjectsDateFilter = projectsDateFilter;
+    lastProjectsStartDate = projectsStartDate;
+    lastProjectsEndDate = projectsEndDate;
     return CreatorDashboardPayload(
       dashboardCounts: dashboardCountResult,
       upcomingShoots: upcomingShoots,
@@ -352,7 +360,6 @@ void main() {
           .changeShootCategoryTab(1);
       await _drain();
 
-      expect(repo.lastCategoriesTab, 'video');
       final state = container.read(homeNotifierProvider);
       expect(state.selectedTab, 1);
       expect(state.categoryVideoTotal, 15);
@@ -419,5 +426,67 @@ void main() {
         expect(state.events.values, containsAll(['Available', 'Shoot']));
       },
     );
+
+    test('setUpcomingFilters filters shoots by custom date range', () async {
+      final now = DateTime.now();
+      final shoot1 = UpcomingShootDatum(
+        projectId: 1,
+        projectName: 'Shoot in range',
+        eventDate: DateTime(now.year, now.month, now.day + 5),
+        startTime: '10:00',
+        endTime: '12:00',
+        eventLocation: 'Studio A',
+        shootType: 'Photo',
+        shootTypeImageUrl: '',
+        budget: 100,
+        isCompleted: false,
+      );
+      final shoot2 = UpcomingShootDatum(
+        projectId: 2,
+        projectName: 'Shoot out of range',
+        eventDate: DateTime(now.year, now.month, now.day + 15),
+        startTime: '14:00',
+        endTime: '16:00',
+        eventLocation: 'Studio B',
+        shootType: 'Video',
+        shootTypeImageUrl: '',
+        budget: 200,
+        isCompleted: false,
+      );
+
+      final repo = _FakeHomeRepo()
+        ..dashboardCountResult = _makeDashboardCount()
+        ..crewStatsResult = _makeCrewStats()
+        ..upcomingShoots = [shoot1, shoot2];
+
+      final container = _createContainer(repo);
+      await _drain();
+
+      final notifier = container.read(homeNotifierProvider.notifier);
+      await notifier.setUpcomingFilters(
+        date: 'Custom Range',
+        customStartDate: DateTime(now.year, now.month, now.day + 1),
+        customEndDate: DateTime(now.year, now.month, now.day + 10),
+        status: 'Upcoming',
+      );
+      await _drain();
+
+      expect(repo.lastProjectsDateFilter, 'custom');
+      expect(repo.lastProjectsStartDate, isNotNull);
+      expect(repo.lastProjectsEndDate, isNotNull);
+      expect(repo.lastProjectsStatus, 'upcoming');
+
+      final state = container.read(homeNotifierProvider);
+      expect(state.filteredUpcomingShootsList.length, 1);
+      expect(state.filteredUpcomingShootsList.first.projectName, 'Shoot in range');
+
+      // Clear filters
+      notifier.clearUpcomingFilters();
+      final clearedState = container.read(homeNotifierProvider);
+      expect(clearedState.upcomingSelectedDate, isNull);
+      expect(clearedState.upcomingCustomStartDate, isNull);
+      expect(clearedState.upcomingCustomEndDate, isNull);
+      expect(clearedState.filteredUpcomingShootsList.length, 2);
+    });
   });
 }

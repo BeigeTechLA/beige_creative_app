@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/durations.dart';
@@ -8,25 +9,27 @@ import '../../../../app/text_styles.dart';
 
 /// "Filter" bottom sheet — collapsible Date / Status / Category / Type
 /// sections + Clear All / Apply CTAs.
-///
-/// Lifted verbatim from `_showFilterBottomSheet`, `_filterSection`, and
-/// `_radioOption` on `_HomeScreenState`.
-///
-/// NOTE (Task 4.15 decompose): this code is currently UNREACHABLE in the
-/// legacy `home_screen.dart` — the only call site (`_showFilterBottomSheet()`)
-/// lives inside a large commented-out block in the Upcoming Shoots header.
-/// Preserved verbatim for the migrate task (4.16) to either wire it up or
-/// formally strip it.
 void showHomeFilterBottomSheet({
   required BuildContext context,
   required String? initialDate,
+  DateTime? initialCustomStartDate,
+  DateTime? initialCustomEndDate,
   required String? initialStatus,
   required String? initialCategory,
   required String? initialType,
-  required Function(String? date, String? status, String? category, String? type) onApply,
+  required Function(
+    String? date,
+    DateTime? customStartDate,
+    DateTime? customEndDate,
+    String? status,
+    String? category,
+    String? type,
+  ) onApply,
   required VoidCallback onClearAll,
 }) {
   String? selectedDate = (initialDate == null || initialDate.isEmpty) ? null : initialDate;
+  DateTime? selectedCustomStartDate = initialCustomStartDate;
+  DateTime? selectedCustomEndDate = initialCustomEndDate;
   String? selectedStatus = (initialStatus == null || initialStatus.isEmpty) ? null : initialStatus;
   String? selectedCategory = (initialCategory == null || initialCategory.isEmpty) ? null : initialCategory;
   String? selectedType = (initialType == null || initialType.isEmpty) ? null : initialType;
@@ -52,6 +55,48 @@ void showHomeFilterBottomSheet({
     "Cancelled",
   ];
   final List<String> typeOptions = ["All", "shoots", "Rental"];
+
+  Future<void> pickCustomDateRange(BuildContext ctx, StateSetter setModalState) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final initialRange = (selectedCustomStartDate != null && selectedCustomEndDate != null)
+        ? DateTimeRange(start: selectedCustomStartDate!, end: selectedCustomEndDate!)
+        : null;
+
+    final picked = await showDateRangePicker(
+      context: ctx,
+      firstDate: today,
+      lastDate: DateTime(now.year + 2),
+      initialDateRange: initialRange,
+      helpText: 'Select date range',
+      builder: (context, child) => Theme(
+        data: ThemeData.dark(useMaterial3: true).copyWith(
+          dialogTheme: const DialogThemeData(
+            backgroundColor: AppColors.surfaceGradientDark,
+          ),
+          colorScheme: ColorScheme.dark(
+            primary: AppColors.primary,
+            onPrimary: AppColors.onPrimary,
+            secondary: AppColors.primary,
+            onSecondary: AppColors.onPrimary,
+            secondaryContainer: AppColors.primary.withValues(alpha: 0.25),
+            onSecondaryContainer: AppColors.textPrimary,
+            surface: AppColors.surfaceGradientDark,
+            onSurface: AppColors.white,
+          ),
+        ),
+        child: child ?? const SizedBox.shrink(),
+      ),
+    );
+
+    if (picked != null) {
+      setModalState(() {
+        selectedDate = "Custom Range";
+        selectedCustomStartDate = picked.start;
+        selectedCustomEndDate = picked.end;
+      });
+    }
+  }
 
   showModalBottomSheet(
     useRootNavigator: true,
@@ -153,17 +198,41 @@ void showHomeFilterBottomSheet({
                                     }
                                   }),
                                   children: isDateExpanded
-                                      ? dateOptions
-                                          .map(
-                                            (label) => _radioOption(
+                                      ? dateOptions.expand((label) {
+                                          final isSelected = selectedDate == label;
+                                          final isCustomRange = label == "Custom Range";
+                                          return [
+                                            _radioOption(
                                               label: label,
-                                              selected: selectedDate == label,
-                                              onTap: () => setState(
-                                                () => selectedDate = selectedDate == label ? null : label,
-                                              ),
+                                              selected: isSelected,
+                                              onTap: () => setState(() {
+                                                if (isSelected) {
+                                                  selectedDate = null;
+                                                } else {
+                                                  selectedDate = label;
+                                                  if (isCustomRange &&
+                                                      (selectedCustomStartDate == null ||
+                                                          selectedCustomEndDate == null)) {
+                                                    final now = DateTime.now();
+                                                    final today = DateTime(now.year, now.month, now.day);
+                                                    selectedCustomStartDate = today;
+                                                    selectedCustomEndDate = today.add(const Duration(days: 14));
+                                                  }
+                                                }
+                                              }),
                                             ),
-                                          )
-                                          .toList()
+                                            if (isCustomRange && isSelected)
+                                              _CustomDateRangeSelector(
+                                                startDate: selectedCustomStartDate,
+                                                endDate: selectedCustomEndDate,
+                                                onTap: () => pickCustomDateRange(context, setState),
+                                                onClear: () => setState(() {
+                                                  selectedCustomStartDate = null;
+                                                  selectedCustomEndDate = null;
+                                                }),
+                                              ),
+                                          ];
+                                        }).toList()
                                       : [],
                                 ),
                                 _filterSection(
@@ -256,6 +325,8 @@ void showHomeFilterBottomSheet({
                                     selectedCategory = null;
                                     selectedStatus = null;
                                     selectedDate = null;
+                                    selectedCustomStartDate = null;
+                                    selectedCustomEndDate = null;
                                     isDateExpanded = true;
                                     isStatusExpanded = false;
                                     isTypeExpanded = false;
@@ -294,6 +365,8 @@ void showHomeFilterBottomSheet({
                                 onTap: () {
                                   onApply(
                                     selectedDate,
+                                    selectedCustomStartDate,
+                                    selectedCustomEndDate,
                                     selectedStatus,
                                     selectedCategory,
                                     selectedType,
@@ -447,4 +520,89 @@ Widget _radioOption({
       ),
     ),
   );
+}
+
+class _CustomDateRangeSelector extends StatelessWidget {
+  const _CustomDateRangeSelector({
+    required this.startDate,
+    required this.endDate,
+    required this.onTap,
+    required this.onClear,
+  });
+
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final VoidCallback onTap;
+  final VoidCallback onClear;
+
+  static final _dateFmt = DateFormat('dd MMM yyyy');
+
+  @override
+  Widget build(BuildContext context) {
+    final hasRange = startDate != null && endDate != null;
+    final text = hasRange
+        ? '${_dateFmt.format(startDate!)} – ${_dateFmt.format(endDate!)}'
+        : 'Select Start & End Date';
+
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: AppSpacing.base,
+        right: AppSpacing.base,
+        bottom: AppSpacing.smd,
+        top: AppSpacing.xs,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadii.mdAll,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.base,
+            vertical: AppSpacing.mld,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceInput,
+            borderRadius: AppRadii.mdAll,
+            border: Border.all(
+              color: hasRange ? AppColors.primary : AppColors.white24,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.calendar_today_outlined,
+                size: 16,
+                color: hasRange ? AppColors.primary : AppColors.white70,
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  text,
+                  style: AppTextStyles.body14.copyWith(
+                    color: hasRange ? AppColors.white : AppColors.white60,
+                    fontWeight: hasRange ? FontWeight.w500 : FontWeight.normal,
+                  ),
+                ),
+              ),
+              if (hasRange)
+                GestureDetector(
+                  onTap: onClear,
+                  child: const Icon(
+                    Icons.close,
+                    size: 16,
+                    color: AppColors.white70,
+                  ),
+                )
+              else
+                const Icon(
+                  Icons.chevron_right,
+                  size: 18,
+                  color: AppColors.white70,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

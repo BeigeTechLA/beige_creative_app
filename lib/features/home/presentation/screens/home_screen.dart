@@ -15,7 +15,6 @@ import '../widgets/home_shoot_status_panel.dart';
 import '../widgets/home_upcoming_carousel.dart';
 import '../widgets/home_upcoming_meetings_carousel.dart';
 import '../widgets/home_welcome_header.dart';
-import '../widgets/home_filter_sheet.dart';
 
 import '../../../../shared/widgets/loading.dart';
 
@@ -201,33 +200,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         if (homeState.upcomingShootsList.isNotEmpty) ...[
                           const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
                           HomeUpcomingCarousel(
-                            upcomingShoots: homeState.filteredUpcomingShootsList,
+                            upcomingShoots: homeState.upcomingShootsList,
                             hasOriginalShoots: homeState.upcomingShootsList.isNotEmpty,
-                            searchQuery: homeState.upcomingSearchQuery,
-                            onSearchChanged: notifier.setUpcomingSearchQuery,
-                            isFilterActive: homeState.upcomingSelectedDate != null ||
-                                homeState.upcomingSelectedStatus != null ||
-                                homeState.upcomingSelectedType != null,
-                            onFilterTap: () {
-                              showHomeFilterBottomSheet(
-                                context: context,
-                                initialDate: homeState.upcomingSelectedDate,
-                                initialStatus: homeState.upcomingSelectedStatus,
-                                initialCategory: homeState.upcomingSelectedCategory,
-                                initialType: homeState.upcomingSelectedType,
-                                onApply: (date, status, category, type) {
-                                  notifier.setUpcomingFilters(
-                                    date: date,
-                                    status: status,
-                                    category: category,
-                                    type: type,
-                                  );
-                                },
-                                onClearAll: () {
-                                  notifier.clearUpcomingFilters();
-                                },
-                              );
-                            },
                             currentIndex: _currentIndex,
                             controller: _controller,
                             onCardTap: _onCardTap,

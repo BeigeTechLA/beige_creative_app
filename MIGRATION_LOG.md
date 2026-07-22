@@ -5,6 +5,38 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-22: Dashboard API Updates (crew_stats, cp_profiles, request_time_ago, card formatting)
+
+- **Changes**:
+  - `lib/model_class/crewstatus_model.dart`: Added `photoRejectedShoots`, `photoShootRequests`, `videoRejectedShoots`, `videoShootRequests` to `CrewStatsData`.
+  - `lib/model_class/cp_profile_model.dart`: Created `CpProfile` model class to represent shoot members.
+  - `lib/model_class/upcoming_shoots_model.dart`: Added `cpProfiles` parsing from `json['cp_profiles']` in `UpcomingShootDatum`.
+  - `lib/model_class/create_dashboard_details_model.dart`: Added `requestTimeAgo` and `cpProfiles` parsing in `PendingRequestCard`.
+  - `lib/features/home/presentation/providers/home_notifier.dart`: Updated category statistics logic to map photo-specific and video-specific metrics from `crew_stats` with `shoot_categories` fallback.
+  - `lib/features/home/presentation/widgets/home_shoot_categories_panel.dart`: Updated Photo and Video tabs to display tab-specific stats and arc colors.
+  - `lib/features/home/presentation/widgets/home_upcoming_carousel.dart`: Added overlapping member avatar stack for `cpProfiles` on upcoming shoot cards.
+  - `lib/features/home/presentation/widgets/home_pending_shoot_card.dart`:
+    - Updated `request_time_ago` chip: set background to `#FFFFFF33` (20% opacity white) and removed time icon.
+    - Added shoot members avatar stack on left side of Accept/Decline action buttons.
+    - Formatted shoot date as readable date `MMM dd, yyyy` (e.g. `Jan 05, 2026`).
+    - Added bottom-left Status pill (`Confirmed`/`Pending`) and Category pill over image matching Shoots listing cards.
+    - Unified Date, Time, and Location into a single `Row` layout matching Shoots listing cards.
+  - `lib/model_class/shoots_model.dart`: Added `cpProfiles` parsing from `json['cp_profiles']` in `Shoot` model.
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`:
+    - Updated shoot listing card date format to readable date `MMM dd, yyyy` (e.g. `Jan 05, 2026`).
+    - Integrated dynamic `cp_profiles` member avatar stack in `_buildAvatarGroup(shoot.cpProfiles)` for shoot listing cards.
+    - Added `AppEmptyState` empty views for both empty search query results (`No shoots found`) and empty shoot data (`No shoots available`).
+
+- **Decisions**:
+  - Used single `Row` layout with `Expanded` location text in both Pending Request card and Shoots listing card for clean, uniform layout consistency.
+  - Formatted dates uniformly across Dashboard and Shoots listing with `DateTimeUtils.formatReadableDate`.
+
+- **Verification**:
+  - `flutter test test/features/home/presentation/home_notifier_test.dart` — 9/9 passed.
+  - `flutter analyze --fatal-infos` — 0 issues found.
+
+---
+
 ### 2026-07-21: Filter Bottom Sheet Enhancements (90% Height, Sticky Bottom Bar, Date Expanded Default)
 
 - **Changes**:
@@ -3144,3 +3176,19 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
   - No commits made; user controls when to stage and commit.
 
 ---
+
+---
+
+### 2026-07-22: Dashboard Upcoming Shoot Custom Date Range Filter
+
+- **Task**: Dashboard Upcoming Shoot — Removed Search & Filter UI.
+- **Changed Files**:
+  - `lib/features/home/presentation/widgets/home_upcoming_carousel.dart`
+  - `lib/features/home/presentation/screens/home_screen.dart`
+  - `test/features/home/presentation/widgets/home_upcoming_carousel_test.dart`
+- **Decisions**:
+  - Removed Search Bar and Filter Button UI row from `HomeUpcomingCarousel` as requested.
+  - Cleaned up parameter signature of `HomeUpcomingCarousel` and call site in `HomeScreen`.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter test test/features/home/presentation/widgets/home_upcoming_carousel_test.dart test/features/home/presentation/home_notifier_test.dart`: 12 / 12 passing.

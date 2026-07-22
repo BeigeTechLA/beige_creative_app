@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'cp_profile_model.dart';
+
 class UpcomingShootsModel {
   final bool error;
   final String message;
@@ -39,6 +41,7 @@ class UpcomingShootDatum {
   final String eventLocation;
   final dynamic budget;
   final bool isCompleted;
+  final List<CpProfile> cpProfiles;
 
   UpcomingShootDatum({
     required this.shootType,
@@ -51,6 +54,7 @@ class UpcomingShootDatum {
     required this.eventLocation,
     required this.budget,
     required this.isCompleted,
+    this.cpProfiles = const [],
   });
 
   factory UpcomingShootDatum.fromRawJson(String str) => UpcomingShootDatum.fromJson(json.decode(str));
@@ -60,14 +64,20 @@ class UpcomingShootDatum {
   factory UpcomingShootDatum.fromJson(Map<String, dynamic> json) => UpcomingShootDatum(
     shootType: json["shoot_type"] ?? "",
     shootTypeImageUrl: json["shoot_type_image_url"] ?? "",
-    projectId: json["project_id"],
-    projectName: json["project_name"],
-    eventDate: DateTime.parse(json["event_date"]).toLocal(),
-    startTime: json["start_time"],
-    endTime: json["end_time"],
-    eventLocation: json["event_location"],
+    projectId: json["project_id"] ?? 0,
+    projectName: json["project_name"] ?? "",
+    eventDate: json["event_date"] != null ? DateTime.parse(json["event_date"]).toLocal() : DateTime.now(),
+    startTime: json["start_time"] ?? "",
+    endTime: json["end_time"] ?? "",
+    eventLocation: json["event_location"] ?? "",
     budget: json["budget"],
-    isCompleted: json["is_completed"],
+    isCompleted: json["is_completed"] ?? false,
+    cpProfiles: json["cp_profiles"] != null && json["cp_profiles"] is List
+        ? (json["cp_profiles"] as List)
+            .whereType<Map<String, dynamic>>()
+            .map(CpProfile.fromJson)
+            .toList()
+        : const [],
   );
 
   Map<String, dynamic> toJson() => {
@@ -81,5 +91,6 @@ class UpcomingShootDatum {
     "event_location": eventLocation,
     "budget": budget,
     "is_completed": isCompleted,
+    "cp_profiles": List<dynamic>.from(cpProfiles.map((x) => x.toJson())),
   };
 }
