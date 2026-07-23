@@ -29,12 +29,19 @@ else
   flutter build ipa --flavor prod \
     --dart-define-from-file="$ENV_FILE" \
     -t lib/main_prod.dart --release
+
+  log "Upload IPA to TestFlight (prod)"
+  IPA_PATH="$(find build/ios/ipa -name '*.ipa' | head -n1)"
+  ./scripts/upload_testflight.sh "$IPA_PATH"
 fi
 
 log "Build Android APK (prod, release)"
 flutter build apk --flavor prod \
   --dart-define-from-file="$ENV_FILE" \
   -t lib/main_prod.dart --release
+
+log "Upload APK to Firebase App Distribution (prod)"
+./scripts/upload_firebase_android.sh prod build/app/outputs/flutter-apk/app-prod-release.apk
 
 log "Build Android AAB (prod, release)"
 flutter build appbundle --flavor prod \

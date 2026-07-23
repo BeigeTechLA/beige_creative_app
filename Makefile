@@ -1,5 +1,6 @@
 .PHONY: build-dev build-dev-ios build-dev-android build-dev-aab \
         build-prod build-prod-ios build-prod-android build-prod-aab \
+        upload-dev-android upload-prod-android upload-dev-ios upload-prod-ios \
         run-dev run-prod clean pub analyze test
 
 DEV_ENV  := env/dev.json
@@ -17,10 +18,12 @@ build-dev:
 build-dev-ios:
 	flutter clean && flutter pub get && \
 	  flutter build ipa --flavor dev --dart-define-from-file=$(DEV_ENV) -t lib/main_dev.dart --release
+	$(MAKE) upload-dev-ios
 
 build-dev-android:
 	flutter clean && flutter pub get && \
 	  flutter build apk --flavor dev --dart-define-from-file=$(DEV_ENV) -t lib/main_dev.dart --release
+	./scripts/upload_firebase_android.sh dev build/app/outputs/flutter-apk/app-dev-release.apk
 
 build-dev-aab:
 	flutter clean && flutter pub get && \
@@ -32,14 +35,28 @@ build-prod:
 build-prod-ios:
 	flutter clean && flutter pub get && \
 	  flutter build ipa --flavor prod --dart-define-from-file=$(PROD_ENV) -t lib/main_prod.dart --release
+	$(MAKE) upload-prod-ios
 
 build-prod-android:
 	flutter clean && flutter pub get && \
 	  flutter build apk --flavor prod --dart-define-from-file=$(PROD_ENV) -t lib/main_prod.dart --release
+	./scripts/upload_firebase_android.sh prod build/app/outputs/flutter-apk/app-prod-release.apk
 
 build-prod-aab:
 	flutter clean && flutter pub get && \
 	  flutter build appbundle --flavor prod --dart-define-from-file=$(PROD_ENV) -t lib/main_prod.dart --release
+
+upload-dev-android:
+	./scripts/upload_firebase_android.sh dev build/app/outputs/flutter-apk/app-dev-release.apk
+
+upload-prod-android:
+	./scripts/upload_firebase_android.sh prod build/app/outputs/flutter-apk/app-prod-release.apk
+
+upload-dev-ios:
+	./scripts/upload_testflight.sh "$$(find build/ios/ipa -name '*.ipa' | head -n1)"
+
+upload-prod-ios:
+	./scripts/upload_testflight.sh "$$(find build/ios/ipa -name '*.ipa' | head -n1)"
 
 clean:
 	flutter clean
