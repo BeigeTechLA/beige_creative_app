@@ -11,7 +11,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
-import '../../../../shared/util/picker_theme.dart';
+import '../../../../shared/widgets/app_cupertino_time_picker.dart';
 import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
@@ -35,6 +35,12 @@ class _AddAvailabilityScreenState
   final _repeatDayController = TextEditingController();
 
   static const _weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  @override
+  void initState() {
+    super.initState();
+    _dateController.text = DateTimeUtils.formatDatePickerInput(DateTime.now());
+  }
 
   @override
   void dispose() {
@@ -89,14 +95,103 @@ class _AddAvailabilityScreenState
     }
   }
 
-  Future<void> _pickTime(TextEditingController controller) async {
-    final picked = await showTimePicker(
+  Future<void> _pickStartTime() async {
+    final initialTime =
+        DateTimeUtils.parseTimeOfDay(_startTimeController.text) ?? TimeOfDay.now();
+    final picked = await showAppCupertinoTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
-      builder: appTimePickerTheme,
+      initialTime: initialTime,
+      title: 'Select Start Time',
     );
     if (picked != null) {
-      controller.text = DateTimeUtils.formatTimeOfDay12Hour(picked);
+      final pickedStr = DateTimeUtils.formatTimeOfDay12Hour(picked);
+
+      final parsedDate =
+          DateTimeUtils.parseDatePickerInput(_dateController.text);
+      if (parsedDate != null) {
+        final now = DateTime.now();
+        final isToday = parsedDate.year == now.year &&
+            parsedDate.month == now.month &&
+            parsedDate.day == now.day;
+        if (isToday) {
+          final currentMin = now.hour * 60 + now.minute;
+          final startMin = picked.hour * 60 + picked.minute;
+          if (startMin < currentMin) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Start time cannot be in the past')),
+              );
+            }
+            return;
+          }
+        }
+      }
+
+      _startTimeController.text = pickedStr;
+
+      final endDiff = DateTimeUtils.timeDifferenceInMinutes(
+        _startTimeController.text,
+        _endTimeController.text,
+      );
+      if (endDiff == null || endDiff < 60) {
+        final endHour = (picked.hour + 1) % 24;
+        final autoEndTime = TimeOfDay(hour: endHour, minute: picked.minute);
+        _endTimeController.text =
+            DateTimeUtils.formatTimeOfDay12Hour(autoEndTime);
+      }
+
+      setState(() {});
+    }
+  }
+
+  Future<void> _pickEndTime() async {
+    final startParsed =
+        DateTimeUtils.parseTimeOfDay(_startTimeController.text);
+    final initialTime =
+        DateTimeUtils.parseTimeOfDay(_endTimeController.text) ??
+            (startParsed != null
+                ? TimeOfDay(
+                    hour: (startParsed.hour + 1) % 24,
+                    minute: startParsed.minute,
+                  )
+                : TimeOfDay.now());
+
+    final picked = await showAppCupertinoTimePicker(
+      context: context,
+      initialTime: initialTime,
+      title: 'Select End Time',
+    );
+    if (picked != null) {
+      final pickedStr = DateTimeUtils.formatTimeOfDay12Hour(picked);
+
+      if (_startTimeController.text.isNotEmpty) {
+        final diff = DateTimeUtils.timeDifferenceInMinutes(
+          _startTimeController.text,
+          pickedStr,
+        );
+        if (diff == null || diff <= 0) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('End time must be after start time')),
+            );
+          }
+          return;
+        }
+        if (diff < 60) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Minimum duration between start and end time must be at least 1 hour',
+                ),
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      _endTimeController.text = pickedStr;
       setState(() {});
     }
   }
@@ -257,7 +352,7 @@ class _AddAvailabilityScreenState
                               label: 'Start Time',
                               controller: _startTimeController,
                               readOnly: true,
-                              onTap: () => _pickTime(_startTimeController),
+                              onTap: _pickStartTime,
                             ),
                           ),
                           AppSpacing.gapHMd,
@@ -266,7 +361,7 @@ class _AddAvailabilityScreenState
                               label: 'End Time',
                               controller: _endTimeController,
                               readOnly: true,
-                              onTap: () => _pickTime(_endTimeController),
+                              onTap: _pickEndTime,
                             ),
                           ),
                         ],
@@ -529,7 +624,7 @@ class _AddAvailabilityScreenState
 
   Widget _buildUntilDateField() {
     return CustomTextField(
-      label: 'Until Date',
+      label: 'Until Date*',
       controller: _untilDateController,
       readOnly: true,
       suffixIcon: Padding(

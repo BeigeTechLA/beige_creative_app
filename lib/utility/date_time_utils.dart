@@ -518,6 +518,109 @@ class DateTimeUtils {
     }
   }
 
+  /// ✅ Parse time string (12-hour or 24-hour) into [TimeOfDay]
+  static TimeOfDay? parseTimeOfDay(String? timeStr) {
+    if (timeStr == null || timeStr.trim().isEmpty) return null;
+    try {
+      final cleanTime = timeStr.trim();
+      DateTime timeParsed;
+
+      if (cleanTime.toUpperCase().contains("AM") ||
+          cleanTime.toUpperCase().contains("PM")) {
+        try {
+          timeParsed = DateFormat(kTime12HourPattern).parse(cleanTime);
+        } catch (_) {
+          timeParsed = DateFormat(kTime12HourShortPattern).parse(cleanTime);
+        }
+      } else if (cleanTime.split(":").length == 3) {
+        timeParsed = DateFormat(kTime24HmsPattern).parse(cleanTime);
+      } else {
+        timeParsed = DateFormat(kTime24HmPattern).parse(cleanTime);
+      }
+
+      return TimeOfDay(hour: timeParsed.hour, minute: timeParsed.minute);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Default minimum gap required between start time and end time (in minutes).
+  /// Configured to 60 minutes (1 hour). Can be changed at any time.
+  static const int kMinAvailabilityGapMinutes = 60;
+
+  /// ✅ Calculate difference in minutes between start time and end time (end - start)
+  static int? timeDifferenceInMinutes(String? startTimeStr, String? endTimeStr) {
+    final start = parseTimeOfDay(startTimeStr);
+    final end = parseTimeOfDay(endTimeStr);
+    if (start == null || end == null) return null;
+
+    final startMinutes = start.hour * 60 + start.minute;
+    final endMinutes = end.hour * 60 + end.minute;
+    return endMinutes - startMinutes;
+  }
+
+  /// ✅ Validates time range between start time and end time.
+  ///
+  /// Returns `null` if valid, or a human-readable validation error string if invalid.
+  static String? validateTimeRange(
+    String? startTime,
+    String? endTime, {
+    int minGapMinutes = kMinAvailabilityGapMinutes,
+    DateTime? date,
+    DateTime? now,
+  }) {
+    if (startTime == null ||
+        startTime.trim().isEmpty ||
+        endTime == null ||
+        endTime.trim().isEmpty) {
+      return 'Please select time';
+    }
+
+    final start = parseTimeOfDay(startTime);
+    final end = parseTimeOfDay(endTime);
+    if (start == null || end == null) {
+      return 'Please select time';
+    }
+
+    final currentTime = now ?? DateTime.now();
+
+    // If selected date is today, check if start time is in the past
+    if (date != null) {
+      final isToday = date.year == currentTime.year &&
+          date.month == currentTime.month &&
+          date.day == currentTime.day;
+
+      if (isToday) {
+        final currentMinutes = currentTime.hour * 60 + currentTime.minute;
+        final startMinutes = start.hour * 60 + start.minute;
+        if (startMinutes < currentMinutes) {
+          return 'Start time cannot be in the past';
+        }
+      }
+    }
+
+    final diffMinutes = timeDifferenceInMinutes(startTime, endTime);
+    if (diffMinutes == null) {
+      return 'Please select time';
+    }
+
+    if (diffMinutes <= 0) {
+      return 'End time must be after start time';
+    }
+
+    if (diffMinutes < minGapMinutes) {
+      if (minGapMinutes >= 60 && minGapMinutes % 60 == 0) {
+        final hours = minGapMinutes ~/ 60;
+        final hourLabel = hours == 1 ? '1 hour' : '$hours hours';
+        return 'Minimum duration between start and end time must be at least $hourLabel';
+      }
+      return 'Minimum duration between start and end time must be at least $minGapMinutes minutes';
+    }
+
+    return null;
+  }
+
+
   /// ✅ Check if shoot is actionable (unaccepted and current time is > 1 hour before start time)
   static bool isActionableBeforeOneHour({
     required DateTime? eventDate,

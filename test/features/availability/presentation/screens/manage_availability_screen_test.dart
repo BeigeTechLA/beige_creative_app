@@ -2,6 +2,8 @@ import 'package:beige_creative_app/app/routes.dart';
 import 'package:beige_creative_app/features/availability/domain/entities/availability_entry.dart';
 import 'package:beige_creative_app/features/availability/presentation/providers/availability_providers.dart';
 import 'package:beige_creative_app/features/availability/presentation/screens/manage_availability_screen.dart';
+import 'package:beige_creative_app/features/home/presentation/widgets/home_upcoming_carousel.dart';
+import 'package:beige_creative_app/model_class/upcoming_shoots_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -124,6 +126,30 @@ void main() {
     expect(find.text('This Month'), findsOneWidget);
   });
 
+  testWidgets('renders upcoming shoots section when seeded', (tester) async {
+    final datum = UpcomingShootDatum(
+      shootType: 'Photography',
+      budget: 500,
+      projectId: 123,
+      projectName: 'Test Shoot Event',
+      eventDate: DateTime(2026, 7, 30),
+      startTime: '10:00 AM',
+      endTime: '02:00 PM',
+      eventLocation: 'Studio A',
+      shootTypeImageUrl: '',
+      isCompleted: false,
+    );
+    await _pump(
+      tester,
+      seed: ManageAvailabilityState(
+        isLoading: false,
+        upcomingShootsList: [datum],
+      ),
+    );
+
+    expect(find.byType(HomeUpcomingCarousel), findsOneWidget);
+  });
+
   testWidgets('tap previous-month icon invokes shiftMonth(-1)', (tester) async {
     final fake = await _pump(tester);
 
@@ -189,3 +215,4 @@ void main() {
     expect(find.text('Manage Availability'), findsOneWidget);
   });
 }
+

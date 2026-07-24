@@ -151,7 +151,7 @@ class Project {
     projectId:              json["project_id"] ?? 0,
     projectName:            json["project_name"] ?? "",
     status:                 json["status"] ?? "",
-    imageUrl:               json["image_url"],
+    imageUrl:               json["image_url"] ?? json["shoot_type_image_url"] ?? json["shoot_type_image"],
     eventDate:              json["event_date"],             // ✅ direct String
     startTime:              json["start_time"] ?? "",
     endTime:                json["end_time"] ?? "",

@@ -163,31 +163,39 @@ class _CommonCalendarState extends State<CommonCalendar>
     bool isStrikethrough =
         day.month == 1 && day.day >= 13 && day.day <= 17 && !isOutside;
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "${day.day}",
-            style: AppTextStyles.inherit.copyWith(
-              fontSize: dayFontSize,
-              color: isOutside || isStrikethrough
-                  ? AppColors.white24
-                  : AppColors.white,
-              decoration: isStrikethrough ? TextDecoration.lineThrough : null,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (widget.onDaySelected != null) {
+          widget.onDaySelected!(dateKey, eventText);
+        }
+      },
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "${day.day}",
+              style: AppTextStyles.inherit.copyWith(
+                fontSize: dayFontSize,
+                color: isOutside || isStrikethrough
+                    ? AppColors.white24
+                    : AppColors.white,
+                decoration: isStrikethrough ? TextDecoration.lineThrough : null,
+              ),
             ),
-          ),
-          SizedBox(height: width * 0.01),
-          SizedBox(
-            height: width * 0.08,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                if (shouldShowEvent) _buildEventTag(width, eventText!),
-              ],
+            SizedBox(height: width * 0.01),
+            SizedBox(
+              height: width * 0.08,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  if (shouldShowEvent) _buildEventTag(width, eventText!),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

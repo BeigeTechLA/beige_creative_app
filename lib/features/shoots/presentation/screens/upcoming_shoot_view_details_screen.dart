@@ -18,6 +18,67 @@ import '../../../../shared/widgets/top_message.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../providers/upcoming_shoot_providers.dart';
 
+String? _resolveImageUrl(dynamic rawUrl) {
+  if (rawUrl == null) return null;
+  final str = rawUrl.toString().trim();
+  if (str.isEmpty) return null;
+  if (str.startsWith('http://') || str.startsWith('https://')) return str;
+  final cleanPath = str.startsWith('/') ? str.substring(1) : str;
+  final base = Env.imageUrl.endsWith('/') ? Env.imageUrl : '${Env.imageUrl}/';
+  return '$base$cleanPath';
+}
+
+Widget _buildHeaderImage(dynamic rawUrl) {
+  final resolvedUrl = _resolveImageUrl(rawUrl);
+  print(resolvedUrl);
+  if (resolvedUrl == null) {
+    return Container(
+      height: 362,
+      width: double.infinity,
+      color: AppColors.surfaceDark,
+      alignment: Alignment.center,
+      child: SvgPicture.asset(
+        AppAssets.imageHolder,
+        height: 56,
+        colorFilter: const ColorFilter.mode(
+          AppColors.white38,
+          BlendMode.srcIn,
+        ),
+      ),
+    );
+  }
+
+  return CachedNetworkImage(
+    imageUrl: resolvedUrl,
+    fit: BoxFit.cover,
+    width: double.infinity,
+    height: 362,
+    placeholder: (context, url) => Container(
+      height: 362,
+      width: double.infinity,
+      color: AppColors.surfaceDark,
+      alignment: Alignment.center,
+      child: const AppCircularLoader(size: 28),
+    ),
+    errorWidget: (context, url, error) {
+      return Container(
+        height: 362,
+        width: double.infinity,
+        color: AppColors.surfaceDark,
+        alignment: Alignment.center,
+        child: SvgPicture.asset(
+          AppAssets.imageHolder,
+          height: 56,
+          colorFilter: const ColorFilter.mode(
+            AppColors.white38,
+            BlendMode.srcIn,
+          ),
+        ),
+      );
+    },
+  );
+}
+
 class UpcomingShootViewDetails extends ConsumerWidget {
   final int? projectid;
   const UpcomingShootViewDetails({super.key, this.projectid});
@@ -51,22 +112,12 @@ class UpcomingShootViewDetails extends ConsumerWidget {
               children: [
                 Stack(
                   children: [
-                    AspectRatio(
-                      aspectRatio: 16 / 10,
+                    SizedBox(
+                      height: 362,
+                      width: double.infinity,
                       child: ClipRRect(
                         borderRadius: AppRadii.noneAll,
-                        child: CachedNetworkImage(
-                          imageUrl:
-                              '${Env.imageUrl}${project?.imageUrl ?? ''}',
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          errorWidget: (_, _, _) {
-                            return SvgPicture.asset(
-                              AppAssets.imageHolder,
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        ),
+                        child: _buildHeaderImage(project?.imageUrl),
                       ),
                     ),
                     Positioned(

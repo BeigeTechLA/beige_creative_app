@@ -2,6 +2,7 @@ import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/features/availability/domain/entities/availability_entry.dart';
 import 'package:beige_creative_app/features/availability/domain/repositories/availability_repository.dart';
 import 'package:beige_creative_app/features/availability/presentation/providers/availability_providers.dart';
+import 'package:beige_creative_app/model_class/upcoming_shoots_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -34,10 +35,17 @@ class _FakeRepo implements AvailabilityRepository {
   }
 
   @override
+  Future<List<UpcomingShootDatum>> fetchUpcomingShoots() async {
+    if (throwOnFetch) throw Exception('fetch upcoming boom');
+    return const [];
+  }
+
+  @override
   Future<void> createAvailability(AvailabilityPayload payload) async {
     if (throwOnCreate) throw Exception('create boom');
   }
 }
+
 
 class _StubTelemetry implements TelemetryClient {
   @override
@@ -200,6 +208,101 @@ void main() {
       );
     });
 
+    test('submit rejects end time before or equal to start time', () async {
+      final repo = _FakeRepo();
+      final c = make(repo);
+      addTearDown(c.dispose);
+
+      final notifier = c.read(addAvailabilityNotifierProvider.notifier);
+      notifier.setType(AvailabilityType.available);
+
+      final ok = await notifier.submit(
+        formattedDate: '2026-06-01',
+        startTime: '10:00 AM',
+        endTime: '09:30 AM',
+        recurrenceUntil: '',
+        repeatDay: '',
+        notes: '',
+      );
+
+      expect(ok, isFalse);
+      expect(
+        c.read(addAvailabilityNotifierProvider).validationMessage,
+        'End time must be after start time',
+      );
+    });
+
+    test('submit rejects end time with less than 1-hour gap', () async {
+      final repo = _FakeRepo();
+      final c = make(repo);
+      addTearDown(c.dispose);
+
+      final notifier = c.read(addAvailabilityNotifierProvider.notifier);
+      notifier.setType(AvailabilityType.available);
+
+      final ok = await notifier.submit(
+        formattedDate: '2026-06-01',
+        startTime: '10:00 AM',
+        endTime: '10:30 AM',
+        recurrenceUntil: '',
+        repeatDay: '',
+        notes: '',
+      );
+
+      expect(ok, isFalse);
+      expect(
+        c.read(addAvailabilityNotifierProvider).validationMessage,
+        'Minimum duration between start and end time must be at least 1 hour',
+      );
+    });
+
+    test('submit accepts valid time range (gap >= 1 hour)', () async {
+      final repo = _FakeRepo();
+      final c = make(repo);
+      addTearDown(c.dispose);
+
+      final notifier = c.read(addAvailabilityNotifierProvider.notifier);
+      notifier.setType(AvailabilityType.available);
+
+      final ok = await notifier.submit(
+        formattedDate: '01/01/2030',
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        recurrenceUntil: '',
+        repeatDay: '',
+        notes: '',
+      );
+
+      expect(ok, isTrue);
+    });
+
+    test('submit rejects start time in past when date is today', () async {
+      final repo = _FakeRepo();
+      final c = make(repo);
+      addTearDown(c.dispose);
+
+      final notifier = c.read(addAvailabilityNotifierProvider.notifier);
+      notifier.setType(AvailabilityType.available);
+
+      final now = DateTime.now();
+      final todayStr =
+          '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+      final ok = await notifier.submit(
+        formattedDate: todayStr,
+        startTime: '00:01 AM',
+        endTime: '02:00 AM',
+        recurrenceUntil: '',
+        repeatDay: '',
+        notes: '',
+      );
+
+      expect(ok, isFalse);
+      expect(
+        c.read(addAvailabilityNotifierProvider).validationMessage,
+        'Start time cannot be in the past',
+      );
+    });
+
     test('setRecurrence wipes weekday + weekend selections', () {
       final repo = _FakeRepo();
       final c = make(repo);
@@ -292,6 +395,121 @@ void main() {
         endTime: '',
         recurrenceUntil: '2026-06-05',
         repeatDay: '',
+        notes: '',
+      );
+
+      expect(ok, isTrue);
+    });
+
+    test('submit rejects recurring availability when recurrenceUntil is empty', () async {
+      final repo = _FakeRepo();
+      final c = make(repo);
+      addTearDown(c.dispose);
+
+      final notifier = c.read(addAvailabilityNotifierProvider.notifier);
+      notifier.setType(AvailabilityType.available);
+      notifier.toggleAllDay(true);
+      notifier.setRecurrence(RecurrenceKind.daily);
+
+      final ok = await notifier.submit(
+        formattedDate: '2026-06-01',
+        startTime: '',
+        endTime: '',
+        recurrenceUntil: '',
+        repeatDay: '',
+        notes: '',
+      );
+
+      expect(ok, isFalse);
+      expect(
+        c.read(addAvailabilityNotifierProvider).validationMessage,
+        'Until date is required for recurring availability',
+      );
+    });
+
+    test('submit rejects weekly recurrence when selectedWeekDays is empty', () async {
+      final repo = _FakeRepo();
+      final c = make(repo);
+      addTearDown(c.dispose);
+
+      final notifier = c.read(addAvailabilityNotifierProvider.notifier);
+      notifier.setType(AvailabilityType.available);
+      notifier.toggleAllDay(true);
+      notifier.setRecurrence(RecurrenceKind.weekly);
+
+      final ok = await notifier.submit(
+        formattedDate: '2026-06-01',
+        startTime: '',
+        endTime: '',
+        recurrenceUntil: '2026-06-30',
+        repeatDay: '',
+        notes: '',
+      );
+
+      expect(ok, isFalse);
+      expect(
+        c.read(addAvailabilityNotifierProvider).validationMessage,
+        'Please select at least one day for weekly recurrence',
+      );
+    });
+
+    test('submit rejects monthly recurrence when repeatDay is invalid', () async {
+      final repo = _FakeRepo();
+      final c = make(repo);
+      addTearDown(c.dispose);
+
+      final notifier = c.read(addAvailabilityNotifierProvider.notifier);
+      notifier.setType(AvailabilityType.available);
+      notifier.toggleAllDay(true);
+      notifier.setRecurrence(RecurrenceKind.monthly);
+
+      // Empty repeatDay
+      var ok = await notifier.submit(
+        formattedDate: '2026-06-01',
+        startTime: '',
+        endTime: '',
+        recurrenceUntil: '2026-12-31',
+        repeatDay: '',
+        notes: '',
+      );
+      expect(ok, isFalse);
+      expect(
+        c.read(addAvailabilityNotifierProvider).validationMessage,
+        'Repeat day of month is required',
+      );
+
+      // Out of range repeatDay (32)
+      ok = await notifier.submit(
+        formattedDate: '2026-06-01',
+        startTime: '',
+        endTime: '',
+        recurrenceUntil: '2026-12-31',
+        repeatDay: '32',
+        notes: '',
+      );
+      expect(ok, isFalse);
+      expect(
+        c.read(addAvailabilityNotifierProvider).validationMessage,
+        'Repeat day of month must be between 1 and 31',
+      );
+    });
+
+    test('submit accepts monthly recurrence with valid repeatDay between 1 and 31', () async {
+      final repo = _FakeRepo();
+      final c = make(repo);
+      addTearDown(c.dispose);
+
+      final notifier = c.read(addAvailabilityNotifierProvider.notifier);
+      notifier.setType(AvailabilityType.available);
+      notifier.toggleAllDay(true);
+      notifier.setRecurrence(RecurrenceKind.monthly);
+
+      final ok = await notifier.submit(
+        formattedDate: '2026-06-01',
+        startTime: '',
+        endTime: '',
+        recurrenceUntil: '2026-12-31',
+        repeatDay: '15',
         notes: '',
       );
 

@@ -5,6 +5,46 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-24: Setup Upcoming Shoots Section & Full-Screen Loader on Manage Availability Screen
+
+- **Changes**:
+  - `lib/features/availability/domain/repositories/availability_repository.dart`: Added `fetchUpcomingShoots()` method signature.
+  - `lib/features/availability/data/repositories/availability_repository_impl.dart`: Implemented `fetchUpcomingShoots()` via GET `ApiEndpoints.upcomingshoots` (`creator/upcoming-shoots`).
+  - `lib/features/availability/presentation/providers/availability_providers.dart`: Added `upcomingShootsList` to `ManageAvailabilityState`; updated `ManageAvailabilityNotifier.refresh()` to fetch month events and upcoming shoots concurrently.
+  - `lib/features/availability/presentation/screens/manage_availability_screen.dart`: Converted to `ConsumerStatefulWidget` with `TickerProviderStateMixin` for `HomeUpcomingCarousel` animation lifecycle; added carousel below "This Month" section; added full-screen `AppLoadingOverlay` when `state.isLoading` is true.
+  - `test/features/availability/presentation/screens/manage_availability_screen_test.dart` & `test/features/availability/presentation/availability_notifier_test.dart`: Updated test mocks and added widget test for upcoming shoots rendering on Manage Availability screen.
+
+- **Decisions**:
+  - Reused `HomeUpcomingCarousel` widget directly to preserve UI styling and card swipe stack animation behavior.
+  - Used `AppLoadingOverlay` to display full-screen Lottie loader during screen data fetching and month shifts.
+
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/features/availability` — 45/45 passing.
+
+---
+
+
+### 2026-07-23: Cupertino Time Picker (5-min step), Default Today Date & Validation Input Guarding
+
+- **Changes**:
+  - `lib/shared/widgets/app_cupertino_time_picker.dart`: Added `minuteInterval: 5` and initial minute rounding to 5-minute multiples (`0, 5, 10, 15...`).
+  - `lib/features/availability/presentation/screens/add_availability_screen.dart`:
+    - Updated `_pickStartTime`: When Start Time is picked, End Time is automatically set to `Start Time + 1 hour`. Rejects past time for today without updating input area.
+    - Updated `_pickEndTime`: Prevents updating `_endTimeController.text` when selected End Time is invalid (<= Start Time or < 1 hour gap), displaying validation snackbar instead.
+  - `lib/utility/date_time_utils.dart`: Updated `DateTimeUtils.validateTimeRange` for 1-hour gap and past time checks.
+  - `lib/features/availability/presentation/providers/availability_providers.dart`: Validates time range in `submit`.
+  - `test/features/availability/presentation/availability_notifier_test.dart`: 39/39 tests passing.
+
+- **Decisions**:
+  - Configured 5-minute step intervals in the Cupertino picker wheel. Prevents populating text controllers with invalid times when selection fails validation.
+
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/features/availability/` — 39/39 passing.
+
+---
+
 ### 2026-07-22: Manage Availability — tap a "Shoot" day to open its shoot details
 
 - **Changes**:
@@ -3312,3 +3352,27 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - **Verification**:
   - `flutter analyze --fatal-infos`: 0 issues.
   - `flutter test test/features/home/presentation/widgets/home_upcoming_carousel_test.dart test/features/home/presentation/home_notifier_test.dart`: 12 / 12 passing.
+
+---
+
+### 2026-07-23: Availability Setup & Validation Enhancements
+
+- **Task**: Availability setup rules & validation enforcement (Option A Floating SnackBar Toast UX).
+- **Changed Files**:
+  - `lib/features/availability/domain/entities/availability_entry.dart`
+  - `lib/features/availability/presentation/providers/availability_providers.dart`
+  - `lib/features/availability/presentation/screens/add_availability_screen.dart`
+  - `test/features/availability/presentation/availability_notifier_test.dart`
+- **Decisions**:
+  - Enforced all 7 specified availability setup validation rules in `AddAvailabilityNotifier.submit()`.
+  - Displayed all validation messages using Option A (app-themed floating SnackBar toasts).
+  - Updated `AvailabilityPayload.toJson()` to include `'recurrence_day_of_month': int.tryParse(repeatDay) ?? repeatDay` for monthly recurrence.
+  - Resolved Shoot tap navigation issue on `ManageAvailabilityScreen`:
+    1. Made `AvailabilityRepositoryImpl.fetchMonth` robust against non-strict `projectAssigned` types (`true`, `1`, `'1'`, `'true'`, `'yes'`, `status: shoot`).
+    2. Fallback key extraction in `_extractBookingId` across `booking_id`, `project_id`, `id`, `shoot_id`, `bookingId`, `projectId` from `projectDetails` or top-level `value`.
+    3. Handled date string ISO splits (`2026-07-23T...`) to match calendar date keys regardless of timezone offsets.
+    4. Wrapped `CommonCalendar` cell builders in a `GestureDetector` so tapping a Shoot day cell or tag reliably triggers navigation.
+- **Verification**:
+  - `flutter test test/features/availability`: 43 / 43 tests passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+

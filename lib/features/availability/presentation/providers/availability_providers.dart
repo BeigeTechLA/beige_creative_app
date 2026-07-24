@@ -8,6 +8,8 @@ import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
 import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../model_class/upcoming_shoots_model.dart';
+import '../../../../utility/date_time_utils.dart';
 import '../../data/repositories/availability_repository_impl.dart';
 import '../../domain/entities/availability_entry.dart';
 import '../../domain/repositories/availability_repository.dart';
@@ -24,12 +26,14 @@ final availabilityRepositoryProvider = Provider<AvailabilityRepository>(
 class ManageAvailabilityState {
   final DateTime focusedDay;
   final Map<DateTime, AvailabilityDay> events;
+  final List<UpcomingShootDatum> upcomingShootsList;
   final String eventFilter;
   final bool isLoading;
 
   ManageAvailabilityState({
     DateTime? focusedDay,
     this.events = const {},
+    this.upcomingShootsList = const [],
     this.eventFilter = 'All Events',
     this.isLoading = true,
   }) : focusedDay = focusedDay ?? DateTime.now();
@@ -37,12 +41,14 @@ class ManageAvailabilityState {
   ManageAvailabilityState copyWith({
     DateTime? focusedDay,
     Map<DateTime, AvailabilityDay>? events,
+    List<UpcomingShootDatum>? upcomingShootsList,
     String? eventFilter,
     bool? isLoading,
   }) {
     return ManageAvailabilityState(
       focusedDay: focusedDay ?? this.focusedDay,
       events: events ?? this.events,
+      upcomingShootsList: upcomingShootsList ?? this.upcomingShootsList,
       eventFilter: eventFilter ?? this.eventFilter,
       isLoading: isLoading ?? this.isLoading,
     );
@@ -75,8 +81,20 @@ class ManageAvailabilityNotifier
     final repo = ref.read(availabilityRepositoryProvider);
     final day = state.focusedDay;
     try {
-      final events = await repo.fetchMonth(month: day.month, year: day.year);
-      state = state.copyWith(events: events, isLoading: false);
+      final results = await Future.wait([
+        repo.fetchMonth(month: day.month, year: day.year),
+        repo.fetchUpcomingShoots().catchError((e, st) {
+          AppLogger.e('ManageAvailability.fetchUpcomingShoots failed', e, st);
+          return <UpcomingShootDatum>[];
+        }),
+      ]);
+      final events = results[0] as Map<DateTime, AvailabilityDay>;
+      final upcoming = results[1] as List<UpcomingShootDatum>;
+      state = state.copyWith(
+        events: events,
+        upcomingShootsList: upcoming,
+        isLoading: false,
+      );
     } catch (e, st) {
       AppLogger.e('ManageAvailability.refresh failed', e, st);
       state = state.copyWith(isLoading: false);
@@ -107,6 +125,7 @@ final manageAvailabilityNotifierProvider =
       ManageAvailabilityNotifier,
       ManageAvailabilityState
     >(ManageAvailabilityNotifier.new);
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Add Availability — form state + submit.
@@ -251,9 +270,46 @@ class AddAvailabilityNotifier
       state = state.copyWith(validationMessage: 'Please select date');
       return false;
     }
-    if (!state.isAllDay && (startTime.isEmpty || endTime.isEmpty)) {
-      state = state.copyWith(validationMessage: 'Please select time');
+    final parsedDate = DateTimeUtils.parseDatePickerInput(formattedDate);
+    if (!state.isAllDay) {
+      final validationMsg =
+          DateTimeUtils.validateTimeRange(startTime, endTime, date: parsedDate);
+      if (validationMsg != null) {
+        state = state.copyWith(validationMessage: validationMsg);
+        return false;
+      }
+    }
+
+    final recurrenceInt = _recurrenceInt();
+    if (recurrenceInt > 1 && recurrenceUntil.isEmpty) {
+      state = state.copyWith(
+        validationMessage: 'Until date is required for recurring availability',
+      );
       return false;
+    }
+
+    if (state.recurrence == RecurrenceKind.weekly &&
+        state.selectedWeekDays.isEmpty) {
+      state = state.copyWith(
+        validationMessage: 'Please select at least one day for weekly recurrence',
+      );
+      return false;
+    }
+
+    if (state.recurrence == RecurrenceKind.monthly) {
+      if (repeatDay.trim().isEmpty) {
+        state = state.copyWith(
+          validationMessage: 'Repeat day of month is required',
+        );
+        return false;
+      }
+      final parsedDay = int.tryParse(repeatDay.trim());
+      if (parsedDay == null || parsedDay < 1 || parsedDay > 31) {
+        state = state.copyWith(
+          validationMessage: 'Repeat day of month must be between 1 and 31',
+        );
+        return false;
+      }
     }
 
     state = state.copyWith(isSubmitting: true, clearMessages: true);

@@ -5,6 +5,7 @@ import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/features/availability/domain/entities/availability_entry.dart';
 import 'package:beige_creative_app/features/availability/domain/repositories/availability_repository.dart';
 import 'package:beige_creative_app/features/availability/presentation/providers/availability_providers.dart';
+import 'package:beige_creative_app/model_class/upcoming_shoots_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,12 +30,18 @@ class _FakeRepo implements AvailabilityRepository {
   }
 
   @override
+  Future<List<UpcomingShootDatum>> fetchUpcomingShoots() async {
+    return const [];
+  }
+
+  @override
   Future<void> createAvailability(AvailabilityPayload payload) async {
     createCalled = true;
     lastPayload = payload;
     if (throwOnCreate) throw Exception('boom');
   }
 }
+
 
 class _RecordingTelemetry implements TelemetryClient {
   final List<({String name, Map<String, Object>? parameters})> events =

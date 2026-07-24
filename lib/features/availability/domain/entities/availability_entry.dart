@@ -55,5 +55,7 @@ class AvailabilityPayload {
         'notes': notes,
         'recurrence_until': recurrenceUntil,
         'recurrence_days': recurrenceDays,
+        if (repeatDay != null && repeatDay!.isNotEmpty)
+          'recurrence_day_of_month': int.tryParse(repeatDay!) ?? repeatDay,
       };
 }

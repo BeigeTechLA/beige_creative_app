@@ -308,39 +308,56 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
                     ),
                   ],
                 ),
-                if ((data['cpProfiles'] as List<CpProfile>?)?.isNotEmpty == true) ...[
-                  AppSpacing.verticalXs,
-                  _buildMembersStack(data['cpProfiles'] as List<CpProfile>),
-                ],
-                AppSpacing.verticalMd,
+                const SizedBox(height: 25),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppRadii.hugeAll,
+                      flex: 6,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.mld,
+                              vertical: AppSpacing.xs,
+                            ),
+                            backgroundColor: AppColors.primary,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: AppRadii.hugeAll,
+                            ),
                           ),
-                        ),
-                        onPressed: () {
-                          context.pushNamed(
-                            Routes.upcomingShootDetails.name,
-                            extra: UpcomingShootDetailsArgs(
-                              projectId: data['projectId'] as int?,
-                            ).toExtra(),
-                          );
-                        },
-                        child: Text(
-                          "View Details",
-                          style: AppTextStyles.body11.copyWith(
-                            color: AppColors.black,
-                            fontWeight: FontWeight.w600,
+                          onPressed: () {
+                            context.pushNamed(
+                              Routes.upcomingShootDetails.name,
+                              extra: UpcomingShootDetailsArgs(
+                                projectId: data['projectId'] as int?,
+                              ).toExtra(),
+                            );
+                          },
+                          child: Text(
+                            "View Details",
+                            style: AppTextStyles.body11.copyWith(
+                              color: AppColors.black,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
                     ),
+                    if ((data['cpProfiles'] as List<CpProfile>?)?.isNotEmpty == true)
+                      Expanded(
+                        flex: 4,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _buildMembersStack(
+                            data['cpProfiles'] as List<CpProfile>,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ],
@@ -352,75 +369,60 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
   }
 
   Widget _buildMembersStack(List<CpProfile> profiles) {
-    final displayProfiles = profiles.take(3).toList();
+    final displayProfiles = profiles.take(4).toList();
     final remaining = profiles.length - displayProfiles.length;
     const avatarSize = 22.0;
 
-    return Row(
-      children: [
-        SizedBox(
-          height: avatarSize,
-          width: displayProfiles.length * 15.0 + (remaining > 0 ? 20.0 : 8.0),
-          child: Stack(
-            children: [
-              for (int i = 0; i < displayProfiles.length; i++)
-                Positioned(
-                  left: i * 14.0,
-                  child: Container(
-                    width: avatarSize,
-                    height: avatarSize,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.surfaceMid, width: 1.5),
-                      color: AppColors.surfaceDim,
-                    ),
-                    child: ClipOval(
-                      child: displayProfiles[i].profileImageUrl.isNotEmpty
-                          ? CachedNetworkImage(
-                              imageUrl: Env.imageUrl + displayProfiles[i].profileImageUrl,
-                              fit: BoxFit.cover,
-                              errorWidget: (context, url, error) => _buildAvatarFallback(displayProfiles[i].name),
-                            )
-                          : _buildAvatarFallback(displayProfiles[i].name),
-                    ),
-                  ),
+    return SizedBox(
+      height: avatarSize,
+      width: displayProfiles.length * 15.0 + (remaining > 0 ? 22.0 : 8.0),
+      child: Stack(
+        children: [
+          for (int i = 0; i < displayProfiles.length; i++)
+            Positioned(
+              left: i * 14.0,
+              child: Container(
+                width: avatarSize,
+                height: avatarSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.surfaceMid, width: 1.5),
+                  color: AppColors.surfaceDim,
                 ),
-              if (remaining > 0)
-                Positioned(
-                  left: displayProfiles.length * 14.0,
-                  child: Container(
-                    width: avatarSize,
-                    height: avatarSize,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.primary,
-                      border: Border.all(color: AppColors.surfaceMid, width: 1.5),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "+$remaining",
-                      style: AppTextStyles.body10.copyWith(
-                        color: AppColors.black,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
+                child: ClipOval(
+                  child: displayProfiles[i].profileImageUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: Env.imageUrl + displayProfiles[i].profileImageUrl,
+                          fit: BoxFit.cover,
+                          errorWidget: (context, url, error) => _buildAvatarFallback(displayProfiles[i].name),
+                        )
+                      : _buildAvatarFallback(displayProfiles[i].name),
                 ),
-            ],
-          ),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: Text(
-            profiles.map((p) => p.name).join(", "),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.body10.copyWith(
-              color: AppColors.white.withValues(alpha: 0.6),
+              ),
             ),
-          ),
-        ),
-      ],
+          if (remaining > 0)
+            Positioned(
+              left: displayProfiles.length * 14.0,
+              child: Container(
+                width: avatarSize,
+                height: avatarSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.white,
+                  border: Border.all(color: AppColors.surfaceMid, width: 1.5),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  "+$remaining",
+                  style: AppTextStyles.body10.copyWith(
+                    color: AppColors.black,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 

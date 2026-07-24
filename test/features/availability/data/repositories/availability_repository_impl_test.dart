@@ -102,6 +102,40 @@ void main() {
       expect(captured.last, {'month': 6, 'year': 2026});
     });
 
+    test('parses projectDetails when returned as a List of maps or ints', () async {
+      when(() => dio.post<dynamic>(any(), data: any(named: 'data')))
+          .thenAnswer((_) async => _ok({
+                'error': false,
+                'data': {
+                  'availability': {
+                    '2026-06-10': {
+                      'projectAssigned': 1,
+                      'projectDetails': [
+                        {'booking_id': 99}
+                      ],
+                    },
+                    '2026-06-11': {
+                      'projectAssigned': '1',
+                      'projectDetails': [100],
+                    },
+                  },
+                },
+              }));
+
+      final out = await repo.fetchMonth(month: 6, year: 2026);
+
+      expect(out, {
+        DateTime(2026, 6, 10): const AvailabilityDay(
+          status: AvailabilityStatus.shoot,
+          bookingId: 99,
+        ),
+        DateTime(2026, 6, 11): const AvailabilityDay(
+          status: AvailabilityStatus.shoot,
+          bookingId: 100,
+        ),
+      });
+    });
+
     test('error envelope → returns empty map (does NOT throw)', () async {
       when(() => dio.post<dynamic>(any(), data: any(named: 'data')))
           .thenAnswer((_) async => _ok({'error': true, 'message': 'denied'}));
