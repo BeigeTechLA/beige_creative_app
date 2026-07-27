@@ -18,12 +18,14 @@ build-dev:
 build-dev-ios:
 	flutter clean && flutter pub get && \
 	  flutter build ipa --flavor dev --dart-define-from-file=$(DEV_ENV) -t lib/main_dev.dart --release
-	$(MAKE) upload-dev-ios
+	# Auto-upload to TestFlight disabled for now. Run `make upload-dev-ios` manually if needed.
+	# $(MAKE) upload-dev-ios
 
 build-dev-android:
 	flutter clean && flutter pub get && \
 	  flutter build apk --flavor dev --dart-define-from-file=$(DEV_ENV) -t lib/main_dev.dart --release
-	./scripts/upload_firebase_android.sh dev build/app/outputs/flutter-apk/app-dev-release.apk
+	# Auto-upload to Firebase App Distribution disabled for now. Run `make upload-dev-android` manually if needed.
+	# ./scripts/upload_firebase_android.sh dev build/app/outputs/flutter-apk/app-dev-release.apk
 
 build-dev-aab:
 	flutter clean && flutter pub get && \
@@ -35,12 +37,14 @@ build-prod:
 build-prod-ios:
 	flutter clean && flutter pub get && \
 	  flutter build ipa --flavor prod --dart-define-from-file=$(PROD_ENV) -t lib/main_prod.dart --release
-	$(MAKE) upload-prod-ios
+	# Auto-upload to TestFlight disabled for now. Run `make upload-prod-ios` manually if needed.
+	# $(MAKE) upload-prod-ios
 
 build-prod-android:
 	flutter clean && flutter pub get && \
 	  flutter build apk --flavor prod --dart-define-from-file=$(PROD_ENV) -t lib/main_prod.dart --release
-	./scripts/upload_firebase_android.sh prod build/app/outputs/flutter-apk/app-prod-release.apk
+	# Auto-upload to Firebase App Distribution disabled for now. Run `make upload-prod-android` manually if needed.
+	# ./scripts/upload_firebase_android.sh prod build/app/outputs/flutter-apk/app-prod-release.apk
 
 build-prod-aab:
 	flutter clean && flutter pub get && \

@@ -5,6 +5,68 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-07-27: Add Availability Type Status Dots and Date Display
+
+- **Task**: Add Availability — type selector and Add Date display polish.
+- **Changed Files**:
+  - `lib/features/availability/presentation/screens/add_availability_screen.dart`
+  - `lib/utility/date_time_utils.dart`
+  - `test/features/availability/presentation/screens/add_availability_screen_test.dart`
+  - `test/utility/date_time_utils_test.dart`
+  - `docs/phase4/task_05_groupB_availability.md`
+- **Decisions**:
+  - Added an 8dp semantic status dot before each availability type label:
+    `AppColors.success` for Available and `AppColors.error` for Not Available.
+  - Added strict month-first date formatting/parsing for Add Date only. The
+    recurring Until Date retains its existing day-first display format.
+  - Removed the automatic current-date initialization so Add Date resets to
+    blank on each form load.
+  - Routed notifier and time-picker validation/error messages through the
+    shared app-level `TopMessage` overlay rather than raw `SnackBar` widgets.
+  - Kept API date submission in `yyyy-MM-dd` format.
+- **Verification**:
+  - Focused date utility + Add Availability widget tests — 12 / 12 passing.
+  - Scoped `flutter analyze --fatal-infos` on the four changed Dart files — 0 issues.
+  - Full `flutter analyze --fatal-infos` — blocked by one unrelated existing
+    `avoid_print` info in `upcoming_shoot_view_details_screen.dart:33`.
+
+---
+
+### 2026-07-27: Dashboard Calendar Shoot Tap Redirection to Shoot Details Page
+
+- **Changes**:
+  - `lib/features/home/presentation/providers/home_state.dart`: Added `availabilityDays: Map<DateTime, AvailabilityDay>` property to `HomeState` and `copyWith`.
+  - `lib/features/home/presentation/providers/home_notifier.dart`: Updated `_applyDashboardData` to parse `dashboardData.availability` JSON directly into `availabilityDays` via static `AvailabilityRepositoryImpl.parseAvailability()`.
+  - `lib/features/home/presentation/widgets/home_availability_section.dart`: Added optional `onDaySelected` callback parameter and forwarded to `CommonCalendar`.
+  - `lib/features/home/presentation/screens/home_screen.dart`: Wired `onDaySelected` callback on `HomeAvailabilitySection` to extract `bookingId` from `availabilityDays` (or fallback match from `upcomingShootsList`) and push `Routes.upcomingShootDetails` with `projectId`.
+  - `lib/features/availability/data/repositories/availability_repository_impl.dart`: Refactored `parseAvailability` and helpers `_isTrue`, `_extractBookingId`, `_asInt` as static methods to share parsing logic without duplicating code.
+  - `test/features/home/presentation/home_notifier_test.dart`: Added unit test case verifying `availabilityDays` and `bookingId` parsing from availability JSON.
+
+- **Decisions**:
+  - Parsed availability payload directly from the existing `GET creator/dashboard` endpoint data so zero additional network calls are performed.
+  - Added fallback matching by date on `upcomingShootsList` to handle cases where a shoot date entry has no explicit `booking_id` in availability JSON.
+
+- **Verification**:
+  - `flutter analyze` — 0 errors found.
+  - `flutter test test/features/home/presentation/` — 16/16 tests passing.
+
+---
+
+### 2026-07-27: Full-Screen Transparent Loader Overlay for Meeting Accept / Reject
+
+- **Changes**:
+  - `lib/features/meetings/presentation/screens/meetings_screen.dart`: Wrapped screen layout in a `Stack` and rendered `const AppLoadingOverlay()` when `state.pendingRsvpIds.isNotEmpty`.
+  - `test/features/meetings/presentation/screens/meetings_screen_test.dart`: Added widget test ensuring `AppLoadingOverlay` appears modally during pending meeting RSVP calls and clears on completion.
+
+- **Decisions**:
+  - Used standard `AppLoadingOverlay` (`dimOpacity: 0.5` with centered Lottie loader `AppAssets.lottieCircleLoader`) per approved Option A design selection to ensure consistent visual language with ShootsScreen and HomeScreen.
+
+- **Verification**:
+  - `flutter analyze` — 0 errors found.
+  - `flutter test test/features/meetings/presentation/screens/meetings_screen_test.dart` — 6/6 tests passing.
+
+---
+
 ### 2026-07-24: Setup Upcoming Shoots Section & Full-Screen Loader on Manage Availability Screen
 
 - **Changes**:
@@ -3375,4 +3437,3 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - **Verification**:
   - `flutter test test/features/availability`: 43 / 43 tests passing.
   - `flutter analyze --fatal-infos`: 0 issues.
-

@@ -13,6 +13,7 @@ import '../widgets/home_pending_shoot_card.dart';
 import '../widgets/home_shoot_categories_panel.dart';
 import '../widgets/home_shoot_status_panel.dart';
 import '../widgets/home_upcoming_carousel.dart';
+import '../../../shoots/presentation/routes/shoots_args.dart';
 import '../widgets/home_upcoming_meetings_carousel.dart';
 import '../widgets/home_welcome_header.dart';
 
@@ -240,6 +241,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           onNextMonth: () => notifier.changeMonth(1),
                           onSelectedEventChanged: notifier.selectEvent,
                           onPageChanged: notifier.onPageChanged,
+                          onDaySelected: (day, event) {
+                            if (event != 'Shoot') return;
+                            int? bookingId = homeState
+                                .availabilityDays[day]
+                                ?.bookingId;
+                            if (bookingId == null) {
+                              for (final s in homeState.upcomingShootsList) {
+                                if (s.eventDate.year == day.year &&
+                                    s.eventDate.month == day.month &&
+                                    s.eventDate.day == day.day) {
+                                  bookingId = s.projectId;
+                                  break;
+                                }
+                              }
+                            }
+                            if (bookingId != null) {
+                              context.pushNamed(
+                                Routes.upcomingShootDetails.name,
+                                extra: UpcomingShootDetailsArgs(
+                                  projectId: bookingId,
+                                ).toExtra(),
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(height: 24), // 24 visual gap above divider
                         const HomeSectionDivider(centerAlpha: 0.24),

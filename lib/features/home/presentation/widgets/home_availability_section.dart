@@ -29,6 +29,7 @@ class HomeAvailabilitySection extends StatelessWidget {
   final VoidCallback onNextMonth;
   final ValueChanged<String> onSelectedEventChanged;
   final ValueChanged<DateTime> onPageChanged;
+  final void Function(DateTime day, String? event)? onDaySelected;
 
   const HomeAvailabilitySection({
     super.key,
@@ -41,6 +42,7 @@ class HomeAvailabilitySection extends StatelessWidget {
     required this.onNextMonth,
     required this.onSelectedEventChanged,
     required this.onPageChanged,
+    this.onDaySelected,
   });
 
   String _getMonthYear(DateTime date) {
@@ -201,6 +203,7 @@ class HomeAvailabilitySection extends StatelessWidget {
                   events: events,
                   selectedEvent: selectedEvent,
                   onPageChanged: onPageChanged,
+                  onDaySelected: onDaySelected,
                 ),
               ],
             ),

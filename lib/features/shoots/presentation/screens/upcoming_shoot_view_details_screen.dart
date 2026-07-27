@@ -30,7 +30,6 @@ String? _resolveImageUrl(dynamic rawUrl) {
 
 Widget _buildHeaderImage(dynamic rawUrl) {
   final resolvedUrl = _resolveImageUrl(rawUrl);
-  print(resolvedUrl);
   if (resolvedUrl == null) {
     return Container(
       height: 362,

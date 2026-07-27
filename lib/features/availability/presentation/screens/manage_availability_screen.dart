@@ -22,7 +22,7 @@ import '../providers/availability_providers.dart';
 class ManageAvailabilityScreen extends ConsumerStatefulWidget {
   const ManageAvailabilityScreen({super.key});
 
-  static const _filters = ['All Events', 'Available', 'Shoot'];
+  static const _filters = ['All Events', 'Available', 'Shoot', 'Not Available'];
 
   @override
   ConsumerState<ManageAvailabilityScreen> createState() =>
@@ -237,6 +237,7 @@ class _ManageAvailabilityScreenState
                               CommonCalendar(
                                 focusedDay: state.focusedDay,
                                 events: calendarEvents,
+                                dayDetails: state.events,
                                 selectedEvent: state.eventFilter,
                                 onPageChanged: notifier.setFocusedDay,
                                 onDaySelected: (day, event) {
@@ -346,6 +347,7 @@ class _ManageAvailabilityScreenState
         entry.key: switch (entry.value.status) {
           AvailabilityStatus.shoot => 'Shoot',
           AvailabilityStatus.available => 'Available',
+          AvailabilityStatus.unavailable => 'Not Available',
           AvailabilityStatus.none => 'None',
         },
     };

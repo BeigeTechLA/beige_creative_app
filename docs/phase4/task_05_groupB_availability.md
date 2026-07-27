@@ -44,3 +44,11 @@ Migrate the two availability screens (1,742 LOC combined). Verify `add_availabil
 **Test infrastructure note for AutoDispose notifiers:** `container.read(provider)` alone is insufficient — AutoDispose disposes after the synchronous read returns, killing the microtask that runs the initial `refresh()`. Pattern is `container.listen(provider, (_, _) {})` to hold the element alive, then poll `!isLoading` up to 20 microtask drains. Reusable for any Group B-E notifier test that loads in `build()`.
 
 **Calibration:** ~50 min vs. 3d budget. **First real repository task** — Dio + endpoint integration + DTO mapping + submit flow + error surfacing. Even with the bigger surface, the per-feature template is now established: domain entities → repo interface → impl → provider + notifier(s) → screens → tests. Group B-E remaining budgets should be reduced once one more API-bound task lands (likely 4.13 Upcoming Details). Don't re-baseline yet on a single data point.
+
+**Post-completion UI polish (2026-07-27):** The Add Availability type
+dropdown now shows a semantic green status dot for `Available` and a red status
+dot for `Not Available`. The Add Date field displays selected dates in
+`MM/dd/yyyy` format while API payloads remain `yyyy-MM-dd`; the field starts
+blank whenever the form loads. Selection behavior and submitted values are
+otherwise unchanged. All form validation and submission errors use the shared
+app-level `TopMessage` theme instead of raw `SnackBar` instances.

@@ -1,5 +1,7 @@
+import 'package:beige_creative_app/app/colors.dart';
 import 'package:beige_creative_app/features/availability/presentation/providers/availability_providers.dart';
 import 'package:beige_creative_app/features/availability/presentation/screens/add_availability_screen.dart';
+import 'package:beige_creative_app/shared/widgets/custom_text_field.dart';
 import 'package:beige_creative_app/shared/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,7 +94,50 @@ void main() {
     expect(find.text('Select Type*'), findsOneWidget);
   });
 
-  testWidgets('tap Save with default state routes to notifier.submit',
+  testWidgets('starts with a blank Add Date on every form load',
+      (tester) async {
+    await _pump(tester);
+
+    final addDateField = tester
+        .widgetList<CustomTextField>(find.byType(CustomTextField))
+        .singleWhere((field) => field.label == 'Add Date');
+
+    expect(addDateField.controller!.text, isEmpty);
+  });
+
+  testWidgets('shows the matching status dot after selecting a type', (
+    tester,
+  ) async {
+    await _pump(tester);
+
+    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Available').last);
+    await tester.pumpAndSettle();
+
+    final availableDot = tester.widget<Container>(
+      find.byKey(const ValueKey('availability-type-dot-available')),
+    );
+    expect(
+      (availableDot.decoration! as BoxDecoration).color,
+      AppColors.success,
+    );
+
+    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Not Available').last);
+    await tester.pumpAndSettle();
+
+    final notAvailableDot = tester.widget<Container>(
+      find.byKey(const ValueKey('availability-type-dot-not-available')),
+    );
+    expect(
+      (notAvailableDot.decoration! as BoxDecoration).color,
+      AppColors.error,
+    );
+  });
+
+  testWidgets('Save validation uses the app-level top message theme',
       (tester) async {
     final fake = await _pump(tester);
 
@@ -101,6 +146,11 @@ void main() {
     await tester.pump();
 
     expect(fake.submitCalls, 1);
+    expect(find.text('Please select type'), findsOneWidget);
+    expect(find.byIcon(Icons.do_not_disturb), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
+
+    await tester.pump(const Duration(seconds: 3));
   });
 
   testWidgets('Save shows spinner instead of label when isSubmitting=true',

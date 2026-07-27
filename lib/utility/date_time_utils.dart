@@ -63,6 +63,9 @@ class DateTimeUtils {
   /// `19/05/2026` — date picker input (non-US, day-first). Intentional.
   static const String kDatePickerInputPattern = "dd/MM/yyyy";
 
+  /// `05/19/2026` — month-first date input.
+  static const String kMonthFirstDateInputPattern = "MM/dd/yyyy";
+
   // ───────────────────────────────────────────────────────────────
 
   /// ✅ Format Date → MM-dd-yyyy
@@ -324,6 +327,31 @@ class DateTimeUtils {
       if (input == null || input.isEmpty) return null;
 
       return DateFormat(kDatePickerInputPattern).parse(input);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// ✅ Month-first date input format → 05/19/2026
+  static String formatMonthFirstDateInput(
+    DateTime? date, {
+    String fallback = "",
+  }) {
+    try {
+      if (date == null) return fallback;
+
+      return DateFormat(kMonthFirstDateInputPattern).format(date);
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  /// ✅ Parse month-first date input → DateTime (or null on bad input)
+  static DateTime? parseMonthFirstDateInput(String? input) {
+    try {
+      if (input == null || input.isEmpty) return null;
+
+      return DateFormat(kMonthFirstDateInputPattern).parseStrict(input);
     } catch (_) {
       return null;
     }

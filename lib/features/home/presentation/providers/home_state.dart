@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../model_class/create_dashboard_details_model.dart';
 import '../../../../model_class/myprofile_model.dart' as profile;
 import '../../../../model_class/upcoming_shoots_model.dart';
+import '../../../availability/domain/entities/availability_entry.dart';
 import '../../../meetings/domain/models/meeting.dart';
 
 /// Combined immutable state for the Home dashboard.
@@ -48,6 +49,7 @@ class HomeState {
 
   // ── Availability calendar ──
   final Map<DateTime, String> events;
+  final Map<DateTime, AvailabilityDay> availabilityDays;
 
   // ── Profile ──
   final profile.MyProfileData? profileData;
@@ -98,6 +100,7 @@ class HomeState {
     this.requestPhoto = 0,
     this.requestVideo = 0,
     this.events = const {},
+    this.availabilityDays = const {},
     this.profileData,
     this.isLoading = false,
     this.errorMessage,
@@ -271,6 +274,7 @@ class HomeState {
     int? requestPhoto,
     int? requestVideo,
     Map<DateTime, String>? events,
+    Map<DateTime, AvailabilityDay>? availabilityDays,
     profile.MyProfileData? profileData,
     bool? isLoading,
     String? errorMessage,
@@ -317,6 +321,7 @@ class HomeState {
       requestPhoto: requestPhoto ?? this.requestPhoto,
       requestVideo: requestVideo ?? this.requestVideo,
       events: events ?? this.events,
+      availabilityDays: availabilityDays ?? this.availabilityDays,
       profileData: profileData ?? this.profileData,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),

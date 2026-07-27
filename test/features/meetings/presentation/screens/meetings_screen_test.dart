@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beige_creative_app/core/providers/core_providers.dart';
 import 'package:beige_creative_app/core/session/session_store.dart';
 import 'package:beige_creative_app/features/meetings/domain/models/meeting.dart';
@@ -13,6 +15,7 @@ import 'package:beige_creative_app/features/meetings/presentation/providers/meet
 import 'package:beige_creative_app/features/meetings/presentation/providers/meetings_repository_provider.dart';
 import 'package:beige_creative_app/features/meetings/presentation/screens/meetings_screen.dart';
 import 'package:beige_creative_app/features/meetings/presentation/widgets/meeting_card.dart';
+import 'package:beige_creative_app/shared/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,10 +35,11 @@ class _FakeSessionStore extends Mock implements SessionStore {
 }
 
 class _FakeMeetingsRepository implements MeetingsRepository {
-  _FakeMeetingsRepository({List<Meeting>? seed})
+  _FakeMeetingsRepository({List<Meeting>? seed, this.respondCompleter})
     : _items = List<Meeting>.from(seed ?? _defaultSeed);
 
   final List<Meeting> _items;
+  final Completer<void>? respondCompleter;
 
   @override
   Future<List<Meeting>> list({
@@ -71,8 +75,12 @@ class _FakeMeetingsRepository implements MeetingsRepository {
       throw UnimplementedError();
 
   @override
-  Future<Meeting> respond(String id, MeetingResponse response) async =>
-      _items.firstWhere((m) => m.id == id);
+  Future<Meeting> respond(String id, MeetingResponse response) async {
+    if (respondCompleter != null) {
+      await respondCompleter!.future;
+    }
+    return _items.firstWhere((m) => m.id == id);
+  }
 }
 
 final _now = DateTime(2026, 1, 1, 10);
@@ -242,6 +250,40 @@ void main() {
       expect(find.text('Other Created'), findsOneWidget);
       expect(find.text('Accept'), findsOneWidget);
       expect(find.text('Reject'), findsOneWidget);
+    });
+
+    testWidgets('shows AppLoadingOverlay when RSVP is pending', (
+      tester,
+    ) async {
+      final completer = Completer<void>();
+      final repo = _FakeMeetingsRepository(respondCompleter: completer);
+      final sessionStore = _FakeSessionStore();
+
+      await tester.pumpProviderApp(
+        const Scaffold(body: MeetingsScreen()),
+        overrides: [
+          meetingsRepositoryProvider.overrideWithValue(repo),
+          sessionStoreProvider.overrideWithValue(sessionStore),
+        ],
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppLoadingOverlay), findsNothing);
+
+      final element = tester.element(find.byType(MeetingsScreen));
+      final container = ProviderScope.containerOf(element);
+      unawaited(
+        container
+            .read(meetingsListNotifierProvider.notifier)
+            .respond('u1', MeetingResponse.accepted),
+      );
+
+      await tester.pump();
+      expect(find.byType(AppLoadingOverlay), findsOneWidget);
+
+      completer.complete();
+      await tester.pumpAndSettle();
+      expect(find.byType(AppLoadingOverlay), findsNothing);
     });
   });
 

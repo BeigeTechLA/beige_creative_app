@@ -2,6 +2,27 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:beige_creative_app/utility/date_time_utils.dart';
 
 void main() {
+  group('month-first date input', () {
+    test('formats a date as MM/dd/yyyy', () {
+      expect(
+        DateTimeUtils.formatMonthFirstDateInput(DateTime(2026, 5, 9)),
+        '05/09/2026',
+      );
+    });
+
+    test('parses MM/dd/yyyy back to the same calendar date', () {
+      expect(
+        DateTimeUtils.parseMonthFirstDateInput('05/09/2026'),
+        DateTime(2026, 5, 9),
+      );
+    });
+
+    test('returns null for a day-first or invalid date', () {
+      expect(DateTimeUtils.parseMonthFirstDateInput('19/05/2026'), isNull);
+      expect(DateTimeUtils.parseMonthFirstDateInput('02/30/2026'), isNull);
+    });
+  });
+
   group('DateTimeUtils.isActionableBeforeOneHour', () {
     final eventDate = DateTime(2026, 7, 20);
     const startTime = "18:00:00"; // 6:00 PM

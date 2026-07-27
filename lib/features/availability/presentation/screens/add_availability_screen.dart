@@ -15,6 +15,7 @@ import '../../../../shared/widgets/app_cupertino_time_picker.dart';
 import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
+import '../../../../shared/widgets/top_message.dart';
 import '../providers/availability_providers.dart';
 
 class AddAvailabilityScreen extends ConsumerStatefulWidget {
@@ -37,12 +38,6 @@ class _AddAvailabilityScreenState
   static const _weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   @override
-  void initState() {
-    super.initState();
-    _dateController.text = DateTimeUtils.formatDatePickerInput(DateTime.now());
-  }
-
-  @override
   void dispose() {
     _dateController.dispose();
     _startTimeController.dispose();
@@ -53,7 +48,10 @@ class _AddAvailabilityScreenState
     super.dispose();
   }
 
-  Future<void> _pickDate(TextEditingController controller) async {
+  Future<void> _pickDate(
+    TextEditingController controller, {
+    bool monthFirst = false,
+  }) async {
     final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -90,7 +88,9 @@ class _AddAvailabilityScreenState
       ),
     );
     if (picked != null) {
-      controller.text = DateTimeUtils.formatDatePickerInput(picked);
+      controller.text = monthFirst
+          ? DateTimeUtils.formatMonthFirstDateInput(picked)
+          : DateTimeUtils.formatDatePickerInput(picked);
       setState(() {});
     }
   }
@@ -107,7 +107,7 @@ class _AddAvailabilityScreenState
       final pickedStr = DateTimeUtils.formatTimeOfDay12Hour(picked);
 
       final parsedDate =
-          DateTimeUtils.parseDatePickerInput(_dateController.text);
+          DateTimeUtils.parseMonthFirstDateInput(_dateController.text);
       if (parsedDate != null) {
         final now = DateTime.now();
         final isToday = parsedDate.year == now.year &&
@@ -118,9 +118,7 @@ class _AddAvailabilityScreenState
           final startMin = picked.hour * 60 + picked.minute;
           if (startMin < currentMin) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Start time cannot be in the past')),
-              );
+              TopMessage.show(context, 'Start time cannot be in the past');
             }
             return;
           }
@@ -171,20 +169,15 @@ class _AddAvailabilityScreenState
         );
         if (diff == null || diff <= 0) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('End time must be after start time')),
-            );
+            TopMessage.show(context, 'End time must be after start time');
           }
           return;
         }
         if (diff < 60) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Minimum duration between start and end time must be at least 1 hour',
-                ),
-              ),
+            TopMessage.show(
+              context,
+              'Minimum duration between start and end time must be at least 1 hour',
             );
           }
           return;
@@ -217,7 +210,7 @@ class _AddAvailabilityScreenState
 
     String formattedDate = '';
     final parsedDate =
-        DateTimeUtils.parseDatePickerInput(_dateController.text);
+        DateTimeUtils.parseMonthFirstDateInput(_dateController.text);
     if (parsedDate != null) {
       formattedDate = DateTimeUtils.formatApiDate(parsedDate);
     } else {
@@ -250,22 +243,13 @@ class _AddAvailabilityScreenState
   Widget build(BuildContext context) {
     ref.listen<AddAvailabilityState>(addAvailabilityNotifierProvider,
         (prev, next) {
-      final messenger = ScaffoldMessenger.maybeOf(context);
-      if (messenger == null) return;
       if (next.validationMessage != null &&
           next.validationMessage != prev?.validationMessage) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(next.validationMessage!)),
-        );
+        TopMessage.show(context, next.validationMessage!);
       }
       if (next.errorMessage != null &&
           next.errorMessage != prev?.errorMessage) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(next.errorMessage!),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        TopMessage.show(context, next.errorMessage!);
       }
     });
 
@@ -314,15 +298,38 @@ class _AddAvailabilityScreenState
                               ? 'Available'
                               : 'Not Available'),
                       items: const ['Available', 'Not Available']
-                          .map((e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(
-                                  e,
-                                  style: AppTextStyles.inherit.copyWith(
-                                    color: AppColors.white,
+                          .map(
+                            (e) => DropdownMenuItem(
+                              value: e,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    key: ValueKey(
+                                      e == 'Available'
+                                          ? 'availability-type-dot-available'
+                                          : 'availability-type-dot-not-available',
+                                    ),
+                                    width: AppSpacing.sm,
+                                    height: AppSpacing.sm,
+                                    decoration: BoxDecoration(
+                                      color: e == 'Available'
+                                          ? AppColors.success
+                                          : AppColors.error,
+                                      shape: BoxShape.circle,
+                                    ),
                                   ),
-                                ),
-                              ))
+                                  AppSpacing.gapHSm,
+                                  Text(
+                                    e,
+                                    style: AppTextStyles.inherit.copyWith(
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
                           .toList(),
                       onChanged: (val) {
                         notifier.setType(
@@ -341,7 +348,8 @@ class _AddAvailabilityScreenState
                         padding: const EdgeInsets.all(AppSpacing.smd),
                         child: SvgPicture.asset(AppAssets.calendar),
                       ),
-                      onTap: () => _pickDate(_dateController),
+                      onTap: () =>
+                          _pickDate(_dateController, monthFirst: true),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     if (!state.isAllDay) ...[
@@ -432,7 +440,7 @@ class _AddAvailabilityScreenState
                     _buildRecurrenceUI(state, notifier),
                     const SizedBox(height: 20),
                     CustomTextField(
-                      label: 'Notes',
+                      label: 'Notes(optional)',
                       controller: _notesController,
                       maxLines: 4,
                     ),

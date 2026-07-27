@@ -75,65 +75,70 @@ class MeetingsScreen extends ConsumerWidget {
     );
 
     return SafeArea(
-      child: Column(
+      child: Stack(
         children: [
-          AppMainToolbar(
-            title: 'Meetings',
-            trailing: Visibility(
-              visible: false,
-              maintainSize: false,
-              maintainAnimation: false,
-              maintainState: false,
-              child: Stack(
-                alignment: Alignment.topRight,
-                children: [
-                  IconButton(
-                    tooltip: 'Filter meetings',
-                    onPressed: () => _openFilter(context, ref),
-                    icon: SvgPicture.asset(
-                      AppAssets.iconFilter,
-                      height: 20,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.textPrimary,
-                        BlendMode.srcIn,
+          Column(
+            children: [
+              AppMainToolbar(
+                title: 'Meetings',
+                trailing: Visibility(
+                  visible: false,
+                  maintainSize: false,
+                  maintainAnimation: false,
+                  maintainState: false,
+                  child: Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      IconButton(
+                        tooltip: 'Filter meetings',
+                        onPressed: () => _openFilter(context, ref),
+                        icon: SvgPicture.asset(
+                          AppAssets.iconFilter,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.textPrimary,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                       ),
-                    ),
+                      if (state.isFiltered)
+                        const Positioned(
+                          top: 10,
+                          right: 10,
+                          child: _FilterDot(),
+                        ),
+                    ],
                   ),
-                  if (state.isFiltered)
-                    const Positioned(
-                      top: 10,
-                      right: 10,
-                      child: _FilterDot(),
-                    ),
-                ],
+                ),
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.base,
-            ),
-            child: MeetingsTabBar(
-              selected: state.tab,
-              onChanged: notifier.selectTab,
-            ),
-          ),
-          AppSpacing.verticalBase,
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: notifier.refresh,
-              color: AppColors.primary,
-              backgroundColor: AppColors.surface,
-              child: _ListBody(
-                state: state,
-                onTap: _onCardTap,
-                onJoin: _onJoin,
-                onRsvp: (ctx, {required meetingId, required accept}) =>
-                    _onRsvp(ctx, ref, meetingId: meetingId, accept: accept),
-                onRetry: notifier.refresh,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.base,
+                ),
+                child: MeetingsTabBar(
+                  selected: state.tab,
+                  onChanged: notifier.selectTab,
+                ),
               ),
-            ),
+              AppSpacing.verticalBase,
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: notifier.refresh,
+                  color: AppColors.primary,
+                  backgroundColor: AppColors.surface,
+                  child: _ListBody(
+                    state: state,
+                    onTap: _onCardTap,
+                    onJoin: _onJoin,
+                    onRsvp: (ctx, {required meetingId, required accept}) =>
+                        _onRsvp(ctx, ref, meetingId: meetingId, accept: accept),
+                    onRetry: notifier.refresh,
+                  ),
+                ),
+              ),
+            ],
           ),
+          if (state.pendingRsvpIds.isNotEmpty) const AppLoadingOverlay(),
         ],
       ),
     );

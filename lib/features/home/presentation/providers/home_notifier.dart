@@ -5,6 +5,7 @@ import '../../../../core/session/session_store.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/creator_dashboard_model.dart';
 import '../../../../model_class/myprofile_model.dart' as profile;
+import '../../../availability/data/repositories/availability_repository_impl.dart';
 import '../../data/repositories/home_repository_impl.dart';
 import '../../domain/repositories/home_repository.dart';
 import 'home_state.dart';
@@ -312,6 +313,9 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
           ? stats.videoShootRequests
           : (categories?['video']?['shootRequests'] as int?),
       // Availability
+      availabilityDays: availability != null
+          ? AvailabilityRepositoryImpl.parseAvailability(availability)
+          : null,
       events: availability != null
           ? _prepareAvailabilityEvents(availability)
           : null,

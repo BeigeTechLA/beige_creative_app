@@ -1,23 +1,30 @@
 import 'package:beige_creative_app/app/colors.dart';
 import 'package:beige_creative_app/app/spacing.dart';
 import 'package:beige_creative_app/app/text_styles.dart';
+import 'package:beige_creative_app/utility/date_time_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+
+import '../../features/availability/domain/entities/availability_entry.dart';
 
 class CommonCalendar extends StatefulWidget {
   final DateTime focusedDay;
   final Map<DateTime, String> events;
+  final Map<DateTime, AvailabilityDay>? dayDetails;
   final Function(DateTime) onPageChanged;
   final String selectedEvent;
   final void Function(DateTime day, String? event)? onDaySelected;
+  final void Function(DateTime day, AvailabilityDay? details)? onDayDetailsSelected;
 
   const CommonCalendar({
     super.key,
     required this.focusedDay,
     required this.events,
+    this.dayDetails,
     required this.onPageChanged,
     required this.selectedEvent,
     this.onDaySelected,
+    this.onDayDetailsSelected,
   });
 
   @override
@@ -63,7 +70,7 @@ class _CommonCalendarState extends State<CommonCalendar>
                     focusedDay: widget.focusedDay,
                     headerVisible: false,
                     onPageChanged: widget.onPageChanged,
-                    onDaySelected: widget.onDaySelected == null
+                    onDaySelected: widget.onDaySelected == null && widget.onDayDetailsSelected == null
                         ? null
                         : (selected, focused) {
                             final key = DateTime(
@@ -71,7 +78,15 @@ class _CommonCalendarState extends State<CommonCalendar>
                               selected.month,
                               selected.day,
                             );
-                            widget.onDaySelected!(key, widget.events[key]);
+                            if (widget.onDaySelected != null) {
+                              widget.onDaySelected!(key, widget.events[key]);
+                            }
+                            if (widget.onDayDetailsSelected != null) {
+                              widget.onDayDetailsSelected!(
+                                key,
+                                widget.dayDetails?[key],
+                              );
+                            }
                           },
                     pageAnimationEnabled: true,
                     pageAnimationDuration: const Duration(milliseconds: 70),
@@ -143,10 +158,11 @@ class _CommonCalendarState extends State<CommonCalendar>
     );
   }
 
-  // 🔥 FIXED _buildCell WITH FILTER LOGIC
+  // 🔥 FIXED _buildCell WITH FILTER LOGIC AND TOOLTIP FOR UNAVAILABLE STATUS
   Widget _buildCell(double width, DateTime day, {required bool isOutside}) {
     final dateKey = DateTime(day.year, day.month, day.day);
     final eventText = widget.events[dateKey];
+    final dayDetail = widget.dayDetails?[dateKey];
     final dayFontSize = (width * 0.045).clamp(14.0, 20.0);
 
     // 🔥 FILTER LOGIC
@@ -158,6 +174,9 @@ class _CommonCalendarState extends State<CommonCalendar>
       shouldShowEvent = true;
     } else if (widget.selectedEvent == "Shoot" && eventText == "Shoot") {
       shouldShowEvent = true;
+    } else if (widget.selectedEvent == "Not Available" &&
+        (eventText == "Not Available" || eventText == "Unavailable")) {
+      shouldShowEvent = true;
     }
 
     bool isStrikethrough =
@@ -166,8 +185,29 @@ class _CommonCalendarState extends State<CommonCalendar>
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
+        final currentDetail = dayDetail ?? widget.dayDetails?[dateKey];
+        if (currentDetail?.status == AvailabilityStatus.unavailable) {
+          final tooltipMsg = _getUnavailableTooltipMessage(currentDetail!);
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                tooltipMsg,
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
+              ),
+              duration: const Duration(seconds: 3),
+              backgroundColor: AppColors.surfaceWarm,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+            ),
+          );
+        }
+
         if (widget.onDaySelected != null) {
           widget.onDaySelected!(dateKey, eventText);
+        }
+        if (widget.onDayDetailsSelected != null) {
+          widget.onDayDetailsSelected!(dateKey, currentDetail);
         }
       },
       child: Center(
@@ -190,7 +230,8 @@ class _CommonCalendarState extends State<CommonCalendar>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  if (shouldShowEvent) _buildEventTag(width, eventText!),
+                  if (shouldShowEvent)
+                    _buildEventTag(width, eventText!, dayDetail),
                 ],
               ),
             ),
@@ -200,10 +241,28 @@ class _CommonCalendarState extends State<CommonCalendar>
     );
   }
 
-  Widget _buildEventTag(double width, String text) {
-    bool isAvailable = text.toLowerCase() == "available";
+  Widget _buildEventTag(
+      double width, String text, AvailabilityDay? dayDetail) {
+    final lower = text.toLowerCase();
+    bool isAvailable = lower == "available";
+    bool isNotAvailable = lower == "not available" || lower == "unavailable";
     final eventFontSize = (width * 0.021).clamp(11.0, 14.0);
-    return Container(
+
+    Color bg;
+    Color fg;
+
+    if (isAvailable) {
+      bg = AppColors.softMint;
+      fg = AppColors.greenForest;
+    } else if (isNotAvailable) {
+      bg = AppColors.meetingCancelledBg;
+      fg = AppColors.meetingCancelledFg;
+    } else {
+      bg = AppColors.bluePale;
+      fg = AppColors.indigoDeep;
+    }
+
+    final tagWidget = Container(
       width: width * 0.155,
       alignment: Alignment.center,
       margin: EdgeInsets.symmetric(
@@ -214,7 +273,7 @@ class _CommonCalendarState extends State<CommonCalendar>
         horizontal: width * AppSpacing.calendarEventPaddingHFactor,
       ),
       decoration: BoxDecoration(
-        color: isAvailable ? AppColors.softMint : AppColors.bluePale,
+        color: bg,
         borderRadius: BorderRadius.circular(width * 0.008),
       ),
       child: Text(
@@ -223,10 +282,48 @@ class _CommonCalendarState extends State<CommonCalendar>
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
         style: AppTextStyles.inheritSemiBold.copyWith(
-          color: isAvailable ? AppColors.greenForest : AppColors.indigoDeep,
+          color: fg,
           fontSize: eventFontSize,
         ),
       ),
     );
+
+    if (isNotAvailable && dayDetail != null) {
+      final tooltipMsg = _getUnavailableTooltipMessage(dayDetail);
+      return Tooltip(
+        message: tooltipMsg,
+        triggerMode: TooltipTriggerMode.tap,
+        preferBelow: false,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceWarm,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.meetingCancelledFg, width: 1),
+        ),
+        textStyle:
+            AppTextStyles.bodySmallMedium.copyWith(color: AppColors.white),
+        child: tagWidget,
+      );
+    }
+
+    return tagWidget;
+  }
+
+  String _getUnavailableTooltipMessage(AvailabilityDay dayDetail) {
+    if (dayDetail.isFullDay) {
+      return "Not Available: Full Day";
+    }
+    final start = dayDetail.startTime;
+    final end = dayDetail.endTime;
+
+    if (start != null && start.isNotEmpty) {
+      final formattedStart = DateTimeUtils.formatTime(start, fallback: start);
+      if (end != null && end.isNotEmpty) {
+        final formattedEnd = DateTimeUtils.formatTime(end, fallback: end);
+        return "Not Available: $formattedStart - $formattedEnd";
+      }
+      return "Not Available: $formattedStart";
+    }
+    return "Not Available";
   }
 }

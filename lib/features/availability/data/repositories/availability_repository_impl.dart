@@ -27,6 +27,10 @@ class AvailabilityRepositoryImpl implements AvailabilityRepository {
       return const {};
     }
     final raw = (body['data']?['availability'] as Map?) ?? const {};
+    return parseAvailability(raw);
+  }
+
+  static Map<DateTime, AvailabilityDay> parseAvailability(Map raw) {
     final out = <DateTime, AvailabilityDay>{};
     raw.forEach((key, value) {
       if (value is! Map) return;
@@ -50,6 +54,20 @@ class AvailabilityRepositoryImpl implements AvailabilityRepository {
         );
       } else if (_isTrue(value['available']) || value['status'] == 'available') {
         out[clean] = const AvailabilityDay(status: AvailabilityStatus.available);
+      } else if (_isExplicitlyFalse(value['available']) ||
+          value['status'] == 'unavailable' ||
+          value['status'] == 'not_available' ||
+          value['status'] == 'Not Available') {
+        final startTime = value['start_time']?.toString();
+        final endTime = value['end_time']?.toString();
+        final isFullDayVal = value['is_full_day'];
+        final isFullDay = _isTrue(isFullDayVal);
+        out[clean] = AvailabilityDay(
+          status: AvailabilityStatus.unavailable,
+          startTime: startTime,
+          endTime: endTime,
+          isFullDay: isFullDay,
+        );
       }
     });
     return out;
@@ -68,7 +86,7 @@ class AvailabilityRepositoryImpl implements AvailabilityRepository {
     return UpcomingShootsModel.fromJson(data).data;
   }
 
-  bool _isTrue(Object? v) {
+  static bool _isTrue(Object? v) {
 
     if (v == null) return false;
     if (v is bool) return v;
@@ -80,7 +98,18 @@ class AvailabilityRepositoryImpl implements AvailabilityRepository {
     return false;
   }
 
-  int? _extractBookingId(Map value, Object? projectDetails) {
+  static bool _isExplicitlyFalse(Object? v) {
+    if (v == null) return false;
+    if (v is bool) return !v;
+    if (v is num) return v == 0;
+    if (v is String) {
+      final s = v.trim().toLowerCase();
+      return s == 'false' || s == '0' || s == 'no';
+    }
+    return false;
+  }
+
+  static int? _extractBookingId(Map value, Object? projectDetails) {
     if (projectDetails is List && projectDetails.isNotEmpty) {
       for (final item in projectDetails) {
         if (item is Map) {
@@ -114,7 +143,7 @@ class AvailabilityRepositoryImpl implements AvailabilityRepository {
         _asInt(value['projectId']);
   }
 
-  int? _asInt(Object? v) {
+  static int? _asInt(Object? v) {
     if (v == null) return null;
     if (v is int) return v;
     if (v is num) return v.toInt();

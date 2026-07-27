@@ -94,6 +94,8 @@ void main() {
           status: AvailabilityStatus.shoot,
           bookingId: 42,
         ),
+        DateTime(2026, 6, 3):
+            const AvailabilityDay(status: AvailabilityStatus.unavailable),
       });
       final captured = verify(
         () => dio.post<dynamic>(captureAny(), data: captureAny(named: 'data')),
@@ -132,6 +134,35 @@ void main() {
         DateTime(2026, 6, 11): const AvailabilityDay(
           status: AvailabilityStatus.shoot,
           bookingId: 100,
+        ),
+      });
+    });
+
+    test('parses unavailable days with start_time and end_time', () async {
+      when(() => dio.post<dynamic>(any(), data: any(named: 'data')))
+          .thenAnswer((_) async => _ok({
+                'error': false,
+                'data': {
+                  'availability': {
+                    '2026-08-03': {
+                      'available': false,
+                      'projectAssigned': false,
+                      'start_time': '04:40:00',
+                      'end_time': '05:40:00',
+                      'is_full_day': 0,
+                    },
+                  },
+                },
+              }));
+
+      final out = await repo.fetchMonth(month: 8, year: 2026);
+
+      expect(out, {
+        DateTime(2026, 8, 3): const AvailabilityDay(
+          status: AvailabilityStatus.unavailable,
+          startTime: '04:40:00',
+          endTime: '05:40:00',
+          isFullDay: false,
         ),
       });
     });

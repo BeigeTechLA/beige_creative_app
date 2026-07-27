@@ -488,5 +488,28 @@ void main() {
       expect(clearedState.upcomingCustomEndDate, isNull);
       expect(clearedState.filteredUpcomingShootsList.length, 2);
     });
+
+    test('parses availabilityDays with bookingId from availability JSON', () async {
+      final repo = _FakeHomeRepo()
+        ..dashboardCountResult = _makeDashboardCount()
+        ..crewStatsResult = _makeCrewStats()
+        ..availabilityResult = {
+          '2026-07-27': {
+            'available': false,
+            'projectAssigned': true,
+            'projectDetails': [
+              {'booking_id': 999}
+            ]
+          }
+        };
+
+      final container = _createContainer(repo);
+      await _drain();
+
+      final state = container.read(homeNotifierProvider);
+      final day = DateTime(2026, 7, 27);
+      expect(state.events[day], 'Shoot');
+      expect(state.availabilityDays[day]?.bookingId, 999);
+    });
   });
 }
