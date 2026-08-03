@@ -121,6 +121,9 @@ abstract class Routes {
   static const chat = RouteSpec(name: 'chat', path: '/chat', featureArea: 'messages');
   static const chatDetails = RouteSpec(name: 'chat_details', path: '/chat-details', featureArea: 'messages');
 
+  // Notifications
+  static const notifications = RouteSpec(name: 'notifications', path: '/notifications', featureArea: 'notification');
+
   /// Flat list — drives [publicPaths], [byName], and the route-completeness test.
   static const all = <RouteSpec>[
     splash, onboarding,
@@ -136,6 +139,7 @@ abstract class Routes {
     addAvailability,
     filesFolder, filesSuccess,
     chat, chatDetails,
+    notifications,
   ];
 
   static final Set<String> publicPaths = {

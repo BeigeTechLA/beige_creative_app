@@ -341,9 +341,21 @@ class AppColors {
   /// 0xFFEFF6FF — Wash blue (lightest)
   static const Color blueWash = Color(0xFFEFF6FF);
 
+  /// 0xFFDBEAFE — Light sky blue wash (Notification icon & Smart Delivery bg)
+  static const Color blueSkyWash = Color(0xFFDBEAFE);
+
+  /// 0xFF155DFC — Electric blue (Notification push icon & text)
+  static const Color blueElectric = Color(0xFF155DFC);
+
   // — Extended purple —
   /// 0xFF540B94 — Deep purple
   static const Color purpleDeep = Color(0xFF540B94);
+
+  /// 0xFFC026D3 — Magenta purple accent
+  static const Color magentaAccent = Color(0xFFC026D3);
+
+  /// 0xFFF3E8FF — Pale purple wash
+  static const Color purpleWash = Color(0xFFF3E8FF);
 
   // — Extended gold / cream variants —
   /// 0xFFD6B98C — Light gold sand

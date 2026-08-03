@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../app/colors.dart';
 
 /// Custom Beige-themed toggle — rounded-rect track with a white rounded-square
-/// thumb. Track switches from a flat dark grey (off) to a gold gradient (on).
+/// thumb matching Figma design. Track switches from flat dark grey (off) to a
+/// gold gradient (on).
 ///
 /// Stateless wrapper around a bool — caller owns the state, mirrors the
 /// Material [Switch] API (`value` + `onChanged`).
@@ -12,9 +13,9 @@ class AppToggleSwitch extends StatelessWidget {
     super.key,
     required this.value,
     required this.onChanged,
-    this.width = 52,
-    this.height = 30,
-    this.thumbInset = 4,
+    this.width = 44,
+    this.height = 26,
+    this.thumbInset = 2.5,
   });
 
   final bool value;
@@ -26,17 +27,22 @@ class AppToggleSwitch extends StatelessWidget {
   static const Duration _kDuration = Duration(milliseconds: 180);
 
   static const LinearGradient _onGradient = LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-    colors: [AppColors.goldGradientCream, AppColors.goldGradientLight],
+    begin: Alignment(0.16, 0.19),
+    end: Alignment(0.81, 0.83),
+    colors: [AppColors.goldGradientLight, AppColors.goldGradientDark],
+  );
+
+  static const LinearGradient _offGradient = LinearGradient(
+    colors: [AppColors.surfaceFog, AppColors.surfaceFog],
   );
 
   @override
   Widget build(BuildContext context) {
     final disabled = onChanged == null;
-    final trackRadius = BorderRadius.circular(height / 2.2);
-    final thumbSize = height - thumbInset * 2;
-    final thumbRadius = BorderRadius.circular(thumbSize / 2.5);
+    final scale = height / 26.0;
+    final trackRadius = BorderRadius.circular(8.13 * scale);
+    final thumbRadius = BorderRadius.circular(5.69 * scale);
+    final thumbSize = height - (thumbInset * 2);
 
     return Semantics(
       toggled: value,
@@ -49,10 +55,15 @@ class AppToggleSwitch extends StatelessWidget {
           width: width,
           height: height,
           padding: EdgeInsets.all(thumbInset),
-          decoration: BoxDecoration(
-            gradient: value ? _onGradient : null,
-            color: value ? null : AppColors.surfaceFog,
-            borderRadius: trackRadius,
+          decoration: ShapeDecoration(
+            gradient: value ? _onGradient : _offGradient,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                width: 0.81,
+                color: value ? AppColors.goldGradientLight : AppColors.transparent,
+              ),
+              borderRadius: trackRadius,
+            ),
           ),
           child: AnimatedAlign(
             duration: _kDuration,
@@ -61,14 +72,16 @@ class AppToggleSwitch extends StatelessWidget {
             child: Container(
               width: thumbSize,
               height: thumbSize,
-              decoration: BoxDecoration(
+              decoration: ShapeDecoration(
                 color: AppColors.white,
-                borderRadius: thumbRadius,
-                boxShadow: const [
+                shape: RoundedRectangleBorder(
+                  borderRadius: thumbRadius,
+                ),
+                shadows: const [
                   BoxShadow(
-                    color: AppColors.black20,
-                    blurRadius: 3,
-                    offset: Offset(0, 1),
+                    color: Color(0x3364646F),
+                    blurRadius: 23.56,
+                    offset: Offset(0, 5.69),
                   ),
                 ],
               ),

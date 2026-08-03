@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
 import '../screens/app_preferences_screen.dart';
+import '../screens/notification_settings_screen.dart';
 import 'profile_args.dart';
 import '../screens/certificates_screen.dart';
 import '../screens/change_password_screen.dart';
@@ -72,6 +73,11 @@ final List<RouteBase> profileRoutes = [
     path: Routes.appPreferences.path,
     name: Routes.appPreferences.name,
     builder: (context, state) => const AppPreferencesScreen(),
+  ),
+  GoRoute(
+    path: Routes.notifications.path,
+    name: Routes.notifications.name,
+    builder: (context, state) => const NotificationSettingsScreen(),
   ),
   GoRoute(
     path: Routes.changePassword.path,

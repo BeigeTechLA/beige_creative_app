@@ -71,9 +71,10 @@ class ProfileSectionList extends StatelessWidget {
                 onTap: () => context.pushNamed(Routes.appPreferences.name),
               ),
               const _SectionDivider(),
-              const _MenuRow(
+              _MenuRow(
                 iconPath: AppAssets.notificationSetting,
                 title: 'Notifications Settings',
+                onTap: () => context.pushNamed(Routes.notifications.name),
               ),
             ],
           ),
