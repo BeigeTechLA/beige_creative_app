@@ -5,6 +5,59 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-05: NotificationFilterBottomSheet Radio Button & Container Figma Code Exact Alignment
+
+- **Task**: Update `NotificationFilterBottomSheet` using exact Figma Flutter inspect code (40px top corner radius, `Color(0xFF282828)` container color, `BoxShadow(color: Color(0x0C110C2E), blurRadius: 50, offset: Offset(20, 0))`, 32x32 circular close button with 0.5px `Color(0xB2DDDDDD)` border, dark pill count badges `#282828`, and 16px corner radius for buttons).
+- **Changed Files**:
+  - `lib/features/notification/presentation/widgets/notification_filter_bottom_sheet.dart`
+- **Decisions**:
+  - Implemented exact Figma Flutter code structure for sheet decoration, top radius (40px), close button border/shape, inner container `Frame 2087328894` (`#1E1E1E`), option count pill badges, and dark backdrop overlay.
+- **Verification**:
+  - `flutter analyze lib/features/notification/` — 0 issues.
+
+---
+
+### 2026-08-05: Replace Hardcoded Heights, Widths, and Spacing in Notification Module with Common Tokens
+
+- **Task**: Review the Notification module code and replace all hardcoded heights, widths, margins, padding, spacing, and border radii with existing common dimension and style classes (`AppSpacing`, `AppRadii`).
+- **Changed Files**:
+  - `lib/features/notification/presentation/widgets/empty_notification_widget.dart`
+  - `lib/features/notification/presentation/widgets/notification_stacked_cards.dart`
+  - `lib/features/notification/presentation/widgets/notification_item_card.dart`
+  - `lib/features/notification/presentation/widgets/notification_filter_bottom_sheet.dart`
+  - `lib/features/notification/presentation/screens/notification_screen.dart`
+  - `lib/features/notification/presentation/screens/notification_section_screen.dart`
+- **Decisions**:
+  - Replaced all magic numbers across Notification widgets and screens with matching tokens from `AppSpacing` and `AppRadii`.
+  - Used `AppSpacing.verticalXl`, `AppSpacing.verticalSm`, `AppSpacing.verticalBase`, `AppSpacing.verticalMd`, `AppSpacing.verticalXxl` for vertical spacing gaps.
+  - Used `AppSpacing.gapHSm`, `AppSpacing.gapHMd`, `AppSpacing.gapHSmd` for horizontal spacing gaps.
+  - Replaced hardcoded container heights, icon sizes, and padding in search inputs, filter sheets, segment selectors, cards, and bottom CTA buttons.
+  - Applied `AppRadii.lgAll`, `AppRadii.mdAll`, `AppRadii.mldAll`, `AppRadii.topMassive`, `AppRadii.nanoAll` for border radius styling.
+- **Verification**:
+  - `flutter analyze lib/features/notification/` — 0 issues.
+
+---
+
+### 2026-08-04: Pixel-Perfect Figma Alignment & Flow Correction of Notification Module
+
+- **Task**: Update Notification module (`NotificationScreen`, `NotificationSectionScreen`, `NotificationItemCard`, `NotificationFilterBottomSheet`, `EmptyNotificationWidget`) to match Figma designs and user flow specifications pixel-for-pixel.
+- **Changed Files**:
+  - `lib/features/notification/presentation/screens/notification_screen.dart`
+  - `lib/features/notification/presentation/screens/notification_section_screen.dart`
+  - `lib/features/notification/presentation/widgets/notification_filter_bottom_sheet.dart`
+  - `lib/features/notification/presentation/widgets/empty_notification_widget.dart`
+- **Decisions**:
+  - Fixed notification interaction flow: Tapping stacked section cards scrolls smooth to section on the same screen (`_scrollToSection`), while tapping **"View All"** navigates to the dedicated section screen (`NotificationSectionScreen`).
+  - Removed top Settings icon from `NotificationScreen` top bar so top right has ONLY the Filter icon (`AppAssets.iconFilter`), matching Figma Image 1 header.
+  - Added full-width Segmented Tab Control (`Unread` | `Read`) in `NotificationScreen` with gold active indicator (`AppColors.primary`).
+  - Added double checkmark icon (`Icons.done_all`) to full-width gold `Mark all as read` bottom CTA buttons across `NotificationScreen` and `NotificationSectionScreen`.
+  - Updated `NotificationFilterBottomSheet` options list (`All 36`, `Unread 02`, `Mentions 17`, `Payments 04`, `Projects 10`, `Files 03`) and styled selected radio indicator with gold filled circle and dark center dot matching Figma Image 2.
+  - Set `EmptyNotificationWidget` title color to gold (`AppColors.primary`) matching Figma Image 3 illustration state.
+- **Verification**:
+  - `flutter analyze` — 0 issues found across the codebase.
+
+---
+
 ### 2026-08-04: Fix NotificationScreen & NotificationSettingsScreen Route Structure
 
 - **Task**: Restore `NotificationScreen` as the Notification Feed screen and link header Notification Settings icon to `NotificationSettingsScreen`.

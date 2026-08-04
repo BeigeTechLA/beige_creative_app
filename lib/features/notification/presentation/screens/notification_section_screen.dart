@@ -84,55 +84,21 @@ class _NotificationSectionScreenState
       body: SafeArea(
         child: Column(
           children: [
-            // Top Bar: Back button, Section Title, Filter button on top right
+            // Top Navigation Bar (Back Button)
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.base,
                 vertical: AppSpacing.sm,
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      AppIconTapTarget(
-                        semanticLabel: 'Back',
-                        onTap: () => context.pop(),
-                        icon: SvgPicture.asset(
-                          AppAssets.back,
-                          height: 24,
-                          width: 24,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        '${widget.args.sectionTitle} (${items.length})',
-                        style: AppTextStyles.body15Strong.copyWith(
-                          color: AppColors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
                   AppIconTapTarget(
-                    semanticLabel: 'Filter',
-                    onTap: () {
-                      NotificationFilterBottomSheet.show(
-                        context: context,
-                        selectedCategory: state.selectedCategory,
-                        onApply: notifier.applyCategoryFilter,
-                        onClearAll: () => notifier.applyCategoryFilter('All'),
-                      );
-                    },
+                    semanticLabel: 'Back',
+                    onTap: () => context.pop(),
                     icon: SvgPicture.asset(
-                      AppAssets.iconFilter,
-                      height: 22,
-                      width: 22,
+                      AppAssets.back,
+                      height: AppSpacing.xxl,
+                      width: AppSpacing.xxl,
                       colorFilter: const ColorFilter.mode(
                         AppColors.white,
                         BlendMode.srcIn,
@@ -157,28 +123,66 @@ class _NotificationSectionScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 12),
+                      AppSpacing.verticalSm,
 
-                      // Search Bar Input
+                      // Section Title & Filter Button Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${widget.args.sectionTitle} (${items.length})',
+                            style: AppTextStyles.titleMedium.copyWith(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          AppIconTapTarget(
+                            semanticLabel: 'Filter',
+                            onTap: () {
+                              NotificationFilterBottomSheet.show(
+                                context: context,
+                                selectedCategory: state.selectedCategory,
+                                onApply: notifier.applyCategoryFilter,
+                                onClearAll: () => notifier.applyCategoryFilter('All'),
+                              );
+                            },
+                            icon: SvgPicture.asset(
+                              AppAssets.iconFilter,
+                              height: AppSpacing.folderCardInset,
+                              width: AppSpacing.folderCardInset,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.white,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      AppSpacing.verticalBase,
+
+                      // Search Bar Input Container
                       Container(
                         height: 46,
                         decoration: BoxDecoration(
                           color: AppColors.surfaceVariant,
                           borderRadius: AppRadii.lgAll,
+                          border: Border.all(
+                            color: AppColors.white.withValues(alpha: 0.08),
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
                         child: Row(
                           children: [
                             SvgPicture.asset(
                               AppAssets.searchIcon,
-                              width: 18,
-                              height: 18,
+                              width: AppSpacing.lg,
+                              height: AppSpacing.lg,
                               colorFilter: const ColorFilter.mode(
                                 AppColors.white54,
                                 BlendMode.srcIn,
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            AppSpacing.gapHSmd,
                             Expanded(
                               child: TextField(
                                 controller: _searchController,
@@ -206,25 +210,25 @@ class _NotificationSectionScreenState
                                 child: const Icon(
                                   Icons.clear,
                                   color: AppColors.white54,
-                                  size: 18,
+                                  size: AppSpacing.lg,
                                 ),
                               ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      AppSpacing.verticalXl,
 
-                      // Notification List or Empty State
+                      // Notification List or Empty State (Cards are non-clickable on section detail screen)
                       if (items.isEmpty)
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 40),
+                          padding: EdgeInsets.symmetric(vertical: AppSpacing.massive),
                           child: EmptyNotificationWidget(),
                         )
                       else
                         ...items.map(
                           (item) => NotificationItemCard(
                             item: item,
-                            onTap: () => notifier.markAsRead(item.id),
+                            onTap: null,
                           ),
                         ),
 
@@ -259,11 +263,11 @@ class _NotificationSectionScreenState
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.check,
-                    size: 20,
+                    Icons.done_all,
+                    size: AppSpacing.xl,
                     color: items.isEmpty ? AppColors.white38 : AppColors.onPrimary,
                   ),
-                  const SizedBox(width: 8),
+                  AppSpacing.gapHSm,
                   Text(
                     'Mark all as read',
                     style: AppTextStyles.body15Strong.copyWith(

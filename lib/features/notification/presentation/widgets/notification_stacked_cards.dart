@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
+import '../../../../app/spacing.dart';
 import '../../domain/models/notification_item.dart';
 import 'notification_item_card.dart';
 
@@ -28,18 +29,18 @@ class NotificationStackedCards extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.only(top: 20),
+        padding: const EdgeInsets.only(top: AppSpacing.xl),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
             // Backmost card layer peeking out from top (Layer 2)
             if (hasThreeOrMore)
               Positioned(
-                top: -16,
-                left: 18,
-                right: 18,
+                top: -AppSpacing.base,
+                left: AppSpacing.lg,
+                right: AppSpacing.lg,
                 child: Container(
-                  height: 36,
+                  height: AppSpacing.huge,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceDim.withValues(alpha: 0.5),
                     borderRadius: AppRadii.hugeAll,
@@ -51,11 +52,11 @@ class NotificationStackedCards extends StatelessWidget {
             // Middle card layer peeking out from top (Layer 1)
             if (hasMultiple)
               Positioned(
-                top: -8,
-                left: 9,
-                right: 9,
+                top: -AppSpacing.sm,
+                left: AppSpacing.dropdownIconInset,
+                right: AppSpacing.dropdownIconInset,
                 child: Container(
-                  height: 36,
+                  height: AppSpacing.huge,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceDim.withValues(alpha: 0.8),
                     borderRadius: AppRadii.hugeAll,

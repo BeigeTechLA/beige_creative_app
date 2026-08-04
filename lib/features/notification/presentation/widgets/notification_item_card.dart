@@ -44,7 +44,7 @@ class NotificationItemCard extends StatelessWidget {
     final avatarUrl = item.avatarUrl;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: GestureDetector(
         onTap: onTap,
         child: Container(
@@ -63,8 +63,8 @@ class NotificationItemCard extends StatelessWidget {
                 children: [
                   // Circular Avatar Container
                   Container(
-                    width: 36,
-                    height: 36,
+                    width: AppSpacing.huge,
+                    height: AppSpacing.huge,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppColors.primary20,
@@ -78,7 +78,7 @@ class NotificationItemCard extends StatelessWidget {
                           )
                         : _buildFallbackInitial(senderName),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.gapHMd,
                   // Sender Name & Timestamp
                   Expanded(
                     child: Column(
@@ -93,7 +93,7 @@ class NotificationItemCard extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        AppSpacing.verticalXxxs,
                         Text(
                           timestampText,
                           style: AppTextStyles.body12.copyWith(
@@ -105,15 +105,15 @@ class NotificationItemCard extends StatelessWidget {
                   ),
                   // "View Details" / Action Button Pill
                   if (hasAction) ...[
-                    const SizedBox(width: 8),
+                    AppSpacing.gapHSm,
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.xs,
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppRadii.mdAll,
                       ),
                       child: Text(
                         item.actionLabel!,
@@ -126,15 +126,15 @@ class NotificationItemCard extends StatelessWidget {
                   ],
                 ],
               ),
-              const SizedBox(height: 12),
+              AppSpacing.verticalMd,
 
               // Inner Dark Message Container
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceInput,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppRadii.mldAll,
                 ),
                 child: Text(
                   item.message,

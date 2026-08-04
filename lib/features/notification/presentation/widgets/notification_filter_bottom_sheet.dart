@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/colors.dart';
-import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 
@@ -37,10 +36,14 @@ class NotificationFilterBottomSheet extends StatefulWidget {
   }) {
     return showModalBottomSheet<void>(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: const Color(0xFF282828),
       isScrollControlled: true,
+      barrierColor: Colors.black.withValues(alpha: 0.6),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
+        ),
       ),
       builder: (context) => NotificationFilterBottomSheet(
         selectedCategory: selectedCategory,
@@ -60,16 +63,12 @@ class _NotificationFilterBottomSheetState
   late String _currentCategory;
 
   static const List<FilterOption> _options = [
-    FilterOption(id: 'All', label: 'All', count: 12),
+    FilterOption(id: 'All', label: 'All', count: 10),
     FilterOption(id: 'Unread', label: 'Unread', count: 2),
     FilterOption(id: 'Mentions', label: 'Mentions', count: 1),
     FilterOption(id: 'Payments', label: 'Payments', count: 2),
     FilterOption(id: 'Projects', label: 'Projects', count: 2),
     FilterOption(id: 'Files', label: 'Files', count: 2),
-    FilterOption(id: 'Date', label: 'Date'),
-    FilterOption(id: 'Members', label: 'Members'),
-    FilterOption(id: 'Properties', label: 'Properties'),
-    FilterOption(id: 'Status', label: 'Status'),
   ];
 
   @override
@@ -81,7 +80,21 @@ class _NotificationFilterBottomSheetState
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF282828),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(40),
+            topRight: Radius.circular(40),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x0C110C2E),
+              blurRadius: 50,
+              offset: Offset(20, 0),
+            ),
+          ],
+        ),
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.base,
           AppSpacing.md,
@@ -103,7 +116,7 @@ class _NotificationFilterBottomSheetState
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalBase,
 
             // Header: Filter By title & Close button
             Row(
@@ -116,41 +129,50 @@ class _NotificationFilterBottomSheetState
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(
-                    Icons.close,
-                    color: AppColors.white70,
-                    size: 22,
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: ShapeDecoration(
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          width: 0.50,
+                          color: Color(0xB2DDDDDD),
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: Color(0xB2DDDDDD),
+                      size: 16,
+                    ),
                   ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalBase,
 
-            // Options List Container
+            // Options List Container (Frame 2087328894)
             Flexible(
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  borderRadius: AppRadii.lgAll,
+                  color: const Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: ListView.separated(
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                   itemCount: _options.length,
-                  separatorBuilder: (context, index) => const Divider(
-                    height: 1,
-                    color: AppColors.dividerDark,
-                  ),
+                  separatorBuilder: (context, index) => const SizedBox.shrink(),
                   itemBuilder: (context, index) {
                     final opt = _options[index];
                     final isSelected = _currentCategory.toLowerCase() == opt.id.toLowerCase();
 
                     return InkWell(
+                      borderRadius: BorderRadius.circular(16),
                       onTap: () {
                         setState(() {
                           _currentCategory = opt.id;
@@ -159,7 +181,7 @@ class _NotificationFilterBottomSheetState
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: AppSpacing.base,
-                          vertical: 12,
+                          vertical: AppSpacing.md,
                         ),
                         child: Row(
                           children: [
@@ -174,35 +196,47 @@ class _NotificationFilterBottomSheetState
                                     ),
                                   ),
                                   if (opt.count != null) ...[
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      opt.count! < 10 ? '0${opt.count}' : '${opt.count}',
-                                      style: AppTextStyles.body12.copyWith(
-                                        color: AppColors.white54,
+                                    AppSpacing.gapHSm,
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF282828),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        opt.count! < 10 ? '0${opt.count}' : '${opt.count}',
+                                        style: AppTextStyles.body12.copyWith(
+                                          color: AppColors.white70,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ],
                               ),
                             ),
-                            // Radio indicator
+                            // Radio indicator matching Figma
                             Container(
-                              width: 20,
-                              height: 20,
+                              width: 22,
+                              height: 22,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
+                                color: isSelected ? AppColors.primary : Colors.transparent,
                                 border: Border.all(
                                   color: isSelected ? AppColors.primary : AppColors.white30,
-                                  width: 2,
+                                  width: 1.5,
                                 ),
                               ),
                               child: isSelected
                                   ? Center(
                                       child: Container(
-                                        width: 10,
-                                        height: 10,
+                                        width: 7,
+                                        height: 7,
                                         decoration: const BoxDecoration(
-                                          color: AppColors.primary,
+                                          color: Color(0xFF1E1E1E),
                                           shape: BoxShape.circle,
                                         ),
                                       ),
@@ -217,7 +251,7 @@ class _NotificationFilterBottomSheetState
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            AppSpacing.verticalXl,
 
             // Footer Buttons Row (Clear All & Apply)
             Row(
@@ -233,11 +267,11 @@ class _NotificationFilterBottomSheetState
                       Navigator.of(context).pop();
                     },
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: AppColors.surfaceVariant,
-                      side: const BorderSide(color: AppColors.dividerDark),
+                      backgroundColor: const Color(0xFF1E1E1E),
+                      side: const BorderSide(color: Color(0x33FFFFFF)),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: AppRadii.lgAll,
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     child: Text(
@@ -249,7 +283,7 @@ class _NotificationFilterBottomSheetState
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                AppSpacing.gapHMd,
 
                 // Apply Button
                 Expanded(
@@ -262,7 +296,7 @@ class _NotificationFilterBottomSheetState
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: AppRadii.lgAll,
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     child: Text(

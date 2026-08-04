@@ -25,18 +25,18 @@ class EmptyNotificationWidget extends StatelessWidget {
                 height: 169,
               ),
             ),
-            const SizedBox(height: 20),
+            AppSpacing.verticalXl,
             Text(
               'No Notifications Yet',
               textAlign: TextAlign.center,
               style: AppTextStyles.titleMedium.copyWith(
-                color: AppColors.white,
+                color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSm,
             Text(
-              'Start your shoot by creating a booking. Your latest updatesand activity notifications will appear here.',
+              'Start your shoot by creating a booking. Your latest updates and activity notifications will appear here.',
               textAlign: TextAlign.center,
               style: AppTextStyles.body14.copyWith(
                 color: AppColors.white60,

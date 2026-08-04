@@ -26,16 +26,31 @@ class NotificationScreen extends ConsumerStatefulWidget {
 
 class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _todaySectionKey = GlobalKey();
+  final GlobalKey _yesterdaySectionKey = GlobalKey();
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   bool _isToday(DateTime dt) {
     final now = DateTime.now();
     return dt.year == now.year && dt.month == now.month && dt.day == now.day;
+  }
+
+  void _scrollToSection(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   void _navigateToSection(String title, bool isToday) {
@@ -61,7 +76,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top Navigation Bar
+            // Top Navigation Bar matching Figma
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.base,
@@ -75,51 +90,33 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                     onTap: () => context.pop(),
                     icon: SvgPicture.asset(
                       AppAssets.back,
-                      height: 24,
-                      width: 24,
+                      height: AppSpacing.xxl,
+                      width: AppSpacing.xxl,
                       colorFilter: const ColorFilter.mode(
                         AppColors.white,
                         BlendMode.srcIn,
                       ),
                     ),
                   ),
-                  Row(
-                    children: [
-                      AppIconTapTarget(
-                        semanticLabel: 'Notification Settings',
-                        onTap: () => context.pushNamed(Routes.notifications.name),
-                        icon: SvgPicture.asset(
-                          AppAssets.notificationSetting,
-                          height: 22,
-                          width: 22,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white,
-                            BlendMode.srcIn,
-                          ),
-                        ),
+                  AppIconTapTarget(
+                    semanticLabel: 'Filter',
+                    onTap: () {
+                      NotificationFilterBottomSheet.show(
+                        context: context,
+                        selectedCategory: state.selectedCategory,
+                        onApply: notifier.applyCategoryFilter,
+                        onClearAll: () => notifier.applyCategoryFilter('All'),
+                      );
+                    },
+                    icon: SvgPicture.asset(
+                      AppAssets.iconFilter,
+                      height: AppSpacing.folderCardInset,
+                      width: AppSpacing.folderCardInset,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.white,
+                        BlendMode.srcIn,
                       ),
-                      const SizedBox(width: 12),
-                      AppIconTapTarget(
-                        semanticLabel: 'Filter',
-                        onTap: () {
-                          NotificationFilterBottomSheet.show(
-                            context: context,
-                            selectedCategory: state.selectedCategory,
-                            onApply: notifier.applyCategoryFilter,
-                            onClearAll: () => notifier.applyCategoryFilter('All'),
-                          );
-                        },
-                        icon: SvgPicture.asset(
-                          AppAssets.iconFilter,
-                          height: 22,
-                          width: 22,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.white,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -132,6 +129,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 backgroundColor: AppColors.surfaceMid,
                 onRefresh: () => notifier.fetchNotifications(),
                 child: SingleChildScrollView(
+                  controller: _scrollController,
                   physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics(),
                   ),
@@ -139,17 +137,17 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 8),
+                      AppSpacing.verticalSm,
 
                       // Title & Subtitle Header
                       Text(
                         'Notification',
-                        style: AppTextStyles.displayStrong16w600.copyWith(
+                        style: AppTextStyles.titleMedium.copyWith(
                           color: AppColors.white,
-                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      AppSpacing.verticalXxs,
                       Text(
                         'Stay updated with real-time alerts about your bookings, requests, and important account activity.',
                         style: AppTextStyles.body13.copyWith(
@@ -157,96 +155,108 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                           height: 1.3,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      AppSpacing.verticalBase,
 
-                      // Search Bar
+                      // Segmented Tab Selector (Unread / Read)
                       Container(
-                        height: 46,
+                        height: AppSpacing.jumbo,
                         decoration: BoxDecoration(
                           color: AppColors.surfaceVariant,
                           borderRadius: AppRadii.lgAll,
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.all(AppSpacing.xxs),
                         child: Row(
                           children: [
-                            SvgPicture.asset(
-                              AppAssets.searchIcon,
-                              width: 18,
-                              height: 18,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.white54,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
                             Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                onChanged: notifier.setSearchQuery,
-                                style: AppTextStyles.body14.copyWith(
-                                  color: AppColors.white,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: 'Search Notifications...',
-                                  hintStyle: AppTextStyles.body14.copyWith(
-                                    color: AppColors.white38,
+                              child: GestureDetector(
+                                onTap: () => notifier.selectTab(NotificationTab.unread),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: state.selectedTab == NotificationTab.unread
+                                        ? AppColors.primary
+                                        : Colors.transparent,
+                                    borderRadius: AppRadii.lgAll,
                                   ),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Unread',
+                                    style: AppTextStyles.body14.copyWith(
+                                      color: state.selectedTab == NotificationTab.unread
+                                          ? AppColors.onPrimary
+                                          : AppColors.white70,
+                                      fontWeight: state.selectedTab == NotificationTab.unread
+                                          ? FontWeight.w600
+                                          : FontWeight.w400,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                            if (_searchController.text.isNotEmpty)
-                              GestureDetector(
-                                onTap: () {
-                                  _searchController.clear();
-                                  notifier.setSearchQuery('');
-                                },
-                                child: const Icon(
-                                  Icons.clear,
-                                  color: AppColors.white54,
-                                  size: 18,
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => notifier.selectTab(NotificationTab.all),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: state.selectedTab == NotificationTab.all
+                                        ? AppColors.primary
+                                        : Colors.transparent,
+                                    borderRadius: AppRadii.lgAll,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Read',
+                                    style: AppTextStyles.body14.copyWith(
+                                      color: state.selectedTab == NotificationTab.all
+                                          ? AppColors.onPrimary
+                                          : AppColors.white70,
+                                      fontWeight: state.selectedTab == NotificationTab.all
+                                          ? FontWeight.w600
+                                          : FontWeight.w400,
+                                    ),
+                                  ),
                                 ),
                               ),
+                            ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      AppSpacing.verticalBase,
 
                       // Notification Sections or Empty State
                       if (filtered.isEmpty)
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 40),
+                          padding: EdgeInsets.symmetric(vertical: AppSpacing.massive),
                           child: EmptyNotificationWidget(),
                         )
                       else ...[
                         // Today Section
                         if (todayItems.isNotEmpty) ...[
                           _SectionHeader(
+                            key: _todaySectionKey,
                             title: 'Today',
                             count: todayItems.length,
                             onViewAll: () => _navigateToSection('Today', true),
                           ),
                           NotificationStackedCards(
                             items: todayItems,
-                            onTap: () => _navigateToSection('Today', true),
+                            onTap: () => _scrollToSection(_todaySectionKey),
                           ),
-                          const SizedBox(height: 24),
+                          AppSpacing.verticalXxl,
                         ],
 
                         // Yesterday / Older Section
                         if (olderItems.isNotEmpty) ...[
                           _SectionHeader(
+                            key: _yesterdaySectionKey,
                             title: 'Yesterday',
                             count: olderItems.length,
                             onViewAll: () => _navigateToSection('Yesterday', false),
                           ),
                           NotificationStackedCards(
                             items: olderItems,
-                            onTap: () => _navigateToSection('Yesterday', false),
+                            onTap: () => _scrollToSection(_yesterdaySectionKey),
                           ),
-                          const SizedBox(height: 24),
+                          AppSpacing.verticalXxl,
                         ],
                       ],
 
@@ -280,11 +290,11 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.check,
-                    size: 20,
+                    Icons.done_all,
+                    size: AppSpacing.xl,
                     color: filtered.isEmpty ? AppColors.white38 : AppColors.onPrimary,
                   ),
-                  const SizedBox(width: 8),
+                  AppSpacing.gapHSm,
                   Text(
                     'Mark all as read',
                     style: AppTextStyles.body15Strong.copyWith(
@@ -304,6 +314,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
 
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({
+    super.key,
     required this.title,
     required this.count,
     required this.onViewAll,
@@ -327,12 +338,15 @@ class _SectionHeader extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.gapHSm,
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.xxxs,
+              ),
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadii.lgAll,
               ),
               child: Text(
                 '$count',
