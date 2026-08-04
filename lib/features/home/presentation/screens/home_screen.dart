@@ -171,6 +171,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   }
                 });
               },
+              onNotificationTap: () {
+                context.pushNamed(Routes.notificationList.name);
+              },
             ),
             Expanded(
               child: RefreshIndicator(

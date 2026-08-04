@@ -111,6 +111,7 @@ flutter:
     - assets/svg/shoots/
     - assets/svg/message/
     - assets/svg/meeting/
+    - assets/svg/notification/
 
   #   - images/a_dot_ham.jpeg
 

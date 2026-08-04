@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/colors.dart';
@@ -40,6 +41,7 @@ class NotificationItemCard extends StatelessWidget {
     final timestampText = _formatTimestamp(item.createdAt);
     final hasAction = item.actionLabel != null && item.actionLabel!.isNotEmpty;
     final cardBgColor = isBackCard ? AppColors.surfaceDim : AppColors.surfaceVariant;
+    final avatarUrl = item.avatarUrl;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -48,7 +50,7 @@ class NotificationItemCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: cardBgColor,
-            borderRadius: AppRadii.hugeAll,
+            borderRadius: AppRadii.lgAll,
             border: Border.all(color: AppColors.white.withValues(alpha: 0.08)),
           ),
           padding: const EdgeInsets.all(AppSpacing.base),
@@ -67,15 +69,14 @@ class NotificationItemCard extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: AppColors.primary20,
                     ),
-                    child: Center(
-                      child: Text(
-                        senderName.isNotEmpty ? senderName[0].toUpperCase() : 'A',
-                        style: AppTextStyles.body14.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: avatarUrl != null && avatarUrl.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: avatarUrl,
+                            fit: BoxFit.cover,
+                            errorWidget: (context, url, error) => _buildFallbackInitial(senderName),
+                          )
+                        : _buildFallbackInitial(senderName),
                   ),
                   const SizedBox(width: 12),
                   // Sender Name & Timestamp
@@ -102,13 +103,13 @@ class NotificationItemCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // "View Details" / Action Button Pill (without navigation/action)
+                  // "View Details" / Action Button Pill
                   if (hasAction) ...[
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 7,
+                        horizontal: 12,
+                        vertical: 6,
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
@@ -132,8 +133,8 @@ class NotificationItemCard extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceDark,
-                  borderRadius: AppRadii.lgAll,
+                  color: AppColors.surfaceInput,
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   item.message,
@@ -145,6 +146,18 @@ class NotificationItemCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFallbackInitial(String senderName) {
+    return Center(
+      child: Text(
+        senderName.isNotEmpty ? senderName[0].toUpperCase() : 'A',
+        style: AppTextStyles.body14.copyWith(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

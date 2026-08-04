@@ -17,7 +17,21 @@ class AppAssets {
   static const String _shootSvg = 'assets/svg/shoots';
   static const String _messageSvg = 'assets/svg/message';
   static const String _meetingSvg = 'assets/svg/meeting';
+  static const String _notificationSvg = 'assets/svg/notification';
   static const String _onboarding = 'assets/onboarding';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Notification Categories & Empty State
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String notificationCategoryShoots = '$_notificationSvg/Shoots (2).svg';
+  static const String notificationCategoryPayments = '$_notificationSvg/Payments.svg';
+  static const String notificationCategoryMessages = '$_notificationSvg/Messages (2).svg';
+  static const String notificationCategoryMeetings = '$_notificationSvg/Meetings.svg';
+  static const String notificationCategoryProposals = '$_notificationSvg/Proposals.svg';
+  static const String notificationCategoryFiles = '$_notificationSvg/Files.svg';
+  static const String notificationCategorySystem = '$_notificationSvg/System.svg';
+  static const String notificationEmptyState = '$_notificationSvg/notification empty state.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — Message

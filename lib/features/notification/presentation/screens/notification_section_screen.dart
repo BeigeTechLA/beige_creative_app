@@ -111,8 +111,9 @@ class _NotificationSectionScreenState
                       const SizedBox(width: 12),
                       Text(
                         '${widget.args.sectionTitle} (${items.length})',
-                        style: AppTextStyles.titleMedium.copyWith(
+                        style: AppTextStyles.body15Strong.copyWith(
                           color: AppColors.white,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

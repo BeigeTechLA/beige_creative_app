@@ -1,4 +1,4 @@
-# AGENTS.md
+ # AGENTS.md
 
 This is the Codex/agent entrypoint for the repo. It intentionally mirrors the
 Claude Code entrypoint so both tools start from the same context.

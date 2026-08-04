@@ -18,24 +18,16 @@ class EmptyNotificationWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: const BoxDecoration(
-                color: AppColors.surfaceVariant,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: SvgPicture.asset(
-                  AppAssets.notificationEmptyState,
-                  width: 44,
-                  height: 44,
-                ),
+            Center(
+              child: SvgPicture.asset(
+                AppAssets.notificationEmptyState,
+                width: 169,
+                height: 169,
               ),
             ),
             const SizedBox(height: 20),
             Text(
-              'No Notifications',
+              'No Notifications Yet',
               textAlign: TextAlign.center,
               style: AppTextStyles.titleMedium.copyWith(
                 color: AppColors.white,
@@ -44,7 +36,7 @@ class EmptyNotificationWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'You\'re all caught up! Check back later for real-time alerts about your bookings, requests, and updates.',
+              'Start your shoot by creating a booking. Your latest updatesand activity notifications will appear here.',
               textAlign: TextAlign.center,
               style: AppTextStyles.body14.copyWith(
                 color: AppColors.white60,

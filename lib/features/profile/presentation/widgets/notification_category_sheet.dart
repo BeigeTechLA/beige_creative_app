@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
-import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
@@ -70,7 +71,13 @@ class NotificationCategorySheet extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
+          const Divider(
+            color: AppColors.white10,
+            height: 1,
+            thickness: 1,
+          ),
+          const SizedBox(height: 16),
 
           // Category List
           Flexible(
@@ -78,55 +85,55 @@ class NotificationCategorySheet extends ConsumerWidget {
               child: Column(
                 children: [
                   _CategoryRow(
-                    iconData: Icons.camera_alt_outlined,
+                    svgAsset: AppAssets.notificationCategoryShoots,
                     title: 'Shoots',
                     subtitle: 'Shoot schedules, assignments, & updates',
                     value: state.categoryShoots,
                     onChanged: notifier.toggleCategoryShoots,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   _CategoryRow(
-                    iconData: Icons.attach_money_outlined,
+                    svgAsset: AppAssets.notificationCategoryPayments,
                     title: 'Payments',
                     subtitle: 'Invoices, payment receipts, & reminders',
                     value: state.categoryPayouts,
                     onChanged: notifier.toggleCategoryPayouts,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   _CategoryRow(
-                    iconData: Icons.chat_bubble_outline,
+                    svgAsset: AppAssets.notificationCategoryMessages,
                     title: 'Messages',
                     subtitle: 'Direct messages and mentions',
                     value: state.categoryMessages,
                     onChanged: notifier.toggleCategoryMessages,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   _CategoryRow(
-                    iconData: Icons.calendar_today_outlined,
+                    svgAsset: AppAssets.notificationCategoryMeetings,
                     title: 'Meetings',
                     subtitle: 'Meeting invites, reminders, & updates',
                     value: state.categoryMeetings,
                     onChanged: notifier.toggleCategoryMeetings,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   _CategoryRow(
-                    iconData: Icons.description_outlined,
+                    svgAsset: AppAssets.notificationCategoryProposals,
                     title: 'Proposals',
                     subtitle: 'Proposal shares, approvals, & feedback',
                     value: state.categoryProposals,
                     onChanged: notifier.toggleCategoryProposals,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   _CategoryRow(
-                    iconData: Icons.folder_open_outlined,
+                    svgAsset: AppAssets.notificationCategoryFiles,
                     title: 'Files',
                     subtitle: 'File uploads, shares, & review requests',
                     value: state.categoryFiles,
                     onChanged: notifier.toggleCategoryFiles,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   _CategoryRow(
-                    iconData: Icons.settings_outlined,
+                    svgAsset: AppAssets.notificationCategorySystem,
                     title: 'System',
                     subtitle: 'System alerts & account updates',
                     value: state.categorySystem,
@@ -155,14 +162,14 @@ class NotificationCategorySheet extends ConsumerWidget {
 
 class _CategoryRow extends StatelessWidget {
   const _CategoryRow({
-    required this.iconData,
+    required this.svgAsset,
     required this.title,
     required this.subtitle,
     required this.value,
     required this.onChanged,
   });
 
-  final IconData iconData;
+  final String svgAsset;
   final String title;
   final String subtitle;
   final bool value;
@@ -172,14 +179,10 @@ class _CategoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
+        SvgPicture.asset(
+          svgAsset,
           width: 40,
           height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.surfaceMid,
-            borderRadius: AppRadii.lgAll,
-          ),
-          child: Icon(iconData, color: AppColors.white, size: 20),
         ),
         const SizedBox(width: 14),
         Expanded(

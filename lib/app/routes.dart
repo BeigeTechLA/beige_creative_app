@@ -122,7 +122,9 @@ abstract class Routes {
   static const chatDetails = RouteSpec(name: 'chat_details', path: '/chat-details', featureArea: 'messages');
 
   // Notifications
-  static const notifications = RouteSpec(name: 'notifications', path: '/notifications', featureArea: 'notification');
+  static const notifications = RouteSpec(name: 'notifications', path: '/notifications', featureArea: 'profile');
+  static const notificationList = RouteSpec(name: 'notification_list', path: '/notification-list', featureArea: 'notification');
+  static const notificationSectionList = RouteSpec(name: 'notification_section_list', path: '/notification-section-list', featureArea: 'notification');
 
   /// Flat list — drives [publicPaths], [byName], and the route-completeness test.
   static const all = <RouteSpec>[
@@ -139,7 +141,7 @@ abstract class Routes {
     addAvailability,
     filesFolder, filesSuccess,
     chat, chatDetails,
-    notifications,
+    notifications, notificationList, notificationSectionList,
   ];
 
   static final Set<String> publicPaths = {

@@ -37,6 +37,10 @@ class NotificationRepositoryImpl implements NotificationRepository {
       createdAt: createdAt,
       isRead: json['is_read'] ?? json['isRead'] ?? false,
       type: json['type']?.toString(),
+      senderName: json['sender_name']?.toString() ?? json['senderName']?.toString(),
+      avatarUrl: json['avatar_url']?.toString() ?? json['avatarUrl']?.toString(),
+      actionLabel: json['action_label']?.toString() ?? json['actionLabel']?.toString(),
+      category: json['category']?.toString(),
     );
   }
 }

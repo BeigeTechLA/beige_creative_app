@@ -5,6 +5,86 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-04: Fix NotificationScreen & NotificationSettingsScreen Route Structure
+
+- **Task**: Restore `NotificationScreen` as the Notification Feed screen and link header Notification Settings icon to `NotificationSettingsScreen`.
+- **Changed Files**:
+  - `lib/features/notification/presentation/screens/notification_screen.dart`
+  - `lib/features/profile/presentation/screens/notification_settings_screen.dart`
+  - `test/features/notification/presentation/notification_screen_test.dart`
+- **Decisions**:
+  - Restored `NotificationScreen` to render the Figma Notification Feed List screen (Today/Yesterday sections with `NotificationStackedCards`, search bar, and filter/settings top bar actions).
+  - Wired top right header notification settings icon (`AppAssets.notificationSetting`) to navigate directly to `Routes.notifications.name` (`NotificationSettingsScreen`).
+  - Preserved `NotificationSettingsScreen` under `Routes.notifications` for managing Push & Email notification preferences and launching `NotificationCategorySheet`.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+  - `flutter test test/features/notification/presentation/notification_screen_test.dart` — passed.
+
+---
+
+### 2026-08-04: Align NotificationSectionScreen Header & Item Card UI with Figma Design
+
+- **Task**: Align `NotificationSectionScreen` back button icon, Today title font size, card border/radii, avatar image, and inner message container styling with Figma.
+- **Changed Files**:
+  - `lib/features/notification/presentation/screens/notification_section_screen.dart`
+  - `lib/features/notification/presentation/screens/notification_screen.dart`
+  - `lib/features/notification/presentation/widgets/notification_item_card.dart`
+  - `test/features/notification/presentation/notification_section_screen_test.dart`
+- **Decisions**:
+  - Replaced U-turn `AppAssets.back` icon with clean `Icons.arrow_back` chevron arrow icon.
+  - Reduced `Today (4)` header title font size to `16px` w600 (`AppTextStyles.body15Strong` with `fontSize: 16`), aligning with Figma specs.
+  - Set card corner radius to `AppRadii.lgAll` (16px) and inner message container to `AppColors.surfaceInput` (`#1A1A1A`) with `10px` radius.
+  - Integrated `CachedNetworkImage` support for notification avatars when `item.avatarUrl` is present.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+  - `flutter test test/features/notification/presentation/notification_section_screen_test.dart` — passed.
+
+---
+
+### 2026-08-04: Fix NotificationCategorySheet Category SVG Icon Display to Match Figma
+
+- **Task**: Fix category icons in `NotificationCategorySheet` to match Figma UI specifications.
+- **Changed Files**:
+  - `lib/features/profile/presentation/widgets/notification_category_sheet.dart`
+  - `test/features/profile/presentation/notification_category_sheet_test.dart`
+- **Decisions**:
+  - Removed wrapper `Container` with `surfaceMid` background and `colorFilter: ColorFilter.mode(AppColors.white, BlendMode.srcIn)` that caused SVGs to render as solid white rounded squares.
+  - Rendered `SvgPicture.asset` directly at 40x40 to preserve native dark tile background (`fill="#1D1D1B"`) and outline icon stroke (`#929393`).
+  - Added a horizontal divider line under the "Select Categories" header row matching Figma.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+  - `flutter test test/features/profile/presentation/notification_category_sheet_test.dart` — passed.
+
+---
+
+### 2026-08-03: Update AppToggleSwitch to Match Figma Specifications
+
+- **Task**: Update global `AppToggleSwitch` UI styling to match exact Figma specifications.
+- **Changed Files**:
+  - `lib/shared/widgets/app_toggle_switch.dart`
+- **Decisions**:
+  - Implemented rounded-rect capsule track with proportional corner radii (`8.13` for 26dp height).
+  - Applied linear gradient `(0.16, 0.19) -> (0.81, 0.83)` using `AppColors.goldGradientLight` and `AppColors.goldGradientDark` with active gold border.
+  - Styled thumb with rounded corners (`5.69` radius) and soft shadow matching Figma specs (`Color(0x3364646F)`).
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues.
+
+---
+
+### 2026-08-03: Align NotificationSettingsScreen UI with Figma Design
+
+- **Task**: Align Notification Settings Screen layout, list items, container cards, dividers, and color class usages with Figma design.
+- **Changed Files**:
+  - `lib/features/profile/presentation/screens/notification_settings_screen.dart`
+- **Decisions**:
+  - Converted `NotificationSettingsScreen` to `ConsumerStatefulWidget` and `ConsumerState<NotificationSettingsScreen>` following standard app architecture.
+  - Removed outer `surfaceVariant` card container and inner `Divider` line wrapping Push/Email notifications to match Figma specification.
+  - Ensured all screen colors strictly reference `AppColors` centralized design tokens.
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues.
+
+---
+
 ### 2026-07-27: Add Availability Type Status Dots and Date Display
 
 - **Task**: Add Availability — type selector and Add Date display polish.

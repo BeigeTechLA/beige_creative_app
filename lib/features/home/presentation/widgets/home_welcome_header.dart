@@ -23,6 +23,7 @@ class HomeWelcomeHeader extends ConsumerWidget {
   final String subtitle;
   final String profileImageUrl;
   final VoidCallback onAvatarTap;
+  final VoidCallback? onNotificationTap;
 
   const HomeWelcomeHeader({
     super.key,
@@ -30,6 +31,7 @@ class HomeWelcomeHeader extends ConsumerWidget {
     this.subtitle = 'Creative Pro',
     required this.profileImageUrl,
     required this.onAvatarTap,
+    this.onNotificationTap,
   });
 
   @override
@@ -112,17 +114,23 @@ class HomeWelcomeHeader extends ConsumerWidget {
               ),
               AppSpacing.gapHMd,
               Semantics(
+                button: true,
                 label: 'Notifications',
-                child: SizedBox.square(
-                  dimension: _actionSize,
-                  child: Center(
-                    child: SvgPicture.asset(
-                      AppAssets.notificationBell,
-                      width: _actionIconSize,
-                      height: _actionIconSize,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.white,
-                        BlendMode.srcIn,
+                child: InkResponse(
+                  onTap: onNotificationTap,
+                  radius: _actionSize / 2,
+                  customBorder: const CircleBorder(),
+                  child: SizedBox.square(
+                    dimension: _actionSize,
+                    child: Center(
+                      child: SvgPicture.asset(
+                        AppAssets.notificationBell,
+                        width: _actionIconSize,
+                        height: _actionIconSize,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.white,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                   ),

@@ -10,6 +10,10 @@ class NotificationItem {
     required this.createdAt,
     this.isRead = false,
     this.type,
+    this.senderName,
+    this.avatarUrl,
+    this.actionLabel,
+    this.category,
   });
 
   final String id;
@@ -18,6 +22,10 @@ class NotificationItem {
   final DateTime createdAt;
   final bool isRead;
   final String? type;
+  final String? senderName;
+  final String? avatarUrl;
+  final String? actionLabel;
+  final String? category;
 
   NotificationItem copyWith({
     String? id,
@@ -26,6 +34,10 @@ class NotificationItem {
     DateTime? createdAt,
     bool? isRead,
     String? type,
+    String? senderName,
+    String? avatarUrl,
+    String? actionLabel,
+    String? category,
   }) {
     return NotificationItem(
       id: id ?? this.id,
@@ -34,6 +46,10 @@ class NotificationItem {
       createdAt: createdAt ?? this.createdAt,
       isRead: isRead ?? this.isRead,
       type: type ?? this.type,
+      senderName: senderName ?? this.senderName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      actionLabel: actionLabel ?? this.actionLabel,
+      category: category ?? this.category,
     );
   }
 
@@ -47,7 +63,11 @@ class NotificationItem {
           message == other.message &&
           createdAt == other.createdAt &&
           isRead == other.isRead &&
-          type == other.type;
+          type == other.type &&
+          senderName == other.senderName &&
+          avatarUrl == other.avatarUrl &&
+          actionLabel == other.actionLabel &&
+          category == other.category;
 
   @override
   int get hashCode =>
@@ -56,5 +76,9 @@ class NotificationItem {
       message.hashCode ^
       createdAt.hashCode ^
       isRead.hashCode ^
-      type.hashCode;
+      type.hashCode ^
+      senderName.hashCode ^
+      avatarUrl.hashCode ^
+      actionLabel.hashCode ^
+      category.hashCode;
 }
