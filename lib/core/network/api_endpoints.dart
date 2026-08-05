@@ -169,4 +169,8 @@ class ApiEndpoints {
       'external-chat/room/$roomId/details';
   static String chatParticipants(String roomId) =>
       'external-chat/participants/$roomId';
+
+  // ───── Push Notifications ────────────────────────────────────────────────
+  static const String pushTokens = 'push-notifications/tokens';
+  static const String pushPreferences = 'push-notifications/preferences';
 }

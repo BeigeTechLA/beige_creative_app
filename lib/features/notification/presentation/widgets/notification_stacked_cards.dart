@@ -29,21 +29,21 @@ class NotificationStackedCards extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.only(top: AppSpacing.xl),
+        padding: const EdgeInsets.only(top: AppSpacing.md),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
             // Backmost card layer peeking out from top (Layer 2)
             if (hasThreeOrMore)
               Positioned(
-                top: -AppSpacing.base,
-                left: AppSpacing.lg,
-                right: AppSpacing.lg,
+                top: -AppSpacing.smd,
+                left: AppSpacing.base,
+                right: AppSpacing.base,
                 child: Container(
                   height: AppSpacing.huge,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceDim.withValues(alpha: 0.5),
-                    borderRadius: AppRadii.hugeAll,
+                    borderRadius: AppRadii.lgAll,
                     border: Border.all(color: AppColors.white.withValues(alpha: 0.05)),
                   ),
                 ),
@@ -52,14 +52,14 @@ class NotificationStackedCards extends StatelessWidget {
             // Middle card layer peeking out from top (Layer 1)
             if (hasMultiple)
               Positioned(
-                top: -AppSpacing.sm,
+                top: -AppSpacing.xxs,
                 left: AppSpacing.dropdownIconInset,
                 right: AppSpacing.dropdownIconInset,
                 child: Container(
                   height: AppSpacing.huge,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceDim.withValues(alpha: 0.8),
-                    borderRadius: AppRadii.hugeAll,
+                    borderRadius: AppRadii.lgAll,
                     border: Border.all(color: AppColors.white.withValues(alpha: 0.08)),
                   ),
                 ),

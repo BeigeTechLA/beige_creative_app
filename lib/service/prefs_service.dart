@@ -61,8 +61,7 @@ class PrefsService {
   // Remember-me credentials
   // ---------------------------------------------------------------------------
 
-  static String? get savedLoginEmail =>
-      _p.getString(PrefsKeys.savedLoginEmail);
+  static String? get savedLoginEmail => _p.getString(PrefsKeys.savedLoginEmail);
   static Future<bool> setSavedLoginEmail(String value) =>
       _p.setString(PrefsKeys.savedLoginEmail, value);
 

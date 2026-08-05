@@ -33,6 +33,10 @@ abstract class SessionStore {
   Future<bool> readOnboardingSeen();
   Future<void> writeOnboardingSeen(bool seen);
 
+  Future<String?> readFcmToken() async => null;
+  Future<void> writeFcmToken(String fcmToken) async {}
+  Future<void> clearFcmToken() async {}
+
   /// True iff a non-empty token is in secure storage. Single source of truth
   /// for "logged in" — `isLoggedIn` flags in prefs are advisory only.
   Future<bool> isLoggedIn();
@@ -149,6 +153,13 @@ class CompositeSessionStore implements SessionStore {
       _prefs.writeOnboardingSeen(seen);
 
   @override
+  Future<String?> readFcmToken() => _prefs.readFcmToken();
+  @override
+  Future<void> writeFcmToken(String fcmToken) => _prefs.writeFcmToken(fcmToken);
+  @override
+  Future<void> clearFcmToken() => _prefs.clearFcmToken();
+
+  @override
   Future<bool> isLoggedIn() async {
     final token = await _secure.readToken();
     return token != null && token.isNotEmpty;
@@ -160,6 +171,7 @@ class CompositeSessionStore implements SessionStore {
     await _secure.clearRefreshToken();
     await _prefs.clearUser();
     await _prefs.clearLastLoginAt();
+    await _prefs.clearFcmToken();
   }
 }
 
@@ -186,4 +198,7 @@ abstract class PrefsSessionBackend {
   Future<void> clearLastLoginAt();
   Future<bool> readOnboardingSeen();
   Future<void> writeOnboardingSeen(bool seen);
+  Future<String?> readFcmToken();
+  Future<void> writeFcmToken(String fcmToken);
+  Future<void> clearFcmToken();
 }

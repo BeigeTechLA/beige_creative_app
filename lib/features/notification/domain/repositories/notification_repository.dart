@@ -1,13 +1,21 @@
-import '../models/notification_item.dart';
+import '../../data/models/notification_settings_dto.dart';
 
-/// Abstract contract for notification data operations.
+/// Abstract contract for push notification operations.
 abstract class NotificationRepository {
-  /// Fetches a list of notifications for the signed-in user.
-  Future<List<NotificationItem>> getNotifications();
+  /// Saves the device FCM token on the server (`POST /push-notifications/tokens`).
+  Future<void> saveFcmToken({
+    required String fcmToken,
+    required String sessionId,
+    String? deviceType,
+  });
 
-  /// Marks a specific notification as read by ID.
-  Future<void> markAsRead(String id);
+  /// Removes the device FCM token on logout (`DELETE /push-notifications/tokens`).
+  Future<void> removeFcmToken({
+    required String sessionId,
+  });
 
-  /// Marks all notifications as read for the current user.
-  Future<void> markAllAsRead();
+  /// Updates topic and push preferences (`PATCH /push-notifications/preferences`).
+  Future<void> updateNotificationPreferences(
+    NotificationSettingsRequestDto dto,
+  );
 }

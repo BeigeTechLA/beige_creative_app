@@ -62,6 +62,15 @@ class FakePrefsSessionBackend implements PrefsSessionBackend {
   Future<bool> readOnboardingSeen() async => _onboardingSeen;
   @override
   Future<void> writeOnboardingSeen(bool seen) async => _onboardingSeen = seen;
+
+  String? _fcmToken;
+
+  @override
+  Future<String?> readFcmToken() async => _fcmToken;
+  @override
+  Future<void> writeFcmToken(String fcmToken) async => _fcmToken = fcmToken;
+  @override
+  Future<void> clearFcmToken() async => _fcmToken = null;
 }
 
 /// Sets up the default `registerFallbackValue` calls required by every mock

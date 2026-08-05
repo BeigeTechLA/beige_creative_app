@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../firebase/fcm_service.dart';
 import '../firebase/telemetry_client.dart';
 import '../restoration/restoration_providers.dart';
+import '../../features/notification/presentation/providers/notification_list_providers.dart';
 import 'core_providers.dart';
 
 /// Boolean derived from session presence — single source of truth for
@@ -21,12 +23,27 @@ class AuthStateNotifier extends Notifier<bool> {
 
   /// Call after a successful login flow has already written the session.
   /// Flips the auth state so the router redirect re-evaluates.
-  void markLoggedIn() => state = true;
+  void markLoggedIn() {
+    state = true;
+    try {
+      ref.read(fcmServiceProvider).ensureFcmTokenRegistered();
+    } catch (_) {}
+  }
 
   /// Clears the session and flips auth state to `false`. Caller is
   /// responsible for `context.goNamed(Routes.login.name)`; the redirect will
   /// also enforce the bounce if anything resurrects the authed tree.
   Future<void> logout() async {
+    try {
+      final session = ref.read(sessionStoreProvider);
+      final token = await session.readToken();
+      if (token != null && token.isNotEmpty) {
+        await ref.read(notificationRepositoryProvider).removeFcmToken(sessionId: token);
+      }
+    } catch (e) {
+      // Best-effort push token removal on logout
+    }
+
     await ref.read(sessionStoreProvider).clearSession();
     await ref.read(routeRestorationServiceProvider).clearAll();
     await ref.read(draftStoreProvider).clearAll();
@@ -43,5 +60,6 @@ class AuthStateNotifier extends Notifier<bool> {
   }
 }
 
-final authStateProvider =
-    NotifierProvider<AuthStateNotifier, bool>(AuthStateNotifier.new);
+final authStateProvider = NotifierProvider<AuthStateNotifier, bool>(
+  AuthStateNotifier.new,
+);

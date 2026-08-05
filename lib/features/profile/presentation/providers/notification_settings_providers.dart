@@ -1,5 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/firebase/fcm_service.dart';
+import '../../../../core/providers/core_providers.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../notification/data/models/notification_settings_dto.dart';
+import '../../../notification/presentation/providers/notification_list_providers.dart';
+
 class NotificationSettingsState {
   const NotificationSettingsState({
     this.pushNotifications = true,
@@ -12,6 +18,7 @@ class NotificationSettingsState {
     this.categoryProposals = true,
     this.categoryFiles = true,
     this.categorySystem = true,
+    this.isSaving = false,
   });
 
   final bool pushNotifications;
@@ -26,6 +33,8 @@ class NotificationSettingsState {
   final bool categoryFiles;
   final bool categorySystem;
 
+  final bool isSaving;
+
   NotificationSettingsState copyWith({
     bool? pushNotifications,
     bool? emailNotifications,
@@ -37,6 +46,7 @@ class NotificationSettingsState {
     bool? categoryProposals,
     bool? categoryFiles,
     bool? categorySystem,
+    bool? isSaving,
   }) {
     return NotificationSettingsState(
       pushNotifications: pushNotifications ?? this.pushNotifications,
@@ -49,6 +59,7 @@ class NotificationSettingsState {
       categoryProposals: categoryProposals ?? this.categoryProposals,
       categoryFiles: categoryFiles ?? this.categoryFiles,
       categorySystem: categorySystem ?? this.categorySystem,
+      isSaving: isSaving ?? this.isSaving,
     );
   }
 }
@@ -62,6 +73,7 @@ class NotificationSettingsNotifier
 
   void togglePushNotifications(bool value) {
     state = state.copyWith(pushNotifications: value);
+    savePreferences();
   }
 
   void toggleEmailNotifications(bool value) {
@@ -98,6 +110,39 @@ class NotificationSettingsNotifier
 
   void toggleCategorySystem(bool value) {
     state = state.copyWith(categorySystem: value);
+  }
+
+  Future<void> savePreferences() async {
+    state = state.copyWith(isSaving: true);
+    try {
+      // Ensure FCM Token session is registered on backend first
+      await ref.read(fcmServiceProvider).ensureFcmTokenRegistered();
+
+      final session = ref.read(sessionStoreProvider);
+      final token = await session.readToken();
+      final repo = ref.read(notificationRepositoryProvider);
+      final dto = NotificationSettingsRequestDto(
+        sessionId: token ?? '',
+        notificationPreferences: NotificationPreferencesDto(
+          pushEnabled: state.pushNotifications,
+          topics: NotificationTopicsDto(
+            shoots: state.categoryShoots,
+            payments: state.categoryPayouts,
+            messages: state.categoryMessages,
+            meetings: state.categoryMeetings,
+            proposals: state.categoryProposals,
+            files: state.categoryFiles,
+            system: state.categorySystem,
+          ),
+        ),
+      );
+      await repo.updateNotificationPreferences(dto);
+      AppLogger.i('Notification preferences successfully updated on backend');
+    } catch (e, st) {
+      AppLogger.e('Failed to update notification preferences on backend', e, st);
+    } finally {
+      state = state.copyWith(isSaving: false);
+    }
   }
 }
 

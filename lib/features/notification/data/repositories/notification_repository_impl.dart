@@ -1,46 +1,39 @@
-import '../../domain/models/notification_item.dart';
+import '../models/notification_settings_dto.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../sources/notification_remote_source.dart';
 
-/// Dio-backed implementation of [NotificationRepository].
+/// Concrete implementation of [NotificationRepository].
 class NotificationRepositoryImpl implements NotificationRepository {
   NotificationRepositoryImpl(this._remoteSource);
 
   final NotificationRemoteSource _remoteSource;
 
   @override
-  Future<List<NotificationItem>> getNotifications() async {
-    final rawList = await _remoteSource.fetchNotifications();
-    return rawList.map(_mapToDomain).toList();
-  }
-
-  @override
-  Future<void> markAsRead(String id) async {
-    await _remoteSource.markAsRead(id);
-  }
-
-  @override
-  Future<void> markAllAsRead() async {
-    await _remoteSource.markAllAsRead();
-  }
-
-  NotificationItem _mapToDomain(Map<String, dynamic> json) {
-    final createdAtRaw = json['created_at'] ?? json['createdAt'];
-    final createdAt = createdAtRaw != null
-        ? DateTime.tryParse(createdAtRaw.toString()) ?? DateTime.now()
-        : DateTime.now();
-
-    return NotificationItem(
-      id: json['id']?.toString() ?? '',
-      title: json['title']?.toString() ?? 'Notification',
-      message: json['message']?.toString() ?? json['body']?.toString() ?? '',
-      createdAt: createdAt,
-      isRead: json['is_read'] ?? json['isRead'] ?? false,
-      type: json['type']?.toString(),
-      senderName: json['sender_name']?.toString() ?? json['senderName']?.toString(),
-      avatarUrl: json['avatar_url']?.toString() ?? json['avatarUrl']?.toString(),
-      actionLabel: json['action_label']?.toString() ?? json['actionLabel']?.toString(),
-      category: json['category']?.toString(),
+  Future<void> saveFcmToken({
+    required String fcmToken,
+    required String sessionId,
+    String? deviceType,
+  }) async {
+    await _remoteSource.saveFcmToken(
+      fcmToken: fcmToken,
+      sessionId: sessionId,
+      deviceType: deviceType,
     );
+  }
+
+  @override
+  Future<void> removeFcmToken({
+    required String sessionId,
+  }) async {
+    await _remoteSource.removeFcmToken(
+      sessionId: sessionId,
+    );
+  }
+
+  @override
+  Future<void> updateNotificationPreferences(
+    NotificationSettingsRequestDto dto,
+  ) async {
+    await _remoteSource.updateNotificationPreferences(dto.toJson());
   }
 }

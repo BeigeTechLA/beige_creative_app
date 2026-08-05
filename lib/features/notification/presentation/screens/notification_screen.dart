@@ -159,7 +159,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
 
                       // Segmented Tab Selector (Unread / Read)
                       Container(
-                        height: AppSpacing.jumbo,
+                        height: AppSpacing.jumbo2,
                         decoration: BoxDecoration(
                           color: AppColors.surfaceVariant,
                           borderRadius: AppRadii.lgAll,
@@ -175,7 +175,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                                     color: state.selectedTab == NotificationTab.unread
                                         ? AppColors.primary
                                         : Colors.transparent,
-                                    borderRadius: AppRadii.lgAll,
+                                    borderRadius: AppRadii.signupChipAll,
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
@@ -194,22 +194,22 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                             ),
                             Expanded(
                               child: GestureDetector(
-                                onTap: () => notifier.selectTab(NotificationTab.all),
+                                onTap: () => notifier.selectTab(NotificationTab.Read),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: state.selectedTab == NotificationTab.all
+                                    color: state.selectedTab == NotificationTab.Read
                                         ? AppColors.primary
                                         : Colors.transparent,
-                                    borderRadius: AppRadii.lgAll,
+                                    borderRadius: AppRadii.signupChipAll,
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
                                     'Read',
                                     style: AppTextStyles.body14.copyWith(
-                                      color: state.selectedTab == NotificationTab.all
+                                      color: state.selectedTab == NotificationTab.Read
                                           ? AppColors.onPrimary
                                           : AppColors.white70,
-                                      fontWeight: state.selectedTab == NotificationTab.all
+                                      fontWeight: state.selectedTab == NotificationTab.Read
                                           ? FontWeight.w600
                                           : FontWeight.w400,
                                     ),
@@ -361,9 +361,8 @@ class _SectionHeader extends StatelessWidget {
           onTap: onViewAll,
           child: Text(
             'View All',
-            style: AppTextStyles.body13.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.body12.copyWith(
+              color: AppColors.white,
             ),
           ),
         ),

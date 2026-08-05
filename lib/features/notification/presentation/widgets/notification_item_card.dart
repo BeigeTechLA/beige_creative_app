@@ -35,16 +35,54 @@ class NotificationItemCard extends StatelessWidget {
     return '$month $day • $hour:$minute$ampm';
   }
 
+  Widget _buildFormattedMessage(String message) {
+    final colonIndex = message.indexOf(':');
+    if (colonIndex != -1) {
+      final prefix = message.substring(0, colonIndex + 1);
+      final body = message.substring(colonIndex + 1);
+      return RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: prefix,
+              style: AppTextStyles.body12.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+                height: 1.35,
+              ),
+            ),
+            TextSpan(
+              text: body,
+              style: AppTextStyles.body12.copyWith(
+                color: AppColors.white70,
+                fontWeight: FontWeight.w400,
+                height: 1.35,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Text(
+      message,
+      style: AppTextStyles.body12.copyWith(
+        color: AppColors.white70,
+        height: 1.35,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final senderName = item.senderName ?? 'Angela Kia';
     final timestampText = _formatTimestamp(item.createdAt);
     final hasAction = item.actionLabel != null && item.actionLabel!.isNotEmpty;
-    final cardBgColor = isBackCard ? AppColors.surfaceDim : AppColors.surfaceVariant;
+    final cardBgColor = isBackCard ? AppColors.surfaceDim : AppColors.surfaceMid;
     final avatarUrl = item.avatarUrl;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.only(bottom: AppSpacing.smd),
       child: GestureDetector(
         onTap: onTap,
         child: Container(
@@ -53,7 +91,7 @@ class NotificationItemCard extends StatelessWidget {
             borderRadius: AppRadii.lgAll,
             border: Border.all(color: AppColors.white.withValues(alpha: 0.08)),
           ),
-          padding: const EdgeInsets.all(AppSpacing.base),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -78,7 +116,7 @@ class NotificationItemCard extends StatelessWidget {
                           )
                         : _buildFallbackInitial(senderName),
                   ),
-                  AppSpacing.gapHMd,
+                  AppSpacing.gapHSm,
                   // Sender Name & Timestamp
                   Expanded(
                     child: Column(
@@ -93,7 +131,7 @@ class NotificationItemCard extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        AppSpacing.verticalXxxs,
+                        const SizedBox(height: 2),
                         Text(
                           timestampText,
                           style: AppTextStyles.body12.copyWith(
@@ -108,8 +146,8 @@ class NotificationItemCard extends StatelessWidget {
                     AppSpacing.gapHSm,
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.xs,
+                        horizontal: AppSpacing.smd,
+                        vertical: AppSpacing.xxs,
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
@@ -126,23 +164,20 @@ class NotificationItemCard extends StatelessWidget {
                   ],
                 ],
               ),
-              AppSpacing.verticalMd,
+              AppSpacing.verticalSm,
 
               // Inner Dark Message Container
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(AppSpacing.md),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.smd,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceInput,
-                  borderRadius: AppRadii.mldAll,
+                  borderRadius: AppRadii.mdAll,
                 ),
-                child: Text(
-                  item.message,
-                  style: AppTextStyles.body13.copyWith(
-                    color: AppColors.white70,
-                    height: 1.4,
-                  ),
-                ),
+                child: _buildFormattedMessage(item.message),
               ),
             ],
           ),

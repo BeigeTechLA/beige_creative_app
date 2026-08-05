@@ -2,14 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/core_providers.dart';
-import '../../../../core/utils/app_logger.dart';
 import '../../data/repositories/notification_repository_impl.dart';
 import '../../data/sources/notification_remote_source.dart';
 import '../../domain/models/notification_item.dart';
 import '../../domain/repositories/notification_repository.dart';
 
 /// Available tabs for filtering notifications.
-enum NotificationTab { unread, all }
+enum NotificationTab { unread, Read }
 
 final notificationRemoteSourceProvider = Provider<NotificationRemoteSource>(
   (ref) => NotificationRemoteSource(ref.read(dioClientProvider)),
@@ -103,28 +102,10 @@ class NotificationListNotifier extends AutoDisposeNotifier<NotificationListState
 
   Future<void> fetchNotifications() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
-    try {
-      final repo = ref.read(notificationRepositoryProvider);
-      final items = await repo.getNotifications();
-      if (items.isNotEmpty) {
-        state = state.copyWith(
-          isLoading: false,
-          notifications: items,
-        );
-      } else {
-        // Fallback Figma mock data when remote source returns empty list
-        state = state.copyWith(
-          isLoading: false,
-          notifications: _getMockNotifications(),
-        );
-      }
-    } catch (e, st) {
-      AppLogger.e('Failed to fetch notifications, loading fallback mock data', e, st);
-      state = state.copyWith(
-        isLoading: false,
-        notifications: _getMockNotifications(),
-      );
-    }
+    state = state.copyWith(
+      isLoading: false,
+      notifications: _getMockNotifications(),
+    );
   }
 
   void selectTab(NotificationTab tab) {
@@ -139,7 +120,7 @@ class NotificationListNotifier extends AutoDisposeNotifier<NotificationListState
     state = state.copyWith(selectedCategory: category);
   }
 
-  Future<void> markAsRead(String id) async {
+  void markAsRead(String id) {
     final updated = state.notifications.map((item) {
       if (item.id == id) {
         return item.copyWith(isRead: true);
@@ -148,36 +129,23 @@ class NotificationListNotifier extends AutoDisposeNotifier<NotificationListState
     }).toList();
 
     state = state.copyWith(notifications: updated);
-
-    try {
-      final repo = ref.read(notificationRepositoryProvider);
-      await repo.markAsRead(id);
-    } catch (e, st) {
-      AppLogger.e('Failed to mark notification as read on remote server', e, st);
-    }
   }
 
-  Future<void> markAllAsRead() async {
+  void markAllAsRead() {
     final updated = state.notifications.map((item) => item.copyWith(isRead: true)).toList();
     state = state.copyWith(notifications: updated);
-
-    try {
-      final repo = ref.read(notificationRepositoryProvider);
-      await repo.markAllAsRead();
-    } catch (e, st) {
-      AppLogger.e('Failed to mark all notifications as read on remote server', e, st);
-    }
   }
 
   static List<NotificationItem> _getMockNotifications() {
     final now = DateTime.now();
+    final yesterday = now.subtract(const Duration(days: 1));
     return [
       NotificationItem(
         id: '1',
         title: 'Shoot Assigned',
-        message: "Shoot Assigned: You've Been Assigned To The 'Project Sunset Shoot' As Pitch Lead.",
-        senderName: 'Angela Rio',
-        createdAt: now.subtract(const Duration(minutes: 20)),
+        message: "Shoot Assigned: You've Been Assigned To The <Project Name> Shoot On May 24",
+        senderName: 'Angela Kia',
+        createdAt: DateTime(now.year, now.month, now.day, 9, 20),
         isRead: false,
         type: 'Projects',
         category: 'Projects',
@@ -185,44 +153,43 @@ class NotificationListNotifier extends AutoDisposeNotifier<NotificationListState
       ),
       NotificationItem(
         id: '2',
-        title: 'Shoot Update',
-        message: "Shoot Update: Date And Time Has Been Changed For 'Project Sunset Shoot'. View The Project Details.",
-        senderName: 'Angela Rio',
-        createdAt: now.subtract(const Duration(hours: 1)),
+        title: 'Shoot Reassigned',
+        message: "Shoot Reassigned: You've Been Assigned To A New Shoot: <New Project Name>",
+        senderName: 'Angela Kia',
+        createdAt: DateTime(now.year, now.month, now.day, 9, 20),
         isRead: false,
         type: 'Projects',
         category: 'Projects',
-        actionLabel: 'View Details',
       ),
       NotificationItem(
         id: '3',
-        title: 'Shoot Rescheduled',
-        message: "Shoot Rescheduled: Date And Time Updated For 'Project Sunset Shoot'. View The Updated Schedule.",
-        senderName: 'Angela Rio',
-        createdAt: now.subtract(const Duration(hours: 2, minutes: 15)),
+        title: 'Shoot Schedule Updated',
+        message: "Shoot Schedule Updated: Call Time Updated For <Project Name>. Review The Revised Schedule",
+        senderName: 'Angela Kia',
+        createdAt: DateTime(now.year, now.month, now.day, 9, 20),
         isRead: false,
-        type: 'Status',
-        category: 'Status',
+        type: 'Projects',
+        category: 'Projects',
       ),
       NotificationItem(
         id: '4',
         title: 'Shoot Cancelled',
-        message: "Shoot Cancelled: 'Project Sunset Shoot' Has Been Cancelled.",
-        senderName: 'Angela Rio',
-        createdAt: now.subtract(const Duration(hours: 4)),
+        message: "Shoot Cancelled: <Project Name> Shoot Has Been Cancelled.",
+        senderName: 'Angela Kia',
+        createdAt: DateTime(now.year, now.month, now.day, 9, 20),
         isRead: false,
-        type: 'Status',
-        category: 'Status',
+        type: 'Projects',
+        category: 'Projects',
       ),
       NotificationItem(
         id: '5',
-        title: 'Invoice Changed',
-        message: "Invoice Changed: Sheet Notifications Received For Project Sunset.",
+        title: 'Location Changed',
+        message: "Location Changed: Shoot Location Changed For <Project Name>.",
         senderName: 'Connor Frazier',
-        createdAt: now.subtract(const Duration(days: 1, hours: 3)),
-        isRead: true,
-        type: 'Payments',
-        category: 'Payments',
+        createdAt: DateTime(yesterday.year, yesterday.month, yesterday.day, 4, 20),
+        isRead: false,
+        type: 'Projects',
+        category: 'Projects',
         actionLabel: 'Tap to view',
       ),
     ];

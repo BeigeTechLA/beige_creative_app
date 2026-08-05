@@ -13,6 +13,8 @@ class PrefsSessionStore implements PrefsSessionBackend {
   static const String _kLastLoginAt = 'session_last_login_at';
   static const String _kOnboardingSeen = 'session_onboarding_seen';
 
+  static const String _kFcmToken = 'session_fcm_token';
+
   static String get onboardingSeenKey => _kOnboardingSeen;
 
   final SharedPreferences _prefs;
@@ -69,5 +71,20 @@ class PrefsSessionStore implements PrefsSessionBackend {
   @override
   Future<void> writeOnboardingSeen(bool seen) async {
     await _prefs.setBool(_kOnboardingSeen, seen);
+  }
+
+  @override
+  Future<String?> readFcmToken() async {
+    return _prefs.getString(_kFcmToken);
+  }
+
+  @override
+  Future<void> writeFcmToken(String fcmToken) async {
+    await _prefs.setString(_kFcmToken, fcmToken);
+  }
+
+  @override
+  Future<void> clearFcmToken() async {
+    await _prefs.remove(_kFcmToken);
   }
 }

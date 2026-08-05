@@ -148,7 +148,9 @@ class NotificationCategorySheet extends ConsumerWidget {
           // Save CTA Button
           AppCtaButton(
             label: 'Save',
+            isLoading: state.isSaving,
             onPressed: () {
+              notifier.savePreferences();
               Navigator.of(context).pop();
               NotificationSuccessSheet.show(context);
             },

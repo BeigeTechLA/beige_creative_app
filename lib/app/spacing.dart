@@ -110,6 +110,7 @@ class AppSpacing {
 
   /// 48px — Major section dividers
   static const double jumbo = 48;
+  static const double jumbo2 = 53;
 
   /// 64px — Maximum spacing
   static const double max = 64;
