@@ -293,20 +293,36 @@ class _InfoCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _InfoRow(
-                        icon: Icons.calendar_today,
+                        icon: SvgPicture.asset(
+                          AppAssets.icShootDate,
+                          width: 16,
+                          height: 16,
+                        ),
                         text: DateTimeUtils.formatReadableDate(
                           '${mydata?.project.eventDate}',
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       _InfoRow(
-                        icon: Icons.access_time,
+                        icon: SvgPicture.asset(
+                          AppAssets.icClockCircle,
+                          width: 16,
+                          height: 16,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         text:
                             '${DateTimeUtils.formatTime(mydata?.project.startTime ?? "")} - ${DateTimeUtils.formatTime(mydata?.project.endTime ?? "")}',
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       _InfoRow(
-                        icon: Icons.location_on_outlined,
+                        icon: SvgPicture.asset(
+                          AppAssets.icShootLocation,
+                          width: 16,
+                          height: 16,
+                        ),
                         text: '${mydata?.project.eventLocation}',
                       ),
                       const SizedBox(height: AppSpacing.mld),
@@ -321,7 +337,7 @@ class _InfoCard extends StatelessWidget {
                                 Text(
                                   'Shoot Type',
                                   style: AppTextStyles.body12.copyWith(
-                                    color: AppColors.white30,
+                                    color: AppColors.white80,
                                   ),
                                 ),
                                 const SizedBox(height: AppSpacing.xxs),
@@ -336,7 +352,7 @@ class _InfoCard extends StatelessWidget {
                                 Text(
                                   'Booking Type',
                                   style: AppTextStyles.body12.copyWith(
-                                    color: AppColors.white30,
+                                    color: AppColors.white80,
                                   ),
                                 ),
                                 const SizedBox(height: AppSpacing.xxs),
@@ -384,7 +400,7 @@ class _InfoCard extends StatelessWidget {
                             Text(
                               'Current Stage',
                               style: AppTextStyles.body12.copyWith(
-                                color: AppColors.white30,
+                                color: AppColors.white50,
                               ),
                             ),
                             Text(
@@ -403,7 +419,7 @@ class _InfoCard extends StatelessWidget {
                             Text(
                               'Last Updated',
                               style: AppTextStyles.body12.copyWith(
-                                color: AppColors.white30,
+                                color: AppColors.white50,
                               ),
                             ),
                             Text(
@@ -487,7 +503,11 @@ class _InfoCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _BudgetItem(
-                    icon: Icons.attach_money,
+                    icon: SvgPicture.asset(
+                      AppAssets.icDoller,
+                      width: 19,
+                      height: 19,
+                    ),
                     title: 'Event Budget',
                     value: '\$${mydata?.project.budget ?? 0}',
                   ),
@@ -495,7 +515,11 @@ class _InfoCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xl),
                 Expanded(
                   child: _BudgetItem(
-                    icon: Icons.access_time,
+                    icon: SvgPicture.asset(
+                      AppAssets.icClockCircle,
+                      width: 19,
+                      height: 19,
+                    ),
                     title: 'Total Time Duration',
                     value:
                         '${(mydata?.project.totalTimeDurationHours ?? 0).toInt().toString().padLeft(2, '0')} Hours',
@@ -679,7 +703,7 @@ class _TeamMemberAvatarItem extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String text;
 
   const _InfoRow({required this.icon, required this.text});
@@ -689,12 +713,12 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: AppColors.white60),
+        icon,
         const SizedBox(width: AppSpacing.xs),
         Expanded(
           child: Text(
             text,
-            style: AppTextStyles.body12.copyWith(color: AppColors.white30),
+            style: AppTextStyles.body12.copyWith(color: AppColors.white80),
           ),
         ),
       ],
@@ -715,9 +739,8 @@ class _Chip extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surfaceDim,
+        color: AppColors.surfaceChip,
         borderRadius: AppRadii.portfolioAll,
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Text(
         text,
@@ -731,7 +754,7 @@ class _Chip extends StatelessWidget {
 }
 
 class _BudgetItem extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String title;
   final String value;
 
@@ -753,7 +776,8 @@ class _BudgetItem extends StatelessWidget {
             color: AppColors.primary,
             borderRadius: AppRadii.lgAll,
           ),
-          child: Icon(icon, color: AppColors.black, size: 20),
+          alignment: Alignment.center,
+          child: icon,
         ),
         const SizedBox(width: AppSpacing.xs),
         Expanded(
@@ -817,14 +841,18 @@ class _ContactItem extends StatelessWidget {
               Text(
                 title,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.white30,
+                  color: AppColors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: AppSpacing.xxs),
               Text(
                 value,
                 style: AppTextStyles.bodyMediumStrong.copyWith(
-                  color: AppColors.white,
+                  color: AppColors.white60,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],

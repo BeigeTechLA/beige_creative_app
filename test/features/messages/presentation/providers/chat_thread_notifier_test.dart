@@ -135,6 +135,7 @@ void main() {
   }
 
   setUp(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
     repo = _DriverRepo(initial: [_msg(id: 'm_1', body: 'first')]);
     container = ProviderContainer(overrides: [
       messagesRepositoryProvider.overrideWithValue(repo),

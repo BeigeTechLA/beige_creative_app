@@ -13,6 +13,7 @@ import 'app_button.dart';
 class AppEmptyState extends StatelessWidget {
   final IconData? icon;
   final String? svgAsset;
+  final String? imageAsset;
   final double iconSize;
   final String title;
   final String? description;
@@ -23,6 +24,7 @@ class AppEmptyState extends StatelessWidget {
     super.key,
     this.icon,
     this.svgAsset,
+    this.imageAsset,
     this.iconSize = 56,
     required this.title,
     this.description,
@@ -40,7 +42,14 @@ class AppEmptyState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (svgAsset != null) ...[
+          if (imageAsset != null) ...[
+            Image.asset(
+              imageAsset!,
+              height: iconSize,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(height: AppSpacing.base),
+          ] else if (svgAsset != null) ...[
             SvgPicture.asset(svgAsset!, height: iconSize),
             SizedBox(height: AppSpacing.base),
           ] else if (icon != null) ...[

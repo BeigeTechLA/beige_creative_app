@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
@@ -5,6 +7,7 @@ import '../screens/app_preferences_screen.dart';
 import 'profile_args.dart';
 import '../screens/certificates_screen.dart';
 import '../screens/change_password_screen.dart';
+import '../screens/crop_image_screen.dart';
 import '../screens/delete_account_lottie_screen.dart';
 import '../screens/delete_account_otp_screen.dart';
 import '../screens/delete_account_screen.dart';
@@ -26,6 +29,14 @@ final List<RouteBase> profileRoutes = [
     path: Routes.myProfile.path,
     name: Routes.myProfile.name,
     builder: (context, state) => const Myprofile(),
+  ),
+  GoRoute(
+    path: Routes.cropImage.path,
+    name: Routes.cropImage.name,
+    builder: (context, state) {
+      final file = state.extra as File;
+      return CropImageScreen(imageFile: file);
+    },
   ),
   GoRoute(
     path: Routes.editPersonalDetails.path,

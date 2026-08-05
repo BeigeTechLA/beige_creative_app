@@ -20,7 +20,9 @@ import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/app_count_card.dart';
+import '../../../../shared/widgets/app_segmented_control.dart';
 import '../providers/shoots_providers.dart';
+import '../widgets/shoots_filter_bottom_sheet.dart';
 import 'shoot_cancelled_screen.dart';
 
 class ShootsScreen extends ConsumerStatefulWidget {
@@ -49,7 +51,26 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
         children: [
           Column(
             children: [
-              const AppMainToolbar(title: 'shoots'),
+              AppMainToolbar(
+                title: 'Shoots',
+                trailing: IconButton(
+                  tooltip: 'Filter shoots',
+                  onPressed: () => ShootsFilterBottomSheet.show(
+                    context,
+                    currentStatus: state.selectedStatusFilter,
+                    onApply: notifier.setStatusFilter,
+                  ),
+                  icon: SvgPicture.asset(
+                    AppAssets.iconFilter,
+                    width: 20,
+                    height: 20,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.white,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+              ),
 
               /// COUNT CARDS
               SizedBox(
@@ -84,7 +105,19 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                 ),
               ),
 
-              const SizedBox(height: AppSpacing.cardCompactInset),
+              const SizedBox(height: AppSpacing.md),
+
+              /// REQUEST / SHOOTS SEGMENTED TAB CONTROL
+              Padding(
+                padding: AppSpacing.insetsHBase,
+                child: AppSegmentedControl(
+                  items: const ['Request', 'Shoots'],
+                  selectedIndex: state.selectedTabIndex,
+                  onValueChanged: notifier.selectTab,
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.md),
 
               /// SEARCH BAR — debounced through the notifier.
               Padding(
@@ -102,7 +135,9 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                     cursorColor: AppColors.white,
                     decoration: InputDecoration(
                       hintText: 'Search events or crew...',
-                      hintStyle: AppTextStyles.bodyMedium,
+                      hintStyle: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.white50,
+                      ),
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(AppSpacing.inlineNudge),
                         child: SvgPicture.asset(
@@ -133,16 +168,16 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                               ? AppEmptyState(
                                   icon: Icons.search_off_rounded,
                                   iconSize: 56,
-                                  title: 'No shoots found',
+                                  title: 'No Shoots found',
                                   description:
-                                      'No shoots matched "${state.searchQuery.trim()}". Try searching with a different keyword.',
+                                      'No Shoots matched "${state.searchQuery.trim()}". Try searching with a different keyword.',
                                 )
                               : const AppEmptyState(
-                                  icon: Icons.event_busy_rounded,
-                                  iconSize: 56,
-                                  title: 'No shoots available',
+                                  imageAsset: AppAssets.noData,
+                                  iconSize: 150,
+                                  title: 'No Shoot Available',
                                   description:
-                                      'You don\'t have any shoots assigned at the moment.',
+                                      'No shoots available at the moment.\nNew opportunities will appear here when assigned.',
                                 ),
                         ),
                       )

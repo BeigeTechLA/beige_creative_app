@@ -21,11 +21,12 @@ class ShootsListState {
   /// Server-side hydrated list — never mutated by search.
   final List<Shoot> allShoots;
 
-  /// Filtered view of `allShoots` after applying [searchQuery]. Equals
-  /// `allShoots` when the query is empty.
+  /// Filtered view of `allShoots` after applying [searchQuery], [selectedTabIndex], and [selectedStatusFilter].
   final List<Shoot> visibleShoots;
 
   final String searchQuery;
+  final int selectedTabIndex; // 0 = Request, 1 = Shoots
+  final String selectedStatusFilter; // 'All Status', 'Pending', 'Confirmed'
   final count_model.ShootCountData? counts;
   final bool isLoading;
   final String? errorMessage;
@@ -35,6 +36,8 @@ class ShootsListState {
     this.allShoots = const [],
     this.visibleShoots = const [],
     this.searchQuery = '',
+    this.selectedTabIndex = 0,
+    this.selectedStatusFilter = 'All Status',
     this.counts,
     this.isLoading = false,
     this.errorMessage,
@@ -45,6 +48,8 @@ class ShootsListState {
     List<Shoot>? allShoots,
     List<Shoot>? visibleShoots,
     String? searchQuery,
+    int? selectedTabIndex,
+    String? selectedStatusFilter,
     count_model.ShootCountData? counts,
     bool? isLoading,
     String? errorMessage,
@@ -55,6 +60,9 @@ class ShootsListState {
       allShoots: allShoots ?? this.allShoots,
       visibleShoots: visibleShoots ?? this.visibleShoots,
       searchQuery: searchQuery ?? this.searchQuery,
+      selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
+      selectedStatusFilter:
+          selectedStatusFilter ?? this.selectedStatusFilter,
       counts: counts ?? this.counts,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
@@ -77,7 +85,7 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
     return const ShootsListState(isLoading: true);
   }
 
-  /// Re-fetch dashboard + count in parallel. Re-applies the current search.
+  /// Re-fetch dashboard + count in parallel. Re-applies the current search and tab filter.
   /// Counts failure is non-fatal — the list still hydrates.
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
@@ -88,7 +96,12 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
     try {
       final shoots = await repo.fetchShoots();
       final counts = await countsFuture;
-      final filtered = _filter(shoots, state.searchQuery);
+      final filtered = _filter(
+        shoots,
+        state.searchQuery,
+        state.selectedTabIndex,
+        state.selectedStatusFilter,
+      );
       state = state.copyWith(
         allShoots: shoots,
         visibleShoots: filtered,
@@ -115,6 +128,36 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
     }
   }
 
+  /// Switch active tab segment (0 = Request, 1 = Shoots).
+  void selectTab(int index) {
+    if (state.selectedTabIndex == index) return;
+    final filtered = _filter(
+      state.allShoots,
+      state.searchQuery,
+      index,
+      state.selectedStatusFilter,
+    );
+    state = state.copyWith(
+      selectedTabIndex: index,
+      visibleShoots: filtered,
+    );
+  }
+
+  /// Set status filter ('All Status', 'Pending', 'Confirmed').
+  void setStatusFilter(String status) {
+    if (state.selectedStatusFilter == status) return;
+    final filtered = _filter(
+      state.allShoots,
+      state.searchQuery,
+      state.selectedTabIndex,
+      status,
+    );
+    state = state.copyWith(
+      selectedStatusFilter: status,
+      visibleShoots: filtered,
+    );
+  }
+
   /// Public entry for the search field. Cancels the in-flight timer and
   /// schedules a single filter pass after [kShootsSearchDebounce]. The
   /// filter pass is purely client-side so we never hit the network here.
@@ -127,14 +170,35 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
   }
 
   void _applySearch(String query) {
-    final filtered = _filter(state.allShoots, query);
+    final filtered = _filter(
+      state.allShoots,
+      query,
+      state.selectedTabIndex,
+      state.selectedStatusFilter,
+    );
     state = state.copyWith(visibleShoots: filtered);
   }
 
-  List<Shoot> _filter(List<Shoot> source, String query) {
+  List<Shoot> _filter(
+    List<Shoot> source,
+    String query,
+    int tabIndex,
+    String statusFilter,
+  ) {
     final q = query.trim().toLowerCase();
-    if (q.isEmpty) return List<Shoot>.from(source);
     return source.where((s) {
+      final isConfirmed = s.status.toLowerCase() == 'confirmed' ||
+          s.status.toLowerCase() == 'accepted' ||
+          s.crewAccept == 1;
+      final matchesTab = tabIndex == 0 ? !isConfirmed : isConfirmed;
+      if (!matchesTab) return false;
+
+      if (statusFilter != 'All Status') {
+        if (statusFilter == 'Pending' && isConfirmed) return false;
+        if (statusFilter == 'Confirmed' && !isConfirmed) return false;
+      }
+
+      if (q.isEmpty) return true;
       return s.projectName.toLowerCase().contains(q) ||
           s.contentType.toLowerCase().contains(q);
     }).toList();

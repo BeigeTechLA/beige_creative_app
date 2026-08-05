@@ -46,3 +46,7 @@ Replace the legacy `Mainscreen` shell with `StatefulShellRoute.indexedStack`. Re
 - `home`, `shoots`, `files`, `messages`, `manage-availability` route names added. Old code using `RouteNames.home` still works (same string value).
 - `appRouter` consts/global removed → there is now exactly one router instance per `ProviderScope`. Test `widget_test.dart` already uses `routerProvider`.
 - 2026-06-05 UI polish: drawer now includes future branches for Meetings, Affiliate, and Payouts with placeholder screens; new entries temporarily reuse Messages active/inactive icons until final assets arrive.
+- 2026-08-05 navigation-label consistency: audited active drawer destinations;
+  Shoots and Messages screen headers now exactly match their drawer labels.
+  Meetings and Manage Availability already matched, while Dashboard retains its
+  purpose-built welcome header.

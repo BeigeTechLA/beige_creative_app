@@ -26,9 +26,16 @@ class ConversationDto {
     } else {
       final cpIds = _readParticipants(json['cp_ids']);
       final managerIds = _readParticipants(json['manager_ids']);
+      final productionIds = _readParticipants(json['production_ids']);
+      final clientId = _readParticipantIdFromObject(json['client_snapshot']);
       final seen = <String>{};
       participantIds = [
-        for (final id in [...cpIds, ...managerIds])
+        for (final id in [
+          ...cpIds,
+          ...managerIds,
+          ...productionIds,
+          ?clientId,
+        ])
           if (seen.add(id)) id,
       ];
     }
@@ -47,7 +54,10 @@ class ConversationDto {
     return Conversation(
       id: (json['id'] ?? json['_id'] ?? json['chat_id']).toString(),
       title: (json['display_name'] ?? json['name'] ?? '') as String,
-      avatarUrl: _firstAvatar(json['cp_ids']) ?? _firstAvatar(json['manager_ids']),
+      avatarUrl: _firstAvatar(json['cp_ids']) ??
+          _firstAvatar(json['manager_ids']) ??
+          _firstAvatar(json['production_ids']) ??
+          _avatarFromObject(json['client_snapshot']),
       lastMessage: _previewFromRoom(json),
       unreadCount: unread,
       isOnline: false,
@@ -55,6 +65,14 @@ class ConversationDto {
       participantIds: participantIds,
       updatedAt: updatedAt,
     );
+  }
+
+  static String? _readParticipantIdFromObject(Object? raw) {
+    if (raw is Map) {
+      final id = (raw['id'] ?? raw['_id'] ?? '').toString();
+      if (id.isNotEmpty) return id;
+    }
+    return null;
   }
 
   static List<String> _readParticipants(Object? raw) {
@@ -99,6 +117,14 @@ class ConversationDto {
         final v = item['profileImage'] ?? item['profile_image'] ?? item['avatar_url'];
         if (v is String && v.isNotEmpty) return v;
       }
+    }
+    return null;
+  }
+
+  static String? _avatarFromObject(Object? raw) {
+    if (raw is Map) {
+      final v = raw['profileImage'] ?? raw['profile_image'] ?? raw['avatar_url'];
+      if (v is String && v.isNotEmpty) return v;
     }
     return null;
   }

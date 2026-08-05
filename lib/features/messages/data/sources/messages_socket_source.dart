@@ -6,6 +6,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../../../../config/env.dart';
 import '../../../../core/session/session_store.dart';
 import '../../domain/events/chat_socket_event.dart';
+import '../dto/conversation_dto.dart';
 import '../dto/message_dto.dart';
 
 /// **Singleton** owner of the single `io.Socket` for the app session.
@@ -326,6 +327,26 @@ class MessagesSocketSource {
       final roomId = p?['roomId']?.toString();
       if (roomId == null) return;
       _fan(roomId, RoomPreviewUpdated(roomId));
+    });
+
+    socket.on('chatRoomCreated', (raw) {
+      if (kDebugMode) {
+        debugPrint('[sock] RECV chatRoomCreated raw=$raw');
+      }
+      final p = _asMap(raw);
+      if (p == null) return;
+      final roomRaw = _asMap(p['room']) ?? p;
+      final conversation = ConversationDto.fromRestJson(
+        roomRaw,
+        currentUserId: _user?.id ?? '',
+      );
+      if (kDebugMode) {
+        debugPrint(
+          '[sock] chatRoomCreated parsed conversationId=${conversation.id} '
+          'title=${conversation.title} participantIds=${conversation.participantIds}',
+        );
+      }
+      _fan(conversation.id, ChatRoomCreated(conversation));
     });
 
     socket.on('participantAdded', (raw) => _participantsChanged(raw));

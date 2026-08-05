@@ -1,3 +1,4 @@
+import 'package:beige_creative_app/app/assets.dart';
 import 'package:beige_creative_app/app/routes.dart';
 import 'package:beige_creative_app/features/availability/domain/entities/availability_entry.dart';
 import 'package:beige_creative_app/features/availability/presentation/providers/availability_providers.dart';
@@ -6,6 +7,7 @@ import 'package:beige_creative_app/features/home/presentation/widgets/home_upcom
 import 'package:beige_creative_app/model_class/upcoming_shoots_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../helpers/pump_app.dart';
@@ -124,6 +126,15 @@ void main() {
     );
 
     expect(find.text('This Month'), findsOneWidget);
+    final addDateIcons = tester
+        .widgetList<SvgPicture>(find.byType(SvgPicture))
+        .where(
+          (picture) =>
+              picture.bytesLoader is SvgAssetLoader &&
+              (picture.bytesLoader as SvgAssetLoader).assetName ==
+                  AppAssets.icAddDate,
+        );
+    expect(addDateIcons, hasLength(1));
   });
 
   testWidgets('renders upcoming shoots section when seeded', (tester) async {
@@ -215,4 +226,3 @@ void main() {
     expect(find.text('Manage Availability'), findsOneWidget);
   });
 }
-

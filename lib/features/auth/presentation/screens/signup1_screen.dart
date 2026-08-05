@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -23,7 +25,6 @@ import '../../../../utility/location_exception.dart';
 import '../../../../utility/location_service.dart';
 import '../providers/signup_notifier.dart';
 import '../providers/signup_state.dart';
-import '../widgets/signup1_crop_sheet.dart';
 import '../widgets/signup1_form.dart';
 import '../widgets/signup1_header.dart';
 import '../widgets/signup1_preview_card.dart';
@@ -106,8 +107,10 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
   Future<void> _pickImage() async {
     final file = await CommonUploader.pickFromGallery();
     if (file == null || !mounted) return;
-    final cropped =
-        await showSignUp1CropSheet(context: context, imageFile: file);
+    final cropped = await context.pushNamed<File?>(
+      Routes.cropImage.name,
+      extra: file,
+    );
     if (cropped != null && mounted) {
       ref.read(signupNotifierProvider.notifier).setProfileImage(cropped);
     }

@@ -129,6 +129,8 @@ class ConversationListNotifier
   /// Coalesced with [kConversationRefreshThrottle] to absorb bursts.
   void _onGlobalEvent(ChatSocketEvent event) {
     switch (event) {
+      case ChatRoomCreated(:final conversation):
+        _handleChatRoomCreated(conversation);
       case MessageReceived(:final conversationId, :final message):
         _handleInbound(conversationId, message);
         _scheduleRefresh();
@@ -148,6 +150,38 @@ class ConversationListNotifier
       case _:
         break;
     }
+  }
+
+  void _handleChatRoomCreated(Conversation newConv) {
+    AppLogger.i(
+      '[conv_list] Handling chatRoomCreated event: room id=${newConv.id}, '
+      'title="${newConv.title}", participants=${newConv.participantIds}',
+    );
+    final existingIndex = state.items.indexWhere((c) => c.id == newConv.id);
+    final List<Conversation> updatedItems;
+    if (existingIndex >= 0) {
+      updatedItems = List<Conversation>.from(state.items);
+      final existing = state.items[existingIndex];
+      final mergedConv =
+          (newConv.lastMessage == null || newConv.lastMessage!.preview.isEmpty) &&
+                  existing.lastMessage != null &&
+                  existing.lastMessage!.preview.isNotEmpty
+              ? newConv.copyWith(lastMessage: existing.lastMessage)
+              : newConv;
+      updatedItems[existingIndex] = mergedConv;
+    } else {
+      updatedItems = [newConv, ...state.items];
+    }
+
+    if (_localUnread[newConv.id] == null) {
+      _localUnread[newConv.id] = newConv.unreadCount;
+    }
+    if (newConv.updatedAt != null) {
+      _lastKnownUpdatedAt[newConv.id] = newConv.updatedAt!;
+    }
+
+    state = state.copyWith(items: updatedItems);
+    _persist();
   }
 
   void _handleInbound(String roomId, Message message) {

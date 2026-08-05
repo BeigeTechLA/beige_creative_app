@@ -108,7 +108,7 @@ void main() {
   testWidgets('renders search bar with placeholder', (tester) async {
     await _pump(tester);
     expect(find.text('Search events or crew...'), findsOneWidget);
-    expect(find.text('shoots'), findsOneWidget);
+    expect(find.text('Shoots'), findsOneWidget);
   });
 
   testWidgets('typing in search routes to notifier.updateSearch', (

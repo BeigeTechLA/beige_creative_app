@@ -1,9 +1,13 @@
+import 'package:beige_creative_app/app/assets.dart';
+import 'package:beige_creative_app/app/colors.dart';
 import 'package:beige_creative_app/config/env.dart';
 import 'package:beige_creative_app/features/shoots/presentation/providers/upcoming_shoot_providers.dart';
 import 'package:beige_creative_app/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart';
 import 'package:beige_creative_app/model_class/upcoming_shootview_model.dart';
 import 'package:beige_creative_app/shared/widgets/loading.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../helpers/pump_app.dart';
@@ -107,6 +111,47 @@ void main() {
 
     expect(find.text('Jane Director'), findsWidgets);
     expect(find.text('ID: #42'), findsOneWidget);
+    for (final chipText in ['Editorial', 'Solo']) {
+      final chip = tester.widget<Container>(
+        find
+            .ancestor(of: find.text(chipText), matching: find.byType(Container))
+            .first,
+      );
+      final decoration = chip.decoration! as BoxDecoration;
+      expect(decoration.color, AppColors.surfaceChip);
+      expect(decoration.border, isNull);
+    }
+    final dollarIcons = tester
+        .widgetList<SvgPicture>(find.byType(SvgPicture))
+        .where(
+          (picture) =>
+              picture.bytesLoader is SvgAssetLoader &&
+              (picture.bytesLoader as SvgAssetLoader).assetName ==
+                  AppAssets.icDoller,
+        );
+    expect(dollarIcons, hasLength(1));
+    final clockIcons = tester
+        .widgetList<SvgPicture>(find.byType(SvgPicture))
+        .where(
+          (picture) =>
+              picture.bytesLoader is SvgAssetLoader &&
+              (picture.bytesLoader as SvgAssetLoader).assetName ==
+                  AppAssets.icClockCircle,
+        );
+    expect(clockIcons, hasLength(2));
+    for (final assetName in [
+      AppAssets.icShootDate,
+      AppAssets.icShootLocation,
+    ]) {
+      final matchingIcons = tester
+          .widgetList<SvgPicture>(find.byType(SvgPicture))
+          .where(
+            (picture) =>
+                picture.bytesLoader is SvgAssetLoader &&
+                (picture.bytesLoader as SvgAssetLoader).assetName == assetName,
+          );
+      expect(matchingIcons, hasLength(1));
+    }
   });
 
   testWidgets('shows loader when isLoading=true', (tester) async {

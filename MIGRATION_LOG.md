@@ -5,6 +5,193 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-05: Full-Screen Profile Image Crop Screen Migration
+
+- **Task**: Replace profile crop bottom sheets with full-screen `CropImageScreen`.
+- **Changed Files**:
+  - `lib/features/profile/presentation/screens/crop_image_screen.dart`
+  - `lib/app/routes.dart`
+  - `lib/features/profile/presentation/routes/profile_routes.dart`
+  - `lib/features/profile/presentation/screens/my_profile_screen.dart`
+  - `lib/features/auth/presentation/screens/signup1_screen.dart`
+  - `lib/features/profile/presentation/widgets/profile_image_crop_sheet.dart` (deleted)
+  - `lib/features/auth/presentation/widgets/signup1_crop_sheet.dart` (deleted)
+- **Decisions**:
+  - Migrated profile image cropping to dedicated full-screen `CropImageScreen` accepting `File imageFile` via GoRouter `extra`.
+  - Added `cropImage` RouteSpec to `Routes` and registered it under `profileRoutes`.
+  - Updated image pickers in `MyProfileScreen` and `SignUp1Screen` to navigate to `Routes.cropImage.name` and handle returned cropped image.
+  - Deleted legacy bottom sheet implementations `profile_image_crop_sheet.dart` and `signup1_crop_sheet.dart`.
+- **Verification**:
+  - `flutter test test/app/router_test.dart` — 9 / 9 tests passing.
+  - `flutter analyze --fatal-infos` — 0 issues.
+
+---
+
+### 2026-08-05: Filter Bottom Sheet Root Navigator Fix
+
+- **Task**: Open filter bottom sheet above bottom shell navigation.
+- **Changed Files**:
+  - `lib/features/shoots/presentation/widgets/shoots_filter_bottom_sheet.dart`
+- **Decisions**:
+  - Added `useRootNavigator: true` to `showModalBottomSheet(...)` in `ShootsFilterBottomSheet.show`.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
+### 2026-08-05: Shoots Top Header Filter Icon & Filter Bottom Sheet
+
+- **Task**: Add top header filter action icon and filter bottom sheet modal.
+- **Changed Files**:
+  - `lib/features/shoots/presentation/widgets/shoots_filter_bottom_sheet.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+- **Decisions**:
+  - Added trailing `iconFilter` button to `AppMainToolbar` in `ShootsScreen`.
+  - Implemented `ShootsFilterBottomSheet` modal with status filtering (`All Status`, `Pending`, `Confirmed`) and `Clear All` / `Apply` actions.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
+### 2026-08-05: Request / Shoots Segmented Control Added
+
+- **Task**: Add Request & Shoots segmented tab selector matching screenshot mockup.
+- **Changed Files**:
+  - `lib/shared/widgets/app_segmented_control.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+- **Decisions**:
+  - Added `AppSegmentedControl` shared widget with Option A gold gradient active pill.
+  - Bound `selectedTabIndex` in `ShootsListNotifier` to filter pending requests (`index 0`) vs confirmed shoots (`index 1`).
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
+### 2026-08-05: Shoots Empty State Image & Copy Update
+
+- **Task**: Replace empty shoots icon and copy with `no_data.png` graphic and exact text.
+- **Changed Files**:
+  - `lib/app/assets.dart`
+  - `lib/shared/widgets/app_empty_state.dart`
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+- **Decisions**:
+  - Added `imageAsset` support to `AppEmptyState` widget to support PNG illustrations alongside SVGs.
+  - Set default empty state for `ShootsScreen` to `AppAssets.noData` image, title `'No Shoot Available'`, and description `'No shoots available at the moment.\nNew opportunities will appear here when assigned.'`.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
+### 2026-08-05: Drawer and Screen Header Consistency
+
+- **Task**: Align active drawer menu labels with destination screen headers.
+- **Changed Files**:
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+  - `lib/features/messages/presentation/screens/messages_screen.dart`
+  - `test/features/shoots/presentation/screens/shoots_screen_test.dart`
+  - `test/features/messages/presentation/screens/messages_screen_test.dart`
+  - `docs/phase4/task_23_groupF_shell_shared.md`
+- **Decisions**:
+  - Normalized the two mismatches to the existing drawer labels: `Shoots` and
+    `Messages`. Meetings and Manage Availability required no change; Dashboard
+    retains its dedicated welcome header.
+- **Verification**:
+  - `flutter analyze --fatal-infos` on the two screens and their tests — 0 issues.
+  - Focused Shoots + Messages screen tests — 8 / 8 passing.
+
+---
+
+### 2026-08-05: Shoot Details Type Chip Styling
+
+- **Task**: Restyle the Shoot Type and Booking Type chips.
+- **Changed Files**:
+  - `lib/app/colors.dart`
+  - `lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart`
+  - `test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart`
+  - `docs/phase4/task_13_groupD_upcoming_details.md`
+- **Decisions**:
+  - Added `AppColors.surfaceChip` for the requested `#323131` background and
+    removed the chip border while retaining existing text and spacing.
+- **Verification**:
+  - `flutter analyze --fatal-infos lib/app/colors.dart lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 0 issues.
+  - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 4 / 4 passing.
+
+---
+
+### 2026-08-05: Shoot Details SVG Icons
+
+- **Task**: Replace the shoot details Material icons with the supplied SVGs.
+- **Changed Files**:
+  - `assets/svg/shoots/ic_clock_circle.svg`
+  - `assets/svg/shoots/ic_doller.svg`
+  - `assets/svg/shoots/ic_shoot_date.svg`
+  - `assets/svg/shoots/ic_shoot_location.svg`
+  - `lib/app/assets.dart`
+  - `lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart`
+  - `test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart`
+  - `docs/phase4/task_13_groupD_upcoming_details.md`
+- **Decisions**:
+  - Exposed the supplied assets as `AppAssets.icDoller` and
+    `AppAssets.icClockCircle`, retaining their native 19×19 dimensions in the
+    Event Budget and Total Time Duration tiles.
+  - Replaced the date, time, and location Material icons in the event info row
+    with `AppAssets.icShootDate`, a white-tinted reuse of
+    `AppAssets.icClockCircle`, and `AppAssets.icShootLocation` at 16×16.
+- **Verification**:
+  - `flutter analyze --fatal-infos lib/app/assets.dart lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 0 issues.
+  - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 4 / 4 passing.
+
+---
+
+### 2026-08-05: Add Availability Date Field Icon
+
+- **Task**: Use the new add-date icon in the Add Availability form.
+- **Changed Files**:
+  - `assets/icon/ic_add_date.svg`
+  - `lib/app/assets.dart`
+  - `lib/features/availability/presentation/screens/add_availability_screen.dart`
+  - `lib/features/availability/presentation/screens/manage_availability_screen.dart`
+  - `test/features/availability/presentation/screens/manage_availability_screen_test.dart`
+  - `pubspec.yaml`
+  - `docs/phase4/task_05_groupB_availability.md`
+- **Decisions**:
+  - Added `assets/icon/` to the Flutter asset bundle and exposed the SVG as
+    `AppAssets.icAddDate` instead of hardcoding its path in the screen.
+  - Reused the same icon for the Add Date and Until Date suffixes and the
+    Available Days summary card on the Manage Availability screen.
+- **Verification**:
+  - `dart format lib/app/assets.dart lib/features/availability/presentation/screens/add_availability_screen.dart` — clean.
+  - `flutter analyze --fatal-infos lib/app/assets.dart lib/features/availability/presentation/screens/add_availability_screen.dart` — 0 issues.
+  - `flutter test test/features/availability/presentation/screens/add_availability_screen_test.dart` — 6 / 6 passing.
+  - `flutter analyze --fatal-infos lib/features/availability/presentation/screens/manage_availability_screen.dart test/features/availability/presentation/screens/manage_availability_screen_test.dart` — 0 issues.
+  - `flutter test test/features/availability/presentation/screens/manage_availability_screen_test.dart` — 7 / 7 passing.
+
+---
+
+### 2026-07-28: Realtime New Room Creation Socket Event (`chatRoomCreated`)
+
+- **Task**: Fix socket event handling for new room creation using `chatRoomCreated`.
+- **Changed Files**:
+  - `lib/features/messages/domain/events/chat_socket_event.dart`
+  - `lib/features/messages/data/sources/messages_socket_source.dart`
+  - `lib/features/messages/data/dto/conversation_dto.dart`
+  - `lib/features/messages/presentation/providers/conversation_list_providers.dart`
+  - `test/features/messages/presentation/providers/conversation_list_notifier_test.dart`
+  - `test/features/messages/presentation/providers/chat_thread_notifier_test.dart`
+- **Decisions**:
+  - Added `ChatRoomCreated(Conversation conversation)` variant to `ChatSocketEvent`.
+  - Configured `MessagesSocketSource` to listen to `chatRoomCreated`, extract `payload.room`, and parse into `Conversation` via `ConversationDto.fromRestJson`.
+  - Enhanced `ConversationDto.fromRestJson` to parse `client_snapshot` and `production_ids` in addition to `cp_ids` and `manager_ids`.
+  - Configured `ConversationListNotifier` to directly prepend/update `Conversation` in `state.items` upon `ChatRoomCreated` without triggering any REST API call (`refresh()`).
+  - Added unit test verifying parsing of the exact sample payload and direct room list prepending.
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues.
+  - `flutter test test/features/messages/` — 33 / 33 tests passing.
+
+---
+
 ### 2026-07-27: Add Availability Type Status Dots and Date Display
 
 - **Task**: Add Availability — type selector and Add Date display polish.
