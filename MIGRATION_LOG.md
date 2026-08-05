@@ -5,6 +5,74 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-05: Push Notification Documentation & Preference API Integration
+
+- **Task**: Fully integrate `PATCH /push-notifications/preferences`, FCM token management contract (`POST /push-notifications/tokens`, `DELETE /push-notifications/tokens`), and push payload tap handler strictly adhering to Push Notification backend documentation.
+- **Changed Files**:
+  - `lib/features/notification/data/sources/notification_remote_source.dart`
+  - `lib/features/notification/domain/repositories/notification_repository.dart`
+  - `lib/features/notification/data/repositories/notification_repository_impl.dart`
+  - `lib/features/profile/presentation/providers/notification_settings_providers.dart`
+  - `lib/features/notification/presentation/utils/push_notification_handler.dart`
+  - `test/features/notification/notification_repository_impl_test.dart`
+- **Decisions**:
+  - Kept strictly the exact 3 push notification API endpoints from the backend specification:
+    1. `POST /push-notifications/tokens` (`saveFcmToken`)
+    2. `DELETE /push-notifications/tokens` (`removeFcmToken`)
+    3. `PATCH /push-notifications/preferences` (`updateNotificationPreferences`)
+  - Removed unneeded `GET /notifications/settings` endpoint.
+  - Added comprehensive `debugPrint` and `AppLogger` logs for tracing requests and responses in console.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+  - `flutter test test/features/notification/notification_repository_impl_test.dart` — 3/3 passing.
+  - `flutter test test/features/profile/presentation/notification_category_sheet_test.dart` — 1/1 passing.
+
+---
+
+### 2026-08-05: Declare Push Notification Endpoints in ApiEndpoints Central Registry
+
+- **Task**: Declare all Push Notification and FCM REST endpoint URLs (`notifications`, `pushTokens`, `pushPreferences`, `notificationRead`, `notificationsReadAll`, `notificationSettings`) as constants in `ApiEndpoints` registry.
+- **Changed Files**:
+  - `lib/core/network/api_endpoints.dart`
+  - `lib/features/notification/data/sources/notification_remote_source.dart`
+- **Decisions**:
+  - Moved raw notification URL strings out of `NotificationRemoteSource` into `ApiEndpoints` class constants.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
+### 2026-08-05: Wire NotificationCategorySheet & Push Settings to Preferences API
+
+- **Task**: Connect `NotificationCategorySheet` Save CTA button and `NotificationSettingsScreen` push toggle to `NotificationSettingsNotifier.savePreferences()` calling `PATCH /push-notifications/preferences`.
+- **Changed Files**:
+  - `lib/features/profile/presentation/widgets/notification_category_sheet.dart`
+  - `lib/features/profile/presentation/providers/notification_settings_providers.dart`
+- **Decisions**:
+  - Wired `savePreferences()` method in `NotificationSettingsNotifier` to construct `NotificationSettingsRequestDto` containing `session_id`, `push_enabled`, and all 7 topic toggles (`shoots`, `payments`, `messages`, `meetings`, `proposals`, `files`, `system`), executing `PATCH /push-notifications/preferences`.
+  - Connected `AppCtaButton` Save action in `NotificationCategorySheet` to invoke `savePreferences()`.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
+### 2026-08-05: Notification Card UI Compact Dimensions & Gold RichText Prefix Alignment
+
+- **Task**: Align `NotificationItemCard`, `NotificationStackedCards`, and mock notification items with Figma design specs (compact card size, gold title prefix in inner message box, 36px circular avatar, gold CTA action button, and exact Figma copy).
+- **Changed Files**:
+  - `lib/features/notification/presentation/widgets/notification_item_card.dart`
+  - `lib/features/notification/presentation/widgets/notification_stacked_cards.dart`
+  - `lib/features/notification/presentation/providers/notification_list_providers.dart`
+- **Decisions**:
+  - Compacted card layout by using `AppSpacing.md` (12px) padding and `AppSpacing.smd` (10px) bottom margins, matching the smaller, elegant card height in Figma.
+  - Implemented `RichText` formatting in `_buildFormattedMessage`: title prefixes ending with `:` (e.g., `Shoot Assigned:`, `Shoot Reassigned:`, `Shoot Schedule Updated:`, `Shoot Cancelled:`, `Location Changed:`) are colored with gold brand accent (`AppColors.primary`), while the remaining text is styled in muted light grey (`AppColors.white70`).
+  - Aligned `NotificationStackedCards` top offsets (`-AppSpacing.smd` / `-AppSpacing.xxs`) and radii with `NotificationItemCard`.
+  - Updated fallback mock notifications to match exact names ("Angela Kia", "Connor Frazier"), timestamps ("09:20AM"), and message strings from Figma Screens 1 & 2.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
 ### 2026-08-05: NotificationFilterBottomSheet Radio Button & Container Figma Code Exact Alignment
 
 - **Task**: Update `NotificationFilterBottomSheet` using exact Figma Flutter inspect code (40px top corner radius, `Color(0xFF282828)` container color, `BoxShadow(color: Color(0x0C110C2E), blurRadius: 50, offset: Offset(20, 0))`, 32x32 circular close button with 0.5px `Color(0xB2DDDDDD)` border, dark pill count badges `#282828`, and 16px corner radius for buttons).

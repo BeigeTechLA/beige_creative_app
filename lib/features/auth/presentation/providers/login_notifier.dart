@@ -50,10 +50,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
     state = state.copyWith(savePassword: value);
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     final trimmedEmail = email.trim();
     final trimmedPassword = password.trim();
 
@@ -62,7 +59,9 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       return;
     }
     if (!isValidEmail(trimmedEmail)) {
-      state = state.copyWith(errorMessage: 'Please enter a valid email address');
+      state = state.copyWith(
+        errorMessage: 'Please enter a valid email address',
+      );
       return;
     }
     if (trimmedPassword.isEmpty) {
@@ -81,10 +80,9 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
     );
 
     try {
-      final result = await ref.read(authRepositoryProvider).login(
-            email: trimmedEmail,
-            password: trimmedPassword,
-          );
+      final result = await ref
+          .read(authRepositoryProvider)
+          .login(email: trimmedEmail, password: trimmedPassword);
 
       final session = ref.read(sessionStoreProvider);
       await session.writeToken(result.token);
@@ -111,10 +109,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
         final telemetry = ref.read(telemetryClientProvider);
         final user = result.user;
         if (user != null) {
-          await telemetry.setUserIdentity(
-            userId: user.id,
-            userRole: user.role,
-          );
+          await telemetry.setUserIdentity(userId: user.id, userRole: user.role);
         }
         unawaited(telemetry.loginSuccess());
       } catch (e, st) {
@@ -135,8 +130,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       );
       state = state.copyWith(
         isLoggingIn: false,
-        errorMessage:
-            _formatError(e) ?? 'Invalid email or password',
+        errorMessage: _formatError(e) ?? 'Invalid email or password',
       );
     }
   }
@@ -197,6 +191,4 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
 }
 
 final loginNotifierProvider =
-    AutoDisposeNotifierProvider<LoginNotifier, LoginState>(
-  LoginNotifier.new,
-);
+    AutoDisposeNotifierProvider<LoginNotifier, LoginState>(LoginNotifier.new);
