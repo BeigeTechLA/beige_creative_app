@@ -22,6 +22,7 @@ import '../widgets/profile_portfolio_links_sheet.dart';
 import '../widgets/profile_section_list.dart';
 import '../widgets/profile_social_links_sheet.dart';
 import '../widgets/profile_stats_panel.dart';
+import '../../../home/presentation/widgets/common/home_section_divider.dart';
 
 class Myprofile extends ConsumerStatefulWidget {
   const Myprofile({super.key});
@@ -266,10 +267,7 @@ class _MyprofileState extends ConsumerState<Myprofile> {
                             .map((e) => e.name)
                             .toList(),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.all(AppSpacing.md),
-                        child: Divider(color: AppColors.dividerDark),
-                      ),
+                      const HomeSectionDivider(centerAlpha: 0.24),
                       ProfileSocialLinksList(
                         socialLinks: state.socialLinks,
                         onOpen: _openSocialDialog,

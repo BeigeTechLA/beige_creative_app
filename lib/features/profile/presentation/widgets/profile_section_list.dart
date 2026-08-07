@@ -56,13 +56,8 @@ class ProfileSectionList extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          const Padding(
-            padding: EdgeInsets.all(AppSpacing.md),
-            child: Divider(color: AppColors.dividerDark),
-          ),
+
           const _SectionHeader('Settings'),
-          const SizedBox(height: 10),
           _SectionCard(
             children: [
               _MenuRow(
@@ -70,18 +65,14 @@ class ProfileSectionList extends StatelessWidget {
                 title: 'App Preferences',
                 onTap: () => context.pushNamed(Routes.appPreferences.name),
               ),
-              const _SectionDivider(),
-              const _MenuRow(
+              _SectionDivider(),
+              _MenuRow(
                 iconPath: AppAssets.notificationSetting,
                 title: 'Notifications Settings',
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          const Padding(
-            padding: EdgeInsets.all(AppSpacing.md),
-            child: Divider(color: AppColors.dividerDark),
-          ),
+
           const _SectionHeader('Legal'),
           const SizedBox(height: 10),
           _SectionCard(
@@ -225,9 +216,25 @@ class _SectionDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.base),
-      child: Divider(height: 1, color: AppColors.dividerDark),
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+      ),
+      child: Container(
+        height: 1,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.white.withValues(alpha: 0.09),
+              AppColors.white.withValues(alpha: 0.24),
+              AppColors.white.withValues(alpha: 0.09),
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+      ),
     );
   }
 }

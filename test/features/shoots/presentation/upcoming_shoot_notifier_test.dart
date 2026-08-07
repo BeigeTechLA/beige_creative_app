@@ -72,7 +72,11 @@ class _FakeShootsRepo implements ShootsRepository {
   }
 
   @override
-  Future<List<Shoot>> fetchShoots() async => <Shoot>[];
+  Future<ShootsData> fetchShoots({
+    String requestStatus = 'all',
+    String shootStatus = 'completed',
+  }) async =>
+      ShootsData();
 
   @override
   Future<count_model.ShootCountData> fetchShootCount() async =>
@@ -82,6 +86,9 @@ class _FakeShootsRepo implements ShootsRepository {
         confirmedRequests: 0,
         rejectedRequests: 0,
       );
+
+  @override
+  Future<List<Shoot>> fetchShootCardDetails(String status) async => const [];
 }
 
 class _RecordingTelemetry implements TelemetryClient {

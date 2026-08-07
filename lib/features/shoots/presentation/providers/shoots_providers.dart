@@ -18,51 +18,67 @@ const Duration kShootsSearchDebounce = Duration(milliseconds: 250);
 
 @immutable
 class ShootsListState {
-  /// Server-side hydrated list — never mutated by search.
-  final List<Shoot> allShoots;
+  final ShootsData shootsData;
 
-  /// Filtered view of `allShoots` after applying [searchQuery], [selectedTabIndex], and [selectedStatusFilter].
+  /// Filtered view of `shootsData` or `topCardShoots` after applying [searchQuery], [selectedTabIndex], and [selectedStatusFilter].
   final List<Shoot> visibleShoots;
 
   final String searchQuery;
   final int selectedTabIndex; // 0 = Request, 1 = Shoots
   final String selectedStatusFilter; // 'All Status', 'Pending', 'Confirmed'
+  final String? selectedTopCard;
+  final List<Shoot>? topCardShoots;
   final count_model.ShootCountData? counts;
   final bool isLoading;
   final String? errorMessage;
   final int actionInFlightProjectId;
 
-  const ShootsListState({
-    this.allShoots = const [],
+  List<Shoot> get allShoots => shootsData.all;
+
+  ShootsListState({
+    ShootsData? shootsData,
     this.visibleShoots = const [],
     this.searchQuery = '',
     this.selectedTabIndex = 0,
     this.selectedStatusFilter = 'All Status',
+    this.selectedTopCard,
+    this.topCardShoots,
     this.counts,
     this.isLoading = false,
     this.errorMessage,
     this.actionInFlightProjectId = 0,
-  });
+  }) : shootsData = shootsData ?? ShootsData();
 
   ShootsListState copyWith({
+    ShootsData? shootsData,
     List<Shoot>? allShoots,
     List<Shoot>? visibleShoots,
     String? searchQuery,
     int? selectedTabIndex,
     String? selectedStatusFilter,
+    String? selectedTopCard,
+    bool clearSelectedTopCard = false,
+    List<Shoot>? topCardShoots,
+    bool clearTopCardShoots = false,
     count_model.ShootCountData? counts,
     bool? isLoading,
     String? errorMessage,
     int? actionInFlightProjectId,
     bool clearError = false,
   }) {
+    final effectiveShootsData = shootsData ??
+        (allShoots != null ? ShootsData(shoots: allShoots) : this.shootsData);
     return ShootsListState(
-      allShoots: allShoots ?? this.allShoots,
+      shootsData: effectiveShootsData,
       visibleShoots: visibleShoots ?? this.visibleShoots,
       searchQuery: searchQuery ?? this.searchQuery,
       selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
       selectedStatusFilter:
           selectedStatusFilter ?? this.selectedStatusFilter,
+      selectedTopCard:
+          clearSelectedTopCard ? null : (selectedTopCard ?? this.selectedTopCard),
+      topCardShoots:
+          clearTopCardShoots ? null : (topCardShoots ?? this.topCardShoots),
       counts: counts ?? this.counts,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
@@ -82,7 +98,22 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
       _debounce = null;
     });
     Future.microtask(refresh);
-    return const ShootsListState(isLoading: true);
+    return ShootsListState(isLoading: true);
+  }
+
+  String? _getCardStatus(String cardTitle) {
+    switch (cardTitle) {
+      case 'Pending Shoots':
+        return 'pending';
+      case 'Confirmed Shoots':
+        return 'confirmed';
+      case 'Completed Shoots':
+        return 'completed';
+      case 'Declined':
+        return 'rejected';
+      default:
+        return null;
+    }
   }
 
   /// Re-fetch dashboard + count in parallel. Re-applies the current search and tab filter.
@@ -94,16 +125,34 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
     final countsFuture = _safeFetchCounts(repo);
 
     try {
-      final shoots = await repo.fetchShoots();
+      final shootsData = await repo.fetchShoots(
+        requestStatus: 'all',
+        shootStatus: 'completed',
+      );
       final counts = await countsFuture;
+
+      List<Shoot>? topCardShoots = state.topCardShoots;
+      if (state.selectedTopCard != null) {
+        final statusParam = _getCardStatus(state.selectedTopCard!);
+        if (statusParam != null) {
+          try {
+            topCardShoots = await repo.fetchShootCardDetails(statusParam);
+          } catch (e, st) {
+            AppLogger.e('Shoots fetchShootCardDetails refresh failed', e, st);
+          }
+        }
+      }
+
       final filtered = _filter(
-        shoots,
+        shootsData,
         state.searchQuery,
         state.selectedTabIndex,
         state.selectedStatusFilter,
+        topCardShoots: topCardShoots,
       );
       state = state.copyWith(
-        allShoots: shoots,
+        shootsData: shootsData,
+        topCardShoots: topCardShoots,
         visibleShoots: filtered,
         counts: counts,
         isLoading: false,
@@ -132,10 +181,11 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
   void selectTab(int index) {
     if (state.selectedTabIndex == index) return;
     final filtered = _filter(
-      state.allShoots,
+      state.shootsData,
       state.searchQuery,
       index,
       state.selectedStatusFilter,
+      topCardShoots: state.topCardShoots,
     );
     state = state.copyWith(
       selectedTabIndex: index,
@@ -147,13 +197,67 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
   void setStatusFilter(String status) {
     if (state.selectedStatusFilter == status) return;
     final filtered = _filter(
-      state.allShoots,
+      state.shootsData,
       state.searchQuery,
       state.selectedTabIndex,
       status,
+      topCardShoots: state.topCardShoots,
     );
     state = state.copyWith(
       selectedStatusFilter: status,
+      visibleShoots: filtered,
+    );
+  }
+
+  /// Select a top rectangle count card option.
+  Future<void> selectTopCard(String cardTitle) async {
+    if (state.selectedTopCard == cardTitle && state.topCardShoots != null) return;
+    final statusParam = _getCardStatus(cardTitle);
+    if (statusParam == null) return;
+
+    state = state.copyWith(
+      selectedTopCard: cardTitle,
+      isLoading: true,
+      clearError: true,
+    );
+
+    try {
+      final repo = ref.read(shootsRepositoryProvider);
+      final cardShoots = await repo.fetchShootCardDetails(statusParam);
+      final filtered = _filter(
+        state.shootsData,
+        state.searchQuery,
+        state.selectedTabIndex,
+        state.selectedStatusFilter,
+        topCardShoots: cardShoots,
+      );
+      state = state.copyWith(
+        selectedTopCard: cardTitle,
+        topCardShoots: cardShoots,
+        visibleShoots: filtered,
+        isLoading: false,
+      );
+    } catch (e, st) {
+      AppLogger.e('Shoots fetchShootCardDetails failed', e, st);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Failed to load $cardTitle',
+      );
+    }
+  }
+
+  /// Clear top count card selection and restore segment control.
+  void clearTopCardSelection() {
+    final filtered = _filter(
+      state.shootsData,
+      state.searchQuery,
+      state.selectedTabIndex,
+      state.selectedStatusFilter,
+      topCardShoots: null,
+    );
+    state = state.copyWith(
+      clearSelectedTopCard: true,
+      clearTopCardShoots: true,
       visibleShoots: filtered,
     );
   }
@@ -171,31 +275,62 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
 
   void _applySearch(String query) {
     final filtered = _filter(
-      state.allShoots,
+      state.shootsData,
       query,
       state.selectedTabIndex,
       state.selectedStatusFilter,
+      topCardShoots: state.topCardShoots,
     );
     state = state.copyWith(visibleShoots: filtered);
   }
 
+  @visibleForTesting
+  List<Shoot> filterForTesting(
+    ShootsData data, {
+    required String query,
+    required int tabIndex,
+    required String statusFilter,
+    List<Shoot>? topCardShoots,
+  }) =>
+      _filter(
+        data,
+        query,
+        tabIndex,
+        statusFilter,
+        topCardShoots: topCardShoots,
+      );
+
   List<Shoot> _filter(
-    List<Shoot> source,
+    ShootsData data,
     String query,
     int tabIndex,
-    String statusFilter,
-  ) {
+    String statusFilter, {
+    List<Shoot>? topCardShoots,
+  }) {
     final q = query.trim().toLowerCase();
-    return source.where((s) {
-      final isConfirmed = s.status.toLowerCase() == 'confirmed' ||
-          s.status.toLowerCase() == 'accepted' ||
-          s.crewAccept == 1;
-      final matchesTab = tabIndex == 0 ? !isConfirmed : isConfirmed;
-      if (!matchesTab) return false;
+    final List<Shoot> source = topCardShoots ??
+        (tabIndex == 0 ? data.requests : data.shoots);
 
-      if (statusFilter != 'All Status') {
-        if (statusFilter == 'Pending' && isConfirmed) return false;
+    return source.where((s) {
+      if (topCardShoots == null && statusFilter != 'All Status') {
+        final statusLower = s.status.trim().toLowerCase();
+        final isConfirmed = statusLower == 'confirmed' ||
+            statusLower == 'accepted' ||
+            s.crewAccept == 1;
+
+        if (statusFilter == 'Pending' &&
+            (!statusLower.contains('pending') && s.crewAccept != 0)) {
+          return false;
+        }
         if (statusFilter == 'Confirmed' && !isConfirmed) return false;
+        if (statusFilter == 'Completed' && statusLower != 'completed') {
+          return false;
+        }
+        if (statusFilter == 'Cancelled' &&
+            statusLower != 'cancelled' &&
+            statusLower != 'declined') {
+          return false;
+        }
       }
 
       if (q.isEmpty) return true;

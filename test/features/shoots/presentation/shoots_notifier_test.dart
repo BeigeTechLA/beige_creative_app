@@ -22,6 +22,7 @@ class _FakeShootsRepo implements ShootsRepository {
   bool throwOnFetchCount = false;
   bool throwOnRespond = false;
 
+  List<Shoot> requests = const [];
   List<Shoot> shoots = const [];
   count_model.ShootCountData counts = count_model.ShootCountData(
     completedShoots: 0,
@@ -30,11 +31,30 @@ class _FakeShootsRepo implements ShootsRepository {
     rejectedRequests: 0,
   );
 
+  List<Shoot> cardShoots = const [];
+  int fetchCardDetailsCount = 0;
+  String? lastCardStatus;
+  bool throwOnFetchCardDetails = false;
+
   @override
-  Future<List<Shoot>> fetchShoots() async {
+  Future<List<Shoot>> fetchShootCardDetails(String status) async {
+    fetchCardDetailsCount++;
+    lastCardStatus = status;
+    if (throwOnFetchCardDetails) throw Exception('boom');
+    return cardShoots;
+  }
+
+  @override
+  Future<ShootsData> fetchShoots({
+    String requestStatus = 'all',
+    String shootStatus = 'completed',
+  }) async {
     fetchShootsCount++;
     if (throwOnFetchShoots) throw Exception('boom');
-    return shoots;
+    return ShootsData(
+      requests: requests.isNotEmpty ? requests : shoots,
+      shoots: requests.isNotEmpty ? shoots : [],
+    );
   }
 
   @override
@@ -374,5 +394,44 @@ void main() {
         expect(telemetry.events, isEmpty);
       },
     );
+  });
+
+  group('selectTopCard & clearTopCardSelection', () {
+    test('selectTopCard fetches creator/shoot-card-details and updates visibleShoots', () async {
+      final repo = _FakeShootsRepo()
+        ..cardShoots = [_shoot(id: 99, projectId: 99, projectName: 'Top Card Shoot', status: 'pending')];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      await c.read(shootsListProvider.notifier).selectTopCard('Pending Shoots');
+
+      final state = c.read(shootsListProvider);
+      expect(state.selectedTopCard, 'Pending Shoots');
+      expect(repo.fetchCardDetailsCount, 1);
+      expect(repo.lastCardStatus, 'pending');
+      expect(state.visibleShoots.length, 1);
+      expect(state.visibleShoots.first.projectName, 'Top Card Shoot');
+    });
+
+    test('clearTopCardSelection restores standard tab filter view', () async {
+      final repo = _FakeShootsRepo()
+        ..shoots = [_shoot(id: 1, projectId: 1, projectName: 'Regular Shoot')]
+        ..cardShoots = [_shoot(id: 99, projectId: 99, projectName: 'Top Card Shoot')];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      await c.read(shootsListProvider.notifier).selectTopCard('Pending Shoots');
+      expect(c.read(shootsListProvider).selectedTopCard, 'Pending Shoots');
+
+      c.read(shootsListProvider.notifier).clearTopCardSelection();
+
+      final state = c.read(shootsListProvider);
+      expect(state.selectedTopCard, isNull);
+      expect(state.topCardShoots, isNull);
+    });
   });
 }

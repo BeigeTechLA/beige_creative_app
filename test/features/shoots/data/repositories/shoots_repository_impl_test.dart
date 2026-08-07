@@ -239,20 +239,24 @@ void main() {
   });
 
   group('fetchShoots', () {
-    test('happy: parses shoots list', () async {
+    test('happy: parses shoots data payload', () async {
       when(() => dio.get<dynamic>(any())).thenAnswer(
-        (_) async => _ok(shootsListResponse(shoots: [
-          singleShootJson(id: 1, projectName: 'A'),
-          singleShootJson(id: 2, projectName: 'B'),
-        ])),
+        (_) async => _ok(shootsListResponse(
+          requests: [singleShootJson(id: 1, projectName: 'Req A')],
+          shoots: [singleShootJson(id: 2, projectName: 'Shoot B')],
+        )),
       );
 
-      final shoots = await repo.fetchShoots();
+      final data = await repo.fetchShoots();
 
-      expect(shoots.map((s) => s.id).toList(), [1, 2]);
-      expect(shoots.first.projectName, 'A');
-      verify(() => dio.get<dynamic>(ApiEndpoints.creatordashboarddetails))
-          .called(1);
+      expect(data.requests.map((s) => s.id).toList(), [1]);
+      expect(data.shoots.map((s) => s.id).toList(), [2]);
+      expect(data.requests.first.projectName, 'Req A');
+      expect(data.shoots.first.projectName, 'Shoot B');
+      verify(() => dio.get<dynamic>(ApiEndpoints.creatorShoots(
+            requestStatus: 'all',
+            shootStatus: 'completed',
+          ))).called(1);
     });
 
     test('error envelope → throws server message', () async {
@@ -269,7 +273,10 @@ void main() {
     test('5xx → DioException propagates', () async {
       when(() => dio.get<dynamic>(any())).thenThrow(
         _dioError(
-          path: ApiEndpoints.creatordashboarddetails,
+          path: ApiEndpoints.creatorShoots(
+            requestStatus: 'all',
+            shootStatus: 'completed',
+          ),
           statusCode: 503,
         ),
       );
@@ -324,6 +331,48 @@ void main() {
         repo.fetchShootCount(),
         throwsA(predicate(
             (e) => e is DioException && e.type == DioExceptionType.cancel)),
+      );
+    });
+  });
+
+  group('fetchShootCardDetails', () {
+    test('happy: parses List data payload', () async {
+      when(() => dio.get<dynamic>(any())).thenAnswer(
+        (_) async => _ok({
+          'error': false,
+          'message': 'ok',
+          'data': [
+            {
+              'id': 101,
+              'project_id': 101,
+              'project_name': 'Pending Shoot 1',
+              'event_date': '2026-08-10',
+              'start_time': '10:00',
+              'end_time': '12:00',
+              'event_location': 'Studio A',
+              'content_type': 'Commercial',
+              'status': 'pending',
+              'crew_accept': 0,
+            }
+          ]
+        }),
+      );
+
+      final list = await repo.fetchShootCardDetails('pending');
+
+      expect(list.length, 1);
+      expect(list.first.projectName, 'Pending Shoot 1');
+      verify(() => dio.get<dynamic>(ApiEndpoints.creatorShootCardDetails('pending'))).called(1);
+    });
+
+    test('error envelope → throws server message', () async {
+      when(() => dio.get<dynamic>(any())).thenAnswer(
+        (_) async => _ok({'error': true, 'message': 'invalid status'}),
+      );
+
+      await expectLater(
+        repo.fetchShootCardDetails('invalid'),
+        throwsA(predicate((e) => e is Exception && e.toString().contains('invalid status'))),
       );
     });
   });

@@ -17,7 +17,8 @@ import '../../../../helpers/test_data.dart';
 /// the four count cards and routes search text into `updateSearch`.
 
 class _FakeShootsListNotifier extends ShootsListNotifier {
-  _FakeShootsListNotifier({this.seed = const ShootsListState()});
+  _FakeShootsListNotifier({ShootsListState? seed})
+      : seed = seed ?? ShootsListState();
 
   final ShootsListState seed;
   int refreshCalls = 0;
@@ -66,7 +67,7 @@ Future<_FakeShootsListNotifier> _pump(
   WidgetTester tester, {
   ShootsListState? seed,
 }) async {
-  final fake = _FakeShootsListNotifier(seed: seed ?? const ShootsListState());
+  final fake = _FakeShootsListNotifier(seed: seed ?? ShootsListState());
   await tester.pumpRouterApp(
     _router(),
     overrides: [shootsListProvider.overrideWith(() => fake)],
@@ -108,7 +109,7 @@ void main() {
   testWidgets('renders search bar with placeholder', (tester) async {
     await _pump(tester);
     expect(find.text('Search events or crew...'), findsOneWidget);
-    expect(find.text('Shoots'), findsOneWidget);
+    expect(find.text('Shoots'), findsNWidgets(2));
   });
 
   testWidgets('typing in search routes to notifier.updateSearch', (
@@ -132,7 +133,10 @@ void main() {
 
     await _pump(
       tester,
-      seed: ShootsListState(allShoots: [shoot], visibleShoots: [shoot]),
+      seed: ShootsListState(
+        shootsData: ShootsData(requests: [shoot]),
+        visibleShoots: [shoot],
+      ),
     );
 
     final accept = tester.widget<ElevatedButton>(

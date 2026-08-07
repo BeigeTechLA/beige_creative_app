@@ -5,6 +5,55 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-07: Bind GET /creator/shoot-card-details API to Shoots Top Count Cards
+
+- **Task**: Integrate `GET creator/shoot-card-details?status={pending|confirmed|completed|rejected}` API endpoint to fetch status-wise data when top count cards are selected.
+- **Changed Files**:
+  - `lib/core/network/api_endpoints.dart`
+  - `lib/features/shoots/domain/repositories/shoots_repository.dart`
+  - `lib/features/shoots/data/repositories/shoots_repository_impl.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `test/features/shoots/data/repositories/shoots_repository_impl_test.dart`
+  - `test/features/shoots/presentation/shoots_notifier_test.dart`
+  - `test/features/shoots/presentation/upcoming_shoot_notifier_test.dart`
+  - `lib/features/profile/presentation/widgets/profile_section_list.dart` (cleaned unused import)
+- **Decisions**:
+  - Added `creatorShootCardDetails(status)` endpoint builder to `ApiEndpoints`.
+  - Declared `fetchShootCardDetails(status)` in `ShootsRepository` and implemented in `ShootsRepositoryImpl` supporting both array and wrapped map responses.
+  - Added `topCardShoots` state handling in `ShootsListState` and `ShootsListNotifier`.
+  - Bound top count cards (`Pending Shoots` $\rightarrow$ `pending`, `Confirmed Shoots` $\rightarrow$ `confirmed`, `Completed Shoots` $\rightarrow$ `completed`, `Declined` $\rightarrow$ `rejected`) to trigger `fetchShootCardDetails(statusParam)` and populate `visibleShoots`.
+  - Clearing top card selection (`clearTopCardSelection()`) clears `topCardShoots` and restores standard segment control dataset (`data.requests` / `data.shoots`).
+- **Verification**:
+  - `flutter analyze`: 0 issues found.
+  - `flutter test test/features/shoots`: 51 / 51 tests passing.
+
+---
+
+### 2026-08-05: Replace creator/dashboard-details with GET /creator/shoots (Dual Array Response)
+
+- **Task**: Replace legacy `creator/dashboard-details` endpoint in Shoots repository with `GET /creator/shoots` and handle dual array response (`request` and `shoots`).
+- **Changed Files**:
+  - `lib/core/network/api_endpoints.dart`
+  - `lib/model_class/shoots_model.dart`
+  - `lib/features/shoots/domain/repositories/shoots_repository.dart`
+  - `lib/features/shoots/data/repositories/shoots_repository_impl.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `test/helpers/test_data.dart`
+  - `test/features/shoots/data/repositories/shoots_repository_impl_test.dart`
+  - `test/features/shoots/presentation/shoots_notifier_test.dart`
+  - `test/features/shoots/presentation/upcoming_shoot_notifier_test.dart`
+  - `test/features/shoots/presentation/screens/shoots_screen_test.dart`
+- **Decisions**:
+  - Replaced `creatordashboarddetails` call in `ShootsRepositoryImpl.fetchShoots()` with `GET /creator/shoots` using query params `request_status=all` and `shoot_status=completed`.
+  - Refactored `ShootsData` in `shoots_model.dart` to parse both `request` (pending/confirmed requests) and `shoots` (completed/cancelled shoots) arrays from backend response. Added `id` fallback (`json["id"] ?? json["project_id"]`) in `Shoot.fromJson` for completed shoot objects.
+  - Updated `ShootsRepository.fetchShoots()` to return `Future<ShootsData>`.
+  - Updated `ShootsListNotifier` in `shoots_providers.dart` so Tab 0 ("Request") filters items from `data.requests` and Tab 1 ("Shoots") filters items from `data.shoots`.
+- **Verification**:
+  - `flutter analyze`: 0 issues found.
+  - `flutter test test/features/shoots`: 45 / 45 tests passing.
+
+---
+
 ### 2026-08-05: Full-Screen Profile Image Crop Screen Migration
 
 - **Task**: Replace profile crop bottom sheets with full-screen `CropImageScreen`.

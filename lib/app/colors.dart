@@ -76,6 +76,23 @@ class AppColors {
 
   /// Background
   static const Color lightGoldenBg = Color(0xFFFEF5E5);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SHOOT STATUS BADGE COLORS
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// Completed status background & foreground
+  static const Color shootStatusCompletedBg = Color(0xFFD8ECFD);
+  static const Color shootStatusCompletedFg = Color(0xFF0C487C);
+
+  /// Confirmed status background & foreground
+  static const Color shootStatusConfirmedBg = Color(0xFFD8FDE6);
+  static const Color shootStatusConfirmedFg = Color(0xFF1DAA23);
+
+  /// Pending status background & foreground
+  static const Color shootStatusPendingBg = Color(0xFFFDF5DD);
+  static const Color shootStatusPendingFg = Color(0xFFE5A100);
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // TEXT COLORS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

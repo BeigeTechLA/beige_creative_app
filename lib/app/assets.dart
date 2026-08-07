@@ -180,12 +180,19 @@ class AppAssets {
   static const String declinedIcon = '$_shootSvg/declined_icon.svg';
   static const String photoIcon = '$_shootSvg/photo_icon.svg';
   static const String videoIcon = '$_shootSvg/ic_video.svg';
+  static const String clockIconSel = '$_shootSvg/ic_clock_selected.svg';
+  static const String declinedIconSel = '$_shootSvg/ic_decline_selected.svg';
+  static const String photoIconSel = '$_shootSvg/ic_photo_selected.svg';
+  static const String videoIconSel = '$_shootSvg/ic_video_selected.svg';
+
   static const String calendarIcon = '$_shootSvg/ic_calendar.svg';
   static const String icDoller = '$_shootSvg/ic_doller.svg';
   static const String icClockCircle = '$_shootSvg/ic_clock_circle.svg';
   static const String icShootDate = '$_shootSvg/ic_shoot_date.svg';
   static const String icShootLocation = '$_shootSvg/ic_shoot_location.svg';
 
+  static const String icCheckmark = '$_shootSvg/ic_checkmark_circle.svg';
+  static const String icLoaderPending = '$_shootSvg/ic_loader_pending.svg';
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Onboarding
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

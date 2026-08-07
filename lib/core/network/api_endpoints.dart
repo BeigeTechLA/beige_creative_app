@@ -50,6 +50,11 @@ class ApiEndpoints {
   }
 
   static const String creatordashboarddetails = "creator/dashboard-details";
+  static String creatorShoots({
+    String requestStatus = 'all',
+    String shootStatus = 'completed',
+  }) =>
+      'creator/shoots?request_status=$requestStatus&shoot_status=$shootStatus';
   static const String createavailability = "creator/availability";
   static const String shootstatus = "creator/get-crew-stats";
   static const String add_availability = "creator/add-availability";
@@ -61,6 +66,8 @@ class ApiEndpoints {
   static const String acceptdeclineproject = "creator/accept-project";
   static const String addportfoliolink = "creator/profile/add-portfolio-links";
   static const String myshootcount = "creator/shoot-count";
+  static String creatorShootCardDetails(String status) =>
+      "creator/shoot-card-details?status=$status";
 
   ///My profile
 

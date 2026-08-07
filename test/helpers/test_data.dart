@@ -156,16 +156,17 @@ Map<String, dynamic> shootCountResponse({
       },
     };
 
-/// `GET creator/dashboard-details` shape — `data.shoots` list. Each entry
-/// is one shoot in any status; tests can override the status field.
+/// `GET creator/shoots` shape — `data.request` & `data.shoots` lists.
 Map<String, dynamic> shootsListResponse({
+  List<Map<String, dynamic>>? requests,
   List<Map<String, dynamic>>? shoots,
 }) =>
     {
       'error': false,
       'message': 'ok',
       'data': {
-        'shoots': shoots ?? [singleShootJson()],
+        'request': requests ?? [],
+        'shoots': shoots ?? (requests == null ? [singleShootJson()] : []),
       },
     };
 

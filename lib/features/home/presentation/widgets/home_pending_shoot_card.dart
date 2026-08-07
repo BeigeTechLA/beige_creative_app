@@ -40,9 +40,31 @@ class HomePendingShootCard extends StatelessWidget {
     if (data == null) {
       return const SizedBox.shrink();
     }
-    final isConfirmed = data.status.toLowerCase() == 'confirmed' ||
-        data.status.toLowerCase() == 'accepted' ||
+    final statusLower = data.status.toLowerCase();
+    final isCompleted = statusLower == 'completed';
+    final isConfirmed = statusLower == 'confirmed' ||
+        statusLower == 'accepted' ||
         data.crewAccept == 1;
+
+    final Color badgeBg = isCompleted
+        ? AppColors.shootStatusCompletedBg
+        : (isConfirmed
+            ? AppColors.shootStatusConfirmedBg
+            : AppColors.shootStatusPendingBg);
+
+    final Color badgeFg = isCompleted
+        ? AppColors.shootStatusCompletedFg
+        : (isConfirmed
+            ? AppColors.shootStatusConfirmedFg
+            : AppColors.shootStatusPendingFg);
+
+    final String badgeAsset = isCompleted || isConfirmed
+        ? AppAssets.icCheckmark
+        : AppAssets.icLoaderPending;
+
+    final String badgeText = isCompleted
+        ? 'Completed'
+        : (isConfirmed ? 'Confirmed' : 'Pending');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,30 +158,28 @@ class HomePendingShootCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: isConfirmed
-                                ? AppColors.shootAcceptButtonBackground
-                                : AppColors.lightGoldenBg,
+                            color: badgeBg,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                isConfirmed
-                                    ? Icons.check_circle
-                                    : Icons.schedule,
-                                size: 14,
-                                color: isConfirmed
-                                    ? AppColors.shootAcceptButtonText
-                                    : AppColors.amber,
+                              SvgPicture.asset(
+                                badgeAsset,
+                                width: 14,
+                                height: 14,
+                                colorFilter: (isCompleted || isConfirmed)
+                                    ? ColorFilter.mode(
+                                        badgeFg,
+                                        BlendMode.srcIn,
+                                      )
+                                    : null,
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                isConfirmed ? 'Confirmed' : 'Pending',
+                                badgeText,
                                 style: AppTextStyles.body11.copyWith(
-                                  color: isConfirmed
-                                      ? AppColors.shootAcceptButtonText
-                                      : AppColors.amber,
+                                  color: badgeFg,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
