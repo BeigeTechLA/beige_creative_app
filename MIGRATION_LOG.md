@@ -5,6 +5,25 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-06: Firebase FCM Real Token & Notification Tap Handler Integration
+
+- **Task**: Full Firebase Cloud Messaging (`firebase_messaging`) integration, real FCM token retrieval, auto-refresh listener (`onTokenRefresh`), notification payload tap routing (`PushNotificationHandler`), and preferences sync.
+- **Changed Files**:
+  - `pubspec.yaml`
+  - `lib/core/firebase/fcm_service.dart`
+  - `lib/core/firebase/push_notification_handler.dart` [NEW]
+  - `lib/features/profile/presentation/providers/notification_settings_providers.dart`
+- **Decisions**:
+  - Integrated `firebase_messaging: ^15.1.3` to get real FCM token via `FirebaseMessaging.instance.getToken()`.
+  - Added fallback to cached session token if Firebase native config (`google-services.json`) is not present in dev builds.
+  - Implemented `PushNotificationHandler` to route notification tap events according to topic/type specs (`shoots`, `messages`, `meetings`, `files`).
+  - Set up `onTokenRefresh` listener to automatically send updated tokens to `POST /push-notifications/tokens`.
+- **Verification**:
+  - `flutter analyze` — 0 issues across 3 notification & firebase items.
+  - `flutter test test/features/notification/notification_repository_impl_test.dart` — 3/3 tests passing.
+
+---
+
 ### 2026-08-05: Push Notification Documentation & Preference API Integration
 
 - **Task**: Fully integrate `PATCH /push-notifications/preferences`, FCM token management contract (`POST /push-notifications/tokens`, `DELETE /push-notifications/tokens`), and push payload tap handler strictly adhering to Push Notification backend documentation.

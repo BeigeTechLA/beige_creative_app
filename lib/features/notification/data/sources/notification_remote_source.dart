@@ -44,6 +44,8 @@ class NotificationRemoteSource {
         'session_id': sessionId,
         'device_type': effectiveDeviceType,
       };
+      // ignore: avoid_print
+      print('🔥 [FCM TOKEN REGISTERING TO BACKEND]: $fcmToken');
       AppLogger.i('[NOTIFICATION API] POST /${ApiEndpoints.pushTokens} - Payload: $payload');
       await _dio.post<dynamic>(
         ApiEndpoints.pushTokens,
