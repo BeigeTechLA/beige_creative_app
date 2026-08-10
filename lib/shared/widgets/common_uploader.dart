@@ -27,6 +27,15 @@ class CommonUploader {
     return null;
   }
 
+  /// MULTIPLE FROM GALLERY
+  static Future<List<File>> pickMultipleFromGallery() async {
+    final List<XFile> images = await _picker.pickMultiImage();
+    if (images.isNotEmpty) {
+      return images.map((xfile) => File(xfile.path)).toList();
+    }
+    return [];
+  }
+
   /// FILES
   static Future<File?> pickFile() async {
     final result = await FilePicker.pickFiles();

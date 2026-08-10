@@ -45,6 +45,8 @@ class _ShootsFilterBottomSheetState extends State<ShootsFilterBottomSheet> {
     'All Status',
     'Pending',
     'Confirmed',
+    'Completed',
+    'Declined',
   ];
 
   @override

@@ -7,6 +7,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 
@@ -92,15 +93,47 @@ Future<void> showSignup3FeaturedSheet({
                   CustomTextField(
                     label: 'Enter Work Title*',
                     controller: controller.titleController,
+                    onChanged: (_) => setModalState(() {}),
                   ),
                   const SizedBox(height: 16),
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () async {
-                      final file = await CommonUploader.pickFromGallery();
-                      if (file != null) {
-                        setModalState(() {
-                          controller.tempImages.add(file);
-                        });
+                      final remainingSlots = 5 - controller.tempImages.length;
+                      if (remainingSlots <= 0) {
+                        controller.onError('Maximum 5 images allowed');
+                        return;
+                      }
+                      final files =
+                          await CommonUploader.pickMultipleFromGallery();
+                      if (files.isNotEmpty) {
+                        const maxSizeBytes = 30 * 1024 * 1024; // 30MB
+                        final validFiles = <File>[];
+                        bool oversizedFound = false;
+
+                        for (final file in files) {
+                          if (file.lengthSync() > maxSizeBytes) {
+                            oversizedFound = true;
+                          } else {
+                            validFiles.add(file);
+                          }
+                        }
+
+                        if (oversizedFound) {
+                          controller.onError('Each image must be max 30MB');
+                        }
+
+                        if (validFiles.isNotEmpty) {
+                          setModalState(() {
+                            if (validFiles.length > remainingSlots) {
+                              controller.tempImages
+                                  .addAll(validFiles.take(remainingSlots));
+                              controller.onError('Maximum 5 images allowed');
+                            } else {
+                              controller.tempImages.addAll(validFiles);
+                            }
+                          });
+                        }
                       }
                     },
                     child: DottedBorder(
@@ -115,6 +148,7 @@ Future<void> showSignup3FeaturedSheet({
                         width: double.infinity,
                         padding: const EdgeInsets.all(AppSpacing.base),
                         decoration: BoxDecoration(
+                          color: AppColors.transparent,
                           borderRadius: AppRadii.xxlAll,
                         ),
                         child: controller.tempImages.isEmpty
@@ -161,11 +195,22 @@ Future<void> showSignup3FeaturedSheet({
                                             index == controller.tempImages.length) {
                                           return GestureDetector(
                                             onTap: () async {
-                                              final file = await CommonUploader
-                                                  .pickFromGallery();
-                                              if (file != null) {
+                                              final remainingSlots = 5 - controller.tempImages.length;
+                                              if (remainingSlots <= 0) {
+                                                controller.onError('Maximum 5 images allowed');
+                                                return;
+                                              }
+                                              final files = await CommonUploader
+                                                  .pickMultipleFromGallery();
+                                              if (files.isNotEmpty) {
                                                 setModalState(() {
-                                                  controller.tempImages.add(file);
+                                                  if (files.length > remainingSlots) {
+                                                    controller.tempImages
+                                                        .addAll(files.take(remainingSlots));
+                                                    controller.onError('Maximum 5 images allowed');
+                                                  } else {
+                                                    controller.tempImages.addAll(files);
+                                                  }
                                                 });
                                               }
                                             },
@@ -233,26 +278,19 @@ Future<void> showSignup3FeaturedSheet({
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
                   const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: Builder(
-                      builder: (context) {
-                        final isValid = controller.titleController.text
-                                .trim()
-                                .isNotEmpty &&
-                            controller.tempImages.isNotEmpty &&
-                            controller.tempImages.length <= 5;
-                        return ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.goldSoft,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.xlAll,
-                            ),
-                          ),
-                          onPressed: () {
+                  Builder(
+                    builder: (context) {
+                      final isValid = controller.titleController.text
+                              .trim()
+                              .isNotEmpty &&
+                          controller.tempImages.isNotEmpty &&
+                          controller.tempImages.length <= 5;
+                      return AppCtaButton(
+                        label: 'Save',
+                        height: 50,
+                        enabled: isValid,
+                        onPressed: () {
                             if (controller.titleController.text.trim().isEmpty) {
                               controller.onError('Please enter work title');
                               return;
@@ -289,15 +327,9 @@ Future<void> showSignup3FeaturedSheet({
                             controller.editingProjectIndex = null;
                             Navigator.pop(context);
                           },
-                          child: Text(
-                            'Save',
-                            style: AppTextStyles.inheritSemiBold
-                                .copyWith(color: AppColors.black),
-                          ),
                         );
                       },
                     ),
-                  ),
                   const SizedBox(height: 16),
                 ],
               ),

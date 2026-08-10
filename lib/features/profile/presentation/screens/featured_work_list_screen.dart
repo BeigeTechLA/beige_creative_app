@@ -32,6 +32,7 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
   final List<String> selectedTags = [];
   List<dynamic> editingImages = [];
   bool isEditMode = false;
+  bool isSaving = false;
 
   final TextEditingController enterWorkTitleController =
       TextEditingController();
@@ -47,6 +48,7 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
   void _onEditTapped(String title, List<dynamic> images) {
     setState(() {
       isEditMode = true;
+      isSaving = false;
       enterWorkTitleController.text = title;
       editingImages = List.from(images);
       tempFeaturedImages.clear();
@@ -67,6 +69,7 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
   void _onAddTapped() {
     setState(() {
       isEditMode = false;
+      isSaving = false;
       enterWorkTitleController.clear();
       editingImages.clear();
       tempFeaturedImages.clear();
@@ -80,16 +83,24 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
       context: context,
       backgroundColor: AppColors.transparent,
       isScrollControlled: true,
-      builder: (_) => FeaturedWorkUploadSheet(
-        titleController: enterWorkTitleController,
-        tempFeaturedImages: tempFeaturedImages,
-        editingImages: editingImages,
-        onSavePressed: _onSavePressed,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          return FeaturedWorkUploadSheet(
+            titleController: enterWorkTitleController,
+            tempFeaturedImages: tempFeaturedImages,
+            editingImages: editingImages,
+            isSaving: isSaving,
+            onSavePressed: () async {
+              await _onSavePressed(setSheetState);
+            },
+          );
+        },
       ),
     );
   }
 
-  Future<void> _onSavePressed() async {
+  Future<void> _onSavePressed(StateSetter setSheetState) async {
+    if (isSaving) return;
     if (enterWorkTitleController.text.trim().isEmpty) {
       _showSnack('Please enter title');
       return;
@@ -108,23 +119,36 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
       context.pop();
       return;
     }
-    final ok = await ref
-        .read(featuredWorkNotifierProvider.notifier)
-        .upload(
-          title: enterWorkTitleController.text.trim(),
-          tags: List<String>.from(selectedTags),
-          files: List<File>.from(tempFeaturedImages),
-        );
-    if (!mounted) return;
-    if (ok) {
-      setState(() {
-        tempFeaturedImages.clear();
-        editingImages.clear();
-        selectedTags.clear();
-        isEditMode = false;
-      });
-      enterWorkTitleController.clear();
-      context.pop();
+
+    setSheetState(() {
+      isSaving = true;
+    });
+
+    try {
+      final ok = await ref
+          .read(featuredWorkNotifierProvider.notifier)
+          .upload(
+            title: enterWorkTitleController.text.trim(),
+            tags: List<String>.from(selectedTags),
+            files: List<File>.from(tempFeaturedImages),
+          );
+      if (!mounted) return;
+      if (ok) {
+        setState(() {
+          tempFeaturedImages.clear();
+          editingImages.clear();
+          selectedTags.clear();
+          isEditMode = false;
+        });
+        enterWorkTitleController.clear();
+        context.pop();
+      }
+    } finally {
+      if (mounted) {
+        setSheetState(() {
+          isSaving = false;
+        });
+      }
     }
   }
 

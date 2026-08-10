@@ -119,6 +119,7 @@ Shoot _shoot({
   String projectName = 'Sample Project',
   String contentType = 'Wedding',
   String status = 'pending',
+  int crewAccept = 0,
 }) {
   return Shoot(
     id: id,
@@ -136,7 +137,7 @@ Shoot _shoot({
     totalAmount: 1200,
     budget: 1200,
     status: status,
-    crewAccept: 0,
+    crewAccept: crewAccept,
     canTakeAction: true,
   );
 }
@@ -432,6 +433,94 @@ void main() {
       final state = c.read(shootsListProvider);
       expect(state.selectedTopCard, isNull);
       expect(state.topCardShoots, isNull);
+    });
+  });
+
+  group('setStatusFilter', () {
+    test('filters requests by Pending, Confirmed, Completed, Declined', () async {
+      final repo = _FakeShootsRepo()
+        ..requests = [
+          _shoot(id: 1, projectId: 10, status: 'pending', crewAccept: 0),
+          _shoot(id: 2, projectId: 20, status: 'accepted', crewAccept: 1),
+        ]
+        ..shoots = [
+          _shoot(id: 3, projectId: 30, status: 'completed'),
+          _shoot(id: 4, projectId: 40, status: 'declined'),
+        ];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      final notifier = c.read(shootsListProvider.notifier);
+
+      // On Tab 0 (requests): 'Pending' matches 1 item
+      notifier.setStatusFilter('Pending');
+      expect(c.read(shootsListProvider).selectedStatusFilter, 'Pending');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 1);
+
+      // On Tab 0 (requests): 'Confirmed' matches 1 item
+      notifier.setStatusFilter('Confirmed');
+      expect(c.read(shootsListProvider).selectedStatusFilter, 'Confirmed');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 2);
+
+      // Switch to Tab 1 (shoots): 'Completed' matches 1 item
+      notifier.selectTab(1);
+      notifier.setStatusFilter('Completed');
+      expect(c.read(shootsListProvider).selectedStatusFilter, 'Completed');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 3);
+
+      // On Tab 1 (shoots): 'Declined' matches 1 item
+      notifier.setStatusFilter('Declined');
+      expect(c.read(shootsListProvider).selectedStatusFilter, 'Declined');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 4);
+
+      // 'All Status' restores tab 1 full list
+      notifier.setStatusFilter('All Status');
+      expect(c.read(shootsListProvider).visibleShoots.length, 2);
+    });
+
+    test('setStatusFilter re-filters even when called with the same status name', () async {
+      final repo = _FakeShootsRepo()
+        ..requests = [
+          _shoot(id: 1, projectId: 10, status: 'pending', crewAccept: 0),
+          _shoot(id: 2, projectId: 20, status: 'accepted', crewAccept: 1),
+        ];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      final notifier = c.read(shootsListProvider.notifier);
+      notifier.setStatusFilter('Pending');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+
+      notifier.setStatusFilter('Pending');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+    });
+
+    test('setStatusFilter filters topCardShoots dataset when top card is active', () async {
+      final repo = _FakeShootsRepo()
+        ..cardShoots = [
+          _shoot(id: 10, projectId: 10, status: 'pending', crewAccept: 0),
+          _shoot(id: 20, projectId: 20, status: 'confirmed', crewAccept: 1),
+        ];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      final notifier = c.read(shootsListProvider.notifier);
+      await notifier.selectTopCard('Pending Shoots');
+      expect(c.read(shootsListProvider).visibleShoots.length, 2);
+
+      notifier.setStatusFilter('Confirmed');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 20);
     });
   });
 }

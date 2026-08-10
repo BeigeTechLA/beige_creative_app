@@ -60,14 +60,32 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                     currentStatus: state.selectedStatusFilter,
                     onApply: notifier.setStatusFilter,
                   ),
-                  icon: SvgPicture.asset(
-                    AppAssets.iconFilter,
-                    width: 20,
-                    height: 20,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.white,
-                      BlendMode.srcIn,
-                    ),
+                  icon: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      SvgPicture.asset(
+                        AppAssets.iconFilter,
+                        width: 20,
+                        height: 20,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.white,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      if (state.selectedStatusFilter != 'All Status')
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),

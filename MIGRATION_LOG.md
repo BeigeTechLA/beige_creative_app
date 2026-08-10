@@ -5,6 +5,50 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-10: Fix Shoots Filter Selection, Evaluation Logic & Expand Status Options
+
+- **Task**: Fix shoots status filter selection not updating visible items after selection, enable filtering when top count cards are active, expand status options to include Completed and Declined, and add gold active filter indicator.
+- **Changed Files**:
+  - `lib/features/shoots/presentation/widgets/shoots_filter_bottom_sheet.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+  - `test/features/shoots/presentation/shoots_notifier_test.dart`
+- **Decisions**:
+  - Removed early return guard in `ShootsListNotifier.setStatusFilter` so re-applying a status in the modal always forces a re-filtering of `visibleShoots`.
+  - Removed `topCardShoots == null` check in `_filter` so status filter applies consistently when top count cards are active.
+  - Expanded `ShootsFilterBottomSheet` options to include `All Status`, `Pending`, `Confirmed`, `Completed`, and `Declined`.
+  - Added gold active filter indicator dot on `ShootsScreen` toolbar filter icon when `selectedStatusFilter != 'All Status'`.
+- **Verification**:
+  - `flutter analyze`: 0 issues found.
+  - `flutter test test/features/shoots`: 54 / 54 tests passing.
+
+---
+
+### 2026-08-10: Multi-Image Photo Selection & Featured Work Double-Submit Loader Fix
+
+- **Task**: Fix duplicate image uploads caused by un-guarded save button double submissions, allow multi-image selection from gallery when opening photos, and synchronize featured work validation rules.
+- **Changed Files**:
+  - `lib/shared/widgets/common_uploader.dart`
+  - `lib/features/profile/presentation/widgets/featured_work_upload_sheet.dart`
+  - `lib/features/profile/presentation/screens/featured_work_list_screen.dart`
+  - `lib/features/profile/presentation/screens/app_preferences_screen.dart`
+  - `lib/features/profile/presentation/widgets/profile_section_list.dart`
+  - `lib/features/auth/presentation/widgets/signup3_featured_sheet.dart`
+  - `docs/implementation_plan.md`
+  - `docs/walkthrough.md`
+- **Decisions**:
+  - Added `CommonUploader.pickMultipleFromGallery()` wrapping `ImagePicker().pickMultiImage()` to allow picking multiple images at once from system photo picker.
+  - Added `isSaving` guard & spinner on `FeaturedWorkUploadSheet` save button to prevent concurrent upload invocations.
+  - Replaced custom button with `AppCtaButton` for 100% text color, background color, and typography consistency across app CTA buttons.
+  - Added `HitTestBehavior.opaque` to dropzone gesture detectors for full-area tap responsiveness.
+  - Removed Dark Mode option and switch container from `AppPreferencesScreen`.
+  - Hidden Notifications Settings row in `ProfileSectionList` while preserving menu row code.
+- **Verification**:
+  - `flutter analyze`: 0 issues found across all modified files.
+  - `flutter test test/features/profile/presentation/profile_files_test.dart`: 10 / 10 tests passed.
+
+---
+
 ### 2026-08-07: Bind GET /creator/shoot-card-details API to Shoots Top Count Cards
 
 - **Task**: Integrate `GET creator/shoot-card-details?status={pending|confirmed|completed|rejected}` API endpoint to fetch status-wise data when top count cards are selected.

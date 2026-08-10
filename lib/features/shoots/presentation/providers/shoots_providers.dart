@@ -193,9 +193,8 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
     );
   }
 
-  /// Set status filter ('All Status', 'Pending', 'Confirmed').
+  /// Set status filter ('All Status', 'Pending', 'Confirmed', 'Completed', 'Declined').
   void setStatusFilter(String status) {
-    if (state.selectedStatusFilter == status) return;
     final filtered = _filter(
       state.shootsData,
       state.searchQuery,
@@ -312,23 +311,27 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
         (tabIndex == 0 ? data.requests : data.shoots);
 
     return source.where((s) {
-      if (topCardShoots == null && statusFilter != 'All Status') {
+      if (statusFilter != 'All Status') {
         final statusLower = s.status.trim().toLowerCase();
+        final isCompleted = statusLower == 'completed';
+        final isDeclinedOrCancelled = statusLower == 'declined' ||
+            statusLower == 'cancelled' ||
+            statusLower == 'rejected';
         final isConfirmed = statusLower == 'confirmed' ||
             statusLower == 'accepted' ||
             s.crewAccept == 1;
+        final isPending = (statusLower == 'pending' ||
+                statusLower.contains('pending') ||
+                s.crewAccept == 0) &&
+            !isConfirmed &&
+            !isCompleted &&
+            !isDeclinedOrCancelled;
 
-        if (statusFilter == 'Pending' &&
-            (!statusLower.contains('pending') && s.crewAccept != 0)) {
-          return false;
-        }
+        if (statusFilter == 'Pending' && !isPending) return false;
         if (statusFilter == 'Confirmed' && !isConfirmed) return false;
-        if (statusFilter == 'Completed' && statusLower != 'completed') {
-          return false;
-        }
-        if (statusFilter == 'Cancelled' &&
-            statusLower != 'cancelled' &&
-            statusLower != 'declined') {
+        if (statusFilter == 'Completed' && !isCompleted) return false;
+        if ((statusFilter == 'Declined' || statusFilter == 'Cancelled') &&
+            !isDeclinedOrCancelled) {
           return false;
         }
       }

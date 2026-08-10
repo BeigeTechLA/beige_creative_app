@@ -11,8 +11,10 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../config/env.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
+import '../../../../shared/widgets/top_message.dart';
 
 /// Bottom-sheet body for adding / editing featured work. State is shared with
 /// the parent screen — the parent owns the title controller and the two
@@ -26,6 +28,7 @@ class FeaturedWorkUploadSheet extends StatefulWidget {
   final TextEditingController titleController;
   final List<File> tempFeaturedImages;
   final List<dynamic> editingImages;
+  final bool isSaving;
   final Future<void> Function() onSavePressed;
 
   const FeaturedWorkUploadSheet({
@@ -33,6 +36,7 @@ class FeaturedWorkUploadSheet extends StatefulWidget {
     required this.titleController,
     required this.tempFeaturedImages,
     required this.editingImages,
+    this.isSaving = false,
     required this.onSavePressed,
   });
 
@@ -43,9 +47,71 @@ class FeaturedWorkUploadSheet extends StatefulWidget {
 
 class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
   @override
+  void initState() {
+    super.initState();
+    widget.titleController.addListener(_onTitleChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.titleController.removeListener(_onTitleChanged);
+    super.dispose();
+  }
+
+  void _onTitleChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _pickImages() async {
+    if (widget.isSaving) return;
+    final totalImages =
+        widget.editingImages.length + widget.tempFeaturedImages.length;
+    final remainingSlots = 5 - totalImages;
+    if (remainingSlots <= 0) {
+      if (mounted) {
+        TopMessage.show(context, 'Maximum 5 images allowed');
+      }
+      return;
+    }
+    final files = await CommonUploader.pickMultipleFromGallery();
+    if (files.isNotEmpty && mounted) {
+      const maxSizeBytes = 30 * 1024 * 1024; // 30MB
+      final validFiles = <File>[];
+      bool oversizedFound = false;
+
+      for (final file in files) {
+        if (file.lengthSync() > maxSizeBytes) {
+          oversizedFound = true;
+        } else {
+          validFiles.add(file);
+        }
+      }
+
+      if (oversizedFound && mounted) {
+        TopMessage.show(context, 'Each image must be max 30MB');
+      }
+
+      if (validFiles.isNotEmpty) {
+        setState(() {
+          if (validFiles.length > remainingSlots) {
+            widget.tempFeaturedImages.addAll(validFiles.take(remainingSlots));
+            TopMessage.show(context, 'Maximum 5 images allowed');
+          } else {
+            widget.tempFeaturedImages.addAll(validFiles);
+          }
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final totalImages =
         widget.editingImages.length + widget.tempFeaturedImages.length;
+    final isTitleValid = widget.titleController.text.trim().isNotEmpty;
+    final isValid = isTitleValid && totalImages > 0 && totalImages <= 5;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.xl),
@@ -78,13 +144,13 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
                   ),
                 ),
                 IconButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: widget.isSaving ? null : () => Navigator.pop(context),
                   icon: const Icon(Icons.close, color: AppColors.white),
                 ),
               ],
             ),
             Text(
-              'For best results, use PNG, JPG or GIF.',
+              'For best results, use PNG, JPG or GIF (max 30MB each).',
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.white30,
               ),
@@ -95,6 +161,7 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
             CustomTextField(
               label: 'Enter Work Title*',
               controller: widget.titleController,
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
             DottedBorder(
@@ -114,21 +181,12 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
               ),
             ),
             const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
+            AppCtaButton(
+              label: 'Save',
               height: 48,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: (totalImages > 0 && totalImages <= 5)
-                      ? AppColors.primary
-                      : AppColors.lavenderGrey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: AppRadii.xlAll,
-                  ),
-                ),
-                onPressed: widget.onSavePressed,
-                child: const Text('Save', style: AppTextStyles.buttonMedium),
-              ),
+              enabled: isValid,
+              isLoading: widget.isSaving,
+              onPressed: widget.onSavePressed,
             ),
             const SizedBox(height: 16),
           ],
@@ -139,48 +197,45 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
 
   Widget _emptyDropZone() {
     return GestureDetector(
-      onTap: () async {
-        final file = await CommonUploader.pickFromGallery();
-        if (file != null) {
-          setState(() => widget.tempFeaturedImages.add(file));
-        }
-      },
+      behavior: HitTestBehavior.opaque,
+      onTap: _pickImages,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           minHeight: 180,
           maxHeight: 240,
         ),
-        child: SizedBox(
+        child: Container(
           width: double.infinity,
+          color: AppColors.transparent,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SvgPicture.asset(
                 AppAssets.upload,
-              // ignore: deprecated_member_use
-              color: AppColors.white,
-              width: 24,
-              height: 24,
-            ),
-            const SizedBox(height: 18),
-            Text(
-              'Upload New Image, Video,Or Browse',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyLargeStrong.copyWith(
+                // ignore: deprecated_member_use
                 color: AppColors.white,
+                width: 24,
+                height: 24,
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Choose a file in a 4:3, 5:4, 9:16,\nor 16:9 aspect ratio.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyCompact.copyWith(
-                color: AppColors.white30,
+              const SizedBox(height: 18),
+              Text(
+                'Upload New Image, Video,Or Browse',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodyLargeStrong.copyWith(
+                  color: AppColors.white,
+                ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: 10),
+              Text(
+                'Choose a file in a 4:3, 5:4, 9:16,\nor 16:9 aspect ratio.',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodyCompact.copyWith(
+                  color: AppColors.white30,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -206,12 +261,7 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
         itemBuilder: (context, index) {
           if (canAddMore && index == totalImages) {
             return GestureDetector(
-              onTap: () async {
-                final file = await CommonUploader.pickFromGallery();
-                if (file != null) {
-                  setState(() => widget.tempFeaturedImages.add(file));
-                }
-              },
+              onTap: _pickImages,
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: AppRadii.lgAll,
