@@ -140,85 +140,92 @@ Future<void> showSignup3FeaturedSheet({
                                   minHeight: 220,
                                   maxHeight: 360,
                                 ),
-                                child: GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const BouncingScrollPhysics(),
-                                  itemCount: controller.tempImages.length + 1,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 10,
-                                    mainAxisSpacing: 10,
-                                    childAspectRatio: 1,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    if (index ==
-                                        controller.tempImages.length) {
-                                      return GestureDetector(
-                                        onTap: () async {
-                                          final file = await CommonUploader
-                                              .pickFromGallery();
-                                          if (file != null) {
-                                            setModalState(() {
-                                              controller.tempImages.add(file);
-                                            });
-                                          }
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: AppRadii.lgAll,
-                                            border: Border.all(
-                                              color: AppColors.white24,
-                                            ),
-                                          ),
-                                          child: const Center(
-                                            child: Icon(
-                                              Icons.add,
-                                              color: AppColors.white,
-                                              size: 28,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                    return Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: AppRadii.lgAll,
-                                          child: Image.file(
-                                            controller.tempImages[index],
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 6,
-                                          right: 6,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              setModalState(() {
-                                                controller.tempImages
-                                                    .removeAt(index);
-                                              });
+                                child: Builder(
+                                  builder: (context) {
+                                    final canAddMore = controller.tempImages.length < 5;
+                                    return GridView.builder(
+                                      shrinkWrap: true,
+                                      physics: const BouncingScrollPhysics(),
+                                      itemCount: canAddMore
+                                          ? controller.tempImages.length + 1
+                                          : controller.tempImages.length,
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3,
+                                        crossAxisSpacing: 10,
+                                        mainAxisSpacing: 10,
+                                        childAspectRatio: 1,
+                                      ),
+                                      itemBuilder: (context, index) {
+                                        if (canAddMore &&
+                                            index == controller.tempImages.length) {
+                                          return GestureDetector(
+                                            onTap: () async {
+                                              final file = await CommonUploader
+                                                  .pickFromGallery();
+                                              if (file != null) {
+                                                setModalState(() {
+                                                  controller.tempImages.add(file);
+                                                });
+                                              }
                                             },
                                             child: Container(
-                                              height: 24,
-                                              width: 24,
                                               decoration: BoxDecoration(
-                                                color: AppColors.black
-                                                    .withValues(alpha: 0.7),
-                                                shape: BoxShape.circle,
+                                                borderRadius: AppRadii.lgAll,
+                                                border: Border.all(
+                                                  color: AppColors.white24,
+                                                ),
                                               ),
-                                              child: const Icon(
-                                                Icons.close,
-                                                size: 14,
-                                                color: AppColors.white,
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.add,
+                                                  color: AppColors.white,
+                                                  size: 28,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                      ],
+                                          );
+                                        }
+                                        return Stack(
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius: AppRadii.lgAll,
+                                              child: Image.file(
+                                                controller.tempImages[index],
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                              ),
+                                            ),
+                                            Positioned(
+                                              top: 6,
+                                              right: 6,
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  setModalState(() {
+                                                    controller.tempImages
+                                                        .removeAt(index);
+                                                  });
+                                                },
+                                                child: Container(
+                                                  height: 24,
+                                                  width: 24,
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.black
+                                                        .withValues(alpha: 0.7),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.close,
+                                                    size: 14,
+                                                    color: AppColors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
                                     );
                                   },
                                 ),
@@ -236,7 +243,8 @@ Future<void> showSignup3FeaturedSheet({
                         final isValid = controller.titleController.text
                                 .trim()
                                 .isNotEmpty &&
-                            controller.tempImages.length >= 5;
+                            controller.tempImages.isNotEmpty &&
+                            controller.tempImages.length <= 5;
                         return ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.goldSoft,
@@ -245,9 +253,16 @@ Future<void> showSignup3FeaturedSheet({
                             ),
                           ),
                           onPressed: () {
-                            if (!isValid) {
-                              controller
-                                  .onError('Minimum 5 images required');
+                            if (controller.titleController.text.trim().isEmpty) {
+                              controller.onError('Please enter work title');
+                              return;
+                            }
+                            if (controller.tempImages.isEmpty) {
+                              controller.onError('Please select at least 1 image');
+                              return;
+                            }
+                            if (controller.tempImages.length > 5) {
+                              controller.onError('Maximum 5 images allowed');
                               return;
                             }
                             final projects = [...controller.featuredProjects];

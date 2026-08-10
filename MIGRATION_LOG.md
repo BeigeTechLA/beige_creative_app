@@ -3673,3 +3673,48 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - **Verification**:
   - `flutter test test/features/availability`: 43 / 43 tests passing.
   - `flutter analyze --fatal-infos`: 0 issues.
+
+---
+
+### 2026-08-10: Success Toast Message Display Fix & UI Layout Overflow Fixes
+
+- **Task**: Fix success toast messages displaying with red error styling/🚫 icon and resolve horizontal layout overflow errors on narrow device screens (11px in social link icon rows, 5px in Home Screen Shoot Categories header).
+- **Changed Files**:
+  - `lib/features/profile/presentation/screens/my_profile_screen.dart`
+  - `lib/features/auth/presentation/screens/forgot_password_otp_screen.dart`
+  - `lib/features/auth/presentation/screens/reset_password_screen.dart`
+  - `lib/features/profile/presentation/screens/edit_personal_details_screen.dart`
+  - `lib/features/profile/presentation/screens/enter_profile_details_screen.dart`
+  - `lib/features/profile/presentation/screens/delete_account_otp_screen.dart`
+  - `lib/features/profile/presentation/widgets/profile_social_links_sheet.dart`
+  - `lib/features/auth/presentation/widgets/signup3_social_sheet.dart`
+  - `lib/features/home/presentation/widgets/home_shoot_categories_panel.dart`
+- **Decisions**:
+  - Explicitly passed `type: TopMessageType.success` to `TopMessage.show` calls when displaying `toastMessage` or success notifications.
+  - Wrapped social link 6-icon `Row` in `SingleChildScrollView(scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics())` with 10px tile padding in both `profile_social_links_sheet.dart` and `signup3_social_sheet.dart` to prevent right overflow on narrow devices (<375px).
+  - Constrained `"Shoot Categories"` section header title in `home_shoot_categories_panel.dart` using `Expanded` with `TextOverflow.ellipsis` and adjusted Photo/Video toggle tab horizontal padding from 16px to 12px (`AppSpacing.md`) to eliminate the 5.0px overflow error.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter test test/features/home`: 48 / 48 tests passing.
+  - `flutter test test/features/auth/presentation/screens/signup3_screen_test.dart test/features/profile`: 98 / 98 tests passing.
+
+---
+
+### 2026-08-10: Bug Fixes — Featured Work Image Limit & Certification Deletion
+
+- **Task**: Fix reported bugs:
+  1. Featured Work max 5 images limit check was misconfigured as minimum 5 images (`totalImages < 5`), and re-opening upload modal accumulated old picked images resulting in up to 10 images being displayed.
+  2. Certification deletion failed because `CrewFile.fromJson` only parsed `crew_files_id`, returning `0` when backend sent `id`, `crew_file_id`, or `file_id`, resulting in invalid `DELETE creator/profile-file/0` requests.
+- **Changed Files**:
+  - `lib/model_class/myprofile_model.dart`
+  - `lib/features/profile/data/repositories/profile_files_repository_impl.dart`
+  - `lib/features/profile/presentation/screens/featured_work_list_screen.dart`
+  - `lib/features/profile/presentation/widgets/featured_work_upload_sheet.dart`
+  - `lib/features/auth/presentation/widgets/signup3_featured_sheet.dart`
+- **Decisions**:
+  - `CrewFile.fromJson` now tries `crew_files_id`, `id`, `crew_file_id`, `file_id` in sequence before defaulting to `0`.
+  - Added guard in `deleteFile(int id)` to reject non-positive file IDs (`id <= 0`) with explicit exception.
+  - `FeaturedWorkList` clears `tempFeaturedImages` and `editingImages` state when opening sheet via `Add Featured Works` CTA button.
+  - `FeaturedWorkUploadSheet` & `Signup3FeaturedSheet` enforce `1 <= totalImages <= 5` validation, hide `+` picker tile when totalImages >= 5, and display `'Maximum 5 images allowed'` when exceeding max 5.
+- **Verification**:
+  - `flutter test test/features/profile`: 96 / 96 tests passing.

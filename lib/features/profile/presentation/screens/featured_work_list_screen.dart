@@ -64,6 +64,17 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
     }
   }
 
+  void _onAddTapped() {
+    setState(() {
+      isEditMode = false;
+      enterWorkTitleController.clear();
+      editingImages.clear();
+      tempFeaturedImages.clear();
+      selectedTags.clear();
+    });
+    _openUploadSheet();
+  }
+
   void _openUploadSheet() {
     showModalBottomSheet(
       context: context,
@@ -84,8 +95,12 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
       return;
     }
     final totalImages = editingImages.length + tempFeaturedImages.length;
-    if (totalImages < 5) {
-      _showSnack('Minimum 5 images required');
+    if (totalImages == 0) {
+      _showSnack('Please select at least 1 image');
+      return;
+    }
+    if (totalImages > 5) {
+      _showSnack('Maximum 5 images allowed');
       return;
     }
     if (tempFeaturedImages.isEmpty) {
@@ -181,7 +196,7 @@ class _FeaturedWorkListState extends ConsumerState<FeaturedWorkList> {
         child: AppCtaButton(
           label: 'Add Featured Works',
           height: 50,
-          onPressed: _openUploadSheet,
+          onPressed: _onAddTapped,
         ),
       ),
     );

@@ -97,7 +97,7 @@ class _DeleteAccountOtpScreenState
     if (_seconds != 0) return;
     await ref.read(deleteAccountNotifierProvider.notifier).resendOtp();
     if (!mounted) return;
-    TopMessage.show(context, 'OTP sent');
+    TopMessage.show(context, 'OTP sent', type: TopMessageType.success);
     _resetTimer();
   }
 

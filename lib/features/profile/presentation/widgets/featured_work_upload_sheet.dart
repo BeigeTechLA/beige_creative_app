@@ -119,7 +119,7 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
               height: 48,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: totalImages >= 5
+                  backgroundColor: (totalImages > 0 && totalImages <= 5)
                       ? AppColors.primary
                       : AppColors.lavenderGrey,
                   shape: RoundedRectangleBorder(
@@ -187,6 +187,7 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
   }
 
   Widget _imageGrid(int totalImages) {
+    final bool canAddMore = totalImages < 5;
     return ConstrainedBox(
       constraints: const BoxConstraints(
         minHeight: 220,
@@ -195,7 +196,7 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
       child: GridView.builder(
         shrinkWrap: true,
         physics: const BouncingScrollPhysics(),
-        itemCount: totalImages + 1,
+        itemCount: canAddMore ? totalImages + 1 : totalImages,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           crossAxisSpacing: 10,
@@ -203,7 +204,7 @@ class _FeaturedWorkUploadSheetState extends State<FeaturedWorkUploadSheet> {
           childAspectRatio: 1,
         ),
         itemBuilder: (context, index) {
-          if (index == totalImages) {
+          if (canAddMore && index == totalImages) {
             return GestureDetector(
               onTap: () async {
                 final file = await CommonUploader.pickFromGallery();

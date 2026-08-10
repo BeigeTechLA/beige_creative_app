@@ -97,21 +97,30 @@ Future<void> showSignup3SocialSheet({
                     const SizedBox(height: 20),
                     const Divider(color: AppColors.dividerDark),
                     const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: List.generate(
-                        kSignup3SocialIcons.length,
-                        (i) => _SocialIconTile(
-                          index: i,
-                          imagePath: kSignup3SocialIcons[i],
-                          isSelected: controller.selectedSocialIndex == i,
-                          onTap: () {
-                            setInnerState(() {
-                              controller.selectedSocialIndex = i;
-                              controller.nameLinkController.text =
-                                  kSignup3SocialNames[i];
-                            });
-                          },
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(
+                          kSignup3SocialIcons.length,
+                          (i) => Padding(
+                            padding: EdgeInsets.only(
+                              right: i < kSignup3SocialIcons.length - 1 ? 10.0 : 0.0,
+                            ),
+                            child: _SocialIconTile(
+                              index: i,
+                              imagePath: kSignup3SocialIcons[i],
+                              isSelected: controller.selectedSocialIndex == i,
+                              onTap: () {
+                                setInnerState(() {
+                                  controller.selectedSocialIndex = i;
+                                  controller.nameLinkController.text =
+                                      kSignup3SocialNames[i];
+                                });
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ),

@@ -34,12 +34,16 @@ class CrewFile {
   });
 
   factory CrewFile.fromJson(Map<String, dynamic> json) => CrewFile(
-    crewFilesId: (json["crew_files_id"] as num?)?.toInt() ?? 0, // 🔥 ADD THIS
-    fileType: json["file_type"] ?? "",
-    filePath: json["file_path"] ?? "",
-    tag: json["tag"] ?? "",
-    title: json["title"] ?? "",
-  );
+        crewFilesId: (json["crew_files_id"] as num?)?.toInt() ??
+            (json["id"] as num?)?.toInt() ??
+            (json["crew_file_id"] as num?)?.toInt() ??
+            (json["file_id"] as num?)?.toInt() ??
+            0,
+        fileType: json["file_type"] ?? "",
+        filePath: json["file_path"] ?? "",
+        tag: json["tag"] ?? "",
+        title: json["title"] ?? "",
+      );
 }
 
 class MyProfileModel {

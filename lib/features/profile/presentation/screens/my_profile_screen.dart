@@ -211,7 +211,11 @@ class _MyprofileState extends ConsumerState<Myprofile> {
     ref.listen<MyProfileState>(myProfileNotifierProvider, (prev, next) {
       if (next.toastMessage != null &&
           next.toastMessage != prev?.toastMessage) {
-        TopMessage.show(context, next.toastMessage!);
+        TopMessage.show(
+          context,
+          next.toastMessage!,
+          type: TopMessageType.success,
+        );
         ref.read(myProfileNotifierProvider.notifier).clearMessage();
       }
       if (next.errorMessage != null &&
