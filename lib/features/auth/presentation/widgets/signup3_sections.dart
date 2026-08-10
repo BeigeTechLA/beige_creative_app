@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -183,25 +184,41 @@ class SignUp3FeaturedSection extends StatelessWidget {
           if (featuredProjects.isEmpty)
             GestureDetector(
               onTap: onAdd,
-              child: Container(
-                height: 150,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: AppRadii.lgAll,
-                  border: Border.all(color: AppColors.white24),
+              child: DottedBorder(
+                options: RoundedRectDottedBorderOptions(
+                  radius: AppRadii.radiusXxl,
+                  color: AppColors.white24,
+                  strokeWidth: 1,
+                  dashPattern: const [4, 4],
                 ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.add, color: AppColors.white),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Add',
-                        style: AppTextStyles.inherit
-                            .copyWith(color: AppColors.white),
-                      ),
-                    ],
+                child: Container(
+                  height: 110,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: AppRadii.xxlAll,
+                    color: AppColors.transparent,
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          AppAssets.upload,
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white60,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Add',
+                          style: AppTextStyles.inherit14
+                              .copyWith(color: AppColors.white60),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -374,17 +391,41 @@ class SignUp3CertificatesSection extends StatelessWidget {
           if (certificateFiles.isEmpty)
             GestureDetector(
               onTap: onPick,
-              child: Container(
-                height: 90,
-                decoration: BoxDecoration(
-                  borderRadius: AppRadii.lgAll,
-                  border: Border.all(color: AppColors.white24),
+              child: DottedBorder(
+                options: RoundedRectDottedBorderOptions(
+                  radius: AppRadii.radiusXxl,
+                  color: AppColors.white24,
+                  strokeWidth: 1,
+                  dashPattern: const [4, 4],
                 ),
-                child: Center(
-                  child: Text(
-                    'Upload',
-                    style: AppTextStyles.inherit
-                        .copyWith(color: AppColors.white),
+                child: Container(
+                  height: 90,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: AppRadii.xxlAll,
+                    color: AppColors.transparent,
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          AppAssets.upload,
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white60,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Upload',
+                          style: AppTextStyles.inherit14
+                              .copyWith(color: AppColors.white60),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

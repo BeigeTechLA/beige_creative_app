@@ -274,7 +274,7 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                                 }).toList(),
                               ),
                             SignUp3AddTile(
-                              title: 'Add Social Links',
+                              title: 'Add Social Links*',
                               onTap: _openSocialSheet,
                             ),
                             const SizedBox(height: 20),
@@ -361,31 +361,31 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                             AppCtaButton(
                               label: 'Create Profile',
                               height: 55,
-                              enabled: !state.isSubmittingStep3,
+                              enabled: state.savedSocialLinks.isNotEmpty &&
+                                  !state.isSubmittingStep3,
                               onPressed: _submit,
                             ),
                             const SizedBox(height: 20),
-                            Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Already have an account? ',
-                                    style: AppTextStyles.inherit.copyWith(
-                                      color: AppColors.white30,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Already have an account? ',
+                                  style: AppTextStyles.body15Medium
+                                      .copyWith(color: AppColors.white60),
+                                ),
+                                InkWell(
+                                  onTap: () =>
+                                      context.goNamed(Routes.login.name),
+                                  child: Text(
+                                    'Login',
+                                    style: AppTextStyles.body15Strong.copyWith(
+                                      color: AppColors.white,
+                                      decoration: TextDecoration.underline,
                                     ),
                                   ),
-                                  InkWell(
-                                    onTap: () =>
-                                        context.pushNamed(Routes.login.name),
-                                    child: Text(
-                                      'Login',
-                                      style: AppTextStyles.inheritSemiBold
-                                          .copyWith(color: AppColors.primary),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),

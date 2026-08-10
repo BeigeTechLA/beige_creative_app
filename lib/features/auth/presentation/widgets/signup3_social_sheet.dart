@@ -78,7 +78,7 @@ Future<void> showSignup3SocialSheet({
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Add Social Links',
+                          'Add Social Links*',
                           style: AppTextStyles.displayLabel16
                               .copyWith(color: AppColors.white),
                         ),

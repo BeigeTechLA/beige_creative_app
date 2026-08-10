@@ -5,6 +5,95 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-10: Signup Step 2 & 3 Safe Back Navigation Fix
+
+- **Task**: Fix `GoError: There is nothing to pop` when tapping the back button on `SignUp2Header` and `SignUp3Header`.
+- **Changed Files**:
+  - `lib/features/auth/presentation/widgets/signup2_header.dart`
+  - `lib/features/auth/presentation/widgets/signup3_header.dart`
+- **Decisions**:
+  - Guarded back button `onTap` with `context.canPop()`.
+  - Added fallback routing (`context.goNamed(Routes.signupStep1.name)` for Step 2, `Routes.signupStep2.name` for Step 3) when history stack cannot be popped.
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/widgets/` — 0 issues found.
+
+---
+
+### 2026-08-10: Unified 'Already have an account? Login' Footer UI
+
+- **Task**: Unify the footer `"Already have an account? Login"` UI across all signup screens (`signup1_screen.dart`, `signup2_screen.dart`, `signup3_screen.dart`) to match the design screenshot.
+- **Changed Files**:
+  - `lib/features/auth/presentation/screens/signup3_screen.dart`
+  - `lib/features/auth/presentation/screens/signup2_screen.dart`
+  - `lib/features/auth/presentation/screens/signup1_screen.dart`
+- **Decisions**:
+  - Replaced gold text on Signup Step 3 with `AppColors.white60` label and white bold underlined `Login` text (`TextDecoration.underline`).
+  - Standardized router navigation to `context.goNamed(Routes.login.name)` across all signup step footers.
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/screens/` — 0 issues found.
+
+---
+
+### 2026-08-10: Signup Preview Cards Styling Alignment (Option A)
+
+- **Task**: Align `SignUp1PreviewCard`, `SignUp2PreviewCard`, and `SignUp3PreviewCard` with the design screenshot (white pill completed badge with gold text, equal-width buttons, divider line, and `Name : ` / `Email ID: ` header labels).
+- **Changed Files**:
+  - `lib/features/auth/presentation/widgets/signup1_preview_card.dart`
+  - `lib/features/auth/presentation/widgets/signup2_preview_card.dart`
+  - `lib/features/auth/presentation/widgets/signup3_preview_card.dart`
+- **Decisions**:
+  - Formatted header labels to `"Name : $name"` and `"Email ID: $email"`.
+  - Added a light horizontal `Divider` separating header info from the action buttons row.
+  - Converted **Completed** badge from solid grey box to white background pill with subtle border (`Border.all(color: Color(0xFFD0D0D0))`) and gold text (`Color(0xFFC59553)`).
+  - Wrapped both **View Details** and **Completed** buttons in `Expanded` for symmetrical equal-width layout.
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/widgets/` — 0 issues found.
+
+---
+
+### 2026-08-10: Signup Step 3 Mandatory Social Links & Action Button Validation
+
+- **Task**: Make Social Media Links mandatory on Signup Step 3, update UI labels with `*`, and add action button validation (`Create Profile` button disabled until mandatory social links are added).
+- **Changed Files**:
+  - `lib/features/auth/presentation/screens/signup3_screen.dart`
+  - `lib/features/auth/presentation/widgets/signup3_social_sheet.dart`
+  - `lib/features/auth/presentation/providers/signup_notifier.dart`
+- **Decisions**:
+  - Updated tile and sheet header labels from `Add Social Links` to `Add Social Links*`.
+  - Added button validation to `AppCtaButton`: `enabled: state.savedSocialLinks.isNotEmpty && !state.isSubmittingStep3`.
+  - Added safety guard in `SignupNotifier.submitStep3()` verifying `savedSocialLinks.isNotEmpty`.
+- **Verification**:
+  - `flutter analyze lib/features/auth/` — 0 issues found.
+
+---
+
+### 2026-08-10: Signup Step 3 Upload Icons & Font Color Unification (Option 1)
+
+- **Task**: Unify initial state upload icons, font colors (`AppColors.white60`), and `DottedBorder` styling across all upload sections in Signup Step 3 (`SignUp3FeaturedSection`, `SignUp3CertificatesSection`, and `SignUp3DocumentBlock`).
+- **Changed Files**:
+  - `lib/features/auth/presentation/widgets/signup3_sections.dart`
+  - `lib/features/auth/presentation/widgets/signup3_document_block.dart`
+- **Decisions**:
+  - Replaced solid borders with `DottedBorder` (`color: AppColors.white24`, `dashPattern: [4, 4]`, `radius: AppRadii.radiusXxl`) across Featured Work, Certifications, Resume/CV, and Portfolio drop zones.
+  - Standardized initial upload icon across all 4 sections to `SvgPicture.asset(AppAssets.upload)` at 20×20px with `AppColors.white60` tinting.
+  - Unified initial label typography colors to `AppColors.white60` across all empty state boxes.
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/widgets/` — 0 issues found.
+
+---
+
+### 2026-08-10: Profile Photo Cropper Public Route Guard Fix
+
+- **Task**: Fix issue where selecting a profile photo on Signup Step 1 triggered an unexpected redirect back to `/login`.
+- **Changed Files**:
+  - `lib/app/routes.dart`
+- **Decisions**:
+  - Marked `Routes.cropImage` with `isPublic: true` so unauthenticated users during signup step 1 can open `CropImageScreen` without triggering GoRouter's auth guard.
+- **Verification**:
+  - `flutter analyze lib/app/routes.dart lib/features/auth/presentation/screens/signup1_screen.dart` — 0 issues found.
+
+---
+
 ### 2026-08-10: Signup Featured Work Upload UI Fixes (Option A)
 
 - **Task**: Review and fix UI bugs, box overflow height, gesture detector scope, file size validation, and action button overlay alignment in Signup Featured Work upload (`signup3_featured_sheet.dart` and `signup3_sections.dart`).

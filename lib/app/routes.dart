@@ -70,7 +70,7 @@ abstract class Routes {
 
   // Profile
   static const myProfile = RouteSpec(name: 'my_profile', path: '/my-profile', featureArea: 'profile');
-  static const cropImage = RouteSpec(name: 'crop_image', path: '/crop-image', featureArea: 'profile');
+  static const cropImage = RouteSpec(name: 'crop_image', path: '/crop-image', isPublic: true, featureArea: 'profile');
   static const editPersonalDetails = RouteSpec(name: 'edit_personal_details', path: '/edit-personal-details');
   static const enterProfessionalDetails = RouteSpec(name: 'enter_professional_details', path: '/enter-professional-details');
   static const profileDetails = RouteSpec(name: 'profile_details', path: '/profile-details');

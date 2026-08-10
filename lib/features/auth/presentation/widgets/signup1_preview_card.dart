@@ -69,15 +69,28 @@ class SignUp1PreviewCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "${firstName.isEmpty ? '' : firstName} ${lastName.isEmpty ? '' : lastName}",
-                          style: AppTextStyles.body15Strong.copyWith(
-                            color: AppColors.black,
+                        RichText(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                            style: AppTextStyles.body15Strong
+                                .copyWith(color: AppColors.black),
+                            children: [
+                              const TextSpan(
+                                text: 'Name : ',
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                              TextSpan(
+                                text:
+                                    "${firstName.isEmpty ? '' : firstName} ${lastName.isEmpty ? '' : lastName}"
+                                        .trim(),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          email.isEmpty ? "Your Email" : email,
+                          email.isEmpty ? "Email ID: Your Email" : "Email ID: $email",
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.body12.copyWith(
                             color: AppColors.greyShade737,
@@ -88,7 +101,9 @@ class SignUp1PreviewCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
+              const Divider(color: Color(0xFFEEEEEE), height: 16, thickness: 1),
+              const SizedBox(height: 4),
               Row(
                 children: [
                   Expanded(
@@ -116,27 +131,33 @@ class SignUp1PreviewCard extends StatelessWidget {
                         child: Text(
                           "View Details",
                           style: AppTextStyles.bodySmallMedium.copyWith(
-                            color: AppColors.primary,
+                            color: AppColors.goldPaleCream,
                           ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Container(
-                    height: 40,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.base,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.border,
-                      borderRadius: AppRadii.hugeAll,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "$completionPercent% Completed",
-                      style: AppTextStyles.bodySmallMedium.copyWith(
-                        color: AppColors.black,
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: AppRadii.hugeAll,
+                        border: Border.all(
+                          color: const Color(0xFFD0D0D0),
+                          width: 1,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "$completionPercent% Completed",
+                        style: AppTextStyles.bodySmallStrong.copyWith(
+                          color: const Color(0xFFC59553),
+                        ),
                       ),
                     ),
                   ),
