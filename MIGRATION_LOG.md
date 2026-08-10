@@ -5,6 +5,23 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-10: Signup Featured Work Upload UI Fixes (Option A)
+
+- **Task**: Review and fix UI bugs, box overflow height, gesture detector scope, file size validation, and action button overlay alignment in Signup Featured Work upload (`signup3_featured_sheet.dart` and `signup3_sections.dart`).
+- **Changed Files**:
+  - `lib/features/auth/presentation/widgets/signup3_featured_sheet.dart`
+  - `lib/features/auth/presentation/widgets/signup3_sections.dart`
+- **Decisions**:
+  - Replaced fixed `190px` box height with dynamic height (`180px` for empty state, `220px-360px` for image grid) to prevent overflow clipping.
+  - Restricted `GestureDetector` tap listeners to the drop-zone and `+` add grid item tile to avoid triggering the file picker when interacting with existing image tiles.
+  - Added 30MB file size limit and 5-image max check to grid `+` tile image picker.
+  - Aligned assets (`AppAssets.upload`), typography, aspect ratio subtext, and CTA button height (`48px`) with design tokens.
+  - Moved Edit/Delete project actions out of the `Positioned` overlay into a clean project card header in `SignUp3FeaturedSection`.
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/widgets/` — 0 issues found.
+
+---
+
 ### 2026-08-10: Fix Shoots Filter Selection, Evaluation Logic & Expand Status Options
 
 - **Task**: Fix shoots status filter selection not updating visible items after selection, enable filtering when top count cards are active, expand status options to include Completed and Declined, and add gold active filter indicator.

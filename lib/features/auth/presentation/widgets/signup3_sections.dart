@@ -220,90 +220,90 @@ class SignUp3FeaturedSection extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 190,
-                        child: Stack(
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: AppSpacing.sm,
+                          right: AppSpacing.sm,
+                          bottom: AppSpacing.xs,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              physics: const BouncingScrollPhysics(),
-                              itemCount: images.length,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.sm,
+                            Expanded(
+                              child: Text(
+                                title,
+                                textAlign: TextAlign.left,
+                                style: AppTextStyles.inherit14Strong
+                                    .copyWith(color: AppColors.white),
                               ),
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  width: MediaQuery.of(context).size.width *
-                                      0.75,
-                                  margin: const EdgeInsets.only(
-                                    right: AppSpacing.md,
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: AppRadii.xxlAll,
-                                    child: Image.file(
-                                      images[index],
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                );
-                              },
                             ),
-                            Positioned(
-                              top: 8,
-                              right: 10,
-                              child: Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => onEdit(projectIndex),
-                                    child: Container(
-                                      height: 30,
-                                      width: 30,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.black
-                                            .withValues(alpha: 0.6),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.edit,
-                                        size: 16,
-                                        color: AppColors.white,
-                                      ),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () => onEdit(projectIndex),
+                                  child: Container(
+                                    height: 28,
+                                    width: 28,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.black
+                                          .withValues(alpha: 0.6),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.edit,
+                                      size: 14,
+                                      color: AppColors.white,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  GestureDetector(
-                                    onTap: () => onDelete(projectIndex),
-                                    child: Container(
-                                      height: 30,
-                                      width: 30,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.error
-                                            .withValues(alpha: 0.8),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.delete,
-                                        size: 16,
-                                        color: AppColors.white,
-                                      ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () => onDelete(projectIndex),
+                                  child: Container(
+                                    height: 28,
+                                    width: 28,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.error
+                                          .withValues(alpha: 0.8),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.delete,
+                                      size: 14,
+                                      color: AppColors.white,
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: AppSpacing.md,
-                          top: AppSpacing.sm,
-                        ),
-                        child: Text(
-                          title,
-                          textAlign: TextAlign.left,
-                          style: AppTextStyles.inherit14Strong
-                              .copyWith(color: AppColors.white),
+                      SizedBox(
+                        height: 190,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: images.length,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                          ),
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: MediaQuery.of(context).size.width *
+                                  0.75,
+                              margin: const EdgeInsets.only(
+                                right: AppSpacing.md,
+                              ),
+                              child: ClipRRect(
+                                borderRadius: AppRadii.xxlAll,
+                                child: Image.file(
+                                  images[index],
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
