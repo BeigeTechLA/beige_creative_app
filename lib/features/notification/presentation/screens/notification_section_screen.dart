@@ -133,7 +133,6 @@ class _NotificationSectionScreenState
                             '${widget.args.sectionTitle} (${items.length})',
                             style: AppTextStyles.titleMedium.copyWith(
                               color: AppColors.white,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           AppIconTapTarget(

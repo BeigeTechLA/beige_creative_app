@@ -1,10 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/firebase/fcm_service.dart';
-import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
-import '../../../notification/data/models/notification_settings_dto.dart';
-import '../../../notification/presentation/providers/notification_list_providers.dart';
 
 class NotificationSettingsState {
   const NotificationSettingsState({
@@ -115,31 +111,10 @@ class NotificationSettingsNotifier
   Future<void> savePreferences() async {
     state = state.copyWith(isSaving: true);
     try {
-      // Ensure FCM Token session is registered on backend first
-      await ref.read(fcmServiceProvider).ensureFcmTokenRegistered();
-
-      final session = ref.read(sessionStoreProvider);
-      final token = await session.readToken();
-      final repo = ref.read(notificationRepositoryProvider);
-      final dto = NotificationSettingsRequestDto(
-        sessionId: token ?? '',
-        notificationPreferences: NotificationPreferencesDto(
-          pushEnabled: state.pushNotifications,
-          topics: NotificationTopicsDto(
-            shoots: state.categoryShoots,
-            payments: state.categoryPayouts,
-            messages: state.categoryMessages,
-            meetings: state.categoryMeetings,
-            proposals: state.categoryProposals,
-            files: state.categoryFiles,
-            system: state.categorySystem,
-          ),
-        ),
-      );
-      await repo.updateNotificationPreferences(dto);
-      AppLogger.i('Notification preferences successfully updated on backend');
+      // Local state update only - API calls removed for local operation
+      AppLogger.i('Notification preferences saved locally');
     } catch (e, st) {
-      AppLogger.e('Failed to update notification preferences on backend', e, st);
+      AppLogger.e('Failed to update notification preferences', e, st);
     } finally {
       state = state.copyWith(isSaving: false);
     }
