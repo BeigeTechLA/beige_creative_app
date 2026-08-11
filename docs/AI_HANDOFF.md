@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-07-15 (Unified CTA buttons and loading state removal).
+Last updated: 2026-08-11 (Shoots top cards and top toolbar filter bidirectional alignment).
 
 ## Read Order
 

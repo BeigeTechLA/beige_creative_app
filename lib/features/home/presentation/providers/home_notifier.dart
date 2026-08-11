@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/core_providers.dart';
+import '../../../../core/providers/guest_mode_provider.dart';
 import '../../../../core/session/session_store.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/creator_dashboard_model.dart';
@@ -39,6 +40,10 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   /// Fetches consolidated dashboard data in a single GET creator/dashboard call.
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, clearError: true);
+    if (ref.read(guestModeProvider)) {
+      state = state.copyWith(isLoading: false);
+      return;
+    }
     final repo = ref.read(homeRepositoryProvider);
 
     final filterValue = _filterValueForRange(state.selectedRange);
@@ -405,6 +410,8 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     int month,
     int year,
   ) async {
+    if (ref.read(guestModeProvider)) return null;
+
     final projectsStatus = _mapStatusToApi(state.upcomingSelectedStatus);
     final projectsDateFilter = _mapDateFilterToApi(state.upcomingSelectedDate);
     final projectsStartDate = _formatDateForApi(state.upcomingCustomStartDate);
@@ -427,6 +434,8 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   }
 
   Future<profile.MyProfileData?> _safeFetchProfile(HomeRepository repo) async {
+    if (ref.read(guestModeProvider)) return null;
+
     try {
       final profileData = await repo.fetchProfile();
       await _updateSessionUserSnapshot(profileData);

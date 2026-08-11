@@ -13,6 +13,8 @@ import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
 import '../../config/env.dart';
 import '../../core/firebase/analytics_service.dart';
+import '../../core/providers/guest_mode_provider.dart';
+import '../../shared/widgets/login_dialog.dart';
 import '../../features/availability/presentation/providers/availability_providers.dart'
     show manageAvailabilityNotifierProvider;
 import '../../features/file_manager/presentation/providers/file_manager_root_notifier.dart'
@@ -40,7 +42,12 @@ class AppShell extends ConsumerWidget {
 
   const AppShell({super.key, required this.shell});
 
-  void _goBranch(WidgetRef ref, int index) {
+  void _goBranch(BuildContext context, WidgetRef ref, int index) {
+    final isGuest = ref.read(guestModeProvider);
+    if (isGuest && index != 0) {
+      showLoginDialog(context);
+      return;
+    }
     final isBranchSwitch = index != shell.currentIndex;
     shell.goBranch(index, initialLocation: index == shell.currentIndex);
     if (isBranchSwitch && index >= 0 && index < _branchRoutes.length) {
@@ -95,7 +102,7 @@ class AppShell extends ConsumerWidget {
         currentIndex: shell.currentIndex,
         onSelect: (i) {
           Navigator.of(context).pop();
-          _goBranch(ref, i);
+          _goBranch(context, ref, i);
         },
       ),
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
@@ -106,7 +113,7 @@ class AppShell extends ConsumerWidget {
       bottomNavigationBar: _bottomBarBranches.contains(shell.currentIndex)
           ? _AppShellBottomBar(
               currentBranchIndex: shell.currentIndex,
-              onSelectBranch: (i) => _goBranch(ref, i),
+              onSelectBranch: (i) => _goBranch(context, ref, i),
             )
           : null,
     );
@@ -266,6 +273,7 @@ class _AppShellDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isGuest = ref.watch(guestModeProvider);
     final profileData = ref.watch(
       homeNotifierProvider.select((s) => s.profileData),
     );
@@ -275,20 +283,24 @@ class _AppShellDrawer extends ConsumerWidget {
         ? ''
         : '${Env.imageUrl}$profileImageUrl${bust > 0 ? '?v=$bust' : ''}';
 
-    final userName = profileData != null
-        ? ('${profileData.firstName} ${profileData.lastName}'.trim().isNotEmpty
-              ? '${profileData.firstName} ${profileData.lastName}'.trim()
-              : profileData.user.name.isNotEmpty
-              ? profileData.user.name
-              : 'No Name')
-        : 'Loading...';
-    final userEmail = profileData != null
-        ? (profileData.email.isNotEmpty
-              ? profileData.email
-              : profileData.user.email.isNotEmpty
-              ? profileData.user.email
-              : 'No Email')
-        : 'Loading...';
+    final userName = isGuest
+        ? 'Guest'
+        : (profileData != null
+            ? ('${profileData.firstName} ${profileData.lastName}'.trim().isNotEmpty
+                  ? '${profileData.firstName} ${profileData.lastName}'.trim()
+                  : profileData.user.name.isNotEmpty
+                  ? profileData.user.name
+                  : 'No Name')
+            : 'Loading...');
+    final userEmail = isGuest
+        ? 'Tap to login'
+        : (profileData != null
+            ? (profileData.email.isNotEmpty
+                  ? profileData.email
+                  : profileData.user.email.isNotEmpty
+                  ? profileData.user.email
+                  : 'No Email')
+            : 'Loading...');
     return Drawer(
       backgroundColor: AppColors.surfaceAbyss,
       child: SafeArea(
@@ -312,7 +324,11 @@ class _AppShellDrawer extends ConsumerWidget {
                   InkWell(
                     onTap: () {
                       Navigator.of(context).pop();
-                      context.pushNamed(Routes.myProfile.name);
+                      if (ref.read(guestModeProvider)) {
+                        showLoginDialog(context);
+                      } else {
+                        context.pushNamed(Routes.myProfile.name);
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.all(AppSpacing.md),

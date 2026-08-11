@@ -34,17 +34,68 @@ class ShootsScreen extends ConsumerStatefulWidget {
 
 class _ShootsScreenState extends ConsumerState<ShootsScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _countCardsScrollController = ScrollController();
 
   @override
   void dispose() {
     _searchController.dispose();
+    _countCardsScrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToSelectedCard(String? topCard, String statusFilter) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_countCardsScrollController.hasClients) return;
+
+      int cardIndex = -1;
+      if (topCard == 'Pending Shoots' || statusFilter == 'Pending') {
+        cardIndex = 0;
+      } else if (topCard == 'Confirmed Shoots' || statusFilter == 'Confirmed') {
+        cardIndex = 1;
+      } else if (topCard == 'Completed Shoots' || statusFilter == 'Completed') {
+        cardIndex = 2;
+      } else if (topCard == 'Declined' || statusFilter == 'Declined') {
+        cardIndex = 3;
+      }
+
+      final maxExtent = _countCardsScrollController.position.maxScrollExtent;
+      double targetOffset = 0.0;
+
+      if (cardIndex == 0) {
+        targetOffset = 0.0;
+      } else if (cardIndex == 1) {
+        targetOffset = (maxExtent * 0.35).clamp(0.0, maxExtent);
+      } else if (cardIndex == 2) {
+        targetOffset = (maxExtent * 0.70).clamp(0.0, maxExtent);
+      } else if (cardIndex >= 3) {
+        targetOffset = maxExtent;
+      } else {
+        targetOffset = 0.0;
+      }
+
+      _countCardsScrollController.animateTo(
+        targetOffset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOutCubic,
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(shootsListProvider);
     final notifier = ref.read(shootsListProvider.notifier);
+
+    ref.listen<ShootsListState>(shootsListProvider, (previous, next) {
+      final prevStatus = previous?.selectedStatusFilter;
+      final nextStatus = next.selectedStatusFilter;
+      final prevCard = previous?.selectedTopCard;
+      final nextCard = next.selectedTopCard;
+
+      if (prevStatus != nextStatus || prevCard != nextCard) {
+        _scrollToSelectedCard(nextCard, nextStatus);
+      }
+    });
 
     return SafeArea(
       child: Stack(
@@ -94,6 +145,7 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
               SizedBox(
                 height: 76,
                 child: ListView(
+                  controller: _countCardsScrollController,
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.mld,
@@ -102,10 +154,12 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                     AppCountCard(
                       number: '${state.counts?.pendingRequests ?? 0}',
                       title: 'Pending Shoots',
-                      iconPath: state.selectedTopCard == 'Pending Shoots'
+                      iconPath: (state.selectedTopCard == 'Pending Shoots' ||
+                              state.selectedStatusFilter == 'Pending')
                           ? AppAssets.clockIconSel
                           : AppAssets.clockIcon,
-                      variant: state.selectedTopCard == 'Pending Shoots'
+                      variant: (state.selectedTopCard == 'Pending Shoots' ||
+                              state.selectedStatusFilter == 'Pending')
                           ? AppCountCardVariant.goldAccent
                           : AppCountCardVariant.classic,
                       onTap: () => notifier.selectTopCard('Pending Shoots'),
@@ -113,11 +167,12 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                     AppCountCard(
                       number: '${state.counts?.confirmedRequests ?? 0}',
                       title: 'Confirmed Shoots',
-                      iconPath: state.selectedTopCard == 'Confirmed Shoots'
+                      iconPath: (state.selectedTopCard == 'Confirmed Shoots' ||
+                              state.selectedStatusFilter == 'Confirmed')
                           ? AppAssets.photoIconSel
                           : AppAssets.photoIcon,
-
-                      variant: state.selectedTopCard == 'Confirmed Shoots'
+                      variant: (state.selectedTopCard == 'Confirmed Shoots' ||
+                              state.selectedStatusFilter == 'Confirmed')
                           ? AppCountCardVariant.goldAccent
                           : AppCountCardVariant.classic,
                       onTap: () => notifier.selectTopCard('Confirmed Shoots'),
@@ -125,10 +180,12 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                     AppCountCard(
                       number: '${state.counts?.completedShoots ?? 0}',
                       title: 'Completed Shoots',
-                      iconPath: state.selectedTopCard == 'Completed Shoots'
+                      iconPath: (state.selectedTopCard == 'Completed Shoots' ||
+                              state.selectedStatusFilter == 'Completed')
                           ? AppAssets.videoIconSel
                           : AppAssets.videoIcon,
-                      variant: state.selectedTopCard == 'Completed Shoots'
+                      variant: (state.selectedTopCard == 'Completed Shoots' ||
+                              state.selectedStatusFilter == 'Completed')
                           ? AppCountCardVariant.goldAccent
                           : AppCountCardVariant.classic,
                       onTap: () => notifier.selectTopCard('Completed Shoots'),
@@ -136,10 +193,12 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                     AppCountCard(
                       number: '${state.counts?.rejectedRequests ?? 0}',
                       title: 'Declined',
-                      iconPath: state.selectedTopCard == 'Declined'
+                      iconPath: (state.selectedTopCard == 'Declined' ||
+                              state.selectedStatusFilter == 'Declined')
                           ? AppAssets.declinedIconSel
                           : AppAssets.declinedIcon,
-                      variant: state.selectedTopCard == 'Declined'
+                      variant: (state.selectedTopCard == 'Declined' ||
+                              state.selectedStatusFilter == 'Declined')
                           ? AppCountCardVariant.goldAccent
                           : AppCountCardVariant.classic,
                       onTap: () => notifier.selectTopCard('Declined'),
@@ -148,8 +207,8 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                 ),
               ),
 
-              /// REQUEST / SHOOTS SEGMENTED TAB CONTROL (hidden when a top card is selected)
-              if (state.selectedTopCard == null) ...[
+              /// REQUEST / SHOOTS SEGMENTED TAB CONTROL (hidden when a top card or status filter is active)
+              if (state.selectedTopCard == null && state.selectedStatusFilter == 'All Status') ...[
                 const SizedBox(height: AppSpacing.md),
                 Padding(
                   padding: AppSpacing.insetsHBase,
@@ -200,8 +259,8 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                 ),
               ),
 
-              /// REMOVABLE WHITE CHIP (shows when top rectangle card is selected)
-              if (state.selectedTopCard != null) ...[
+              /// REMOVABLE WHITE CHIP (shows when top rectangle card or status filter is selected)
+              if (state.selectedTopCard != null || state.selectedStatusFilter != 'All Status') ...[
                 const SizedBox(height: AppSpacing.md),
                 Padding(
                   padding: AppSpacing.insetsHBase,
@@ -220,7 +279,7 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            state.selectedTopCard!,
+                            state.selectedTopCard ?? state.selectedStatusFilter,
                             style: AppTextStyles.bodyCompactMedium.copyWith(
                               color: const Color(0xFF1D1D1B),
                               fontWeight: FontWeight.w600,

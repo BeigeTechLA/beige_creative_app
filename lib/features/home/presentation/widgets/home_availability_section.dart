@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
@@ -6,6 +7,8 @@ import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../core/providers/guest_mode_provider.dart';
+import '../../../../shared/widgets/login_dialog.dart';
 import '../../../../utility/date_time_utils.dart';
 import '../../../../shared/widgets/common_calendar.dart';
 
@@ -14,12 +17,7 @@ import '../../../../shared/widgets/common_calendar.dart';
 ///
 /// All state (focused day, selected event, events map) stays in the
 /// orchestrator.
-///
-/// Note (Task 4.15 decompose): the legacy `home_screen.dart` contained two
-/// large commented-out earlier versions of this section (`TableCalendar` and
-/// a sibling `CommonCalendar` block). They were unreachable code; not carried
-/// over — Task 4.16 will formally close that out.
-class HomeAvailabilitySection extends StatelessWidget {
+class HomeAvailabilitySection extends ConsumerWidget {
   final DateTime focusedDay;
   final String selectedEvent;
   final List<String> eventList;
@@ -50,7 +48,7 @@ class HomeAvailabilitySection extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -77,6 +75,10 @@ class HomeAvailabilitySection extends StatelessWidget {
                 ),
               ),
               onPressed: () {
+                if (ref.read(guestModeProvider)) {
+                  showLoginDialog(context);
+                  return;
+                }
                 context.pushNamed(Routes.addAvailability.name).then((value) {
                   if (value == true) {
                     onAddPressed();

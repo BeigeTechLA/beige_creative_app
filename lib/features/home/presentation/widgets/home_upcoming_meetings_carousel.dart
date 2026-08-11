@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
@@ -6,6 +7,8 @@ import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../core/providers/guest_mode_provider.dart';
+import '../../../../shared/widgets/login_dialog.dart';
 import '../../../meetings/domain/models/meeting.dart';
 import '../../../meetings/presentation/widgets/meeting_card.dart';
 import '../../../meetings/presentation/widgets/meeting_details_sheet.dart';
@@ -17,7 +20,7 @@ import '../../../meetings/presentation/util/launch_meeting_link.dart';
 ///
 /// Mimics the changing pattern of [HomeUpcomingCarousel] but tailored for
 /// online meetings.
-class HomeUpcomingMeetingsCarousel extends StatelessWidget {
+class HomeUpcomingMeetingsCarousel extends ConsumerWidget {
   final List<Meeting> upcomingMeetings;
   final int currentIndex;
   final AnimationController controller;
@@ -36,7 +39,7 @@ class HomeUpcomingMeetingsCarousel extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (upcomingMeetings.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -46,7 +49,13 @@ class HomeUpcomingMeetingsCarousel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
-          onTap: () => context.goNamed(Routes.meetings.name),
+          onTap: () {
+            if (ref.read(guestModeProvider)) {
+              showLoginDialog(context);
+              return;
+            }
+            context.goNamed(Routes.meetings.name);
+          },
           borderRadius: AppRadii.mdAll,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),

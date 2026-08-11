@@ -193,68 +193,104 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
     );
   }
 
-  /// Set status filter ('All Status', 'Pending', 'Confirmed', 'Completed', 'Declined').
-  void setStatusFilter(String status) {
-    final filtered = _filter(
-      state.shootsData,
-      state.searchQuery,
-      state.selectedTabIndex,
-      status,
-      topCardShoots: state.topCardShoots,
-    );
-    state = state.copyWith(
-      selectedStatusFilter: status,
-      visibleShoots: filtered,
-    );
+  String? _mapStatusToCardTitle(String status) {
+    switch (status) {
+      case 'Pending':
+        return 'Pending Shoots';
+      case 'Confirmed':
+        return 'Confirmed Shoots';
+      case 'Completed':
+        return 'Completed Shoots';
+      case 'Declined':
+      case 'Cancelled':
+        return 'Declined';
+      default:
+        return null;
+    }
   }
 
-  /// Select a top rectangle count card option.
-  Future<void> selectTopCard(String cardTitle) async {
-    if (state.selectedTopCard == cardTitle && state.topCardShoots != null) return;
+  String _mapCardTitleToStatus(String cardTitle) {
+    switch (cardTitle) {
+      case 'Pending Shoots':
+        return 'Pending';
+      case 'Confirmed Shoots':
+        return 'Confirmed';
+      case 'Completed Shoots':
+        return 'Completed';
+      case 'Declined':
+        return 'Declined';
+      default:
+        return 'All Status';
+    }
+  }
+
+  /// Set status filter ('All Status', 'Pending', 'Confirmed', 'Completed', 'Declined').
+  /// Synchronizes [selectedTopCard] and fetches card details for the matching status card.
+  Future<void> setStatusFilter(String status) async {
+    final cardTitle = _mapStatusToCardTitle(status);
+    if (status == 'All Status' || cardTitle == null) {
+      clearTopCardSelection();
+      return;
+    }
+
     final statusParam = _getCardStatus(cardTitle);
-    if (statusParam == null) return;
 
     state = state.copyWith(
+      selectedStatusFilter: status,
       selectedTopCard: cardTitle,
       isLoading: true,
       clearError: true,
     );
 
-    try {
-      final repo = ref.read(shootsRepositoryProvider);
-      final cardShoots = await repo.fetchShootCardDetails(statusParam);
-      final filtered = _filter(
-        state.shootsData,
-        state.searchQuery,
-        state.selectedTabIndex,
-        state.selectedStatusFilter,
-        topCardShoots: cardShoots,
-      );
-      state = state.copyWith(
-        selectedTopCard: cardTitle,
-        topCardShoots: cardShoots,
-        visibleShoots: filtered,
-        isLoading: false,
-      );
-    } catch (e, st) {
-      AppLogger.e('Shoots fetchShootCardDetails failed', e, st);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to load $cardTitle',
-      );
+    List<Shoot>? cardShoots;
+    if (statusParam != null) {
+      try {
+        final repo = ref.read(shootsRepositoryProvider);
+        cardShoots = await repo.fetchShootCardDetails(statusParam);
+      } catch (e, st) {
+        AppLogger.e('Shoots fetchShootCardDetails failed', e, st);
+      }
     }
+
+    final filtered = _filter(
+      state.shootsData,
+      state.searchQuery,
+      state.selectedTabIndex,
+      status,
+      topCardShoots: cardShoots ?? state.topCardShoots,
+    );
+
+    state = state.copyWith(
+      selectedStatusFilter: status,
+      selectedTopCard: cardTitle,
+      topCardShoots: cardShoots ?? state.topCardShoots,
+      visibleShoots: filtered,
+      isLoading: false,
+    );
   }
 
-  /// Clear top count card selection and restore segment control.
+  /// Select a top rectangle count card option.
+  /// Synchronizes [selectedStatusFilter] and toggles selection off if tapped again.
+  Future<void> selectTopCard(String cardTitle) async {
+    if (state.selectedTopCard == cardTitle) {
+      clearTopCardSelection();
+      return;
+    }
+    final status = _mapCardTitleToStatus(cardTitle);
+    await setStatusFilter(status);
+  }
+
+  /// Clear top count card selection and status filter, restoring segment control.
   void clearTopCardSelection() {
     final filtered = _filter(
       state.shootsData,
       state.searchQuery,
       state.selectedTabIndex,
-      state.selectedStatusFilter,
+      'All Status',
       topCardShoots: null,
     );
     state = state.copyWith(
+      selectedStatusFilter: 'All Status',
       clearSelectedTopCard: true,
       clearTopCardShoots: true,
       visibleShoots: filtered,

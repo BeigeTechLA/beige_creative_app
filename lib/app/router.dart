@@ -6,6 +6,7 @@ import '../core/connectivity/connectivity_providers.dart';
 import '../core/connectivity/connectivity_status.dart';
 import '../core/firebase/app_analytics_observer.dart';
 import '../core/providers/auth_state_provider.dart';
+import '../core/providers/guest_mode_provider.dart';
 import '../core/providers/onboarding_seen_provider.dart';
 import '../core/restoration/restoration_providers.dart';
 import '../features/availability/presentation/routes/availability_routes.dart';
@@ -29,8 +30,9 @@ import 'navigator_key.dart';
 import 'routes.dart';
 
 /// Built once per [ProviderScope]. Reads `authStateProvider` +
-/// `onboardingSeenProvider` for redirect logic and listens to both via a
-/// merged `Listenable` so the router re-evaluates redirect on either flip.
+/// `guestModeProvider` + `onboardingSeenProvider` for redirect logic and
+/// listens to them via a merged `Listenable` so the router re-evaluates
+/// redirect on any state flip.
 final routerProvider = Provider<GoRouter>((ref) {
   final notifier = _AuthRefreshNotifier(ref);
   ref.onDispose(notifier.dispose);
@@ -42,6 +44,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     observers: [AppAnalyticsObserver()],
     redirect: (context, state) => appRedirect(
       isAuth: ref.read(authStateProvider),
+      isGuest: ref.read(guestModeProvider),
       hasSeenOnboarding: ref.read(onboardingSeenProvider),
       connStatus: ref.read(connectivityStatusProvider),
       location: state.matchedLocation,
@@ -79,6 +82,7 @@ String? appRedirect({
   required bool hasSeenOnboarding,
   required ConnectivityStatus connStatus,
   required String location,
+  bool isGuest = false,
 }) {
   final isPublic = Routes.publicPaths.contains(location);
 
@@ -89,12 +93,12 @@ String? appRedirect({
     return null;
   }
 
-  // Unauthed user touching a protected route → /login.
-  if (!isAuth && !isPublic) return Routes.login.path;
+  // Unauthed non-guest user touching a protected route → /login.
+  if (!isAuth && !isGuest && !isPublic) return Routes.login.path;
 
-  // Onboarding skipped once seen — bounce to /login.
-  if (!isAuth && hasSeenOnboarding && location == Routes.onboarding.path) {
-    return Routes.login.path;
+  // Guest user touching a route outside home shell + public auth routes → /home.
+  if (!isAuth && isGuest && location != Routes.home.path && !isPublic) {
+    return Routes.home.path;
   }
 
   // Authed user on /login or sign-up flow → /home.
@@ -110,13 +114,17 @@ String? appRedirect({
   return null;
 }
 
-/// Bridges `authStateProvider` + `onboardingSeenProvider` +
+/// Bridges `authStateProvider` + `guestModeProvider` + `onboardingSeenProvider` +
 /// `connectivityStatusProvider` to `Listenable` for `GoRouter.refreshListenable`.
 /// Any flip triggers redirect re-eval.
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(this._ref) {
     _authSub = _ref.listen<bool>(
       authStateProvider,
+      (previous, next) => notifyListeners(),
+    );
+    _guestSub = _ref.listen<bool>(
+      guestModeProvider,
       (previous, next) => notifyListeners(),
     );
     _onboardingSub = _ref.listen<bool>(
@@ -130,12 +138,14 @@ class _AuthRefreshNotifier extends ChangeNotifier {
   }
   final Ref _ref;
   late final ProviderSubscription<bool> _authSub;
+  late final ProviderSubscription<bool> _guestSub;
   late final ProviderSubscription<bool> _onboardingSub;
   late final ProviderSubscription<ConnectivityStatus> _connSub;
 
   @override
   void dispose() {
     _authSub.close();
+    _guestSub.close();
     _onboardingSub.close();
     _connSub.close();
     super.dispose();

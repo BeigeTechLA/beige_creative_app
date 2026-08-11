@@ -5,6 +5,25 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-11: Shoots Top Cards and Top Toolbar Status Filter Bidirectional Alignment & Auto-Scroll
+
+- **Task**: Align and bidirectionally synchronize top count cards (`Pending Shoots`, `Confirmed Shoots`, `Completed Shoots`, `Declined`) with top toolbar filter icon, and auto-scroll horizontal cards list into view when selected.
+- **Changed Files**:
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+  - `test/features/shoots/presentation/shoots_notifier_test.dart`
+- **Decisions**:
+  - Selected Theme Option 1 (Gold Accent): Integrated `AppCountCardVariant.goldAccent` and active/selected icon assets for the active count card when a filter is selected.
+  - Implemented bidirectional mapping: `Pending Shoots` ↔ `Pending`, `Confirmed Shoots` ↔ `Confirmed`, `Completed Shoots` ↔ `Completed`, `Declined` ↔ `Declined`.
+  - Added horizontal list `ScrollController` with smooth center auto-scroll (`_scrollToSelectedCard`) so that 3rd (`Completed Shoots`) and 4th (`Declined`) filter cards smoothly scroll into view when selected.
+  - Displayed active dot indicator on top toolbar filter icon when status filter is active.
+  - Added removable filter chip below search bar with `(x)` close button to clear card/filter selection.
+- **Verification**:
+  - `flutter analyze` — 0 issues found.
+  - `flutter test test/features/shoots/presentation/shoots_notifier_test.dart test/features/shoots/presentation/screens/shoots_screen_test.dart` — 19 / 19 tests passing.
+
+---
+
 ### 2026-08-10: Signup Step 2 & 3 Safe Back Navigation Fix
 
 - **Task**: Fix `GoError: There is nothing to pop` when tapping the back button on `SignUp2Header` and `SignUp3Header`.

@@ -1,5 +1,6 @@
 import 'package:beige_creative_app/app/router.dart';
 import 'package:beige_creative_app/app/routes.dart';
+import 'package:beige_creative_app/core/connectivity/connectivity_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -101,6 +102,52 @@ void main() {
               'Routes.${spec.name} declared but no GoRoute(name: "${spec.name}") found',
         );
       }
+    });
+  });
+
+  group('appRedirect logic', () {
+    test('unauthed non-guest user touching protected route returns /login', () {
+      final res = appRedirect(
+        isAuth: false,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.shoots.path,
+        isGuest: false,
+      );
+      expect(res, equals(Routes.login.path));
+    });
+
+    test('guest mode user touching protected route returns /home', () {
+      final res = appRedirect(
+        isAuth: false,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.shoots.path,
+        isGuest: true,
+      );
+      expect(res, equals(Routes.home.path));
+    });
+
+    test('guest mode user accessing /home is allowed (returns null)', () {
+      final res = appRedirect(
+        isAuth: false,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.home.path,
+        isGuest: true,
+      );
+      expect(res, isNull);
+    });
+
+    test('guest mode user accessing public login route is allowed (returns null)', () {
+      final res = appRedirect(
+        isAuth: false,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.login.path,
+        isGuest: true,
+      );
+      expect(res, isNull);
     });
   });
 }
