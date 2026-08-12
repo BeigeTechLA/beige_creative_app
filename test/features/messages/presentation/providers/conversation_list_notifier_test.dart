@@ -326,6 +326,8 @@ class _FakeSession implements SessionStore {
   @override
   Future<UserSnapshot?> readUser() async => null;
   @override
+  UserSnapshot? readUserSync() => null;
+  @override
   Future<void> clearUser() async {}
   @override
   Future<DateTime?> readLastLoginAt() async => null;

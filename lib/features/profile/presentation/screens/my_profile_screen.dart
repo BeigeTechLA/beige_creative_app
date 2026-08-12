@@ -6,7 +6,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
+import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
@@ -230,6 +232,9 @@ class _MyprofileState extends ConsumerState<Myprofile> {
 
     final state = ref.watch(myProfileNotifierProvider);
     final profile = state.profile;
+    final currentUser = ref.watch(sessionStoreProvider).readUserSync();
+    final isPendingReview = (currentUser?.isRegistrationComplete == 1) &&
+        (currentUser?.isCrewVerified == 0);
 
     return AppScaffold(
       safeTop: false,
@@ -261,6 +266,10 @@ class _MyprofileState extends ConsumerState<Myprofile> {
                   ),
                   child: Column(
                     children: [
+                      if (isPendingReview) ...[
+                        _buildUnderReviewBanner(),
+                        const SizedBox(height: 20),
+                      ],
                       ProfileStatsPanel(
                         hourlyRateLabel:
                             '\$${double.tryParse(profile?.hourlyRate ?? '0')?.toInt() ?? 0}',
@@ -325,6 +334,65 @@ class _MyprofileState extends ConsumerState<Myprofile> {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTextStyles.body14.copyWith(color: AppColors.white60),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUnderReviewBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.base),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceWarm,
+        borderRadius: AppRadii.lgAll,
+        border: Border.all(color: AppColors.borderGold, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.access_time_filled_rounded,
+                color: AppColors.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Application Under Review',
+                style: AppTextStyles.body15Strong.copyWith(
+                  color: AppColors.white,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.shootStatusPendingBg,
+                  borderRadius: AppRadii.xsAll,
+                ),
+                child: Text(
+                  'Pending Review',
+                  style: AppTextStyles.bodySmallBold.copyWith(
+                    color: AppColors.shootStatusPendingFg,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Your registration is currently under review by our admin team. You can view and edit your profile while your application is being verified.',
+            style: AppTextStyles.body14.copyWith(
+              color: AppColors.white80,
+              height: 1.35,
             ),
           ),
         ],

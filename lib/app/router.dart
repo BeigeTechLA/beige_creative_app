@@ -6,6 +6,7 @@ import '../core/connectivity/connectivity_providers.dart';
 import '../core/connectivity/connectivity_status.dart';
 import '../core/firebase/app_analytics_observer.dart';
 import '../core/providers/auth_state_provider.dart';
+import '../core/providers/core_providers.dart';
 import '../core/providers/guest_mode_provider.dart';
 import '../core/providers/onboarding_seen_provider.dart';
 import '../core/restoration/restoration_providers.dart';
@@ -42,13 +43,18 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: Routes.splash.path,
     refreshListenable: notifier,
     observers: [AppAnalyticsObserver()],
-    redirect: (context, state) => appRedirect(
-      isAuth: ref.read(authStateProvider),
-      isGuest: ref.read(guestModeProvider),
-      hasSeenOnboarding: ref.read(onboardingSeenProvider),
-      connStatus: ref.read(connectivityStatusProvider),
-      location: state.matchedLocation,
-    ),
+    redirect: (context, state) {
+      final currentUser = ref.read(sessionStoreProvider).readUserSync();
+      return appRedirect(
+        isAuth: ref.read(authStateProvider),
+        isGuest: ref.read(guestModeProvider),
+        hasSeenOnboarding: ref.read(onboardingSeenProvider),
+        connStatus: ref.read(connectivityStatusProvider),
+        location: state.matchedLocation,
+        isRegistrationComplete: currentUser?.isRegistrationComplete,
+        isCrewVerified: currentUser?.isCrewVerified,
+      );
+    },
     routes: appRoutes,
   );
 
@@ -83,15 +89,10 @@ String? appRedirect({
   required ConnectivityStatus connStatus,
   required String location,
   bool isGuest = false,
+  int? isRegistrationComplete,
+  int? isCrewVerified,
 }) {
   final isPublic = Routes.publicPaths.contains(location);
-
-  // Offline + protected target → stay put; ConnectivityListener shows
-  // the dialog over the current screen. Public routes (splash/auth/
-  // onboarding) stay reachable so cold-start without network resolves.
-  if (connStatus == ConnectivityStatus.offline && !isPublic) {
-    return null;
-  }
 
   // Unauthed non-guest user touching a protected route → /login.
   if (!isAuth && !isGuest && !isPublic) return Routes.login.path;
@@ -101,16 +102,86 @@ String? appRedirect({
     return Routes.home.path;
   }
 
-  // Authed user on /login or sign-up flow → /home.
-  if (isAuth &&
-      (location == Routes.login.path ||
-          location == Routes.onboarding.path ||
+  // Authed user logic
+  if (isAuth) {
+    final regComplete = isRegistrationComplete;
+    final crewVerified = isCrewVerified;
+
+    // A token without a valid persisted account status must never inherit
+    // approved access. Keep the user on Login so a fresh response can rebuild
+    // the session snapshot.
+    if (regComplete == null ||
+        !const {0, 1}.contains(regComplete) ||
+        crewVerified == null ||
+        !const {0, 1, 2}.contains(crewVerified)) {
+      return location == Routes.login.path ? null : Routes.login.path;
+    }
+
+    // Case 1: Registration incomplete -> force signup stepper
+    if (regComplete == 0) {
+      final isSignupRoute =
           location.startsWith('/signup-step') ||
-          location == Routes.forgotPassword.path ||
-          location == Routes.forgotOtp.path ||
-          location == Routes.resetPassword.path)) {
-    return Routes.home.path;
+          location == Routes.signupSuccess.path;
+      if (!isSignupRoute) {
+        return Routes.signupStep1.path;
+      }
+      return null;
+    }
+
+    // Case 2: Registration complete, but application under review. Home is a
+    // blocked landing surface with a non-dismissible status dialog; profile
+    // routes remain available so the CP can review or improve their profile.
+    if (regComplete == 1 && crewVerified == 0) {
+      final isPendingAllowedRoute =
+          location == Routes.home.path ||
+          location == Routes.myProfile.path ||
+          location == Routes.cropImage.path ||
+          location == Routes.editPersonalDetails.path ||
+          location == Routes.enterProfessionalDetails.path ||
+          location == Routes.profileDetails.path ||
+          location == Routes.featuredWorks.path ||
+          location == Routes.featuredWorkDetails.path ||
+          location == Routes.certificates.path ||
+          location == Routes.resume.path ||
+          location == Routes.appPreferences.path ||
+          location == Routes.changePassword.path ||
+          location == Routes.profileOtp.path ||
+          location == Routes.newPassword.path ||
+          location == Routes.profilePasswordSuccess.path ||
+          location == Routes.deleteAccount.path ||
+          location == Routes.deleteAccountOtp.path ||
+          location == Routes.deleteAccountSuccess.path;
+
+      if (!isPendingAllowedRoute &&
+          location != Routes.splash.path &&
+          location != Routes.login.path) {
+        return Routes.home.path;
+      }
+      return null;
+    }
+
+    // Case 4: Application rejected (is_crew_verified == 2) -> rejected screen
+    if (regComplete == 1 && crewVerified == 2) {
+      if (location != Routes.applicationRejected.path &&
+          location != Routes.splash.path &&
+          location != Routes.login.path) {
+        return Routes.applicationRejected.path;
+      }
+      return null;
+    }
+
+    // Case 3: Approved CP (is_registration_complete == 1 && is_crew_verified == 1)
+    if (location == Routes.login.path ||
+        location == Routes.onboarding.path ||
+        location.startsWith('/signup-step') ||
+        location == Routes.forgotPassword.path ||
+        location == Routes.forgotOtp.path ||
+        location == Routes.resetPassword.path ||
+        location == Routes.applicationRejected.path) {
+      return Routes.home.path;
+    }
   }
+
   return null;
 }
 

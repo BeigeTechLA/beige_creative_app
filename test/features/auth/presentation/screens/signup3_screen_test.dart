@@ -1,4 +1,5 @@
 import 'package:beige_creative_app/app/routes.dart';
+import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/signup_notifier.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/signup_state.dart';
 import 'package:beige_creative_app/features/auth/presentation/screens/signup3_screen.dart';
@@ -63,6 +64,7 @@ Future<_FakeSignupNotifier> _pump(WidgetTester tester) async {
       _router(),
       overrides: [
         signupNotifierProvider.overrideWith(() => fake),
+        authStateProvider.overrideWith(() => AuthStateNotifier(initial: false)),
       ],
     );
     await tester.pump();

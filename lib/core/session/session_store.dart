@@ -22,6 +22,7 @@ abstract class SessionStore {
 
   // ━━━ Non-secrets (delegate → PrefsSessionStore) ━━━
   Future<UserSnapshot?> readUser();
+  UserSnapshot? readUserSync() => null;
   Future<void> writeUser(UserSnapshot user);
   Future<void> clearUser();
 
@@ -52,6 +53,9 @@ class UserSnapshot {
   final String? role;
   final String? userType;
   final String? profileImageUrl;
+  final int? isRegistrationComplete;
+  final int? isCrewVerified;
+  final int? crewMemberId;
 
   const UserSnapshot({
     required this.id,
@@ -60,6 +64,9 @@ class UserSnapshot {
     this.role,
     this.userType,
     this.profileImageUrl,
+    this.isRegistrationComplete,
+    this.isCrewVerified,
+    this.crewMemberId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -69,6 +76,10 @@ class UserSnapshot {
         if (role != null) 'role': role,
         if (userType != null) 'user_type': userType,
         if (profileImageUrl != null) 'profile_image_url': profileImageUrl,
+        if (isRegistrationComplete != null)
+          'is_registration_complete': isRegistrationComplete,
+        if (isCrewVerified != null) 'is_crew_verified': isCrewVerified,
+        if (crewMemberId != null) 'crew_member_id': crewMemberId,
       };
 
   factory UserSnapshot.fromJson(Map<String, dynamic> json) => UserSnapshot(
@@ -78,6 +89,15 @@ class UserSnapshot {
         role: json['role'] as String?,
         userType: json['user_type'] as String?,
         profileImageUrl: json['profile_image_url'] as String?,
+        isRegistrationComplete: json['is_registration_complete'] is int
+            ? json['is_registration_complete'] as int
+            : int.tryParse(json['is_registration_complete']?.toString() ?? ''),
+        isCrewVerified: json['is_crew_verified'] is int
+            ? json['is_crew_verified'] as int
+            : int.tryParse(json['is_crew_verified']?.toString() ?? ''),
+        crewMemberId: json['crew_member_id'] is int
+            ? json['crew_member_id'] as int
+            : int.tryParse(json['crew_member_id']?.toString() ?? ''),
       );
 
   @override
@@ -88,11 +108,23 @@ class UserSnapshot {
       other.email == email &&
       other.role == role &&
       other.userType == userType &&
-      other.profileImageUrl == profileImageUrl;
+      other.profileImageUrl == profileImageUrl &&
+      other.isRegistrationComplete == isRegistrationComplete &&
+      other.isCrewVerified == isCrewVerified &&
+      other.crewMemberId == crewMemberId;
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, email, role, userType, profileImageUrl);
+  int get hashCode => Object.hash(
+        id,
+        name,
+        email,
+        role,
+        userType,
+        profileImageUrl,
+        isRegistrationComplete,
+        isCrewVerified,
+        crewMemberId,
+      );
 }
 
 /// Composes the secure + prefs backends behind one [SessionStore] type.
@@ -131,6 +163,8 @@ class CompositeSessionStore implements SessionStore {
 
   @override
   Future<UserSnapshot?> readUser() => _prefs.readUser();
+  @override
+  UserSnapshot? readUserSync() => _prefs.readUserSync();
   @override
   Future<void> writeUser(UserSnapshot user) => _prefs.writeUser(user);
   @override
@@ -179,6 +213,7 @@ abstract class SecureSessionBackend {
 /// implements this; test fakes can too.
 abstract class PrefsSessionBackend {
   Future<UserSnapshot?> readUser();
+  UserSnapshot? readUserSync() => null;
   Future<void> writeUser(UserSnapshot user);
   Future<void> clearUser();
   Future<DateTime?> readLastLoginAt();

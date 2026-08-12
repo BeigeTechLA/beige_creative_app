@@ -14,6 +14,7 @@ import '../routes/signup_args.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/utils/validators.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
@@ -343,26 +344,27 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
                       ],
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Already have an account? ',
-                        style: AppTextStyles.body15Medium
-                            .copyWith(color: AppColors.white60),
-                      ),
-                      InkWell(
-                        onTap: () => context.goNamed(Routes.login.name),
-                        child: Text(
-                          'Login',
-                          style: AppTextStyles.body15Strong.copyWith(
-                            color: AppColors.white,
-                            decoration: TextDecoration.underline,
+                  if (!ref.watch(authStateProvider))
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Already have an account? ',
+                          style: AppTextStyles.body15Medium
+                              .copyWith(color: AppColors.white60),
+                        ),
+                        InkWell(
+                          onTap: () => context.goNamed(Routes.login.name),
+                          child: Text(
+                            'Login',
+                            style: AppTextStyles.body15Strong.copyWith(
+                              color: AppColors.white,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   const SizedBox(height: 30),
                 ],
               ),

@@ -14,6 +14,7 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
+import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/signup_notifier.dart';
 import '../providers/signup_state.dart';
@@ -365,28 +366,31 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                                   !state.isSubmittingStep3,
                               onPressed: _submit,
                             ),
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Already have an account? ',
-                                  style: AppTextStyles.body15Medium
-                                      .copyWith(color: AppColors.white60),
-                                ),
-                                InkWell(
-                                  onTap: () =>
-                                      context.goNamed(Routes.login.name),
-                                  child: Text(
-                                    'Login',
-                                    style: AppTextStyles.body15Strong.copyWith(
-                                      color: AppColors.white,
-                                      decoration: TextDecoration.underline,
+                            if (!ref.watch(authStateProvider)) ...[
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Already have an account? ',
+                                    style: AppTextStyles.body15Medium
+                                        .copyWith(color: AppColors.white60),
+                                  ),
+                                  InkWell(
+                                    onTap: () =>
+                                        context.goNamed(Routes.login.name),
+                                    child: Text(
+                                      'Login',
+                                      style:
+                                          AppTextStyles.body15Strong.copyWith(
+                                        color: AppColors.white,
+                                        decoration: TextDecoration.underline,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),

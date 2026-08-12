@@ -78,9 +78,12 @@ class _FakeSession implements SessionStore {
     writtenLoginAt = when;
   }
 
-  // Unused — throw-style not needed since notifier never touches these.
   @override
-  Future<String?> readToken() async => null;
+  Future<String?> readToken() async => writtenToken;
+  @override
+  Future<UserSnapshot?> readUser() async => writtenUser;
+  @override
+  UserSnapshot? readUserSync() => writtenUser;
   @override
   Future<void> clearToken() async {}
   @override
@@ -89,8 +92,6 @@ class _FakeSession implements SessionStore {
   Future<void> writeRefreshToken(String token) async {}
   @override
   Future<void> clearRefreshToken() async {}
-  @override
-  Future<UserSnapshot?> readUser() async => null;
   @override
   Future<void> clearUser() async {}
   @override

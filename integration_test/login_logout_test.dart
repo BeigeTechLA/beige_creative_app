@@ -150,8 +150,7 @@ class _HomeStub extends ConsumerWidget {
             const Text('home-stub'),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () =>
-                  ref.read(authStateProvider.notifier).logout(),
+              onPressed: () => ref.read(authStateProvider.notifier).logout(),
               child: const Text('Logout'),
             ),
           ],
@@ -198,6 +197,8 @@ void main() {
                 'email': 'crew@example.com',
                 'first_name': 'Crew',
                 'last_name': 'Member',
+                'is_registration_complete': 1,
+                'is_crew_verified': 1,
               },
               'user': {
                 'id': 7,

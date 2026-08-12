@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-08-11 (Shoots top cards and top toolbar filter bidirectional alignment).
+Last updated: 2026-08-12 (CP status guard hardening + non-dismissible Home review modal).
 
 ## Read Order
 
@@ -30,6 +30,7 @@ Every AI session should read:
 - Messages post-login logout fix (2026-06-16): `AuthRepositoryImpl` now persists a `UserSnapshot` from `data.crew_member` when `data.user` is absent, matching the documented real login shape. `MessagesRemoteSource` no longer turns a missing local user snapshot into `UnauthorizedException`; it uses an empty `currentUserId` only for DTO ownership/read derivation. Real REST 401s still map through Dio and can trigger the existing logout path.
 - Messages socket host correction (2026-06-16): live probes showed `https://api.dev.beige.app/socket.io/?EIO=4&transport=websocket` returns Express 404 `Route not found`, while `https://api2.dev.beige.app/socket.io/?EIO=4&transport=polling` returns an Engine.IO open packet and WebSocket upgrade returns HTTP 101. `Env.socketUrl` dev default is now `https://api2.dev.beige.app`, with `CHAT_SOCKET_URL` dart-define override support; `MessagesSocketSource` sets path `/socket.io` and WebSocket-only transport.
 - Messages self-healing logout & inside-bubble headers (2026-06-16): Caught `UnauthorizedException` in messages and chat thread providers to automatically invoke `authStateProvider.notifier.logout()` to resolve retry/reload bugs. Relocated sender headers inside the message and audio bubbles, styling them with bold uppercase name text and title-cased role badge pills.
+- CP login/status routing (2026-08-12): login now fails closed unless `is_registration_complete` is `0/1`, `is_crew_verified` is `0/1/2`, and a crew identity is present. Incomplete users enter signup step 1; pending users land on Home behind a non-dismissible `ApplicationUnderReviewCard` dialog and can otherwise access only profile routes; approved users have full access; rejected users land on the revised support/logout screen. Profile refresh preserves or updates the persisted status flags, and offline state does not bypass these guards.
 
 Active Phase 6 entry-point: `docs/phase6/README.md`.
 
@@ -80,8 +81,7 @@ Group D is complete. Home now uses:
 Most recent check (post Messages socket reflection fix):
 
 - `flutter analyze --fatal-infos`: 0 issues. CI enforces fatal infos on every PR.
-- `flutter test test/features/messages`: 26 / 26 passing.
-- `flutter test`: 512 / 514 passing (2 pre-existing shoots_repository_impl_test.dart failures persist).
+- `flutter test`: 519 / 521 passing (2 pre-existing shoots_repository_impl_test.dart failures persist).
 - `flutter test test/features/messages/presentation/screens/messages_screen_test.dart`: 3 / 3 passing.
 - `flutter test test/golden/messages_test.dart`: 3 / 3 passing.
 - `flutter test integration_test/login_logout_test.dart -d macos`: 1 / 1 passing.

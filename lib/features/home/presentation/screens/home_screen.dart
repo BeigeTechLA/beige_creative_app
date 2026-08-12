@@ -6,6 +6,9 @@ import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../core/providers/guest_mode_provider.dart';
+import '../../../../core/providers/core_providers.dart';
+import '../../../../core/session/session_store.dart';
+import '../../../profile/presentation/widgets/application_under_review_card.dart';
 import '../../../../shared/widgets/login_dialog.dart';
 import '../providers/home_notifier.dart';
 import '../widgets/common/home_section_divider.dart';
@@ -44,6 +47,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   late AnimationController _meetingsController;
   int _meetingsCurrentIndex = 0;
+  bool _underReviewDialogShown = false;
 
   @override
   void initState() {
@@ -82,6 +86,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         }
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showUnderReviewDialogIfNeeded();
+    });
+  }
+
+  bool _isPendingReview(UserSnapshot? user) =>
+      user?.isRegistrationComplete == 1 && user?.isCrewVerified == 0;
+
+  Future<void> _showUnderReviewDialogIfNeeded() async {
+    if (!mounted || _underReviewDialogShown) return;
+    final user = ref.read(sessionStoreProvider).readUserSync();
+    if (!_isPendingReview(user)) return;
+
+    _underReviewDialogShown = true;
+    await ApplicationUnderReviewDialog.show<void>(
+      context,
+      profileImageUrl: user?.profileImageUrl,
+      barrierDismissible: false,
+      closeOnRefresh: false,
+      onRefreshStatus: _refreshApplicationStatus,
+      onCompleteProfile: () {
+        if (mounted) context.goNamed(Routes.myProfile.name);
+      },
+    );
+  }
+
+  Future<void> _refreshApplicationStatus() async {
+    await ref.read(homeNotifierProvider.notifier).refreshAfterProfileReturn();
+    if (!mounted) return;
+
+    final user = ref.read(sessionStoreProvider).readUserSync();
+    final registrationComplete = user?.isRegistrationComplete;
+    final crewVerified = user?.isCrewVerified;
+
+    if (registrationComplete == 0) {
+      Navigator.of(context, rootNavigator: true).pop();
+      context.goNamed(Routes.signupStep1.name);
+    } else if (registrationComplete == 1 && crewVerified == 1) {
+      Navigator.of(context, rootNavigator: true).pop();
+      TopMessage.show(
+        context,
+        'Your application is approved. Welcome to Beige!',
+        type: TopMessageType.success,
+      );
+    } else if (registrationComplete == 1 && crewVerified == 2) {
+      Navigator.of(context, rootNavigator: true).pop();
+      context.goNamed(Routes.applicationRejected.name);
+    } else {
+      TopMessage.show(context, 'Your application is still under review.');
+    }
   }
 
   @override
@@ -213,22 +268,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         const HomeSectionDivider(centerAlpha: 0.24),
 
                         if (homeState.upcomingShootsList.isNotEmpty) ...[
-                          const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
+                          const SizedBox(
+                            height: 18,
+                          ), // 18 + 6 (header padding) = 24 visual gap below divider
                           HomeUpcomingCarousel(
                             upcomingShoots: homeState.upcomingShootsList,
-                            hasOriginalShoots: homeState.upcomingShootsList.isNotEmpty,
+                            hasOriginalShoots:
+                                homeState.upcomingShootsList.isNotEmpty,
                             currentIndex: _currentIndex,
                             controller: _controller,
                             onCardTap: _onCardTap,
                             onSwipeNext: _goToNext,
                             onSwipePrevious: _goToPrevious,
                           ),
-                          const SizedBox(height: 24), // 24 visual gap above divider
+                          const SizedBox(
+                            height: 24,
+                          ), // 24 visual gap above divider
                           const HomeSectionDivider(centerAlpha: 0.24),
                         ],
 
                         if (homeState.upcomingMeetingsList.isNotEmpty) ...[
-                          const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
+                          const SizedBox(
+                            height: 18,
+                          ), // 18 + 6 (header padding) = 24 visual gap below divider
                           HomeUpcomingMeetingsCarousel(
                             upcomingMeetings: homeState.upcomingMeetingsList,
                             currentIndex: _meetingsCurrentIndex,
@@ -241,7 +303,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           const HomeSectionDivider(centerAlpha: 0.24),
                         ],
 
-                        const SizedBox(height: 24), // 24 visual gap below divider
+                        const SizedBox(
+                          height: 24,
+                        ), // 24 visual gap below divider
                         HomeAvailabilitySection(
                           focusedDay: homeState.focusedDay,
                           selectedEvent: homeState.selectedEvent,
@@ -257,9 +321,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           onDaySelected: (day, event) {
                             if (_blockIfGuest()) return;
                             if (event != 'Shoot') return;
-                            int? bookingId = homeState
-                                .availabilityDays[day]
-                                ?.bookingId;
+                            int? bookingId =
+                                homeState.availabilityDays[day]?.bookingId;
                             if (bookingId == null) {
                               for (final s in homeState.upcomingShootsList) {
                                 if (s.eventDate.year == day.year &&
@@ -280,17 +343,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             }
                           },
                         ),
-                        const SizedBox(height: 24), // 24 visual gap above divider
+                        const SizedBox(
+                          height: 24,
+                        ), // 24 visual gap above divider
                         const HomeSectionDivider(centerAlpha: 0.24),
 
                         if (homeState.pendingRequestCards.isNotEmpty) ...[
-                          const SizedBox(height: 24), // 24 visual gap below divider
+                          const SizedBox(
+                            height: 24,
+                          ), // 24 visual gap below divider
                           HomePendingShootCard(
                             pendingShoot: data,
                             onAccept: (projectId) async {
                               if (_blockIfGuest()) return;
-                              final success =
-                                  await notifier.acceptDecline(projectId, 1);
+                              final success = await notifier.acceptDecline(
+                                projectId,
+                                1,
+                              );
                               if (!context.mounted) return;
                               if (success) {
                                 TopMessage.show(
@@ -299,8 +368,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                   type: TopMessageType.success,
                                 );
                               } else {
-                                final err =
-                                    ref.read(homeNotifierProvider).errorMessage;
+                                final err = ref
+                                    .read(homeNotifierProvider)
+                                    .errorMessage;
                                 TopMessage.show(
                                   context,
                                   err ?? 'Failed to accept shoot',
@@ -317,11 +387,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               notifier.refresh();
                             },
                           ),
-                          const SizedBox(height: 24), // 24 visual gap above divider
+                          const SizedBox(
+                            height: 24,
+                          ), // 24 visual gap above divider
                           const HomeSectionDivider(centerAlpha: 0.24),
                         ],
 
-                        const SizedBox(height: 24), // 24 visual gap below divider
+                        const SizedBox(
+                          height: 24,
+                        ), // 24 visual gap below divider
                         HomeShootStatusPanel(
                           successfulShoots: homeState.successfulShoots,
                           pendingShoots: homeState.pendingShootsCount,
@@ -331,16 +405,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           rangeOptions: const ['Week', 'Month', 'Year'],
                           onRangeChanged: notifier.changeStatsRange,
                         ),
-                        const SizedBox(height: 24), // 24 visual gap above divider
+                        const SizedBox(
+                          height: 24,
+                        ), // 24 visual gap above divider
                         const HomeSectionDivider(centerAlpha: 0.24),
 
-                        const SizedBox(height: 24), // 24 visual gap below divider
+                        const SizedBox(
+                          height: 24,
+                        ), // 24 visual gap below divider
                         HomeShootCategoriesPanel(
                           selectedTab: homeState.selectedTab,
                           categoryPhotoTotal: homeState.categoryPhotoTotal,
                           categoryVideoTotal: homeState.categoryVideoTotal,
-                          acceptPhotographyShoots: homeState.acceptPhotographyShoots,
-                          acceptVideographyShoots: homeState.acceptVideographyShoots,
+                          acceptPhotographyShoots:
+                              homeState.acceptPhotographyShoots,
+                          acceptVideographyShoots:
+                              homeState.acceptVideographyShoots,
                           rejectedPhoto: homeState.rejectedPhoto,
                           rejectedVideo: homeState.rejectedVideo,
                           requestPhoto: homeState.requestPhoto,

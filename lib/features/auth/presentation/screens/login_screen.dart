@@ -15,6 +15,7 @@ import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/new_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../providers/login_notifier.dart';
 import '../providers/login_state.dart';
 
@@ -72,7 +73,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         TopMessage.show(context, next.errorMessage!);
       }
       if (next.loginSuccess && !(prev?.loginSuccess ?? false)) {
-        context.goNamed(Routes.home.name);
+        final session = ref.read(sessionStoreProvider);
+        final user = session.readUserSync();
+        final isRegistrationComplete = user?.isRegistrationComplete;
+        final isCrewVerified = user?.isCrewVerified;
+
+        if (isRegistrationComplete == 0) {
+          context.goNamed(Routes.signupStep1.name);
+        } else if (isRegistrationComplete == 1 && isCrewVerified == 0) {
+          context.goNamed(Routes.home.name);
+        } else if (isRegistrationComplete == 1 && isCrewVerified == 2) {
+          context.goNamed(Routes.applicationRejected.name);
+        } else if (isRegistrationComplete == 1 && isCrewVerified == 1) {
+          context.goNamed(Routes.home.name);
+        }
       }
     });
 
@@ -209,13 +223,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 onPressed: () {
                                   TextInput.finishAutofillContext();
                                   ref
-                                      .read(
-                                        loginNotifierProvider.notifier,
-                                      )
+                                      .read(loginNotifierProvider.notifier)
                                       .login(
                                         email: emailController.text,
-                                        password:
-                                            passwordController.text,
+                                        password: passwordController.text,
                                       );
                                 },
                               ),

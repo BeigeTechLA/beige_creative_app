@@ -69,8 +69,7 @@ void main() {
     test('every GoRoute has a non-empty name', () {
       for (final r in goRoutes) {
         expect(r.name, isNotNull, reason: 'GoRoute ${r.path} missing name');
-        expect(r.name, isNotEmpty,
-            reason: 'GoRoute ${r.path} has empty name');
+        expect(r.name, isNotEmpty, reason: 'GoRoute ${r.path} has empty name');
       }
     });
 
@@ -139,15 +138,145 @@ void main() {
       expect(res, isNull);
     });
 
-    test('guest mode user accessing public login route is allowed (returns null)', () {
+    test(
+      'guest mode user accessing public login route is allowed (returns null)',
+      () {
+        final res = appRedirect(
+          isAuth: false,
+          hasSeenOnboarding: true,
+          connStatus: ConnectivityStatus.online,
+          location: Routes.login.path,
+          isGuest: true,
+        );
+        expect(res, isNull);
+      },
+    );
+
+    test(
+      'authed user with is_registration_complete == 0 redirects to /signup-step-1',
+      () {
+        final res = appRedirect(
+          isAuth: true,
+          hasSeenOnboarding: true,
+          connStatus: ConnectivityStatus.online,
+          location: Routes.home.path,
+          isRegistrationComplete: 0,
+          isCrewVerified: 0,
+        );
+        expect(res, equals(Routes.signupStep1.path));
+      },
+    );
+
+    test('pending review uses /home as blocked landing surface', () {
       final res = appRedirect(
-        isAuth: false,
+        isAuth: true,
         hasSeenOnboarding: true,
         connStatus: ConnectivityStatus.online,
-        location: Routes.login.path,
-        isGuest: true,
+        location: Routes.home.path,
+        isRegistrationComplete: 1,
+        isCrewVerified: 0,
       );
       expect(res, isNull);
+
+      final protectedRes = appRedirect(
+        isAuth: true,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.shoots.path,
+        isRegistrationComplete: 1,
+        isCrewVerified: 0,
+      );
+      expect(protectedRes, equals(Routes.home.path));
+
+      final profileRes = appRedirect(
+        isAuth: true,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.myProfile.path,
+        isRegistrationComplete: 1,
+        isCrewVerified: 0,
+      );
+      expect(profileRes, isNull);
+    });
+
+    test(
+      'authed user with is_registration_complete == 1 and is_crew_verified == 2 (rejected) redirects to /application-rejected',
+      () {
+        final res = appRedirect(
+          isAuth: true,
+          hasSeenOnboarding: true,
+          connStatus: ConnectivityStatus.online,
+          location: Routes.home.path,
+          isRegistrationComplete: 1,
+          isCrewVerified: 2,
+        );
+        expect(res, equals(Routes.applicationRejected.path));
+      },
+    );
+
+    test(
+      'approved CP (is_registration_complete == 1 and is_crew_verified == 1) has full access',
+      () {
+        final res = appRedirect(
+          isAuth: true,
+          hasSeenOnboarding: true,
+          connStatus: ConnectivityStatus.online,
+          location: Routes.home.path,
+          isRegistrationComplete: 1,
+          isCrewVerified: 1,
+        );
+        expect(res, isNull);
+      },
+    );
+
+    test('missing or unknown account status fails closed to /login', () {
+      final missing = appRedirect(
+        isAuth: true,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.home.path,
+      );
+      expect(missing, Routes.login.path);
+
+      final unknown = appRedirect(
+        isAuth: true,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.home.path,
+        isRegistrationComplete: 1,
+        isCrewVerified: 9,
+      );
+      expect(unknown, Routes.login.path);
+    });
+
+    test('offline state does not bypass auth or CP status restrictions', () {
+      final unauthed = appRedirect(
+        isAuth: false,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.offline,
+        location: Routes.shoots.path,
+      );
+      expect(unauthed, Routes.login.path);
+
+      final pending = appRedirect(
+        isAuth: true,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.offline,
+        location: Routes.shoots.path,
+        isRegistrationComplete: 1,
+        isCrewVerified: 0,
+      );
+      expect(pending, Routes.home.path);
+
+      final rejected = appRedirect(
+        isAuth: true,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.offline,
+        location: Routes.home.path,
+        isRegistrationComplete: 1,
+        isCrewVerified: 2,
+      );
+      expect(rejected, Routes.applicationRejected.path);
     });
   });
 }

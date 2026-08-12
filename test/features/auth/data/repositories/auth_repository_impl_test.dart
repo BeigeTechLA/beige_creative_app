@@ -99,20 +99,78 @@ void main() {
       },
     );
 
-    test('happy: missing user and crew_member still returns token', () async {
+    test('missing user and crew_member identity throws', () async {
       when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
         (_) async => _ok({
           'error': false,
           'message': 'ok',
-          'data': {'token': 't'},
+          'data': {
+            'token': 't',
+            'is_registration_complete': 1,
+            'is_crew_verified': 1,
+          },
         }),
       );
 
-      final result = await repo.login(email: 'a@b.c', password: 'pw');
-
-      expect(result.token, 't');
-      expect(result.user, isNull);
+      await expectLater(
+        repo.login(email: 'a@b.c', password: 'pw'),
+        throwsA(
+          predicate(
+            (e) => e.toString().contains('missing crew member identity'),
+          ),
+        ),
+      );
     });
+
+    test(
+      'parses registration and verification flags from crew_member',
+      () async {
+        when(
+          () => dio.post<dynamic>(any(), data: any(named: 'data')),
+        ).thenAnswer(
+          (_) async => _ok(
+            loginResponse(
+              token: 'pending-token',
+              isRegistrationComplete: 1,
+              isCrewVerified: 0,
+            ),
+          ),
+        );
+
+        final result = await repo.login(email: 'a@b.c', password: 'pw');
+
+        expect(result.isRegistrationComplete, 1);
+        expect(result.isCrewVerified, 0);
+        expect(result.user?.isRegistrationComplete, 1);
+        expect(result.user?.isCrewVerified, 0);
+      },
+    );
+
+    test(
+      'missing or unknown account status throws instead of approving',
+      () async {
+        when(
+          () => dio.post<dynamic>(any(), data: any(named: 'data')),
+        ).thenAnswer(
+          (_) async => _ok({
+            'error': false,
+            'data': {
+              'token': 't',
+              'is_registration_complete': 1,
+              'is_crew_verified': 9,
+              'crew_member': {'id': 1},
+            },
+          }),
+        );
+
+        await expectLater(
+          repo.login(email: 'a@b.c', password: 'pw'),
+          throwsA(
+            predicate((e) => e.toString().contains('valid account status')),
+          ),
+        );
+      },
+    );
 
     test('error envelope (error: true) → throws with server message', () async {
       when(

@@ -57,6 +57,7 @@ abstract class Routes {
   static const forgotOtp = RouteSpec(name: 'forgot_otp', path: '/forgot-otp', isPublic: true);
   static const resetPassword = RouteSpec(name: 'reset_password', path: '/reset-password', isPublic: true);
   static const viewDetails = RouteSpec(name: 'view_details', path: '/view-details', isPublic: true);
+  static const applicationRejected = RouteSpec(name: 'application_rejected', path: '/application-rejected', featureArea: 'auth');
 
   // Shell tabs
   static const home = RouteSpec(name: 'home', path: '/home', featureArea: 'home');
@@ -126,7 +127,7 @@ abstract class Routes {
   static const all = <RouteSpec>[
     splash, onboarding,
     login, signupStep1, signupStep2, signupStep3, signupSuccess,
-    forgotPassword, forgotOtp, resetPassword, viewDetails,
+    forgotPassword, forgotOtp, resetPassword, viewDetails, applicationRejected,
     home, shoots, files, messages, meetings, manageAvailability, affiliate,
     payouts,
     myProfile, cropImage, editPersonalDetails, enterProfessionalDetails, profileDetails,

@@ -5,8 +5,17 @@ import '../../../../core/session/session_store.dart';
 class LoginResult {
   final String token;
   final UserSnapshot? user;
+  final int isRegistrationComplete;
+  final int isCrewVerified;
+  final int? crewMemberId;
 
-  const LoginResult({required this.token, this.user});
+  const LoginResult({
+    required this.token,
+    this.user,
+    this.isRegistrationComplete = 1,
+    this.isCrewVerified = 1,
+    this.crewMemberId,
+  });
 }
 
 class LookupOption {

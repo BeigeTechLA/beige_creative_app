@@ -5,6 +5,74 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-12: CP Status Login Guard Hardening & Home Review Modal
+
+- **Task**: Verify and complete login routing for registration/crew-verification flags, present the existing `ApplicationUnderReviewCard` as a non-dismissible Home dialog, and soften the rejected-state content.
+- **Changes**:
+  - Login parsing now requires valid `is_registration_complete` (`0/1`), `is_crew_verified` (`0/1/2`), and crew identity; missing/unknown status fails closed instead of defaulting to approved.
+  - Pending CPs land on Home behind a non-dismissible `ApplicationUnderReviewDialog`. Back and barrier taps are blocked; Refresh Status keeps the dialog open while pending, and Complete Your Profile enters the allowed profile area.
+  - Pending users can access Home only as the blocked landing surface plus profile routes; other routes redirect back to Home. Offline state no longer bypasses auth/status guards.
+  - Profile/dashboard refresh parses and preserves the two account-status flags so refreshing cannot accidentally erase the restriction. If refreshed data reports approved, incomplete, or rejected, the dialog routes accordingly.
+  - Rejected-state heading/body copy now communicates the decision respectfully and points users toward support or future reapplication guidance.
+- **Verification**:
+  - Focused router/auth/Home/profile/dialog tests: 93 / 93 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter test integration_test/login_logout_test.dart -d macos`: 1 / 1 passing (native dependency warnings only).
+  - `git diff --check`: clean.
+
+---
+
+### 2026-08-12: Application Under Review Standalone Card & Dialog Component (Option A)
+
+- **Task**: Create reusable `ApplicationUnderReviewCard` and helper `ApplicationUnderReviewDialog` based on design screenshot for embedded screen or modal dialog usage with dynamic profile image URL binding and placeholder fallback.
+- **Changed Files**:
+  - `lib/features/profile/presentation/widgets/application_under_review_card.dart` [NEW]
+  - `test/features/profile/presentation/widgets/application_under_review_card_test.dart` [NEW]
+- **Decisions**:
+  - Implemented Option A (Champagne Warm Gold design spec): warm gradient container (`#E8DBCA` → `#DCCBB5`), overlapping circular avatar with gold halo ring border, off-white "NEXT STEPS" sub-card (`#F2EFEA`), dark onyx "Refresh Status" CTA button (`#121212`), and full-width Champagne Gold "Complete Your Profile" CTA button (`#E7D8C4`).
+  - Added profile image resolution logic: binds `${Env.imageUrl}$profileImageUrl` via `CachedNetworkImage` when present, falling back gracefully to `AppAssets.userCircle` SVG placeholder when empty, null, or on error.
+  - Exposed `ApplicationUnderReviewDialog.show(context)` static helper method to pop the widget inside a modal dialog overlay with translucent backdrop.
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/features/profile/presentation/widgets/application_under_review_card_test.dart` — 2 / 2 tests passing.
+
+---
+
+### 2026-08-12: Conditional Login & Verification Flag Guard Implementation
+
+- **Task**: Implement conditional login and navigation guard based on API flags (`is_registration_complete` and `is_crew_verified`), hide "Already have an account? Login" during active signup wizard, add Application Under Review banner on Profile screen, and create Application Rejected screen.
+- **Changed Files**:
+  - `lib/core/session/session_store.dart`
+  - `lib/core/session/prefs_session_store.dart`
+  - `lib/features/auth/domain/repositories/auth_repository.dart`
+  - `lib/features/auth/data/repositories/auth_repository_impl.dart`
+  - `lib/app/routes.dart`
+  - `lib/app/router.dart`
+  - `lib/features/auth/presentation/routes/auth_routes.dart`
+  - `lib/features/auth/presentation/screens/login_screen.dart`
+  - `lib/features/auth/presentation/screens/signup1_screen.dart`
+  - `lib/features/auth/presentation/screens/signup2_screen.dart`
+  - `lib/features/auth/presentation/screens/signup3_screen.dart`
+  - `lib/features/auth/presentation/screens/application_rejected_screen.dart` [NEW]
+  - `lib/features/profile/presentation/screens/my_profile_screen.dart`
+  - `test/app/router_test.dart`
+  - `test/helpers/mocks.dart`
+  - `test/features/auth/presentation/login_notifier_test.dart`
+  - `test/features/file_manager/presentation/providers/comments_notifier_test.dart`
+  - `test/features/messages/presentation/providers/conversation_list_notifier_test.dart`
+  - `test/features/profile/presentation/delete_account_test.dart`
+- **Decisions**:
+  - **Case 1 (`is_registration_complete == 0`)**: Intercept in `appRedirect()` and navigate to `/signup-step-1` (resuming signup wizard). Wrapped "Already have an account? Login" row in `if (!ref.watch(authStateProvider))` across signup screens 1, 2, and 3 to hide it when the user is logged in.
+  - **Case 2 (`is_registration_complete == 1 && is_crew_verified == 0`)**: Application under review state. Restrict navigation in `appRedirect()` exclusively to profile screens (`/my-profile`, `/profile-details`, `/edit-profile`, etc.), redirecting non-profile route access to `/my-profile`. Positioned "Application Under Review" banner with Dark Luxury styling (`AppColors.surfaceWarm` + 1px gold border + amber status badge) directly inside `my_profile_screen.dart` right above `ProfileStatsPanel`.
+  - **Case 3 (`is_registration_complete == 1 && is_crew_verified == 1`)**: Full creator app access (`/home`).
+  - **Case 4 (`is_registration_complete == 1 && is_crew_verified == 2`)**: Application rejected state. Restrict navigation in `appRedirect()` to `/application-rejected`. Built `ApplicationRejectedScreen` featuring dark luxury styling, "Contact Support" (`url_launcher` mailto trigger), and "Log Out" action.
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/app/router_test.dart test/features/auth/data/repositories/auth_repository_impl_test.dart` — 50 / 50 tests passing.
+  - `flutter test` — 519 tests passing (0 regressions).
+
+---
+
 ### 2026-08-11: Shoots Top Cards and Top Toolbar Status Filter Bidirectional Alignment & Auto-Scroll
 
 - **Task**: Align and bidirectionally synchronize top count cards (`Pending Shoots`, `Confirmed Shoots`, `Completed Shoots`, `Declined`) with top toolbar filter icon, and auto-scroll horizontal cards list into view when selected.

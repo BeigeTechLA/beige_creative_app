@@ -245,12 +245,14 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     final availability = data.availability;
     final profileData = data.profileDetail;
 
-    final hasPhotoCrewStats = stats != null &&
+    final hasPhotoCrewStats =
+        stats != null &&
         (stats.photographyShoots > 0 ||
             stats.photoRejectedShoots > 0 ||
             stats.photoShootRequests > 0);
 
-    final hasVideoCrewStats = stats != null &&
+    final hasVideoCrewStats =
+        stats != null &&
         (stats.videographyShoots > 0 ||
             stats.videoRejectedShoots > 0 ||
             stats.videoShootRequests > 0);
@@ -281,24 +283,38 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       photographyShoots: stats?.photographyShoots,
       videographyShoots: stats?.videographyShoots,
       // Shoot categories
-      categoryPhotoTotal: (hasPhotoCrewStats &&
+      categoryPhotoTotal:
+          (hasPhotoCrewStats &&
               (stats.photoRejectedShoots > 0 || stats.photoShootRequests > 0))
           ? (stats.photographyShoots +
-              stats.photoRejectedShoots +
-              stats.photoShootRequests)
+                stats.photoRejectedShoots +
+                stats.photoShootRequests)
           : (categories?['photo']?['total'] as int? ??
-              ((stats?.photographyShoots ?? categories?['photo']?['acceptedShoots'] as int? ?? 0) +
-                  (stats?.photoRejectedShoots ?? categories?['photo']?['rejectedShoots'] as int? ?? 0) +
-                  (stats?.photoShootRequests ?? categories?['photo']?['shootRequests'] as int? ?? 0))),
-      categoryVideoTotal: (hasVideoCrewStats &&
+                ((stats?.photographyShoots ??
+                        categories?['photo']?['acceptedShoots'] as int? ??
+                        0) +
+                    (stats?.photoRejectedShoots ??
+                        categories?['photo']?['rejectedShoots'] as int? ??
+                        0) +
+                    (stats?.photoShootRequests ??
+                        categories?['photo']?['shootRequests'] as int? ??
+                        0))),
+      categoryVideoTotal:
+          (hasVideoCrewStats &&
               (stats.videoRejectedShoots > 0 || stats.videoShootRequests > 0))
           ? (stats.videographyShoots +
-              stats.videoRejectedShoots +
-              stats.videoShootRequests)
+                stats.videoRejectedShoots +
+                stats.videoShootRequests)
           : (categories?['video']?['total'] as int? ??
-              ((stats?.videographyShoots ?? categories?['video']?['acceptedShoots'] as int? ?? 0) +
-                  (stats?.videoRejectedShoots ?? categories?['video']?['rejectedShoots'] as int? ?? 0) +
-                  (stats?.videoShootRequests ?? categories?['video']?['shootRequests'] as int? ?? 0))),
+                ((stats?.videographyShoots ??
+                        categories?['video']?['acceptedShoots'] as int? ??
+                        0) +
+                    (stats?.videoRejectedShoots ??
+                        categories?['video']?['rejectedShoots'] as int? ??
+                        0) +
+                    (stats?.videoShootRequests ??
+                        categories?['video']?['shootRequests'] as int? ??
+                        0))),
       acceptPhotographyShoots: hasPhotoCrewStats
           ? stats.photographyShoots
           : (categories?['photo']?['acceptedShoots'] as int?),
@@ -331,7 +347,9 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     );
   }
 
-  Future<void> _updateSessionUserSnapshot(profile.MyProfileData profileData) async {
+  Future<void> _updateSessionUserSnapshot(
+    profile.MyProfileData profileData,
+  ) async {
     try {
       final session = ref.read(sessionStoreProvider);
       final currentUser = await session.readUser();
@@ -340,8 +358,8 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
           : null;
       final sessionId =
           (currentUser?.id.isNotEmpty ?? false) && currentUser!.id != '0'
-              ? currentUser.id
-              : null;
+          ? currentUser.id
+          : null;
       final resolvedId = profileId ?? sessionId;
       if (resolvedId == null) {
         AppLogger.w(
@@ -363,6 +381,14 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
           profileImageUrl: profileData.user.profileImageUrl.isNotEmpty
               ? profileData.user.profileImageUrl
               : currentUser?.profileImageUrl,
+          isRegistrationComplete:
+              profileData.isRegistrationComplete ??
+              currentUser?.isRegistrationComplete,
+          isCrewVerified:
+              profileData.isCrewVerified ?? currentUser?.isCrewVerified,
+          crewMemberId: profileData.crewMemberId != 0
+              ? profileData.crewMemberId
+              : currentUser?.crewMemberId,
         );
         await session.writeUser(updatedUser);
       }

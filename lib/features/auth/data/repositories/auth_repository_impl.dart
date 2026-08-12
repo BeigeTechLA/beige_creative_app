@@ -37,8 +37,68 @@ class AuthRepositoryImpl implements AuthRepository {
     if (token.isEmpty) {
       throw Exception('Login response missing token');
     }
-    final user = _parseLoginUser(payload);
-    return LoginResult(token: token, user: user);
+    final rawCrewMember = payload['crew_member'] is Map
+        ? payload['crew_member'] as Map
+        : null;
+
+    final isRegistrationComplete =
+        _intValue(payload, ['is_registration_complete']) ??
+        (rawCrewMember != null
+            ? _intValue(rawCrewMember, ['is_registration_complete'])
+            : null);
+
+    final isCrewVerified =
+        _intValue(payload, ['is_crew_verified']) ??
+        (rawCrewMember != null
+            ? _intValue(rawCrewMember, ['is_crew_verified'])
+            : null);
+
+    if (isRegistrationComplete == null ||
+        !const {0, 1}.contains(isRegistrationComplete) ||
+        isCrewVerified == null ||
+        !const {0, 1, 2}.contains(isCrewVerified)) {
+      throw Exception('Login response missing valid account status');
+    }
+
+    final crewMemberId =
+        _intValue(payload, ['crew_member_id']) ??
+        (rawCrewMember != null
+            ? _intValue(rawCrewMember, ['crew_member_id', 'id'])
+            : null);
+
+    final rawUser = _parseLoginUser(payload);
+    final user = rawUser != null
+        ? UserSnapshot(
+            id: rawUser.id,
+            name: rawUser.name,
+            email: rawUser.email,
+            role: rawUser.role,
+            userType: rawUser.userType,
+            profileImageUrl: rawUser.profileImageUrl,
+            isRegistrationComplete: isRegistrationComplete,
+            isCrewVerified: isCrewVerified,
+            crewMemberId: crewMemberId,
+          )
+        : (crewMemberId != null
+              ? UserSnapshot(
+                  id: crewMemberId.toString(),
+                  isRegistrationComplete: isRegistrationComplete,
+                  isCrewVerified: isCrewVerified,
+                  crewMemberId: crewMemberId,
+                )
+              : null);
+
+    if (user == null) {
+      throw Exception('Login response missing crew member identity');
+    }
+
+    return LoginResult(
+      token: token,
+      user: user,
+      isRegistrationComplete: isRegistrationComplete,
+      isCrewVerified: isCrewVerified,
+      crewMemberId: crewMemberId,
+    );
   }
 
   UserSnapshot? _parseLoginUser(Map<String, dynamic> payload) {
@@ -115,6 +175,18 @@ class AuthRepositoryImpl implements AuthRepository {
       if (value == null) continue;
       final text = value.toString();
       if (text.isNotEmpty) return text;
+    }
+    return null;
+  }
+
+  int? _intValue(Map<dynamic, dynamic> json, List<String> keys) {
+    for (final key in keys) {
+      final value = json[key];
+      if (value == null) continue;
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      final parsed = int.tryParse(value.toString());
+      if (parsed != null) return parsed;
     }
     return null;
   }
