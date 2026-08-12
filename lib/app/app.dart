@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../core/firebase/fcm_service.dart';
 import '../features/messages/presentation/providers/messages_repository_provider.dart';
 import '../shared/widgets/connectivity_listener.dart';
 import 'router.dart';
@@ -20,8 +19,6 @@ class App extends ConsumerWidget {
     // Mount chat socket lifecycle — connects on auth + real backend, disconnects
     // on logout. Provider has no value; the watch exists only to keep it alive.
     ref.watch(chatSocketLifecycleProvider);
-    // Register FCM token automatically on boot / login when authenticated
-    ref.watch(fcmLifecycleProvider);
 
     final router = ref.watch(routerProvider);
     return MaterialApp.router(

@@ -25,6 +25,7 @@ class NotificationScreen extends ConsumerStatefulWidget {
 }
 
 class _NotificationScreenState extends ConsumerState<NotificationScreen> {
+
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _todaySectionKey = GlobalKey();
@@ -76,14 +77,13 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top Navigation Bar matching Figma
+            // Top Navigation Bar (Back Button)
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.base,
                 vertical: AppSpacing.sm,
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppIconTapTarget(
                     semanticLabel: 'Back',
@@ -92,26 +92,6 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                       AppAssets.back,
                       height: AppSpacing.xxl,
                       width: AppSpacing.xxl,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.white,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-                  AppIconTapTarget(
-                    semanticLabel: 'Filter',
-                    onTap: () {
-                      NotificationFilterBottomSheet.show(
-                        context: context,
-                        selectedCategory: state.selectedCategory,
-                        onApply: notifier.applyCategoryFilter,
-                        onClearAll: () => notifier.applyCategoryFilter('All'),
-                      );
-                    },
-                    icon: SvgPicture.asset(
-                      AppAssets.iconFilter,
-                      height: AppSpacing.folderCardInset,
-                      width: AppSpacing.folderCardInset,
                       colorFilter: const ColorFilter.mode(
                         AppColors.white,
                         BlendMode.srcIn,
@@ -139,27 +119,51 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                     children: [
                       AppSpacing.verticalSm,
 
-                      // Title & Subtitle Header
-                      Text(
-                        'Notification',
-                        style: AppTextStyles.titleMedium.copyWith(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      // Title & Filter Icon Row (Matching Figma Image 1)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Notification',
+                            style: AppTextStyles.titleMedium.copyWith(
+                              color: AppColors.white,
+                            ),
+                          ),
+                          AppIconTapTarget(
+                            semanticLabel: 'Filter',
+                            onTap: () {
+                              NotificationFilterBottomSheet.show(
+                                context: context,
+                                selectedCategory: state.selectedCategory,
+                                onApply: notifier.applyCategoryFilter,
+                                onClearAll: () => notifier.applyCategoryFilter('All'),
+                              );
+                            },
+                            icon: SvgPicture.asset(
+                              AppAssets.iconFilter,
+                              height: AppSpacing.folderCardInset,
+                              width: AppSpacing.folderCardInset,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.white,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       AppSpacing.verticalXxs,
                       Text(
                         'Stay updated with real-time alerts about your bookings, requests, and important account activity.',
                         style: AppTextStyles.body13.copyWith(
                           color: AppColors.white60,
-                          height: 1.3,
+                          height: 1.35,
                         ),
                       ),
                       AppSpacing.verticalBase,
 
                       // Segmented Tab Selector (Unread / Read)
                       Container(
-                        height: AppSpacing.jumbo2,
+                        height: 46,
                         decoration: BoxDecoration(
                           color: AppColors.surfaceVariant,
                           borderRadius: AppRadii.lgAll,
@@ -174,8 +178,8 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                                   decoration: BoxDecoration(
                                     color: state.selectedTab == NotificationTab.unread
                                         ? AppColors.primary
-                                        : Colors.transparent,
-                                    borderRadius: AppRadii.signupChipAll,
+                                        : AppColors.transparent,
+                                    borderRadius: AppRadii.mdAll,
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
@@ -199,8 +203,8 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                                   decoration: BoxDecoration(
                                     color: state.selectedTab == NotificationTab.Read
                                         ? AppColors.primary
-                                        : Colors.transparent,
-                                    borderRadius: AppRadii.signupChipAll,
+                                        : AppColors.transparent,
+                                    borderRadius: AppRadii.mdAll,
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
@@ -222,7 +226,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                       ),
                       AppSpacing.verticalBase,
 
-                      // Notification Sections or Empty State
+                      // Notification Sections or Empty State ('No data')
                       if (filtered.isEmpty)
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: AppSpacing.massive),
@@ -346,12 +350,13 @@ class _SectionHeader extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant,
-                borderRadius: AppRadii.lgAll,
+                borderRadius: AppRadii.smAll,
               ),
               child: Text(
                 '$count',
                 style: AppTextStyles.body12.copyWith(
                   color: AppColors.white70,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -363,6 +368,7 @@ class _SectionHeader extends StatelessWidget {
             'View All',
             style: AppTextStyles.body12.copyWith(
               color: AppColors.white,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),

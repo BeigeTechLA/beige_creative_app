@@ -26,6 +26,7 @@ class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen> {
   @override
   Widget build(BuildContext context) {
+
     final state = ref.watch(notificationSettingsProvider);
     final notifier = ref.read(notificationSettingsProvider.notifier);
 
@@ -43,7 +44,6 @@ class _NotificationSettingsScreenState
             ),
             const SizedBox(height: 16),
 
-            // Header Title & Subtitle (Unbounded / Outfit typography from AppTextStyles)
             Text(
               'Notification Settings',
               style: AppTextStyles.displayStrong16w600.copyWith(
@@ -67,11 +67,9 @@ class _NotificationSettingsScreenState
               value: state.pushNotifications,
               onChanged: (val) {
                 notifier.togglePushNotifications(val);
-                // When Push Notifications is toggled ON, automatically open Select Categories dialog
-                if (val) {
-                  NotificationCategorySheet.show(context);
-                }
+                NotificationCategorySheet.show(context);
               },
+              onTapRow: () => NotificationCategorySheet.show(context),
             ),
             const SizedBox(height: 16),
 
@@ -85,48 +83,91 @@ class _NotificationSettingsScreenState
               value: state.emailNotifications,
               onChanged: (val) {
                 notifier.toggleEmailNotifications(val);
+                NotificationCategorySheet.show(context);
               },
+              onTapRow: () => NotificationCategorySheet.show(context),
             ),
             const SizedBox(height: 24),
+/*
+            // Smart Delivery Info Box (Matches mockup design)
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.base),
+              decoration: BoxDecoration(
+                borderRadius: AppRadii.lgAll,
+                color: AppColors.blueSkyWash,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        color: AppColors.blueElectric,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Smart Delivery',
+                        style: AppTextStyles.body15Strong.copyWith(
+                          color: AppColors.blueElectric,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Critical notifications are always sent via push and email, regardless of your preferences. We also suppress notifications when you\'re actively using the app to reduce interruptions.',
+                    style: AppTextStyles.body12.copyWith(
+                      color: AppColors.blueElectric,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 28),
 
-            // Smart Delivery Info Box (Matches Figma design)
-            // Container(
-            //   padding: const EdgeInsets.all(AppSpacing.base),
-            //   decoration: BoxDecoration(
-            //     borderRadius: AppRadii.hugeAll,
-            //     color: AppColors.blueSkyWash,
-            //   ),
-            //   child: Column(
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     children: [
-            //       Row(
-            //         children: [
-            //           const Icon(
-            //             Icons.info_outline,
-            //             color: AppColors.blueElectric,
-            //             size: 20,
-            //           ),
-            //           const SizedBox(width: 8),
-            //           Text(
-            //             'Smart Delivery',
-            //             style: AppTextStyles.bodyLargeStrong.copyWith(
-            //               color: AppColors.blueElectric,
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //       const SizedBox(height: 6),
-            //       Text(
-            //         'Critical notifications are sent via push and email, regardless of your preferences. We also suppress notifications when you\'re actively using the app to reduce interruptions.',
-            //         style: AppTextStyles.body13.copyWith(
-            //           color: AppColors.blueElectric,
-            //           height: 1.4,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            // const SizedBox(height: 24),
+            // Future Ready Section (Matches mockup design)
+            Row(
+              children: [
+                Text(
+                  'Future Ready',
+                  style: AppTextStyles.displayStrong16w600.copyWith(
+                    color: AppColors.white,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.magentaAccent.withValues(alpha: 0.6)),
+                    color: AppColors.magentaAccent.withValues(alpha: 0.15),
+                  ),
+                  child: Text(
+                    'Coming Soon',
+                    style: AppTextStyles.body12.copyWith(
+                      color: AppColors.magentaAccent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Future Ready Cards
+            const _FutureReadyCard(
+              title: 'AI Notification Summaries',
+              subtitle: 'Get smart digests like "3 files uploaded and 2 approvals pending"',
+            ),
+            const SizedBox(height: 12),
+            const _FutureReadyCard(
+              title: 'Workflow Automation',
+              subtitle: 'Build custom rules like "If proposal approved -> notify finance team"',
+            ),*/
           ],
         ),
       ),
@@ -143,6 +184,7 @@ class _NotificationRow extends StatelessWidget {
     required this.subtitle,
     required this.value,
     required this.onChanged,
+    this.onTapRow,
   });
 
   final IconData iconData;
@@ -152,52 +194,99 @@ class _NotificationRow extends StatelessWidget {
   final String subtitle;
   final bool value;
   final ValueChanged<bool> onChanged;
+  final VoidCallback? onTapRow;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
+    return InkWell(
+      onTap: onTapRow ?? () => onChanged(!value),
+      borderRadius: AppRadii.lgAll,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                borderRadius: AppRadii.lgAll,
+                border: Border.all(color: iconBorderColor, width: 1.5),
+              ),
+              child: Icon(iconData, color: iconBorderColor, size: 20),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTextStyles.body15Strong.copyWith(
+                      color: AppColors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.body12.copyWith(
+                      color: AppColors.white60,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            AppToggleSwitch(
+              value: value,
+              onChanged: onChanged,
+              width: 44,
+              height: 26,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/*class _FutureReadyCard extends StatelessWidget {
+  const _FutureReadyCard({
+    required this.title,
+    required this.subtitle,
+  });
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: AppRadii.lgAll,
+        border: Border.all(color: AppColors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: iconBgColor,
-              borderRadius: AppRadii.lgAll,
-              border: Border.all(color: iconBorderColor, width: 1.5),
-            ),
-            child: Icon(iconData, color: iconBorderColor, size: 20),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTextStyles.body15Strong.copyWith(
-                    color: AppColors.white,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: AppTextStyles.body12.copyWith(
-                    color: AppColors.white60,
-                  ),
-                ),
-              ],
+          Text(
+            title,
+            style: AppTextStyles.body15Strong.copyWith(
+              color: AppColors.white,
             ),
           ),
-          AppToggleSwitch(
-            value: value,
-            onChanged: onChanged,
-            width: 44,
-            height: 26,
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: AppTextStyles.body12.copyWith(
+              color: AppColors.white60,
+              height: 1.3,
+            ),
           ),
         ],
       ),
     );
   }
-}
+}*/

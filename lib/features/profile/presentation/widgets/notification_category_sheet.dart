@@ -179,41 +179,48 @@ class _CategoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SvgPicture.asset(
-          svgAsset,
-          width: 40,
-          height: 40,
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: AppTextStyles.body15Strong.copyWith(
-                  color: AppColors.white,
-                ),
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+        child: Row(
+          children: [
+            SvgPicture.asset(
+              svgAsset,
+              width: 40,
+              height: 40,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTextStyles.body15Strong.copyWith(
+                      color: AppColors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.body12.copyWith(
+                      color: AppColors.white60,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: AppTextStyles.body12.copyWith(
-                  color: AppColors.white60,
-                ),
-              ),
-            ],
-          ),
+            ),
+            AppToggleSwitch(
+              value: value,
+              onChanged: onChanged,
+              width: 44,
+              height: 26,
+            ),
+          ],
         ),
-        AppToggleSwitch(
-          value: value,
-          onChanged: onChanged,
-          width: 44,
-          height: 26,
-        ),
-      ],
+      ),
     );
   }
 }
