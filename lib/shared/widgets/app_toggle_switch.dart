@@ -50,40 +50,48 @@ class AppToggleSwitch extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: disabled ? null : () => onChanged!(!value),
-        child: AnimatedContainer(
-          duration: _kDuration,
-          width: width,
-          height: height,
-          padding: EdgeInsets.all(thumbInset),
-          decoration: ShapeDecoration(
-            gradient: value ? _onGradient : _offGradient,
-            shape: RoundedRectangleBorder(
-              side: BorderSide(
-                width: 0.81,
-                color: value ? AppColors.goldGradientLight : AppColors.transparent,
-              ),
-              borderRadius: trackRadius,
-            ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: 48,
+            minHeight: 48,
           ),
-          child: AnimatedAlign(
-            duration: _kDuration,
-            curve: Curves.easeOut,
-            alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-            child: Container(
-              width: thumbSize,
-              height: thumbSize,
+          child: Center(
+            child: AnimatedContainer(
+              duration: _kDuration,
+              width: width,
+              height: height,
+              padding: EdgeInsets.all(thumbInset),
               decoration: ShapeDecoration(
-                color: AppColors.white,
+                gradient: value ? _onGradient : _offGradient,
                 shape: RoundedRectangleBorder(
-                  borderRadius: thumbRadius,
-                ),
-                shadows: const [
-                  BoxShadow(
-                    color: Color(0x3364646F),
-                    blurRadius: 23.56,
-                    offset: Offset(0, 5.69),
+                  side: BorderSide(
+                    width: 0.81,
+                    color: value ? AppColors.goldGradientLight : AppColors.transparent,
                   ),
-                ],
+                  borderRadius: trackRadius,
+                ),
+              ),
+              child: AnimatedAlign(
+                duration: _kDuration,
+                curve: Curves.easeOut,
+                alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: thumbSize,
+                  height: thumbSize,
+                  decoration: ShapeDecoration(
+                    color: AppColors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: thumbRadius,
+                    ),
+                    shadows: const [
+                      BoxShadow(
+                        color: Color(0x3364646F),
+                        blurRadius: 23.56,
+                        offset: Offset(0, 5.69),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

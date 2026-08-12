@@ -55,10 +55,14 @@ class NotificationSettingsState {
   }
 }
 
-class NotificationSettingsNotifier extends AutoDisposeNotifier<NotificationSettingsState> {
+class NotificationSettingsNotifier extends Notifier<NotificationSettingsState> {
   @override
   NotificationSettingsState build() {
     return const NotificationSettingsState();
+  }
+
+  void updateState(NotificationSettingsState newState) {
+    state = newState;
   }
 
   void togglePushNotifications(bool value) {
@@ -103,6 +107,6 @@ class NotificationSettingsNotifier extends AutoDisposeNotifier<NotificationSetti
 }
 
 final notificationSettingsProvider =
-    AutoDisposeNotifierProvider<NotificationSettingsNotifier, NotificationSettingsState>(
+    NotifierProvider<NotificationSettingsNotifier, NotificationSettingsState>(
   NotificationSettingsNotifier.new,
 );
