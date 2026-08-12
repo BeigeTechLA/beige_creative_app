@@ -52,3 +52,7 @@ dot for `Not Available`. The Add Date field displays selected dates in
 blank whenever the form loads. Selection behavior and submitted values are
 otherwise unchanged. All form validation and submission errors use the shared
 app-level `TopMessage` theme instead of raw `SnackBar` instances.
+
+**Post-completion date icon update (2026-08-05):** The Add Date and Until Date
+fields, plus the Manage Availability screen's Available Days card, now use the
+shared `assets/icon/ic_add_date.svg` asset through `AppAssets.icAddDate`.

@@ -14,6 +14,7 @@ class AppAssets {
   static const String _lottie = 'assets/lottie';
   static const String _active = 'assets/active';
   static const String _inactive = 'assets/inactive';
+  static const String _icon = 'assets/icon';
   static const String _shootSvg = 'assets/svg/shoots';
   static const String _messageSvg = 'assets/svg/message';
   static const String _meetingSvg = 'assets/svg/meeting';
@@ -44,11 +45,13 @@ class AppAssets {
   // SVG — Meeting
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  static const String icMeetingDatetime = '$_meetingSvg/ic_meeting_datetime.svg';
+  static const String icMeetingDatetime =
+      '$_meetingSvg/ic_meeting_datetime.svg';
   static const String icMeetingLink = '$_meetingSvg/ic_meeting_link.svg';
   static const String icRelatedShoot = '$_meetingSvg/ic_related_shoot.svg';
   static const String icGoogleMeet = '$_meetingSvg/ic_google_meet.svg';
-  static const String meetingEmptyState = '$_meetingSvg/meeting_empty_state.svg';
+  static const String meetingEmptyState =
+      '$_meetingSvg/meeting_empty_state.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Active Icons (Bottom Nav / Drawer)
@@ -59,7 +62,8 @@ class AppAssets {
   static const String activeFileManager = '$_active/file_manager_active.svg';
   static const String activeMessages = '$_active/messages_active.svg';
   static const String activeMeetings = '$_active/meetings_active.svg';
-  static const String activeManageAvailability = '$_active/manage_availability_active.svg';
+  static const String activeManageAvailability =
+      '$_active/manage_availability_active.svg';
   static const String activeAffiliate = '$_active/affiliate_active.svg';
   static const String activePayouts = '$_active/payouts_active.svg';
 
@@ -69,10 +73,12 @@ class AppAssets {
 
   static const String inactiveDashboard = '$_inactive/dashboard_inactive.svg';
   static const String inactiveShoots = '$_inactive/shoots_inactive.svg';
-  static const String inactiveFileManager = '$_inactive/file_manager_inactive.svg';
+  static const String inactiveFileManager =
+      '$_inactive/file_manager_inactive.svg';
   static const String inactiveMessages = '$_inactive/messages_inactive.svg';
   static const String inactiveMeetings = '$_inactive/meetings_inactive.svg';
-  static const String inactiveManageAvailability = '$_inactive/manage_availability_inactive.svg';
+  static const String inactiveManageAvailability =
+      '$_inactive/manage_availability_inactive.svg';
   static const String inactiveAffiliate = '$_inactive/affiliate_inactive.svg';
   static const String inactivePayouts = '$_inactive/payouts_inactive.svg';
 
@@ -82,6 +88,7 @@ class AppAssets {
 
   static const String groupLogo = '$_images/group_logo.png';
   static const String rectangle = '$_images/rectangle.png';
+  static const String noData = '$_images/no_data.png';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — Navigation & Actions
@@ -93,6 +100,7 @@ class AppAssets {
   static const String location = '$_svg/location.svg';
   static const String calendar = '$_svg/calendar.svg';
   static const String myCalendar = '$_svg/my_calendar.svg';
+  static const String icAddDate = '$_icon/ic_add_date.svg';
   static const String editCircle = '$_svg/edit_circle.svg';
   static const String iconFilter = '$_svg/icon_filter.svg';
 
@@ -186,8 +194,19 @@ class AppAssets {
   static const String declinedIcon = '$_shootSvg/declined_icon.svg';
   static const String photoIcon = '$_shootSvg/photo_icon.svg';
   static const String videoIcon = '$_shootSvg/ic_video.svg';
-  static const String calendarIcon = '$_shootSvg/ic_calendar.svg';
+  static const String clockIconSel = '$_shootSvg/ic_clock_selected.svg';
+  static const String declinedIconSel = '$_shootSvg/ic_decline_selected.svg';
+  static const String photoIconSel = '$_shootSvg/ic_photo_selected.svg';
+  static const String videoIconSel = '$_shootSvg/ic_video_selected.svg';
 
+  static const String calendarIcon = '$_shootSvg/ic_calendar.svg';
+  static const String icDoller = '$_shootSvg/ic_doller.svg';
+  static const String icClockCircle = '$_shootSvg/ic_clock_circle.svg';
+  static const String icShootDate = '$_shootSvg/ic_shoot_date.svg';
+  static const String icShootLocation = '$_shootSvg/ic_shoot_location.svg';
+
+  static const String icCheckmark = '$_shootSvg/ic_checkmark_circle.svg';
+  static const String icLoaderPending = '$_shootSvg/ic_loader_pending.svg';
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Onboarding
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

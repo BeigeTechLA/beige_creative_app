@@ -41,3 +41,13 @@ Migrate the 1,184-LOC shoot details screen. Fix hardcoded endpoint string litera
 - First use of `AutoDisposeFamilyNotifier<State, int>` + `AutoDisposeNotifierProviderFamily<Notifier, State, int>` in the codebase — keyed by `projectId`.
 - Legacy file size reduction: 1,184 LOC → 386 LOC orchestrator (~67% drop) — bulk savings came from stripping unreachable methods, not just decomposing into Riverpod state.
 - Calibration vs 3d budget: ~1.5h actual.
+
+**Post-completion Time & Budget icon update (2026-08-05):** The Event Budget
+and Total Time Duration items now use `assets/svg/shoots/ic_doller.svg` and
+`assets/svg/shoots/ic_clock_circle.svg` through `AppAssets` instead of Material
+icons. The event information row also uses `ic_shoot_date.svg`,
+`ic_shoot_location.svg`, and a white-tinted reuse of `ic_clock_circle.svg`.
+
+**Post-completion type-chip update (2026-08-05):** Shoot Type and Booking Type
+chips are borderless and use the shared `AppColors.surfaceChip` (`#323131`)
+background.

@@ -4,6 +4,7 @@ import 'package:beige_creative_app/core/network/exceptions/exceptions.dart';
 import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
 import 'package:beige_creative_app/core/providers/core_providers.dart';
 import 'package:beige_creative_app/core/session/session_store.dart';
+import 'package:beige_creative_app/features/messages/data/dto/conversation_dto.dart';
 import 'package:beige_creative_app/features/messages/domain/entities/chat_details.dart';
 import 'package:beige_creative_app/features/messages/domain/entities/chat_thread.dart';
 import 'package:beige_creative_app/features/messages/domain/entities/conversation.dart';
@@ -188,6 +189,101 @@ void main() {
     );
 
     expect(repo.listCalls, 0);
+  });
+
+  test('ChatRoomCreated adds room directly without triggering API refetch', () async {
+    await hydrate();
+    repo.listCalls = 0;
+
+    const newRoom = Conversation(
+      id: 'room_new',
+      title: 'New Project Room',
+      unreadCount: 0,
+      isOnline: false,
+      participantIds: ['user_1'],
+    );
+
+    repo.globalCtrl.add(const ChatRoomCreated(newRoom));
+    await Future<void>.delayed(
+      kConversationRefreshThrottle + const Duration(milliseconds: 50),
+    );
+
+    expect(repo.listCalls, 0);
+    final items = container.read(conversationListProvider).items;
+    expect(items, hasLength(2));
+    expect(items.first.id, 'room_new');
+    expect(items.first.title, 'New Project Room');
+  });
+
+  test('ChatRoomCreated correctly parses user sample payload and prepends room', () async {
+    await hydrate();
+    repo.listCalls = 0;
+
+    final samplePayload = {
+      'success': true,
+      'type': 'addedToChat',
+      'event': 'chatRoomCreated',
+      'roomId': 'room_id',
+      'chatRoomId': 'room_id',
+      'orderId': 'order_id',
+      'externalOrderRef': 'booking_id',
+      'name': 'corporate_rachana_#4511',
+      'room': {
+        'id': 'room_id',
+        'chat_id': '688',
+        'name': 'corporate_rachana_#4511',
+        'client_snapshot': {
+          'id': '720',
+          'name': 'Client Name',
+          'email': 'client@example.com',
+          'role': 'client',
+        },
+        'cp_ids': [
+          {
+            'id': '555',
+            'name': 'CP Name',
+            'email': 'cp@example.com',
+            'decision': 'pending',
+            'role': 'cp',
+          }
+        ],
+        'manager_ids': [],
+        'production_ids': [],
+        'order_id': 'order_id',
+        'external_order_ref': '4511',
+        'last_message': null,
+        'status': 'active',
+        'unread_counts': {},
+        'createdAt': '2026-07-28T04:07:56.875Z',
+        'updatedAt': '2026-07-28T04:07:56.875Z',
+      },
+      'createdBy': {
+        'id': '288',
+        'email': 'admin@beigecorporation.io',
+        'name': 'Admin',
+        'role': 'admin',
+      },
+      'createdAt': '2026-07-28T04:07:56.875Z',
+    };
+
+    final roomRaw = samplePayload['room'] as Map<String, dynamic>;
+    final conversation = ConversationDto.fromRestJson(
+      roomRaw,
+      currentUserId: '555',
+    );
+
+    repo.globalCtrl.add(ChatRoomCreated(conversation));
+    await Future<void>.delayed(
+      kConversationRefreshThrottle + const Duration(milliseconds: 50),
+    );
+
+    expect(repo.listCalls, 0);
+    final items = container.read(conversationListProvider).items;
+    expect(items, hasLength(2));
+    expect(items.first.id, 'room_id');
+    expect(items.first.title, 'corporate_rachana_#4511');
+    expect(items.first.linkedShootId, '4511');
+    expect(items.first.participantIds, containsAll(['555', '720']));
   });
 
   test('unauthorized exception triggers session logout', () async {

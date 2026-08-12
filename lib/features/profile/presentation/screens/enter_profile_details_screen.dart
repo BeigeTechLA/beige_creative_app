@@ -61,7 +61,11 @@ class _EnterProfileDetailsScreenState
         );
     if (!mounted) return;
     if (ok) {
-      TopMessage.show(context, 'Profile Updated');
+      TopMessage.show(
+        context,
+        'Profile Updated',
+        type: TopMessageType.success,
+      );
       context.pop(true);
     }
   }

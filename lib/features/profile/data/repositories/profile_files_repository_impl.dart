@@ -72,6 +72,9 @@ class ProfileFilesRepositoryImpl implements ProfileFilesRepository {
 
   @override
   Future<void> deleteFile(int id) async {
+    if (id <= 0) {
+      throw Exception('Invalid file ID ($id)');
+    }
     final response = await _client.dio.delete<dynamic>(
       '${ApiEndpoints.delete_allfiles}/$id',
     );

@@ -85,7 +85,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       if (next.toastMessage != null &&
           next.toastMessage != prev?.toastMessage &&
           next.step == ForgotPasswordStep.resetSucceeded) {
-        TopMessage.show(context, next.toastMessage!);
+        TopMessage.show(
+          context,
+          next.toastMessage!,
+          type: TopMessageType.success,
+        );
       }
     });
 

@@ -5,223 +5,408 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
-### 2026-08-06: Firebase FCM Real Token & Notification Tap Handler Integration
+### 2026-08-11: Shoots Top Cards and Top Toolbar Status Filter Bidirectional Alignment & Auto-Scroll
 
-- **Task**: Full Firebase Cloud Messaging (`firebase_messaging`) integration, real FCM token retrieval, auto-refresh listener (`onTokenRefresh`), notification payload tap routing (`PushNotificationHandler`), and preferences sync.
+- **Task**: Align and bidirectionally synchronize top count cards (`Pending Shoots`, `Confirmed Shoots`, `Completed Shoots`, `Declined`) with top toolbar filter icon, and auto-scroll horizontal cards list into view when selected.
 - **Changed Files**:
-  - `pubspec.yaml`
-  - `lib/core/firebase/fcm_service.dart`
-  - `lib/core/firebase/push_notification_handler.dart` [NEW]
-  - `lib/features/profile/presentation/providers/notification_settings_providers.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+  - `test/features/shoots/presentation/shoots_notifier_test.dart`
 - **Decisions**:
-  - Integrated `firebase_messaging: ^15.1.3` to get real FCM token via `FirebaseMessaging.instance.getToken()`.
-  - Added fallback to cached session token if Firebase native config (`google-services.json`) is not present in dev builds.
-  - Implemented `PushNotificationHandler` to route notification tap events according to topic/type specs (`shoots`, `messages`, `meetings`, `files`).
-  - Set up `onTokenRefresh` listener to automatically send updated tokens to `POST /push-notifications/tokens`.
+  - Selected Theme Option 1 (Gold Accent): Integrated `AppCountCardVariant.goldAccent` and active/selected icon assets for the active count card when a filter is selected.
+  - Implemented bidirectional mapping: `Pending Shoots` ↔ `Pending`, `Confirmed Shoots` ↔ `Confirmed`, `Completed Shoots` ↔ `Completed`, `Declined` ↔ `Declined`.
+  - Added horizontal list `ScrollController` with smooth center auto-scroll (`_scrollToSelectedCard`) so that 3rd (`Completed Shoots`) and 4th (`Declined`) filter cards smoothly scroll into view when selected.
+  - Displayed active dot indicator on top toolbar filter icon when status filter is active.
+  - Added removable filter chip below search bar with `(x)` close button to clear card/filter selection.
 - **Verification**:
-  - `flutter analyze` — 0 issues across 3 notification & firebase items.
-  - `flutter test test/features/notification/notification_repository_impl_test.dart` — 3/3 tests passing.
+  - `flutter analyze` — 0 issues found.
+  - `flutter test test/features/shoots/presentation/shoots_notifier_test.dart test/features/shoots/presentation/screens/shoots_screen_test.dart` — 19 / 19 tests passing.
 
 ---
 
-### 2026-08-05: Push Notification Documentation & Preference API Integration
+### 2026-08-10: Signup Step 2 & 3 Safe Back Navigation Fix
 
-- **Task**: Fully integrate `PATCH /push-notifications/preferences`, FCM token management contract (`POST /push-notifications/tokens`, `DELETE /push-notifications/tokens`), and push payload tap handler strictly adhering to Push Notification backend documentation.
+- **Task**: Fix `GoError: There is nothing to pop` when tapping the back button on `SignUp2Header` and `SignUp3Header`.
 - **Changed Files**:
-  - `lib/features/notification/data/sources/notification_remote_source.dart`
-  - `lib/features/notification/domain/repositories/notification_repository.dart`
-  - `lib/features/notification/data/repositories/notification_repository_impl.dart`
-  - `lib/features/profile/presentation/providers/notification_settings_providers.dart`
-  - `lib/features/notification/presentation/utils/push_notification_handler.dart`
-  - `test/features/notification/notification_repository_impl_test.dart`
+  - `lib/features/auth/presentation/widgets/signup2_header.dart`
+  - `lib/features/auth/presentation/widgets/signup3_header.dart`
 - **Decisions**:
-  - Kept strictly the exact 3 push notification API endpoints from the backend specification:
-    1. `POST /push-notifications/tokens` (`saveFcmToken`)
-    2. `DELETE /push-notifications/tokens` (`removeFcmToken`)
-    3. `PATCH /push-notifications/preferences` (`updateNotificationPreferences`)
-  - Removed unneeded `GET /notifications/settings` endpoint.
-  - Added comprehensive `debugPrint` and `AppLogger` logs for tracing requests and responses in console.
+  - Guarded back button `onTap` with `context.canPop()`.
+  - Added fallback routing (`context.goNamed(Routes.signupStep1.name)` for Step 2, `Routes.signupStep2.name` for Step 3) when history stack cannot be popped.
 - **Verification**:
-  - `flutter analyze` — 0 issues.
-  - `flutter test test/features/notification/notification_repository_impl_test.dart` — 3/3 passing.
-  - `flutter test test/features/profile/presentation/notification_category_sheet_test.dart` — 1/1 passing.
+  - `flutter analyze lib/features/auth/presentation/widgets/` — 0 issues found.
 
 ---
 
-### 2026-08-05: Declare Push Notification Endpoints in ApiEndpoints Central Registry
+### 2026-08-10: Unified 'Already have an account? Login' Footer UI
 
-- **Task**: Declare all Push Notification and FCM REST endpoint URLs (`notifications`, `pushTokens`, `pushPreferences`, `notificationRead`, `notificationsReadAll`, `notificationSettings`) as constants in `ApiEndpoints` registry.
+- **Task**: Unify the footer `"Already have an account? Login"` UI across all signup screens (`signup1_screen.dart`, `signup2_screen.dart`, `signup3_screen.dart`) to match the design screenshot.
+- **Changed Files**:
+  - `lib/features/auth/presentation/screens/signup3_screen.dart`
+  - `lib/features/auth/presentation/screens/signup2_screen.dart`
+  - `lib/features/auth/presentation/screens/signup1_screen.dart`
+- **Decisions**:
+  - Replaced gold text on Signup Step 3 with `AppColors.white60` label and white bold underlined `Login` text (`TextDecoration.underline`).
+  - Standardized router navigation to `context.goNamed(Routes.login.name)` across all signup step footers.
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/screens/` — 0 issues found.
+
+---
+
+### 2026-08-10: Signup Preview Cards Styling Alignment (Option A)
+
+- **Task**: Align `SignUp1PreviewCard`, `SignUp2PreviewCard`, and `SignUp3PreviewCard` with the design screenshot (white pill completed badge with gold text, equal-width buttons, divider line, and `Name : ` / `Email ID: ` header labels).
+- **Changed Files**:
+  - `lib/features/auth/presentation/widgets/signup1_preview_card.dart`
+  - `lib/features/auth/presentation/widgets/signup2_preview_card.dart`
+  - `lib/features/auth/presentation/widgets/signup3_preview_card.dart`
+- **Decisions**:
+  - Formatted header labels to `"Name : $name"` and `"Email ID: $email"`.
+  - Added a light horizontal `Divider` separating header info from the action buttons row.
+  - Converted **Completed** badge from solid grey box to white background pill with subtle border (`Border.all(color: Color(0xFFD0D0D0))`) and gold text (`Color(0xFFC59553)`).
+  - Wrapped both **View Details** and **Completed** buttons in `Expanded` for symmetrical equal-width layout.
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/widgets/` — 0 issues found.
+
+---
+
+### 2026-08-10: Signup Step 3 Mandatory Social Links & Action Button Validation
+
+- **Task**: Make Social Media Links mandatory on Signup Step 3, update UI labels with `*`, and add action button validation (`Create Profile` button disabled until mandatory social links are added).
+- **Changed Files**:
+  - `lib/features/auth/presentation/screens/signup3_screen.dart`
+  - `lib/features/auth/presentation/widgets/signup3_social_sheet.dart`
+  - `lib/features/auth/presentation/providers/signup_notifier.dart`
+- **Decisions**:
+  - Updated tile and sheet header labels from `Add Social Links` to `Add Social Links*`.
+  - Added button validation to `AppCtaButton`: `enabled: state.savedSocialLinks.isNotEmpty && !state.isSubmittingStep3`.
+  - Added safety guard in `SignupNotifier.submitStep3()` verifying `savedSocialLinks.isNotEmpty`.
+- **Verification**:
+  - `flutter analyze lib/features/auth/` — 0 issues found.
+
+---
+
+### 2026-08-10: Signup Step 3 Upload Icons & Font Color Unification (Option 1)
+
+- **Task**: Unify initial state upload icons, font colors (`AppColors.white60`), and `DottedBorder` styling across all upload sections in Signup Step 3 (`SignUp3FeaturedSection`, `SignUp3CertificatesSection`, and `SignUp3DocumentBlock`).
+- **Changed Files**:
+  - `lib/features/auth/presentation/widgets/signup3_sections.dart`
+  - `lib/features/auth/presentation/widgets/signup3_document_block.dart`
+- **Decisions**:
+  - Replaced solid borders with `DottedBorder` (`color: AppColors.white24`, `dashPattern: [4, 4]`, `radius: AppRadii.radiusXxl`) across Featured Work, Certifications, Resume/CV, and Portfolio drop zones.
+  - Standardized initial upload icon across all 4 sections to `SvgPicture.asset(AppAssets.upload)` at 20×20px with `AppColors.white60` tinting.
+  - Unified initial label typography colors to `AppColors.white60` across all empty state boxes.
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/widgets/` — 0 issues found.
+
+---
+
+### 2026-08-10: Profile Photo Cropper Public Route Guard Fix
+
+- **Task**: Fix issue where selecting a profile photo on Signup Step 1 triggered an unexpected redirect back to `/login`.
+- **Changed Files**:
+  - `lib/app/routes.dart`
+- **Decisions**:
+  - Marked `Routes.cropImage` with `isPublic: true` so unauthenticated users during signup step 1 can open `CropImageScreen` without triggering GoRouter's auth guard.
+- **Verification**:
+  - `flutter analyze lib/app/routes.dart lib/features/auth/presentation/screens/signup1_screen.dart` — 0 issues found.
+
+---
+
+### 2026-08-10: Signup Featured Work Upload UI Fixes (Option A)
+
+- **Task**: Review and fix UI bugs, box overflow height, gesture detector scope, file size validation, and action button overlay alignment in Signup Featured Work upload (`signup3_featured_sheet.dart` and `signup3_sections.dart`).
+- **Changed Files**:
+  - `lib/features/auth/presentation/widgets/signup3_featured_sheet.dart`
+  - `lib/features/auth/presentation/widgets/signup3_sections.dart`
+- **Decisions**:
+  - Replaced fixed `190px` box height with dynamic height (`180px` for empty state, `220px-360px` for image grid) to prevent overflow clipping.
+  - Restricted `GestureDetector` tap listeners to the drop-zone and `+` add grid item tile to avoid triggering the file picker when interacting with existing image tiles.
+  - Added 30MB file size limit and 5-image max check to grid `+` tile image picker.
+  - Aligned assets (`AppAssets.upload`), typography, aspect ratio subtext, and CTA button height (`48px`) with design tokens.
+  - Moved Edit/Delete project actions out of the `Positioned` overlay into a clean project card header in `SignUp3FeaturedSection`.
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/widgets/` — 0 issues found.
+
+---
+
+### 2026-08-10: Fix Shoots Filter Selection, Evaluation Logic & Expand Status Options
+
+- **Task**: Fix shoots status filter selection not updating visible items after selection, enable filtering when top count cards are active, expand status options to include Completed and Declined, and add gold active filter indicator.
+- **Changed Files**:
+  - `lib/features/shoots/presentation/widgets/shoots_filter_bottom_sheet.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+  - `test/features/shoots/presentation/shoots_notifier_test.dart`
+- **Decisions**:
+  - Removed early return guard in `ShootsListNotifier.setStatusFilter` so re-applying a status in the modal always forces a re-filtering of `visibleShoots`.
+  - Removed `topCardShoots == null` check in `_filter` so status filter applies consistently when top count cards are active.
+  - Expanded `ShootsFilterBottomSheet` options to include `All Status`, `Pending`, `Confirmed`, `Completed`, and `Declined`.
+  - Added gold active filter indicator dot on `ShootsScreen` toolbar filter icon when `selectedStatusFilter != 'All Status'`.
+- **Verification**:
+  - `flutter analyze`: 0 issues found.
+  - `flutter test test/features/shoots`: 54 / 54 tests passing.
+
+---
+
+### 2026-08-10: Multi-Image Photo Selection & Featured Work Double-Submit Loader Fix
+
+- **Task**: Fix duplicate image uploads caused by un-guarded save button double submissions, allow multi-image selection from gallery when opening photos, and synchronize featured work validation rules.
+- **Changed Files**:
+  - `lib/shared/widgets/common_uploader.dart`
+  - `lib/features/profile/presentation/widgets/featured_work_upload_sheet.dart`
+  - `lib/features/profile/presentation/screens/featured_work_list_screen.dart`
+  - `lib/features/profile/presentation/screens/app_preferences_screen.dart`
+  - `lib/features/profile/presentation/widgets/profile_section_list.dart`
+  - `lib/features/auth/presentation/widgets/signup3_featured_sheet.dart`
+  - `docs/implementation_plan.md`
+  - `docs/walkthrough.md`
+- **Decisions**:
+  - Added `CommonUploader.pickMultipleFromGallery()` wrapping `ImagePicker().pickMultiImage()` to allow picking multiple images at once from system photo picker.
+  - Added `isSaving` guard & spinner on `FeaturedWorkUploadSheet` save button to prevent concurrent upload invocations.
+  - Replaced custom button with `AppCtaButton` for 100% text color, background color, and typography consistency across app CTA buttons.
+  - Added `HitTestBehavior.opaque` to dropzone gesture detectors for full-area tap responsiveness.
+  - Removed Dark Mode option and switch container from `AppPreferencesScreen`.
+  - Hidden Notifications Settings row in `ProfileSectionList` while preserving menu row code.
+- **Verification**:
+  - `flutter analyze`: 0 issues found across all modified files.
+  - `flutter test test/features/profile/presentation/profile_files_test.dart`: 10 / 10 tests passed.
+
+---
+
+### 2026-08-07: Bind GET /creator/shoot-card-details API to Shoots Top Count Cards
+
+- **Task**: Integrate `GET creator/shoot-card-details?status={pending|confirmed|completed|rejected}` API endpoint to fetch status-wise data when top count cards are selected.
 - **Changed Files**:
   - `lib/core/network/api_endpoints.dart`
-  - `lib/features/notification/data/sources/notification_remote_source.dart`
+  - `lib/features/shoots/domain/repositories/shoots_repository.dart`
+  - `lib/features/shoots/data/repositories/shoots_repository_impl.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `test/features/shoots/data/repositories/shoots_repository_impl_test.dart`
+  - `test/features/shoots/presentation/shoots_notifier_test.dart`
+  - `test/features/shoots/presentation/upcoming_shoot_notifier_test.dart`
+  - `lib/features/profile/presentation/widgets/profile_section_list.dart` (cleaned unused import)
 - **Decisions**:
-  - Moved raw notification URL strings out of `NotificationRemoteSource` into `ApiEndpoints` class constants.
+  - Added `creatorShootCardDetails(status)` endpoint builder to `ApiEndpoints`.
+  - Declared `fetchShootCardDetails(status)` in `ShootsRepository` and implemented in `ShootsRepositoryImpl` supporting both array and wrapped map responses.
+  - Added `topCardShoots` state handling in `ShootsListState` and `ShootsListNotifier`.
+  - Bound top count cards (`Pending Shoots` $\rightarrow$ `pending`, `Confirmed Shoots` $\rightarrow$ `confirmed`, `Completed Shoots` $\rightarrow$ `completed`, `Declined` $\rightarrow$ `rejected`) to trigger `fetchShootCardDetails(statusParam)` and populate `visibleShoots`.
+  - Clearing top card selection (`clearTopCardSelection()`) clears `topCardShoots` and restores standard segment control dataset (`data.requests` / `data.shoots`).
 - **Verification**:
-  - `flutter analyze` — 0 issues.
+  - `flutter analyze`: 0 issues found.
+  - `flutter test test/features/shoots`: 51 / 51 tests passing.
 
 ---
 
-### 2026-08-05: Wire NotificationCategorySheet & Push Settings to Preferences API
+### 2026-08-05: Replace creator/dashboard-details with GET /creator/shoots (Dual Array Response)
 
-- **Task**: Connect `NotificationCategorySheet` Save CTA button and `NotificationSettingsScreen` push toggle to `NotificationSettingsNotifier.savePreferences()` calling `PATCH /push-notifications/preferences`.
+- **Task**: Replace legacy `creator/dashboard-details` endpoint in Shoots repository with `GET /creator/shoots` and handle dual array response (`request` and `shoots`).
 - **Changed Files**:
-  - `lib/features/profile/presentation/widgets/notification_category_sheet.dart`
-  - `lib/features/profile/presentation/providers/notification_settings_providers.dart`
+  - `lib/core/network/api_endpoints.dart`
+  - `lib/model_class/shoots_model.dart`
+  - `lib/features/shoots/domain/repositories/shoots_repository.dart`
+  - `lib/features/shoots/data/repositories/shoots_repository_impl.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `test/helpers/test_data.dart`
+  - `test/features/shoots/data/repositories/shoots_repository_impl_test.dart`
+  - `test/features/shoots/presentation/shoots_notifier_test.dart`
+  - `test/features/shoots/presentation/upcoming_shoot_notifier_test.dart`
+  - `test/features/shoots/presentation/screens/shoots_screen_test.dart`
 - **Decisions**:
-  - Wired `savePreferences()` method in `NotificationSettingsNotifier` to construct `NotificationSettingsRequestDto` containing `session_id`, `push_enabled`, and all 7 topic toggles (`shoots`, `payments`, `messages`, `meetings`, `proposals`, `files`, `system`), executing `PATCH /push-notifications/preferences`.
-  - Connected `AppCtaButton` Save action in `NotificationCategorySheet` to invoke `savePreferences()`.
+  - Replaced `creatordashboarddetails` call in `ShootsRepositoryImpl.fetchShoots()` with `GET /creator/shoots` using query params `request_status=all` and `shoot_status=completed`.
+  - Refactored `ShootsData` in `shoots_model.dart` to parse both `request` (pending/confirmed requests) and `shoots` (completed/cancelled shoots) arrays from backend response. Added `id` fallback (`json["id"] ?? json["project_id"]`) in `Shoot.fromJson` for completed shoot objects.
+  - Updated `ShootsRepository.fetchShoots()` to return `Future<ShootsData>`.
+  - Updated `ShootsListNotifier` in `shoots_providers.dart` so Tab 0 ("Request") filters items from `data.requests` and Tab 1 ("Shoots") filters items from `data.shoots`.
 - **Verification**:
-  - `flutter analyze` — 0 issues.
+  - `flutter analyze`: 0 issues found.
+  - `flutter test test/features/shoots`: 45 / 45 tests passing.
 
 ---
 
-### 2026-08-05: Notification Card UI Compact Dimensions & Gold RichText Prefix Alignment
+### 2026-08-05: Full-Screen Profile Image Crop Screen Migration
 
-- **Task**: Align `NotificationItemCard`, `NotificationStackedCards`, and mock notification items with Figma design specs (compact card size, gold title prefix in inner message box, 36px circular avatar, gold CTA action button, and exact Figma copy).
+- **Task**: Replace profile crop bottom sheets with full-screen `CropImageScreen`.
 - **Changed Files**:
-  - `lib/features/notification/presentation/widgets/notification_item_card.dart`
-  - `lib/features/notification/presentation/widgets/notification_stacked_cards.dart`
-  - `lib/features/notification/presentation/providers/notification_list_providers.dart`
+  - `lib/features/profile/presentation/screens/crop_image_screen.dart`
+  - `lib/app/routes.dart`
+  - `lib/features/profile/presentation/routes/profile_routes.dart`
+  - `lib/features/profile/presentation/screens/my_profile_screen.dart`
+  - `lib/features/auth/presentation/screens/signup1_screen.dart`
+  - `lib/features/profile/presentation/widgets/profile_image_crop_sheet.dart` (deleted)
+  - `lib/features/auth/presentation/widgets/signup1_crop_sheet.dart` (deleted)
 - **Decisions**:
-  - Compacted card layout by using `AppSpacing.md` (12px) padding and `AppSpacing.smd` (10px) bottom margins, matching the smaller, elegant card height in Figma.
-  - Implemented `RichText` formatting in `_buildFormattedMessage`: title prefixes ending with `:` (e.g., `Shoot Assigned:`, `Shoot Reassigned:`, `Shoot Schedule Updated:`, `Shoot Cancelled:`, `Location Changed:`) are colored with gold brand accent (`AppColors.primary`), while the remaining text is styled in muted light grey (`AppColors.white70`).
-  - Aligned `NotificationStackedCards` top offsets (`-AppSpacing.smd` / `-AppSpacing.xxs`) and radii with `NotificationItemCard`.
-  - Updated fallback mock notifications to match exact names ("Angela Kia", "Connor Frazier"), timestamps ("09:20AM"), and message strings from Figma Screens 1 & 2.
+  - Migrated profile image cropping to dedicated full-screen `CropImageScreen` accepting `File imageFile` via GoRouter `extra`.
+  - Added `cropImage` RouteSpec to `Routes` and registered it under `profileRoutes`.
+  - Updated image pickers in `MyProfileScreen` and `SignUp1Screen` to navigate to `Routes.cropImage.name` and handle returned cropped image.
+  - Deleted legacy bottom sheet implementations `profile_image_crop_sheet.dart` and `signup1_crop_sheet.dart`.
 - **Verification**:
-  - `flutter analyze` — 0 issues.
-
----
-
-### 2026-08-05: NotificationFilterBottomSheet Radio Button & Container Figma Code Exact Alignment
-
-- **Task**: Update `NotificationFilterBottomSheet` using exact Figma Flutter inspect code (40px top corner radius, `Color(0xFF282828)` container color, `BoxShadow(color: Color(0x0C110C2E), blurRadius: 50, offset: Offset(20, 0))`, 32x32 circular close button with 0.5px `Color(0xB2DDDDDD)` border, dark pill count badges `#282828`, and 16px corner radius for buttons).
-- **Changed Files**:
-  - `lib/features/notification/presentation/widgets/notification_filter_bottom_sheet.dart`
-- **Decisions**:
-  - Implemented exact Figma Flutter code structure for sheet decoration, top radius (40px), close button border/shape, inner container `Frame 2087328894` (`#1E1E1E`), option count pill badges, and dark backdrop overlay.
-- **Verification**:
-  - `flutter analyze lib/features/notification/` — 0 issues.
-
----
-
-### 2026-08-05: Replace Hardcoded Heights, Widths, and Spacing in Notification Module with Common Tokens
-
-- **Task**: Review the Notification module code and replace all hardcoded heights, widths, margins, padding, spacing, and border radii with existing common dimension and style classes (`AppSpacing`, `AppRadii`).
-- **Changed Files**:
-  - `lib/features/notification/presentation/widgets/empty_notification_widget.dart`
-  - `lib/features/notification/presentation/widgets/notification_stacked_cards.dart`
-  - `lib/features/notification/presentation/widgets/notification_item_card.dart`
-  - `lib/features/notification/presentation/widgets/notification_filter_bottom_sheet.dart`
-  - `lib/features/notification/presentation/screens/notification_screen.dart`
-  - `lib/features/notification/presentation/screens/notification_section_screen.dart`
-- **Decisions**:
-  - Replaced all magic numbers across Notification widgets and screens with matching tokens from `AppSpacing` and `AppRadii`.
-  - Used `AppSpacing.verticalXl`, `AppSpacing.verticalSm`, `AppSpacing.verticalBase`, `AppSpacing.verticalMd`, `AppSpacing.verticalXxl` for vertical spacing gaps.
-  - Used `AppSpacing.gapHSm`, `AppSpacing.gapHMd`, `AppSpacing.gapHSmd` for horizontal spacing gaps.
-  - Replaced hardcoded container heights, icon sizes, and padding in search inputs, filter sheets, segment selectors, cards, and bottom CTA buttons.
-  - Applied `AppRadii.lgAll`, `AppRadii.mdAll`, `AppRadii.mldAll`, `AppRadii.topMassive`, `AppRadii.nanoAll` for border radius styling.
-- **Verification**:
-  - `flutter analyze lib/features/notification/` — 0 issues.
-
----
-
-### 2026-08-04: Pixel-Perfect Figma Alignment & Flow Correction of Notification Module
-
-- **Task**: Update Notification module (`NotificationScreen`, `NotificationSectionScreen`, `NotificationItemCard`, `NotificationFilterBottomSheet`, `EmptyNotificationWidget`) to match Figma designs and user flow specifications pixel-for-pixel.
-- **Changed Files**:
-  - `lib/features/notification/presentation/screens/notification_screen.dart`
-  - `lib/features/notification/presentation/screens/notification_section_screen.dart`
-  - `lib/features/notification/presentation/widgets/notification_filter_bottom_sheet.dart`
-  - `lib/features/notification/presentation/widgets/empty_notification_widget.dart`
-- **Decisions**:
-  - Fixed notification interaction flow: Tapping stacked section cards scrolls smooth to section on the same screen (`_scrollToSection`), while tapping **"View All"** navigates to the dedicated section screen (`NotificationSectionScreen`).
-  - Removed top Settings icon from `NotificationScreen` top bar so top right has ONLY the Filter icon (`AppAssets.iconFilter`), matching Figma Image 1 header.
-  - Added full-width Segmented Tab Control (`Unread` | `Read`) in `NotificationScreen` with gold active indicator (`AppColors.primary`).
-  - Added double checkmark icon (`Icons.done_all`) to full-width gold `Mark all as read` bottom CTA buttons across `NotificationScreen` and `NotificationSectionScreen`.
-  - Updated `NotificationFilterBottomSheet` options list (`All 36`, `Unread 02`, `Mentions 17`, `Payments 04`, `Projects 10`, `Files 03`) and styled selected radio indicator with gold filled circle and dark center dot matching Figma Image 2.
-  - Set `EmptyNotificationWidget` title color to gold (`AppColors.primary`) matching Figma Image 3 illustration state.
-- **Verification**:
-  - `flutter analyze` — 0 issues found across the codebase.
-
----
-
-### 2026-08-04: Fix NotificationScreen & NotificationSettingsScreen Route Structure
-
-- **Task**: Restore `NotificationScreen` as the Notification Feed screen and link header Notification Settings icon to `NotificationSettingsScreen`.
-- **Changed Files**:
-  - `lib/features/notification/presentation/screens/notification_screen.dart`
-  - `lib/features/profile/presentation/screens/notification_settings_screen.dart`
-  - `test/features/notification/presentation/notification_screen_test.dart`
-- **Decisions**:
-  - Restored `NotificationScreen` to render the Figma Notification Feed List screen (Today/Yesterday sections with `NotificationStackedCards`, search bar, and filter/settings top bar actions).
-  - Wired top right header notification settings icon (`AppAssets.notificationSetting`) to navigate directly to `Routes.notifications.name` (`NotificationSettingsScreen`).
-  - Preserved `NotificationSettingsScreen` under `Routes.notifications` for managing Push & Email notification preferences and launching `NotificationCategorySheet`.
-- **Verification**:
-  - `flutter analyze` — 0 issues.
-  - `flutter test test/features/notification/presentation/notification_screen_test.dart` — passed.
-
----
-
-### 2026-08-04: Align NotificationSectionScreen Header & Item Card UI with Figma Design
-
-- **Task**: Align `NotificationSectionScreen` back button icon, Today title font size, card border/radii, avatar image, and inner message container styling with Figma.
-- **Changed Files**:
-  - `lib/features/notification/presentation/screens/notification_section_screen.dart`
-  - `lib/features/notification/presentation/screens/notification_screen.dart`
-  - `lib/features/notification/presentation/widgets/notification_item_card.dart`
-  - `test/features/notification/presentation/notification_section_screen_test.dart`
-- **Decisions**:
-  - Replaced U-turn `AppAssets.back` icon with clean `Icons.arrow_back` chevron arrow icon.
-  - Reduced `Today (4)` header title font size to `16px` w600 (`AppTextStyles.body15Strong` with `fontSize: 16`), aligning with Figma specs.
-  - Set card corner radius to `AppRadii.lgAll` (16px) and inner message container to `AppColors.surfaceInput` (`#1A1A1A`) with `10px` radius.
-  - Integrated `CachedNetworkImage` support for notification avatars when `item.avatarUrl` is present.
-- **Verification**:
-  - `flutter analyze` — 0 issues.
-  - `flutter test test/features/notification/presentation/notification_section_screen_test.dart` — passed.
-
----
-
-### 2026-08-04: Fix NotificationCategorySheet Category SVG Icon Display to Match Figma
-
-- **Task**: Fix category icons in `NotificationCategorySheet` to match Figma UI specifications.
-- **Changed Files**:
-  - `lib/features/profile/presentation/widgets/notification_category_sheet.dart`
-  - `test/features/profile/presentation/notification_category_sheet_test.dart`
-- **Decisions**:
-  - Removed wrapper `Container` with `surfaceMid` background and `colorFilter: ColorFilter.mode(AppColors.white, BlendMode.srcIn)` that caused SVGs to render as solid white rounded squares.
-  - Rendered `SvgPicture.asset` directly at 40x40 to preserve native dark tile background (`fill="#1D1D1B"`) and outline icon stroke (`#929393`).
-  - Added a horizontal divider line under the "Select Categories" header row matching Figma.
-- **Verification**:
-  - `flutter analyze` — 0 issues.
-  - `flutter test test/features/profile/presentation/notification_category_sheet_test.dart` — passed.
-
----
-
-### 2026-08-03: Update AppToggleSwitch to Match Figma Specifications
-
-- **Task**: Update global `AppToggleSwitch` UI styling to match exact Figma specifications.
-- **Changed Files**:
-  - `lib/shared/widgets/app_toggle_switch.dart`
-- **Decisions**:
-  - Implemented rounded-rect capsule track with proportional corner radii (`8.13` for 26dp height).
-  - Applied linear gradient `(0.16, 0.19) -> (0.81, 0.83)` using `AppColors.goldGradientLight` and `AppColors.goldGradientDark` with active gold border.
-  - Styled thumb with rounded corners (`5.69` radius) and soft shadow matching Figma specs (`Color(0x3364646F)`).
-- **Verification**:
+  - `flutter test test/app/router_test.dart` — 9 / 9 tests passing.
   - `flutter analyze --fatal-infos` — 0 issues.
 
 ---
 
-### 2026-08-03: Align NotificationSettingsScreen UI with Figma Design
+### 2026-08-05: Filter Bottom Sheet Root Navigator Fix
 
-- **Task**: Align Notification Settings Screen layout, list items, container cards, dividers, and color class usages with Figma design.
+- **Task**: Open filter bottom sheet above bottom shell navigation.
 - **Changed Files**:
-  - `lib/features/profile/presentation/screens/notification_settings_screen.dart`
+  - `lib/features/shoots/presentation/widgets/shoots_filter_bottom_sheet.dart`
 - **Decisions**:
-  - Converted `NotificationSettingsScreen` to `ConsumerStatefulWidget` and `ConsumerState<NotificationSettingsScreen>` following standard app architecture.
-  - Removed outer `surfaceVariant` card container and inner `Divider` line wrapping Push/Email notifications to match Figma specification.
-  - Ensured all screen colors strictly reference `AppColors` centralized design tokens.
+  - Added `useRootNavigator: true` to `showModalBottomSheet(...)` in `ShootsFilterBottomSheet.show`.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
+### 2026-08-05: Shoots Top Header Filter Icon & Filter Bottom Sheet
+
+- **Task**: Add top header filter action icon and filter bottom sheet modal.
+- **Changed Files**:
+  - `lib/features/shoots/presentation/widgets/shoots_filter_bottom_sheet.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+- **Decisions**:
+  - Added trailing `iconFilter` button to `AppMainToolbar` in `ShootsScreen`.
+  - Implemented `ShootsFilterBottomSheet` modal with status filtering (`All Status`, `Pending`, `Confirmed`) and `Clear All` / `Apply` actions.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
+### 2026-08-05: Request / Shoots Segmented Control Added
+
+- **Task**: Add Request & Shoots segmented tab selector matching screenshot mockup.
+- **Changed Files**:
+  - `lib/shared/widgets/app_segmented_control.dart`
+  - `lib/features/shoots/presentation/providers/shoots_providers.dart`
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+- **Decisions**:
+  - Added `AppSegmentedControl` shared widget with Option A gold gradient active pill.
+  - Bound `selectedTabIndex` in `ShootsListNotifier` to filter pending requests (`index 0`) vs confirmed shoots (`index 1`).
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
+### 2026-08-05: Shoots Empty State Image & Copy Update
+
+- **Task**: Replace empty shoots icon and copy with `no_data.png` graphic and exact text.
+- **Changed Files**:
+  - `lib/app/assets.dart`
+  - `lib/shared/widgets/app_empty_state.dart`
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+- **Decisions**:
+  - Added `imageAsset` support to `AppEmptyState` widget to support PNG illustrations alongside SVGs.
+  - Set default empty state for `ShootsScreen` to `AppAssets.noData` image, title `'No Shoot Available'`, and description `'No shoots available at the moment.\nNew opportunities will appear here when assigned.'`.
+- **Verification**:
+  - `flutter analyze` — 0 issues.
+
+---
+
+### 2026-08-05: Drawer and Screen Header Consistency
+
+- **Task**: Align active drawer menu labels with destination screen headers.
+- **Changed Files**:
+  - `lib/features/shoots/presentation/screens/shoots_screen.dart`
+  - `lib/features/messages/presentation/screens/messages_screen.dart`
+  - `test/features/shoots/presentation/screens/shoots_screen_test.dart`
+  - `test/features/messages/presentation/screens/messages_screen_test.dart`
+  - `docs/phase4/task_23_groupF_shell_shared.md`
+- **Decisions**:
+  - Normalized the two mismatches to the existing drawer labels: `Shoots` and
+    `Messages`. Meetings and Manage Availability required no change; Dashboard
+    retains its dedicated welcome header.
+- **Verification**:
+  - `flutter analyze --fatal-infos` on the two screens and their tests — 0 issues.
+  - Focused Shoots + Messages screen tests — 8 / 8 passing.
+
+---
+
+### 2026-08-05: Shoot Details Type Chip Styling
+
+- **Task**: Restyle the Shoot Type and Booking Type chips.
+- **Changed Files**:
+  - `lib/app/colors.dart`
+  - `lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart`
+  - `test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart`
+  - `docs/phase4/task_13_groupD_upcoming_details.md`
+- **Decisions**:
+  - Added `AppColors.surfaceChip` for the requested `#323131` background and
+    removed the chip border while retaining existing text and spacing.
+- **Verification**:
+  - `flutter analyze --fatal-infos lib/app/colors.dart lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 0 issues.
+  - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 4 / 4 passing.
+
+---
+
+### 2026-08-05: Shoot Details SVG Icons
+
+- **Task**: Replace the shoot details Material icons with the supplied SVGs.
+- **Changed Files**:
+  - `assets/svg/shoots/ic_clock_circle.svg`
+  - `assets/svg/shoots/ic_doller.svg`
+  - `assets/svg/shoots/ic_shoot_date.svg`
+  - `assets/svg/shoots/ic_shoot_location.svg`
+  - `lib/app/assets.dart`
+  - `lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart`
+  - `test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart`
+  - `docs/phase4/task_13_groupD_upcoming_details.md`
+- **Decisions**:
+  - Exposed the supplied assets as `AppAssets.icDoller` and
+    `AppAssets.icClockCircle`, retaining their native 19×19 dimensions in the
+    Event Budget and Total Time Duration tiles.
+  - Replaced the date, time, and location Material icons in the event info row
+    with `AppAssets.icShootDate`, a white-tinted reuse of
+    `AppAssets.icClockCircle`, and `AppAssets.icShootLocation` at 16×16.
+- **Verification**:
+  - `flutter analyze --fatal-infos lib/app/assets.dart lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 0 issues.
+  - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 4 / 4 passing.
+
+---
+
+### 2026-08-05: Add Availability Date Field Icon
+
+- **Task**: Use the new add-date icon in the Add Availability form.
+- **Changed Files**:
+  - `assets/icon/ic_add_date.svg`
+  - `lib/app/assets.dart`
+  - `lib/features/availability/presentation/screens/add_availability_screen.dart`
+  - `lib/features/availability/presentation/screens/manage_availability_screen.dart`
+  - `test/features/availability/presentation/screens/manage_availability_screen_test.dart`
+  - `pubspec.yaml`
+  - `docs/phase4/task_05_groupB_availability.md`
+- **Decisions**:
+  - Added `assets/icon/` to the Flutter asset bundle and exposed the SVG as
+    `AppAssets.icAddDate` instead of hardcoding its path in the screen.
+  - Reused the same icon for the Add Date and Until Date suffixes and the
+    Available Days summary card on the Manage Availability screen.
+- **Verification**:
+  - `dart format lib/app/assets.dart lib/features/availability/presentation/screens/add_availability_screen.dart` — clean.
+  - `flutter analyze --fatal-infos lib/app/assets.dart lib/features/availability/presentation/screens/add_availability_screen.dart` — 0 issues.
+  - `flutter test test/features/availability/presentation/screens/add_availability_screen_test.dart` — 6 / 6 passing.
+  - `flutter analyze --fatal-infos lib/features/availability/presentation/screens/manage_availability_screen.dart test/features/availability/presentation/screens/manage_availability_screen_test.dart` — 0 issues.
+  - `flutter test test/features/availability/presentation/screens/manage_availability_screen_test.dart` — 7 / 7 passing.
+
+---
+
+### 2026-07-28: Realtime New Room Creation Socket Event (`chatRoomCreated`)
+
+- **Task**: Fix socket event handling for new room creation using `chatRoomCreated`.
+- **Changed Files**:
+  - `lib/features/messages/domain/events/chat_socket_event.dart`
+  - `lib/features/messages/data/sources/messages_socket_source.dart`
+  - `lib/features/messages/data/dto/conversation_dto.dart`
+  - `lib/features/messages/presentation/providers/conversation_list_providers.dart`
+  - `test/features/messages/presentation/providers/conversation_list_notifier_test.dart`
+  - `test/features/messages/presentation/providers/chat_thread_notifier_test.dart`
+- **Decisions**:
+  - Added `ChatRoomCreated(Conversation conversation)` variant to `ChatSocketEvent`.
+  - Configured `MessagesSocketSource` to listen to `chatRoomCreated`, extract `payload.room`, and parse into `Conversation` via `ConversationDto.fromRestJson`.
+  - Enhanced `ConversationDto.fromRestJson` to parse `client_snapshot` and `production_ids` in addition to `cp_ids` and `manager_ids`.
+  - Configured `ConversationListNotifier` to directly prepend/update `Conversation` in `state.items` upon `ChatRoomCreated` without triggering any REST API call (`refresh()`).
+  - Added unit test verifying parsing of the exact sample payload and direct room list prepending.
 - **Verification**:
   - `flutter analyze --fatal-infos` — 0 issues.
+  - `flutter test test/features/messages/` — 33 / 33 tests passing.
 
 ---
 
@@ -3657,3 +3842,48 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - **Verification**:
   - `flutter test test/features/availability`: 43 / 43 tests passing.
   - `flutter analyze --fatal-infos`: 0 issues.
+
+---
+
+### 2026-08-10: Success Toast Message Display Fix & UI Layout Overflow Fixes
+
+- **Task**: Fix success toast messages displaying with red error styling/🚫 icon and resolve horizontal layout overflow errors on narrow device screens (11px in social link icon rows, 5px in Home Screen Shoot Categories header).
+- **Changed Files**:
+  - `lib/features/profile/presentation/screens/my_profile_screen.dart`
+  - `lib/features/auth/presentation/screens/forgot_password_otp_screen.dart`
+  - `lib/features/auth/presentation/screens/reset_password_screen.dart`
+  - `lib/features/profile/presentation/screens/edit_personal_details_screen.dart`
+  - `lib/features/profile/presentation/screens/enter_profile_details_screen.dart`
+  - `lib/features/profile/presentation/screens/delete_account_otp_screen.dart`
+  - `lib/features/profile/presentation/widgets/profile_social_links_sheet.dart`
+  - `lib/features/auth/presentation/widgets/signup3_social_sheet.dart`
+  - `lib/features/home/presentation/widgets/home_shoot_categories_panel.dart`
+- **Decisions**:
+  - Explicitly passed `type: TopMessageType.success` to `TopMessage.show` calls when displaying `toastMessage` or success notifications.
+  - Wrapped social link 6-icon `Row` in `SingleChildScrollView(scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics())` with 10px tile padding in both `profile_social_links_sheet.dart` and `signup3_social_sheet.dart` to prevent right overflow on narrow devices (<375px).
+  - Constrained `"Shoot Categories"` section header title in `home_shoot_categories_panel.dart` using `Expanded` with `TextOverflow.ellipsis` and adjusted Photo/Video toggle tab horizontal padding from 16px to 12px (`AppSpacing.md`) to eliminate the 5.0px overflow error.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter test test/features/home`: 48 / 48 tests passing.
+  - `flutter test test/features/auth/presentation/screens/signup3_screen_test.dart test/features/profile`: 98 / 98 tests passing.
+
+---
+
+### 2026-08-10: Bug Fixes — Featured Work Image Limit & Certification Deletion
+
+- **Task**: Fix reported bugs:
+  1. Featured Work max 5 images limit check was misconfigured as minimum 5 images (`totalImages < 5`), and re-opening upload modal accumulated old picked images resulting in up to 10 images being displayed.
+  2. Certification deletion failed because `CrewFile.fromJson` only parsed `crew_files_id`, returning `0` when backend sent `id`, `crew_file_id`, or `file_id`, resulting in invalid `DELETE creator/profile-file/0` requests.
+- **Changed Files**:
+  - `lib/model_class/myprofile_model.dart`
+  - `lib/features/profile/data/repositories/profile_files_repository_impl.dart`
+  - `lib/features/profile/presentation/screens/featured_work_list_screen.dart`
+  - `lib/features/profile/presentation/widgets/featured_work_upload_sheet.dart`
+  - `lib/features/auth/presentation/widgets/signup3_featured_sheet.dart`
+- **Decisions**:
+  - `CrewFile.fromJson` now tries `crew_files_id`, `id`, `crew_file_id`, `file_id` in sequence before defaulting to `0`.
+  - Added guard in `deleteFile(int id)` to reject non-positive file IDs (`id <= 0`) with explicit exception.
+  - `FeaturedWorkList` clears `tempFeaturedImages` and `editingImages` state when opening sheet via `Add Featured Works` CTA button.
+  - `FeaturedWorkUploadSheet` & `Signup3FeaturedSheet` enforce `1 <= totalImages <= 5` validation, hide `+` picker tile when totalImages >= 5, and display `'Maximum 5 images allowed'` when exceeding max 5.
+- **Verification**:
+  - `flutter test test/features/profile`: 96 / 96 tests passing.

@@ -116,48 +116,57 @@ class _ProfileSocialLinksSheetState extends State<ProfileSocialLinksSheet> {
               const SizedBox(height: 20),
               const Divider(color: AppColors.dividerDark),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(
-                  widget.socialIcons.length,
-                  (index) => InkWell(
-                    borderRadius: AppRadii.xxlAll,
-                    onTap: () {
-                      setState(() {
-                        selectedSocialIndex = index;
-                        widget.nameController.text = widget.socialNames[index];
-                      });
-                      _emitSelection();
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      height: 52,
-                      width: 52,
-                      decoration: BoxDecoration(
-                        color: selectedSocialIndex == index
-                            ? AppColors.primary.withValues(alpha: 0.2)
-                            : AppColors.transparent,
-                        borderRadius: AppRadii.xxlAll,
-                        border: Border.all(
-                          color: selectedSocialIndex == index
-                              ? AppColors.primary
-                              : AppColors.white24,
-                          width: selectedSocialIndex == index ? 1.5 : 0.8,
-                        ),
-                        boxShadow: selectedSocialIndex == index
-                            ? AppShadows.goldCta
-                            : const [],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(
+                    widget.socialIcons.length,
+                    (index) => Padding(
+                      padding: EdgeInsets.only(
+                        right: index < widget.socialIcons.length - 1 ? 10.0 : 0.0,
                       ),
-                      child: Center(
-                        child: SvgPicture.asset(
-                          widget.socialIcons[index],
-                          height: 22,
-                          width: 22,
-                          colorFilter: ColorFilter.mode(
-                            selectedSocialIndex == index
-                                ? AppColors.primary
-                                : AppColors.white,
-                            BlendMode.srcIn,
+                      child: InkWell(
+                        borderRadius: AppRadii.xxlAll,
+                        onTap: () {
+                          setState(() {
+                            selectedSocialIndex = index;
+                            widget.nameController.text = widget.socialNames[index];
+                          });
+                          _emitSelection();
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height: 52,
+                          width: 52,
+                          decoration: BoxDecoration(
+                            color: selectedSocialIndex == index
+                                ? AppColors.primary.withValues(alpha: 0.2)
+                                : AppColors.transparent,
+                            borderRadius: AppRadii.xxlAll,
+                            border: Border.all(
+                              color: selectedSocialIndex == index
+                                  ? AppColors.primary
+                                  : AppColors.white24,
+                              width: selectedSocialIndex == index ? 1.5 : 0.8,
+                            ),
+                            boxShadow: selectedSocialIndex == index
+                                ? AppShadows.goldCta
+                                : const [],
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              widget.socialIcons[index],
+                              height: 22,
+                              width: 22,
+                              colorFilter: ColorFilter.mode(
+                                selectedSocialIndex == index
+                                    ? AppColors.primary
+                                    : AppColors.white,
+                                BlendMode.srcIn,
+                              ),
+                            ),
                           ),
                         ),
                       ),

@@ -25,19 +25,32 @@ class ShootsModel {
 }
 
 class ShootsData {
+  final List<Shoot> requests;
   final List<Shoot> shoots;
 
-  ShootsData({required this.shoots});
+  ShootsData({
+    this.requests = const [],
+    this.shoots = const [],
+  });
+
+  List<Shoot> get all => [...requests, ...shoots];
 
   factory ShootsData.fromJson(Map<String, dynamic> json) {
     return ShootsData(
-      shoots: json["shoots"] != null
+      requests: json["request"] != null && json["request"] is List
           ? List<Shoot>.from(
-          json["shoots"].map((x) => Shoot.fromJson(x)))
+              (json["request"] as List).map((x) => Shoot.fromJson(x)),
+            )
+          : [],
+      shoots: json["shoots"] != null && json["shoots"] is List
+          ? List<Shoot>.from(
+              (json["shoots"] as List).map((x) => Shoot.fromJson(x)),
+            )
           : [],
     );
   }
 }
+
 class Shoot {
   final int id;
   final int projectId;
@@ -61,6 +74,7 @@ class Shoot {
   final int crewAccept;
   final bool canTakeAction;
   final Cta? cta;
+  final String requestTimeAgo;
   final List<CpProfile> cpProfiles;
 
   Shoot({
@@ -82,19 +96,32 @@ class Shoot {
     required this.crewAccept,
     required this.canTakeAction,
     this.cta,
+    this.requestTimeAgo = "",
     this.cpProfiles = const [],
   });
 
   factory Shoot.fromJson(Map<String, dynamic> json) {
+    final parsedCpProfiles = json["cp_profiles"] != null && json["cp_profiles"] is List
+        ? (json["cp_profiles"] as List)
+            .whereType<Map<String, dynamic>>()
+            .map(CpProfile.fromJson)
+            .toList()
+        : <CpProfile>[];
+
+    final rawCrewId = json["crew_member_id"];
+    final resolvedCrewId = rawCrewId is int && rawCrewId > 0
+        ? rawCrewId
+        : (parsedCpProfiles.isNotEmpty ? parsedCpProfiles.first.id : 0);
+
     return Shoot(
-      id: json["id"] ?? 0,
-      projectId: json["project_id"] ?? 0,
-      crewMemberId: json["crew_member_id"] ?? 0,
+      id: json["id"] ?? json["project_id"] ?? 0,
+      projectId: json["project_id"] ?? json["id"] ?? 0,
+      crewMemberId: resolvedCrewId,
       projectName: json["project_name"] ?? "",
 
       eventDate:
-      DateTime.tryParse(json["event_date"] ?? "")?.toLocal() ??
-          DateTime.now(),
+          DateTime.tryParse(json["event_date"] ?? "")?.toLocal() ??
+              DateTime.now(),
 
       startTime: json["start_time"] ?? "",
       endTime: json["end_time"] ?? "",
@@ -105,9 +132,9 @@ class Shoot {
 
       shootType: json["shoot_type"] ?? "",
       shootTypeImageUrl:
-      json["shoot_type_image_url"] ?? "",
+          json["shoot_type_image_url"] ?? "",
 
-      totalAmount: json["total_amount"], // ✅ direct
+      totalAmount: json["total_amount"] ?? 0, // ✅ direct
 
       budget: json["budget"],
 
@@ -116,17 +143,13 @@ class Shoot {
       crewAccept: json["crew_accept"] ?? 0,
 
       canTakeAction:
-      json["can_take_action"] ?? false,
+          json["can_take_action"] ?? false,
 
       cta: json["cta"] != null
           ? Cta.fromJson(json["cta"])
           : null,
-      cpProfiles: json["cp_profiles"] != null && json["cp_profiles"] is List
-          ? (json["cp_profiles"] as List)
-              .whereType<Map<String, dynamic>>()
-              .map(CpProfile.fromJson)
-              .toList()
-          : const [],
+      requestTimeAgo: json["request_time_ago"] ?? "",
+      cpProfiles: parsedCpProfiles,
     );
   }
 }

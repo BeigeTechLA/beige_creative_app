@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
@@ -14,13 +16,13 @@ import '../../../../shared/widgets/top_message.dart';
 import '../providers/my_profile_providers.dart';
 import '../widgets/profile_action_buttons.dart';
 import '../widgets/profile_header.dart';
-import '../widgets/profile_image_crop_sheet.dart';
 import '../widgets/profile_link_mappers.dart';
 import '../widgets/profile_links_section.dart';
 import '../widgets/profile_portfolio_links_sheet.dart';
 import '../widgets/profile_section_list.dart';
 import '../widgets/profile_social_links_sheet.dart';
 import '../widgets/profile_stats_panel.dart';
+import '../../../home/presentation/widgets/common/home_section_divider.dart';
 
 class Myprofile extends ConsumerStatefulWidget {
   const Myprofile({super.key});
@@ -30,32 +32,35 @@ class Myprofile extends ConsumerStatefulWidget {
 }
 
 class _MyprofileState extends ConsumerState<Myprofile> {
-  File? _profileImage;
-
   final TextEditingController nameController = TextEditingController();
   final TextEditingController linkController = TextEditingController();
 
+  File? _profileImage;
+
   static const _socialNames = [
-    'Facebook',
     'Instagram',
     'TikTok',
+    'Facebook',
+    'Vimeo',
     'Behance',
-    'Website',
+    'Google Drive',
+    'YouTube',
   ];
-
   static const _socialIcons = [
-    AppAssets.facebook,
     AppAssets.insta,
     AppAssets.tiktok,
+    AppAssets.facebook,
+    AppAssets.vimeo,
     AppAssets.behance,
+    AppAssets.googleDrive,
+    AppAssets.youtube,
   ];
 
-  static const _portfolioNames = ['Vimeo', 'YouTube', 'Google Drive'];
-
+  static const _portfolioNames = ['Website', 'Design Portfolio', 'YouTube'];
   static const _portfolioIcons = [
-    AppAssets.vimeo,
+    AppAssets.activeAffiliate,
+    AppAssets.behance,
     AppAssets.youtube,
-    AppAssets.googleDrive,
   ];
 
   @override
@@ -67,24 +72,15 @@ class _MyprofileState extends ConsumerState<Myprofile> {
 
   Future<void> _pickImage() async {
     final file = await CommonUploader.pickFromGallery();
-    if (file != null) _openCropSheet(file);
-  }
-
-  void _openCropSheet(File imageFile) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
-      builder: (_) => ProfileImageCropSheet(
-        imageFile: imageFile,
-        onCropped: (cropped) async {
-          setState(() => _profileImage = cropped);
-          await ref
-              .read(myProfileNotifierProvider.notifier)
-              .uploadPhoto(cropped);
-        },
-      ),
+    if (file == null || !mounted) return;
+    final cropped = await context.pushNamed<File?>(
+      Routes.cropImage.name,
+      extra: file,
     );
+    if (cropped != null && mounted) {
+      setState(() => _profileImage = cropped);
+      await ref.read(myProfileNotifierProvider.notifier).uploadPhoto(cropped);
+    }
   }
 
   void _openSocialDialog({bool startInEditMode = false}) {
@@ -215,7 +211,11 @@ class _MyprofileState extends ConsumerState<Myprofile> {
     ref.listen<MyProfileState>(myProfileNotifierProvider, (prev, next) {
       if (next.toastMessage != null &&
           next.toastMessage != prev?.toastMessage) {
-        TopMessage.show(context, next.toastMessage!);
+        TopMessage.show(
+          context,
+          next.toastMessage!,
+          type: TopMessageType.success,
+        );
         ref.read(myProfileNotifierProvider.notifier).clearMessage();
       }
       if (next.errorMessage != null &&
@@ -271,10 +271,7 @@ class _MyprofileState extends ConsumerState<Myprofile> {
                             .map((e) => e.name)
                             .toList(),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.all(AppSpacing.md),
-                        child: Divider(color: AppColors.dividerDark),
-                      ),
+                      const HomeSectionDivider(centerAlpha: 0.24),
                       ProfileSocialLinksList(
                         socialLinks: state.socialLinks,
                         onOpen: _openSocialDialog,

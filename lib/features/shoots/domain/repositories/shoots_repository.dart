@@ -17,11 +17,19 @@ abstract class ShootsRepository {
     String? comment,
   });
 
-  /// GET `creator/dashboard-details`. Returns full shoots list backing the
-  /// ShootsScreen list view (hydrated, then filtered client-side by search).
-  Future<List<Shoot>> fetchShoots();
+  /// GET `creator/shoots`. Returns shoots list backing the ShootsScreen list view.
+  /// Query params: `request_status` (`all` | `pending` | `confirmed`) and
+  /// `shoot_status` (`completed` | `cancelled`).
+  Future<ShootsData> fetchShoots({
+    String requestStatus = 'all',
+    String shootStatus = 'completed',
+  });
 
   /// GET `creator/shoot-count`. Returns aggregate counters used by the four
   /// stat cards at the top of ShootsScreen.
   Future<count_model.ShootCountData> fetchShootCount();
+
+  /// GET `creator/shoot-card-details?status=$status`. Returns shoots list
+  /// for a selected top count card (pending, confirmed, completed, rejected).
+  Future<List<Shoot>> fetchShootCardDetails(String status);
 }

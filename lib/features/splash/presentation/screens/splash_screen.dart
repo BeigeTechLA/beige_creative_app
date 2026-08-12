@@ -7,7 +7,6 @@ import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/providers/auth_state_provider.dart';
-import '../../../../core/providers/onboarding_seen_provider.dart';
 import '../../../../core/restoration/restoration_keys.dart';
 import '../../../../core/restoration/restoration_providers.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
@@ -62,8 +61,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       context.goNamed(Routes.home.name);
       return;
     }
-    final seen = ref.read(onboardingSeenProvider);
-    context.goNamed(seen ? Routes.login.name : Routes.onboarding.name);
+    context.goNamed(Routes.onboarding.name);
   }
 
   @override

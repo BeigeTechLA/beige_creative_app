@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
+import '../../../../core/providers/guest_mode_provider.dart';
+import '../../../../shared/widgets/login_dialog.dart';
 import '../providers/home_notifier.dart';
 import '../widgets/common/home_section_divider.dart';
 import '../widgets/home_availability_section.dart';
@@ -136,6 +138,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
+  bool _blockIfGuest() {
+    if (ref.read(guestModeProvider)) {
+      showLoginDialog(context);
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final homeState = ref.watch(homeNotifierProvider);
@@ -162,9 +172,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         Column(
           children: [
             HomeWelcomeHeader(
-              firstName: homeState.profileData?.firstName,
+              firstName: ref.watch(guestModeProvider)
+                  ? 'Guest'
+                  : homeState.profileData?.firstName,
               profileImageUrl: homeState.profileData?.profileImageUrl ?? "",
               onAvatarTap: () {
+                if (_blockIfGuest()) return;
                 context.pushNamed(Routes.myProfile.name).then((value) {
                   if (value == true) {
                     notifier.refreshAfterProfileReturn();
@@ -245,6 +258,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           onSelectedEventChanged: notifier.selectEvent,
                           onPageChanged: notifier.onPageChanged,
                           onDaySelected: (day, event) {
+                            if (_blockIfGuest()) return;
                             if (event != 'Shoot') return;
                             int? bookingId = homeState
                                 .availabilityDays[day]
@@ -277,6 +291,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           HomePendingShootCard(
                             pendingShoot: data,
                             onAccept: (projectId) async {
+                              if (_blockIfGuest()) return;
                               final success =
                                   await notifier.acceptDecline(projectId, 1);
                               if (!context.mounted) return;

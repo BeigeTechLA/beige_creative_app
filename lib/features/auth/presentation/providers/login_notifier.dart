@@ -9,6 +9,7 @@ import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../../core/providers/guest_mode_provider.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../service/prefs_service.dart';
@@ -103,6 +104,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       }
 
       ref.read(authStateProvider.notifier).markLoggedIn();
+      ref.read(guestModeProvider.notifier).exit();
 
       // Best-effort telemetry — never fail login on a wrapper error.
       try {

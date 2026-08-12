@@ -26,8 +26,7 @@ class AddAvailabilityScreen extends ConsumerStatefulWidget {
       _AddAvailabilityScreenState();
 }
 
-class _AddAvailabilityScreenState
-    extends ConsumerState<AddAvailabilityScreen> {
+class _AddAvailabilityScreenState extends ConsumerState<AddAvailabilityScreen> {
   final _dateController = TextEditingController();
   final _startTimeController = TextEditingController();
   final _endTimeController = TextEditingController();
@@ -80,8 +79,9 @@ class _AddAvailabilityScreenState
               color: AppColors.white,
             ),
             dayStyle: AppTextStyles.inherit.copyWith(color: AppColors.white),
-            weekdayStyle:
-                AppTextStyles.inherit.copyWith(color: AppColors.white70),
+            weekdayStyle: AppTextStyles.inherit.copyWith(
+              color: AppColors.white70,
+            ),
           ),
         ),
         child: child!,
@@ -97,7 +97,8 @@ class _AddAvailabilityScreenState
 
   Future<void> _pickStartTime() async {
     final initialTime =
-        DateTimeUtils.parseTimeOfDay(_startTimeController.text) ?? TimeOfDay.now();
+        DateTimeUtils.parseTimeOfDay(_startTimeController.text) ??
+        TimeOfDay.now();
     final picked = await showAppCupertinoTimePicker(
       context: context,
       initialTime: initialTime,
@@ -106,11 +107,13 @@ class _AddAvailabilityScreenState
     if (picked != null) {
       final pickedStr = DateTimeUtils.formatTimeOfDay12Hour(picked);
 
-      final parsedDate =
-          DateTimeUtils.parseMonthFirstDateInput(_dateController.text);
+      final parsedDate = DateTimeUtils.parseMonthFirstDateInput(
+        _dateController.text,
+      );
       if (parsedDate != null) {
         final now = DateTime.now();
-        final isToday = parsedDate.year == now.year &&
+        final isToday =
+            parsedDate.year == now.year &&
             parsedDate.month == now.month &&
             parsedDate.day == now.day;
         if (isToday) {
@@ -134,8 +137,9 @@ class _AddAvailabilityScreenState
       if (endDiff == null || endDiff < 60) {
         final endHour = (picked.hour + 1) % 24;
         final autoEndTime = TimeOfDay(hour: endHour, minute: picked.minute);
-        _endTimeController.text =
-            DateTimeUtils.formatTimeOfDay12Hour(autoEndTime);
+        _endTimeController.text = DateTimeUtils.formatTimeOfDay12Hour(
+          autoEndTime,
+        );
       }
 
       setState(() {});
@@ -143,16 +147,15 @@ class _AddAvailabilityScreenState
   }
 
   Future<void> _pickEndTime() async {
-    final startParsed =
-        DateTimeUtils.parseTimeOfDay(_startTimeController.text);
+    final startParsed = DateTimeUtils.parseTimeOfDay(_startTimeController.text);
     final initialTime =
         DateTimeUtils.parseTimeOfDay(_endTimeController.text) ??
-            (startParsed != null
-                ? TimeOfDay(
-                    hour: (startParsed.hour + 1) % 24,
-                    minute: startParsed.minute,
-                  )
-                : TimeOfDay.now());
+        (startParsed != null
+            ? TimeOfDay(
+                hour: (startParsed.hour + 1) % 24,
+                minute: startParsed.minute,
+              )
+            : TimeOfDay.now());
 
     final picked = await showAppCupertinoTimePicker(
       context: context,
@@ -209,8 +212,9 @@ class _AddAvailabilityScreenState
     final notifier = ref.read(addAvailabilityNotifierProvider.notifier);
 
     String formattedDate = '';
-    final parsedDate =
-        DateTimeUtils.parseMonthFirstDateInput(_dateController.text);
+    final parsedDate = DateTimeUtils.parseMonthFirstDateInput(
+      _dateController.text,
+    );
     if (parsedDate != null) {
       formattedDate = DateTimeUtils.formatApiDate(parsedDate);
     } else {
@@ -219,8 +223,9 @@ class _AddAvailabilityScreenState
 
     String recurrenceUntil = '';
     if (_untilDateController.text.isNotEmpty) {
-      final parsedUntil =
-          DateTimeUtils.parseDatePickerInput(_untilDateController.text);
+      final parsedUntil = DateTimeUtils.parseDatePickerInput(
+        _untilDateController.text,
+      );
       recurrenceUntil = parsedUntil != null
           ? DateTimeUtils.formatApiDate(parsedUntil)
           : '';
@@ -241,8 +246,10 @@ class _AddAvailabilityScreenState
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AddAvailabilityState>(addAvailabilityNotifierProvider,
-        (prev, next) {
+    ref.listen<AddAvailabilityState>(addAvailabilityNotifierProvider, (
+      prev,
+      next,
+    ) {
       if (next.validationMessage != null &&
           next.validationMessage != prev?.validationMessage) {
         TopMessage.show(context, next.validationMessage!);
@@ -295,8 +302,8 @@ class _AddAvailabilityScreenState
                       value: state.type == null
                           ? null
                           : (state.type == AvailabilityType.available
-                              ? 'Available'
-                              : 'Not Available'),
+                                ? 'Available'
+                                : 'Not Available'),
                       items: const ['Available', 'Not Available']
                           .map(
                             (e) => DropdownMenuItem(
@@ -346,10 +353,9 @@ class _AddAvailabilityScreenState
                       readOnly: true,
                       suffixIcon: Padding(
                         padding: const EdgeInsets.all(AppSpacing.smd),
-                        child: SvgPicture.asset(AppAssets.calendar),
+                        child: SvgPicture.asset(AppAssets.icAddDate),
                       ),
-                      onTap: () =>
-                          _pickDate(_dateController, monthFirst: true),
+                      onTap: () => _pickDate(_dateController, monthFirst: true),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     if (!state.isAllDay) ...[
@@ -376,27 +382,52 @@ class _AddAvailabilityScreenState
                       ),
                       AppSpacing.verticalLg,
                     ],
-                    Row(
-                      children: [
-                        Checkbox(
-                          activeColor: AppColors.goldSand,
-                          side: BorderSide(
-                            color: AppColors.white.withValues(alpha: 0.6),
-                            width: 0.5,
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: GestureDetector(
+                        onTap: () => notifier.toggleAllDay(!state.isAllDay),
+                        behavior: HitTestBehavior.opaque,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                width: 18,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                  color: state.isAllDay
+                                      ? AppColors.goldSand
+                                      : Colors.transparent,
+                                  borderRadius: AppRadii.xsAll,
+                                  border: Border.all(
+                                    color: state.isAllDay
+                                        ? AppColors.goldSand
+                                        : AppColors.white
+                                            .withValues(alpha: 0.6),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: state.isAllDay
+                                    ? const Icon(
+                                        Icons.check,
+                                        size: 14,
+                                        color: AppColors.black,
+                                      )
+                                    : null,
+                              ),
+                              AppSpacing.gapHSm,
+                              Text(
+                                'All Day',
+                                style: AppTextStyles.inherit.copyWith(
+                                  color: AppColors.white,
+                                ),
+                              ),
+                            ],
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppRadii.xsAll,
-                          ),
-                          value: state.isAllDay,
-                          onChanged: (v) => notifier.toggleAllDay(v ?? false),
                         ),
-                        Text(
-                          'All Day',
-                          style: AppTextStyles.inherit.copyWith(
-                            color: AppColors.white,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     CustomDropdown(
@@ -408,22 +439,25 @@ class _AddAvailabilityScreenState
                         RecurrenceKind.doesNotRepeat => 'Does Not Repeat',
                         null => null,
                       },
-                      items: const [
-                        'Daily',
-                        'Weekly',
-                        'Monthly',
-                        'Does Not Repeat',
-                      ]
-                          .map((e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(
-                                  e,
-                                  style: AppTextStyles.inherit.copyWith(
-                                    color: AppColors.white,
+                      items:
+                          const [
+                                'Daily',
+                                'Weekly',
+                                'Monthly',
+                                'Does Not Repeat',
+                              ]
+                              .map(
+                                (e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(
+                                    e,
+                                    style: AppTextStyles.inherit.copyWith(
+                                      color: AppColors.white,
+                                    ),
                                   ),
                                 ),
-                              ))
-                          .toList(),
+                              )
+                              .toList(),
                       onChanged: (val) {
                         _untilDateController.clear();
                         _repeatDayController.clear();
@@ -516,30 +550,72 @@ class _AddAvailabilityScreenState
             children: [
               SvgPicture.asset(
                 AppAssets.infoFilled,
-                // ignore: deprecated_member_use
-                color: AppColors.orangeBright,
+                width: 16,
+                height: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.orange,
+                  BlendMode.srcIn,
+                ),
               ),
               AppSpacing.gapHXs,
               Text(
                 'Repeat every day',
-                style: AppTextStyles.inherit.copyWith(color: AppColors.orange),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.orange,
+                ),
               ),
             ],
           ),
-          Row(
-            children: [
-              Checkbox(
-                value: state.includeWeekends,
-                onChanged: (v) =>
-                    notifier.toggleIncludeWeekends(v ?? false),
+          const SizedBox(height: AppSpacing.md),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: () =>
+                  notifier.toggleIncludeWeekends(!state.includeWeekends),
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: state.includeWeekends
+                            ? AppColors.goldSand
+                            : Colors.transparent,
+                        borderRadius: AppRadii.xsAll,
+                        border: Border.all(
+                          color: state.includeWeekends
+                              ? AppColors.goldSand
+                              : AppColors.white
+                                  .withValues(alpha: 0.6),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: state.includeWeekends
+                          ? const Icon(
+                              Icons.check,
+                              size: 14,
+                              color: AppColors.black,
+                            )
+                          : null,
+                    ),
+                    AppSpacing.gapHSm,
+                    Text(
+                      'Include Weekends',
+                      style: AppTextStyles.inherit.copyWith(
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Text(
-                'Include Weekends',
-                style:
-                    AppTextStyles.inherit.copyWith(color: AppColors.white),
-              ),
-            ],
+            ),
           ),
+          const SizedBox(height: AppSpacing.lg),
           _buildUntilDateField(),
           _buildSummaryLine(state),
         ],
@@ -550,9 +626,25 @@ class _AddAvailabilityScreenState
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Repeat on specific weekdays',
-            style: AppTextStyles.inherit.copyWith(color: AppColors.orange),
+          Row(
+            children: [
+              SvgPicture.asset(
+                AppAssets.infoFilled,
+                width: 16,
+                height: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.orange,
+                  BlendMode.srcIn,
+                ),
+              ),
+              AppSpacing.gapHXs,
+              Text(
+                'Repeat on specific weekdays',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.orange,
+                ),
+              ),
+            ],
           ),
           AppSpacing.verticalMd,
           SingleChildScrollView(
@@ -582,7 +674,7 @@ class _AddAvailabilityScreenState
                       ),
                       child: Text(
                         day,
-                        style: AppTextStyles.inheritSemiBold.copyWith(
+                        style: AppTextStyles.caption.copyWith(
                           color: isSelected
                               ? AppColors.black
                               : AppColors.white70,
@@ -637,11 +729,7 @@ class _AddAvailabilityScreenState
       readOnly: true,
       suffixIcon: Padding(
         padding: const EdgeInsets.all(AppSpacing.smd),
-        child: SvgPicture.asset(
-          AppAssets.myCalendar,
-          width: 13,
-          height: 13,
-        ),
+        child: SvgPicture.asset(AppAssets.icAddDate),
       ),
       onTap: () => _pickDate(_untilDateController),
     );
@@ -682,15 +770,28 @@ class _AddAvailabilityScreenState
 
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.smd),
-      child: Align(
-        child: Text(
-          summaryText,
-          style: AppTextStyles.inherit.copyWith(
-            color: AppColors.goldSand,
-            fontSize: 12,
-            fontStyle: FontStyle.italic,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            AppAssets.infoFilled,
+            width: 16,
+            height: 16,
+            colorFilter: const ColorFilter.mode(
+              AppColors.blueLightSky,
+              BlendMode.srcIn,
+            ),
           ),
-        ),
+          AppSpacing.gapHXs,
+          Expanded(
+            child: Text(
+              summaryText,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.blueLightSky,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

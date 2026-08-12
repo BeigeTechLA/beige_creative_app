@@ -20,7 +20,9 @@ import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/app_count_card.dart';
+import '../../../../shared/widgets/app_segmented_control.dart';
 import '../providers/shoots_providers.dart';
+import '../widgets/shoots_filter_bottom_sheet.dart';
 import 'shoot_cancelled_screen.dart';
 
 class ShootsScreen extends ConsumerStatefulWidget {
@@ -32,11 +34,51 @@ class ShootsScreen extends ConsumerStatefulWidget {
 
 class _ShootsScreenState extends ConsumerState<ShootsScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _countCardsScrollController = ScrollController();
 
   @override
   void dispose() {
     _searchController.dispose();
+    _countCardsScrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToSelectedCard(String? topCard, String statusFilter) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_countCardsScrollController.hasClients) return;
+
+      int cardIndex = -1;
+      if (topCard == 'Pending Shoots' || statusFilter == 'Pending') {
+        cardIndex = 0;
+      } else if (topCard == 'Confirmed Shoots' || statusFilter == 'Confirmed') {
+        cardIndex = 1;
+      } else if (topCard == 'Completed Shoots' || statusFilter == 'Completed') {
+        cardIndex = 2;
+      } else if (topCard == 'Declined' || statusFilter == 'Declined') {
+        cardIndex = 3;
+      }
+
+      final maxExtent = _countCardsScrollController.position.maxScrollExtent;
+      double targetOffset = 0.0;
+
+      if (cardIndex == 0) {
+        targetOffset = 0.0;
+      } else if (cardIndex == 1) {
+        targetOffset = (maxExtent * 0.35).clamp(0.0, maxExtent);
+      } else if (cardIndex == 2) {
+        targetOffset = (maxExtent * 0.70).clamp(0.0, maxExtent);
+      } else if (cardIndex >= 3) {
+        targetOffset = maxExtent;
+      } else {
+        targetOffset = 0.0;
+      }
+
+      _countCardsScrollController.animateTo(
+        targetOffset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOutCubic,
+      );
+    });
   }
 
   @override
@@ -44,17 +86,66 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
     final state = ref.watch(shootsListProvider);
     final notifier = ref.read(shootsListProvider.notifier);
 
+    ref.listen<ShootsListState>(shootsListProvider, (previous, next) {
+      final prevStatus = previous?.selectedStatusFilter;
+      final nextStatus = next.selectedStatusFilter;
+      final prevCard = previous?.selectedTopCard;
+      final nextCard = next.selectedTopCard;
+
+      if (prevStatus != nextStatus || prevCard != nextCard) {
+        _scrollToSelectedCard(nextCard, nextStatus);
+      }
+    });
+
     return SafeArea(
       child: Stack(
         children: [
           Column(
             children: [
-              const AppMainToolbar(title: 'shoots'),
+              AppMainToolbar(
+                title: 'Shoots',
+                trailing: IconButton(
+                  tooltip: 'Filter shoots',
+                  onPressed: () => ShootsFilterBottomSheet.show(
+                    context,
+                    currentStatus: state.selectedStatusFilter,
+                    onApply: notifier.setStatusFilter,
+                  ),
+                  icon: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      SvgPicture.asset(
+                        AppAssets.iconFilter,
+                        width: 20,
+                        height: 20,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.white,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      if (state.selectedStatusFilter != 'All Status')
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
 
               /// COUNT CARDS
               SizedBox(
                 height: 76,
                 child: ListView(
+                  controller: _countCardsScrollController,
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.mld,
@@ -63,28 +154,73 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                     AppCountCard(
                       number: '${state.counts?.pendingRequests ?? 0}',
                       title: 'Pending Shoots',
-                      iconPath: AppAssets.clockIcon,
+                      iconPath: (state.selectedTopCard == 'Pending Shoots' ||
+                              state.selectedStatusFilter == 'Pending')
+                          ? AppAssets.clockIconSel
+                          : AppAssets.clockIcon,
+                      variant: (state.selectedTopCard == 'Pending Shoots' ||
+                              state.selectedStatusFilter == 'Pending')
+                          ? AppCountCardVariant.goldAccent
+                          : AppCountCardVariant.classic,
+                      onTap: () => notifier.selectTopCard('Pending Shoots'),
                     ),
                     AppCountCard(
                       number: '${state.counts?.confirmedRequests ?? 0}',
                       title: 'Confirmed Shoots',
-                      iconPath: AppAssets.videoIcon,
+                      iconPath: (state.selectedTopCard == 'Confirmed Shoots' ||
+                              state.selectedStatusFilter == 'Confirmed')
+                          ? AppAssets.photoIconSel
+                          : AppAssets.photoIcon,
+                      variant: (state.selectedTopCard == 'Confirmed Shoots' ||
+                              state.selectedStatusFilter == 'Confirmed')
+                          ? AppCountCardVariant.goldAccent
+                          : AppCountCardVariant.classic,
+                      onTap: () => notifier.selectTopCard('Confirmed Shoots'),
                     ),
                     AppCountCard(
                       number: '${state.counts?.completedShoots ?? 0}',
                       title: 'Completed Shoots',
-                      iconPath: AppAssets.photoIcon,
+                      iconPath: (state.selectedTopCard == 'Completed Shoots' ||
+                              state.selectedStatusFilter == 'Completed')
+                          ? AppAssets.videoIconSel
+                          : AppAssets.videoIcon,
+                      variant: (state.selectedTopCard == 'Completed Shoots' ||
+                              state.selectedStatusFilter == 'Completed')
+                          ? AppCountCardVariant.goldAccent
+                          : AppCountCardVariant.classic,
+                      onTap: () => notifier.selectTopCard('Completed Shoots'),
                     ),
                     AppCountCard(
                       number: '${state.counts?.rejectedRequests ?? 0}',
                       title: 'Declined',
-                      iconPath: AppAssets.declinedIcon,
+                      iconPath: (state.selectedTopCard == 'Declined' ||
+                              state.selectedStatusFilter == 'Declined')
+                          ? AppAssets.declinedIconSel
+                          : AppAssets.declinedIcon,
+                      variant: (state.selectedTopCard == 'Declined' ||
+                              state.selectedStatusFilter == 'Declined')
+                          ? AppCountCardVariant.goldAccent
+                          : AppCountCardVariant.classic,
+                      onTap: () => notifier.selectTopCard('Declined'),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: AppSpacing.cardCompactInset),
+              /// REQUEST / SHOOTS SEGMENTED TAB CONTROL (hidden when a top card or status filter is active)
+              if (state.selectedTopCard == null && state.selectedStatusFilter == 'All Status') ...[
+                const SizedBox(height: AppSpacing.md),
+                Padding(
+                  padding: AppSpacing.insetsHBase,
+                  child: AppSegmentedControl(
+                    items: const ['Request', 'Shoots'],
+                    selectedIndex: state.selectedTabIndex,
+                    onValueChanged: notifier.selectTab,
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: AppSpacing.md),
 
               /// SEARCH BAR — debounced through the notifier.
               Padding(
@@ -102,7 +238,9 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                     cursorColor: AppColors.white,
                     decoration: InputDecoration(
                       hintText: 'Search events or crew...',
-                      hintStyle: AppTextStyles.bodyMedium,
+                      hintStyle: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.white50,
+                      ),
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(AppSpacing.inlineNudge),
                         child: SvgPicture.asset(
@@ -121,6 +259,49 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                 ),
               ),
 
+              /// REMOVABLE WHITE CHIP (shows when top rectangle card or status filter is selected)
+              if (state.selectedTopCard != null || state.selectedStatusFilter != 'All Status') ...[
+                const SizedBox(height: AppSpacing.md),
+                Padding(
+                  padding: AppSpacing.insetsHBase,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.xs + 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: AppRadii.smAll,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            state.selectedTopCard ?? state.selectedStatusFilter,
+                            style: AppTextStyles.bodyCompactMedium.copyWith(
+                              color: const Color(0xFF1D1D1B),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          GestureDetector(
+                            onTap: notifier.clearTopCardSelection,
+                            child: const Icon(
+                              Icons.close_rounded,
+                              size: 16,
+                              color: Color(0xFF1D1D1B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+
               const SizedBox(height: AppSpacing.xl),
 
               /// LIST
@@ -133,16 +314,16 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
                               ? AppEmptyState(
                                   icon: Icons.search_off_rounded,
                                   iconSize: 56,
-                                  title: 'No shoots found',
+                                  title: 'No Shoots found',
                                   description:
-                                      'No shoots matched "${state.searchQuery.trim()}". Try searching with a different keyword.',
+                                      'No Shoots matched "${state.searchQuery.trim()}". Try searching with a different keyword.',
                                 )
                               : const AppEmptyState(
-                                  icon: Icons.event_busy_rounded,
-                                  iconSize: 56,
-                                  title: 'No shoots available',
+                                  imageAsset: AppAssets.noData,
+                                  iconSize: 150,
+                                  title: 'No Shoot Available',
                                   description:
-                                      'You don\'t have any shoots assigned at the moment.',
+                                      'No shoots available at the moment.\nNew opportunities will appear here when assigned.',
                                 ),
                         ),
                       )
@@ -232,9 +413,31 @@ class _ShootCard extends StatelessWidget {
     final formattedTime =
         '${DateTimeUtils.formatTime(shoot.startTime)} - ${DateTimeUtils.formatTime(shoot.endTime)}';
 
-    final isConfirmed = shoot.status.toLowerCase() == 'confirmed' ||
-        shoot.status.toLowerCase() == 'accepted' ||
+    final statusLower = shoot.status.toLowerCase();
+    final isCompleted = statusLower == 'completed';
+    final isConfirmed = statusLower == 'confirmed' ||
+        statusLower == 'accepted' ||
         shoot.crewAccept == 1;
+
+    final Color badgeBg = isCompleted
+        ? AppColors.shootStatusCompletedBg
+        : (isConfirmed
+            ? AppColors.shootStatusConfirmedBg
+            : AppColors.shootStatusPendingBg);
+
+    final Color badgeFg = isCompleted
+        ? AppColors.shootStatusCompletedFg
+        : (isConfirmed
+            ? AppColors.shootStatusConfirmedFg
+            : AppColors.shootStatusPendingFg);
+
+    final String badgeAsset = isCompleted || isConfirmed
+        ? AppAssets.icCheckmark
+        : AppAssets.icLoaderPending;
+
+    final String badgeText = isCompleted
+        ? 'Completed'
+        : (isConfirmed ? 'Confirmed' : 'Pending');
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.xl),
@@ -285,30 +488,28 @@ class _ShootCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: isConfirmed
-                            ? AppColors.shootAcceptButtonBackground
-                            : AppColors.lightGoldenBg,
+                        color: badgeBg,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            isConfirmed
-                                ? Icons.check_circle
-                                : Icons.schedule,
-                            size: 14,
-                            color: isConfirmed
-                                ? AppColors.shootAcceptButtonText
-                                : AppColors.amber,
+                          SvgPicture.asset(
+                            badgeAsset,
+                            width: 14,
+                            height: 14,
+                            colorFilter: (isCompleted || isConfirmed)
+                                ? ColorFilter.mode(
+                                    badgeFg,
+                                    BlendMode.srcIn,
+                                  )
+                                : null,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            isConfirmed ? 'Confirmed' : 'Pending',
+                            badgeText,
                             style: AppTextStyles.body11.copyWith(
-                              color: isConfirmed
-                                  ? AppColors.shootAcceptButtonText
-                                  : AppColors.amber,
+                              color: badgeFg,
                               fontWeight: FontWeight.w700,
                             ),
                           ),

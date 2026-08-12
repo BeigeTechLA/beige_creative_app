@@ -63,106 +63,127 @@ class SignUp3PreviewCard extends StatelessWidget {
         borderRadius: AppRadii.xxlAll,
         boxShadow: AppShadows.card,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
         children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: AppColors.border,
-            backgroundImage:
-                profileImage != null ? FileImage(profileImage!) : null,
-            child: profileImage == null
-                ? const Icon(
-                    Icons.person,
-                    size: 28,
-                    color: AppColors.lavenderGrey,
-                  )
-                : null,
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$firstName $lastName',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.body15Strong
-                      .copyWith(color: AppColors.black),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  email.isEmpty ? 'Your Email' : email,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.body12
-                      .copyWith(color: AppColors.surfaceMid),
-                ),
-                const SizedBox(height: 10),
-                Row(
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 26,
+                backgroundColor: AppColors.border,
+                backgroundImage:
+                    profileImage != null ? FileImage(profileImage!) : null,
+                child: profileImage == null
+                    ? const Icon(
+                        Icons.person,
+                        size: 28,
+                        color: AppColors.lavenderGrey,
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 36,
-                        child: ElevatedButton(
-                          onPressed: () => showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: AppColors.transparent,
-                            builder: (_) => ViewDetailsScreen(
-                              firstName: firstName,
-                              lastName: lastName,
-                              email: email,
-                              location: location,
-                              workingDistance: workingDistance,
-                              profileImage: profileImage,
-                              primaryRole: primaryRole,
-                              experience: experience,
-                              hourlyRate: hourlyRate,
-                              bio: bio,
-                              skills: skills,
-                              equipments: equipments,
-                              featuredImages: featuredImages,
-                            ),
+                    RichText(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                        style: AppTextStyles.body15Strong
+                            .copyWith(color: AppColors.black),
+                        children: [
+                          const TextSpan(
+                            text: 'Name : ',
+                            style: TextStyle(fontWeight: FontWeight.w700),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.black,
-                            padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.hugeAll,
-                            ),
-                            elevation: 0,
+                          TextSpan(
+                            text: '$firstName $lastName'.trim(),
                           ),
-                          child: Text(
-                            'View Details',
-                            style: AppTextStyles.bodySmallMedium
-                                .copyWith(color: AppColors.primary),
-                          ),
-                        ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      height: 36,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.border,
-                        borderRadius: AppRadii.hugeAll,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '$completionPercent%Completed',
-                        style: AppTextStyles.bodySmallStrong
-                            .copyWith(color: AppColors.black),
-                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      email.isEmpty ? 'Email ID: Your Email' : 'Email ID: $email',
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.body12
+                          .copyWith(color: AppColors.surfaceMid),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Divider(color: Color(0xFFEEEEEE), height: 16, thickness: 1),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () => showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: AppColors.transparent,
+                      builder: (_) => ViewDetailsScreen(
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email,
+                        location: location,
+                        workingDistance: workingDistance,
+                        profileImage: profileImage,
+                        primaryRole: primaryRole,
+                        experience: experience,
+                        hourlyRate: hourlyRate,
+                        bio: bio,
+                        skills: skills,
+                        equipments: equipments,
+                        featuredImages: featuredImages,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.black,
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppRadii.hugeAll,
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'View Details',
+                      style: AppTextStyles.bodySmallMedium
+                          .copyWith(color: AppColors.goldPaleCream),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: AppRadii.hugeAll,
+                    border: Border.all(
+                      color: const Color(0xFFD0D0D0),
+                      width: 1,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '$completionPercent% Completed',
+                    style: AppTextStyles.bodySmallStrong.copyWith(
+                      color: const Color(0xFFC59553),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

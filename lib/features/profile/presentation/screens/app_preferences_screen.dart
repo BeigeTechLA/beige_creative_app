@@ -13,16 +13,11 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/app_version_provider.dart';
 
-final appPreferencesDarkModeProvider = StateProvider.autoDispose<bool>(
-  (_) => false,
-);
-
 class AppPreferencesScreen extends ConsumerWidget {
   const AppPreferencesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDarkMode = ref.watch(appPreferencesDarkModeProvider);
     final appVersionAsync = ref.watch(appVersionProvider);
 
     return AppScaffold(
@@ -52,50 +47,6 @@ class AppPreferencesScreen extends ConsumerWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.smd),
-                  decoration: BoxDecoration(
-                    borderRadius: AppRadii.lgAll,
-                    color: AppColors.surfaceMid,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          SvgPicture.asset(
-                            AppAssets.moon,
-                            height: 24,
-                            width: 24,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.white,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Dark Mode',
-                            style: AppTextStyles.inherit14.copyWith(
-                              color: AppColors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Switch(
-                        value: isDarkMode,
-                        activeThumbColor: AppColors.arcYellow,
-                        onChanged: (value) =>
-                            ref
-                                    .read(
-                                      appPreferencesDarkModeProvider.notifier,
-                                    )
-                                    .state =
-                                value,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
                 InkWell(
                   onTap: () => context.pushNamed(Routes.deleteAccount.name),
                   child: Container(
@@ -160,12 +111,13 @@ class AppPreferencesScreen extends ConsumerWidget {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        appVersionAsync.maybeWhen(
+                        appVersionAsync.when(
                           data: (v) => 'App Version $v',
-                          orElse: () => 'App Version',
+                          loading: () => 'App Version Loading...',
+                          error: (err, stack) => 'App Version',
                         ),
                         style: AppTextStyles.inherit13.copyWith(
-                          color: AppColors.white24,
+                          color: AppColors.white70,
                         ),
                       ),
                     ],

@@ -65,6 +65,9 @@ class AppColors {
   /// Warm dark surface — slightly lighter variant
   static const Color surfaceWarmLight = Color(0xFF363131);
 
+  /// Muted dark surface — compact type chips
+  static const Color surfaceChip = Color(0xFF323131);
+
   /// Nested stats card dark surface
   static const Color surfaceStats = Color(0xFF1E1E1E);
 
@@ -73,6 +76,23 @@ class AppColors {
 
   /// Background
   static const Color lightGoldenBg = Color(0xFFFEF5E5);
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SHOOT STATUS BADGE COLORS
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /// Completed status background & foreground
+  static const Color shootStatusCompletedBg = Color(0xFFD8ECFD);
+  static const Color shootStatusCompletedFg = Color(0xFF0C487C);
+
+  /// Confirmed status background & foreground
+  static const Color shootStatusConfirmedBg = Color(0xFFD8FDE6);
+  static const Color shootStatusConfirmedFg = Color(0xFF1DAA23);
+
+  /// Pending status background & foreground
+  static const Color shootStatusPendingBg = Color(0xFFFDF5DD);
+  static const Color shootStatusPendingFg = Color(0xFFE5A100);
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // TEXT COLORS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -146,9 +166,11 @@ class AppColors {
 
   // — White opacities —
   static const Color white = Color(0xFFFFFFFF);
+  static const Color white80 = Color(0xCCFFFFFF);
   static const Color white70 = Color(0xB2FFFFFF);
   static const Color white60 = Color(0x99FFFFFF);
   static const Color white54 = Color(0x8AFFFFFF);
+  static const Color white50 = Color(0x80FFFFFF);
   static const Color white38 = Color(0x61FFFFFF);
   static const Color white36 = Color(0x5CFFFFFF);
   static const Color white30 = Color(0x4DFFFFFF);
@@ -331,6 +353,9 @@ class AppColors {
 
   /// 0xFF3B82F6 — Accent blue
   static const Color blueAccent = Color(0xFF3B82F6);
+
+  /// 0xFF78ABFF — Light sky blue for info labels
+  static const Color blueLightSky = Color(0xFF78ABFF);
 
   /// 0xFFE0E7F8 — Ice blue
   static const Color blueIce = Color(0xFFE0E7F8);

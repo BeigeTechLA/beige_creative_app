@@ -354,7 +354,7 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                                 ),
                                 InkWell(
                                   onTap: () =>
-                                      context.pushNamed(Routes.login.name),
+                                      context.goNamed(Routes.login.name),
                                   child: Text(
                                     'Login',
                                     style: AppTextStyles.body15Strong.copyWith(

@@ -22,6 +22,7 @@ class _FakeShootsRepo implements ShootsRepository {
   bool throwOnFetchCount = false;
   bool throwOnRespond = false;
 
+  List<Shoot> requests = const [];
   List<Shoot> shoots = const [];
   count_model.ShootCountData counts = count_model.ShootCountData(
     completedShoots: 0,
@@ -30,11 +31,40 @@ class _FakeShootsRepo implements ShootsRepository {
     rejectedRequests: 0,
   );
 
+  List<Shoot> cardShoots = const [];
+  int fetchCardDetailsCount = 0;
+  String? lastCardStatus;
+  bool throwOnFetchCardDetails = false;
+
   @override
-  Future<List<Shoot>> fetchShoots() async {
+  Future<List<Shoot>> fetchShootCardDetails(String status) async {
+    fetchCardDetailsCount++;
+    lastCardStatus = status;
+    if (throwOnFetchCardDetails) throw Exception('boom');
+    if (cardShoots.isNotEmpty) return cardShoots;
+    final all = [...requests, ...shoots];
+    if (all.isEmpty) return const [];
+    return all.where((s) {
+      final st = s.status.toLowerCase();
+      if (status == 'pending') return st == 'pending' || s.crewAccept == 0;
+      if (status == 'confirmed') return st == 'confirmed' || st == 'accepted' || s.crewAccept == 1;
+      if (status == 'completed') return st == 'completed';
+      if (status == 'rejected') return st == 'declined' || st == 'cancelled' || st == 'rejected';
+      return false;
+    }).toList();
+  }
+
+  @override
+  Future<ShootsData> fetchShoots({
+    String requestStatus = 'all',
+    String shootStatus = 'completed',
+  }) async {
     fetchShootsCount++;
     if (throwOnFetchShoots) throw Exception('boom');
-    return shoots;
+    return ShootsData(
+      requests: requests.isNotEmpty ? requests : shoots,
+      shoots: requests.isNotEmpty ? shoots : [],
+    );
   }
 
   @override
@@ -99,6 +129,7 @@ Shoot _shoot({
   String projectName = 'Sample Project',
   String contentType = 'Wedding',
   String status = 'pending',
+  int crewAccept = 0,
 }) {
   return Shoot(
     id: id,
@@ -116,7 +147,7 @@ Shoot _shoot({
     totalAmount: 1200,
     budget: 1200,
     status: status,
-    crewAccept: 0,
+    crewAccept: crewAccept,
     canTakeAction: true,
   );
 }
@@ -374,5 +405,133 @@ void main() {
         expect(telemetry.events, isEmpty);
       },
     );
+  });
+
+  group('selectTopCard & clearTopCardSelection', () {
+    test('selectTopCard fetches creator/shoot-card-details and updates visibleShoots', () async {
+      final repo = _FakeShootsRepo()
+        ..cardShoots = [_shoot(id: 99, projectId: 99, projectName: 'Top Card Shoot', status: 'pending')];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      await c.read(shootsListProvider.notifier).selectTopCard('Pending Shoots');
+
+      final state = c.read(shootsListProvider);
+      expect(state.selectedTopCard, 'Pending Shoots');
+      expect(repo.fetchCardDetailsCount, 1);
+      expect(repo.lastCardStatus, 'pending');
+      expect(state.visibleShoots.length, 1);
+      expect(state.visibleShoots.first.projectName, 'Top Card Shoot');
+    });
+
+    test('clearTopCardSelection restores standard tab filter view', () async {
+      final repo = _FakeShootsRepo()
+        ..shoots = [_shoot(id: 1, projectId: 1, projectName: 'Regular Shoot')]
+        ..cardShoots = [_shoot(id: 99, projectId: 99, projectName: 'Top Card Shoot')];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      await c.read(shootsListProvider.notifier).selectTopCard('Pending Shoots');
+      expect(c.read(shootsListProvider).selectedTopCard, 'Pending Shoots');
+
+      c.read(shootsListProvider.notifier).clearTopCardSelection();
+
+      final state = c.read(shootsListProvider);
+      expect(state.selectedTopCard, isNull);
+      expect(state.topCardShoots, isNull);
+    });
+  });
+
+  group('setStatusFilter', () {
+    test('filters requests by Pending, Confirmed, Completed, Declined', () async {
+      final repo = _FakeShootsRepo()
+        ..requests = [
+          _shoot(id: 1, projectId: 10, status: 'pending', crewAccept: 0),
+          _shoot(id: 2, projectId: 20, status: 'accepted', crewAccept: 1),
+        ]
+        ..shoots = [
+          _shoot(id: 3, projectId: 30, status: 'completed'),
+          _shoot(id: 4, projectId: 40, status: 'declined'),
+        ];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      final notifier = c.read(shootsListProvider.notifier);
+
+      // On Tab 0 (requests): 'Pending' matches 1 item
+      await notifier.setStatusFilter('Pending');
+      expect(c.read(shootsListProvider).selectedStatusFilter, 'Pending');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 1);
+
+      // On Tab 0 (requests): 'Confirmed' matches 1 item
+      await notifier.setStatusFilter('Confirmed');
+      expect(c.read(shootsListProvider).selectedStatusFilter, 'Confirmed');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 2);
+
+      // Switch to Tab 1 (shoots): 'Completed' matches 1 item
+      notifier.selectTab(1);
+      await notifier.setStatusFilter('Completed');
+      expect(c.read(shootsListProvider).selectedStatusFilter, 'Completed');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 3);
+
+      // On Tab 1 (shoots): 'Declined' matches 1 item
+      await notifier.setStatusFilter('Declined');
+      expect(c.read(shootsListProvider).selectedStatusFilter, 'Declined');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 4);
+
+      // 'All Status' restores tab 1 full list
+      await notifier.setStatusFilter('All Status');
+      expect(c.read(shootsListProvider).visibleShoots.length, 2);
+    });
+
+    test('setStatusFilter re-filters even when called with the same status name', () async {
+      final repo = _FakeShootsRepo()
+        ..requests = [
+          _shoot(id: 1, projectId: 10, status: 'pending', crewAccept: 0),
+          _shoot(id: 2, projectId: 20, status: 'accepted', crewAccept: 1),
+        ];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      final notifier = c.read(shootsListProvider.notifier);
+      await notifier.setStatusFilter('Pending');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+
+      await notifier.setStatusFilter('Pending');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+    });
+
+    test('setStatusFilter filters topCardShoots dataset when top card is active', () async {
+      final repo = _FakeShootsRepo()
+        ..cardShoots = [
+          _shoot(id: 10, projectId: 10, status: 'pending', crewAccept: 0),
+          _shoot(id: 20, projectId: 20, status: 'confirmed', crewAccept: 1),
+        ];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      final notifier = c.read(shootsListProvider.notifier);
+      await notifier.selectTopCard('Pending Shoots');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 10);
+
+      await notifier.setStatusFilter('Confirmed');
+      expect(c.read(shootsListProvider).visibleShoots.length, 1);
+      expect(c.read(shootsListProvider).visibleShoots.first.id, 20);
+    });
   });
 }

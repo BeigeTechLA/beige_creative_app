@@ -48,17 +48,23 @@ class ShootsRepositoryImpl implements ShootsRepository {
   }
 
   @override
-  Future<List<Shoot>> fetchShoots() async {
-    final response = await _client.dio
-        .get<dynamic>(ApiEndpoints.creatordashboarddetails);
+  Future<ShootsData> fetchShoots({
+    String requestStatus = 'all',
+    String shootStatus = 'completed',
+  }) async {
+    final endpoint = ApiEndpoints.creatorShoots(
+      requestStatus: requestStatus,
+      shootStatus: shootStatus,
+    );
+    final response = await _client.dio.get<dynamic>(endpoint);
     final data = response.data;
     if (data is! Map<String, dynamic>) {
-      throw Exception('Dashboard details returned unexpected payload');
+      throw Exception('Shoots details returned unexpected payload');
     }
     if (data['error'] == true) {
       throw Exception(data['message'] ?? 'Failed to load shoots');
     }
-    return ShootsModel.fromJson(data).data.shoots;
+    return ShootsModel.fromJson(data).data;
   }
 
   @override
@@ -73,5 +79,29 @@ class ShootsRepositoryImpl implements ShootsRepository {
       throw Exception(data['message'] ?? 'Failed to load shoot count');
     }
     return count_model.ShootCountModel.fromJson(data).data;
+  }
+
+  @override
+  Future<List<Shoot>> fetchShootCardDetails(String status) async {
+    final endpoint = ApiEndpoints.creatorShootCardDetails(status);
+    final response = await _client.dio.get<dynamic>(endpoint);
+    final data = response.data;
+    if (data is! Map<String, dynamic>) {
+      throw Exception('Shoot card details returned unexpected payload');
+    }
+    if (data['error'] == true) {
+      throw Exception(data['message'] ?? 'Failed to load shoot card details');
+    }
+    final rawData = data['data'];
+    if (rawData is List) {
+      return rawData
+          .whereType<Map<String, dynamic>>()
+          .map((x) => Shoot.fromJson(x))
+          .toList();
+    } else if (rawData is Map<String, dynamic>) {
+      final shootsData = ShootsData.fromJson(rawData);
+      return shootsData.all;
+    }
+    return [];
   }
 }

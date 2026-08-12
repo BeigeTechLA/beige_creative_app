@@ -275,7 +275,7 @@ class _ManageAvailabilityScreenState
                             ),
                             AppSpacing.verticalBase,
                             _StatCard(
-                              svgIcon: AppAssets.calendar,
+                              svgIcon: AppAssets.icAddDate,
                               title: 'Available Days',
                               value: '${state.availableDaysCount}',
                             ),
@@ -312,24 +312,38 @@ class _ManageAvailabilityScreenState
                           ),
                         ),
                       ],
-
                       AppSpacing.verticalXl,
-                      Padding(
-                        padding: AppSpacing.cardInsets,
-                        child: AppCtaButton(
-                          label: 'Add Availability',
-                          height: 56,
-                          onPressed: () async {
-                            final result = await context.pushNamed(
-                              Routes.addAvailability.name,
-                            );
-                            if (result == true) {
-                              notifier.refresh();
-                            }
-                          },
-                        ),
-                      ),
                     ],
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.md,
+                ),
+                decoration: const BoxDecoration(
+                  color: AppColors.background,
+                  border: Border(
+                    top: BorderSide(
+                      color: AppColors.dividerDark,
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: AppCtaButton(
+                    label: 'Add Availability',
+                    height: 56,
+                    onPressed: () async {
+                      final result = await context.pushNamed(
+                        Routes.addAvailability.name,
+                      );
+                      if (result == true) {
+                        notifier.refresh();
+                      }
+                    },
                   ),
                 ),
               ),

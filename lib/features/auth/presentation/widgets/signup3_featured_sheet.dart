@@ -2,11 +2,14 @@ import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
+import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/common_uploader.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 
@@ -34,7 +37,6 @@ class Signup3FeaturedSheetController {
     required this.onError,
   });
 }
-
 Future<void> showSignup3FeaturedSheet({
   required BuildContext context,
   required Signup3FeaturedSheetController controller,
@@ -46,6 +48,44 @@ Future<void> showSignup3FeaturedSheet({
     builder: (_) {
       return StatefulBuilder(
         builder: (context, setModalState) {
+          Future<void> pickImages() async {
+            final remainingSlots = 5 - controller.tempImages.length;
+            if (remainingSlots <= 0) {
+              controller.onError('Maximum 5 images allowed');
+              return;
+            }
+            final files = await CommonUploader.pickMultipleFromGallery();
+            if (files.isNotEmpty) {
+              const maxSizeBytes = 30 * 1024 * 1024; // 30MB
+              final validFiles = <File>[];
+              bool oversizedFound = false;
+
+              for (final file in files) {
+                if (file.lengthSync() > maxSizeBytes) {
+                  oversizedFound = true;
+                } else {
+                  validFiles.add(file);
+                }
+              }
+
+              if (oversizedFound) {
+                controller.onError('Each image must be max 30MB');
+              }
+
+              if (validFiles.isNotEmpty) {
+                setModalState(() {
+                  if (validFiles.length > remainingSlots) {
+                    controller.tempImages
+                        .addAll(validFiles.take(remainingSlots));
+                    controller.onError('Maximum 5 images allowed');
+                  } else {
+                    controller.tempImages.addAll(validFiles);
+                  }
+                });
+              }
+            }
+          }
+
           return Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
             decoration: const BoxDecoration(
@@ -82,7 +122,7 @@ Future<void> showSignup3FeaturedSheet({
                     ],
                   ),
                   Text(
-                    'For best results, use a PNG, JPG, Video or\nGIF image etc.',
+                    'For best results, use PNG, JPG or GIF (max 30MB each).',
                     style: AppTextStyles.body14
                         .copyWith(color: AppColors.white30),
                   ),
@@ -92,196 +132,79 @@ Future<void> showSignup3FeaturedSheet({
                   CustomTextField(
                     label: 'Enter Work Title*',
                     controller: controller.titleController,
+                    onChanged: (_) => setModalState(() {}),
                   ),
                   const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: () async {
-                      final file = await CommonUploader.pickFromGallery();
-                      if (file != null) {
-                        setModalState(() {
-                          controller.tempImages.add(file);
-                        });
-                      }
-                    },
-                    child: DottedBorder(
-                      options: RoundedRectDottedBorderOptions(
-                        radius: AppRadii.radiusXxl,
-                        color: AppColors.white24,
-                        strokeWidth: 1,
-                        dashPattern: const [4, 4],
+                  DottedBorder(
+                    options: RoundedRectDottedBorderOptions(
+                      radius: AppRadii.radiusXxl,
+                      color: AppColors.white24,
+                      strokeWidth: 1,
+                      dashPattern: const [4, 4],
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppSpacing.base),
+                      decoration: BoxDecoration(
+                        color: AppColors.transparent,
+                        borderRadius: AppRadii.xxlAll,
                       ),
-                      child: Container(
-                        height: 190,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(AppSpacing.base),
-                        decoration: BoxDecoration(
-                          borderRadius: AppRadii.xxlAll,
-                        ),
-                        child: controller.tempImages.isEmpty
-                            ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.upload,
-                                    color: AppColors.white,
-                                    size: 28,
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    'Upload new image, video, or browse',
-                                    textAlign: TextAlign.center,
-                                    style: AppTextStyles.bodyMediumStrong
-                                        .copyWith(color: AppColors.white),
-                                  ),
-                                ],
-                              )
-                            : ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  minHeight: 220,
-                                  maxHeight: 360,
-                                ),
-                                child: GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const BouncingScrollPhysics(),
-                                  itemCount: controller.tempImages.length + 1,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 10,
-                                    mainAxisSpacing: 10,
-                                    childAspectRatio: 1,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    if (index ==
-                                        controller.tempImages.length) {
-                                      return GestureDetector(
-                                        onTap: () async {
-                                          final file = await CommonUploader
-                                              .pickFromGallery();
-                                          if (file != null) {
-                                            setModalState(() {
-                                              controller.tempImages.add(file);
-                                            });
-                                          }
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: AppRadii.lgAll,
-                                            border: Border.all(
-                                              color: AppColors.white24,
-                                            ),
-                                          ),
-                                          child: const Center(
-                                            child: Icon(
-                                              Icons.add,
-                                              color: AppColors.white,
-                                              size: 28,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                    return Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: AppRadii.lgAll,
-                                          child: Image.file(
-                                            controller.tempImages[index],
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 6,
-                                          right: 6,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              setModalState(() {
-                                                controller.tempImages
-                                                    .removeAt(index);
-                                              });
-                                            },
-                                            child: Container(
-                                              height: 24,
-                                              width: 24,
-                                              decoration: BoxDecoration(
-                                                color: AppColors.black
-                                                    .withValues(alpha: 0.7),
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: const Icon(
-                                                Icons.close,
-                                                size: 14,
-                                                color: AppColors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
-                      ),
+                      child: controller.tempImages.isEmpty
+                          ? _emptyDropZone(pickImages)
+                          : _imageGrid(controller, setModalState, pickImages),
                     ),
                   ),
-                  const SizedBox(height: 16),
                   const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: Builder(
-                      builder: (context) {
-                        final isValid = controller.titleController.text
-                                .trim()
-                                .isNotEmpty &&
-                            controller.tempImages.length >= 5;
-                        return ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.goldSoft,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.xlAll,
-                            ),
-                          ),
-                          onPressed: () {
-                            if (!isValid) {
-                              controller
-                                  .onError('Minimum 5 images required');
-                              return;
+                  Builder(
+                    builder: (context) {
+                      final isValid = controller.titleController.text
+                              .trim()
+                              .isNotEmpty &&
+                          controller.tempImages.isNotEmpty &&
+                          controller.tempImages.length <= 5;
+                      return AppCtaButton(
+                        label: 'Save',
+                        height: 48,
+                        enabled: isValid,
+                        onPressed: () {
+                          if (controller.titleController.text.trim().isEmpty) {
+                            controller.onError('Please enter work title');
+                            return;
+                          }
+                          if (controller.tempImages.isEmpty) {
+                            controller.onError('Please select at least 1 image');
+                            return;
+                          }
+                          if (controller.tempImages.length > 5) {
+                            controller.onError('Maximum 5 images allowed');
+                            return;
+                          }
+                          final projects = [...controller.featuredProjects];
+                          final titles = [
+                            ...controller.featuredProjectsTitles
+                          ];
+                          if (controller.editingProjectIndex != null) {
+                            projects[controller.editingProjectIndex!] =
+                                List.from(controller.tempImages);
+                            if (controller.editingProjectIndex! <
+                                titles.length) {
+                              titles[controller.editingProjectIndex!] =
+                                  controller.titleController.text.trim();
                             }
-                            final projects = [...controller.featuredProjects];
-                            final titles = [
-                              ...controller.featuredProjectsTitles
-                            ];
-                            if (controller.editingProjectIndex != null) {
-                              projects[controller.editingProjectIndex!] =
-                                  List.from(controller.tempImages);
-                              if (controller.editingProjectIndex! <
-                                  titles.length) {
-                                titles[controller.editingProjectIndex!] =
-                                    controller.titleController.text.trim();
-                              }
-                            } else {
-                              projects.add(List.from(controller.tempImages));
-                              titles.add(
-                                controller.titleController.text.trim(),
-                              );
-                            }
-                            controller.commit(projects, titles);
-                            controller.tempImages.clear();
-                            controller.titleController.clear();
-                            controller.editingProjectIndex = null;
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            'Save',
-                            style: AppTextStyles.inheritSemiBold
-                                .copyWith(color: AppColors.black),
-                          ),
-                        );
-                      },
-                    ),
+                          } else {
+                            projects.add(List.from(controller.tempImages));
+                            titles.add(
+                              controller.titleController.text.trim(),
+                            );
+                          }
+                          controller.commit(projects, titles);
+                          controller.tempImages.clear();
+                          controller.titleController.clear();
+                          controller.editingProjectIndex = null;
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -291,5 +214,139 @@ Future<void> showSignup3FeaturedSheet({
         },
       );
     },
+  );
+}
+
+Widget _emptyDropZone(VoidCallback onTap) {
+  return GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: onTap,
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(
+        minHeight: 180,
+        maxHeight: 240,
+      ),
+      child: Container(
+        width: double.infinity,
+        color: AppColors.transparent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              AppAssets.upload,
+              colorFilter: const ColorFilter.mode(
+                AppColors.white,
+                BlendMode.srcIn,
+              ),
+              width: 24,
+              height: 24,
+            ),
+            const SizedBox(height: 18),
+            Text(
+              'Upload New Image, Video, Or Browse',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMediumStrong.copyWith(
+                color: AppColors.white,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Choose a file in a 4:3, 5:4, 9:16,\nor 16:9 aspect ratio.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.body14.copyWith(
+                color: AppColors.white30,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _imageGrid(
+  Signup3FeaturedSheetController controller,
+  void Function(void Function()) setModalState,
+  VoidCallback onAdd,
+) {
+  final bool canAddMore = controller.tempImages.length < 5;
+  return ConstrainedBox(
+    constraints: const BoxConstraints(
+      minHeight: 220,
+      maxHeight: 360,
+    ),
+    child: GridView.builder(
+      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
+      itemCount: canAddMore
+          ? controller.tempImages.length + 1
+          : controller.tempImages.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 1,
+      ),
+      itemBuilder: (context, index) {
+        if (canAddMore && index == controller.tempImages.length) {
+          return GestureDetector(
+            onTap: onAdd,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: AppRadii.lgAll,
+                border: Border.all(
+                  color: AppColors.white24,
+                ),
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.add,
+                  color: AppColors.white,
+                  size: 28,
+                ),
+              ),
+            ),
+          );
+        }
+        return Stack(
+          children: [
+            ClipRRect(
+              borderRadius: AppRadii.lgAll,
+              child: Image.file(
+                controller.tempImages[index],
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            ),
+            Positioned(
+              top: 6,
+              right: 6,
+              child: GestureDetector(
+                onTap: () {
+                  setModalState(() {
+                    controller.tempImages.removeAt(index);
+                  });
+                },
+                child: Container(
+                  height: 24,
+                  width: 24,
+                  decoration: BoxDecoration(
+                    color: AppColors.black.withValues(alpha: 0.7),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    size: 14,
+                    color: AppColors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    ),
   );
 }

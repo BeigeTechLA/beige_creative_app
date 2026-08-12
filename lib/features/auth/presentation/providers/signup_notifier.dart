@@ -449,6 +449,12 @@ class SignupNotifier extends Notifier<SignupState> {
       state = state.copyWith(errorMessage: 'Missing crew member id');
       return false;
     }
+    if (state.savedSocialLinks.isEmpty) {
+      state = state.copyWith(
+        errorMessage: 'Please add at least 1 social link',
+      );
+      return false;
+    }
 
     state = state.copyWith(
       isSubmittingStep3: true,

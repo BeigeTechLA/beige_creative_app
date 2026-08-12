@@ -114,7 +114,11 @@ class _ForgotPasswordOtpScreenState
       }
       if (next.toastMessage != null &&
           next.toastMessage != prev?.toastMessage) {
-        TopMessage.show(context, next.toastMessage!);
+        TopMessage.show(
+          context,
+          next.toastMessage!,
+          type: TopMessageType.success,
+        );
       }
     });
 

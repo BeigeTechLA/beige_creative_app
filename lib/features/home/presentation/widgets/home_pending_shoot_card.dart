@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,6 +8,8 @@ import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../../../../core/providers/guest_mode_provider.dart';
+import '../../../../shared/widgets/login_dialog.dart';
 import '../../../shoots/presentation/routes/shoots_args.dart';
 import '../../../shoots/presentation/screens/shoot_cancelled_screen.dart';
 import '../../../../app/spacing.dart';
@@ -22,7 +25,7 @@ import '../../../../utility/date_time_utils.dart';
 /// Renders nothing when [pendingShoot] is null; behavior preserved verbatim
 /// from `home_screen.dart`'s `if (creatordashboarddetaillist.isNotEmpty)`
 /// branch (uses `.first`).
-class HomePendingShootCard extends StatelessWidget {
+class HomePendingShootCard extends ConsumerWidget {
   final PendingRequestCard? pendingShoot;
   final void Function(int projectId) onAccept;
   final VoidCallback onRejectComplete;
@@ -35,14 +38,36 @@ class HomePendingShootCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final data = pendingShoot;
     if (data == null) {
       return const SizedBox.shrink();
     }
-    final isConfirmed = data.status.toLowerCase() == 'confirmed' ||
-        data.status.toLowerCase() == 'accepted' ||
+    final statusLower = data.status.toLowerCase();
+    final isCompleted = statusLower == 'completed';
+    final isConfirmed = statusLower == 'confirmed' ||
+        statusLower == 'accepted' ||
         data.crewAccept == 1;
+
+    final Color badgeBg = isCompleted
+        ? AppColors.shootStatusCompletedBg
+        : (isConfirmed
+            ? AppColors.shootStatusConfirmedBg
+            : AppColors.shootStatusPendingBg);
+
+    final Color badgeFg = isCompleted
+        ? AppColors.shootStatusCompletedFg
+        : (isConfirmed
+            ? AppColors.shootStatusConfirmedFg
+            : AppColors.shootStatusPendingFg);
+
+    final String badgeAsset = isCompleted || isConfirmed
+        ? AppAssets.icCheckmark
+        : AppAssets.icLoaderPending;
+
+    final String badgeText = isCompleted
+        ? 'Completed'
+        : (isConfirmed ? 'Confirmed' : 'Pending');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,30 +161,28 @@ class HomePendingShootCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: isConfirmed
-                                ? AppColors.shootAcceptButtonBackground
-                                : AppColors.lightGoldenBg,
+                            color: badgeBg,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                isConfirmed
-                                    ? Icons.check_circle
-                                    : Icons.schedule,
-                                size: 14,
-                                color: isConfirmed
-                                    ? AppColors.shootAcceptButtonText
-                                    : AppColors.amber,
+                              SvgPicture.asset(
+                                badgeAsset,
+                                width: 14,
+                                height: 14,
+                                colorFilter: (isCompleted || isConfirmed)
+                                    ? ColorFilter.mode(
+                                        badgeFg,
+                                        BlendMode.srcIn,
+                                      )
+                                    : null,
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                isConfirmed ? 'Confirmed' : 'Pending',
+                                badgeText,
                                 style: AppTextStyles.body11.copyWith(
-                                  color: isConfirmed
-                                      ? AppColors.shootAcceptButtonText
-                                      : AppColors.amber,
+                                  color: badgeFg,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -210,6 +233,10 @@ class HomePendingShootCard extends StatelessWidget {
                         AppSpacing.gapHSm,
                         GestureDetector(
                           onTap: () {
+                            if (ref.read(guestModeProvider)) {
+                              showLoginDialog(context);
+                              return;
+                            }
                             context.pushNamed(
                               Routes.upcomingShootDetails.name,
                               extra: UpcomingShootDetailsArgs(

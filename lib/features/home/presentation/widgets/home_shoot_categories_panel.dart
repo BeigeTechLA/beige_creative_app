@@ -64,12 +64,17 @@ class HomeShootCategoriesPanel extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "Shoot Categories",
-              style: AppTextStyles.displayLabel15.copyWith(
-                color: AppColors.white,
+            Expanded(
+              child: Text(
+                "Shoot Categories",
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.displayLabel15.copyWith(
+                  color: AppColors.white,
+                ),
               ),
             ),
+            const SizedBox(width: AppSpacing.xs),
             Container(
               height: 38,
               padding: const EdgeInsets.all(AppSpacing.xxs),
@@ -86,7 +91,7 @@ class HomeShootCategoriesPanel extends StatelessWidget {
                     child: AnimatedContainer(
                       duration: AppDurations.fast250,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.lg,
+                        horizontal: AppSpacing.md,
                       ),
                       decoration: BoxDecoration(
                         color: selectedTab == 0
@@ -110,7 +115,7 @@ class HomeShootCategoriesPanel extends StatelessWidget {
                     child: AnimatedContainer(
                       duration: AppDurations.fast250,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.lg,
+                        horizontal: AppSpacing.md,
                       ),
                       decoration: BoxDecoration(
                         color: selectedTab == 1

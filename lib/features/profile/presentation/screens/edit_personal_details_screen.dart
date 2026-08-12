@@ -155,7 +155,11 @@ class _EditPersonalDetailsScreenState
         );
     if (!mounted) return;
     if (ok) {
-      TopMessage.show(context, 'Profile Updated Successfully');
+      TopMessage.show(
+        context,
+        'Profile Updated Successfully',
+        type: TopMessageType.success,
+      );
       context.pop(true);
     }
   }

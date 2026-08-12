@@ -46,11 +46,7 @@ class AppCountCard extends StatelessWidget {
       case AppCountCardVariant.goldAccent:
         borderRadius = AppRadii.xlAll;
         decoration = BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.goldGradientLight, AppColors.goldGradientDark],
-          ),
+          color: AppColors.primary,
           borderRadius: borderRadius,
           boxShadow: AppShadows.cardBlack12,
         );

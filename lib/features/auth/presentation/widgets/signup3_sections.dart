@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -183,25 +184,41 @@ class SignUp3FeaturedSection extends StatelessWidget {
           if (featuredProjects.isEmpty)
             GestureDetector(
               onTap: onAdd,
-              child: Container(
-                height: 150,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: AppRadii.lgAll,
-                  border: Border.all(color: AppColors.white24),
+              child: DottedBorder(
+                options: RoundedRectDottedBorderOptions(
+                  radius: AppRadii.radiusXxl,
+                  color: AppColors.white24,
+                  strokeWidth: 1,
+                  dashPattern: const [4, 4],
                 ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.add, color: AppColors.white),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Add',
-                        style: AppTextStyles.inherit
-                            .copyWith(color: AppColors.white),
-                      ),
-                    ],
+                child: Container(
+                  height: 110,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: AppRadii.xxlAll,
+                    color: AppColors.transparent,
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          AppAssets.upload,
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white60,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Add',
+                          style: AppTextStyles.inherit14
+                              .copyWith(color: AppColors.white60),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -220,90 +237,90 @@ class SignUp3FeaturedSection extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 190,
-                        child: Stack(
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: AppSpacing.sm,
+                          right: AppSpacing.sm,
+                          bottom: AppSpacing.xs,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              physics: const BouncingScrollPhysics(),
-                              itemCount: images.length,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.sm,
+                            Expanded(
+                              child: Text(
+                                title,
+                                textAlign: TextAlign.left,
+                                style: AppTextStyles.inherit14Strong
+                                    .copyWith(color: AppColors.white),
                               ),
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  width: MediaQuery.of(context).size.width *
-                                      0.75,
-                                  margin: const EdgeInsets.only(
-                                    right: AppSpacing.md,
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: AppRadii.xxlAll,
-                                    child: Image.file(
-                                      images[index],
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                );
-                              },
                             ),
-                            Positioned(
-                              top: 8,
-                              right: 10,
-                              child: Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => onEdit(projectIndex),
-                                    child: Container(
-                                      height: 30,
-                                      width: 30,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.black
-                                            .withValues(alpha: 0.6),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.edit,
-                                        size: 16,
-                                        color: AppColors.white,
-                                      ),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () => onEdit(projectIndex),
+                                  child: Container(
+                                    height: 28,
+                                    width: 28,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.black
+                                          .withValues(alpha: 0.6),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.edit,
+                                      size: 14,
+                                      color: AppColors.white,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  GestureDetector(
-                                    onTap: () => onDelete(projectIndex),
-                                    child: Container(
-                                      height: 30,
-                                      width: 30,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.error
-                                            .withValues(alpha: 0.8),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.delete,
-                                        size: 16,
-                                        color: AppColors.white,
-                                      ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () => onDelete(projectIndex),
+                                  child: Container(
+                                    height: 28,
+                                    width: 28,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.error
+                                          .withValues(alpha: 0.8),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.delete,
+                                      size: 14,
+                                      color: AppColors.white,
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: AppSpacing.md,
-                          top: AppSpacing.sm,
-                        ),
-                        child: Text(
-                          title,
-                          textAlign: TextAlign.left,
-                          style: AppTextStyles.inherit14Strong
-                              .copyWith(color: AppColors.white),
+                      SizedBox(
+                        height: 190,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: images.length,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                          ),
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: MediaQuery.of(context).size.width *
+                                  0.75,
+                              margin: const EdgeInsets.only(
+                                right: AppSpacing.md,
+                              ),
+                              child: ClipRRect(
+                                borderRadius: AppRadii.xxlAll,
+                                child: Image.file(
+                                  images[index],
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -374,17 +391,41 @@ class SignUp3CertificatesSection extends StatelessWidget {
           if (certificateFiles.isEmpty)
             GestureDetector(
               onTap: onPick,
-              child: Container(
-                height: 90,
-                decoration: BoxDecoration(
-                  borderRadius: AppRadii.lgAll,
-                  border: Border.all(color: AppColors.white24),
+              child: DottedBorder(
+                options: RoundedRectDottedBorderOptions(
+                  radius: AppRadii.radiusXxl,
+                  color: AppColors.white24,
+                  strokeWidth: 1,
+                  dashPattern: const [4, 4],
                 ),
-                child: Center(
-                  child: Text(
-                    'Upload',
-                    style: AppTextStyles.inherit
-                        .copyWith(color: AppColors.white),
+                child: Container(
+                  height: 90,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: AppRadii.xxlAll,
+                    color: AppColors.transparent,
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          AppAssets.upload,
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white60,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Upload',
+                          style: AppTextStyles.inherit14
+                              .copyWith(color: AppColors.white60),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

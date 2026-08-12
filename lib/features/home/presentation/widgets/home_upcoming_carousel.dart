@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,6 +8,8 @@ import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../../../../core/providers/guest_mode_provider.dart';
+import '../../../../shared/widgets/login_dialog.dart';
 import '../../../shoots/presentation/routes/shoots_args.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
@@ -18,15 +21,7 @@ import '../../../../utility/date_time_utils.dart';
 /// "Upcoming Shoots" stacked-card carousel. Renders 1 card when there is a
 /// single upcoming shoot; renders an animated 3-card swipeable stack when
 /// there are multiple.
-///
-/// Animation controller, current index, and tap/swipe handlers stay with the
-/// orchestrator — this widget reads them through immutable params.
-///
-/// Note (Task 4.15 decompose): the legacy `home_screen.dart` contained a
-/// large commented-out earlier version of this carousel (search filter + an
-/// alternate Stack layout). It was unreachable code; not carried over —
-/// Task 4.16 will formally close that out.
-class HomeUpcomingCarousel extends StatefulWidget {
+class HomeUpcomingCarousel extends ConsumerStatefulWidget {
   final List<UpcomingShootDatum> upcomingShoots;
   final bool hasOriginalShoots;
   final int currentIndex;
@@ -47,10 +42,10 @@ class HomeUpcomingCarousel extends StatefulWidget {
   });
 
   @override
-  State<HomeUpcomingCarousel> createState() => _HomeUpcomingCarouselState();
+  ConsumerState<HomeUpcomingCarousel> createState() => _HomeUpcomingCarouselState();
 }
 
-class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
+class _HomeUpcomingCarouselState extends ConsumerState<HomeUpcomingCarousel> {
   // Helper to convert UpcomingShootDatum to a map for card display.
   static Map<String, dynamic> _cardFromDatum(UpcomingShootDatum datum) {
     return {
@@ -77,7 +72,13 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
-          onTap: () => context.goNamed(Routes.shoots.name),
+          onTap: () {
+            if (ref.read(guestModeProvider)) {
+              showLoginDialog(context);
+              return;
+            }
+            context.goNamed(Routes.shoots.name);
+          },
           borderRadius: AppRadii.mdAll,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -330,6 +331,10 @@ class _HomeUpcomingCarouselState extends State<HomeUpcomingCarousel> {
                             ),
                           ),
                           onPressed: () {
+                            if (ref.read(guestModeProvider)) {
+                              showLoginDialog(context);
+                              return;
+                            }
                             context.pushNamed(
                               Routes.upcomingShootDetails.name,
                               extra: UpcomingShootDetailsArgs(

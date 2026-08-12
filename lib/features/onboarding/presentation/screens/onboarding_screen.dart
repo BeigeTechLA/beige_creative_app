@@ -7,6 +7,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../core/providers/guest_mode_provider.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../providers/onboarding_notifier.dart';
@@ -63,58 +64,88 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     context.pushNamed(Routes.signupStep1.name);
   }
 
+  void _onSkipTap() {
+    ref.read(guestModeProvider.notifier).enter();
+    if (!mounted) return;
+    context.goNamed(Routes.home.name);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      body: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: _pages.length,
-                onPageChanged: (index) {
-                  ref
-                      .read(onboardingNotifierProvider.notifier)
-                      .setPage(index);
-                },
-                itemBuilder: (context, index) => _PageBody(page: _pages[index]),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  controller: _controller,
+                  itemCount: _pages.length,
+                  onPageChanged: (index) {
+                    ref
+                        .read(onboardingNotifierProvider.notifier)
+                        .setPage(index);
+                  },
+                  itemBuilder: (context, index) => _PageBody(page: _pages[index]),
+                ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.xxxl),
-            const SizedBox(height: AppSpacing.xxxl),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: AppCtaButton(
-                label: 'Login',
-                onPressed: _onLoginTap,
+              const SizedBox(height: AppSpacing.xxxl),
+              const SizedBox(height: AppSpacing.xxxl),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: AppCtaButton(
+                  label: 'Login',
+                  onPressed: _onLoginTap,
+                ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            GestureDetector(
-              onTap: _onSignupTap,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-                child: Text.rich(
-                  TextSpan(
-                    text: 'Don’t have an account? ',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.white60,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: 'Sign Up',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.white,
-                          decoration: TextDecoration.underline,
-                        ),
+              const SizedBox(height: AppSpacing.lg),
+              GestureDetector(
+                onTap: _onSignupTap,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+                  child: Text.rich(
+                    TextSpan(
+                      text: 'Don’t have an account? ',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.white60,
                       ),
-                    ],
+                      children: [
+                        TextSpan(
+                          text: 'Sign Up',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.white,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: AppSpacing.lg,
+                  right: AppSpacing.lg,
+                ),
+                child: GestureDetector(
+                  onTap: _onSkipTap,
+                  child: Text(
+                    'Skip',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.white,
+                    ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 }

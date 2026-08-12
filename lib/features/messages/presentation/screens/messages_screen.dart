@@ -60,7 +60,7 @@ class _MessagesScreenState extends ConsumerState<MessagesScreen> {
     return SafeArea(
       child: Column(
         children: [
-          const AppMainToolbar(title: 'Message'),
+          const AppMainToolbar(title: 'Messages'),
           if (!showEmptyState) ...[
             const SizedBox(height: AppSpacing.md),
             Padding(

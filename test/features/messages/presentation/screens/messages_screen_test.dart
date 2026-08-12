@@ -223,7 +223,7 @@ void main() {
     final repo = _FakeMessagesRepository();
     await _pumpWithRepo(tester, const MessagesScreen(), repo);
 
-    expect(find.text('Message'), findsOneWidget);
+    expect(find.text('Messages'), findsOneWidget);
     expect(find.text('Angela Kia'), findsOneWidget);
     expect(find.text('Shoot Planning'), findsOneWidget);
   });
