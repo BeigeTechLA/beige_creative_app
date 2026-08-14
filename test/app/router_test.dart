@@ -153,7 +153,7 @@ void main() {
     );
 
     test(
-      'authed user with is_registration_complete == 0 redirects to /signup-step-1',
+      'authed user with is_registration_complete == 0 redirects to /signup-step-2',
       () {
         final res = appRedirect(
           isAuth: true,
@@ -163,9 +163,77 @@ void main() {
           isRegistrationComplete: 0,
           isCrewVerified: 0,
         );
-        expect(res, equals(Routes.signupStep1.path));
+        expect(res, equals(Routes.signupStep2.path));
       },
     );
+
+    test('incomplete registration cannot return to signup step 1', () {
+      final res = appRedirect(
+        isAuth: true,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.signupStep1.path,
+        isRegistrationComplete: 0,
+        isCrewVerified: 0,
+      );
+      expect(res, equals(Routes.signupStep2.path));
+    });
+
+    test('incomplete registration may continue through steps 2 and 3', () {
+      expect(
+        appRedirect(
+          isAuth: true,
+          hasSeenOnboarding: true,
+          connStatus: ConnectivityStatus.online,
+          location: Routes.signupStep2.path,
+          isRegistrationComplete: 0,
+          isCrewVerified: 0,
+          isStep2Complete: false,
+        ),
+        isNull,
+      );
+      expect(
+        appRedirect(
+          isAuth: true,
+          hasSeenOnboarding: true,
+          connStatus: ConnectivityStatus.online,
+          location: Routes.signupStep3.path,
+          isRegistrationComplete: 0,
+          isCrewVerified: 0,
+          isStep2Complete: true,
+        ),
+        isNull,
+      );
+    });
+
+    test(
+      'completed Step 2 redirects incomplete profile directly to Step 3',
+      () {
+        final res = appRedirect(
+          isAuth: true,
+          hasSeenOnboarding: true,
+          connStatus: ConnectivityStatus.online,
+          location: Routes.login.path,
+          isRegistrationComplete: 0,
+          isCrewVerified: 0,
+          isStep2Complete: true,
+        );
+        expect(res, Routes.signupStep3.path);
+      },
+    );
+
+    test('unfinished Step 2 may advance to Step 3 inside the signup flow', () {
+      final res = appRedirect(
+        isAuth: true,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.signupStep3.path,
+        isRegistrationComplete: 0,
+        isCrewVerified: 0,
+        isStep2Complete: false,
+      );
+      expect(res, isNull);
+    });
 
     test('pending review uses /home as blocked landing surface', () {
       final res = appRedirect(
@@ -188,15 +256,25 @@ void main() {
       );
       expect(protectedRes, equals(Routes.home.path));
 
-      final profileRes = appRedirect(
-        isAuth: true,
-        hasSeenOnboarding: true,
-        connStatus: ConnectivityStatus.online,
-        location: Routes.myProfile.path,
-        isRegistrationComplete: 1,
-        isCrewVerified: 0,
-      );
-      expect(profileRes, isNull);
+      for (final profileRoute in [
+        Routes.myProfile.path,
+        Routes.profileDetails.path,
+        Routes.editPersonalDetails.path,
+        Routes.enterProfessionalDetails.path,
+        Routes.featuredWorks.path,
+        Routes.certificates.path,
+        Routes.resume.path,
+      ]) {
+        final profileRes = appRedirect(
+          isAuth: true,
+          hasSeenOnboarding: true,
+          connStatus: ConnectivityStatus.online,
+          location: profileRoute,
+          isRegistrationComplete: 1,
+          isCrewVerified: 0,
+        );
+        expect(profileRes, isNull, reason: '$profileRoute must stay editable');
+      }
     });
 
     test(

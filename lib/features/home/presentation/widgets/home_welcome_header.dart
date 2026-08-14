@@ -38,9 +38,12 @@ class HomeWelcomeHeader extends ConsumerWidget {
     final displayName = name == null || name.isEmpty ? 'User..' : name;
     final subtitleText = subtitle.trim();
     final bust = ref.watch(profileImageBustProvider);
+    final resolvedUrl = profileImageUrl.startsWith('http')
+        ? profileImageUrl
+        : '${Env.imageUrl}$profileImageUrl';
     final avatarUrl = profileImageUrl.isEmpty
         ? ''
-        : '${Env.imageUrl}$profileImageUrl${bust > 0 ? '?v=$bust' : ''}';
+        : '$resolvedUrl${bust > 0 ? '?v=$bust' : ''}';
 
     return Container(
       width: double.infinity,

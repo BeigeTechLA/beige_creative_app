@@ -40,17 +40,39 @@ class AuthRepositoryImpl implements AuthRepository {
     final rawCrewMember = payload['crew_member'] is Map
         ? payload['crew_member'] as Map
         : null;
+    final rawUserMap = payload['user'] is Map ? payload['user'] as Map : null;
 
     final isRegistrationComplete =
         _intValue(payload, ['is_registration_complete']) ??
+        (rawUserMap != null
+            ? _intValue(rawUserMap, [
+                'is_registration_complete',
+                'is_crew_profile_completed',
+              ])
+            : null) ??
         (rawCrewMember != null
-            ? _intValue(rawCrewMember, ['is_registration_complete'])
+            ? _intValue(rawCrewMember, [
+                'is_registration_complete',
+                'is_crew_profile_completed',
+              ])
             : null);
 
     final isCrewVerified =
         _intValue(payload, ['is_crew_verified']) ??
+        (rawUserMap != null
+            ? _intValue(rawUserMap, ['is_crew_verified'])
+            : null) ??
         (rawCrewMember != null
             ? _intValue(rawCrewMember, ['is_crew_verified'])
+            : null);
+
+    final isStep2Complete =
+        _boolValue(payload, ['is_step_2_complete']) ??
+        (rawUserMap != null
+            ? _boolValue(rawUserMap, ['is_step_2_complete'])
+            : null) ??
+        (rawCrewMember != null
+            ? _boolValue(rawCrewMember, ['is_step_2_complete'])
             : null);
 
     if (isRegistrationComplete == null ||
@@ -62,21 +84,40 @@ class AuthRepositoryImpl implements AuthRepository {
 
     final crewMemberId =
         _intValue(payload, ['crew_member_id']) ??
+        (rawUserMap != null
+            ? _intValue(rawUserMap, ['crew_member_id'])
+            : null) ??
         (rawCrewMember != null
             ? _intValue(rawCrewMember, ['crew_member_id', 'id'])
             : null);
 
     final rawUser = _parseLoginUser(payload);
+    // The creator avatar belongs to the crew profile. Some login responses
+    // also include an account-level user image, which can be different. Prefer
+    // the crew-member value so pending-review UI shows the submitted profile.
+    final crewProfileImageUrl = rawCrewMember == null
+        ? null
+        : _stringValue(rawCrewMember, [
+            'profile_image_url',
+            'user_profile_image_url',
+            'profile_photo',
+          ]);
     final user = rawUser != null
         ? UserSnapshot(
             id: rawUser.id,
+            firstName: rawUser.firstName,
+            lastName: rawUser.lastName,
             name: rawUser.name,
             email: rawUser.email,
+            phoneNumber: rawUser.phoneNumber,
+            location: rawUser.location,
+            workingDistance: rawUser.workingDistance,
             role: rawUser.role,
             userType: rawUser.userType,
-            profileImageUrl: rawUser.profileImageUrl,
+            profileImageUrl: crewProfileImageUrl ?? rawUser.profileImageUrl,
             isRegistrationComplete: isRegistrationComplete,
             isCrewVerified: isCrewVerified,
+            isStep2Complete: isStep2Complete,
             crewMemberId: crewMemberId,
           )
         : (crewMemberId != null
@@ -84,6 +125,7 @@ class AuthRepositoryImpl implements AuthRepository {
                   id: crewMemberId.toString(),
                   isRegistrationComplete: isRegistrationComplete,
                   isCrewVerified: isCrewVerified,
+                  isStep2Complete: isStep2Complete,
                   crewMemberId: crewMemberId,
                 )
               : null);
@@ -97,6 +139,7 @@ class AuthRepositoryImpl implements AuthRepository {
       user: user,
       isRegistrationComplete: isRegistrationComplete,
       isCrewVerified: isCrewVerified,
+      isStep2Complete: isStep2Complete,
       crewMemberId: crewMemberId,
     );
   }
@@ -134,10 +177,15 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return UserSnapshot(
         id: id,
+        firstName: firstName,
+        lastName: lastName,
         name:
             _stringValue(rawCrewMember, ['name']) ??
             (fallbackName.isEmpty ? null : fallbackName),
         email: _stringValue(rawCrewMember, ['email']),
+        phoneNumber: _stringValue(rawCrewMember, ['phone_number', 'phone']),
+        location: _stringValue(rawCrewMember, ['location']),
+        workingDistance: _stringValue(rawCrewMember, ['working_distance']),
         role: _stringValue(rawCrewMember, ['role']),
         userType: _stringValue(rawCrewMember, ['user_type']),
         profileImageUrl: _stringValue(rawCrewMember, [
@@ -156,8 +204,13 @@ class AuthRepositoryImpl implements AuthRepository {
     if (id == null || id.isEmpty) return null;
     return UserSnapshot(
       id: id,
+      firstName: _stringValue(json, ['first_name', 'firstName']),
+      lastName: _stringValue(json, ['last_name', 'lastName']),
       name: _stringValue(json, ['name', 'full_name']),
       email: _stringValue(json, ['email']),
+      phoneNumber: _stringValue(json, ['phone_number', 'phone']),
+      location: _stringValue(json, ['location']),
+      workingDistance: _stringValue(json, ['working_distance']),
       role: _stringValue(json, ['role']),
       userType: _stringValue(json, ['user_type']),
       profileImageUrl: _stringValue(json, [
@@ -183,10 +236,24 @@ class AuthRepositoryImpl implements AuthRepository {
     for (final key in keys) {
       final value = json[key];
       if (value == null) continue;
+      if (value is bool) return value ? 1 : 0;
       if (value is int) return value;
       if (value is num) return value.toInt();
       final parsed = int.tryParse(value.toString());
       if (parsed != null) return parsed;
+    }
+    return null;
+  }
+
+  bool? _boolValue(Map<dynamic, dynamic> json, List<String> keys) {
+    for (final key in keys) {
+      final value = json[key];
+      if (value == null) continue;
+      if (value is bool) return value;
+      if (value is num) return value.toInt() == 1;
+      final normalized = value.toString().trim().toLowerCase();
+      if (normalized == 'true' || normalized == '1') return true;
+      if (normalized == 'false' || normalized == '0') return false;
     }
     return null;
   }
@@ -252,11 +319,19 @@ class AuthRepositoryImpl implements AuthRepository {
       'working_distance': payload.workingDistance,
       'lat': payload.latitude.toString(),
       'lng': payload.longitude.toString(),
-      'profile_photo': await MultipartFile.fromFile(
-        payload.profileImage.path,
-        filename: payload.profileImage.path.split('/').last,
-      ),
     });
+    final profileImage = payload.profileImage;
+    if (profileImage != null) {
+      formData.files.add(
+        MapEntry(
+          'profile_photo',
+          await MultipartFile.fromFile(
+            profileImage.path,
+            filename: profileImage.path.split('/').last,
+          ),
+        ),
+      );
+    }
     final response = await _client.dio.post<dynamic>(
       ApiEndpoints.register_step1,
       data: formData,

@@ -33,3 +33,5 @@ Migrate the post-split signup1 + the 1,331-LOC signup2 to Riverpod. signup2 carr
 
 ## Notes
 Shared notifier survives signup3 — Task 4.22 extends `SignupNotifier` with `submitStep3` rather than introducing a new one. Roles/Skills lookup sheets share a single generic `showSignUp2LookupSheet` helper; signup3 should reuse it where its own checklists land.
+
+Post-migration follow-up (2026-08-13): `is_registration_complete == 0` skips Step 1 because it represents completed account registration. Backend `is_step_2_complete` selects Step 2 (`0`/missing) or Step 3 (`1`). A dedicated process-only temporary auth session calls `POST creator/get-profile-detail`; Step 2 binds its saved roles, experience, hourly rate, bio, skills, and equipment while retaining lookup IDs for submission. Approved sessions remain persistent; pending/incomplete/rejected sessions do not survive process termination.

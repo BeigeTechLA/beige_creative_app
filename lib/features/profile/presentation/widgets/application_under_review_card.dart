@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
@@ -10,17 +12,49 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../config/env.dart';
+import '../../../../core/providers/auth_state_provider.dart';
+import '../../../../core/providers/core_providers.dart';
+import '../../../../shared/widgets/top_message.dart';
+import '../../../home/presentation/providers/home_notifier.dart';
 
-/// Presentation card displaying the "Application Under Review" status.
+/// Curation outcome the card renders. Mirrors the backend `is_crew_verified`
+/// flag: `0` -> under review, `1` -> accepted, `2` -> rejected.
+enum ApplicationReviewStatus { underReview, accepted, rejected }
+
+/// Maps a raw `is_crew_verified` value to an [ApplicationReviewStatus].
+ApplicationReviewStatus applicationReviewStatusFromFlag(int? crewVerified) {
+  switch (crewVerified) {
+    case 1:
+      return ApplicationReviewStatus.accepted;
+    case 2:
+      return ApplicationReviewStatus.rejected;
+    default:
+      return ApplicationReviewStatus.underReview;
+  }
+}
+
+/// Presentation card displaying the application curation status.
 ///
 /// Designed based on the Champagne Warm Gold design specification. Can be used
 /// directly embedded on a screen or popped inside a modal dialog using
 /// [ApplicationUnderReviewDialog.show].
-class ApplicationUnderReviewCard extends StatelessWidget {
+///
+/// The inner status pill and the bottom CTA morph with [status]:
+/// - [ApplicationReviewStatus.underReview] -> "Refresh Status" pill +
+///   "Complete Your Profile" CTA.
+/// - [ApplicationReviewStatus.accepted] -> green "Profile Accepted" pill +
+///   "Go To Dashboard" CTA.
+/// - [ApplicationReviewStatus.rejected] -> maroon "Profile Rejected" pill +
+///   "View Reason" CTA.
+class ApplicationUnderReviewCard extends ConsumerWidget {
   final String? profileImageUrl;
+  final ApplicationReviewStatus status;
+  final bool isRefreshing;
   final VoidCallback? onRefreshStatus;
   final VoidCallback? onCompleteProfile;
-  final bool showCompleteProfileButton;
+  final VoidCallback? onGoToDashboard;
+  final VoidCallback? onViewReason;
+  final bool showBottomButton;
   final String title;
   final String description;
   final String nextStepsTitle;
@@ -29,9 +63,13 @@ class ApplicationUnderReviewCard extends StatelessWidget {
   const ApplicationUnderReviewCard({
     super.key,
     this.profileImageUrl,
+    this.status = ApplicationReviewStatus.underReview,
+    this.isRefreshing = false,
     this.onRefreshStatus,
     this.onCompleteProfile,
-    this.showCompleteProfileButton = true,
+    this.onGoToDashboard,
+    this.onViewReason,
+    this.showBottomButton = true,
     this.title = 'Application Under Review',
     this.description =
         'Welcome to the Beige collective. Our curation team is currently reviewing your portfolio and credentials. We maintain a high standard for our creators to ensure premium quality for our clients.',
@@ -41,9 +79,21 @@ class ApplicationUnderReviewCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     const double avatarRadius = 52.0;
     const double avatarDiameter = avatarRadius * 2;
+
+    final homeProfileUrl = ref.watch(
+      homeNotifierProvider.select((s) => s.profileData?.profileImageUrl),
+    );
+    final sessionUser = ref.watch(currentSessionUserProvider);
+
+    final effectiveImageUrl =
+        (homeProfileUrl != null && homeProfileUrl.isNotEmpty)
+            ? homeProfileUrl
+            : (profileImageUrl != null && profileImageUrl!.isNotEmpty)
+                ? profileImageUrl
+                : sessionUser?.profileImageUrl;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -134,28 +184,8 @@ class ApplicationUnderReviewCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
 
-                        // Refresh Status CTA Button
-                        InkWell(
-                          onTap: onRefreshStatus,
-                          borderRadius: BorderRadius.circular(24),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.xl,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF121212),
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: Text(
-                              'Refresh Status',
-                              style: AppTextStyles.body14Medium.copyWith(
-                                color: const Color(0xFFE5D4B9),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
+                        // Status pill (Refresh Status / Accepted / Rejected).
+                        _buildStatusPill(),
                       ],
                     ),
                   ),
@@ -186,7 +216,7 @@ class ApplicationUnderReviewCard extends StatelessWidget {
                 child: ClipOval(
                   child: Container(
                     color: AppColors.surfaceDark,
-                    child: _buildAvatarImage(avatarDiameter),
+                    child: _buildAvatarImage(avatarDiameter, effectiveImageUrl),
                   ),
                 ),
               ),
@@ -194,40 +224,134 @@ class ApplicationUnderReviewCard extends StatelessWidget {
           ],
         ),
 
-        // Optional Bottom Action Button (Complete Your Profile)
-        if (showCompleteProfileButton) ...[
+        // Optional Bottom Action Button (morphs with status).
+        if (showBottomButton) ...[
           const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            height: 54,
-            child: ElevatedButton(
-              onPressed: onCompleteProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE7D8C4),
-                foregroundColor: const Color(0xFF161513),
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: AppRadii.lgAll),
-              ),
-              child: Text(
-                'Complete Your Profile',
-                style: AppTextStyles.body15Strong.copyWith(
-                  fontSize: 16,
-                  color: const Color(0xFF161513),
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
+          _buildBottomButton(),
         ],
       ],
     );
   }
 
-  Widget _buildAvatarImage(double diameter) {
-    if (profileImageUrl != null && profileImageUrl!.isNotEmpty) {
-      final fullUrl = profileImageUrl!.startsWith('http')
-          ? profileImageUrl!
-          : '${Env.imageUrl}$profileImageUrl';
+  /// Inner pill inside the "Next Steps" panel.
+  Widget _buildStatusPill() {
+    switch (status) {
+      case ApplicationReviewStatus.accepted:
+        return _statusPillDisplay(
+          label: 'Profile Accepted',
+          background: AppColors.greenForest,
+          textColor: AppColors.white,
+        );
+      case ApplicationReviewStatus.rejected:
+        return _statusPillDisplay(
+          label: 'Profile Rejected',
+          background: const Color(0xFF9E332B),
+          textColor: AppColors.white,
+        );
+      case ApplicationReviewStatus.underReview:
+        return InkWell(
+          onTap: isRefreshing ? null : onRefreshStatus,
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xl,
+              vertical: 12,
+            ),
+            decoration: BoxDecoration(
+              color: const Color(0xFF121212),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: isRefreshing
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Color(0xFFE5D4B9),
+                    ),
+                  )
+                : Text(
+                    'Refresh Status',
+                    style: AppTextStyles.body14Medium.copyWith(
+                      color: const Color(0xFFE5D4B9),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+          ),
+        );
+    }
+  }
+
+  Widget _statusPillDisplay({
+    required String label,
+    required Color background,
+    required Color textColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.body14Medium.copyWith(
+          color: textColor,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomButton() {
+    final String label;
+    final VoidCallback? onPressed;
+    switch (status) {
+      case ApplicationReviewStatus.accepted:
+        label = 'Go To Dashboard';
+        onPressed = onGoToDashboard;
+        break;
+      case ApplicationReviewStatus.rejected:
+        label = 'View Reason';
+        onPressed = onViewReason;
+        break;
+      case ApplicationReviewStatus.underReview:
+        label = 'Complete Your Profile';
+        onPressed = onCompleteProfile;
+        break;
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      height: 54,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFE7D8C4),
+          foregroundColor: const Color(0xFF161513),
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.lgAll),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.body15Strong.copyWith(
+            fontSize: 16,
+            color: const Color(0xFF161513),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatarImage(double diameter, String? imageUrl) {
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      final fullUrl = imageUrl.startsWith('http')
+          ? imageUrl
+          : '${Env.imageUrl}$imageUrl';
 
       return CachedNetworkImage(
         imageUrl: fullUrl,
@@ -265,17 +389,26 @@ class ApplicationUnderReviewCard extends StatelessWidget {
 }
 
 /// Modal Dialog Helper for popping the Under Review Card as a modal overlay.
+///
+/// The dialog is stateful: tapping "Refresh Status" calls [onRefresh], which
+/// must re-fetch `creator/get-profile-detail` and return the fresh
+/// `is_crew_verified` flag. The card then morphs in place:
+/// - `1` (accepted)  -> green pill + "Go To Dashboard".
+/// - `2` (rejected)  -> maroon pill + "View Reason".
+/// - anything else   -> stays on the under-review state.
 class ApplicationUnderReviewDialog {
   ApplicationUnderReviewDialog._();
 
   static Future<T?> show<T>(
     BuildContext context, {
     String? profileImageUrl,
-    FutureOr<void> Function()? onRefreshStatus,
+    int? initialCrewVerified,
+    Future<int?> Function()? onRefresh,
     FutureOr<void> Function()? onCompleteProfile,
-    bool showCompleteProfileButton = true,
+    FutureOr<void> Function()? onGoToDashboard,
+    FutureOr<void> Function()? onViewReason,
+    bool showBottomButton = true,
     bool barrierDismissible = true,
-    bool closeOnRefresh = true,
   }) {
     return showDialog<T>(
       context: context,
@@ -290,23 +423,251 @@ class ApplicationUnderReviewDialog {
             vertical: AppSpacing.xl,
           ),
           child: SingleChildScrollView(
-            child: ApplicationUnderReviewCard(
+            child: _ReviewDialogBody(
               profileImageUrl: profileImageUrl,
-              onRefreshStatus: () async {
-                if (closeOnRefresh) {
-                  Navigator.of(dialogContext).pop();
-                }
-                await onRefreshStatus?.call();
-              },
-              onCompleteProfile: () async {
-                Navigator.of(dialogContext).pop();
-                await onCompleteProfile?.call();
-              },
-              showCompleteProfileButton: showCompleteProfileButton,
+              initialCrewVerified: initialCrewVerified,
+              onRefresh: onRefresh,
+              onCompleteProfile: onCompleteProfile,
+              onGoToDashboard: onGoToDashboard,
+              onViewReason: onViewReason,
+              showBottomButton: showBottomButton,
             ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Displays the Rejection Reason bottom sheet matching the dark Champagne theme.
+  static Future<void> showRejectionReasonBottomSheet(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF161513),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.xl,
+          AppSpacing.lg,
+          AppSpacing.xl,
+          MediaQuery.of(sheetContext).padding.bottom + AppSpacing.xl,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle indicator
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Red warning icon container
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: const Color(0xFF9E332B).withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xFF9E332B).withValues(alpha: 0.5),
+                  width: 2,
+                ),
+              ),
+              child: const Icon(
+                Icons.info_outline_rounded,
+                size: 40,
+                color: Color(0xFFE56B6F),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Title
+            Text(
+              'An Update on Your Application',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.headingOutfitLg.copyWith(
+                color: AppColors.white,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Description body
+            Text(
+              'Thank you for taking the time to apply to join Beige as a Creator Partner. After reviewing your application, we\'re unable to approve it at this time.\n\nThis decision does not diminish your experience or creative work. If you believe we missed something, or you would like guidance before applying again, our support team is here to help.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.body14.copyWith(
+                color: AppColors.white70,
+                height: 1.45,
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            // Contact Support Button
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: () => _contactSupport(sheetContext),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFE7D8C4),
+                  foregroundColor: const Color(0xFF161513),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadii.lgAll),
+                  elevation: 0,
+                ),
+                child: Text(
+                  'Contact Support',
+                  style: AppTextStyles.body15Strong.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF161513),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Log Out Button
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: OutlinedButton(
+                onPressed: () async {
+                  Navigator.of(sheetContext).pop();
+                  await ref.read(authStateProvider.notifier).logout();
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.white,
+                  side: const BorderSide(color: Colors.white30),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadii.lgAll),
+                ),
+                child: const Text('Log Out'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Future<void> _contactSupport(BuildContext context) async {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'support@beige.app',
+      queryParameters: {'subject': 'CP Application Status Inquiry'},
+    );
+    try {
+      if (await canLaunchUrl(emailLaunchUri)) {
+        await launchUrl(emailLaunchUri);
+      } else {
+        if (context.mounted) {
+          TopMessage.show(
+            context,
+            'Please email support@beige.app for assistance.',
+          );
+        }
+      }
+    } catch (_) {
+      if (context.mounted) {
+        TopMessage.show(
+          context,
+          'Please email support@beige.app for assistance.',
+        );
+      }
+    }
+  }
+}
+
+/// Stateful body owning the curation status so the refresh action can morph the
+/// card in place without popping/re-showing the dialog.
+class _ReviewDialogBody extends StatefulWidget {
+  final String? profileImageUrl;
+  final int? initialCrewVerified;
+  final Future<int?> Function()? onRefresh;
+  final FutureOr<void> Function()? onCompleteProfile;
+  final FutureOr<void> Function()? onGoToDashboard;
+  final FutureOr<void> Function()? onViewReason;
+  final bool showBottomButton;
+
+  const _ReviewDialogBody({
+    this.profileImageUrl,
+    this.initialCrewVerified,
+    this.onRefresh,
+    this.onCompleteProfile,
+    this.onGoToDashboard,
+    this.onViewReason,
+    this.showBottomButton = true,
+  });
+
+  @override
+  State<_ReviewDialogBody> createState() => _ReviewDialogBodyState();
+}
+
+class _ReviewDialogBodyState extends State<_ReviewDialogBody> {
+  late ApplicationReviewStatus _status;
+  bool _isRefreshing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _status = applicationReviewStatusFromFlag(widget.initialCrewVerified);
+  }
+
+  Future<void> _handleRefresh() async {
+    if (_isRefreshing) return;
+    setState(() => _isRefreshing = true);
+    int? crewVerified;
+    try {
+      crewVerified = await widget.onRefresh?.call();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRefreshing = false;
+          _status = applicationReviewStatusFromFlag(crewVerified);
+        });
+      }
+    }
+  }
+
+  void _dismiss() {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ApplicationUnderReviewCard(
+      profileImageUrl: widget.profileImageUrl,
+      status: _status,
+      isRefreshing: _isRefreshing,
+      showBottomButton: widget.showBottomButton,
+      onRefreshStatus: _handleRefresh,
+      onCompleteProfile: () async {
+        _dismiss();
+        await widget.onCompleteProfile?.call();
+      },
+      onGoToDashboard: () async {
+        _dismiss();
+        await widget.onGoToDashboard?.call();
+      },
+      onViewReason: widget.onViewReason == null
+          ? null
+          : () async {
+              await widget.onViewReason?.call();
+            },
     );
   }
 }

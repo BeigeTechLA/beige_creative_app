@@ -7,6 +7,7 @@ class LoginResult {
   final UserSnapshot? user;
   final int isRegistrationComplete;
   final int isCrewVerified;
+  final bool? isStep2Complete;
   final int? crewMemberId;
 
   const LoginResult({
@@ -14,6 +15,7 @@ class LoginResult {
     this.user,
     this.isRegistrationComplete = 1,
     this.isCrewVerified = 1,
+    this.isStep2Complete,
     this.crewMemberId,
   });
 }
@@ -35,7 +37,7 @@ class Step1Payload {
   final String workingDistance;
   final double latitude;
   final double longitude;
-  final File profileImage;
+  final File? profileImage;
 
   const Step1Payload({
     required this.firstName,
@@ -47,7 +49,7 @@ class Step1Payload {
     required this.workingDistance,
     required this.latitude,
     required this.longitude,
-    required this.profileImage,
+    this.profileImage,
   });
 }
 
@@ -97,10 +99,7 @@ class Step3Payload {
 
 abstract class AuthRepository {
   /// POST `auth/login`. Throws on non-2xx, missing token, or `error: true`.
-  Future<LoginResult> login({
-    required String email,
-    required String password,
-  });
+  Future<LoginResult> login({required String email, required String password});
 
   /// POST `auth/forgot-password-check`. Triggers OTP email. Throws on
   /// non-2xx or `error: true`.

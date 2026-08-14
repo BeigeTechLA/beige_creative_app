@@ -13,6 +13,7 @@ String _cleanString(dynamic value) {
 /// Ids arrive as int, num, or numeric string depending on endpoint version.
 /// Returns null (not 0) when absent so callers can chain fallback keys.
 int? _parseId(dynamic value) {
+  if (value is bool) return value ? 1 : 0;
   if (value is num) return value.toInt();
   if (value is String) return int.tryParse(value);
   return null;
@@ -234,12 +235,18 @@ class MyProfileData {
       json["is_registration_complete"] ??
           (json["user"] is Map
               ? (json["user"] as Map)["is_registration_complete"]
+              : null) ??
+          (json["crew_member"] is Map
+              ? (json["crew_member"] as Map)["is_registration_complete"]
               : null),
     ),
     isCrewVerified: _parseId(
       json["is_crew_verified"] ??
           (json["user"] is Map
               ? (json["user"] as Map)["is_crew_verified"]
+              : null) ??
+          (json["crew_member"] is Map
+              ? (json["crew_member"] as Map)["is_crew_verified"]
               : null),
     ),
   );

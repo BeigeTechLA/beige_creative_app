@@ -99,6 +99,25 @@ void main() {
       },
     );
 
+    test('prefers crew profile photo over account user image', () async {
+      final body = loginResponse(
+        token: 'pending-token',
+        isRegistrationComplete: 1,
+        isCrewVerified: 0,
+      );
+      final payload = body['data'] as Map<String, dynamic>;
+      payload['user'] = {'id': 9, 'profile_image_url': 'account-avatar.jpg'};
+      (payload['crew_member'] as Map<String, dynamic>)['profile_image_url'] =
+          'submitted-crew-profile.jpg';
+      when(
+        () => dio.post<dynamic>(any(), data: any(named: 'data')),
+      ).thenAnswer((_) async => _ok(body, path: ApiEndpoints.login));
+
+      final result = await repo.login(email: 'a@b.c', password: 'pw');
+
+      expect(result.user?.profileImageUrl, 'submitted-crew-profile.jpg');
+    });
+
     test('missing user and crew_member identity throws', () async {
       when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
         (_) async => _ok({
@@ -145,6 +164,128 @@ void main() {
         expect(result.user?.isCrewVerified, 0);
       },
     );
+
+    test(
+      'parses boolean account status aliases from the real nested user shape',
+      () async {
+        when(
+          () => dio.post<dynamic>(any(), data: any(named: 'data')),
+        ).thenAnswer(
+          (_) async => _ok({
+            'error': false,
+            'code': 200,
+            'message': 'Login successful.',
+            'data': {
+              'token': 'real-shape-token',
+              'user': {
+                'id': 797,
+                'name': 'Test Creative',
+                'email': 'creative@example.com',
+                'phone_number': '1234567890',
+                'location': 'Mumbai',
+                'working_distance': 'Upto 25 Miles',
+                'role': 'Creative',
+                'user_type': 2,
+                'crew_member_id': 559,
+                'is_crew_registered': true,
+                'is_crew_profile_completed': true,
+                'is_crew_verified': false,
+              },
+              'permissions': <dynamic>[],
+            },
+          }),
+        );
+
+        final result = await repo.login(
+          email: 'creative@example.com',
+          password: 'pw',
+        );
+
+        expect(result.isRegistrationComplete, 1);
+        expect(result.isCrewVerified, 0);
+        expect(result.crewMemberId, 559);
+        expect(result.user?.id, '797');
+        expect(result.user?.userType, '2');
+        expect(result.user?.phoneNumber, '1234567890');
+        expect(result.user?.location, 'Mumbai');
+        expect(result.user?.workingDistance, 'Upto 25 Miles');
+        expect(result.user?.isRegistrationComplete, 1);
+        expect(result.user?.isCrewVerified, 0);
+        expect(result.user?.crewMemberId, 559);
+      },
+    );
+
+    test(
+      'parses canonical account status fields when API sends bools',
+      () async {
+        when(
+          () => dio.post<dynamic>(any(), data: any(named: 'data')),
+        ).thenAnswer(
+          (_) async => _ok({
+            'error': false,
+            'data': {
+              'token': 'boolean-status-token',
+              'is_registration_complete': true,
+              'is_crew_verified': false,
+              'user': {'id': 797, 'crew_member_id': 559, 'user_type': 2},
+            },
+          }),
+        );
+
+        final result = await repo.login(email: 'a@b.c', password: 'pw');
+
+        expect(result.isRegistrationComplete, 1);
+        expect(result.isCrewVerified, 0);
+        expect(result.user?.isRegistrationComplete, 1);
+        expect(result.user?.isCrewVerified, 0);
+      },
+    );
+
+    test('parses numeric is_step_2_complete = 1 as true', () async {
+      when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
+        (_) async => _ok({
+          'error': false,
+          'data': {
+            'token': 'step-status-token',
+            'user': {
+              'id': 797,
+              'crew_member_id': 559,
+              'is_registration_complete': false,
+              'is_crew_verified': false,
+              'is_step_2_complete': 1,
+            },
+          },
+        }),
+      );
+
+      final result = await repo.login(email: 'a@b.c', password: 'pw');
+
+      expect(result.isStep2Complete, isTrue);
+      expect(result.user?.isStep2Complete, isTrue);
+    });
+
+    test('parses numeric is_step_2_complete = 0 as false', () async {
+      when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
+        (_) async => _ok({
+          'error': false,
+          'data': {
+            'token': 'step-status-token',
+            'user': {
+              'id': 797,
+              'crew_member_id': 559,
+              'is_registration_complete': 0,
+              'is_crew_verified': 0,
+              'is_step_2_complete': 0,
+            },
+          },
+        }),
+      );
+
+      final result = await repo.login(email: 'a@b.c', password: 'pw');
+
+      expect(result.isStep2Complete, isFalse);
+      expect(result.user?.isStep2Complete, isFalse);
+    });
 
     test(
       'missing or unknown account status throws instead of approving',
@@ -443,6 +584,18 @@ void main() {
       profileImage: tempImage,
     );
 
+    Step1Payload payloadWithExistingPhoto() => const Step1Payload(
+      firstName: 'A',
+      lastName: 'B',
+      email: 'a@b.c',
+      phone: '555',
+      password: 'pw',
+      location: 'NYC',
+      workingDistance: '50',
+      latitude: 1.0,
+      longitude: 2.0,
+    );
+
     test('happy: returns crew_member_id as int', () async {
       when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
         (_) async => _ok({
@@ -459,6 +612,27 @@ void main() {
         () => dio.post<dynamic>(captureAny(), data: any(named: 'data')),
       ).captured.single;
       expect(path, ApiEndpoints.register_step1);
+    });
+
+    test('existing remote photo omits profile_photo multipart file', () async {
+      when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
+        (_) async => _ok({
+          'error': false,
+          'data': {'crew_member_id': 77},
+        }),
+      );
+
+      await repo.registerStep1(payloadWithExistingPhoto());
+
+      final captured =
+          verify(
+                () => dio.post<dynamic>(any(), data: captureAny(named: 'data')),
+              ).captured.single
+              as FormData;
+      expect(
+        captured.files.where((entry) => entry.key == 'profile_photo'),
+        isEmpty,
+      );
     });
 
     test(

@@ -232,8 +232,9 @@ class _MyprofileState extends ConsumerState<Myprofile> {
 
     final state = ref.watch(myProfileNotifierProvider);
     final profile = state.profile;
-    final currentUser = ref.watch(sessionStoreProvider).readUserSync();
-    final isPendingReview = (currentUser?.isRegistrationComplete == 1) &&
+    final currentUser = ref.watch(currentSessionUserProvider);
+    final isPendingReview =
+        (currentUser?.isRegistrationComplete == 1) &&
         (currentUser?.isCrewVerified == 0);
 
     return AppScaffold(

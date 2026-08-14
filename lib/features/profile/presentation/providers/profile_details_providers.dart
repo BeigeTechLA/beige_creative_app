@@ -10,6 +10,7 @@ import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
 import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/session/session_store.dart';
+import '../../../../core/session/temporary_auth_session.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/edit_profile_model.dart';
 import '../../../../model_class/myprofile_model.dart';
@@ -72,20 +73,59 @@ class ProfileDetailsViewNotifier
           .fetchProfile();
       try {
         final session = ref.read(sessionStoreProvider);
-        final currentUser = await session.readUser();
+        final temporarySession = ref.read(temporaryAuthSessionProvider);
+        final currentUser = temporarySession.user ?? await session.readUser();
         final updatedUser = UserSnapshot(
           id: data.user.id != 0
               ? data.user.id.toString()
               : (currentUser?.id ?? '0'),
+          firstName: data.firstName.isNotEmpty
+              ? data.firstName
+              : currentUser?.firstName,
+          lastName: data.lastName.isNotEmpty
+              ? data.lastName
+              : currentUser?.lastName,
           name: data.user.name,
           email: data.user.email,
-          role: currentUser?.role ?? (data.user.primaryRole.isNotEmpty ? data.user.primaryRole : null),
+          phoneNumber: data.phoneNumber.isNotEmpty
+              ? data.phoneNumber
+              : currentUser?.phoneNumber,
+          location: data.location.isNotEmpty
+              ? data.location
+              : currentUser?.location,
+          workingDistance: data.workingDistance.isNotEmpty
+              ? data.workingDistance
+              : currentUser?.workingDistance,
+          role:
+              currentUser?.role ??
+              (data.user.primaryRole.isNotEmpty ? data.user.primaryRole : null),
           userType: currentUser?.userType ?? data.user.userType.toString(),
           profileImageUrl: data.user.profileImageUrl.isNotEmpty
               ? data.user.profileImageUrl
               : currentUser?.profileImageUrl,
+          isRegistrationComplete:
+              data.isRegistrationComplete ??
+              currentUser?.isRegistrationComplete,
+          isCrewVerified: data.isCrewVerified ?? currentUser?.isCrewVerified,
+          isStep2Complete: currentUser?.isStep2Complete,
+          crewMemberId: data.crewMemberId != 0
+              ? data.crewMemberId
+              : currentUser?.crewMemberId,
         );
-        await session.writeUser(updatedUser);
+        if (temporarySession.isActive && updatedUser.isCrewVerified == 1) {
+          await session.writeToken(temporarySession.token!);
+          await session.writeUser(updatedUser);
+          await session.writeLastLoginAt(
+            temporarySession.loginAt ?? DateTime.now().toUtc(),
+          );
+          ref.read(temporaryAuthSessionProvider.notifier).clear();
+        } else if (temporarySession.isActive) {
+          ref
+              .read(temporaryAuthSessionProvider.notifier)
+              .updateUser(updatedUser);
+        } else {
+          await session.writeUser(updatedUser);
+        }
       } catch (e) {
         AppLogger.w('Failed to update session user snapshot: $e');
       }

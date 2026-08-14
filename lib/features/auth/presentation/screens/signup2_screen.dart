@@ -17,6 +17,7 @@ import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/custom_multi_selectfield.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../core/providers/auth_state_provider.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/signup_notifier.dart';
 import '../providers/signup_state.dart';
@@ -33,6 +34,7 @@ class SignUp2Screen extends ConsumerStatefulWidget {
   final int step1Progress;
   final String? location;
   final String? workingDistance;
+  final bool isResume;
 
   const SignUp2Screen({
     super.key,
@@ -44,6 +46,7 @@ class SignUp2Screen extends ConsumerStatefulWidget {
     this.location,
     this.workingDistance,
     required this.step1Progress,
+    this.isResume = false,
   });
 
   @override
@@ -63,8 +66,38 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
     hourlyRateController.addListener(() => setState(() {}));
     bioController.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(signupNotifierProvider.notifier).loadStep2Lookups();
+      _initializeResumeFlow();
     });
+  }
+
+  Future<void> _initializeResumeFlow() async {
+    final notifier = ref.read(signupNotifierProvider.notifier);
+    final user = ref.read(currentSessionUserProvider);
+    notifier.seedStep2Resume(
+      crewMemberId: widget.crewMemberId ?? user?.crewMemberId,
+      firstName: widget.firstName ?? user?.firstName,
+      lastName: widget.lastName ?? user?.lastName,
+      email: widget.email ?? user?.email,
+      location: widget.location ?? user?.location,
+      workingDistance: widget.workingDistance ?? user?.workingDistance,
+      step1Progress: widget.step1Progress == 0 ? 30 : widget.step1Progress,
+    );
+    await notifier.loadStep1Prefill();
+    if (!mounted) return;
+    final resumed = ref.read(signupNotifierProvider);
+    _setControllerIfEmpty(
+      yearOfExperienceController,
+      resumed.experienceDisplay,
+    );
+    _setControllerIfEmpty(hourlyRateController, resumed.hourlyRateDisplay);
+    _setControllerIfEmpty(bioController, resumed.bioDisplay);
+    await notifier.loadStep2Lookups();
+  }
+
+  void _setControllerIfEmpty(TextEditingController controller, String value) {
+    if (controller.text.trim().isEmpty && value.trim().isNotEmpty) {
+      controller.text = value.trim();
+    }
   }
 
   @override
@@ -87,13 +120,13 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
     context.pushNamed(
       Routes.signupStep3.name,
       extra: SignUpStep3Args(
-        crewMemberId: widget.crewMemberId,
+        crewMemberId: state.crewMemberId,
         profileImage: widget.profileImage,
-        email: widget.email,
-        firstName: widget.firstName,
-        lastName: widget.lastName,
-        location: widget.location,
-        workingDistance: widget.workingDistance,
+        email: state.email,
+        firstName: state.firstName,
+        lastName: state.lastName,
+        location: state.location,
+        workingDistance: state.workingDistance,
         primaryRole: state.selectedRoles.join(', '),
         experience: yearOfExperienceController.text.trim(),
         hourlyRate: hourlyRateController.text.trim(),
@@ -101,6 +134,7 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
         skills: state.selectedSkills.join(', '),
         equipments: state.selectedEquipments.join(', '),
         step2Progress: state.step2Progress,
+        isResume: widget.isResume,
       ).toExtra(),
     );
   }
@@ -129,7 +163,11 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
           SingleChildScrollView(
             child: Column(
               children: [
-                const SignUp2Header(),
+                SignUp2Header(
+                  currentStep: widget.isResume ? 1 : 2,
+                  totalSteps: widget.isResume ? 2 : 3,
+                  showBack: !widget.isResume,
+                ),
                 const SizedBox(height: 20),
                 Transform.translate(
                   offset: const Offset(0, -30),
@@ -189,7 +227,10 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                             CustomTextField(
                               label: 'Hourly Rate*',
                               controller: hourlyRateController,
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
                               hint: '0.00',
                               prefixIcon: SizedBox(
                                 width: 30,
@@ -203,7 +244,10 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                                 ),
                               ),
                               inputFormatters: [
-                                TextInputFormatter.withFunction((oldValue, newValue) {
+                                TextInputFormatter.withFunction((
+                                  oldValue,
+                                  newValue,
+                                ) {
                                   final regExp = RegExp(r'^\d*\.?\d{0,2}$');
                                   if (regExp.hasMatch(newValue.text)) {
                                     return newValue;
@@ -260,21 +304,36 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                                         (item) => Chip(
                                           label: Text(
                                             item,
-                                            style: AppTextStyles.inherit.copyWith(
-                                              color: AppColors.white,
-                                              fontSize: 13,
-                                            ),
+                                            style: AppTextStyles.inherit
+                                                .copyWith(
+                                                  color: AppColors.white,
+                                                  fontSize: 13,
+                                                ),
                                           ),
-                                          backgroundColor: AppColors.white.withValues(alpha: 0.15),
+                                          backgroundColor: AppColors.white
+                                              .withValues(alpha: 0.15),
                                           side: BorderSide.none,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
-                                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          materialTapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
                                           visualDensity: VisualDensity.compact,
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                          labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                                          deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.white),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 4,
+                                          ),
+                                          labelPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 4,
+                                              ),
+                                          deleteIcon: const Icon(
+                                            Icons.close,
+                                            size: 14,
+                                            color: AppColors.white,
+                                          ),
                                           onDeleted: () => notifier.toggleSkill(
                                             item,
                                             selected: false,
@@ -299,7 +358,8 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                                   shape: const RoundedRectangleBorder(
                                     borderRadius: AppRadii.topHuge,
                                   ),
-                                  builder: (_) => const _EquipmentSelectionSheet(),
+                                  builder: (_) =>
+                                      const _EquipmentSelectionSheet(),
                                 );
                               },
                             ),
@@ -315,22 +375,38 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                                         (item) => Chip(
                                           label: Text(
                                             item,
-                                            style: AppTextStyles.inherit.copyWith(
-                                              color: AppColors.white,
-                                              fontSize: 13,
-                                            ),
+                                            style: AppTextStyles.inherit
+                                                .copyWith(
+                                                  color: AppColors.white,
+                                                  fontSize: 13,
+                                                ),
                                           ),
-                                          backgroundColor: AppColors.white.withValues(alpha: 0.15),
+                                          backgroundColor: AppColors.white
+                                              .withValues(alpha: 0.15),
                                           side: BorderSide.none,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
-                                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          materialTapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
                                           visualDensity: VisualDensity.compact,
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                          labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                                          deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.white),
-                                          onDeleted: () => notifier.removeEquipment(item),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 4,
+                                          ),
+                                          labelPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 4,
+                                              ),
+                                          deleteIcon: const Icon(
+                                            Icons.close,
+                                            size: 14,
+                                            color: AppColors.white,
+                                          ),
+                                          onDeleted: () =>
+                                              notifier.removeEquipment(item),
                                         ),
                                       )
                                       .toList(),
@@ -351,19 +427,48 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                                 children: [
                                   Text(
                                     'Already have an account? ',
-                                    style: AppTextStyles.body15Medium
-                                        .copyWith(color: AppColors.white60),
+                                    style: AppTextStyles.body15Medium.copyWith(
+                                      color: AppColors.white60,
+                                    ),
                                   ),
                                   InkWell(
                                     onTap: () =>
                                         context.goNamed(Routes.login.name),
                                     child: Text(
                                       'Login',
-                                      style:
-                                          AppTextStyles.body15Strong.copyWith(
-                                        color: AppColors.white,
-                                        decoration: TextDecoration.underline,
-                                      ),
+                                      style: AppTextStyles.body15Strong
+                                          .copyWith(
+                                            color: AppColors.white,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ] else if (widget.isResume) ...[
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Wrong account? ',
+                                    style: AppTextStyles.body15Medium.copyWith(
+                                      color: AppColors.white60,
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () => ref
+                                        .read(authStateProvider.notifier)
+                                        .logout(),
+                                    child: Text(
+                                      'Log out',
+                                      style: AppTextStyles.body15Strong
+                                          .copyWith(
+                                            color: AppColors.white,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
                                     ),
                                   ),
                                 ],
@@ -378,12 +483,12 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
                         left: 20,
                         right: 20,
                         child: SignUp2PreviewCard(
-                          firstName: widget.firstName ?? '',
-                          lastName: widget.lastName ?? '',
-                          email: widget.email ?? '',
+                          firstName: state.firstName,
+                          lastName: state.lastName,
+                          email: state.email,
                           profileImage: widget.profileImage,
-                          location: widget.location ?? '',
-                          workingDistance: widget.workingDistance ?? '',
+                          location: state.location,
+                          workingDistance: state.workingDistance,
                           primaryRole: state.selectedRoles.join(', '),
                           experience: yearOfExperienceController.text.trim(),
                           hourlyRate: hourlyRateController.text.trim(),
@@ -415,7 +520,8 @@ class _EquipmentSelectionSheet extends ConsumerStatefulWidget {
       _EquipmentSelectionSheetState();
 }
 
-class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionSheet> {
+class _EquipmentSelectionSheetState
+    extends ConsumerState<_EquipmentSelectionSheet> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -454,7 +560,9 @@ class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionShe
             alignment: Alignment.centerLeft,
             child: Text(
               'Select Equipment',
-              style: AppTextStyles.bodyLargeMedium.copyWith(color: AppColors.white),
+              style: AppTextStyles.bodyLargeMedium.copyWith(
+                color: AppColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -482,16 +590,25 @@ class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionShe
                             fontSize: 13,
                           ),
                         ),
-                        backgroundColor: AppColors.white.withValues(alpha: 0.15),
+                        backgroundColor: AppColors.white.withValues(
+                          alpha: 0.15,
+                        ),
                         side: BorderSide.none,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
                         labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                        deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.white),
+                        deleteIcon: const Icon(
+                          Icons.close,
+                          size: 14,
+                          color: AppColors.white,
+                        ),
                         onDeleted: () => notifier.removeEquipment(item),
                       ),
                     )
@@ -510,44 +627,52 @@ class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionShe
                     ),
                   )
                 : state.equipmentSuggestions.isEmpty
-                    ? Center(
-                        child: Text(
-                          _searchController.text.trim().isEmpty
-                              ? 'Search to find equipment'
-                              : 'No equipment found',
-                          style: AppTextStyles.body14.copyWith(color: AppColors.white60),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: state.equipmentSuggestions.length,
-                        itemBuilder: (context, index) {
-                          final item = state.equipmentSuggestions[index].name;
-                          final isSelected = state.selectedEquipments.contains(item);
-                          return CheckboxListTile(
-                            value: isSelected,
-                            title: Text(
-                              item,
-                              style: AppTextStyles.body14Medium.copyWith(color: AppColors.white),
-                            ),
-                            activeColor: AppColors.primary,
-                            checkColor: AppColors.black,
-                            side: BorderSide(
-                              color: isSelected ? AppColors.primary : AppColors.lavenderGrey,
-                              width: 1.5,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.smAll,
-                            ),
-                            onChanged: (checked) {
-                              if (checked == true) {
-                                notifier.addEquipment(item);
-                              } else {
-                                notifier.removeEquipment(item);
-                              }
-                            },
-                          );
-                        },
+                ? Center(
+                    child: Text(
+                      _searchController.text.trim().isEmpty
+                          ? 'Search to find equipment'
+                          : 'No equipment found',
+                      style: AppTextStyles.body14.copyWith(
+                        color: AppColors.white60,
                       ),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: state.equipmentSuggestions.length,
+                    itemBuilder: (context, index) {
+                      final item = state.equipmentSuggestions[index].name;
+                      final isSelected = state.selectedEquipments.contains(
+                        item,
+                      );
+                      return CheckboxListTile(
+                        value: isSelected,
+                        title: Text(
+                          item,
+                          style: AppTextStyles.body14Medium.copyWith(
+                            color: AppColors.white,
+                          ),
+                        ),
+                        activeColor: AppColors.primary,
+                        checkColor: AppColors.black,
+                        side: BorderSide(
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.lavenderGrey,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: AppRadii.smAll,
+                        ),
+                        onChanged: (checked) {
+                          if (checked == true) {
+                            notifier.addEquipment(item);
+                          } else {
+                            notifier.removeEquipment(item);
+                          }
+                        },
+                      );
+                    },
+                  ),
           ),
           const SizedBox(height: 10),
           SizedBox(
@@ -560,13 +685,13 @@ class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionShe
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadii.lgAll,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadii.lgAll),
               ),
               child: Text(
                 'Done',
-                style: AppTextStyles.body15.copyWith(color: AppColors.textHeading),
+                style: AppTextStyles.body15.copyWith(
+                  color: AppColors.textHeading,
+                ),
               ),
             ),
           ),

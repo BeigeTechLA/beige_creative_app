@@ -133,5 +133,17 @@ void main() {
       expect(model.data.isRegistrationComplete, 1);
       expect(model.data.isCrewVerified, 0);
     });
+
+    test('parses boolean account status flags from mobile API', () {
+      final json = profileResponse();
+      final data = json['data'] as Map<String, dynamic>;
+      data['is_registration_complete'] = true;
+      data['is_crew_verified'] = false;
+
+      final model = MyProfileModel.fromJson(json);
+
+      expect(model.data.isRegistrationComplete, 1);
+      expect(model.data.isCrewVerified, 0);
+    });
   });
 }

@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
+import '../routes/signup_args.dart';
 import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -11,7 +12,23 @@ import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class SignUp3Header extends StatelessWidget {
-  const SignUp3Header({super.key});
+  const SignUp3Header({
+    super.key,
+    this.currentStep = 3,
+    this.totalSteps = 3,
+    this.isResume = false,
+  });
+
+  /// True when this screen is part of the login-resume flow. Threaded into the
+  /// back-navigation extra so returning to step 2 keeps the 2-step stepper.
+  final bool isResume;
+
+  /// 1-based index of this step within the flow shown to the user.
+  final int currentStep;
+
+  /// Total number of steps the user will see. Normal signup = 3; the
+  /// login-resume flow shows only 2 remaining steps.
+  final int totalSteps;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +53,10 @@ class SignUp3Header extends StatelessWidget {
                     if (context.canPop()) {
                       context.pop();
                     } else {
-                      context.goNamed(Routes.signupStep2.name);
+                      context.goNamed(
+                        Routes.signupStep2.name,
+                        extra: SignUpStep2Args(isResume: isResume).toExtra(),
+                      );
                     }
                   },
                   alignment: Alignment.topLeft,
@@ -55,7 +75,7 @@ class SignUp3Header extends StatelessWidget {
                   child: Align(
                     widthFactor: 1,
                     child: Text(
-                      '3/3',
+                      '$currentStep/$totalSteps',
                       style: AppTextStyles.body14Medium.copyWith(
                         color: AppColors.white,
                       ),
@@ -88,7 +108,7 @@ class SignUp3Header extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
-                    3,
+                    totalSteps,
                     (index) => Container(
                       width: 40,
                       height: 5,
@@ -96,7 +116,9 @@ class SignUp3Header extends StatelessWidget {
                         horizontal: AppSpacing.xxs,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: index < currentStep
+                            ? AppColors.primary
+                            : AppColors.textSubtle,
                         borderRadius: AppRadii.hugeAll,
                       ),
                     ),

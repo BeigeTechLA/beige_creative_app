@@ -9,6 +9,9 @@ import '../../domain/repositories/auth_repository.dart';
 class SignupState {
   // Step 1 — collected via widget controllers; notifier owns non-text pieces.
   final File? profileImage;
+  final String remoteProfileImageUrl;
+  final bool isLoadingStep1Prefill;
+  final String? step1PrefillError;
   final LatLng? currentLatLng;
   final String selectedAddress;
   final bool showMap;
@@ -42,6 +45,9 @@ class SignupState {
   final List<String> selectedRoles;
   final List<String> selectedSkills;
   final List<String> selectedEquipments;
+  final List<int> selectedRoleIds;
+  final List<int> selectedSkillIds;
+  final List<int> selectedEquipmentIds;
 
   final bool isSubmittingStep2;
   final bool step2Success;
@@ -80,6 +86,9 @@ class SignupState {
 
   const SignupState({
     this.profileImage,
+    this.remoteProfileImageUrl = '',
+    this.isLoadingStep1Prefill = false,
+    this.step1PrefillError,
     this.currentLatLng,
     this.selectedAddress = 'Search or select location',
     this.showMap = false,
@@ -104,6 +113,9 @@ class SignupState {
     this.selectedRoles = const [],
     this.selectedSkills = const [],
     this.selectedEquipments = const [],
+    this.selectedRoleIds = const [],
+    this.selectedSkillIds = const [],
+    this.selectedEquipmentIds = const [],
     this.isSubmittingStep2 = false,
     this.step2Success = false,
     this.step2Progress = 0,
@@ -131,6 +143,10 @@ class SignupState {
 
   SignupState copyWith({
     File? profileImage,
+    String? remoteProfileImageUrl,
+    bool? isLoadingStep1Prefill,
+    String? step1PrefillError,
+    bool clearStep1PrefillError = false,
     LatLng? currentLatLng,
     String? selectedAddress,
     bool? showMap,
@@ -155,6 +171,9 @@ class SignupState {
     List<String>? selectedRoles,
     List<String>? selectedSkills,
     List<String>? selectedEquipments,
+    List<int>? selectedRoleIds,
+    List<int>? selectedSkillIds,
+    List<int>? selectedEquipmentIds,
     bool? isSubmittingStep2,
     bool? step2Success,
     int? step2Progress,
@@ -185,6 +204,13 @@ class SignupState {
   }) {
     return SignupState(
       profileImage: profileImage ?? this.profileImage,
+      remoteProfileImageUrl:
+          remoteProfileImageUrl ?? this.remoteProfileImageUrl,
+      isLoadingStep1Prefill:
+          isLoadingStep1Prefill ?? this.isLoadingStep1Prefill,
+      step1PrefillError: clearStep1PrefillError
+          ? null
+          : (step1PrefillError ?? this.step1PrefillError),
       currentLatLng: currentLatLng ?? this.currentLatLng,
       selectedAddress: selectedAddress ?? this.selectedAddress,
       showMap: showMap ?? this.showMap,
@@ -209,6 +235,9 @@ class SignupState {
       selectedRoles: selectedRoles ?? this.selectedRoles,
       selectedSkills: selectedSkills ?? this.selectedSkills,
       selectedEquipments: selectedEquipments ?? this.selectedEquipments,
+      selectedRoleIds: selectedRoleIds ?? this.selectedRoleIds,
+      selectedSkillIds: selectedSkillIds ?? this.selectedSkillIds,
+      selectedEquipmentIds: selectedEquipmentIds ?? this.selectedEquipmentIds,
       isSubmittingStep2: isSubmittingStep2 ?? this.isSubmittingStep2,
       step2Success: step2Success ?? this.step2Success,
       step2Progress: step2Progress ?? this.step2Progress,
@@ -217,13 +246,12 @@ class SignupState {
       featuredProjects: featuredProjects ?? this.featuredProjects,
       featuredProjectsTitles:
           featuredProjectsTitles ?? this.featuredProjectsTitles,
-      selectedFeaturedTags:
-          selectedFeaturedTags ?? this.selectedFeaturedTags,
+      selectedFeaturedTags: selectedFeaturedTags ?? this.selectedFeaturedTags,
       certificateFiles: certificateFiles ?? this.certificateFiles,
-      resumeFile:
-          clearResumeFile ? null : (resumeFile ?? this.resumeFile),
-      portfolioFile:
-          clearPortfolioFile ? null : (portfolioFile ?? this.portfolioFile),
+      resumeFile: clearResumeFile ? null : (resumeFile ?? this.resumeFile),
+      portfolioFile: clearPortfolioFile
+          ? null
+          : (portfolioFile ?? this.portfolioFile),
       primaryRoleDisplay: primaryRoleDisplay ?? this.primaryRoleDisplay,
       experienceDisplay: experienceDisplay ?? this.experienceDisplay,
       hourlyRateDisplay: hourlyRateDisplay ?? this.hourlyRateDisplay,
@@ -233,8 +261,7 @@ class SignupState {
       isSubmittingStep3: isSubmittingStep3 ?? this.isSubmittingStep3,
       step3Success: step3Success ?? this.step3Success,
       step3Progress: step3Progress ?? this.step3Progress,
-      signupStartedEmitted:
-          signupStartedEmitted ?? this.signupStartedEmitted,
+      signupStartedEmitted: signupStartedEmitted ?? this.signupStartedEmitted,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       toastMessage: clearToast ? null : (toastMessage ?? this.toastMessage),
     );

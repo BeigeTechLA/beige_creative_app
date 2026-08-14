@@ -10,6 +10,7 @@ import '../core/providers/core_providers.dart';
 import '../core/providers/guest_mode_provider.dart';
 import '../core/providers/onboarding_seen_provider.dart';
 import '../core/restoration/restoration_providers.dart';
+import '../core/session/temporary_auth_session.dart';
 import '../features/availability/presentation/routes/availability_routes.dart';
 import '../features/availability/presentation/screens/manage_availability_screen.dart';
 import '../features/auth/presentation/routes/auth_routes.dart';
@@ -44,7 +45,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: notifier,
     observers: [AppAnalyticsObserver()],
     redirect: (context, state) {
-      final currentUser = ref.read(sessionStoreProvider).readUserSync();
+      final currentUser = ref.read(currentSessionUserProvider);
       return appRedirect(
         isAuth: ref.read(authStateProvider),
         isGuest: ref.read(guestModeProvider),
@@ -53,6 +54,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         location: state.matchedLocation,
         isRegistrationComplete: currentUser?.isRegistrationComplete,
         isCrewVerified: currentUser?.isCrewVerified,
+        isStep2Complete: currentUser?.isStep2Complete,
       );
     },
     routes: appRoutes,
@@ -91,6 +93,7 @@ String? appRedirect({
   bool isGuest = false,
   int? isRegistrationComplete,
   int? isCrewVerified,
+  bool? isStep2Complete,
 }) {
   final isPublic = Routes.publicPaths.contains(location);
 
@@ -117,21 +120,29 @@ String? appRedirect({
       return location == Routes.login.path ? null : Routes.login.path;
     }
 
-    // Case 1: Registration incomplete -> force signup stepper
+    // Case 1: Registration incomplete means account registration (Step 1)
+    // already exists. Resume profile completion from Step 2.
     if (regComplete == 0) {
-      final isSignupRoute =
-          location.startsWith('/signup-step') ||
+      final target = isStep2Complete == true
+          ? Routes.signupStep3.path
+          : Routes.signupStep2.path;
+      // The backend flag selects the login/resume landing step. Once the user
+      // is inside the signup flow, allow its own forward/back navigation so a
+      // successful Step 2 submit can advance without racing this redirect.
+      final isResumeRoute =
+          location == Routes.signupStep2.path ||
+          location == Routes.signupStep3.path ||
           location == Routes.signupSuccess.path;
-      if (!isSignupRoute) {
-        return Routes.signupStep1.path;
+      if (!isResumeRoute) {
+        return target;
       }
       return null;
     }
 
-    // Case 2: Registration complete, but application under review. Home is a
-    // blocked landing surface with a non-dismissible status dialog; profile
-    // routes remain available so the CP can review or improve their profile.
-    if (regComplete == 1 && crewVerified == 0) {
+    // Case 2: Registration complete, but application under review or rejected.
+    // Home is a blocked landing surface with a non-dismissible status dialog;
+    // profile routes remain available so the CP can review or improve their profile.
+    if (regComplete == 1 && (crewVerified == 0 || crewVerified == 2)) {
       final isPendingAllowedRoute =
           location == Routes.home.path ||
           location == Routes.myProfile.path ||
@@ -156,16 +167,6 @@ String? appRedirect({
           location != Routes.splash.path &&
           location != Routes.login.path) {
         return Routes.home.path;
-      }
-      return null;
-    }
-
-    // Case 4: Application rejected (is_crew_verified == 2) -> rejected screen
-    if (regComplete == 1 && crewVerified == 2) {
-      if (location != Routes.applicationRejected.path &&
-          location != Routes.splash.path &&
-          location != Routes.login.path) {
-        return Routes.applicationRejected.path;
       }
       return null;
     }
@@ -206,12 +207,17 @@ class _AuthRefreshNotifier extends ChangeNotifier {
       connectivityStatusProvider,
       (previous, next) => notifyListeners(),
     );
+    _temporaryAuthSub = _ref.listen<TemporaryAuthState>(
+      temporaryAuthSessionProvider,
+      (previous, next) => notifyListeners(),
+    );
   }
   final Ref _ref;
   late final ProviderSubscription<bool> _authSub;
   late final ProviderSubscription<bool> _guestSub;
   late final ProviderSubscription<bool> _onboardingSub;
   late final ProviderSubscription<ConnectivityStatus> _connSub;
+  late final ProviderSubscription<TemporaryAuthState> _temporaryAuthSub;
 
   @override
   void dispose() {
@@ -219,6 +225,7 @@ class _AuthRefreshNotifier extends ChangeNotifier {
     _guestSub.close();
     _onboardingSub.close();
     _connSub.close();
+    _temporaryAuthSub.close();
     super.dispose();
   }
 }

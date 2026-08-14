@@ -10,6 +10,7 @@ import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/providers/guest_mode_provider.dart';
+import '../../../../core/session/temporary_auth_session.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../service/prefs_service.dart';
@@ -51,10 +52,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
     state = state.copyWith(savePassword: value);
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     final trimmedEmail = email.trim();
     final trimmedPassword = password.trim();
 
@@ -63,7 +61,9 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       return;
     }
     if (!isValidEmail(trimmedEmail)) {
-      state = state.copyWith(errorMessage: 'Please enter a valid email address');
+      state = state.copyWith(
+        errorMessage: 'Please enter a valid email address',
+      );
       return;
     }
     if (trimmedPassword.isEmpty) {
@@ -82,17 +82,42 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
     );
 
     try {
-      final result = await ref.read(authRepositoryProvider).login(
-            email: trimmedEmail,
-            password: trimmedPassword,
-          );
+      final result = await ref
+          .read(authRepositoryProvider)
+          .login(email: trimmedEmail, password: trimmedPassword);
 
       final session = ref.read(sessionStoreProvider);
-      await session.writeToken(result.token);
-      if (result.user != null) {
-        await session.writeUser(result.user!);
+      final user = result.user;
+      final loginAt = DateTime.now().toUtc();
+      // Approved crew persist as before. Additionally persist an under-review
+      // account (registration complete, verification pending) so it survives an
+      // app relaunch instead of dropping into the ephemeral temp session.
+      // Incomplete registration and rejected accounts stay ephemeral — unchanged.
+      final shouldPersistSession = result.isCrewVerified == 1 ||
+          (result.isRegistrationComplete == 1 && result.isCrewVerified == 0);
+      if (!shouldPersistSession) {
+        if (user == null) {
+          throw StateError('Ephemeral login user is unavailable');
+        }
+        // Ensure a previous approved login cannot survive underneath a
+        // pending/incomplete account. The new token stays process-only.
+        await session.clearSession();
+        ref
+            .read(temporaryAuthSessionProvider.notifier)
+            .begin(token: result.token, user: user, loginAt: loginAt);
+      } else {
+        ref.read(temporaryAuthSessionProvider.notifier).clear();
+        await session.writeToken(result.token);
+        if (user != null) {
+          await session.writeUser(user);
+        }
+        await session.writeLastLoginAt(loginAt);
+        // `currentSessionUserProvider` only reacts to the temp session; the
+        // persisted store write above is invisible to it. Refresh so the
+        // post-login navigation reads the just-written snapshot (the router
+        // does not bounce an under-review account off /login on its own).
+        ref.invalidate(currentSessionUserProvider);
       }
-      await session.writeLastLoginAt(DateTime.now().toUtc());
 
       try {
         if (state.savePassword) {
@@ -111,12 +136,8 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       // Best-effort telemetry — never fail login on a wrapper error.
       try {
         final telemetry = ref.read(telemetryClientProvider);
-        final user = result.user;
         if (user != null) {
-          await telemetry.setUserIdentity(
-            userId: user.id,
-            userRole: user.role,
-          );
+          await telemetry.setUserIdentity(userId: user.id, userRole: user.role);
         }
         unawaited(telemetry.loginSuccess());
       } catch (e, st) {
@@ -137,8 +158,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       );
       state = state.copyWith(
         isLoggingIn: false,
-        errorMessage:
-            _formatError(e) ?? 'Invalid email or password',
+        errorMessage: _formatError(e) ?? 'Invalid email or password',
       );
     }
   }
@@ -199,6 +219,4 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
 }
 
 final loginNotifierProvider =
-    AutoDisposeNotifierProvider<LoginNotifier, LoginState>(
-  LoginNotifier.new,
-);
+    AutoDisposeNotifierProvider<LoginNotifier, LoginState>(LoginNotifier.new);

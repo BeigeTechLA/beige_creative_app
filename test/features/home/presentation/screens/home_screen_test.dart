@@ -1,4 +1,5 @@
 import 'package:beige_creative_app/app/routes.dart';
+import 'package:beige_creative_app/config/env.dart';
 import 'package:beige_creative_app/core/providers/core_providers.dart';
 import 'package:beige_creative_app/core/session/session_store.dart';
 import 'package:beige_creative_app/features/home/presentation/providers/home_notifier.dart';
@@ -76,6 +77,8 @@ Future<_FakeHomeNotifier> _pump(
 }
 
 void main() {
+  setUpAll(() => Env.init(Environment.dev));
+
   testWidgets('renders welcome banner using firstName from seeded profile', (
     tester,
   ) async {
@@ -136,6 +139,27 @@ void main() {
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.byType(ApplicationUnderReviewCard), findsOneWidget);
+  });
+
+  testWidgets('pending CP can open profile without popping the Home root', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      seed: HomeState(isLoading: false),
+      user: const UserSnapshot(
+        id: '7',
+        isRegistrationComplete: 1,
+        isCrewVerified: 0,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Complete Your Profile'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('profile-stub'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('approved CP does not see review dialog', (tester) async {

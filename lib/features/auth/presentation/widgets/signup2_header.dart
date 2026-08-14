@@ -11,7 +11,23 @@ import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 
 class SignUp2Header extends StatelessWidget {
-  const SignUp2Header({super.key});
+  const SignUp2Header({
+    super.key,
+    this.currentStep = 2,
+    this.totalSteps = 3,
+    this.showBack = true,
+  });
+
+  /// 1-based index of this step within the flow shown to the user.
+  final int currentStep;
+
+  /// Total number of steps the user will see. Normal signup = 3; the
+  /// login-resume flow starts at step 2 and shows only 2 remaining steps.
+  final int totalSteps;
+
+  /// Whether to render the back icon. Hidden on the login-resume entry step
+  /// (1/2) where there is no step 1 to go back to.
+  final bool showBack;
 
   @override
   Widget build(BuildContext context) {
@@ -30,29 +46,32 @@ class SignUp2Header extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AppIconTapTarget(
-                  semanticLabel: 'Back',
-                  onTap: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.goNamed(Routes.signupStep1.name);
-                    }
-                  },
-                  alignment: Alignment.topLeft,
-                  icon: SvgPicture.asset(
-                    AppAssets.back,
-                    height: 24,
-                    width: 24,
-                    fit: BoxFit.fill,
-                  ),
-                ),
+                if (showBack)
+                  AppIconTapTarget(
+                    semanticLabel: 'Back',
+                    onTap: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.goNamed(Routes.signupStep1.name);
+                      }
+                    },
+                    alignment: Alignment.topLeft,
+                    icon: SvgPicture.asset(
+                      AppAssets.back,
+                      height: 24,
+                      width: 24,
+                      fit: BoxFit.fill,
+                    ),
+                  )
+                else
+                  const SizedBox(width: 24, height: 24),
                 SizedBox(
                   height: 24,
                   child: Align(
                     widthFactor: 1,
                     child: Text(
-                      '2/3',
+                      '$currentStep/$totalSteps',
                       style: AppTextStyles.body14Medium.copyWith(
                         color: AppColors.white,
                       ),
@@ -85,7 +104,7 @@ class SignUp2Header extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
-                    3,
+                    totalSteps,
                     (index) => Container(
                       width: 40,
                       height: 5,
@@ -93,7 +112,7 @@ class SignUp2Header extends StatelessWidget {
                         horizontal: AppSpacing.xxs,
                       ),
                       decoration: BoxDecoration(
-                        color: index <= 1
+                        color: index < currentStep
                             ? AppColors.primary
                             : AppColors.textSubtle,
                         borderRadius: AppRadii.hugeAll,

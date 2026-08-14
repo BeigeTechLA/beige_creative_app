@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/providers/guest_mode_provider.dart';
 import '../../../../core/session/session_store.dart';
+import '../../../../core/session/temporary_auth_session.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/creator_dashboard_model.dart';
 import '../../../../model_class/myprofile_model.dart' as profile;
@@ -352,7 +353,8 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   ) async {
     try {
       final session = ref.read(sessionStoreProvider);
-      final currentUser = await session.readUser();
+      final temporarySession = ref.read(temporaryAuthSessionProvider);
+      final currentUser = temporarySession.user ?? await session.readUser();
       final profileId = profileData.user.id != 0
           ? profileData.user.id.toString()
           : null;
@@ -369,8 +371,23 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       } else {
         final updatedUser = UserSnapshot(
           id: resolvedId,
+          firstName: profileData.firstName.isNotEmpty
+              ? profileData.firstName
+              : currentUser?.firstName,
+          lastName: profileData.lastName.isNotEmpty
+              ? profileData.lastName
+              : currentUser?.lastName,
           name: profileData.user.name,
           email: profileData.user.email,
+          phoneNumber: profileData.phoneNumber.isNotEmpty
+              ? profileData.phoneNumber
+              : currentUser?.phoneNumber,
+          location: profileData.location.isNotEmpty
+              ? profileData.location
+              : currentUser?.location,
+          workingDistance: profileData.workingDistance.isNotEmpty
+              ? profileData.workingDistance
+              : currentUser?.workingDistance,
           role:
               currentUser?.role ??
               (profileData.user.primaryRole.isNotEmpty
@@ -386,11 +403,25 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
               currentUser?.isRegistrationComplete,
           isCrewVerified:
               profileData.isCrewVerified ?? currentUser?.isCrewVerified,
+          isStep2Complete: currentUser?.isStep2Complete,
           crewMemberId: profileData.crewMemberId != 0
               ? profileData.crewMemberId
               : currentUser?.crewMemberId,
         );
-        await session.writeUser(updatedUser);
+        if (temporarySession.isActive && updatedUser.isCrewVerified == 1) {
+          await session.writeToken(temporarySession.token!);
+          await session.writeUser(updatedUser);
+          await session.writeLastLoginAt(
+            temporarySession.loginAt ?? DateTime.now().toUtc(),
+          );
+          ref.read(temporaryAuthSessionProvider.notifier).clear();
+        } else if (temporarySession.isActive) {
+          ref
+              .read(temporaryAuthSessionProvider.notifier)
+              .updateUser(updatedUser);
+        } else {
+          await session.writeUser(updatedUser);
+        }
       }
     } catch (e) {
       AppLogger.w('Failed to update session user snapshot: $e');

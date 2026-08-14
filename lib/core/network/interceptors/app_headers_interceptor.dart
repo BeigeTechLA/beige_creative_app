@@ -14,7 +14,7 @@ import 'package:dio/dio.dart';
 /// construction and reused for every request to avoid per-call Platform reads.
 class AppHeadersInterceptor extends Interceptor {
   static const int userTypeCreative = 2;
-  static const int userTypeClient = 3;
+  //static const int userTypeClient = 3;
 
   final String deviceType;
   final String userTypeName;
@@ -27,10 +27,7 @@ class AppHeadersInterceptor extends Interceptor {
   }) : deviceType = deviceType ?? (Platform.isIOS ? 'iOS' : 'android');
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     options.headers['device_type'] = deviceType;
     options.headers['user_type_name'] = userTypeName;
     options.headers['user_type'] = userType;

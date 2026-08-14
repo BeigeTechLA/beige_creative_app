@@ -52,6 +52,7 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
   GoogleMapController? mapController;
   bool showPassword = false;
   bool showConfirmPassword = false;
+  bool _isHydratingLoginData = false;
 
   bool get isFormValid =>
       passwordController.text.isNotEmpty &&
@@ -63,13 +64,15 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
     return firstNameController.text.trim().isNotEmpty ||
         lastNameController.text.trim().isNotEmpty ||
         emailController.text.trim().isNotEmpty ||
-        state.profileImage != null;
+        state.profileImage != null ||
+        state.remoteProfileImageUrl.isNotEmpty;
   }
 
   @override
   void initState() {
     super.initState();
     void onFieldChanged() {
+      if (_isHydratingLoginData) return;
       // Fires `signup_started` once per flow. Notifier ignores duplicates
       // via the `signupStartedEmitted` flag, cleared on `reset()`.
       ref.read(signupNotifierProvider.notifier).markSignupStarted();
@@ -88,8 +91,24 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(signupNotifierProvider.notifier).reset();
-      _getCurrentLocation();
+      _loadProfileDetails();
     });
+  }
+
+  Future<void> _loadProfileDetails() async {
+    final notifier = ref.read(signupNotifierProvider.notifier);
+    await notifier.loadStep1Prefill();
+    if (!mounted) return;
+    final prefill = ref.read(signupNotifierProvider);
+    _isHydratingLoginData = true;
+    firstNameController.text = prefill.firstName;
+    lastNameController.text = prefill.lastName;
+    emailController.text = prefill.email;
+    phoneController.text = prefill.phone;
+    searchController.text = prefill.location;
+    _isHydratingLoginData = false;
+    setState(() {});
+    if (prefill.currentLatLng == null) await _getCurrentLocation();
   }
 
   @override
@@ -161,7 +180,9 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
   }
 
   Future<void> _submit() async {
-    final ok = await ref.read(signupNotifierProvider.notifier).submitStep1(
+    final ok = await ref
+        .read(signupNotifierProvider.notifier)
+        .submitStep1(
           firstName: firstNameController.text,
           lastName: lastNameController.text,
           email: emailController.text,
@@ -203,36 +224,38 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
 
     return AppScaffold(
       body: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SignUp1Header(),
-                  const SizedBox(height: 25),
-                  Transform.translate(
-                    offset: const Offset(0, -40),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.fromLTRB(
-                            AppSpacing.xl,
-                            isPreviewVisible ? 110 : 60,
-                            AppSpacing.xl,
-                            AppSpacing.xl,
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                const SignUp1Header(),
+                const SizedBox(height: 25),
+                Transform.translate(
+                  offset: const Offset(0, -40),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.fromLTRB(
+                          AppSpacing.xl,
+                          isPreviewVisible ? 110 : 60,
+                          AppSpacing.xl,
+                          AppSpacing.xl,
+                        ),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.base,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: AppRadii.massiveAll,
+                          border: Border.all(
+                            color: AppColors.white.withValues(alpha: 0.06),
+                            width: 1,
                           ),
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.base,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.background,
-                            borderRadius: AppRadii.massiveAll,
-                            border: Border.all(
-                              color: AppColors.white.withValues(alpha: 0.06),
-                              width: 1,
-                            ),
-                          ),
+                        ),
+                        child: AbsorbPointer(
+                          absorbing: state.isLoadingStep1Prefill,
                           child: SignUp1Form(
                             firstNameController: firstNameController,
                             lastNameController: lastNameController,
@@ -240,7 +263,8 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
                             phoneController: phoneController,
                             searchController: searchController,
                             passwordController: passwordController,
-                            confirmPasswordController: confirmPasswordController,
+                            confirmPasswordController:
+                                confirmPasswordController,
                             locationFocus: _locationFocus,
                             locationHighlight: locationHighlight,
                             showMap: state.showMap,
@@ -252,6 +276,7 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
                             isLoggingIn: state.isSubmittingStep1,
                             isFormValid: isFormValid,
                             profileImage: state.profileImage,
+                            remoteProfileImageUrl: state.remoteProfileImageUrl,
                             onMapCreated: (controller) =>
                                 mapController = controller,
                             onMapTap: _updateLocationFromLatLng,
@@ -275,103 +300,144 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
                             onNext: _submit,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        if (!isPreviewVisible)
-                          Positioned(
-                            top: -24,
-                            left: 0,
-                            right: 0,
-                            child: Center(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.base,
-                                ),
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  color: AppColors.background,
-                                  borderRadius: AppRadii.lgAll,
-                                  border: Border.all(
-                                    color:
-                                        AppColors.white.withValues(alpha: 0.12),
-                                    width: 1,
+                      ),
+                      const SizedBox(height: 20),
+                      if (!isPreviewVisible)
+                        Positioned(
+                          top: -24,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.base,
+                              ),
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: AppColors.background,
+                                borderRadius: AppRadii.lgAll,
+                                border: Border.all(
+                                  color: AppColors.white.withValues(
+                                    alpha: 0.12,
                                   ),
-                                  boxShadow: AppShadows.ctaDark,
+                                  width: 1,
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SvgPicture.asset(
-                                      AppAssets.userCircle,
-                                      width: 30,
-                                      height: 30,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      'Tell Us About Yourself & Add Details',
-                                      style: AppTextStyles.bodySmallMedium
-                                          .copyWith(color: AppColors.disabled),
-                                    ),
-                                  ],
-                                ),
+                                boxShadow: AppShadows.ctaDark,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SvgPicture.asset(
+                                    AppAssets.userCircle,
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'Tell Us About Yourself & Add Details',
+                                    style: AppTextStyles.bodySmallMedium
+                                        .copyWith(color: AppColors.disabled),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        const SizedBox(height: 30),
-                        if (isPreviewVisible)
-                          Positioned(
-                            top: -40,
-                            left: 20,
-                            right: 20,
-                            child: SignUp1PreviewCard(
-                              firstName: firstNameController.text.trim(),
-                              lastName: lastNameController.text.trim(),
-                              email: emailController.text.trim(),
-                              profileImage: state.profileImage,
-                              location: searchController.text.trim(),
-                              workingDistance: state.selectedDistance ?? '',
-                              completionPercent: ref
-                                  .read(signupNotifierProvider.notifier)
-                                  .calculateStep1Progress(
-                                    firstName: firstNameController.text,
-                                    lastName: lastNameController.text,
-                                    email: emailController.text,
-                                    password: passwordController.text,
-                                    confirmPassword:
-                                        confirmPasswordController.text,
-                                  ),
+                        ),
+                      const SizedBox(height: 30),
+                      if (isPreviewVisible)
+                        Positioned(
+                          top: -40,
+                          left: 20,
+                          right: 20,
+                          child: SignUp1PreviewCard(
+                            firstName: firstNameController.text.trim(),
+                            lastName: lastNameController.text.trim(),
+                            email: emailController.text.trim(),
+                            profileImage: state.profileImage,
+                            remoteProfileImageUrl: state.remoteProfileImageUrl,
+                            location: searchController.text.trim(),
+                            workingDistance: state.selectedDistance ?? '',
+                            completionPercent: ref
+                                .read(signupNotifierProvider.notifier)
+                                .calculateStep1Progress(
+                                  firstName: firstNameController.text,
+                                  lastName: lastNameController.text,
+                                  email: emailController.text,
+                                  password: passwordController.text,
+                                  confirmPassword:
+                                      confirmPasswordController.text,
+                                ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                if (state.step1PrefillError != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.xl,
+                      0,
+                      AppSpacing.xl,
+                      AppSpacing.base,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpacing.base),
+                      decoration: BoxDecoration(
+                        color: AppColors.errorSurface,
+                        borderRadius: AppRadii.lgAll,
+                        border: Border.all(color: AppColors.warning),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              state.step1PrefillError!,
+                              style: AppTextStyles.bodySmallMedium.copyWith(
+                                color: AppColors.white,
+                              ),
                             ),
                           ),
-                      ],
+                          const SizedBox(width: AppSpacing.sm),
+                          TextButton(
+                            onPressed: state.isLoadingStep1Prefill
+                                ? null
+                                : _loadProfileDetails,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  if (!ref.watch(authStateProvider))
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Already have an account? ',
-                          style: AppTextStyles.body15Medium
-                              .copyWith(color: AppColors.white60),
+                if (!ref.watch(authStateProvider))
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account? ',
+                        style: AppTextStyles.body15Medium.copyWith(
+                          color: AppColors.white60,
                         ),
-                        InkWell(
-                          onTap: () => context.goNamed(Routes.login.name),
-                          child: Text(
-                            'Login',
-                            style: AppTextStyles.body15Strong.copyWith(
-                              color: AppColors.white,
-                              decoration: TextDecoration.underline,
-                            ),
+                      ),
+                      InkWell(
+                        onTap: () => context.goNamed(Routes.login.name),
+                        child: Text(
+                          'Login',
+                          style: AppTextStyles.body15Strong.copyWith(
+                            color: AppColors.white,
+                            decoration: TextDecoration.underline,
                           ),
                         ),
-                      ],
-                    ),
-                  const SizedBox(height: 30),
-                ],
-              ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 30),
+              ],
             ),
-            if (state.isSubmittingStep1) const AppLoader(),
-          ],
-        ),
+          ),
+          if (state.isSubmittingStep1 || state.isLoadingStep1Prefill)
+            const AppLoader(),
+        ],
+      ),
     );
   }
 }

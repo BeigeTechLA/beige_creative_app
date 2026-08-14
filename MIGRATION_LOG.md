@@ -5,6 +5,110 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-14: Rejection Screen Removal & In-Place Accepted/Rejected Card Binding
+
+- **Task**: Remove standalone `ApplicationRejectedScreen` and bind accepted (`is_crew_verified == 1`) and rejected (`is_crew_verified == 2`) states directly to `ApplicationUnderReviewCard` in-place morphing.
+- **Changes**:
+  - Expanded `MyProfileData.fromJson` to check `json["crew_member"]` map for `is_crew_verified` and `is_registration_complete`.
+  - Updated `ApplicationUnderReviewDialog` to initialize with `initialCrewVerified`. Removed automatic `_dismiss()` from `onViewReason` in `_ReviewDialogBodyState` so tapping View Reason keeps the status dialog locked without exposing background app options.
+  - Updated `router.dart` and `login_screen.dart` to route both pending (`0`) and rejected (`2`) creators to `Home` with the non-dismissible status card overlay, restricting app navigation for unaccepted profiles.
+- **Verification**:
+  - `flutter test test/features/profile/presentation/widgets/application_under_review_card_test.dart test/features/home/presentation/screens/home_screen_test.dart`: 13/13 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+
+### 2026-08-14: Reactive Application Under Review Dialog Avatar Fix
+
+- **Task**: Fix `ApplicationUnderReviewCard` displaying a stale/wrong avatar image after login instead of the updated creator profile image shown in the header and left drawer.
+- **Changes**:
+  - Converted `ApplicationUnderReviewCard` from `StatelessWidget` to `ConsumerWidget`.
+  - Added reactive watching of `homeNotifierProvider` (`profileData?.profileImageUrl`) and `currentSessionUserProvider` inside `ApplicationUnderReviewCard`, resolving `effectiveImageUrl` dynamically.
+  - Updated `HomeScreen._showUnderReviewDialogIfNeeded` to prioritize `homeNotifierProvider`'s `profileData?.profileImageUrl` at launch time.
+  - Updated `application_under_review_card_test.dart` test suite harness and verified dialog widget tests pass.
+- **Verification**:
+  - `flutter test test/features/profile/presentation/widgets/application_under_review_card_test.dart`: 4/4 passing.
+  - `flutter test test/features/home/presentation/screens/home_screen_test.dart`: 6/6 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+
+### 2026-08-14: Pending Review Dialog Avatar & Navigation Fix
+
+- **Task**: Fix the pending-review dialog showing an account avatar instead of the submitted crew profile photo and crashing when `Complete Your Profile` is tapped.
+- **Changes**:
+  - Login snapshot parsing now prefers the crew-member profile image over a conflicting account-level user image.
+  - Removed the duplicate root-navigator pop from the Home completion callback; the dialog helper remains the single owner of modal dismissal before Home pushes the Profile route.
+  - Added regressions for conflicting login avatar fields and pending-review dialog navigation without emptying the GoRouter stack.
+- **Verification**:
+  - Focused Home, under-review dialog, and auth repository tests: 51 / 51 passing.
+  - Full `flutter analyze --fatal-infos`: 0 issues.
+
+### 2026-08-14: Profile Details Bottom Sheet Modern Redesign
+
+- **Task**: Fix container transparency, text contrast, legibility, and layout aesthetics in `ViewDetailsScreen` (Profile Details modal bottom sheet).
+- **Changes**:
+  - Replaced uncolored container background with solid dark sheet container (`AppColors.background`, `AppRadii.topMassive`).
+  - Added drag handle indicator, sticky header row with title and close action (`AppIconTapTarget`).
+  - Redesigned Profile Hero summary card with avatar border ring, name, role badge, email, location, and working distance meta icons.
+  - Formatted Skills and Equipments into dynamic wrap pill chips with subtle borders and clear contrast.
+  - Formatted Hourly Rate with gold currency badge container (`AppColors.goldPaleCream`).
+  - Added quote card container with accent left border for Bio text.
+  - Added featured work gallery header item count badge and horizontal scroll list.
+- **Decisions**:
+  - User selected Option 1 (Modern Dark Glassmorphic Sheet).
+  - Maintained full backward compatibility with `ViewDetailsScreen` constructor arguments and call sites (`SignUp3PreviewCard`, `SignupSuccessScreen`, `AuthRoutes`).
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/screens/view_details_screen.dart`: 0 issues.
+
+
+### 2026-08-13: Signup Resume Profile API & Temporary Unverified Auth
+
+- **Task**: Prefill Signup Step 1 when an incomplete CP logs in, and prevent unverified CP sessions from surviving an app restart.
+- **Changes**:
+  - Login snapshots now retain available first/last name, phone, location, and working-distance fields in addition to existing identity/status data.
+  - Added a dedicated `TemporaryAuthSessionNotifier`, separate from `CompositeSessionStore`. Logins where `is_crew_verified != 1` clear persistent auth storage and keep token/user/login-time only in Riverpod process memory, so app termination returns the user to Login.
+  - The auth interceptor prefers the temporary token while it exists, allowing guarded creator APIs without writing that token to secure storage. Logout and HTTP 401 clear both temporary and persistent auth.
+  - Signup Step 1 now calls `POST creator/get-profile-detail` with temporary authentication, maps available name/email/phone/location/distance/coordinates/profile-photo fields through a focused auth repository, and merges non-empty API values over the login snapshot fallback.
+  - Step 1 blocks editing while the prefill request is active, displays the existing remote profile photo, and provides a retry message on fetch failure without erasing login fallback data. Normal unauthenticated signup does not call the creator profile endpoint.
+  - Working-distance values from login/profile APIs are canonicalized case-insensitively against the dropdown options (for example `Upto 50 miles` → `Upto 50 Miles`), preventing `DropdownButtonFormField` value assertions.
+  - An existing remote profile photo now satisfies Step 1 validation and progress. The registration multipart request omits `profile_photo` when the creator keeps that image, and includes it only when a replacement local file is selected.
+  - Corrected incomplete-profile resume routing: `is_registration_complete == 0` now lands on Signup Step 2 because Step 1 is account registration. Step 2 seeds the existing crew ID and identity from temporary/profile session data, and the router prevents this state from returning to Step 1.
+  - Added backend `is_step_2_complete` routing for incomplete profiles. The login parser accepts boolean/numeric/string values from `data`, `data.user`, or `data.crew_member`; `true` resumes Step 3 and `false`/missing resumes Step 2. Successful Step 2 submission updates the temporary snapshot immediately so the guarded Step 3 route opens.
+  - Approved CP logins (`is_crew_verified == 1`) continue to use persistent secure/session storage.
+  - Profile/Home snapshot refreshes update temporary state without persistence while pending. If a refresh reports approval, the active token/user are promoted to persistent storage and temporary auth is cleared.
+- **Verification**:
+  - Focused temporary-session, token-selection, login, profile-detail repository, Signup Step 1 prefill/widget, router, Profile, and Home regressions: 89 / 89 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `git diff --check`: clean.
+
+### 2026-08-13: Pending-Review Profile Edit Session Preservation
+
+- **Task**: Keep the Profile area editable for pending-review users and prevent “Edit Profile” navigation from appearing to log them out.
+- **Changes**:
+  - `ProfileDetailsViewNotifier.refresh()` now preserves or refreshes `isRegistrationComplete`, `isCrewVerified`, and `crewMemberId` when rebuilding the persisted `UserSnapshot`.
+  - Profile model status parsing now maps boolean mobile API flags to the internal `0/1` representation.
+  - Added regressions for pending-session preservation, boolean profile flags, and router access to profile/edit routes while under review.
+- **Decisions**:
+  - Profile refresh remains allowed to promote a pending user when the server supplies a new status; absent flags retain the authenticated session’s existing restrictions instead of being erased.
+  - Pending users retain access to profile details, personal/professional edits, featured works, certificates, and resume. Unrelated app areas remain guarded.
+- **Verification**:
+  - Focused profile model/notifier and router tests: 40 / 40 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `git diff --check`: clean.
+
+### 2026-08-13: Real Login Response Status Compatibility
+
+- **Task**: Fix valid login responses being rejected as `Login response missing valid account status` when the API returns boolean status fields under `data.user`.
+- **Changes**:
+  - `AuthRepositoryImpl` now reads status flags and `crew_member_id` from nested `data.user` in addition to the existing top-level and `crew_member` shapes.
+  - Boolean `is_crew_profile_completed` maps to internal registration status `0/1`; boolean `is_crew_verified` maps to verification status `0/1`.
+  - Canonical boolean `is_registration_complete` and `is_crew_verified` fields are also explicitly covered.
+  - Added repository regression tests matching both observed mobile API response shapes.
+- **Decisions**:
+  - `is_crew_profile_completed` is the compatibility alias for `is_registration_complete`; `is_crew_registered` is not used because account creation alone does not prove the signup/profile flow is complete.
+  - Existing numeric canonical fields retain precedence, and missing or unsupported statuses continue to fail closed.
+- **Verification**:
+  - `flutter test test/features/auth/data/repositories/auth_repository_impl_test.dart`: 37 / 37 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `git diff --check`: clean.
+
 ### 2026-08-12: CP Status Login Guard Hardening & Home Review Modal
 
 - **Task**: Verify and complete login routing for registration/crew-verification flags, present the existing `ApplicationUnderReviewCard` as a non-dismissible Home dialog, and soften the rejected-state content.
@@ -3955,3 +4059,25 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
   - `FeaturedWorkUploadSheet` & `Signup3FeaturedSheet` enforce `1 <= totalImages <= 5` validation, hide `+` picker tile when totalImages >= 5, and display `'Maximum 5 images allowed'` when exceeding max 5.
 - **Verification**:
   - `flutter test test/features/profile`: 96 / 96 tests passing.
+### 2026-08-13: Numeric Step 2 Completion Contract
+
+- Confirmed login and session parsing treat backend `is_step_2_complete: 1`
+  as complete and `is_step_2_complete: 0` as incomplete.
+- Added regression coverage for both numeric values in the auth repository and
+  `UserSnapshot` deserialization.
+### 2026-08-13: Signup Step 2 Profile Resume Binding
+
+- Extended the existing `POST creator/get-profile-detail` resume mapping to
+  include primary roles, years of experience, hourly rate, bio, skills, and
+  equipment ownership.
+- Step 2 now hydrates its text controllers and selector chips from the profile
+  response. Saved lookup IDs are retained so unchanged values submit correctly;
+  role and skill names are resolved against the existing lookup APIs.
+- Verification: focused resume-repository and SignupNotifier tests pass;
+  `flutter analyze --fatal-infos` reports no issues.
+
+### 2026-08-14: Signup Step 3 Add Social Links Spacing Fix
+
+- Fixed visual layout overlap in `signup3_screen.dart` where `SignUp3PreviewCard` overlapped `SignUp3AddTile` ("Add Social Links*").
+- Updated top padding of main form container in `signup3_screen.dart` from `100` to `165` (Option A).
+- Verification: `flutter analyze lib/features/auth/presentation/screens/signup3_screen.dart` passed cleanly with 0 issues.

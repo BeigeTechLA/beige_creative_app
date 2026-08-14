@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../firebase/telemetry_client.dart';
 import '../restoration/restoration_providers.dart';
 import 'core_providers.dart';
+import '../session/temporary_auth_session.dart';
 
 /// Boolean derived from session presence — single source of truth for
 /// "is the user logged in?". Router redirect reads it; login/logout flows
@@ -27,6 +28,7 @@ class AuthStateNotifier extends Notifier<bool> {
   /// responsible for `context.goNamed(Routes.login.name)`; the redirect will
   /// also enforce the bounce if anything resurrects the authed tree.
   Future<void> logout() async {
+    ref.read(temporaryAuthSessionProvider.notifier).clear();
     await ref.read(sessionStoreProvider).clearSession();
     await ref.read(routeRestorationServiceProvider).clearAll();
     await ref.read(draftStoreProvider).clearAll();
@@ -43,5 +45,6 @@ class AuthStateNotifier extends Notifier<bool> {
   }
 }
 
-final authStateProvider =
-    NotifierProvider<AuthStateNotifier, bool>(AuthStateNotifier.new);
+final authStateProvider = NotifierProvider<AuthStateNotifier, bool>(
+  AuthStateNotifier.new,
+);

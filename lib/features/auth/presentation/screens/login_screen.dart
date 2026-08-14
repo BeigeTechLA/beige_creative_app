@@ -18,6 +18,7 @@ import '../../../../shared/widgets/loading.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../providers/login_notifier.dart';
 import '../providers/login_state.dart';
+import '../routes/signup_args.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -73,18 +74,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         TopMessage.show(context, next.errorMessage!);
       }
       if (next.loginSuccess && !(prev?.loginSuccess ?? false)) {
-        final session = ref.read(sessionStoreProvider);
-        final user = session.readUserSync();
+        final user = ref.read(currentSessionUserProvider);
         final isRegistrationComplete = user?.isRegistrationComplete;
-        final isCrewVerified = user?.isCrewVerified;
 
         if (isRegistrationComplete == 0) {
-          context.goNamed(Routes.signupStep1.name);
-        } else if (isRegistrationComplete == 1 && isCrewVerified == 0) {
-          context.goNamed(Routes.home.name);
-        } else if (isRegistrationComplete == 1 && isCrewVerified == 2) {
-          context.goNamed(Routes.applicationRejected.name);
-        } else if (isRegistrationComplete == 1 && isCrewVerified == 1) {
+          if (user?.isStep2Complete == true) {
+            context.goNamed(
+              Routes.signupStep3.name,
+              extra: SignUpStep3Args(
+                crewMemberId: user?.crewMemberId,
+                email: user?.email,
+                firstName: user?.firstName,
+                lastName: user?.lastName,
+                location: user?.location,
+                workingDistance: user?.workingDistance,
+                step2Progress: 70,
+                isResume: true,
+              ).toExtra(),
+            );
+          } else {
+            context.goNamed(
+              Routes.signupStep2.name,
+              extra: SignUpStep2Args(
+                crewMemberId: user?.crewMemberId,
+                email: user?.email,
+                firstName: user?.firstName,
+                lastName: user?.lastName,
+                location: user?.location,
+                workingDistance: user?.workingDistance,
+                step1Progress: 30,
+                isResume: true,
+              ).toExtra(),
+            );
+          }
+        } else if (isRegistrationComplete == 1) {
           context.goNamed(Routes.home.name);
         }
       }

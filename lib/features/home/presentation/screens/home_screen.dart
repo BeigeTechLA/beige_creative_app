@@ -92,51 +92,79 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     });
   }
 
-  bool _isPendingReview(UserSnapshot? user) =>
-      user?.isRegistrationComplete == 1 && user?.isCrewVerified == 0;
+  bool _isPendingOrRejected(UserSnapshot? user) =>
+      user?.isRegistrationComplete == 1 &&
+      (user?.isCrewVerified == 0 || user?.isCrewVerified == 2);
 
   Future<void> _showUnderReviewDialogIfNeeded() async {
     if (!mounted || _underReviewDialogShown) return;
-    final user = ref.read(sessionStoreProvider).readUserSync();
-    if (!_isPendingReview(user)) return;
+    final user = ref.read(currentSessionUserProvider);
+    if (!_isPendingOrRejected(user)) return;
 
+    final homeProfileUrl =
+        ref.read(homeNotifierProvider).profileData?.profileImageUrl;
     _underReviewDialogShown = true;
     await ApplicationUnderReviewDialog.show<void>(
       context,
-      profileImageUrl: user?.profileImageUrl,
+      profileImageUrl: (homeProfileUrl != null && homeProfileUrl.isNotEmpty)
+          ? homeProfileUrl
+          : user?.profileImageUrl,
+      initialCrewVerified: user?.isCrewVerified,
       barrierDismissible: false,
-      closeOnRefresh: false,
-      onRefreshStatus: _refreshApplicationStatus,
+      onRefresh: _refreshApplicationStatus,
+      onGoToDashboard: () {
+        if (!mounted) return;
+        ref.invalidate(currentSessionUserProvider);
+        TopMessage.show(
+          context,
+          'Your application is approved. Welcome to Beige!',
+          type: TopMessageType.success,
+        );
+      },
+      onViewReason: null,
       onCompleteProfile: () {
-        if (mounted) context.goNamed(Routes.myProfile.name);
+        if (!mounted) return;
+        // The dialog helper dismisses the modal before invoking this callback.
+        // Push the profile on top of Home so returning can restore the review
+        // dialog without ever popping the root GoRouter page.
+        _underReviewDialogShown = false;
+        context.pushNamed(Routes.myProfile.name).then((_) {
+          if (!mounted) return;
+          ref.read(homeNotifierProvider.notifier).refreshAfterProfileReturn();
+          _showUnderReviewDialogIfNeeded();
+        });
       },
     );
   }
 
-  Future<void> _refreshApplicationStatus() async {
+  /// Re-fetches `creator/get-profile-detail`, returns the fresh
+  /// `is_crew_verified` flag so the dialog can morph in place. Registration
+  /// regressions (`is_registration_complete == 0`) still route back into the
+  /// signup flow.
+  Future<int?> _refreshApplicationStatus() async {
     await ref.read(homeNotifierProvider.notifier).refreshAfterProfileReturn();
-    if (!mounted) return;
+    if (!mounted) return null;
 
-    final user = ref.read(sessionStoreProvider).readUserSync();
-    final registrationComplete = user?.isRegistrationComplete;
-    final crewVerified = user?.isCrewVerified;
+    final profileData = ref.read(homeNotifierProvider).profileData;
+    final user = ref.read(currentSessionUserProvider);
+    final registrationComplete =
+        profileData?.isRegistrationComplete ?? user?.isRegistrationComplete;
 
     if (registrationComplete == 0) {
       Navigator.of(context, rootNavigator: true).pop();
-      context.goNamed(Routes.signupStep1.name);
-    } else if (registrationComplete == 1 && crewVerified == 1) {
-      Navigator.of(context, rootNavigator: true).pop();
-      TopMessage.show(
-        context,
-        'Your application is approved. Welcome to Beige!',
-        type: TopMessageType.success,
+      context.goNamed(
+        user?.isStep2Complete == true
+            ? Routes.signupStep3.name
+            : Routes.signupStep2.name,
       );
-    } else if (registrationComplete == 1 && crewVerified == 2) {
-      Navigator.of(context, rootNavigator: true).pop();
-      context.goNamed(Routes.applicationRejected.name);
-    } else {
-      TopMessage.show(context, 'Your application is still under review.');
+      return null;
     }
+
+    final verifiedFlag = profileData?.isCrewVerified ?? user?.isCrewVerified;
+    if (verifiedFlag == 1) {
+      ref.invalidate(currentSessionUserProvider);
+    }
+    return verifiedFlag;
   }
 
   @override
@@ -205,6 +233,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Widget build(BuildContext context) {
     final homeState = ref.watch(homeNotifierProvider);
     final notifier = ref.read(homeNotifierProvider.notifier);
+    final sessionUser = ref.watch(currentSessionUserProvider);
 
     // Reset carousel index when list shrinks.
     if (_currentIndex >= homeState.filteredUpcomingShootsList.length &&
@@ -229,8 +258,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             HomeWelcomeHeader(
               firstName: ref.watch(guestModeProvider)
                   ? 'Guest'
-                  : homeState.profileData?.firstName,
-              profileImageUrl: homeState.profileData?.profileImageUrl ?? "",
+                  : (homeState.profileData?.firstName ?? '').isNotEmpty
+                  ? homeState.profileData!.firstName
+                  : sessionUser?.firstName,
+              // Dashboard `profileDetail` can be null / arrive late; fall back to
+              // the session snapshot so the avatar loads immediately on login
+              // instead of flashing the placeholder or a stale image.
+              profileImageUrl:
+                  (homeState.profileData?.profileImageUrl.isNotEmpty ?? false)
+                  ? homeState.profileData!.profileImageUrl
+                  : (sessionUser?.profileImageUrl ?? ""),
               onAvatarTap: () {
                 if (_blockIfGuest()) return;
                 context.pushNamed(Routes.myProfile.name).then((value) {

@@ -10,12 +10,14 @@ import '../routes/signup_args.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../config/env.dart';
 
 class SignUp1PreviewCard extends StatelessWidget {
   final String firstName;
   final String lastName;
   final String email;
   final File? profileImage;
+  final String remoteProfileImageUrl;
   final String location;
   final String workingDistance;
   final int completionPercent;
@@ -26,6 +28,7 @@ class SignUp1PreviewCard extends StatelessWidget {
     required this.lastName,
     required this.email,
     required this.profileImage,
+    this.remoteProfileImageUrl = '',
     required this.location,
     required this.workingDistance,
     required this.completionPercent,
@@ -33,6 +36,12 @@ class SignUp1PreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final remoteUrl = remoteProfileImageUrl.isEmpty
+        ? null
+        : (remoteProfileImageUrl.startsWith('http')
+              ? remoteProfileImageUrl
+              : '${Env.imageUrl}$remoteProfileImageUrl');
+    final hasImage = profileImage != null || remoteUrl != null;
     return Column(
       children: [
         Container(
@@ -55,8 +64,8 @@ class SignUp1PreviewCard extends StatelessWidget {
                     backgroundColor: AppColors.border,
                     backgroundImage: profileImage != null
                         ? FileImage(profileImage!)
-                        : null,
-                    child: profileImage == null
+                        : (remoteUrl != null ? NetworkImage(remoteUrl) : null),
+                    child: !hasImage
                         ? const Icon(
                             Icons.person,
                             size: 28,
@@ -73,8 +82,9 @@ class SignUp1PreviewCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           text: TextSpan(
-                            style: AppTextStyles.body15Strong
-                                .copyWith(color: AppColors.black),
+                            style: AppTextStyles.body15Strong.copyWith(
+                              color: AppColors.black,
+                            ),
                             children: [
                               const TextSpan(
                                 text: 'Name : ',
@@ -90,7 +100,9 @@ class SignUp1PreviewCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          email.isEmpty ? "Email ID: Your Email" : "Email ID: $email",
+                          email.isEmpty
+                              ? "Email ID: Your Email"
+                              : "Email ID: $email",
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.body12.copyWith(
                             color: AppColors.greyShade737,

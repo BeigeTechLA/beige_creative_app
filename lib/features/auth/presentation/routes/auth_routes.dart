@@ -46,6 +46,7 @@ final List<RouteBase> authRoutes = [
         location: args.location,
         workingDistance: args.workingDistance,
         step1Progress: args.step1Progress,
+        isResume: args.isResume,
       );
     },
   ),
@@ -70,6 +71,7 @@ final List<RouteBase> authRoutes = [
         skills: args.skills,
         equipments: args.equipments,
         step2Progress: args.step2Progress,
+        isResume: args.isResume,
       );
     },
   ),

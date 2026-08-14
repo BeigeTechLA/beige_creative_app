@@ -61,8 +61,15 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Ada Lovelace'), findsOneWidget);
-      expect(find.text('Your Email'), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is RichText &&
+              widget.text.toPlainText().contains('Ada Lovelace'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Your Email'), findsOneWidget);
       expect(find.text('27% Completed'), findsOneWidget);
       expect(find.text('View Details'), findsOneWidget);
     });
