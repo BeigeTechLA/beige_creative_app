@@ -14,7 +14,7 @@ void main() {
         const ProviderScope(
           child: MaterialApp(
             home: Scaffold(
-              body: NotificationCategorySheet(),
+              body: NotificationCategorySheet(type: NotificationCategoryType.push),
             ),
           ),
         ),

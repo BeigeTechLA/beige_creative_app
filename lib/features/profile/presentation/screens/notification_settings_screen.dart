@@ -11,8 +11,9 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_icon_tap_target.dart';
 import '../../../../shared/widgets/app_toggle_switch.dart';
-import '../../../notification/presentation/providers/notification_providers.dart';
-import '../../../notification/presentation/widgets/notification_category_sheet.dart';
+
+import '../providers/notification_settings_providers.dart';
+import '../widgets/notification_category_sheet.dart';
 
 
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
@@ -25,6 +26,15 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 
 class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(notificationSettingsProvider.notifier).loadSettings();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -68,9 +78,9 @@ class _NotificationSettingsScreenState
               value: state.pushNotifications,
               onChanged: (val) {
                 notifier.togglePushNotifications(val);
-                NotificationCategorySheet.show(context);
+                NotificationCategorySheet.show(context, type: NotificationCategoryType.push);
               },
-              onTapRow: () => NotificationCategorySheet.show(context),
+              onTapRow: () => NotificationCategorySheet.show(context, type: NotificationCategoryType.push),
             ),
             const SizedBox(height: 16),
 
@@ -84,9 +94,9 @@ class _NotificationSettingsScreenState
               value: state.emailNotifications,
               onChanged: (val) {
                 notifier.toggleEmailNotifications(val);
-                NotificationCategorySheet.show(context);
+                NotificationCategorySheet.show(context, type: NotificationCategoryType.email);
               },
-              onTapRow: () => NotificationCategorySheet.show(context),
+              onTapRow: () => NotificationCategorySheet.show(context, type: NotificationCategoryType.email),
             ),
             const SizedBox(height: 24),
 /*

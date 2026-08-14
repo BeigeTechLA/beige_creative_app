@@ -1,4 +1,4 @@
-import '../models/notification_settings_dto.dart';
+
 import '../../domain/repositories/notification_repository.dart';
 import '../sources/notification_remote_source.dart';
 
@@ -30,10 +30,4 @@ class NotificationRepositoryImpl implements NotificationRepository {
     );
   }
 
-  @override
-  Future<void> updateNotificationPreferences(
-    NotificationSettingsRequestDto dto,
-  ) async {
-    await _remoteSource.updateNotificationPreferences(dto.toJson());
-  }
 }

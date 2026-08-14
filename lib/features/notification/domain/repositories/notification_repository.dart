@@ -1,4 +1,4 @@
-import '../../data/models/notification_settings_dto.dart';
+
 
 /// Abstract contract for push notification operations.
 abstract class NotificationRepository {
@@ -14,8 +14,4 @@ abstract class NotificationRepository {
     required String sessionId,
   });
 
-  /// Updates topic and push preferences (`PATCH /push-notifications/preferences`).
-  Future<void> updateNotificationPreferences(
-    NotificationSettingsRequestDto dto,
-  );
 }

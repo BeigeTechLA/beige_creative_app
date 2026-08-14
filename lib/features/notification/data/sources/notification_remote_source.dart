@@ -11,10 +11,7 @@ class NotificationRemoteSource {
   // ignore: unused_field
   final DioClient _client;
 
-  /// Updates topic and push preferences (`PATCH /push-notifications/preferences`).
-  Future<void> updateNotificationPreferences(Map<String, dynamic> body) async {
-    AppLogger.i('[NOTIFICATION API] PATCH /${ApiEndpoints.pushPreferences} - Body (Local mock): $body');
-  }
+
 
   /// Registers/saves the device FCM token (`POST /push-notifications/tokens`).
   Future<void> saveFcmToken({
@@ -40,4 +37,6 @@ class NotificationRemoteSource {
     };
     AppLogger.i('[NOTIFICATION API] DELETE /${ApiEndpoints.pushTokens} - Payload (Local mock): $payload');
   }
+
+
 }
