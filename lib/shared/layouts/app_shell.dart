@@ -164,7 +164,7 @@ class _AppShellBottomBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       backgroundColor: AppColors.background,
       selectedItemColor: AppColors.white,
-      unselectedItemColor: AppColors.white30,
+      unselectedItemColor: AppColors.white70,
       selectedFontSize: 10,
       unselectedFontSize: 10,
       iconSize: 26,

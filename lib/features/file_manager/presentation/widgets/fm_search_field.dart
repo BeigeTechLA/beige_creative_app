@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
-import '../../../../app/spacing.dart';
-import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/app_search_field.dart';
 
 /// Search input shared by root + folder-details screens. Client-side filter
 /// only — emits raw text via [onChanged]; the notifier holds debounce
@@ -47,55 +46,18 @@ class _FmSearchFieldState extends State<FmSearchField> {
 
   @override
   Widget build(BuildContext context) {
-    final hasText = _controller.text.isNotEmpty;
-    return TextField(
+    return AppSearchField(
       controller: _controller,
-      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimary),
-      cursorColor: AppColors.primary,
-      onChanged: (v) {
-        widget.onChanged(v);
+      hintText: widget.hintText,
+      onChanged: (val) {
+        widget.onChanged(val);
         setState(() {});
       },
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        hintStyle: AppTextStyles.bodyMedium.copyWith(
-          color: AppColors.textTertiary,
-        ),
-        prefixIcon: const Icon(
-          Icons.search,
-          color: AppColors.textTertiary,
-          size: 20,
-        ),
-        suffixIcon: hasText
-            ? IconButton(
-                tooltip: 'Clear search',
-                icon: const Icon(
-                  Icons.close,
-                  color: AppColors.textTertiary,
-                  size: 18,
-                ),
-                onPressed: _onClear,
-              )
-            : null,
-        filled: true,
-        fillColor: AppColors.surfaceInput,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.inputHorizontal,
-          vertical: AppSpacing.inputVertical,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: AppRadii.fullAll,
-          borderSide: const BorderSide(color: AppColors.dividerDark),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: AppRadii.fullAll,
-          borderSide: const BorderSide(color: AppColors.dividerDark),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: AppRadii.fullAll,
-          borderSide: const BorderSide(color: AppColors.primary),
-        ),
-      ),
+      onClear: _onClear,
+      fillColor: AppColors.surfaceInput,
+      borderColor: AppColors.dividerDark,
+      borderRadius: AppRadii.fullAll,
     );
   }
 }
+

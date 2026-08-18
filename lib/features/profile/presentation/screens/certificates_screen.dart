@@ -77,6 +77,7 @@ class CertificatesScreen extends ConsumerWidget {
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.white,
                           ),
+                          textAlignVertical: TextAlignVertical.center,
                           decoration: InputDecoration(
                             hintText: 'Search',
                             hintStyle: AppTextStyles.bodyMedium.copyWith(
@@ -86,6 +87,12 @@ class CertificatesScreen extends ConsumerWidget {
                               Icons.search,
                               color: AppColors.white24,
                             ),
+                            prefixIconConstraints: const BoxConstraints(
+                              minWidth: 40,
+                              minHeight: 40,
+                            ),
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
                             border: InputBorder.none,
                           ),
                         ),

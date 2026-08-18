@@ -307,36 +307,31 @@ class _MyprofileState extends ConsumerState<Myprofile> {
   }
 
   Widget _identityRow(String email, String location) {
+    final hasEmail = email.trim().isNotEmpty;
+    final hasLocation = location.trim().isNotEmpty;
+    if (!hasEmail && !hasLocation) return const SizedBox.shrink();
+
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+      child: Column(
         children: [
-          Flexible(
-            child: Text(
-              email,
+          if (hasEmail)
+            Text(
+              email.trim(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTextStyles.body14.copyWith(color: AppColors.white60),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-            child: Text(
-              '|',
-              style: AppTextStyles.inherit14.copyWith(color: AppColors.white60),
-            ),
-          ),
-          Flexible(
-            child: Text(
-              location,
+          if (hasEmail && hasLocation) const SizedBox(height: 4),
+          if (hasLocation)
+            Text(
+              location.trim(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTextStyles.body14.copyWith(color: AppColors.white60),
             ),
-          ),
         ],
       ),
     );

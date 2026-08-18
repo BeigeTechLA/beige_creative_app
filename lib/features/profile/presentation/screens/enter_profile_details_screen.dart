@@ -173,14 +173,16 @@ class _EnterProfileDetailsScreenState
                   maxLines: 4,
                 ),
                 const SizedBox(height: 22),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Highlight your creative focus.',
-                    style: AppTextStyles.bodyMedium,
+                    style: AppTextStyles.body14.copyWith(
+                      color: AppColors.greyShade737,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 20),
                 CustomMultiSelectField(
                   label: 'Edit Skills',
                   value: '',

@@ -10,6 +10,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../../../shared/widgets/common_file_viewer.dart';
+import 'signup3_constants.dart';
 
 class SignUp3AddTile extends StatelessWidget {
   final String title;
@@ -59,7 +60,10 @@ class SignUp3SavedLinkRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconStr = item['icon'].toString();
+    final iconStr = signup3ResolveLinkIcon(
+      item['icon']?.toString(),
+      item['name']?.toString(),
+    );
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.all(AppSpacing.microInset),
@@ -81,7 +85,7 @@ class SignUp3SavedLinkRow extends StatelessWidget {
                     height: 20,
                     width: 20,
                     colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
+                      AppColors.white,
                       BlendMode.srcIn,
                     ),
                   )
@@ -89,7 +93,7 @@ class SignUp3SavedLinkRow extends StatelessWidget {
                     iconStr,
                     height: 15,
                     width: 15,
-                    color: AppColors.primary,
+                    color: AppColors.white,
                   ),
           ),
           const SizedBox(width: 12),

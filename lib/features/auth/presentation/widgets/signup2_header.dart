@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/routes.dart';
 import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
@@ -50,10 +49,10 @@ class SignUp2Header extends StatelessWidget {
                   AppIconTapTarget(
                     semanticLabel: 'Back',
                     onTap: () {
+                      // Never navigate back to Step 1 — the account is already
+                      // registered there and re-submitting would duplicate it.
                       if (context.canPop()) {
                         context.pop();
-                      } else {
-                        context.goNamed(Routes.signupStep1.name);
                       }
                     },
                     alignment: Alignment.topLeft,

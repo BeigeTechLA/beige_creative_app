@@ -5,6 +5,64 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-18: Search Hint Vertical Alignment Fix & AppSearchField Consolidation
+
+- **Task**: Fix search hint text and cursor vertical alignment in `ShootsScreen` search box and standardize search fields across the app.
+- **Changes**:
+  - Created `AppSearchField` shared widget in [`lib/shared/widgets/app_search_field.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/shared/widgets/app_search_field.dart).
+  - Updated [`shoots_screen.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/features/shoots/presentation/screens/shoots_screen.dart) to use `AppSearchField`.
+  - Updated [`messages_screen.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/features/messages/presentation/screens/messages_screen.dart) to use `AppSearchField`.
+  - Updated [`fm_search_field.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/features/file_manager/presentation/widgets/fm_search_field.dart) to use `AppSearchField`.
+  - Updated [`emoji_picker_sheet.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/features/messages/presentation/screens/widgets/emoji_picker_sheet.dart) to use `AppSearchField`.
+  - Created unit/widget tests in [`test/shared/widgets/app_search_field_test.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/test/shared/widgets/app_search_field_test.dart).
+- **Verification**:
+  - `flutter test test/shared/widgets/app_search_field_test.dart`: All tests passed.
+  - `flutter analyze`: Passed clean with 0 issues.
+
+### 2026-08-18: Navigation Bar & Drawer Inactive Color Alignment with `biegeapp`
+
+- **Task**: Align `biegeCPapp` bottom navigation bar and drawer menu inactive item color tokens with `biegeapp`.
+- **Changes**:
+  - Set `_AppShellBottomBar` unselected item color to `AppColors.white70` (`Color(0xB2FFFFFF)`) in [`lib/shared/layouts/app_shell.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/shared/layouts/app_shell.dart#L167).
+  - Set `_DrawerItem` inactive item color to `AppColors.white38` (`Color(0x61FFFFFF)`) in [`lib/shared/layouts/app_shell.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/shared/layouts/app_shell.dart#L502).
+- **Verification**:
+  - `flutter analyze lib/app/colors.dart lib/shared/layouts/app_shell.dart`: 0 issues found.
+
+### 2026-08-18: Edit Professional Details Form Sublabel Styling & Spacing Fix
+
+- **Task**: Update "Highlight your creative focus." text color to `#737373` (`AppColors.greyShade737`) and add `20px` bottom spacing before the "Edit Skills" dropdown on the Edit Professional Details screen form.
+- **Changes**:
+  - Modified [`enter_profile_details_screen.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/features/profile/presentation/screens/enter_profile_details_screen.dart).
+- **Verification**:
+  - `flutter analyze lib/features/profile/presentation/screens/enter_profile_details_screen.dart`: No issues found!
+
+### 2026-08-18: Real Skills Display Fix in ProfileStatsPanel
+
+- **Task**: Fix "Skill 1" and "Skill 2" placeholder chips showing on the "My Profile" screen instead of actual skill names loaded from the profile API response.
+- **Changes**:
+  - Modified `_buildSkillChips` in `lib/features/profile/presentation/widgets/profile_stats_panel.dart` to use `skills[i]` instead of `'Skill ${i + 1}'`.
+  - Updated widget test expectations in `test/features/profile/presentation/myprofile_decompose_test.dart`.
+- **Verification**:
+  - `flutter test test/features/profile/presentation/myprofile_decompose_test.dart`: All tests passed.
+
+### 2026-08-17: Search Box Vertical Alignment & Padding Fix
+
+- **Task**: Fix search box text and hint padding not being vertically centered across the app.
+- **Changes**:
+  - Updated search `TextField`s in `certificates_screen.dart`, `resume_screen.dart`, `shoots_screen.dart`, `fm_search_field.dart`, `messages_screen.dart`, and `emoji_picker_sheet.dart`.
+  - Added `textAlignVertical: TextAlignVertical.center`, `isDense: true`, `contentPadding: EdgeInsets.zero`, and `prefixIconConstraints`.
+- **Verification**:
+  - `flutter analyze` on all 6 modified files: No issues found!
+
+### 2026-08-17: Profile Header Email & Location Text Wrapping
+
+- **Task**: Wrap long user email and location text under creator name on `MyProfile` screen into stacked lines instead of clipping with ellipses on a single row.
+- **Changes**:
+  - Modified `_identityRow` in `my_profile_screen.dart` to use a stacked `Column` layout.
+  - Email displays centered on Line 1, Location displays centered on Line 2 with 4px gap.
+- **Verification**:
+  - `flutter analyze lib/features/profile/presentation/screens/my_profile_screen.dart`: No issues found!
+
 ### 2026-08-14: Rejection Screen Removal & In-Place Accepted/Rejected Card Binding
 
 - **Task**: Remove standalone `ApplicationRejectedScreen` and bind accepted (`is_crew_verified == 1`) and rejected (`is_crew_verified == 2`) states directly to `ApplicationUnderReviewCard` in-place morphing.
@@ -4076,8 +4134,20 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - Verification: focused resume-repository and SignupNotifier tests pass;
   `flutter analyze --fatal-infos` reports no issues.
 
-### 2026-08-14: Signup Step 3 Add Social Links Spacing Fix
+### 2026-08-18: Signup Step 3 Social Link Icon Missing Asset Fix
 
-- Fixed visual layout overlap in `signup3_screen.dart` where `SignUp3PreviewCard` overlapped `SignUp3AddTile` ("Add Social Links*").
-- Updated top padding of main form container in `signup3_screen.dart` from `100` to `165` (Option A).
-- Verification: `flutter analyze lib/features/auth/presentation/screens/signup3_screen.dart` passed cleanly with 0 issues.
+- **Task**: Fix broken Facebook icon (and general social/portfolio link icons) on Signup Step 3 when coming from login flow with prefilled incomplete profile.
+- **Root Cause**: Prefilled social and portfolio link maps from backend lacked the `'icon'` property, causing `SignUp3SavedLinkRow` and modal rows to evaluate `item['icon'].toString()` to `"null"`, which failed `Image.asset('null')` asset lookup.
+- **Changed Files**:
+  - `lib/features/auth/presentation/widgets/signup3_constants.dart`
+  - `lib/features/auth/presentation/providers/signup_notifier.dart`
+  - `lib/features/auth/presentation/widgets/signup3_sections.dart`
+  - `lib/features/auth/presentation/widgets/signup3_social_sheet.dart`
+  - `lib/features/auth/presentation/widgets/signup3_portfolio_sheet.dart`
+  - `test/features/auth/presentation/signup_notifier_test.dart`
+- **Decisions**:
+  - Added `signup3SocialIcon`, `signup3PortfolioIcon`, and `signup3ResolveLinkIcon` helpers to `signup3_constants.dart`.
+  - Hydrated `'icon'` asset paths during `prefill.socialMediaLinks` and `prefill.portfolioLinks` mapping in `SignupNotifier.loadStep1Prefill()`.
+  - Updated `SignUp3SavedLinkRow`, `_SavedSocialRow`, and `_SavedPortfolioRow` to safely resolve icon paths and render in white SVG tint style (Option 2).
+- **Verification**: `flutter test test/features/auth/presentation/signup_notifier_test.dart` (32/32 tests passing).
+

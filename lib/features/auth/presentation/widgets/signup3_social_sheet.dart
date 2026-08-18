@@ -38,7 +38,8 @@ Future<void> showSignup3SocialSheet({
   required BuildContext context,
   required Signup3SocialSheetController controller,
 }) {
-  bool showForm = controller.savedLinks.isEmpty;
+  bool showForm =
+      controller.savedLinks.isEmpty || controller.editingIndex != null;
   final localLinks = List<Map<String, dynamic>>.from(controller.savedLinks);
 
   return showModalBottomSheet<void>(
@@ -236,6 +237,7 @@ Future<void> showSignup3SocialSheet({
                         onTap: () {
                           setInnerState(() {
                             showForm = true;
+                            controller.editingIndex = null;
                             controller.selectedSocialIndex = -1;
                             controller.nameLinkController.clear();
                             controller.linkController.clear();
@@ -366,7 +368,10 @@ class _SavedSocialRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconStr = item['icon'].toString();
+    final iconStr = signup3ResolveLinkIcon(
+      item['icon']?.toString(),
+      item['name']?.toString(),
+    );
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.symmetric(
@@ -403,7 +408,7 @@ class _SavedSocialRow extends StatelessWidget {
                   height: 20,
                   width: 20,
                   colorFilter: const ColorFilter.mode(
-                    AppColors.borderGold,
+                    AppColors.white,
                     BlendMode.srcIn,
                   ),
                 )

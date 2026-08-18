@@ -1,11 +1,14 @@
 import 'dart:async' show unawaited;
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../core/firebase/analytics_events.dart';
 import '../../../../core/firebase/telemetry_client.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/session/session_store.dart';
 import '../../../../core/session/temporary_auth_session.dart';
@@ -37,6 +40,19 @@ class SignupNotifier extends Notifier<SignupState> {
   SignupState build() => const SignupState();
 
   void reset() => state = const SignupState();
+
+  /// Abandon an in-progress signup and return to a clean unauthenticated
+  /// state. Drops the process-only signup token so it can never leak past the
+  /// flow, and — for a resume session that arrived already authenticated —
+  /// performs a full logout so the router redirect stops steering back into
+  /// the signup steps. Caller navigates to Login afterwards.
+  Future<void> cancelSignup() async {
+    ref.read(temporaryAuthSessionProvider.notifier).clear();
+    if (ref.read(authStateProvider)) {
+      await ref.read(authStateProvider.notifier).logout();
+    }
+    reset();
+  }
 
   void prefillStep1(UserSnapshot user) {
     final nameParts = (user.name ?? '').trim().split(RegExp(r'\s+'));
@@ -102,6 +118,28 @@ class SignupNotifier extends Notifier<SignupState> {
     final roleIds = _optionIds(prefill.primaryRoles);
     final skillIds = _optionIds(prefill.skills);
     final equipmentIds = _optionIds(prefill.equipments);
+    final socialLinks = prefill.socialMediaLinks
+        .map(
+          (e) => <String, dynamic>{
+            'name': signup3SocialDisplayName(e['platform']?.toString() ?? ''),
+            'url': e['url']?.toString() ?? '',
+            'icon': signup3SocialIcon(e['platform']?.toString() ?? ''),
+          },
+        )
+        .where((e) => e['name'] != '' && e['url'] != '')
+        .toList();
+    final portfolioLinks = prefill.portfolioLinks
+        .map(
+          (e) => <String, dynamic>{
+            'name': signup3PortfolioDisplayName(
+              e['platform']?.toString() ?? '',
+            ),
+            'url': e['url']?.toString() ?? '',
+            'icon': signup3PortfolioIcon(e['platform']?.toString() ?? ''),
+          },
+        )
+        .where((e) => e['name'] != '' && e['url'] != '')
+        .toList();
     state = state.copyWith(
       firstName: _prefer(prefill.firstName, state.firstName),
       lastName: _prefer(prefill.lastName, state.lastName),
@@ -151,6 +189,15 @@ class SignupNotifier extends Notifier<SignupState> {
       equipmentsDisplay: equipmentNames.isEmpty
           ? state.equipmentsDisplay
           : equipmentNames.join(', '),
+      // getProfile runs once on load; only seed when the user hasn't
+      // added links yet so in-session edits are never clobbered.
+      savedSocialLinks: state.savedSocialLinks.isNotEmpty || socialLinks.isEmpty
+          ? state.savedSocialLinks
+          : socialLinks,
+      savedPortfolioLinks:
+          state.savedPortfolioLinks.isNotEmpty || portfolioLinks.isEmpty
+          ? state.savedPortfolioLinks
+          : portfolioLinks,
     );
   }
 
@@ -341,6 +388,9 @@ class SignupNotifier extends Notifier<SignupState> {
         phone: phone.trim(),
         location: location.trim(),
         workingDistance: state.selectedDistance!,
+        // Held in memory only so the success screen can auto-login this fresh
+        // signup — the register endpoints return no token. Wiped by reset().
+        password: password.trim(),
       );
       return true;
     } catch (e, st) {
@@ -850,7 +900,21 @@ class SignupNotifier extends Notifier<SignupState> {
   }
 
   String? _formatError(Object e) {
+    // Unwrap the typed AppException the ErrorInterceptor attaches so the user
+    // sees the clean server message (e.g. "Email already registered.") instead
+    // of the raw DioException dump.
+    AppException? typed;
+    if (e is AppException) {
+      typed = e;
+    } else if (e is DioException && e.error is AppException) {
+      typed = e.error as AppException;
+    }
+    if (typed != null) {
+      final msg = typed.message.trim();
+      if (msg.isNotEmpty) return msg;
+    }
     final raw = e.toString().replaceFirst('Exception: ', '');
+    if (raw.startsWith('DioException')) return null;
     return raw.isEmpty ? null : raw;
   }
 }

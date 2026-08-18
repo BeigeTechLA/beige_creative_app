@@ -419,7 +419,14 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
                         ),
                       ),
                       InkWell(
-                        onTap: () => context.goNamed(Routes.login.name),
+                        onTap: () async {
+                          await ref
+                              .read(signupNotifierProvider.notifier)
+                              .cancelSignup();
+                          if (context.mounted) {
+                            context.goNamed(Routes.login.name);
+                          }
+                        },
                         child: Text(
                           'Login',
                           style: AppTextStyles.body15Strong.copyWith(

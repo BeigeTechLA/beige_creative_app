@@ -35,7 +35,8 @@ Future<void> showSignup3PortfolioSheet({
   required BuildContext context,
   required Signup3PortfolioSheetController controller,
 }) {
-  bool showForm = controller.savedLinks.isEmpty;
+  bool showForm =
+      controller.savedLinks.isEmpty || controller.editingIndex != null;
   final localLinks = List<Map<String, dynamic>>.from(controller.savedLinks);
 
   return showModalBottomSheet<void>(
@@ -242,6 +243,7 @@ Future<void> showSignup3PortfolioSheet({
                         onTap: () {
                           setModalState(() {
                             showForm = true;
+                            controller.editingIndex = null;
                             controller.selectedIndex = -1;
                             controller.linkController.clear();
                           });
@@ -315,7 +317,10 @@ class _SavedPortfolioRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconStr = item['icon'].toString();
+    final iconStr = signup3ResolveLinkIcon(
+      item['icon']?.toString(),
+      item['name']?.toString(),
+    );
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.symmetric(
@@ -348,7 +353,7 @@ class _SavedPortfolioRow extends StatelessWidget {
                   height: 20,
                   width: 20,
                   colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                    AppColors.white,
                     BlendMode.srcIn,
                   ),
                 )
@@ -356,7 +361,7 @@ class _SavedPortfolioRow extends StatelessWidget {
                   iconStr,
                   height: 20,
                   width: 20,
-                  color: AppColors.primary,
+                  color: AppColors.white,
                 ),
           const SizedBox(width: 10),
           Expanded(

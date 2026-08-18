@@ -302,7 +302,15 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                               ),
                             SignUp3AddTile(
                               title: 'Add Social Links*',
-                              onTap: _openSocialSheet,
+                              onTap: () {
+                                // Open in add-mode: clear any stale edit cursor
+                                // so a new link appends instead of overwriting.
+                                _editingSocialIndex = null;
+                                _selectedSocialIndex = -1;
+                                nameLinkController.clear();
+                                linkController.clear();
+                                _openSocialSheet();
+                              },
                             ),
                             const SizedBox(height: 20),
                             if (state.savedPortfolioLinks.isNotEmpty)
@@ -332,7 +340,12 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                               ),
                             SignUp3AddTile(
                               title: 'Add Portfolio Link (Optional)',
-                              onTap: _openPortfolioSheet,
+                              onTap: () {
+                                _editingPortfolioIndex = null;
+                                _selectedPortfolioIndex = -1;
+                                portfolioLinkController.clear();
+                                _openPortfolioSheet();
+                              },
                             ),
                             const SizedBox(height: 20),
                             SignUp3FeaturedSection(
@@ -406,8 +419,14 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                                     ),
                                   ),
                                   InkWell(
-                                    onTap: () =>
-                                        context.goNamed(Routes.login.name),
+                                    onTap: () async {
+                                      await ref
+                                          .read(signupNotifierProvider.notifier)
+                                          .cancelSignup();
+                                      if (context.mounted) {
+                                        context.goNamed(Routes.login.name);
+                                      }
+                                    },
                                     child: Text(
                                       'Login',
                                       style: AppTextStyles.body15Strong

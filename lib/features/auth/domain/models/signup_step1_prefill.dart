@@ -17,6 +17,8 @@ class SignupStep1Prefill {
   final String bio;
   final List<LookupOption> skills;
   final List<LookupOption> equipments;
+  final List<Map<String, dynamic>> socialMediaLinks;
+  final List<Map<String, dynamic>> portfolioLinks;
 
   const SignupStep1Prefill({
     this.crewMemberId,
@@ -35,5 +37,7 @@ class SignupStep1Prefill {
     this.bio = '',
     this.skills = const [],
     this.equipments = const [],
+    this.socialMediaLinks = const [],
+    this.portfolioLinks = const [],
   });
 }

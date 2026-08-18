@@ -265,6 +265,46 @@ void main() {
       },
     );
 
+    test('loadStep1Prefill hydrates social and portfolio links with icon paths', () async {
+      final resumeRepo = _FakeSignupResumeRepo()
+        ..result = const SignupStep1Prefill(
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@example.com',
+          phone: '',
+          location: '',
+          workingDistance: '',
+          profileImageUrl: '',
+          socialMediaLinks: [
+            {'platform': 'facebook', 'url': 'https://facebook.com/johndoe'},
+          ],
+          portfolioLinks: [
+            {'platform': 'vimeo', 'url': 'https://vimeo.com/123456'},
+          ],
+        );
+      final c = _container(_FakeAuthRepo(), resumeRepo: resumeRepo);
+      c.read(temporaryAuthSessionProvider.notifier).begin(
+            token: 'temporary',
+            user: const UserSnapshot(
+              id: '797',
+              isRegistrationComplete: 0,
+              isCrewVerified: 0,
+            ),
+            loginAt: DateTime.utc(2026, 8, 13),
+          );
+
+      await c.read(signupNotifierProvider.notifier).loadStep1Prefill();
+      final state = c.read(signupNotifierProvider);
+
+      expect(state.savedSocialLinks.length, 1);
+      expect(state.savedSocialLinks.first['name'], 'Facebook');
+      expect(state.savedSocialLinks.first['icon'], contains('facebook.svg'));
+
+      expect(state.savedPortfolioLinks.length, 1);
+      expect(state.savedPortfolioLinks.first['name'], 'Vimeo');
+      expect(state.savedPortfolioLinks.first['icon'], contains('v.svg'));
+    });
+
     test('profile API failure preserves temporary login fallback', () async {
       final resumeRepo = _FakeSignupResumeRepo()..error = Exception('offline');
       final c = _container(_FakeAuthRepo(), resumeRepo: resumeRepo);

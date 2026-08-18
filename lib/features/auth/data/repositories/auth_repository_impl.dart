@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/session/session_store.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -133,6 +134,15 @@ class AuthRepositoryImpl implements AuthRepository {
     if (user == null) {
       throw Exception('Login response missing crew member identity');
     }
+
+    // DEBUG(login-flags): remove once the post-signup flow is confirmed.
+    AppLogger.d(
+      'login flags: is_registration_complete=$isRegistrationComplete '
+      'is_crew_verified=$isCrewVerified is_step_2_complete=$isStep2Complete '
+      'crew_member_id=$crewMemberId tokenLen=${token.length} '
+      'user.isRegistrationComplete=${user.isRegistrationComplete} '
+      'user.isCrewVerified=${user.isCrewVerified}',
+    );
 
     return LoginResult(
       token: token,

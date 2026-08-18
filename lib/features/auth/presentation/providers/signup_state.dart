@@ -34,6 +34,11 @@ class SignupState {
   final String location;
   final String workingDistance;
 
+  /// Step-1 password held in memory only (never persisted) so the success
+  /// screen can auto-login a fresh signup — the register endpoints return no
+  /// token. Wiped by [SignupNotifier.reset].
+  final String password;
+
   // Step 2 lookups.
   final List<LookupOption> roles;
   final List<LookupOption> skills;
@@ -105,6 +110,7 @@ class SignupState {
     this.phone = '',
     this.location = '',
     this.workingDistance = '',
+    this.password = '',
     this.roles = const [],
     this.skills = const [],
     this.equipmentSuggestions = const [],
@@ -163,6 +169,7 @@ class SignupState {
     String? phone,
     String? location,
     String? workingDistance,
+    String? password,
     List<LookupOption>? roles,
     List<LookupOption>? skills,
     List<LookupOption>? equipmentSuggestions,
@@ -227,6 +234,7 @@ class SignupState {
       phone: phone ?? this.phone,
       location: location ?? this.location,
       workingDistance: workingDistance ?? this.workingDistance,
+      password: password ?? this.password,
       roles: roles ?? this.roles,
       skills: skills ?? this.skills,
       equipmentSuggestions: equipmentSuggestions ?? this.equipmentSuggestions,

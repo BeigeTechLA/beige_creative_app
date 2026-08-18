@@ -79,7 +79,55 @@ class SignupResumeRepositoryImpl implements SignupResumeRepository {
         idKeys: const ['equipment_id', 'id'],
         nameKeys: const ['equipment_name', 'name'],
       ),
+      socialMediaLinks: _parseSocialLinks(profile.socialMediaLinks),
+      // `MyProfileModel` parses `portfolio_links` into `CrewFile`, which
+      // drops the platform/url the sheet needs, so read the raw value here.
+      portfolioLinks: _parseLinkList(
+        profileJson['portfolio_links'] ?? rawUser['portfolio_links'],
+      ),
     );
+  }
+
+  /// Flatten a raw `portfolio_links` value (JSON string or list of
+  /// `{platform, url}` maps) into `{platform, url}` entries.
+  static List<Map<String, dynamic>> _parseLinkList(dynamic raw) {
+    dynamic decoded = raw;
+    if (raw is String) {
+      final value = raw.trim();
+      if (value.isEmpty) return const [];
+      try {
+        decoded = jsonDecode(value);
+      } catch (_) {
+        return const [];
+      }
+    }
+    if (decoded is! List) return const [];
+    final result = <Map<String, dynamic>>[];
+    for (final entry in decoded) {
+      if (entry is! Map) continue;
+      final platform = _stringValue(entry['platform']);
+      final url = _stringValue(entry['url']);
+      if (platform.isEmpty || url.isEmpty) continue;
+      result.add({'platform': platform, 'url': url});
+    }
+    return result;
+  }
+
+  /// [MyProfileModel] already decodes `social_media_links` into a
+  /// `{platform: url}` map. Flatten it into the `{platform, url}` entries
+  /// the signup step 3 sheet hydrates from. Presentation maps the platform
+  /// key to a display name.
+  static List<Map<String, dynamic>> _parseSocialLinks(
+    Map<String, dynamic> links,
+  ) {
+    final result = <Map<String, dynamic>>[];
+    links.forEach((platform, url) {
+      final platformKey = platform.trim();
+      final urlValue = _stringValue(url);
+      if (platformKey.isEmpty || urlValue.isEmpty) return;
+      result.add({'platform': platformKey, 'url': urlValue});
+    });
+    return result;
   }
 
   static String _stringValue(dynamic value) => value?.toString().trim() ?? '';

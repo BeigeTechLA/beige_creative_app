@@ -21,6 +21,7 @@ import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/app_count_card.dart';
 import '../../../../shared/widgets/app_segmented_control.dart';
+import '../../../../shared/widgets/app_search_field.dart';
 import '../providers/shoots_providers.dart';
 import '../widgets/shoots_filter_bottom_sheet.dart';
 import 'shoot_cancelled_screen.dart';
@@ -225,37 +226,10 @@ class _ShootsScreenState extends ConsumerState<ShootsScreen> {
               /// SEARCH BAR — debounced through the notifier.
               Padding(
                 padding: AppSpacing.insetsHBase,
-                child: Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceMid,
-                    borderRadius: AppRadii.xlAll,
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: notifier.updateSearch,
-                    style: AppTextStyles.inherit14,
-                    cursorColor: AppColors.white,
-                    decoration: InputDecoration(
-                      hintText: 'Search events or crew...',
-                      hintStyle: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.white50,
-                      ),
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.inlineNudge),
-                        child: SvgPicture.asset(
-                          AppAssets.searchIcon,
-                          width: 14,
-                          height: 14,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: AppSpacing.mld,
-                      ),
-                    ),
-                  ),
+                child: AppSearchField(
+                  controller: _searchController,
+                  hintText: 'Search events or crew...',
+                  onChanged: notifier.updateSearch,
                 ),
               ),
 
