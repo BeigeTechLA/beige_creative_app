@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/notification/presentation/providers/notification_list_providers.dart';
 import '../firebase/telemetry_client.dart';
 import '../restoration/restoration_providers.dart';
 import 'core_providers.dart';
@@ -29,6 +30,14 @@ class AuthStateNotifier extends Notifier<bool> {
   /// responsible for `context.goNamed(Routes.login.name)`; the redirect will
   /// also enforce the bounce if anything resurrects the authed tree.
   Future<void> logout() async {
+    try {
+      final sessionStore = ref.read(sessionStoreProvider);
+      final sessionId = await sessionStore.getAppSessionId();
+      await ref.read(notificationRepositoryProvider).removeFcmToken(sessionId: sessionId);
+    } catch (_) {
+      // Swallow errors to ensure logout completes locally
+    }
+
     await ref.read(sessionStoreProvider).clearSession();
     await ref.read(routeRestorationServiceProvider).clearAll();
     await ref.read(draftStoreProvider).clearAll();

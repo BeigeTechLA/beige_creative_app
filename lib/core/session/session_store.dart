@@ -44,6 +44,9 @@ abstract class SessionStore {
   /// Wipe everything — token, refresh, user, lastLoginAt. Called from
   /// `AuthInterceptor.onUnauthorized` and from explicit logout.
   Future<void> clearSession();
+
+  /// Retrieves or generates the unique session ID (e.g. for FCM).
+  Future<String> getAppSessionId();
 }
 
 /// Persisted slice of the authenticated user. Kept narrow — full profile data
@@ -173,6 +176,9 @@ class CompositeSessionStore implements SessionStore {
     await _prefs.clearLastLoginAt();
     await _prefs.clearFcmToken();
   }
+
+  @override
+  Future<String> getAppSessionId() => _prefs.getAppSessionId();
 }
 
 /// Public structural contract for the secure half. `SecureSessionStore`
@@ -201,4 +207,5 @@ abstract class PrefsSessionBackend {
   Future<String?> readFcmToken();
   Future<void> writeFcmToken(String fcmToken);
   Future<void> clearFcmToken();
+  Future<String> getAppSessionId();
 }

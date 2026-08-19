@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 import 'session_store.dart';
 
@@ -86,5 +87,16 @@ class PrefsSessionStore implements PrefsSessionBackend {
   @override
   Future<void> clearFcmToken() async {
     await _prefs.remove(_kFcmToken);
+  }
+
+  @override
+  Future<String> getAppSessionId() async {
+    final existingId = _prefs.getString('app_session_id');
+    if (existingId != null && existingId.isNotEmpty) {
+      return existingId;
+    }
+    final newId = const Uuid().v4();
+    await _prefs.setString('app_session_id', newId);
+    return newId;
   }
 }

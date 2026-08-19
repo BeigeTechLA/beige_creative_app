@@ -39,6 +39,11 @@ class FakeSecureSessionBackend implements SecureSessionBackend {
   Future<void> clearRefreshToken() async => _refresh = null;
 }
 
+class MockPrefsSessionBackend extends Mock implements PrefsSessionBackend {
+  @override
+  Future<String> getAppSessionId() async => 'mock-app-session-id';
+}
+
 class FakePrefsSessionBackend implements PrefsSessionBackend {
   UserSnapshot? _user;
   DateTime? _lastLoginAt;
@@ -71,6 +76,9 @@ class FakePrefsSessionBackend implements PrefsSessionBackend {
   Future<void> writeFcmToken(String fcmToken) async => _fcmToken = fcmToken;
   @override
   Future<void> clearFcmToken() async => _fcmToken = null;
+
+  @override
+  Future<String> getAppSessionId() async => 'fake-app-session-id';
 }
 
 /// Sets up the default `registerFallbackValue` calls required by every mock
