@@ -4,6 +4,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 
 /// Generic checkbox-list bottom sheet used by SignUp2 for Roles + Skills.
 /// Caller toggles selections via [onToggle]; sheet drives an internal
@@ -99,23 +100,10 @@ Future<void> showSignUp2LookupSheet({
                     ),
                   ),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
+                  AppCtaButton(
+                    label: 'Done',
                     height: 48,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(sheetCtx),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadii.lgAll,
-                        ),
-                      ),
-                      child: Text(
-                        'Done',
-                        style: AppTextStyles.body15
-                            .copyWith(color: AppColors.textHeading),
-                      ),
-                    ),
+                    onPressed: () => Navigator.pop(sheetCtx),
                   ),
                 ],
               ),

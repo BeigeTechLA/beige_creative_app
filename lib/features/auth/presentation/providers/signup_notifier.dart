@@ -774,9 +774,10 @@ class SignupNotifier extends Notifier<SignupState> {
       final projects = [...state.featuredProjects];
       final titles = [...state.featuredProjectsTitles];
       final fileIdsList = [...state.featuredWorkFileIds];
+      final filesCopy = List<File>.from(files);
 
       if (editIndex != null && editIndex < projects.length) {
-        projects[editIndex] = files;
+        projects[editIndex] = filesCopy;
         if (editIndex < titles.length) {
           titles[editIndex] = title;
         }
@@ -786,7 +787,7 @@ class SignupNotifier extends Notifier<SignupState> {
           fileIdsList.add(ids);
         }
       } else {
-        projects.add(files);
+        projects.add(filesCopy);
         titles.add(title);
         fileIdsList.add(ids);
       }

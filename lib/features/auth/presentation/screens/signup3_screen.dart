@@ -389,10 +389,14 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                                 children: [
                                   Row(
                                     children: [
-                                      Text(
-                                        'Upload Documents',
-                                        style: AppTextStyles.inherit14Strong
-                                            .copyWith(color: AppColors.white),
+                                      Expanded(
+                                        child: Text(
+                                          'Upload Documents',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: AppTextStyles.inherit14Strong
+                                              .copyWith(color: AppColors.white),
+                                        ),
                                       ),
                                       if (isDocsUploaded) ...[
                                         const SizedBox(width: 8),

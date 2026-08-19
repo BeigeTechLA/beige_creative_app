@@ -419,26 +419,13 @@ class _EnterProfileDetailsScreenState
                       ),
                     ),
                     const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
+                    AppCtaButton(
+                      label: 'Done',
                       height: 48,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          notifier.setSelectedSkills(draft);
-                          sheetCtx.pop();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: const Color(0xFF1D1D1B),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppRadii.lgAll,
-                          ),
-                        ),
-                        child: const Text(
-                          'Done',
-                          style: AppTextStyles.buttonMedium,
-                        ),
-                      ),
+                      onPressed: () {
+                        notifier.setSelectedSkills(draft);
+                        sheetCtx.pop();
+                      },
                     ),
                   ],
                 ),

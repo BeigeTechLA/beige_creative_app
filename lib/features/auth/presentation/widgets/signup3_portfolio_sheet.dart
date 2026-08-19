@@ -8,6 +8,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import 'signup3_constants.dart';
 
@@ -186,55 +187,42 @@ Future<void> showSignup3PortfolioSheet({
                         controller: controller.linkController,
                       ),
                       const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
+                      AppCtaButton(
+                        label: 'Save Link',
                         height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.goldSoft,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.xlAll,
-                            ),
-                          ),
-                          onPressed: () {
-                            if (controller.selectedIndex == -1 ||
-                                controller.linkController.text
-                                    .trim()
-                                    .isEmpty) {
-                              controller.onError(
-                                'Select platform & enter link',
-                              );
-                              return;
-                            }
-                            final next = List<Map<String, dynamic>>.from(localLinks);
-                            final entry = {
-                              'name': kSignup3PortfolioNames[
-                                  controller.selectedIndex],
-                              'url': controller.linkController.text.trim(),
-                              'icon': kSignup3PortfolioIcons[
-                                  controller.selectedIndex],
-                            };
-                            if (controller.editingIndex != null) {
-                              next[controller.editingIndex!] = entry;
-                            } else {
-                              next.add(entry);
-                            }
-                            controller.commitLinks(next);
-                            localLinks.clear();
-                            localLinks.addAll(next);
-                            setModalState(() {
-                              showForm = false;
-                              controller.editingIndex = null;
-                              controller.selectedIndex = -1;
-                              controller.linkController.clear();
-                            });
-                          },
-                          child: Text(
-                            'Save Link',
-                            style: AppTextStyles.inheritSemiBold
-                                .copyWith(color: AppColors.black),
-                          ),
-                        ),
+                        onPressed: () {
+                          if (controller.selectedIndex == -1 ||
+                              controller.linkController.text
+                                  .trim()
+                                  .isEmpty) {
+                            controller.onError(
+                              'Select platform & enter link',
+                            );
+                            return;
+                          }
+                          final next = List<Map<String, dynamic>>.from(localLinks);
+                          final entry = {
+                            'name': kSignup3PortfolioNames[
+                                controller.selectedIndex],
+                            'url': controller.linkController.text.trim(),
+                            'icon': kSignup3PortfolioIcons[
+                                controller.selectedIndex],
+                          };
+                          if (controller.editingIndex != null) {
+                            next[controller.editingIndex!] = entry;
+                          } else {
+                            next.add(entry);
+                          }
+                          controller.commitLinks(next);
+                          localLinks.clear();
+                          localLinks.addAll(next);
+                          setModalState(() {
+                            showForm = false;
+                            controller.editingIndex = null;
+                            controller.selectedIndex = -1;
+                            controller.linkController.clear();
+                          });
+                        },
                       ),
                     ],
                     if (!showForm) ...[
@@ -273,23 +261,10 @@ Future<void> showSignup3PortfolioSheet({
                         ),
                       ),
                       const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
+                      AppCtaButton(
+                        label: 'Save',
                         height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.goldSoft,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.xlAll,
-                            ),
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            'Save',
-                            style: AppTextStyles.inheritSemiBold
-                                .copyWith(color: AppColors.black),
-                          ),
-                        ),
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ],
                     const SizedBox(height: 10),

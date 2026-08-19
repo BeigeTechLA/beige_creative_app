@@ -34,9 +34,13 @@ class SignUp3AddTile extends StatelessWidget {
             child: const Icon(Icons.add, color: AppColors.black, size: 16),
           ),
           const SizedBox(width: 14),
-          Text(
-            title,
-            style: AppTextStyles.body15.copyWith(color: AppColors.white30),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.body15.copyWith(color: AppColors.white30),
+            ),
           ),
         ],
       ),
@@ -100,6 +104,8 @@ class SignUp3SavedLinkRow extends StatelessWidget {
           Expanded(
             child: Text(
               item['name'],
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.inheritSemiBold
                   .copyWith(color: AppColors.white),
             ),
@@ -174,18 +180,25 @@ class SignUp3FeaturedSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Text(
-                    'Featured Work*',
-                    style: AppTextStyles.bodyMediumStrong
-                        .copyWith(color: AppColors.white),
-                  ),
-                  if (showTick) ...[
-                    const SizedBox(width: 8),
-                    const SignUp3CheckmarkBadge(),
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'Featured Work*',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.bodyMediumStrong
+                            .copyWith(color: AppColors.white),
+                      ),
+                    ),
+                    if (showTick) ...[
+                      const SizedBox(width: 8),
+                      const SignUp3CheckmarkBadge(),
+                    ],
                   ],
-                ],
+                ),
               ),
               if (featuredProjects.isNotEmpty)
                 InkWell(
@@ -332,33 +345,45 @@ class SignUp3FeaturedSection extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: 190,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: images.length,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm,
-                          ),
-                          itemBuilder: (context, index) {
-                            return Container(
-                              width: MediaQuery.of(context).size.width *
-                                  0.75,
-                              margin: const EdgeInsets.only(
-                                right: AppSpacing.md,
-                              ),
-                              child: ClipRRect(
-                                borderRadius: AppRadii.xxlAll,
-                                child: Image.file(
-                                  images[index],
-                                  fit: BoxFit.cover,
+                      if (images.isNotEmpty)
+                        SizedBox(
+                          height: 190,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: images.length,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.sm,
+                            ),
+                            itemBuilder: (context, index) {
+                              return Container(
+                                width: MediaQuery.of(context).size.width * 0.75,
+                                margin: const EdgeInsets.only(
+                                  right: AppSpacing.md,
                                 ),
-                              ),
-                            );
-                          },
+                                child: ClipRRect(
+                                  borderRadius: AppRadii.xxlAll,
+                                  child: Image.file(
+                                    images[index],
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: AppColors.white24,
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.image,
+                                            size: 32,
+                                            color: AppColors.white30,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 );
@@ -400,18 +425,25 @@ class SignUp3CertificatesSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Text(
-                    'Upload Certifications',
-                    style: AppTextStyles.inherit14Strong
-                        .copyWith(color: AppColors.white),
-                  ),
-                  if (showTick) ...[
-                    const SizedBox(width: 8),
-                    const SignUp3CheckmarkBadge(),
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'Upload Certifications',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.inherit14Strong
+                            .copyWith(color: AppColors.white),
+                      ),
+                    ),
+                    if (showTick) ...[
+                      const SizedBox(width: 8),
+                      const SignUp3CheckmarkBadge(),
+                    ],
                   ],
-                ],
+                ),
               ),
               if (certificateFiles.isNotEmpty)
                 InkWell(

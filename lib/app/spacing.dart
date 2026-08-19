@@ -148,6 +148,10 @@ class AppSpacing {
   static const double sectionGap = 24;
   static const double bottomNavHeight = 60;
 
+  /// Top inset for the Signup Step 1 form while its preview card is visible.
+  /// Reserves the card's positioned footprint plus a standard 16px gap.
+  static const double signupPreviewFormTop = 136;
+
   // Calendar width-relative factors (strict-match for responsive literals)
   static const double calendarEventMarginHFactor = 0.01;
   static const double calendarEventMarginVFactor = 0.005;

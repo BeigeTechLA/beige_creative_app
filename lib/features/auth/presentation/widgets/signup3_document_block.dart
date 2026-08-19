@@ -59,10 +59,14 @@ class SignUp3DocumentBlock extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    label,
-                    style: AppTextStyles.inherit14
-                        .copyWith(color: AppColors.white60),
+                  Flexible(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.inherit14
+                          .copyWith(color: AppColors.white60),
+                    ),
                   ),
                 ],
               ),

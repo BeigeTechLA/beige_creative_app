@@ -194,7 +194,7 @@ Future<void> showSignup3FeaturedSheet({
                             });
                             final success = await controller.onUploadAndSave!(
                               title: title,
-                              files: controller.tempImages,
+                              files: List<File>.from(controller.tempImages),
                               editIndex: controller.editingProjectIndex,
                             );
                             if (context.mounted) {

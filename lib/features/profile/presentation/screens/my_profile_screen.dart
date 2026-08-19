@@ -357,13 +357,17 @@ class _MyprofileState extends ConsumerState<Myprofile> {
                 size: 20,
               ),
               const SizedBox(width: 8),
-              Text(
-                'Application Under Review',
-                style: AppTextStyles.body15Strong.copyWith(
-                  color: AppColors.white,
+              Expanded(
+                child: Text(
+                  'Application Under Review',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.body15Strong.copyWith(
+                    color: AppColors.white,
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: AppSpacing.xs),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm,

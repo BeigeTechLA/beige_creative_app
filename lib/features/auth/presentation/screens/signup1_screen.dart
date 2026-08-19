@@ -239,7 +239,9 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
                         width: double.infinity,
                         padding: EdgeInsets.fromLTRB(
                           AppSpacing.xl,
-                          isPreviewVisible ? 110 : 60,
+                          isPreviewVisible
+                              ? AppSpacing.signupPreviewFormTop
+                              : 60,
                           AppSpacing.xl,
                           AppSpacing.xl,
                         ),

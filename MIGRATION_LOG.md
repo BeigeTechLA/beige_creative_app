@@ -5,6 +5,46 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-19: Standardize "Done" Bottom Sheet CTA Button Typography & Font Style
+
+- **Task**: Align font family (`Unbounded`), font size (`14px`), font weight (`w500`), and dark label text (`AppColors.textHeading`) of "Done" bottom sheet action buttons to match the "Next" CTA button from SignUp Step 1.
+- **Changes**:
+  - `lib/features/auth/presentation/widgets/signup2_lookup_sheet.dart`: Replaced raw `ElevatedButton` for "Done" with `AppCtaButton(label: 'Done', height: 48, ...)` so typography (Unbounded font, size 14, weight w500, color `AppColors.textHeading`) matches the "Next" button in SignUp Step 1.
+  - `lib/features/profile/presentation/screens/enter_profile_details_screen.dart`: Updated skills bottom sheet "Done" button to use `AppCtaButton`.
+  - `lib/features/auth/presentation/widgets/signup3_social_sheet.dart` & `signup3_portfolio_sheet.dart`: Replaced bottom action buttons with `AppCtaButton` for unified CTA typography.
+- **Verification**:
+  - `flutter analyze`: 0 issues found across all modified files.
+  - `flutter test test/features/auth/presentation/screens/signup1_screen_test.dart test/features/auth/presentation/screens/signup3_screen_test.dart`: All tests passing.
+
+### 2026-08-19: Signup Step 1 Preview Card/Form Overlap Fix
+
+- **Task**: Fix the Signup Step 1 profile preview card covering the `First Name` field when partial profile data makes the preview visible.
+- **Changed Files**:
+  - `lib/app/spacing.dart`
+  - `lib/features/auth/presentation/screens/signup1_screen.dart`
+  - `test/features/auth/presentation/screens/signup1_screen_test.dart`
+- **Decisions**:
+  - Preserved the existing floating `Positioned(top: -40)` preview treatment.
+  - Replaced the undersized 110px form inset with the named `AppSpacing.signupPreviewFormTop` token (136px), reserving the preview's 120px positioned footprint plus a standard 16px gap.
+  - Added screen-level geometry tests at 360px and 393px widths. Tests load the production Outfit and Unbounded fonts so width/layout behavior matches the app rather than Flutter's wide default test font.
+- **Verification**:
+  - `flutter test test/features/auth/presentation/signup1_widgets_test.dart test/features/auth/presentation/screens/signup1_screen_test.dart`: 5 / 5 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+
+### 2026-08-19: Flex Layout Constraints & UI Overflow Prevention (SignUp Step 3 & My Profile)
+
+- **Task**: Fix layout overflow errors on narrow viewports and high-DPI resolution screens (e.g. 6.43-inch 2400x1080 resolution display) in SignUp Step 3 headers ("Upload Certifications", "Featured Work*", "Upload Documents", "Add Social Links*") and My Profile banner ("Application Under Review").
+- **Changes**:
+  - `lib/features/auth/presentation/widgets/signup3_sections.dart`: Wrapped title rows in `Expanded` and title text in `Flexible` with `TextOverflow.ellipsis` for `SignUp3CertificatesSection` and `SignUp3FeaturedSection`. Wrapped tile text in `SignUp3AddTile` and link name in `SignUp3SavedLinkRow` with `Expanded`, `maxLines: 1`, and `TextOverflow.ellipsis`.
+  - `lib/features/auth/presentation/screens/signup3_screen.dart`: Wrapped "Upload Documents" header text in `Expanded` with `TextOverflow.ellipsis`.
+  - `lib/features/auth/presentation/widgets/signup3_document_block.dart`: Wrapped empty state document label in `Flexible` with `TextOverflow.ellipsis`.
+  - `lib/features/profile/presentation/screens/my_profile_screen.dart`: Updated `_buildUnderReviewBanner()` header `Row` by wrapping `Text('Application Under Review')` in `Expanded` with `TextOverflow.ellipsis` and using flexible `SizedBox(width: AppSpacing.xs)` before the "Pending Review" pill.
+  - `test/features/profile/presentation/screens/my_profile_screen_test.dart`: Added `currentSessionUserProvider` override to prevent `UnimplementedError` during test execution.
+- **Verification**:
+  - `flutter analyze`: 0 issues found across modified files.
+  - `flutter test test/features/profile/presentation/screens/my_profile_screen_test.dart`: 3 / 3 tests passing cleanly.
+  - `flutter test test/features/auth/ test/features/profile/`: All widget and unit tests passing cleanly.
+
 ### 2026-08-19: Step 3 Section-wise File Uploads & Section Completion Badges
 
 - **Task**: Upgrade Step 3 file uploads to section-wise `POST auth/register-crew-step3-file` calls, add visual green checkmark badge indicators (`#22C55E`) on completed sections (matching Option 1 design), enforce 30MB total file limit for Portfolio & Featured Work and 5MB per file limit for Resume & Certifications, and update `POST auth/register-crew-step3` to send JSON payload with returned file IDs (`resume_file_id`, `portfolio_file_ids`, `certification_file_ids`, `featured_work.[].fileIds`).
@@ -4167,4 +4207,3 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
   - Hydrated `'icon'` asset paths during `prefill.socialMediaLinks` and `prefill.portfolioLinks` mapping in `SignupNotifier.loadStep1Prefill()`.
   - Updated `SignUp3SavedLinkRow`, `_SavedSocialRow`, and `_SavedPortfolioRow` to safely resolve icon paths and render in white SVG tint style (Option 2).
 - **Verification**: `flutter test test/features/auth/presentation/signup_notifier_test.dart` (32/32 tests passing).
-

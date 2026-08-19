@@ -9,6 +9,7 @@ import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import 'signup3_constants.dart';
 
@@ -173,62 +174,53 @@ Future<void> showSignup3SocialSheet({
                         keyboardType: TextInputType.url,
                       ),
                       const SizedBox(height: 20),
-                      SizedBox(
-                        width: double.infinity,
+                      AppCtaButton(
+                        label: 'Save Link',
                         height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.xlAll,
-                            ),
-                          ),
-                          onPressed: () {
-                            if (controller.selectedSocialIndex == -1 ||
-                                controller.linkController.text
-                                    .trim()
-                                    .isEmpty) {
-                              controller.onError(
-                                'Please select platform and enter link',
-                              );
-                              return;
-                            }
-                            final platformName = kSignup3SocialNames[
-                                controller.selectedSocialIndex];
-                            final iconPath = kSignup3SocialIcons[
-                                controller.selectedSocialIndex];
-                            final url = controller.linkController.text.trim();
-                            final next = List<Map<String, dynamic>>.from(localLinks);
-                            if (controller.editingIndex != null) {
-                              next[controller.editingIndex!] = {
-                                'name': platformName,
-                                'url': url,
-                                'icon': iconPath,
-                              };
-                            } else {
-                              next.add({
-                                'name': platformName,
-                                'url': url,
-                                'icon': iconPath,
-                              });
-                            }
-                            controller.commitLinks(next);
-                            localLinks.clear();
-                            localLinks.addAll(next);
-                            setInnerState(() {
-                              showForm = false;
-                              controller.editingIndex = null;
-                              controller.selectedSocialIndex = -1;
-                              controller.nameLinkController.clear();
-                              controller.linkController.clear();
+                        onPressed: () {
+                          final platformName =
+                              controller.selectedSocialIndex >= 0
+                                  ? kSignup3SocialNames[
+                                      controller.selectedSocialIndex]
+                                  : controller.nameLinkController.text
+                                      .trim();
+                          final iconPath = controller.selectedSocialIndex >= 0
+                              ? kSignup3SocialIcons[
+                                  controller.selectedSocialIndex]
+                              : AppAssets.ball;
+                          if (platformName.isEmpty ||
+                              controller.linkController.text.trim().isEmpty) {
+                            controller.onError(
+                              'Select platform & enter link',
+                            );
+                            return;
+                          }
+                          final url = controller.linkController.text.trim();
+                          final next = List<Map<String, dynamic>>.from(localLinks);
+                          if (controller.editingIndex != null) {
+                            next[controller.editingIndex!] = {
+                              'name': platformName,
+                              'url': url,
+                              'icon': iconPath,
+                            };
+                          } else {
+                            next.add({
+                              'name': platformName,
+                              'url': url,
+                              'icon': iconPath,
                             });
-                          },
-                          child: Text(
-                            'Save Link',
-                            style: AppTextStyles.inheritSemiBold
-                                .copyWith(color: AppColors.black),
-                          ),
-                        ),
+                          }
+                          controller.commitLinks(next);
+                          localLinks.clear();
+                          localLinks.addAll(next);
+                          setInnerState(() {
+                            showForm = false;
+                            controller.editingIndex = null;
+                            controller.selectedSocialIndex = -1;
+                            controller.nameLinkController.clear();
+                            controller.linkController.clear();
+                          });
+                        },
                       ),
                     ],
                     if (!showForm) ...[
@@ -268,23 +260,10 @@ Future<void> showSignup3SocialSheet({
                         ),
                       ),
                       const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
+                      AppCtaButton(
+                        label: 'Save',
                         height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.xlAll,
-                            ),
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            'Save',
-                            style: AppTextStyles.inheritSemiBold
-                                .copyWith(color: AppColors.black),
-                          ),
-                        ),
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ],
                     const SizedBox(height: 10),
