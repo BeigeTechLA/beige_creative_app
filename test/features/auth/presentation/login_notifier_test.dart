@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:beige_creative_app/core/firebase/analytics_events.dart';
 import 'package:beige_creative_app/core/firebase/crashlytics_breadcrumbs.dart';
 import 'package:beige_creative_app/core/firebase/crashlytics_keys.dart';
@@ -55,6 +57,13 @@ class _FakeAuthRepo implements AuthRepository {
   Future<void> registerStep2(Step2Payload payload) async {}
   @override
   Future<void> registerStep3(Step3Payload payload) async {}
+  @override
+  Future<List<int>> uploadStep3File({
+    required int crewMemberId,
+    required String fileType,
+    required List<File> files,
+  }) async =>
+      const [100];
   @override
   Future<List<LookupOption>> fetchRoles() async => const [];
   @override

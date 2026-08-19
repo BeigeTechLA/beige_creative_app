@@ -1,8 +1,10 @@
 import 'package:beige_creative_app/app/routes.dart';
 import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
+import 'package:beige_creative_app/core/providers/core_providers.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/signup_notifier.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/signup_state.dart';
 import 'package:beige_creative_app/features/auth/presentation/screens/signup3_screen.dart';
+import 'package:beige_creative_app/shared/widgets/app_cta_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -25,11 +27,56 @@ import '../../../../helpers/pump_app.dart';
 /// state update inherited as-is; `submitStep3` is overridden so the test
 /// doesn't pull in `authRepositoryProvider` / Firebase).
 
+import 'package:beige_creative_app/features/auth/domain/models/signup_step1_prefill.dart';
+import 'package:beige_creative_app/features/auth/domain/repositories/signup_resume_repository.dart';
+
+class _FakeSignupResumeRepo implements SignupResumeRepository {
+  @override
+  Future<SignupStep1Prefill> fetchStep1Prefill() async {
+    return const SignupStep1Prefill(
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      location: '',
+      workingDistance: '',
+      profileImageUrl: '',
+      primaryRoles: [],
+      yearsOfExperience: '',
+      hourlyRate: '',
+      bio: '',
+      skills: [],
+      equipments: [],
+      socialMediaLinks: [],
+      portfolioLinks: [],
+    );
+  }
+}
+
 class _FakeSignupNotifier extends SignupNotifier {
   int submitCalls = 0;
 
   @override
-  SignupState build() => const SignupState();
+  SignupState build() => const SignupState(
+        savedSocialLinks: [
+          {'name': 'Instagram', 'url': 'https://instagram.com/test'},
+        ],
+      );
+
+  @override
+  Future<bool> loadStep1Prefill() async => true;
+
+  @override
+  void seedStep3FromRoute({
+    int? crewMemberId,
+    String primaryRole = '',
+    String experience = '',
+    String hourlyRate = '',
+    String bio = '',
+    String skills = '',
+    String equipments = '',
+    int step2Progress = 0,
+  }) {}
 
   @override
   Future<bool> submitStep3() async {
@@ -58,18 +105,16 @@ GoRouter _router() {
 
 Future<_FakeSignupNotifier> _pump(WidgetTester tester) async {
   final fake = _FakeSignupNotifier();
-  await tester.runAsync(() async {
-    FlutterError.onError = (_) {};
-    await tester.pumpRouterApp(
-      _router(),
-      overrides: [
-        signupNotifierProvider.overrideWith(() => fake),
-        authStateProvider.overrideWith(() => AuthStateNotifier(initial: false)),
-      ],
-    );
-    await tester.pump();
-    await tester.pump();
-  });
+  await tester.pumpRouterApp(
+    _router(),
+    overrides: [
+      signupNotifierProvider.overrideWith(() => fake),
+      signupResumeRepositoryProvider.overrideWithValue(_FakeSignupResumeRepo()),
+      currentSessionUserProvider.overrideWith((ref) => null),
+      authStateProvider.overrideWith(() => AuthStateNotifier(initial: false)),
+    ],
+  );
+  await tester.pumpAndSettle();
   return fake;
 }
 
@@ -80,7 +125,7 @@ void main() {
 
     expect(find.text('Social Engagement'), findsOneWidget);
     expect(find.text('3/3'), findsOneWidget);
-    expect(find.text('Add Social Links'), findsOneWidget);
+    expect(find.textContaining('Add Social Links'), findsOneWidget);
     expect(find.text('Add Portfolio Link (Optional)'), findsOneWidget);
     expect(find.text('Create Profile'), findsOneWidget);
   });
@@ -88,9 +133,9 @@ void main() {
   testWidgets('tap Create Profile invokes submitStep3', (tester) async {
     final fake = await _pump(tester);
 
-    await tester.ensureVisible(find.text('Create Profile'));
-    await tester.tap(find.text('Create Profile'));
-    await tester.pump();
+    await tester.ensureVisible(find.byType(AppCtaButton));
+    await tester.tap(find.byType(AppCtaButton));
+    await tester.pumpAndSettle();
 
     expect(fake.submitCalls, 1);
   });

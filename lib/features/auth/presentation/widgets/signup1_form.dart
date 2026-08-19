@@ -21,6 +21,7 @@ import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
 import 'signup1_profile_card.dart';
+import '../util/launch_policy_link.dart';
 
 class SignUp1Form extends StatelessWidget {
   final TextEditingController firstNameController;
@@ -253,10 +254,28 @@ class SignUp1Form extends StatelessWidget {
                       ),
                     ),
                     TextSpan(
-                      text: "Terms & Condition & Privacy Policy",
+                      text: "Terms & Condition",
                       style: AppTextStyles.body13Bold.copyWith(
                         color: AppColors.white,
                       ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () =>
+                            launchPolicyLink(context, termsAndConditionsUrl),
+                    ),
+                    TextSpan(
+                      text: " & ",
+                      style: AppTextStyles.body13.copyWith(
+                        color: AppColors.white30,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "Privacy Policy",
+                      style: AppTextStyles.body13Bold.copyWith(
+                        color: AppColors.white,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () =>
+                            launchPolicyLink(context, privacyPolicyUrl),
                     ),
                     TextSpan(
                       text: "\nset out of this site",

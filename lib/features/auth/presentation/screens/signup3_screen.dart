@@ -135,21 +135,21 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
       allowedExtensions: ['pdf', 'jpg', 'png'],
     );
     if (result != null && result.files.single.path != null) {
-      _notifier.addCertificate(File(result.files.single.path!));
+      await _notifier.uploadCertificate(File(result.files.single.path!));
     }
   }
 
   Future<void> _pickDocument() async {
     final result = await FilePicker.pickFiles(type: FileType.any);
     if (result != null && result.files.single.path != null) {
-      _notifier.setResumeFile(File(result.files.single.path!));
+      await _notifier.uploadResumeFile(File(result.files.single.path!));
     }
   }
 
   Future<void> _pickPortfolio() async {
     final result = await FilePicker.pickFiles(type: FileType.any);
     if (result != null && result.files.single.path != null) {
-      _notifier.setPortfolioFile(File(result.files.single.path!));
+      await _notifier.uploadPortfolioFile(File(result.files.single.path!));
     }
   }
 
@@ -203,6 +203,17 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
       featuredProjectsTitles: state.featuredProjectsTitles,
       selectedTags: state.selectedFeaturedTags,
       commit: _notifier.setFeaturedProjects,
+      onUploadAndSave: ({
+        required String title,
+        required List<File> files,
+        int? editIndex,
+      }) {
+        return _notifier.uploadFeaturedWork(
+          title: title,
+          files: files,
+          editIndex: editIndex,
+        );
+      },
       onError: _showSnack,
     );
     await showSignup3FeaturedSheet(context: context, controller: controller);
@@ -234,6 +245,8 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
 
     final flattenedFeatured = _flattenedFeaturedImages(state);
     final progress = state.step2Progress + _progressFromState(state);
+    final isDocsUploaded =
+        state.resumeFileId != null || state.portfolioFileIds.isNotEmpty;
 
     return AppScaffold(
       body: Stack(
@@ -303,8 +316,6 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                             SignUp3AddTile(
                               title: 'Add Social Links*',
                               onTap: () {
-                                // Open in add-mode: clear any stale edit cursor
-                                // so a new link appends instead of overwriting.
                                 _editingSocialIndex = null;
                                 _selectedSocialIndex = -1;
                                 nameLinkController.clear();
@@ -352,6 +363,7 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                               featuredProjects: state.featuredProjects,
                               featuredProjectsTitles:
                                   state.featuredProjectsTitles,
+                              isUploaded: state.featuredWorkFileIds.isNotEmpty,
                               onAdd: _openFeaturedSheet,
                               onEdit: (index) =>
                                   _openFeaturedSheet(editIndex: index),
@@ -360,6 +372,7 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                             const SizedBox(height: 16),
                             SignUp3CertificatesSection(
                               certificateFiles: state.certificateFiles,
+                              isUploaded: state.certificationFileIds.isNotEmpty,
                               onPick: _pickCertificate,
                               onDelete: _notifier.removeCertificateAt,
                             ),
@@ -374,26 +387,32 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Upload Documents',
-                                    style: AppTextStyles.inherit14Strong
-                                        .copyWith(color: AppColors.white),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Upload Documents',
+                                        style: AppTextStyles.inherit14Strong
+                                            .copyWith(color: AppColors.white),
+                                      ),
+                                      if (isDocsUploaded) ...[
+                                        const SizedBox(width: 8),
+                                        const SignUp3CheckmarkBadge(),
+                                      ],
+                                    ],
                                   ),
                                   const SizedBox(height: 12),
                                   SignUp3DocumentBlock(
                                     label: 'Upload Resume/CV',
                                     file: state.resumeFile,
                                     onUpload: _pickDocument,
-                                    onDelete: () =>
-                                        _notifier.setResumeFile(null),
+                                    onDelete: _notifier.removeResumeFile,
                                   ),
                                   const SizedBox(height: 12),
                                   SignUp3DocumentBlock(
                                     label: 'Upload Portfolio',
                                     file: state.portfolioFile,
                                     onUpload: _pickPortfolio,
-                                    onDelete: () =>
-                                        _notifier.setPortfolioFile(null),
+                                    onDelete: _notifier.removePortfolioFile,
                                   ),
                                 ],
                               ),
@@ -404,7 +423,11 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                               height: 55,
                               enabled:
                                   state.savedSocialLinks.isNotEmpty &&
-                                  !state.isSubmittingStep3,
+                                  !state.isSubmittingStep3 &&
+                                  !state.isUploadingResume &&
+                                  !state.isUploadingPortfolio &&
+                                  !state.isUploadingCertifications &&
+                                  !state.isUploadingFeaturedWork,
                               onPressed: _submit,
                             ),
                             if (!ref.watch(authStateProvider)) ...[

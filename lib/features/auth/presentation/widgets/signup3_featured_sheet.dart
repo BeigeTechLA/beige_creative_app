@@ -24,6 +24,11 @@ class Signup3FeaturedSheetController {
     List<List<File>> projects,
     List<String> titles,
   ) commit;
+  final Future<bool> Function({
+    required String title,
+    required List<File> files,
+    int? editIndex,
+  })? onUploadAndSave;
   final void Function(String message) onError;
 
   Signup3FeaturedSheetController({
@@ -34,6 +39,7 @@ class Signup3FeaturedSheetController {
     required this.featuredProjectsTitles,
     required this.selectedTags,
     required this.commit,
+    this.onUploadAndSave,
     required this.onError,
   });
 }
@@ -41,6 +47,7 @@ Future<void> showSignup3FeaturedSheet({
   required BuildContext context,
   required Signup3FeaturedSheetController controller,
 }) {
+  bool isUploading = false;
   return showModalBottomSheet<void>(
     context: context,
     backgroundColor: AppColors.transparent,
@@ -116,13 +123,15 @@ Future<void> showSignup3FeaturedSheet({
                             .copyWith(color: AppColors.white),
                       ),
                       IconButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: isUploading
+                            ? null
+                            : () => Navigator.pop(context),
                         icon: const Icon(Icons.close, color: AppColors.white),
                       ),
                     ],
                   ),
                   Text(
-                    'For best results, use PNG, JPG or GIF (max 30MB each).',
+                    'Upload exactly 5 images (PNG, JPG or GIF, max 30MB total).',
                     style: AppTextStyles.body14
                         .copyWith(color: AppColors.white30),
                   ),
@@ -160,25 +169,49 @@ Future<void> showSignup3FeaturedSheet({
                       final isValid = controller.titleController.text
                               .trim()
                               .isNotEmpty &&
-                          controller.tempImages.isNotEmpty &&
-                          controller.tempImages.length <= 5;
+                          controller.tempImages.length == 5 &&
+                          !isUploading;
                       return AppCtaButton(
-                        label: 'Save',
+                        label: isUploading ? 'Uploading...' : 'Save',
                         height: 48,
                         enabled: isValid,
-                        onPressed: () {
-                          if (controller.titleController.text.trim().isEmpty) {
+                        onPressed: () async {
+                          final title = controller.titleController.text.trim();
+                          if (title.isEmpty) {
                             controller.onError('Please enter work title');
                             return;
                           }
-                          if (controller.tempImages.isEmpty) {
-                            controller.onError('Please select at least 1 image');
+                          if (controller.tempImages.length != 5) {
+                            controller.onError(
+                              'Exactly 5 images are required for featured work',
+                            );
                             return;
                           }
-                          if (controller.tempImages.length > 5) {
-                            controller.onError('Maximum 5 images allowed');
+
+                          if (controller.onUploadAndSave != null) {
+                            setModalState(() {
+                              isUploading = true;
+                            });
+                            final success = await controller.onUploadAndSave!(
+                              title: title,
+                              files: controller.tempImages,
+                              editIndex: controller.editingProjectIndex,
+                            );
+                            if (context.mounted) {
+                              if (success) {
+                                controller.tempImages.clear();
+                                controller.titleController.clear();
+                                controller.editingProjectIndex = null;
+                                Navigator.pop(context);
+                              } else {
+                                setModalState(() {
+                                  isUploading = false;
+                                });
+                              }
+                            }
                             return;
                           }
+
                           final projects = [...controller.featuredProjects];
                           final titles = [
                             ...controller.featuredProjectsTitles
@@ -188,14 +221,11 @@ Future<void> showSignup3FeaturedSheet({
                                 List.from(controller.tempImages);
                             if (controller.editingProjectIndex! <
                                 titles.length) {
-                              titles[controller.editingProjectIndex!] =
-                                  controller.titleController.text.trim();
+                              titles[controller.editingProjectIndex!] = title;
                             }
                           } else {
                             projects.add(List.from(controller.tempImages));
-                            titles.add(
-                              controller.titleController.text.trim(),
-                            );
+                            titles.add(title);
                           }
                           controller.commit(projects, titles);
                           controller.tempImages.clear();

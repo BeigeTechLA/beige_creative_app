@@ -5,6 +5,23 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-19: Step 3 Section-wise File Uploads & Section Completion Badges
+
+- **Task**: Upgrade Step 3 file uploads to section-wise `POST auth/register-crew-step3-file` calls, add visual green checkmark badge indicators (`#22C55E`) on completed sections (matching Option 1 design), enforce 30MB total file limit for Portfolio & Featured Work and 5MB per file limit for Resume & Certifications, and update `POST auth/register-crew-step3` to send JSON payload with returned file IDs (`resume_file_id`, `portfolio_file_ids`, `certification_file_ids`, `featured_work.[].fileIds`).
+- **Changes**:
+  - `lib/core/network/api_endpoints.dart`: Added `register_step3_file` (`"auth/register-crew-step3-file"`).
+  - `lib/features/auth/domain/repositories/auth_repository.dart`: Added `uploadStep3File` method and updated `Step3Payload` constructor for file ID arrays and JSON serialization.
+  - `lib/features/auth/data/repositories/auth_repository_impl.dart`: Implemented `uploadStep3File` with defensive `_extractFileIds` helper; updated `registerStep3` to send `application/json` payload containing stored file IDs.
+  - `lib/features/auth/presentation/providers/signup_state.dart`: Added file ID fields (`resumeFileId`, `portfolioFileIds`, `certificationFileIds`, `featuredWorkFileIds`) and upload loading indicators.
+  - `lib/features/auth/presentation/providers/signup_notifier.dart`: Implemented section-wise upload methods (`uploadResumeFile`, `uploadPortfolioFile`, `uploadCertificate`, `uploadFeaturedWork`), validation for file size limits (30MB vs 5MB), and backward-compatible helper setters.
+  - `lib/features/auth/presentation/widgets/signup3_sections.dart`: Added `SignUp3CheckmarkBadge` (Emerald Green `#22C55E` with white checkmark) and updated section cards to render tick marks when completed.
+  - `lib/features/auth/presentation/widgets/signup3_featured_sheet.dart`: Added async upload on save with loading state indicator ("Uploading...").
+  - `lib/features/auth/presentation/screens/signup3_screen.dart`: Wired section upload actions and checkmark badges.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues found across workspace.
+  - `flutter test test/features/auth/`: All 134 auth unit and widget tests passed cleanly.
+  - `flutter test test/features/auth/presentation/screens/signup3_screen_test.dart`: 2 / 2 tests passing.
+
 ### 2026-08-18: Search Hint Vertical Alignment Fix & AppSearchField Consolidation
 
 - **Task**: Fix search hint text and cursor vertical alignment in `ShootsScreen` search box and standardize search fields across the app.

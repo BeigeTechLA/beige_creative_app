@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -380,23 +379,20 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> registerStep3(Step3Payload payload) async {
-    final fields = <String, String>{
-      'crew_member_id': payload.crewMemberId.toString(),
-      'certifications': jsonEncode(
-        payload.certificationFiles.map((f) => f.path.split('/').last).toList(),
-      ),
-      'social_media_links': jsonEncode(payload.socialMediaLinks),
-      'portfolio_links': jsonEncode(payload.portfolioLinks),
-      'featured_work': jsonEncode(payload.featuredWork),
-    };
+  Future<List<int>> uploadStep3File({
+    required int crewMemberId,
+    required String fileType,
+    required List<File> files,
+  }) async {
+    final formData = FormData.fromMap({
+      'crew_member_id': crewMemberId.toString(),
+      'file_type': fileType,
+    });
 
-    final formData = FormData.fromMap(fields);
-
-    Future<void> appendFile(String field, File file) async {
+    for (final file in files) {
       formData.files.add(
         MapEntry(
-          field,
+          fileType,
           await MultipartFile.fromFile(
             file.path,
             filename: file.path.split('/').last,
@@ -405,26 +401,77 @@ class AuthRepositoryImpl implements AuthRepository {
       );
     }
 
-    if (payload.resume != null) await appendFile('resume', payload.resume!);
-    if (payload.portfolio != null) {
-      await appendFile('portfolio', payload.portfolio!);
+    final response = await _client.dio.post<dynamic>(
+      ApiEndpoints.register_step3_file,
+      data: formData,
+    );
+    _throwIfError(response.data, fallback: 'File upload failed');
+    return _extractFileIds(response.data);
+  }
+
+  List<int> _extractFileIds(dynamic responseData) {
+    final result = <int>[];
+    void addValue(dynamic val) {
+      if (val is int) {
+        result.add(val);
+      } else if (val is num) {
+        result.add(val.toInt());
+      } else if (val != null) {
+        final parsed = int.tryParse(val.toString());
+        if (parsed != null) result.add(parsed);
+      }
     }
-    for (final f in payload.certificationFiles) {
-      await appendFile('certifications', f);
+
+    if (responseData is Map<String, dynamic>) {
+      final inner = responseData['data'] ?? responseData;
+      if (inner is List) {
+        for (final item in inner) {
+          if (item is Map) {
+            addValue(item['crew_files_id'] ?? item['id'] ?? item['file_id']);
+          } else {
+            addValue(item);
+          }
+        }
+      } else if (inner is Map) {
+        final ids =
+            inner['crew_files_id'] ??
+            inner['file_id'] ??
+            inner['id'] ??
+            inner['crew_files_ids'];
+        if (ids is List) {
+          for (final item in ids) {
+            addValue(item);
+          }
+        } else {
+          addValue(ids);
+        }
+      } else {
+        addValue(inner);
+      }
+    } else if (responseData is List) {
+      for (final item in responseData) {
+        addValue(item);
+      }
     }
-    for (var i = 0; i < payload.recentWorkMediaFiles.length; i++) {
-      await appendFile('recent_work_media', payload.recentWorkMediaFiles[i]);
-      formData.fields.add(
-        MapEntry(
-          'recent_work_media_index',
-          payload.recentWorkMediaIndexes[i].toString(),
-        ),
-      );
-    }
+    return result;
+  }
+
+  @override
+  Future<void> registerStep3(Step3Payload payload) async {
+    final jsonPayload = <String, dynamic>{
+      'crew_member_id': payload.crewMemberId,
+      'social_media_links': payload.socialMediaLinks,
+      'portfolio_links': payload.portfolioLinks,
+      if (payload.resumeFileId != null) 'resume_file_id': payload.resumeFileId,
+      'portfolio_file_ids': payload.portfolioFileIds,
+      'certification_file_ids': payload.certificationFileIds,
+      'featured_work': payload.featuredWork,
+    };
 
     final response = await _client.dio.post<dynamic>(
       ApiEndpoints.register_step3,
-      data: formData,
+      data: jsonPayload,
+      options: Options(headers: {'Content-Type': 'application/json'}),
     );
     _throwIfError(response.data, fallback: 'Step 3 failed');
   }

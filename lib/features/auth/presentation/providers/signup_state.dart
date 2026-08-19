@@ -58,7 +58,7 @@ class SignupState {
   final bool step2Success;
   final int step2Progress;
 
-  // Step 3 selections (mirrors legacy SignUp3ScreenState fields).
+  // Step 3 selections & uploaded file IDs.
   final List<Map<String, dynamic>> savedSocialLinks;
   final List<Map<String, dynamic>> savedPortfolioLinks;
   final List<List<File>> featuredProjects;
@@ -67,6 +67,18 @@ class SignupState {
   final List<File> certificateFiles;
   final File? resumeFile;
   final File? portfolioFile;
+
+  // File IDs returned from /auth/register-crew-step3-file
+  final int? resumeFileId;
+  final List<int> portfolioFileIds;
+  final List<int> certificationFileIds;
+  final List<List<int>> featuredWorkFileIds;
+
+  // Section-wise upload loading state.
+  final bool isUploadingFeaturedWork;
+  final bool isUploadingCertifications;
+  final bool isUploadingResume;
+  final bool isUploadingPortfolio;
 
   // Step 3 step-2 carry-through (joined display strings used by preview card).
   final String primaryRoleDisplay;
@@ -133,6 +145,14 @@ class SignupState {
     this.certificateFiles = const [],
     this.resumeFile,
     this.portfolioFile,
+    this.resumeFileId,
+    this.portfolioFileIds = const [],
+    this.certificationFileIds = const [],
+    this.featuredWorkFileIds = const [],
+    this.isUploadingFeaturedWork = false,
+    this.isUploadingCertifications = false,
+    this.isUploadingResume = false,
+    this.isUploadingPortfolio = false,
     this.primaryRoleDisplay = '',
     this.experienceDisplay = '',
     this.hourlyRateDisplay = '',
@@ -194,6 +214,15 @@ class SignupState {
     File? portfolioFile,
     bool clearResumeFile = false,
     bool clearPortfolioFile = false,
+    int? resumeFileId,
+    bool clearResumeFileId = false,
+    List<int>? portfolioFileIds,
+    List<int>? certificationFileIds,
+    List<List<int>>? featuredWorkFileIds,
+    bool? isUploadingFeaturedWork,
+    bool? isUploadingCertifications,
+    bool? isUploadingResume,
+    bool? isUploadingPortfolio,
     String? primaryRoleDisplay,
     String? experienceDisplay,
     String? hourlyRateDisplay,
@@ -260,6 +289,18 @@ class SignupState {
       portfolioFile: clearPortfolioFile
           ? null
           : (portfolioFile ?? this.portfolioFile),
+      resumeFileId: clearResumeFileId
+          ? null
+          : (resumeFileId ?? this.resumeFileId),
+      portfolioFileIds: portfolioFileIds ?? this.portfolioFileIds,
+      certificationFileIds: certificationFileIds ?? this.certificationFileIds,
+      featuredWorkFileIds: featuredWorkFileIds ?? this.featuredWorkFileIds,
+      isUploadingFeaturedWork:
+          isUploadingFeaturedWork ?? this.isUploadingFeaturedWork,
+      isUploadingCertifications:
+          isUploadingCertifications ?? this.isUploadingCertifications,
+      isUploadingResume: isUploadingResume ?? this.isUploadingResume,
+      isUploadingPortfolio: isUploadingPortfolio ?? this.isUploadingPortfolio,
       primaryRoleDisplay: primaryRoleDisplay ?? this.primaryRoleDisplay,
       experienceDisplay: experienceDisplay ?? this.experienceDisplay,
       hourlyRateDisplay: hourlyRateDisplay ?? this.hourlyRateDisplay,

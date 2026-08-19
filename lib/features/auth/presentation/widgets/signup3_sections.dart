@@ -118,12 +118,34 @@ class SignUp3SavedLinkRow extends StatelessWidget {
   }
 }
 
+class SignUp3CheckmarkBadge extends StatelessWidget {
+  const SignUp3CheckmarkBadge({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 20,
+      width: 20,
+      decoration: const BoxDecoration(
+        color: AppColors.success,
+        shape: BoxShape.circle,
+      ),
+      child: const Icon(
+        Icons.check,
+        size: 13,
+        color: AppColors.white,
+      ),
+    );
+  }
+}
+
 class SignUp3FeaturedSection extends StatelessWidget {
   final List<List<File>> featuredProjects;
   final List<String> featuredProjectsTitles;
   final VoidCallback onAdd;
   final void Function(int projectIndex) onEdit;
   final void Function(int projectIndex) onDelete;
+  final bool isUploaded;
 
   const SignUp3FeaturedSection({
     super.key,
@@ -132,10 +154,12 @@ class SignUp3FeaturedSection extends StatelessWidget {
     required this.onAdd,
     required this.onEdit,
     required this.onDelete,
+    this.isUploaded = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final showTick = isUploaded || featuredProjects.isNotEmpty;
     return Container(
       constraints: const BoxConstraints(minHeight: 220),
       padding: const EdgeInsets.all(AppSpacing.base),
@@ -150,10 +174,18 @@ class SignUp3FeaturedSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Featured Work',
-                style: AppTextStyles.bodyMediumStrong
-                    .copyWith(color: AppColors.white),
+              Row(
+                children: [
+                  Text(
+                    'Featured Work*',
+                    style: AppTextStyles.bodyMediumStrong
+                        .copyWith(color: AppColors.white),
+                  ),
+                  if (showTick) ...[
+                    const SizedBox(width: 8),
+                    const SignUp3CheckmarkBadge(),
+                  ],
+                ],
               ),
               if (featuredProjects.isNotEmpty)
                 InkWell(
@@ -342,16 +374,19 @@ class SignUp3CertificatesSection extends StatelessWidget {
   final List<File> certificateFiles;
   final VoidCallback onPick;
   final void Function(int index) onDelete;
+  final bool isUploaded;
 
   const SignUp3CertificatesSection({
     super.key,
     required this.certificateFiles,
     required this.onPick,
     required this.onDelete,
+    this.isUploaded = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final showTick = isUploaded || certificateFiles.isNotEmpty;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.base),
       decoration: BoxDecoration(
@@ -365,10 +400,18 @@ class SignUp3CertificatesSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Upload Certifications',
-                style: AppTextStyles.inherit14Strong
-                    .copyWith(color: AppColors.white),
+              Row(
+                children: [
+                  Text(
+                    'Upload Certifications',
+                    style: AppTextStyles.inherit14Strong
+                        .copyWith(color: AppColors.white),
+                  ),
+                  if (showTick) ...[
+                    const SizedBox(width: 8),
+                    const SignUp3CheckmarkBadge(),
+                  ],
+                ],
               ),
               if (certificateFiles.isNotEmpty)
                 InkWell(

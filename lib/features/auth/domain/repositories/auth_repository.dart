@@ -75,25 +75,21 @@ class Step2Payload {
 
 class Step3Payload {
   final int crewMemberId;
-  final List<Map<String, String>> socialMediaLinks;
+  final Map<String, String> socialMediaLinks;
   final List<Map<String, String>> portfolioLinks;
   final List<Map<String, dynamic>> featuredWork;
-  final List<File> certificationFiles;
-  final File? resume;
-  final File? portfolio;
-  final List<File> recentWorkMediaFiles;
-  final List<int> recentWorkMediaIndexes;
+  final int? resumeFileId;
+  final List<int> portfolioFileIds;
+  final List<int> certificationFileIds;
 
   const Step3Payload({
     required this.crewMemberId,
     required this.socialMediaLinks,
     required this.portfolioLinks,
     required this.featuredWork,
-    required this.certificationFiles,
-    required this.resume,
-    required this.portfolio,
-    required this.recentWorkMediaFiles,
-    required this.recentWorkMediaIndexes,
+    this.resumeFileId,
+    this.portfolioFileIds = const [],
+    this.certificationFileIds = const [],
   });
 }
 
@@ -122,8 +118,16 @@ abstract class AuthRepository {
   /// POST `auth/register-crew-step2` (JSON).
   Future<void> registerStep2(Step2Payload payload);
 
-  /// POST `auth/register-crew-step3` (multipart). Uploads resume, portfolio,
-  /// certifications, and recent-work media + paired indexes.
+  /// POST `auth/register-crew-step3-file` (multipart). Uploads section files
+  /// (`file_type`: "resume", "portfolio", "certifications", or "recent_work").
+  /// Returns list of uploaded `crew_files_id` integers.
+  Future<List<int>> uploadStep3File({
+    required int crewMemberId,
+    required String fileType,
+    required List<File> files,
+  });
+
+  /// POST `auth/register-crew-step3` (JSON). Submits crew metadata and file IDs.
   Future<void> registerStep3(Step3Payload payload);
 
   /// GET `auth/crew-roles`.

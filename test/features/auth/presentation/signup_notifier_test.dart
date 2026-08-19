@@ -49,6 +49,14 @@ class _FakeAuthRepo implements AuthRepository {
   }
 
   @override
+  Future<List<int>> uploadStep3File({
+    required int crewMemberId,
+    required String fileType,
+    required List<File> files,
+  }) async =>
+      const [640];
+
+  @override
   Future<void> registerStep3(Step3Payload payload) async {
     capturedStep3 = payload;
     final err = throwOnStep3;
@@ -816,19 +824,14 @@ void main() {
         final payload = repo.capturedStep3;
         expect(payload, isNotNull);
         expect(payload!.crewMemberId, 7);
-        expect(payload.socialMediaLinks, [
-          {'platform': 'instagram', 'url': 'https://insta.com/a'},
-        ]);
+        expect(payload.socialMediaLinks, {
+          'instagram': 'https://insta.com/a',
+        });
         expect(payload.portfolioLinks, [
-          {'platform': 'google_drive', 'url': 'https://drive.google.com/x'},
+          {'title': 'Google Drive', 'url': 'https://drive.google.com/x', 'platform': 'google_drive'},
         ]);
         expect(payload.featuredWork.length, 2);
-        expect(payload.featuredWork.first['work_title'], 'First');
-        expect(payload.certificationFiles.length, 1);
-        expect(payload.resume?.path, '/tmp/cv.pdf');
-        expect(payload.portfolio, isNull);
-        expect(payload.recentWorkMediaFiles.length, 3);
-        expect(payload.recentWorkMediaIndexes, [0, 0, 1]);
+        expect(payload.featuredWork.first['title'], 'First');
         expect(c.read(signupNotifierProvider).step3Success, isTrue);
       },
     );
@@ -858,6 +861,67 @@ void main() {
       expect(ok, isFalse);
       expect(c.read(signupNotifierProvider).errorMessage, 'boom');
       expect(c.read(signupNotifierProvider).isSubmittingStep3, isFalse);
+    });
+
+    test('uploadFeaturedWork rejects when image count is not 5', () async {
+      final repo = _FakeAuthRepo()..step1Result = 7;
+      final c = _container(repo);
+      final notifier = c.read(signupNotifierProvider.notifier);
+      notifier.setProfileImage(File('/tmp/a.png'));
+      notifier.setSelectedDistance('Upto 50 Miles');
+      notifier.setAcceptedTerms(true);
+      notifier.setCurrentLatLng(const LatLng(0, 0));
+      await notifier.submitStep1(
+        firstName: 'A',
+        lastName: 'B',
+        email: 'a@b.com',
+        phone: '1',
+        password: 'pw',
+        confirmPassword: 'pw',
+        location: 'L',
+      );
+
+      final ok = await notifier.uploadFeaturedWork(
+        title: 'Project 1',
+        files: [File('/tmp/1.jpg'), File('/tmp/2.jpg'), File('/tmp/3.jpg'), File('/tmp/4.jpg')],
+      );
+      expect(ok, isFalse);
+      expect(
+        c.read(signupNotifierProvider).errorMessage,
+        'Exactly 5 images are required for featured work',
+      );
+    });
+
+    test('uploadFeaturedWork succeeds when image count is 5', () async {
+      final repo = _FakeAuthRepo()..step1Result = 7;
+      final c = _container(repo);
+      final notifier = c.read(signupNotifierProvider.notifier);
+      notifier.setProfileImage(File('/tmp/a.png'));
+      notifier.setSelectedDistance('Upto 50 Miles');
+      notifier.setAcceptedTerms(true);
+      notifier.setCurrentLatLng(const LatLng(0, 0));
+      await notifier.submitStep1(
+        firstName: 'A',
+        lastName: 'B',
+        email: 'a@b.com',
+        phone: '1',
+        password: 'pw',
+        confirmPassword: 'pw',
+        location: 'L',
+      );
+
+      final ok = await notifier.uploadFeaturedWork(
+        title: 'Project 1',
+        files: [
+          File('/tmp/1.jpg'),
+          File('/tmp/2.jpg'),
+          File('/tmp/3.jpg'),
+          File('/tmp/4.jpg'),
+          File('/tmp/5.jpg'),
+        ],
+      );
+      expect(ok, isTrue);
+      expect(c.read(signupNotifierProvider).featuredProjects.single.length, 5);
     });
   });
 

@@ -715,19 +715,261 @@ class SignupNotifier extends Notifier<SignupState> {
     final projects = [...state.featuredProjects]..removeAt(index);
     final titles = [...state.featuredProjectsTitles];
     if (index < titles.length) titles.removeAt(index);
+    final fileIds = [...state.featuredWorkFileIds];
+    if (index < fileIds.length) fileIds.removeAt(index);
     state = state.copyWith(
       featuredProjects: projects,
       featuredProjectsTitles: titles,
+      featuredWorkFileIds: fileIds,
     );
+  }
+
+  Future<bool> uploadFeaturedWork({
+    required String title,
+    required List<File> files,
+    int? editIndex,
+  }) async {
+    final crewMemberId = state.crewMemberId;
+    if (crewMemberId == null) {
+      state = state.copyWith(errorMessage: 'Missing crew member id');
+      return false;
+    }
+    if (files.length != 5) {
+      state = state.copyWith(
+        errorMessage: 'Exactly 5 images are required for featured work',
+      );
+      return false;
+    }
+
+    const max30MB = 30 * 1024 * 1024;
+    final totalBytes = files.fold<int>(0, (sum, f) {
+      try {
+        return sum + f.lengthSync();
+      } catch (_) {
+        return sum;
+      }
+    });
+    if (totalBytes > max30MB) {
+      state = state.copyWith(
+        errorMessage: 'Featured work files must not exceed 30MB in total',
+      );
+      return false;
+    }
+
+    state = state.copyWith(
+      isUploadingFeaturedWork: true,
+      clearError: true,
+      clearToast: true,
+    );
+
+    try {
+      final ids = await ref
+          .read(signupRepositoryProvider)
+          .uploadStep3File(
+            crewMemberId: crewMemberId,
+            fileType: 'recent_work',
+            files: files,
+          );
+
+      final projects = [...state.featuredProjects];
+      final titles = [...state.featuredProjectsTitles];
+      final fileIdsList = [...state.featuredWorkFileIds];
+
+      if (editIndex != null && editIndex < projects.length) {
+        projects[editIndex] = files;
+        if (editIndex < titles.length) {
+          titles[editIndex] = title;
+        }
+        if (editIndex < fileIdsList.length) {
+          fileIdsList[editIndex] = ids;
+        } else {
+          fileIdsList.add(ids);
+        }
+      } else {
+        projects.add(files);
+        titles.add(title);
+        fileIdsList.add(ids);
+      }
+
+      state = state.copyWith(
+        featuredProjects: projects,
+        featuredProjectsTitles: titles,
+        featuredWorkFileIds: fileIdsList,
+        isUploadingFeaturedWork: false,
+      );
+      return true;
+    } catch (e, st) {
+      AppLogger.e('Signup.uploadFeaturedWork failed', e, st);
+      state = state.copyWith(
+        isUploadingFeaturedWork: false,
+        errorMessage: _formatError(e) ?? 'Featured work upload failed',
+      );
+      return false;
+    }
+  }
+
+  Future<bool> uploadCertificate(File file) async {
+    final crewMemberId = state.crewMemberId;
+    if (crewMemberId == null) {
+      state = state.copyWith(errorMessage: 'Missing crew member id');
+      return false;
+    }
+    const max5MB = 5 * 1024 * 1024;
+    try {
+      if (file.lengthSync() > max5MB) {
+        state = state.copyWith(
+          errorMessage: 'Certification file size must be 5MB or less',
+        );
+        return false;
+      }
+    } catch (_) {}
+
+    state = state.copyWith(
+      isUploadingCertifications: true,
+      clearError: true,
+      clearToast: true,
+    );
+
+    try {
+      final ids = await ref
+          .read(signupRepositoryProvider)
+          .uploadStep3File(
+            crewMemberId: crewMemberId,
+            fileType: 'certifications',
+            files: [file],
+          );
+
+      state = state.copyWith(
+        certificateFiles: [...state.certificateFiles, file],
+        certificationFileIds: [...state.certificationFileIds, ...ids],
+        isUploadingCertifications: false,
+      );
+      return true;
+    } catch (e, st) {
+      AppLogger.e('Signup.uploadCertificate failed', e, st);
+      state = state.copyWith(
+        isUploadingCertifications: false,
+        errorMessage: _formatError(e) ?? 'Certification upload failed',
+      );
+      return false;
+    }
+  }
+
+  void removeCertificateAt(int index) {
+    final certs = [...state.certificateFiles];
+    final certIds = [...state.certificationFileIds];
+    if (index < certs.length) certs.removeAt(index);
+    if (index < certIds.length) certIds.removeAt(index);
+    state = state.copyWith(
+      certificateFiles: certs,
+      certificationFileIds: certIds,
+    );
+  }
+
+  Future<bool> uploadResumeFile(File file) async {
+    final crewMemberId = state.crewMemberId;
+    if (crewMemberId == null) {
+      state = state.copyWith(errorMessage: 'Missing crew member id');
+      return false;
+    }
+    const max5MB = 5 * 1024 * 1024;
+    try {
+      if (file.lengthSync() > max5MB) {
+        state = state.copyWith(
+          errorMessage: 'Resume file size must be 5MB or less',
+        );
+        return false;
+      }
+    } catch (_) {}
+
+    state = state.copyWith(
+      isUploadingResume: true,
+      clearError: true,
+      clearToast: true,
+    );
+
+    try {
+      final ids = await ref
+          .read(signupRepositoryProvider)
+          .uploadStep3File(
+            crewMemberId: crewMemberId,
+            fileType: 'resume',
+            files: [file],
+          );
+
+      state = state.copyWith(
+        resumeFile: file,
+        resumeFileId: ids.firstOrNull,
+        isUploadingResume: false,
+      );
+      return true;
+    } catch (e, st) {
+      AppLogger.e('Signup.uploadResumeFile failed', e, st);
+      state = state.copyWith(
+        isUploadingResume: false,
+        errorMessage: _formatError(e) ?? 'Resume upload failed',
+      );
+      return false;
+    }
+  }
+
+  void removeResumeFile() {
+    state = state.copyWith(clearResumeFile: true, clearResumeFileId: true);
+  }
+
+  Future<bool> uploadPortfolioFile(File file) async {
+    final crewMemberId = state.crewMemberId;
+    if (crewMemberId == null) {
+      state = state.copyWith(errorMessage: 'Missing crew member id');
+      return false;
+    }
+    const max30MB = 30 * 1024 * 1024;
+    try {
+      if (file.lengthSync() > max30MB) {
+        state = state.copyWith(
+          errorMessage: 'Portfolio file size must be 30MB or less',
+        );
+        return false;
+      }
+    } catch (_) {}
+
+    state = state.copyWith(
+      isUploadingPortfolio: true,
+      clearError: true,
+      clearToast: true,
+    );
+
+    try {
+      final ids = await ref
+          .read(signupRepositoryProvider)
+          .uploadStep3File(
+            crewMemberId: crewMemberId,
+            fileType: 'portfolio',
+            files: [file],
+          );
+
+      state = state.copyWith(
+        portfolioFile: file,
+        portfolioFileIds: ids,
+        isUploadingPortfolio: false,
+      );
+      return true;
+    } catch (e, st) {
+      AppLogger.e('Signup.uploadPortfolioFile failed', e, st);
+      state = state.copyWith(
+        isUploadingPortfolio: false,
+        errorMessage: _formatError(e) ?? 'Portfolio upload failed',
+      );
+      return false;
+    }
+  }
+
+  void removePortfolioFile() {
+    state = state.copyWith(clearPortfolioFile: true, portfolioFileIds: const []);
   }
 
   void addCertificate(File file) {
     state = state.copyWith(certificateFiles: [...state.certificateFiles, file]);
-  }
-
-  void removeCertificateAt(int index) {
-    final next = [...state.certificateFiles]..removeAt(index);
-    state = state.copyWith(certificateFiles: next);
   }
 
   void setResumeFile(File? file) {
@@ -771,40 +1013,40 @@ class SignupNotifier extends Notifier<SignupState> {
       clearToast: true,
     );
 
-    final recentWorkFiles = <File>[];
-    final recentWorkIndexes = <int>[];
-    for (var i = 0; i < state.featuredProjects.length; i++) {
-      for (final f in state.featuredProjects[i]) {
-        recentWorkFiles.add(f);
-        recentWorkIndexes.add(i);
+    final socialMediaLinks = <String, String>{};
+    for (final e in state.savedSocialLinks) {
+      final name = e['name']?.toString() ?? '';
+      final key = signup3SocialPlatformKey(name);
+      final url = signup3NormalizeUrl(e['url']?.toString() ?? '');
+      if (key.isNotEmpty && url.isNotEmpty) {
+        socialMediaLinks[key] = url;
       }
     }
 
-    final socialLinks = state.savedSocialLinks
-        .map(
-          (e) => {
-            'platform': signup3SocialPlatformKey(e['name'].toString()),
-            'url': signup3NormalizeUrl(e['url']),
-          },
-        )
-        .toList();
-    final portfolioLinks = state.savedPortfolioLinks
-        .map(
-          (e) => {
-            'platform': signup3PortfolioPlatformKey(e['name'].toString()),
-            'url': signup3NormalizeUrl(e['url']),
-          },
-        )
-        .toList();
-    final featuredWork = List<Map<String, dynamic>>.generate(
-      state.featuredProjects.length,
-      (i) => {
-        'work_title': i < state.featuredProjectsTitles.length
-            ? state.featuredProjectsTitles[i]
-            : '',
+    final portfolioLinks = state.savedPortfolioLinks.map((e) {
+      final name = e['name']?.toString() ?? '';
+      final url = signup3NormalizeUrl(e['url']?.toString() ?? '');
+      return {
+        'title': name,
+        'url': url,
+        'platform': signup3PortfolioPlatformKey(name),
+      };
+    }).toList();
+
+    final featuredWork = <Map<String, dynamic>>[];
+    for (var i = 0; i < state.featuredProjects.length; i++) {
+      final title = i < state.featuredProjectsTitles.length
+          ? state.featuredProjectsTitles[i]
+          : '';
+      final fileIds = i < state.featuredWorkFileIds.length
+          ? state.featuredWorkFileIds[i]
+          : <int>[];
+      featuredWork.add({
+        'title': title,
         'tags': state.selectedFeaturedTags,
-      },
-    );
+        'fileIds': fileIds,
+      });
+    }
 
     try {
       await ref
@@ -812,14 +1054,12 @@ class SignupNotifier extends Notifier<SignupState> {
           .registerStep3(
             Step3Payload(
               crewMemberId: crewMemberId,
-              socialMediaLinks: socialLinks,
+              socialMediaLinks: socialMediaLinks,
               portfolioLinks: portfolioLinks,
               featuredWork: featuredWork,
-              certificationFiles: state.certificateFiles,
-              resume: state.resumeFile,
-              portfolio: state.portfolioFile,
-              recentWorkMediaFiles: recentWorkFiles,
-              recentWorkMediaIndexes: recentWorkIndexes,
+              resumeFileId: state.resumeFileId,
+              portfolioFileIds: state.portfolioFileIds,
+              certificationFileIds: state.certificationFileIds,
             ),
           );
       unawaited(

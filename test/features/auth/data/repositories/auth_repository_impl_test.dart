@@ -748,35 +748,90 @@ void main() {
     });
   });
 
-  group('registerStep3', () {
-    Step3Payload payload() => const Step3Payload(
-      crewMemberId: 7,
-      socialMediaLinks: [],
-      portfolioLinks: [],
-      featuredWork: [],
-      certificationFiles: [],
-      resume: null,
-      portfolio: null,
-      recentWorkMediaFiles: [],
-      recentWorkMediaIndexes: [],
-    );
-
-    test('happy: posts to register_step3 endpoint', () async {
+  group('uploadStep3File', () {
+    test('happy: uploads file and returns parsed crew_files_id', () async {
       when(
         () => dio.post<dynamic>(any(), data: any(named: 'data')),
-      ).thenAnswer((_) async => _ok({'error': false}));
+      ).thenAnswer(
+        (_) async => _ok({
+          'error': false,
+          'data': {'crew_files_id': 640},
+        }),
+      );
 
-      await repo.registerStep3(payload());
+      final result = await repo.uploadStep3File(
+        crewMemberId: 2140,
+        fileType: 'resume',
+        files: [],
+      );
 
       final path = verify(
         () => dio.post<dynamic>(captureAny(), data: any(named: 'data')),
       ).captured.single;
-      expect(path, ApiEndpoints.register_step3);
+      expect(path, ApiEndpoints.register_step3_file);
+      expect(result, equals([640]));
+    });
+
+    test('error envelope → throws fallback "File upload failed"', () async {
+      when(
+        () => dio.post<dynamic>(any(), data: any(named: 'data')),
+      ).thenAnswer((_) async => _ok({'error': true}));
+
+      await expectLater(
+        repo.uploadStep3File(
+          crewMemberId: 2140,
+          fileType: 'resume',
+          files: [],
+        ),
+        throwsA(
+          predicate(
+            (e) =>
+                e is Exception && e.toString().contains('File upload failed'),
+          ),
+        ),
+      );
+    });
+  });
+
+  group('registerStep3', () {
+    Step3Payload payload() => const Step3Payload(
+      crewMemberId: 7,
+      socialMediaLinks: {'instagram': 'https://instagram.com/test'},
+      portfolioLinks: [],
+      featuredWork: [],
+      resumeFileId: 640,
+      portfolioFileIds: [641],
+      certificationFileIds: [642],
+    );
+
+    test('happy: posts to register_step3 endpoint', () async {
+      when(
+        () => dio.post<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
+      ).thenAnswer((_) async => _ok({'error': false}));
+
+      await repo.registerStep3(payload());
+
+      final captured = verify(
+        () => dio.post<dynamic>(
+          captureAny(),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
+      ).captured;
+      expect(captured.single, ApiEndpoints.register_step3);
     });
 
     test('error envelope → throws fallback "Step 3 failed"', () async {
       when(
-        () => dio.post<dynamic>(any(), data: any(named: 'data')),
+        () => dio.post<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
       ).thenAnswer((_) async => _ok({'error': true}));
 
       await expectLater(
