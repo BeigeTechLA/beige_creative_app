@@ -25,10 +25,9 @@ class Env {
       case Environment.prod:
         apiUrl = 'https://mobile.prod.beige.app/api/';
         imageUrl = 'https://d2jhn32fsulyac.cloudfront.net/';
-        // TODO(M6): prod socket URL — backend to confirm.
         socketUrl = chatSocketUrlOverride.isNotEmpty
             ? chatSocketUrlOverride
-            : 'https://api.prod.beige.app';
+            : 'https://api2.prod.beige.app';
     }
   }
 }
