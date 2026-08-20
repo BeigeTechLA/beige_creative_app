@@ -4,6 +4,10 @@ import 'dart:io' show Platform;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'dart:convert';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'push_notification_handler.dart';
+
 import '../../features/notification/presentation/providers/notification_list_providers.dart';
 import '../providers/auth_state_provider.dart';
 import '../providers/core_providers.dart';
@@ -16,11 +20,40 @@ class FcmService {
   }
 
   final Ref _ref;
+  final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   StreamSubscription<String>? _tokenRefreshSub;
   String? _lastRegisteredToken;
 
   void _initListeners() {
     if (!FirebaseService.isInitialized) return;
+
+    const AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    _localNotificationsPlugin.initialize(
+      settings: initSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        if (response.payload != null) {
+          try {
+            final Map<String, dynamic> data = jsonDecode(response.payload!);
+            PushNotificationHandler.handlePushTap(data);
+          } catch (e) {
+            AppLogger.e('Failed to parse notification payload: $e');
+          }
+        }
+      },
+    );
 
     _tokenRefreshSub = FirebaseMessaging.instance.onTokenRefresh.listen(
       (newToken) async {
@@ -39,6 +72,33 @@ class FcmService {
       if (message.notification != null) {
         AppLogger.i('Message notification title: ${message.notification?.title}');
         AppLogger.i('Message notification body: ${message.notification?.body}');
+
+        final notification = message.notification!;
+        final androidDetails = const AndroidNotificationDetails(
+          'high_importance_channel',
+          'High Importance Notifications',
+          channelDescription: 'This channel is used for important notifications.',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        );
+        final iosDetails = const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        );
+        final platformDetails = NotificationDetails(
+          android: androidDetails,
+          iOS: iosDetails,
+        );
+
+        _localNotificationsPlugin.show(
+          id: notification.hashCode,
+          title: notification.title,
+          body: notification.body,
+          notificationDetails: platformDetails,
+          payload: jsonEncode(message.data),
+        );
       }
     });
   }
