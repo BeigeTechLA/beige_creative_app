@@ -13,6 +13,7 @@ import '../providers/auth_state_provider.dart';
 import '../providers/core_providers.dart';
 import '../utils/app_logger.dart';
 import 'firebase_service.dart';
+
 /// Service responsible for FCM Token registration & lifecycle management.
 class FcmService {
   FcmService(this._ref) {
@@ -21,17 +22,22 @@ class FcmService {
 
   final Ref _ref;
   final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin();
   StreamSubscription<String>? _tokenRefreshSub;
   String? _lastRegisteredToken;
+
+
+  int _notificationIdCounter = 0;
+  int _nextNotificationId() =>
+      (_notificationIdCounter = (_notificationIdCounter + 1) % 100000);
 
   void _initListeners() {
     if (!FirebaseService.isInitialized) return;
 
     const AndroidInitializationSettings androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    AndroidInitializationSettings('@mipmap/ic_launcher');
     const DarwinInitializationSettings iosSettings =
-        DarwinInitializationSettings(
+    DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
@@ -40,6 +46,7 @@ class FcmService {
       android: androidSettings,
       iOS: iosSettings,
     );
+
 
     _localNotificationsPlugin.initialize(
       settings: initSettings,
@@ -56,7 +63,7 @@ class FcmService {
     );
 
     _tokenRefreshSub = FirebaseMessaging.instance.onTokenRefresh.listen(
-      (newToken) async {
+          (newToken) async {
         AppLogger.i('FcmService: FCM Token refreshed.');
         await _registerToken(newToken);
       },
@@ -65,35 +72,44 @@ class FcmService {
       },
     );
 
-    // Add listener to verify incoming notifications in foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       AppLogger.i('FcmService: 🚨 RECEIVED FOREGROUND MESSAGE 🚨');
       AppLogger.i('Message data: ${message.data}');
       if (message.notification != null) {
-        AppLogger.i('Message notification title: ${message.notification?.title}');
-        AppLogger.i('Message notification body: ${message.notification?.body}');
+        AppLogger.i(
+            'Message notification title: ${message.notification?.title}');
+        AppLogger.i(
+            'Message notification body: ${message.notification?.body}');
 
         final notification = message.notification!;
-        final androidDetails = const AndroidNotificationDetails(
+        const androidDetails = AndroidNotificationDetails(
           'high_importance_channel',
           'High Importance Notifications',
-          channelDescription: 'This channel is used for important notifications.',
+          channelDescription:
+          'This channel is used for important notifications.',
           importance: Importance.max,
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
+          channelShowBadge: false,
         );
-        final iosDetails = const DarwinNotificationDetails(
+        const iosDetails = DarwinNotificationDetails(
           presentAlert: true,
-          presentBadge: true,
+          presentBadge: false,
           presentSound: true,
         );
-        final platformDetails = NotificationDetails(
+        const platformDetails = NotificationDetails(
           android: androidDetails,
           iOS: iosDetails,
         );
 
+        // NOTE: this version of show() requires ALL named parameters too
+        // (id:, title:, body:, notificationDetails:, payload:) — 0
+        // positional args allowed.
+        // Using a bounded counter instead of `notification.hashCode` as
+        // the id, since hashCode can exceed the 32-bit range Android
+        // expects and throw a PlatformException.
         _localNotificationsPlugin.show(
-          id: notification.hashCode,
+          id: _nextNotificationId(),
           title: notification.title,
           body: notification.body,
           notificationDetails: platformDetails,
@@ -110,7 +126,8 @@ class FcmService {
       final sessionStore = _ref.read(sessionStoreProvider);
       final authToken = await sessionStore.readToken();
       if (authToken == null || authToken.isEmpty) {
-        AppLogger.d('FcmService: No active session token, skipping FCM token registration.');
+        AppLogger.d(
+            'FcmService: No active session token, skipping FCM token registration.');
         return;
       }
 
@@ -118,22 +135,27 @@ class FcmService {
       if (FirebaseService.isInitialized) {
         final messaging = FirebaseMessaging.instance;
         try {
-          final settings = await messaging.requestPermission().timeout(const Duration(seconds: 5));
-          
-          if (settings.authorizationStatus == AuthorizationStatus.authorized || 
-              settings.authorizationStatus == AuthorizationStatus.provisional) {
-            
+          final settings = await messaging
+              .requestPermission()
+              .timeout(const Duration(seconds: 5));
+
+          if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+              settings.authorizationStatus ==
+                  AuthorizationStatus.provisional) {
             if (Platform.isIOS) {
               final apnsToken = await _waitForApnsToken(messaging);
               if (apnsToken == null) {
-                AppLogger.w('FcmService: APNS token unavailable, cannot fetch FCM token yet.');
+                AppLogger.w(
+                    'FcmService: APNS token unavailable, cannot fetch FCM token yet.');
                 return;
               }
             }
 
-            fcmToken = await messaging.getToken().timeout(const Duration(seconds: 10));
+            fcmToken =
+            await messaging.getToken().timeout(const Duration(seconds: 10));
           } else {
-            AppLogger.w('FcmService: Push notification permissions not granted by user.');
+            AppLogger.w(
+                'FcmService: Push notification permissions not granted by user.');
           }
         } catch (e) {
           AppLogger.e('FcmService: Timeout or error requesting FCM token: $e');
@@ -161,7 +183,7 @@ class FcmService {
       }
 
       final sessionId = await sessionStore.getAppSessionId();
-      
+
       final cacheKey = '${sessionId}_${authToken.hashCode}_$token';
       if (cacheKey == _lastRegisteredToken) {
         AppLogger.d('FcmService: Token unchanged for this session and user, skipping redundant registration.');
