@@ -281,7 +281,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               child: RefreshIndicator(
                 color: AppColors.primary,
                 backgroundColor: AppColors.surfaceMid,
-                onRefresh: () => notifier.refresh(),
+                onRefresh: () => notifier.refresh(isSilent: true),
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics(),
@@ -321,22 +321,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           const SizedBox(
                             height: 24,
                           ), // 24 visual gap above divider
-                          const HomeSectionDivider(centerAlpha: 0.24),
-                        ],
-
-                        if (homeState.upcomingMeetingsList.isNotEmpty) ...[
-                          const SizedBox(
-                            height: 18,
-                          ), // 18 + 6 (header padding) = 24 visual gap below divider
-                          HomeUpcomingMeetingsCarousel(
-                            upcomingMeetings: homeState.upcomingMeetingsList,
-                            currentIndex: _meetingsCurrentIndex,
-                            controller: _meetingsController,
-                            onCardTap: _onMeetingCardTap,
-                            onSwipeNext: _goToNextMeeting,
-                            onSwipePrevious: _goToPreviousMeeting,
-                          ),
-                          // meetings stack has 25px bottom centering padding, so we don't need additional SizedBox!
                           const HomeSectionDivider(centerAlpha: 0.24),
                         ],
 
@@ -384,6 +368,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           height: 24,
                         ), // 24 visual gap above divider
                         const HomeSectionDivider(centerAlpha: 0.24),
+
+                        if (homeState.upcomingMeetingsList.isNotEmpty) ...[
+                          const SizedBox(
+                            height: 18,
+                          ), // 18 + 6 (header padding) = 24 visual gap below divider
+                          HomeUpcomingMeetingsCarousel(
+                            upcomingMeetings: homeState.upcomingMeetingsList,
+                            currentIndex: _meetingsCurrentIndex,
+                            controller: _meetingsController,
+                            onCardTap: _onMeetingCardTap,
+                            onSwipeNext: _goToNextMeeting,
+                            onSwipePrevious: _goToPreviousMeeting,
+                          ),
+                          // meetings stack has 25px bottom centering padding, so we don't need additional SizedBox!
+                          const HomeSectionDivider(centerAlpha: 0.24),
+                        ],
 
                         if (homeState.pendingRequestCards.isNotEmpty) ...[
                           const SizedBox(
@@ -472,7 +472,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
           ],
         ),
-        if (homeState.isLoading || homeState.actionInFlightProjectId != 0)
+        if ((homeState.isLoading && homeState.profileData == null) ||
+            homeState.actionInFlightProjectId != 0)
           const AppLoadingOverlay(),
       ],
     );

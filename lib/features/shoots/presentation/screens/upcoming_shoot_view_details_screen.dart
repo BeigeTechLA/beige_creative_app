@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -269,8 +271,14 @@ class _InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final teamMembers = mydata?.teamMembers ?? [];
-    final assignedCount = mydata?.teamSummary.assignedCount ?? teamMembers.length;
-    final totalRequired = mydata?.teamSummary.totalRequired ?? teamMembers.length;
+    final assignedCount = math.max(
+      mydata?.teamSummary.assignedCount ?? 0,
+      teamMembers.length,
+    );
+    final totalRequired = math.max(
+      mydata?.teamSummary.totalRequired ?? 0,
+      assignedCount,
+    );
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -454,7 +462,7 @@ class _InfoCard extends StatelessWidget {
               ),
               Text(
                 '(${assignedCount.toString().padLeft(2, '0')}/${totalRequired.toString().padLeft(2, '0')})',
-                style: AppTextStyles.bodyMediumStrong.copyWith(
+                style: AppTextStyles.displayLabel14Strong.copyWith(
                   color: AppColors.primary,
                 ),
               ),

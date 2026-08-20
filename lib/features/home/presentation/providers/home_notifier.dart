@@ -39,8 +39,12 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   // ── Public API ──────────────────────────────────────────────────────────
 
   /// Fetches consolidated dashboard data in a single GET creator/dashboard call.
-  Future<void> refresh() async {
-    state = state.copyWith(isLoading: true, clearError: true);
+  Future<void> refresh({bool isSilent = false}) async {
+    if (!isSilent && state.profileData == null) {
+      state = state.copyWith(isLoading: true, clearError: true);
+    } else {
+      state = state.copyWith(clearError: true);
+    }
     if (ref.read(guestModeProvider)) {
       state = state.copyWith(isLoading: false);
       return;

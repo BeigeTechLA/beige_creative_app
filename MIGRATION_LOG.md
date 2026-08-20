@@ -5,6 +5,40 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-20: Fix Dashboard Pull-to-Refresh Dual Loader Issue
+
+- **Task**: Fix double loader display (top `RefreshIndicator` spinner + center `AppLoadingOverlay` 5-dot animation) when pulling to refresh on Dashboard.
+- **Changes**:
+  - `lib/features/home/presentation/providers/home_notifier.dart`: Updated `refresh({bool isSilent = false})` to avoid setting `isLoading = true` when refreshing existing dashboard data or performing silent updates.
+  - `lib/features/home/presentation/screens/home_screen.dart`: Passed `isSilent: true` to `notifier.refresh()` in `RefreshIndicator` and updated `AppLoadingOverlay` visibility condition to `(homeState.isLoading && homeState.profileData == null) || homeState.actionInFlightProjectId != 0`.
+- **Verification**:
+  - `flutter analyze lib/features/home/`: 0 issues found.
+
+### 2026-08-20: Update Calendar Icon in MeetingCard to SVG
+
+- **Task**: Replace `Icons.calendar_today_outlined` on line 187 of `meeting_card.dart` with SVG asset `AppAssets.icMeetingDatetime`.
+- **Changes**:
+  - `lib/features/meetings/presentation/widgets/meeting_card.dart`: Replaced Material icon with `SvgPicture.asset(AppAssets.icMeetingDatetime, width: 16, height: 16)`.
+- **Verification**:
+  - `dart analyze lib/features/meetings/presentation/widgets/meeting_card.dart`: 0 issues found.
+
+### 2026-08-20: Reorder Dashboard Sections (Availability above Upcoming Meetings)
+
+- **Task**: Reorder sections on Dashboard (`HomeScreen`) per Figma sequence: Availability section moved above Upcoming Meetings.
+- **Changes**:
+  - `lib/features/home/presentation/screens/home_screen.dart`: Repositioned `HomeAvailabilitySection` above `HomeUpcomingMeetingsCarousel`.
+- **Verification**:
+  - `flutter analyze lib/features/home/presentation/screens/home_screen.dart`: 0 issues found.
+  - `flutter test test/features/home/presentation/screens/home_screen_test.dart`: All 6 tests passed cleanly.
+
+### 2026-08-20: Fix Notes (optional) Label Spacing in Add Availability Screen
+
+- **Task**: Fix text formatting for the notes input field label in `Add Availability` screen to add a space between `Notes` and `(optional)`.
+- **Changes**:
+  - `lib/features/availability/presentation/screens/add_availability_screen.dart`: Updated `CustomTextField` label from `'Notes(optional)'` to `'Notes (optional)'`.
+- **Verification**:
+  - `flutter analyze lib/features/availability/presentation/screens/add_availability_screen.dart`: 0 issues found.
+
 ### 2026-08-19: Standardize "Done" Bottom Sheet CTA Button Typography & Font Style
 
 - **Task**: Align font family (`Unbounded`), font size (`14px`), font weight (`w500`), and dark label text (`AppColors.textHeading`) of "Done" bottom sheet action buttons to match the "Next" CTA button from SignUp Step 1.
@@ -4207,3 +4241,18 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
   - Hydrated `'icon'` asset paths during `prefill.socialMediaLinks` and `prefill.portfolioLinks` mapping in `SignupNotifier.loadStep1Prefill()`.
   - Updated `SignUp3SavedLinkRow`, `_SavedSocialRow`, and `_SavedPortfolioRow` to safely resolve icon paths and render in white SVG tint style (Option 2).
 - **Verification**: `flutter test test/features/auth/presentation/signup_notifier_test.dart` (32/32 tests passing).
+
+### 2026-08-20: Upcoming Shoot Details Team Members Ratio Display Fix
+
+- **Task**: Fix Team Members ratio display `(08/01)` when assigned count exceeds backend `total_required`.
+- **Changed Files**:
+  - `lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart`
+  - `test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart`
+- **Decisions**:
+  - Clamped `totalRequired` count using `math.max(mydata?.teamSummary.totalRequired ?? 0, assignedCount)` so assigned member count never exceeds total required count (rendering `(08/08)` instead of `(08/01)`).
+  - Preserved 2-digit zero-padding format (`Option 2`).
+  - Updated ratio label style to `AppTextStyles.displayLabel14Strong.copyWith(color: AppColors.primary)` to use `Unbounded` font with `#E8D1AB` (`AppColors.primary`).
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues.
+  - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 5/5 tests passing.
+

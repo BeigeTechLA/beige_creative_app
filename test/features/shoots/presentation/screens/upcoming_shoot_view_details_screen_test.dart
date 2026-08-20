@@ -236,4 +236,60 @@ void main() {
     expect(find.text('Adam Brooks'), findsOneWidget);
     expect(find.text('Production Manager'), findsOneWidget);
   });
+
+  testWidgets(
+      'clamps totalRequired count to assigned count when total_required is less than assigned members',
+      (tester) async {
+    final data = MyData.fromJson({
+      'project': {
+        'project_id': 42,
+        'project_name': 'Skyline Shoot',
+        'status': 'active',
+        'image_url': null,
+        'event_date': '2026-06-15',
+        'start_time': '09:00',
+        'end_time': '17:00',
+        'event_location': 'NYC',
+        'shoot_type': 'Editorial',
+        'booking_type': 'Solo',
+        'last_updated': null,
+        'total_time_duration_hours': 8,
+        'budget': 1200,
+        'total_amount': 1200,
+        'id_label': '42',
+      },
+      'payment_state': 'pending',
+      'cp_profiles': [
+        {
+          'id': 1,
+          'name': 'Emma Hale',
+          'role_name': 'Project Manager',
+          'profile_image_url': '',
+        },
+        {
+          'id': 2,
+          'name': 'Adam Brooks',
+          'role_name': 'Production Manager',
+          'profile_image_url': '',
+        },
+      ],
+      'team_summary': {'assigned_count': 2, 'total_required': 1},
+      'client_contact': {
+        'full_name': 'Jane Director',
+        'email': 'jane@example.com',
+        'phone': '555',
+      },
+    });
+
+    await _pump(
+      tester,
+      projectId: 42,
+      seed: UpcomingShootDetailState(
+        data: data,
+        isLoading: false,
+      ),
+    );
+
+    expect(find.text('(02/02)'), findsOneWidget);
+  });
 }

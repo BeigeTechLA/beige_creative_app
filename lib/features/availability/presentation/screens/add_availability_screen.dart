@@ -474,7 +474,7 @@ class _AddAvailabilityScreenState extends ConsumerState<AddAvailabilityScreen> {
                     _buildRecurrenceUI(state, notifier),
                     const SizedBox(height: 20),
                     CustomTextField(
-                      label: 'Notes(optional)',
+                      label: 'Notes (optional)',
                       controller: _notesController,
                       maxLines: 4,
                     ),

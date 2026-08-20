@@ -22,6 +22,7 @@ import '../../../../shared/widgets/app_main_toolbar.dart';
 import '../../../../shared/widgets/app_count_card.dart';
 import '../../../../shared/widgets/app_segmented_control.dart';
 import '../../../../shared/widgets/app_search_field.dart';
+import '../../../../shared/widgets/time_ago_pill.dart';
 import '../providers/shoots_providers.dart';
 import '../widgets/shoots_filter_bottom_sheet.dart';
 import 'shoot_cancelled_screen.dart';
@@ -450,6 +451,13 @@ class _ShootCard extends StatelessWidget {
                         ),
                 ),
               ),
+              // Top-left request time-ago pill (pending shoots only)
+              if (!isCompleted && !isConfirmed && shoot.requestTimeAgo.isNotEmpty)
+                Positioned(
+                  top: AppSpacing.sm,
+                  left: AppSpacing.sm,
+                  child: TimeAgoPill(label: shoot.requestTimeAgo),
+                ),
               // Bottom-left status & category pills
               Positioned(
                 bottom: 12,

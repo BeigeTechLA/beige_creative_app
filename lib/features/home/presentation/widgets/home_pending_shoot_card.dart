@@ -10,6 +10,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/providers/guest_mode_provider.dart';
 import '../../../../shared/widgets/login_dialog.dart';
+import '../../../../shared/widgets/time_ago_pill.dart';
 import '../../../shoots/presentation/routes/shoots_args.dart';
 import '../../../shoots/presentation/screens/shoot_cancelled_screen.dart';
 import '../../../../app/spacing.dart';
@@ -132,23 +133,7 @@ class HomePendingShootCard extends ConsumerWidget {
                     Positioned(
                       top: AppSpacing.sm,
                       left: AppSpacing.sm,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md,
-                          vertical: AppSpacing.xs,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0x33FFFFFF), // #FFFFFF33 (20% opacity white)
-                          borderRadius: AppRadii.pillAll,
-                        ),
-                        child: Text(
-                          data.requestTimeAgo,
-                          style: AppTextStyles.body10.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
+                      child: TimeAgoPill(label: data.requestTimeAgo),
                     ),
                   Positioned(
                     bottom: 12,
