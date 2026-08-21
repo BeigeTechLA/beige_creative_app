@@ -1,0 +1,116 @@
+import 'package:flutter/material.dart';
+
+import '../../../../app/colors.dart';
+import '../../../../app/radii.dart';
+import '../../../../app/spacing.dart';
+import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
+
+/// Generic checkbox-list bottom sheet used by SignUp2 for Roles + Skills.
+/// Caller toggles selections via [onToggle]; sheet drives an internal
+/// [StatefulBuilder] so the checkbox state animates immediately without
+/// round-tripping to the parent.
+Future<void> showSignUp2LookupSheet({
+  required BuildContext context,
+  required String title,
+  required List<String> options,
+  required List<String> initiallySelected,
+  required void Function(String name, bool selected) onToggle,
+}) {
+  FocusScope.of(context).unfocus();
+  final selected = {...initiallySelected};
+
+  return showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: AppColors.surfaceCropSheet,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(borderRadius: AppRadii.topHuge),
+    builder: (sheetCtx) {
+      final sheetHeight = MediaQuery.of(sheetCtx).size.height * 0.9;
+      return StatefulBuilder(
+        builder: (sheetCtx, setSheetState) {
+          return SafeArea(
+            bottom: false,
+            child: Container(
+              height: sheetHeight,
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.base,
+                AppSpacing.base,
+                AppSpacing.base,
+                MediaQuery.of(sheetCtx).padding.bottom + AppSpacing.xxl,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.white24,
+                      borderRadius: AppRadii.xsAll,
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      title,
+                      style: AppTextStyles.bodyLargeMedium
+                          .copyWith(color: AppColors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: options.length,
+                      itemBuilder: (_, index) {
+                        final name = options[index];
+                        final isSelected = selected.contains(name);
+                        return CheckboxListTile(
+                          value: isSelected,
+                          title: Text(
+                            name,
+                            style: AppTextStyles.body14Medium
+                                .copyWith(color: AppColors.white),
+                          ),
+                          activeColor: AppColors.primary,
+                          checkColor: AppColors.black,
+                          side: BorderSide(
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.lavenderGrey,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppRadii.smAll,
+                          ),
+                          onChanged: (val) {
+                            final next = val ?? false;
+                            setSheetState(() {
+                              if (next) {
+                                selected.add(name);
+                              } else {
+                                selected.remove(name);
+                              }
+                            });
+                            onToggle(name, next);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  AppCtaButton(
+                    label: 'Done',
+                    height: 48,
+                    onPressed: () => Navigator.pop(sheetCtx),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}

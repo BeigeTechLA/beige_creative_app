@@ -1,30 +1,51 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:beige_creative_app/app/app.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:beige_creative_app/main.dart';
+import 'package:beige_creative_app/config/env.dart';
+import 'package:beige_creative_app/core/providers/core_providers.dart';
+import 'package:beige_creative_app/core/session/prefs_session_store.dart';
+import 'package:beige_creative_app/core/session/session_store.dart';
+
+class _FakeSecureBackend implements SecureSessionBackend {
+  @override
+  Future<String?> readToken() async => null;
+  @override
+  Future<void> writeToken(String token) async {}
+  @override
+  Future<void> clearToken() async {}
+  @override
+  Future<String?> readRefreshToken() async => null;
+  @override
+  Future<void> writeRefreshToken(String token) async {}
+  @override
+  Future<void> clearRefreshToken() async {}
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App smoke test - MaterialApp.router builds inside ProviderScope',
+      (WidgetTester tester) async {
+    Env.init(Environment.dev);
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final session = CompositeSessionStore(
+      secure: _FakeSecureBackend(),
+      prefs: PrefsSessionStore(prefs),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWith((_) async => prefs),
+          prefsProvider.overrideWithValue(prefs),
+          sessionStoreProvider.overrideWithValue(session),
+        ],
+        child: const App(),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

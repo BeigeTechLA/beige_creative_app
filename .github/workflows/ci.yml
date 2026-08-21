@@ -1,0 +1,90 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  COVERAGE_MINIMUM: '70'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze --fatal-infos
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      - name: Enforce coverage threshold
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! -f coverage/lcov.info ]]; then
+            echo "coverage/lcov.info was not generated." >&2
+            exit 1
+          fi
+
+          read -r covered found percent < <(
+            awk -F: '
+              /^LH:/ { covered += $2 }
+              /^LF:/ { found += $2 }
+              END {
+                if (found == 0) {
+                  printf "0 0 0.00\n"
+                } else {
+                  printf "%d %d %.2f\n", covered, found, (covered / found) * 100
+                }
+              }
+            ' coverage/lcov.info
+          )
+
+          {
+            echo "## Coverage"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|---|---:|"
+            echo "| Lines covered | ${covered} / ${found} |"
+            echo "| Line coverage | ${percent}% |"
+            echo "| Minimum | ${COVERAGE_MINIMUM}% |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          awk -v actual="$percent" -v minimum="$COVERAGE_MINIMUM" \
+            'BEGIN { exit(actual + 0 >= minimum + 0 ? 0 : 1) }' || {
+              echo "Line coverage ${percent}% is below required ${COVERAGE_MINIMUM}%." >&2
+              exit 1
+            }
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lcov-report
+          path: coverage/lcov.info
+          if-no-files-found: error
+
+      - name: Build Debug APK
+        run: flutter build apk --flavor dev -t lib/main_dev.dart --debug --dart-define-from-file=env/dev.example.json

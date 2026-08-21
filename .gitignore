@@ -43,3 +43,20 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Secrets and environment variables
+env/dev.json
+env/prod.json
+
+# iOS generated Google Maps key xcconfigs (written by Podfile from env/*.json)
+ios/Flutter/GoogleMaps-dev.xcconfig
+ios/Flutter/GoogleMaps-prod.xcconfig
+
+# Local scratch / design references
+/testing/
+
+# Golden-test failure artifacts (diffs + masters re-emitted on every run)
+/test/golden/failures/
+
+# Large design reference PDF (kept local only)
+docs/feature/filemanager/Beige App Design.pdf

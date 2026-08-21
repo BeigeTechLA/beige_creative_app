@@ -1,0 +1,217 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/colors.dart';
+import '../../../../app/radii.dart';
+import '../../../../app/routes.dart';
+import '../../../../app/spacing.dart';
+import '../../../../app/text_styles.dart';
+import '../../../../core/providers/guest_mode_provider.dart';
+import '../../../../shared/widgets/login_dialog.dart';
+import '../../../../utility/date_time_utils.dart';
+import '../../../../shared/widgets/common_calendar.dart';
+
+/// "Availability" section — Add button, month-arrow header, event-type
+/// dropdown, and embedded [CommonCalendar].
+///
+/// All state (focused day, selected event, events map) stays in the
+/// orchestrator.
+class HomeAvailabilitySection extends ConsumerWidget {
+  final DateTime focusedDay;
+  final String selectedEvent;
+  final List<String> eventList;
+  final Map<DateTime, String> events;
+  final VoidCallback onAddPressed;
+  final VoidCallback onPrevMonth;
+  final VoidCallback onNextMonth;
+  final ValueChanged<String> onSelectedEventChanged;
+  final ValueChanged<DateTime> onPageChanged;
+  final void Function(DateTime day, String? event)? onDaySelected;
+
+  const HomeAvailabilitySection({
+    super.key,
+    required this.focusedDay,
+    required this.selectedEvent,
+    required this.eventList,
+    required this.events,
+    required this.onAddPressed,
+    required this.onPrevMonth,
+    required this.onNextMonth,
+    required this.onSelectedEventChanged,
+    required this.onPageChanged,
+    this.onDaySelected,
+  });
+
+  String _getMonthYear(DateTime date) {
+    return DateTimeUtils.formatFullMonthYear(date);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Availability",
+              style: AppTextStyles.displayLabel16.copyWith(
+                color: AppColors.white,
+              ),
+            ),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                minimumSize: const Size(0, 28),
+                fixedSize: const Size.fromHeight(28),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.base,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppRadii.roundAll,
+                ),
+              ),
+              onPressed: () {
+                if (ref.read(guestModeProvider)) {
+                  showLoginDialog(context);
+                  return;
+                }
+                context.pushNamed(Routes.addAvailability.name).then((value) {
+                  if (value == true) {
+                    onAddPressed();
+                  }
+                });
+              },
+              icon: const Icon(
+                Icons.add,
+                size: 12,
+                color: AppColors.black,
+              ),
+              label: Text(
+                "Add",
+                style: AppTextStyles.bodySmallBold.copyWith(
+                  color: AppColors.black,
+                  fontSize:12,
+                  fontWeight:FontWeight.w600
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceMid,
+            borderRadius: AppRadii.xxxlAll,
+            border: Border.all(
+              width: 0.6,
+              color: AppColors.darkCharcoal,
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: AppRadii.xxxlAll,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    // LEFT SIDE (month + arrows)
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.chevron_left,
+                              color: AppColors.white,
+                              size: 24,
+                            ),
+                            onPressed: onPrevMonth,
+                          ),
+
+                          // ✅ CENTER FEEL TEXT
+                          Expanded(
+                            child: Center(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _getMonthYear(focusedDay),
+                                  style: AppTextStyles.bodyLargeMedium
+                                      .copyWith(color: AppColors.white),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          IconButton(
+                            icon: const Icon(
+                              Icons.chevron_right,
+                              color: AppColors.white,
+                              size: 24,
+                            ),
+                            onPressed: onNextMonth,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // RIGHT SIDE (dropdown)
+                    Container(
+                      height: 34,
+                      alignment: Alignment.center,
+                      margin: const EdgeInsets.only(right: AppSpacing.sm),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: selectedEvent,
+                          isDense: true,
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: AppColors.black,
+                            size: 18,
+                          ),
+                          dropdownColor: AppColors.white,
+                          style: AppTextStyles.bodySmallMedium.copyWith(
+                            color: AppColors.black,
+                          ),
+                          items: eventList.map((String value) {
+                            return DropdownMenuItem(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              onSelectedEventChanged(value);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                CommonCalendar(
+                  focusedDay: focusedDay,
+                  events: events,
+                  selectedEvent: selectedEvent,
+                  onPageChanged: onPageChanged,
+                  onDaySelected: onDaySelected,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -1,0 +1,290 @@
+import 'package:beige_creative_app/core/firebase/analytics_events.dart';
+import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
+import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
+import 'package:beige_creative_app/core/providers/core_providers.dart';
+import 'package:beige_creative_app/core/session/session_store.dart';
+import 'package:beige_creative_app/features/profile/domain/repositories/delete_account_repository.dart';
+import 'package:beige_creative_app/features/profile/presentation/providers/delete_account_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class _FakeRepo implements DeleteAccountRepository {
+  bool requestCalled = false;
+  bool confirmCalled = false;
+  bool resendCalled = false;
+  String? lastReason;
+  String? lastOtp;
+  bool throwOnRequest = false;
+  bool throwOnConfirm = false;
+
+  @override
+  Future<void> requestDelete(String reason) async {
+    requestCalled = true;
+    lastReason = reason;
+    if (throwOnRequest) throw Exception('User not found');
+  }
+
+  @override
+  Future<void> confirmDelete(String otp) async {
+    confirmCalled = true;
+    lastOtp = otp;
+    if (throwOnConfirm) throw Exception('Invalid OTP');
+  }
+
+  @override
+  Future<void> resendOtp() async {
+    resendCalled = true;
+  }
+}
+
+class _FakeSession implements SessionStore {
+  bool cleared = false;
+
+  @override
+  Future<void> clearSession() async {
+    cleared = true;
+  }
+
+  // Unused in these tests — throw so accidental use is loud.
+  @override
+  Future<String?> readToken() async => null;
+  @override
+  Future<void> writeToken(String token) async {}
+  @override
+  Future<void> clearToken() async {}
+  @override
+  Future<String?> readRefreshToken() async => null;
+  @override
+  Future<void> writeRefreshToken(String token) async {}
+  @override
+  Future<void> clearRefreshToken() async {}
+  @override
+  Future<UserSnapshot?> readUser() async => null;
+  @override
+  UserSnapshot? readUserSync() => null;
+  @override
+  Future<void> writeUser(UserSnapshot user) async {}
+  @override
+  Future<void> clearUser() async {}
+  @override
+  Future<DateTime?> readLastLoginAt() async => null;
+  @override
+  Future<void> writeLastLoginAt(DateTime when) async {}
+  @override
+  Future<bool> readOnboardingSeen() async => false;
+  @override
+  Future<void> writeOnboardingSeen(bool seen) async {}
+  @override
+  Future<bool> isLoggedIn() async => false;
+}
+
+class _RecordingTelemetry implements TelemetryClient {
+  final List<({String name, Map<String, Object>? parameters})> events =
+      <({String name, Map<String, Object>? parameters})>[];
+
+  @override
+  Future<void> setUserIdentity({
+    required String userId,
+    String? userRole,
+    String loginMethod = 'password',
+  }) async {}
+
+  @override
+  Future<void> clearUserIdentity({bool emitLogoutEvent = false}) async {}
+
+  @override
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    events.add((name: name, parameters: parameters));
+  }
+
+  @override
+  Future<void> recordError(
+    Object error,
+    StackTrace? stack, {
+    String? reason,
+    bool fatal = false,
+  }) async {}
+}
+
+Future<ProviderContainer> _container({
+  required _FakeRepo repo,
+  _FakeSession? session,
+  _RecordingTelemetry? telemetry,
+}) async {
+  // Phase B — logout() now wipes restoration + draft stores, both backed
+  // by SharedPreferences via prefsProvider. Mock-init prefs so the
+  // override resolves to a real (in-memory) instance.
+  SharedPreferences.setMockInitialValues({});
+  final prefs = await SharedPreferences.getInstance();
+  final c = ProviderContainer(
+    overrides: [
+      deleteAccountRepositoryProvider.overrideWithValue(repo),
+      if (session != null)
+        sessionStoreProvider.overrideWithValue(session),
+      prefsProvider.overrideWithValue(prefs),
+      if (telemetry != null)
+        telemetryClientProvider.overrideWithValue(telemetry),
+    ],
+  );
+  addTearDown(c.dispose);
+  return c;
+}
+
+void main() {
+  group('DeleteAccountNotifier.requestDelete', () {
+    test('rejects when no reason selected', () async {
+      final repo = _FakeRepo();
+      final c = await _container(repo: repo);
+      final ok = await c
+          .read(deleteAccountNotifierProvider.notifier)
+          .requestDelete();
+      expect(ok, isFalse);
+      expect(repo.requestCalled, isFalse);
+      expect(
+        c.read(deleteAccountNotifierProvider).validationMessage,
+        'Please select delete reason',
+      );
+    });
+
+    test('happy path posts reason', () async {
+      final repo = _FakeRepo();
+      final c = await _container(repo: repo);
+      final notifier = c.read(deleteAccountNotifierProvider.notifier);
+      notifier.selectReason('Others');
+      final ok = await notifier.requestDelete();
+      expect(ok, isTrue);
+      expect(repo.lastReason, 'Others');
+      expect(c.read(deleteAccountNotifierProvider).requestOk, isTrue);
+    });
+
+    test('surfaces repo error', () async {
+      final repo = _FakeRepo()..throwOnRequest = true;
+      final c = await _container(repo: repo);
+      final notifier = c.read(deleteAccountNotifierProvider.notifier);
+      notifier.selectReason('Others');
+      final ok = await notifier.requestDelete();
+      expect(ok, isFalse);
+      expect(
+        c.read(deleteAccountNotifierProvider).errorMessage,
+        'User not found',
+      );
+    });
+  });
+
+  group('DeleteAccountNotifier.confirmDelete', () {
+    test('rejects partial OTP', () async {
+      final repo = _FakeRepo();
+      final session = _FakeSession();
+      final c = await _container(repo: repo, session: session);
+      final ok = await c
+          .read(deleteAccountNotifierProvider.notifier)
+          .confirmDelete('123');
+      expect(ok, isFalse);
+      expect(repo.confirmCalled, isFalse);
+      expect(session.cleared, isFalse);
+    });
+
+    test('happy path clears session + flips auth state', () async {
+      final repo = _FakeRepo();
+      final session = _FakeSession();
+      final c = await _container(repo: repo, session: session);
+      c.read(authStateProvider.notifier).state = true;
+
+      final ok = await c
+          .read(deleteAccountNotifierProvider.notifier)
+          .confirmDelete('123456');
+      expect(ok, isTrue);
+      expect(repo.lastOtp, '123456');
+      expect(session.cleared, isTrue);
+      expect(c.read(authStateProvider), isFalse);
+      expect(c.read(deleteAccountNotifierProvider).confirmOk, isTrue);
+    });
+
+    test('repo failure leaves session intact', () async {
+      final repo = _FakeRepo()..throwOnConfirm = true;
+      final session = _FakeSession();
+      final c = await _container(repo: repo, session: session);
+      c.read(authStateProvider.notifier).state = true;
+
+      final ok = await c
+          .read(deleteAccountNotifierProvider.notifier)
+          .confirmDelete('123456');
+      expect(ok, isFalse);
+      expect(session.cleared, isFalse);
+      expect(c.read(authStateProvider), isTrue);
+      expect(
+        c.read(deleteAccountNotifierProvider).errorMessage,
+        'Invalid OTP',
+      );
+    });
+  });
+
+  group('DeleteAccountNotifier event emission (B1)', () {
+    test('emits account_deletion_requested on confirm success', () async {
+      final repo = _FakeRepo();
+      final session = _FakeSession();
+      final telemetry = _RecordingTelemetry();
+      final c = await _container(
+        repo: repo,
+        session: session,
+        telemetry: telemetry,
+      );
+      c.read(authStateProvider.notifier).state = true;
+
+      final ok = await c
+          .read(deleteAccountNotifierProvider.notifier)
+          .confirmDelete('123456');
+      expect(ok, isTrue);
+      final hits = telemetry.events
+          .where((e) => e.name == AnalyticsEvents.accountDeletionRequested)
+          .toList();
+      expect(hits, hasLength(1));
+      expect(hits.single.parameters, isNull);
+    });
+
+    test('does not emit account_deletion_requested on confirm failure',
+        () async {
+      final repo = _FakeRepo()..throwOnConfirm = true;
+      final session = _FakeSession();
+      final telemetry = _RecordingTelemetry();
+      final c = await _container(
+        repo: repo,
+        session: session,
+        telemetry: telemetry,
+      );
+      c.read(authStateProvider.notifier).state = true;
+
+      final ok = await c
+          .read(deleteAccountNotifierProvider.notifier)
+          .confirmDelete('123456');
+      expect(ok, isFalse);
+      expect(
+        telemetry.events
+            .where((e) => e.name == AnalyticsEvents.accountDeletionRequested),
+        isEmpty,
+      );
+    });
+
+    test('does not emit on validation rejection (partial OTP)', () async {
+      final repo = _FakeRepo();
+      final session = _FakeSession();
+      final telemetry = _RecordingTelemetry();
+      final c = await _container(
+        repo: repo,
+        session: session,
+        telemetry: telemetry,
+      );
+
+      final ok = await c
+          .read(deleteAccountNotifierProvider.notifier)
+          .confirmDelete('123');
+      expect(ok, isFalse);
+      expect(
+        telemetry.events
+            .where((e) => e.name == AnalyticsEvents.accountDeletionRequested),
+        isEmpty,
+      );
+    });
+  });
+}
