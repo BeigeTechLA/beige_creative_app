@@ -135,7 +135,6 @@
 				0A73B45412C550A57AA87249 /* Pods-RunnerTests.release-prod.xcconfig */,
 				83DACA7978F77BE8A8A2A7DA /* Pods-RunnerTests.profile-prod.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -317,9 +316,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -372,9 +375,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -395,24 +402,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
-		};
-		FB1FB0001CF9000F007C117D /* Firebase Config (Flavor) */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/config/dev/GoogleService-Info.plist",
-				"$(SRCROOT)/config/prod/GoogleService-Info.plist",
-			);
-			name = "Firebase Config (Flavor)";
-			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/GoogleService-Info.plist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif [[ \"$CONFIGURATION\" == *-prod* ]]; then\n  FLAVOR=\"prod\"\nelif [[ \"$CONFIGURATION\" == *-dev* ]]; then\n  FLAVOR=\"dev\"\nelse\n  echo \"warning: unknown CONFIGURATION '$CONFIGURATION' - defaulting Firebase flavor to dev\"\n  FLAVOR=\"dev\"\nfi\nSRC=\"${SRCROOT}/config/${FLAVOR}/GoogleService-Info.plist\"\nDST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\nif [ ! -f \"$SRC\" ]; then\n  echo \"error: missing $SRC\" >&2\n  exit 1\nfi\nmkdir -p \"$(dirname \"$DST\")\"\ncp -f \"$SRC\" \"$DST\"\necho \"Copied Firebase config for flavor=${FLAVOR}\"\n";
 		};
 		E024CAABC223BCEB063C9C9D /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -435,6 +424,24 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		FB1FB0001CF9000F007C117D /* Firebase Config (Flavor) */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/config/dev/GoogleService-Info.plist",
+				"$(SRCROOT)/config/prod/GoogleService-Info.plist",
+			);
+			name = "Firebase Config (Flavor)";
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/GoogleService-Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nif [[ \"$CONFIGURATION\" == *-prod* ]]; then\n  FLAVOR=\"prod\"\nelif [[ \"$CONFIGURATION\" == *-dev* ]]; then\n  FLAVOR=\"dev\"\nelse\n  echo \"warning: unknown CONFIGURATION '$CONFIGURATION' - defaulting Firebase flavor to dev\"\n  FLAVOR=\"dev\"\nfi\nSRC=\"${SRCROOT}/config/${FLAVOR}/GoogleService-Info.plist\"\nDST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\nif [ ! -f \"$SRC\" ]; then\n  echo \"error: missing $SRC\" >&2\n  exit 1\nfi\nmkdir -p \"$(dirname \"$DST\")\"\ncp -f \"$SRC\" \"$DST\"\necho \"Copied Firebase config for flavor=${FLAVOR}\"\n";
 		};
 		FB1FB0001CF9000F007C117E /* Upload Symbols to Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -576,8 +583,13 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = "Profile-dev";
@@ -763,9 +775,14 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = "Debug-dev";
@@ -786,8 +803,13 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = "Release-dev";
@@ -977,9 +999,14 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = "Debug-prod";
@@ -1000,8 +1027,13 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = "Release-prod";
@@ -1022,8 +1054,13 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = "Profile-prod";

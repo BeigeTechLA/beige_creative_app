@@ -204,9 +204,7 @@ class HomeShootCategoriesPanel extends StatelessWidget {
               ),
               HomeStatusItem(
                 count: selectedTab == 0 ? "$rejectedPhoto" : "$rejectedVideo",
-                label: selectedTab == 0
-                    ? "Photo Rejected shoots"
-                    : "Video Rejected shoots",
+                label: "Rejected shoots",
                 color: AppColors.arcYellow,
               ),
               HomeStatusItem(

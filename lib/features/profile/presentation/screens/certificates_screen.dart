@@ -98,18 +98,9 @@ class CertificatesScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceVariant,
-                        borderRadius: AppRadii.lgAll,
-                      ),
-                      child: const Icon(Icons.tune, color: AppColors.white),
-                    ),
                   ],
                 ),
+                const SizedBox(height: AppSpacing.base),
                 Expanded(
                   child: ListView.builder(
                     itemCount: certs.length,

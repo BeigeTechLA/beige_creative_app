@@ -5,6 +5,43 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-20: Add Full-Width Glass Shadow Background Overlay to Featured Work Images
+
+- **Task**: Ensure image title text on `FeaturedWorkCard` ("Krunal test", "Candid", etc.) remains highly legible on white or light background images by adding a full-width frosted glass dark gradient overlay with vertically centered text and compact height.
+- **Changes**:
+  - `lib/features/profile/presentation/widgets/featured_work_card.dart`: Added full-width (`left: 0, right: 0, bottom: 0`) `ClipRRect` wrapped `BackdropFilter` frosted glass container (`sigmaX: 8, sigmaY: 8`) with a dark top-to-bottom `LinearGradient` overlay (`black` 0% -> 40% -> 75% opacity). Set symmetric `EdgeInsets.symmetric(horizontal: 16, vertical: 14)` and `CrossAxisAlignment.center` so title text is centered vertically in the background.
+- **Verification**:
+  - `flutter analyze lib/features/profile/presentation/widgets/featured_work_card.dart`: 0 issues found.
+
+
+- **Task**: Extract clean, user-friendly customer messages (e.g., "Invalid or expired OTP.") and strip technical `DioException [bad response]... RequestOptions.validateStatus` debug dumps from UI overlays.
+- **Changes**:
+  - `lib/core/utils/error_formatter.dart`: Added `parseErrorMessage(dynamic error, {String? fallback})` to extract response payload messages and sanitize raw exception strings.
+  - `lib/features/auth/presentation/providers/forgot_password_notifier.dart`: Updated error formatting to use `parseErrorMessage`.
+  - `lib/features/profile/presentation/providers/change_password_providers.dart`: Updated `requestOtp`, `verifyOtp`, `resendOtp`, and `setNewPassword` error handlers.
+  - `lib/features/profile/presentation/providers/delete_account_providers.dart`: Updated delete account notifier error handlers.
+  - `lib/features/auth/presentation/providers/login_notifier.dart`: Updated login failure error formatter.
+- **Verification**:
+  - `flutter analyze`: 0 issues found across all modified files.
+
+### 2026-08-20: Standardize Save CTA Button Theme Across Profile Sheets
+
+- **Task**: Align font family (`Unbounded`), font size (`14px`), font weight (`w500`), and dark label text (`AppColors.textHeading`) of "Save" / "Save Link" bottom sheet action buttons in Profile to match the "Next" CTA button theme.
+- **Changes**:
+  - `lib/features/profile/presentation/widgets/profile_social_links_sheet.dart`: Replaced raw `ElevatedButton` for `Save Link` and `Save` with `AppCtaButton`.
+  - `lib/features/profile/presentation/widgets/profile_portfolio_links_sheet.dart`: Replaced raw `ElevatedButton` for `Save Link` and `Save` with `AppCtaButton`.
+  - `lib/features/profile/presentation/widgets/featured_work_add_tag_sheet.dart`: Replaced raw `ElevatedButton` for `Save` with `AppCtaButton`.
+- **Verification**:
+  - `flutter analyze lib/features/profile/presentation/`: 0 issues found.
+
+### 2026-08-20: Remove Filter Icon and Adjust Spacing in Certificates Listing
+
+- **Task**: Remove filter icon (`Icons.tune`) from search bar row and add 16px vertical padding (`AppSpacing.base`) between search input and certificate list.
+- **Changes**:
+  - `lib/features/profile/presentation/screens/certificates_screen.dart`: Removed `Icons.tune` filter button container and horizontal gap; added `const SizedBox(height: AppSpacing.base)` between search bar and `Expanded` `ListView`.
+- **Verification**:
+  - `flutter analyze lib/features/profile/presentation/screens/certificates_screen.dart`: 0 issues found.
+
 ### 2026-08-20: Fix Dashboard Pull-to-Refresh Dual Loader Issue
 
 - **Task**: Fix double loader display (top `RefreshIndicator` spinner + center `AppLoadingOverlay` 5-dot animation) when pulling to refresh on Dashboard.

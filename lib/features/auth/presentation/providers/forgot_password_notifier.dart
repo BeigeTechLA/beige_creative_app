@@ -6,6 +6,7 @@ import '../../../../core/firebase/analytics_events.dart';
 import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/error_formatter.dart';
 import '../../../../core/utils/validators.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -156,9 +157,8 @@ class ForgotPasswordNotifier extends AutoDisposeNotifier<ForgotPasswordState> {
     return null;
   }
 
-  String? _formatError(Object e) {
-    final raw = e.toString().replaceFirst('Exception: ', '');
-    return raw.isEmpty ? null : raw;
+  String? _formatError(Object e, [String? fallback]) {
+    return parseErrorMessage(e, fallback: fallback);
   }
 }
 

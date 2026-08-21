@@ -6,6 +6,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/shadows.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 
 typedef SocialLinkChange = void Function(VoidCallback mutator);
@@ -299,63 +300,51 @@ class _ProfileSocialLinksSheetState extends State<ProfileSocialLinksSheet> {
                   controller: widget.linkController,
                 ),
                 const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
+                AppCtaButton(
+                  label: 'Save Link',
                   height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: AppRadii.xlAll,
-                      ),
-                    ),
-                    onPressed: () {
-                      if (selectedSocialIndex == -1 ||
-                          widget.linkController.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Please select platform and enter link',
-                            ),
-                            backgroundColor: AppColors.error,
+                  onPressed: () {
+                    if (selectedSocialIndex == -1 ||
+                        widget.linkController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Please select platform and enter link',
                           ),
-                        );
-                        return;
-                      }
-                      final name = widget.socialNames[selectedSocialIndex];
-                      final icon = widget.socialIcons[selectedSocialIndex];
-                      final url = widget.linkController.text.trim();
+                          backgroundColor: AppColors.error,
+                        ),
+                      );
+                      return;
+                    }
+                    final name = widget.socialNames[selectedSocialIndex];
+                    final icon = widget.socialIcons[selectedSocialIndex];
+                    final url = widget.linkController.text.trim();
 
-                      setState(() {
-                        widget.onParentMutate(() {
-                          if (editingIndex != -1) {
-                            widget.socialLinks[editingIndex] = {
-                              'name': name,
-                              'url': url,
-                              'icon': icon,
-                            };
-                          } else {
-                            widget.socialLinks.add({
-                              'name': name,
-                              'url': url,
-                              'icon': icon,
-                            });
-                          }
-                        });
-                        showForm = false;
-                        selectedSocialIndex = -1;
-                        isEditing = false;
-                        editingIndex = -1;
-                        widget.nameController.clear();
-                        widget.linkController.clear();
+                    setState(() {
+                      widget.onParentMutate(() {
+                        if (editingIndex != -1) {
+                          widget.socialLinks[editingIndex] = {
+                            'name': name,
+                            'url': url,
+                            'icon': icon,
+                          };
+                        } else {
+                          widget.socialLinks.add({
+                            'name': name,
+                            'url': url,
+                            'icon': icon,
+                          });
+                        }
                       });
-                      _emitSelection();
-                    },
-                    child: const Text(
-                      'Save Link',
-                      style: AppTextStyles.buttonMedium,
-                    ),
-                  ),
+                      showForm = false;
+                      selectedSocialIndex = -1;
+                      isEditing = false;
+                      editingIndex = -1;
+                      widget.nameController.clear();
+                      widget.linkController.clear();
+                    });
+                    _emitSelection();
+                  },
                 ),
               ],
               if (!showForm) ...[
@@ -394,22 +383,10 @@ class _ProfileSocialLinksSheetState extends State<ProfileSocialLinksSheet> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
+                AppCtaButton(
+                  label: 'Save',
                   height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: AppRadii.xlAll,
-                      ),
-                    ),
-                    onPressed: widget.onSaveAll,
-                    child: const Text(
-                      'Save',
-                      style: AppTextStyles.buttonMedium,
-                    ),
-                  ),
+                  onPressed: widget.onSaveAll,
                 ),
               ],
               const SizedBox(height: 10),

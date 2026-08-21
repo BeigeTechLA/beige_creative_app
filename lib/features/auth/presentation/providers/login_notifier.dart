@@ -12,6 +12,7 @@ import '../../../../core/providers/core_providers.dart';
 import '../../../../core/providers/guest_mode_provider.dart';
 import '../../../../core/session/temporary_auth_session.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/error_formatter.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../service/prefs_service.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -199,22 +200,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
   }
 
   String? _formatError(Object e) {
-    AppException? typed;
-    if (e is AppException) {
-      typed = e;
-    } else if (e is DioException && e.error is AppException) {
-      typed = e.error as AppException;
-    }
-    if (typed != null) {
-      final msg = typed.message.trim();
-      if (msg.isNotEmpty) return msg;
-    }
-    final raw = e.toString().replaceFirst('Exception: ', '');
-    if (raw.contains('{') && raw.contains('"message"')) {
-      final match = RegExp(r'"message":"(.*?)"').firstMatch(raw);
-      if (match != null) return match.group(1);
-    }
-    return raw.isEmpty ? null : raw;
+    return parseErrorMessage(e, fallback: 'Invalid email or password');
   }
 }
 
