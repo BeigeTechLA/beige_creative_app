@@ -23,6 +23,7 @@ class FcmService {
   final Ref _ref;
   final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
+
   StreamSubscription<String>? _tokenRefreshSub;
   String? _lastRegisteredToken;
 
@@ -76,38 +77,46 @@ class FcmService {
       AppLogger.i('FcmService: 🚨 RECEIVED FOREGROUND MESSAGE 🚨');
       AppLogger.i('Message data: ${message.data}');
       if (message.notification != null) {
-        AppLogger.i(
-            'Message notification title: ${message.notification?.title}');
-        AppLogger.i(
-            'Message notification body: ${message.notification?.body}');
+        AppLogger.i('Message notification title: ${message.notification?.title}');
+        AppLogger.i('Message notification body: ${message.notification?.body}');
 
         final notification = message.notification!;
-        const androidDetails = AndroidNotificationDetails(
+        final info = PushNotificationHandler.parsePayload(message.data);
+        
+        // 1. Generate Group Key dynamically
+        String groupKey = info.resolvedTopic;
+        if (info.resolvedTopic == 'messages' && info.roomId != null) {
+          groupKey = 'messages_${info.roomId}';
+        } else if (info.resolvedTopic == 'shoots' && info.bookingId != null) {
+          groupKey = 'shoots_${info.bookingId}';
+        } else if (info.resolvedTopic == 'meetings' && info.meetingId != null) {
+          groupKey = 'meetings_${info.meetingId}';
+        }
+        
+        final int summaryId = groupKey.hashCode;
+
+        // 2. Setup Notification Details (Badges & Sounds Enabled)
+        final androidDetails = AndroidNotificationDetails(
           'high_importance_channel',
           'High Importance Notifications',
-          channelDescription:
-          'This channel is used for important notifications.',
+          channelDescription: 'This channel is used for important notifications.',
           importance: Importance.max,
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
-          channelShowBadge: false,
+          channelShowBadge: true, // Enabled badge count
+          groupKey: groupKey,     // Grouping key
         );
         const iosDetails = DarwinNotificationDetails(
           presentAlert: true,
-          presentBadge: false,
+          presentBadge: true,     // Enabled badge count
           presentSound: true,
         );
-        const platformDetails = NotificationDetails(
+        final platformDetails = NotificationDetails(
           android: androidDetails,
           iOS: iosDetails,
         );
 
-        // NOTE: this version of show() requires ALL named parameters too
-        // (id:, title:, body:, notificationDetails:, payload:) — 0
-        // positional args allowed.
-        // Using a bounded counter instead of `notification.hashCode` as
-        // the id, since hashCode can exceed the 32-bit range Android
-        // expects and throw a PlatformException.
+        // 3. Show the actual individual notification
         _localNotificationsPlugin.show(
           id: _nextNotificationId(),
           title: notification.title,
@@ -115,6 +124,45 @@ class FcmService {
           notificationDetails: platformDetails,
           payload: jsonEncode(message.data),
         );
+        
+        // 4. Show the Group Summary notification (Required by Android to stack them)
+        final summaryAndroidDetails = AndroidNotificationDetails(
+          'high_importance_channel',
+          'High Importance Notifications',
+          channelDescription: 'This channel is used for important notifications.',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+          channelShowBadge: true,
+          groupKey: groupKey,
+          setAsGroupSummary: true, // Mark as group summary
+        );
+        
+        String summaryTitle = 'New Notifications';
+        if (info.resolvedTopic == 'messages') summaryTitle = 'New Messages';
+        else if (info.resolvedTopic == 'shoots') summaryTitle = 'Shoot Updates';
+        else if (info.resolvedTopic == 'meetings') summaryTitle = 'Meeting Updates';
+        
+        _localNotificationsPlugin.show(
+          id: summaryId,
+          title: summaryTitle,
+          body: 'You have new notifications', // Displayed when expanded if the OS chooses
+          notificationDetails: NotificationDetails(android: summaryAndroidDetails, iOS: iosDetails),
+        );
+      }
+    });
+
+    // Handle tap from background state
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      AppLogger.i('FcmService: 🚨 RECEIVED BACKGROUND MESSAGE TAP 🚨');
+      PushNotificationHandler.handlePushTap(message.data, messageId: message.messageId);
+    });
+
+    // Handle tap from terminated state
+    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+      if (message != null) {
+        AppLogger.i('FcmService: 🚨 RECEIVED TERMINATED MESSAGE TAP (Cold Start) 🚨');
+        PushNotificationHandler.handlePushTap(message.data, messageId: message.messageId);
       }
     });
   }

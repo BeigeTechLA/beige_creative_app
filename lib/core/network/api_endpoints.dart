@@ -180,10 +180,10 @@ class ApiEndpoints {
   // ───── Push Notifications ────────────────────────────────────────────────
   static const String pushTokens = 'push-notifications/tokens';
   static const String pushPreferences = 'push-notifications/preferences';
-  static const String notifications_settings_flags = 'notification-preferences/settings?session_id=app-session-001';
-  static const String push_notifications_preferences = 'push-notifications/preferences?session_id=app-session-001';
+  static String notificationsSettingsFlags(String sessionId) => 'notification-preferences/settings?session_id=$sessionId';
+  static String pushNotificationsPreferences(String sessionId) => 'push-notifications/preferences?session_id=$sessionId';
   static const String emailPreferences = 'notification-preferences/email';
-  static const String email_notifications_preferences = 'notification-preferences/email?session_id=app-session-001';
+  static String emailNotificationsPreferences(String sessionId) => 'notification-preferences/email?session_id=$sessionId';
 
 
 

@@ -16,6 +16,8 @@ class EmptyNotificationWidget extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+
+
           mainAxisSize: MainAxisSize.min,
           children: [
             Center(

@@ -11,8 +11,9 @@ import '../../domain/repositories/notification_settings_repository.dart';
 // --- Dependency Injection Providers ---
 
 final notificationSettingsRemoteSourceProvider = Provider<NotificationSettingsRemoteSource>((ref) {
-  final dioClient = ref.watch(dioClientProvider);
-  return NotificationSettingsRemoteSource(dioClient);
+  final dioClient = ref.read(dioClientProvider);
+  final sessionStore = ref.read(sessionStoreProvider);
+  return NotificationSettingsRemoteSource(dioClient, sessionStore);
 });
 
 final notificationSettingsRepositoryProvider = Provider<NotificationSettingsRepository>((ref) {

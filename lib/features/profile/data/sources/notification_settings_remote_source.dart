@@ -1,23 +1,27 @@
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/session/session_store.dart';
 
 class NotificationSettingsRemoteSource {
-  NotificationSettingsRemoteSource(this._client);
+  NotificationSettingsRemoteSource(this._client, this._sessionStore);
 
   final DioClient _client;
+  final SessionStore _sessionStore;
 
   /// Fetches notification settings flags (`GET /notification-preferences/settings?session_id=...`).
   Future<Map<String, dynamic>> getNotificationSettingsFlags() async {
     try {
-      final response = await _client.dio.get(ApiEndpoints.notifications_settings_flags);
-      AppLogger.i('[NOTIFICATION SETTINGS API] GET /${ApiEndpoints.notifications_settings_flags} - Response: ${response.data}');
+      final sessionId = await _sessionStore.getAppSessionId();
+      final endpoint = ApiEndpoints.notificationsSettingsFlags(sessionId);
+      final response = await _client.dio.get(endpoint);
+      AppLogger.i('[NOTIFICATION SETTINGS API] GET /$endpoint - Response: ${response.data}');
       if (response.data != null && response.data['data'] != null) {
         return response.data['data'] as Map<String, dynamic>;
       }
       return {};
     } catch (e) {
-      AppLogger.e('[NOTIFICATION SETTINGS API] GET /${ApiEndpoints.notifications_settings_flags} - Error: $e');
+      AppLogger.e('[NOTIFICATION SETTINGS API] GET /notificationsSettingsFlags - Error: $e');
       rethrow;
     }
   }
@@ -25,14 +29,16 @@ class NotificationSettingsRemoteSource {
   /// Fetches push notifications preferences (`GET /push-notifications/preferences`).
   Future<Map<String, dynamic>> getPushNotificationsPreferences() async {
     try {
-      final response = await _client.dio.get(ApiEndpoints.push_notifications_preferences);
-      AppLogger.i('[NOTIFICATION SETTINGS API] GET /${ApiEndpoints.push_notifications_preferences} - Response: ${response.data}');
+      final sessionId = await _sessionStore.getAppSessionId();
+      final endpoint = ApiEndpoints.pushNotificationsPreferences(sessionId);
+      final response = await _client.dio.get(endpoint);
+      AppLogger.i('[NOTIFICATION SETTINGS API] GET /$endpoint - Response: ${response.data}');
       if (response.data != null && response.data['data'] != null) {
         return response.data['data'] as Map<String, dynamic>;
       }
       return {};
     } catch (e) {
-      AppLogger.e('[NOTIFICATION SETTINGS API] GET /${ApiEndpoints.push_notifications_preferences} - Error: $e');
+      AppLogger.e('[NOTIFICATION SETTINGS API] GET /pushNotificationsPreferences - Error: $e');
       rethrow;
     }
   }
@@ -51,14 +57,16 @@ class NotificationSettingsRemoteSource {
   /// Fetches email notifications preferences.
   Future<Map<String, dynamic>> getEmailNotificationsPreferences() async {
     try {
-      final response = await _client.dio.get(ApiEndpoints.email_notifications_preferences);
-      AppLogger.i('[NOTIFICATION SETTINGS API] GET /${ApiEndpoints.email_notifications_preferences} - Response: ${response.data}');
+      final sessionId = await _sessionStore.getAppSessionId();
+      final endpoint = ApiEndpoints.emailNotificationsPreferences(sessionId);
+      final response = await _client.dio.get(endpoint);
+      AppLogger.i('[NOTIFICATION SETTINGS API] GET /$endpoint - Response: ${response.data}');
       if (response.data != null && response.data['data'] != null) {
         return response.data['data'] as Map<String, dynamic>;
       }
       return {};
     } catch (e) {
-      AppLogger.e('[NOTIFICATION SETTINGS API] GET /${ApiEndpoints.email_notifications_preferences} - Error: $e');
+      AppLogger.e('[NOTIFICATION SETTINGS API] GET /emailNotificationsPreferences - Error: $e');
       rethrow;
     }
   }
