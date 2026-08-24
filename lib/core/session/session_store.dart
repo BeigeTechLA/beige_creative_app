@@ -208,4 +208,5 @@ abstract class PrefsSessionBackend {
   Future<void> writeFcmToken(String fcmToken);
   Future<void> clearFcmToken();
   Future<String> getAppSessionId();
+  Future<void> clearAppSessionId();
 }

@@ -1,4 +1,4 @@
-
+import 'package:beige_creative_app/features/notification/domain/models/notification_item.dart';
 
 /// Abstract contract for push notification operations.
 abstract class NotificationRepository {
@@ -14,4 +14,6 @@ abstract class NotificationRepository {
     required String sessionId,
   });
 
+  /// Fetches the list of notifications
+  Future<List<NotificationItem>> getNotifications({int page = 1, int limit = 20});
 }

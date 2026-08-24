@@ -1,5 +1,7 @@
 
 import '../../domain/repositories/notification_repository.dart';
+import '../../domain/models/notification_item.dart';
+import '../models/notification_dto.dart';
 import '../sources/notification_remote_source.dart';
 
 /// Concrete implementation of [NotificationRepository].
@@ -25,5 +27,10 @@ class NotificationRepositoryImpl implements NotificationRepository {
     );
   }
 
-
+  @override
+  Future<List<NotificationItem>> getNotifications({int page = 1, int limit = 20}) async {
+    final response = await _remoteSource.getNotifications(page: page, limit: limit);
+    final dto = NotificationListResponseDto.fromJson(response);
+    return dto.data;
+  }
 }

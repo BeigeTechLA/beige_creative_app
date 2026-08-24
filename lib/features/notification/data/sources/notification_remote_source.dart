@@ -46,4 +46,21 @@ class NotificationRemoteSource {
     );
     AppLogger.i('[NOTIFICATION API] POST /${ApiEndpoints.pushTokens} - Registered token for session: $sessionId');
   }
+
+  /// Fetches the list of notifications (`GET /app-notifications`)
+  Future<Map<String, dynamic>> getNotifications({int page = 1, int limit = 20}) async {
+    try {
+      final response = await _client.dio.get(
+        ApiEndpoints.notifications,
+       /* queryParameters: {
+          'page': page,
+          'limit': limit,
+        },*/
+      );
+      return response.data as Map<String, dynamic>;
+    } catch (e) {
+      AppLogger.e('[NOTIFICATION API] GET /${ApiEndpoints.notifications} - Error: $e');
+      rethrow;
+    }
+  }
 }

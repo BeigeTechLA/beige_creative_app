@@ -102,10 +102,19 @@ class NotificationListNotifier extends AutoDisposeNotifier<NotificationListState
 
   Future<void> fetchNotifications() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
-    state = state.copyWith(
-      isLoading: false,
-      notifications: _getMockNotifications(),
-    );
+    try {
+      final repo = ref.read(notificationRepositoryProvider);
+      final notifications = await repo.getNotifications();
+      state = state.copyWith(
+        isLoading: false,
+        notifications: notifications,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+    }
   }
 
   void selectTab(NotificationTab tab) {

@@ -5,6 +5,24 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-08-19: FCM Foreground Notifications & Token Logout Cleanup
+
+- **Task**: Fix FCM token cleanup on logout, remove dev fallback token generation, and add foreground push notification verification (without native popups).
+- **Changed Files**:
+  - `lib/core/firebase/fcm_service.dart`
+  - `lib/features/notification/data/sources/notification_remote_source.dart`
+  - `lib/core/session/prefs_session_store.dart`
+- **Decisions**:
+  - Implemented `DELETE` API call logic inside `NotificationRemoteSource` to properly invalidate FCM tokens on the backend when the user logs out.
+  - Removed `fcm_dev_token` generation fallback. The app now gracefully returns early and skips registration if an actual device token is unavailable.
+  - Enhanced cache string in `FcmService` to include `authToken.hashCode` along with `session_id`, ensuring token re-registration triggers correctly when switching accounts on the same device.
+  - Added foreground log listener in `FirebaseMessaging.onMessage.listen` to verify backend pushes are successfully delivered while the app is active, without implementing native popups to avoid desugaring build errors.
+- **Constraints Maintained**:
+  - Zero external package additions (reverted `flutter_local_notifications` per request).
+  - Maintained default Android OS behavior (no foreground heads-up banner).
+
+---
+
 ### 2026-08-11: Shoots Top Cards and Top Toolbar Status Filter Bidirectional Alignment & Auto-Scroll
 
 - **Task**: Align and bidirectionally synchronize top count cards (`Pending Shoots`, `Confirmed Shoots`, `Completed Shoots`, `Declined`) with top toolbar filter icon, and auto-scroll horizontal cards list into view when selected.

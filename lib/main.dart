@@ -13,6 +13,7 @@ import 'core/firebase/firebase_service.dart';
 import 'core/providers/auth_state_provider.dart';
 import 'core/providers/core_providers.dart';
 import 'core/providers/onboarding_seen_provider.dart';
+import 'core/notifications/push_notification_service.dart';
 import 'core/session/prefs_session_store.dart';
 import 'core/session/secure_session_store.dart';
 import 'core/session/session_migration.dart';
@@ -31,6 +32,10 @@ Future<void> startApp(Environment environment) async {
     // Boot Firebase first so any subsequent crash inside startup itself is
     // captured by Crashlytics. Tolerant of missing config (dev pre-flutterfire).
     await FirebaseService.initialize(environment);
+
+    if (FirebaseService.isInitialized) {
+      await PushNotificationService.instance.initialize();
+    }
 
     await PrefsService.init();
 

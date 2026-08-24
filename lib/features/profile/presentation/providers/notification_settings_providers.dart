@@ -102,18 +102,22 @@ class NotificationSettingsNotifier extends Notifier<NotificationSettingsState> {
     try {
       final repo = ref.read(notificationSettingsRepositoryProvider);
       final data = await repo.getPushNotificationsPreferences();
-      if (data.isNotEmpty && data['topics'] != null) {
-        final topics = data['topics'];
-        state = state.copyWith(
-          pushNotifications: data['push_enabled'] as bool? ?? state.pushNotifications,
-          categoryShoots: topics['shoots'] as bool? ?? state.categoryShoots,
-          categoryPayouts: topics['payments'] as bool? ?? state.categoryPayouts,
-          categoryMessages: topics['messages'] as bool? ?? state.categoryMessages,
-          categoryMeetings: topics['meetings'] as bool? ?? state.categoryMeetings,
-          categoryProposals: topics['proposals'] as bool? ?? state.categoryProposals,
-          categoryFiles: topics['files'] as bool? ?? state.categoryFiles,
-          categorySystem: topics['system'] as bool? ?? state.categorySystem,
-        );
+      if (data.isNotEmpty) {
+        final prefs = data['notification_preferences'] as Map<String, dynamic>? ?? data;
+        final topics = prefs['topics'] as Map<String, dynamic>?;
+
+        if (topics != null) {
+          state = state.copyWith(
+            pushNotifications: prefs['push_enabled'] as bool? ?? state.pushNotifications,
+            categoryShoots: topics['shoots'] as bool? ?? state.categoryShoots,
+            categoryPayouts: topics['payments'] as bool? ?? state.categoryPayouts,
+            categoryMessages: topics['messages'] as bool? ?? state.categoryMessages,
+            categoryMeetings: topics['meetings'] as bool? ?? state.categoryMeetings,
+            categoryProposals: topics['proposals'] as bool? ?? state.categoryProposals,
+            categoryFiles: topics['files'] as bool? ?? state.categoryFiles,
+            categorySystem: topics['system'] as bool? ?? state.categorySystem,
+          );
+        }
       }
     } catch (e, st) {
       AppLogger.e('NotificationSettingsNotifier.loadPushPreferences failed', e, st);
@@ -138,8 +142,11 @@ class NotificationSettingsNotifier extends Notifier<NotificationSettingsState> {
         state = state.copyWith(pushNotifications: true);
       }
 
+      final sessionStore = ref.read(sessionStoreProvider);
+      final sessionId = await sessionStore.getAppSessionId();
+
       final dto = NotificationSettingsRequestDto(
-        sessionId: 'app-session-001',
+        sessionId: sessionId,
         notificationPreferences: NotificationPreferencesDto(
           pushEnabled: state.pushNotifications,
           topics: NotificationTopicsDto(

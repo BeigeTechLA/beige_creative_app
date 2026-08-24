@@ -91,12 +91,21 @@ class PrefsSessionStore implements PrefsSessionBackend {
 
   @override
   Future<String> getAppSessionId() async {
-    final existingId = _prefs.getString('app_session_id');
+    final user = await readUser();
+    final userSuffix = user != null ? '_${user.id}' : '';
+    final key = 'app_session_id$userSuffix';
+
+    final existingId = _prefs.getString(key);
     if (existingId != null && existingId.isNotEmpty) {
       return existingId;
     }
     final newId = const Uuid().v4();
-    await _prefs.setString('app_session_id', newId);
+    await _prefs.setString(key, newId);
     return newId;
+  }
+
+  @override
+  Future<void> clearAppSessionId() async {
+    await _prefs.remove('app_session_id');
   }
 }

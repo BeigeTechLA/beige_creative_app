@@ -185,6 +185,15 @@ class ApiEndpoints {
   static const String emailPreferences = 'notification-preferences/email';
   static String emailNotificationsPreferences(String sessionId) => 'notification-preferences/email?session_id=$sessionId';
 
+  // ───── Notification Center ─────────────────────────────────────────────────
+  static const String notifications = 'app-notifications';
+  static const String notificationCounts = 'app-notifications/counts';
+  static String notificationDetails(String id) => 'app-notifications/$id';
+  static const String notificationsReadAll = 'app-notifications/read-all';
+  static String notificationRead(String id) => 'app-notifications/$id/read';
+  static String notificationUnread(String id) => 'app-notifications/$id/unread';
+  static String notificationDelete(String id) => 'app-notifications/$id';
+
 
 
 }

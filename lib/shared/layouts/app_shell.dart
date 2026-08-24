@@ -13,6 +13,7 @@ import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
 import '../../config/env.dart';
 import '../../core/firebase/analytics_service.dart';
+import '../../core/notifications/push_notification_service.dart';
 import '../../core/providers/guest_mode_provider.dart';
 import '../../shared/widgets/login_dialog.dart';
 import '../../features/availability/presentation/providers/availability_providers.dart'
@@ -37,10 +38,24 @@ import '../../features/shoots/presentation/providers/shoots_providers.dart'
 /// Replaces the legacy `Mainscreen` (also drops the per-frame
 /// `BackdropFilter(sigmaX: 80, sigmaY: 70)` which was costing 4-6 ms/frame
 /// per `AUDIT_PERF.md` D-1).
-class AppShell extends ConsumerWidget {
+class AppShell extends ConsumerStatefulWidget {
   final StatefulNavigationShell shell;
 
   const AppShell({super.key, required this.shell});
+
+  @override
+  ConsumerState<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends ConsumerState<AppShell> {
+  @override
+  void initState() {
+    super.initState();
+    // After the main UI mounts, check if we have a pending push payload to route.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      PushNotificationService.instance.processPendingNotification(context);
+    });
+  }
 
   void _goBranch(BuildContext context, WidgetRef ref, int index) {
     final isGuest = ref.read(guestModeProvider);
@@ -48,8 +63,8 @@ class AppShell extends ConsumerWidget {
       showLoginDialog(context);
       return;
     }
-    final isBranchSwitch = index != shell.currentIndex;
-    shell.goBranch(index, initialLocation: index == shell.currentIndex);
+    final isBranchSwitch = index != widget.shell.currentIndex;
+    widget.shell.goBranch(index, initialLocation: index == widget.shell.currentIndex);
     if (isBranchSwitch && index >= 0 && index < _branchRoutes.length) {
       // Phase F — StatefulShellRoute branch switches don't push on the root
       // Navigator, so AppAnalyticsObserver doesn't see them. Log explicitly.
@@ -95,24 +110,24 @@ class AppShell extends ConsumerWidget {
   ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       drawer: _AppShellDrawer(
-        currentIndex: shell.currentIndex,
+        currentIndex: widget.shell.currentIndex,
         onSelect: (i) {
           Navigator.of(context).pop();
           _goBranch(context, ref, i);
         },
       ),
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
-      body: ClipRect(child: shell),
+      body: ClipRect(child: widget.shell),
       // File Manager (branch 2) hidden from bottom bar pre-release; branches
       // 4+ are drawer-only. Hide the bar when current branch isn't in the
       // visible set instead of clamping to Dashboard.
-      bottomNavigationBar: _bottomBarBranches.contains(shell.currentIndex)
+      bottomNavigationBar: _bottomBarBranches.contains(widget.shell.currentIndex)
           ? _AppShellBottomBar(
-              currentBranchIndex: shell.currentIndex,
+              currentBranchIndex: widget.shell.currentIndex,
               onSelectBranch: (i) => _goBranch(context, ref, i),
             )
           : null,
