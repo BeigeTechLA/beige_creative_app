@@ -48,18 +48,91 @@ class NotificationRemoteSource {
   }
 
   /// Fetches the list of notifications (`GET /app-notifications`)
-  Future<Map<String, dynamic>> getNotifications({int page = 1, int limit = 20}) async {
+  Future<Map<String, dynamic>> getNotifications({
+    int page = 1,
+    int limit = 20,
+    String? status,
+    String? search,
+    String? category,
+  }) async {
     try {
+      final Map<String, dynamic> queryParams = {
+        'page': page,
+        'limit': limit,
+      };
+      if (status != null && status.isNotEmpty) queryParams['status'] = status;
+      if (search != null && search.isNotEmpty) queryParams['search'] = search;
+      if (category != null && category.isNotEmpty) queryParams['category'] = category;
+
       final response = await _client.dio.get(
         ApiEndpoints.notifications,
-       /* queryParameters: {
-          'page': page,
-          'limit': limit,
-        },*/
+        queryParameters: queryParams,
       );
       return response.data as Map<String, dynamic>;
     } catch (e) {
       AppLogger.e('[NOTIFICATION API] GET /${ApiEndpoints.notifications} - Error: $e');
+      rethrow;
+    }
+  }
+
+  /// Fetches unread notification count (`GET /app-notifications/counts`)
+  Future<Map<String, dynamic>> getNotificationCounts() async {
+    try {
+      final response = await _client.dio.get(ApiEndpoints.notificationCounts);
+      return response.data as Map<String, dynamic>;
+    } catch (e) {
+      AppLogger.e('[NOTIFICATION API] GET /${ApiEndpoints.notificationCounts} - Error: $e');
+      rethrow;
+    }
+  }
+
+  /// Fetches details of a single notification (`GET /app-notifications/{id}`)
+  Future<Map<String, dynamic>> getNotificationDetails(String id) async {
+    try {
+      final response = await _client.dio.get(ApiEndpoints.notificationDetails(id));
+      return response.data as Map<String, dynamic>;
+    } catch (e) {
+      AppLogger.e('[NOTIFICATION API] GET /${ApiEndpoints.notificationDetails(id)} - Error: $e');
+      rethrow;
+    }
+  }
+
+  /// Marks a single notification as read (`PATCH /app-notifications/{id}/read`)
+  Future<void> markAsRead(String id) async {
+    try {
+      await _client.dio.patch(ApiEndpoints.notificationRead(id));
+    } catch (e) {
+      AppLogger.e('[NOTIFICATION API] PATCH /${ApiEndpoints.notificationRead(id)} - Error: $e');
+      rethrow;
+    }
+  }
+
+  /// Marks a single notification as unread (`PATCH /app-notifications/{id}/unread`)
+  Future<void> markAsUnread(String id) async {
+    try {
+      await _client.dio.patch(ApiEndpoints.notificationUnread(id));
+    } catch (e) {
+      AppLogger.e('[NOTIFICATION API] PATCH /${ApiEndpoints.notificationUnread(id)} - Error: $e');
+      rethrow;
+    }
+  }
+
+  /// Marks all notifications as read (`PATCH /app-notifications/read-all`)
+  Future<void> markAllAsRead() async {
+    try {
+      await _client.dio.patch(ApiEndpoints.notificationsReadAll);
+    } catch (e) {
+      AppLogger.e('[NOTIFICATION API] PATCH /${ApiEndpoints.notificationsReadAll} - Error: $e');
+      rethrow;
+    }
+  }
+
+  /// Deletes a notification (`DELETE /app-notifications/{id}`)
+  Future<void> deleteNotification(String id) async {
+    try {
+      await _client.dio.delete(ApiEndpoints.notificationDelete(id));
+    } catch (e) {
+      AppLogger.e('[NOTIFICATION API] DELETE /${ApiEndpoints.notificationDelete(id)} - Error: $e');
       rethrow;
     }
   }

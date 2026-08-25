@@ -44,6 +44,7 @@ class NotificationItemDto {
   final String? avatarUrl;
   final String? actionLabel;
   final String? category;
+  final Map<String, dynamic>? payload;
 
   NotificationItemDto({
     required this.id,
@@ -56,6 +57,7 @@ class NotificationItemDto {
     this.avatarUrl,
     this.actionLabel,
     this.category,
+    this.payload,
   });
 
   factory NotificationItemDto.fromJson(Map<String, dynamic> json) {
@@ -63,13 +65,14 @@ class NotificationItemDto {
       id: json['id']?.toString() ?? '',
       title: json['title'] ?? json['subject'] ?? 'Notification',
       message: json['message'] ?? json['body'] ?? '',
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString())?.toLocal() : null,
       isRead: json['is_read'] == 1 || json['is_read'] == true || json['read_at'] != null || json['status'] == 'read',
       type: json['type']?.toString(),
-      senderName: json['sender_name']?.toString() ?? (json['payload'] is Map ? json['payload']['sender_name']?.toString() : null),
-      avatarUrl: json['avatar_url']?.toString(),
+      senderName: json['sender']?['name']?.toString() ?? json['sender_name']?.toString() ?? (json['payload'] is Map ? json['payload']['sender_name']?.toString() : null),
+      avatarUrl: json['sender']?['profile_image_url']?.toString() ?? json['avatar_url']?.toString(),
       actionLabel: json['action_label']?.toString(),
       category: json['category']?.toString(),
+      payload: json['payload'] as Map<String, dynamic>?,
     );
   }
 
@@ -85,6 +88,7 @@ class NotificationItemDto {
       avatarUrl: avatarUrl,
       actionLabel: actionLabel,
       category: category,
+      payload: payload,
     );
   }
 }

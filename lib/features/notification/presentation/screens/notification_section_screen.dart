@@ -8,8 +8,12 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../core/notifications/notification_payload.dart';
+import '../../../../core/notifications/push_notification_service.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_icon_tap_target.dart';
+import '../../../../shared/widgets/loading.dart';
+import '../../domain/models/notification_counts.dart';
 import '../providers/notification_list_providers.dart';
 import '../widgets/empty_notification_widget.dart';
 import '../widgets/notification_filter_bottom_sheet.dart';
@@ -73,6 +77,8 @@ class _NotificationSectionScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(notificationListProvider);
     final notifier = ref.read(notificationListProvider.notifier);
+    final countsAsync = ref.watch(notificationCountProvider);
+    final counts = countsAsync.value ?? const NotificationCounts();
     final filtered = state.filteredNotifications;
 
     final items = filtered.where((item) {
@@ -111,131 +117,158 @@ class _NotificationSectionScreenState
 
             // Scrollable Content
             Expanded(
-              child: RefreshIndicator(
-                color: AppColors.primary,
-                backgroundColor: AppColors.surfaceMid,
-                onRefresh: () => notifier.fetchNotifications(),
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics(),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppSpacing.verticalSm,
-
-                      // Section Title & Filter Button Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '${widget.args.sectionTitle} (${items.length})',
-                            style: AppTextStyles.titleMedium.copyWith(
-                              color: AppColors.white,
-                            ),
-                          ),
-                          AppIconTapTarget(
-                            semanticLabel: 'Filter',
-                            onTap: () {
-                              NotificationFilterBottomSheet.show(
-                                context: context,
-                                selectedCategory: state.selectedCategory,
-                                onApply: notifier.applyCategoryFilter,
-                                onClearAll: () => notifier.applyCategoryFilter('All'),
-                              );
-                            },
-                            icon: SvgPicture.asset(
-                              AppAssets.iconFilter,
-                              height: AppSpacing.folderCardInset,
-                              width: AppSpacing.folderCardInset,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.white,
-                                BlendMode.srcIn,
+              child: Column(
+                children: [
+                  // Fixed Header (Section Title + Filter)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AppSpacing.verticalSm,
+                        // Section Title & Filter Button Row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${widget.args.sectionTitle} (${items.length})',
+                              style: AppTextStyles.titleMedium.copyWith(
+                                color: AppColors.white,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      AppSpacing.verticalBase,
+                            AppIconTapTarget(
+                              semanticLabel: 'Filter',
+                              onTap: () {
+                                NotificationFilterBottomSheet.show(
+                                  context: context,
+                                  counts: counts,
+                                  selectedCategory: state.selectedCategory,
+                                  onApply: notifier.applyCategoryFilter,
+                                  onClearAll: () => notifier.applyCategoryFilter('All'),
+                                );
+                              },
+                              icon: SvgPicture.asset(
+                                AppAssets.iconFilter,
+                                height: AppSpacing.folderCardInset,
+                                width: AppSpacing.folderCardInset,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.white,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        AppSpacing.verticalBase,
 
-                      // Search Bar Input Container
-                      Container(
-                        height: 46,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
-                          borderRadius: AppRadii.lgAll,
-                          border: Border.all(
-                            color: AppColors.white.withValues(alpha: 0.08),
+                        // Search Bar Input Container
+                        Container(
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceVariant,
+                            borderRadius: AppRadii.lgAll,
+                            border: Border.all(
+                              color: AppColors.white.withValues(alpha: 0.08),
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                AppAssets.searchIcon,
+                                width: AppSpacing.lg,
+                                height: AppSpacing.lg,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.white54,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              AppSpacing.gapHSmd,
+                              Expanded(
+                                child: TextField(
+                                  controller: _searchController,
+                                  onChanged: notifier.setSearchQuery,
+                                  style: AppTextStyles.body14.copyWith(
+                                    color: AppColors.white,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: 'Search Notifications...',
+                                    hintStyle: AppTextStyles.body14.copyWith(
+                                      color: AppColors.white38,
+                                    ),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                ),
+                              ),
+                              if (_searchController.text.isNotEmpty)
+                                GestureDetector(
+                                  onTap: () {
+                                    _searchController.clear();
+                                    notifier.setSearchQuery('');
+                                  },
+                                  child: const Icon(
+                                    Icons.clear,
+                                    color: AppColors.white54,
+                                    size: AppSpacing.lg,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
-                        child: Row(
+                        AppSpacing.verticalXl,
+                      ],
+                    ),
+                  ),
+
+                  // Scrollable List Area
+                  Expanded(
+                    child: RefreshIndicator(
+                      color: AppColors.primary,
+                      backgroundColor: AppColors.surfaceMid,
+                      onRefresh: () => notifier.fetchNotifications(),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SvgPicture.asset(
-                              AppAssets.searchIcon,
-                              width: AppSpacing.lg,
-                              height: AppSpacing.lg,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.white54,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            AppSpacing.gapHSmd,
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                onChanged: notifier.setSearchQuery,
-                                style: AppTextStyles.body14.copyWith(
-                                  color: AppColors.white,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: 'Search Notifications...',
-                                  hintStyle: AppTextStyles.body14.copyWith(
-                                    color: AppColors.white38,
-                                  ),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
+                            // Notification List or Empty State
+                            if (state.isLoading && items.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: AppSpacing.massive),
+                                child: AppScreenLoader(),
+                              )
+                            else if (items.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: AppSpacing.massive),
+                                child: EmptyNotificationWidget(),
+                              )
+                            else
+                              ...items.map(
+                                (item) => NotificationItemCard(
+                                  item: item,
+                                  onTap: () {
+                                    notifier.markAsRead(item.id);
+                                    if (item.payload != null) {
+                                      final payload = NotificationPayload.fromMap(item.payload!);
+                                      PushNotificationService.instance.handleNotificationClick(payload);
+                                    }
+                                  },
                                 ),
                               ),
-                            ),
-                            if (_searchController.text.isNotEmpty)
-                              GestureDetector(
-                                onTap: () {
-                                  _searchController.clear();
-                                  notifier.setSearchQuery('');
-                                },
-                                child: const Icon(
-                                  Icons.clear,
-                                  color: AppColors.white54,
-                                  size: AppSpacing.lg,
-                                ),
-                              ),
+
+                            // Extra bottom padding so last card never overlaps bottom button
+                            const SizedBox(height: 100),
                           ],
                         ),
                       ),
-                      AppSpacing.verticalXl,
-
-                      // Notification List or Empty State (Cards are non-clickable on section detail screen)
-                      if (items.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: AppSpacing.massive),
-                          child: EmptyNotificationWidget(),
-                        )
-                      else
-                        ...items.map(
-                          (item) => NotificationItemCard(
-                            item: item,
-                            onTap: null,
-                          ),
-                        ),
-
-                      // Extra bottom padding so last card never overlaps bottom button
-                      const SizedBox(height: 100),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
@@ -243,7 +276,9 @@ class _NotificationSectionScreenState
       ),
 
       // Bottom CTA Button: Mark all as read
-      bottomNavigationBar: SafeArea(
+      bottomNavigationBar: state.selectedTab == NotificationTab.Read
+        ? const SizedBox.shrink()
+        : SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.base),
           child: SizedBox(

@@ -11,6 +11,8 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/app_icon_tap_target.dart';
+import '../../../../shared/widgets/loading.dart';
+import '../../domain/models/notification_counts.dart';
 import '../providers/notification_list_providers.dart';
 import '../widgets/empty_notification_widget.dart';
 import '../widgets/notification_filter_bottom_sheet.dart';
@@ -43,17 +45,6 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
     return dt.year == now.year && dt.month == now.month && dt.day == now.day;
   }
 
-  void _scrollToSection(GlobalKey key) {
-    final ctx = key.currentContext;
-    if (ctx != null) {
-      Scrollable.ensureVisible(
-        ctx,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
   void _navigateToSection(String title, bool isToday) {
     context.pushNamed(
       Routes.notificationSectionList.name,
@@ -68,6 +59,8 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(notificationListProvider);
     final notifier = ref.read(notificationListProvider.notifier);
+    final countsAsync = ref.watch(notificationCountProvider);
+    final counts = countsAsync.value ?? const NotificationCounts();
     final filtered = state.filteredNotifications;
 
     final todayItems = filtered.where((item) => _isToday(item.createdAt)).toList();
@@ -134,6 +127,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                             onTap: () {
                               NotificationFilterBottomSheet.show(
                                 context: context,
+                                counts: counts,
                                 selectedCategory: state.selectedCategory,
                                 onApply: notifier.applyCategoryFilter,
                                 onClearAll: () => notifier.applyCategoryFilter('All'),
@@ -227,7 +221,12 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                       AppSpacing.verticalBase,
 
                       // Notification Sections or Empty State ('No data')
-                      if (filtered.isEmpty)
+                      if (state.isLoading && state.notifications.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: AppSpacing.massive),
+                          child: AppScreenLoader(),
+                        )
+                      else if (filtered.isEmpty)
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: AppSpacing.massive),
                           child: EmptyNotificationWidget(),
@@ -241,9 +240,10 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                             count: todayItems.length,
                             onViewAll: () => _navigateToSection('Today', true),
                           ),
+                          AppSpacing.verticalBase,
                           NotificationStackedCards(
                             items: todayItems,
-                            onTap: () => _scrollToSection(_todaySectionKey),
+                            onTap: () => _navigateToSection('Today', true),
                           ),
                           AppSpacing.verticalXxl,
                         ],
@@ -256,9 +256,10 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                             count: olderItems.length,
                             onViewAll: () => _navigateToSection('Yesterday', false),
                           ),
+                          AppSpacing.verticalBase,
                           NotificationStackedCards(
                             items: olderItems,
-                            onTap: () => _scrollToSection(_yesterdaySectionKey),
+                            onTap: () => _navigateToSection('Yesterday', false),
                           ),
                           AppSpacing.verticalXxl,
                         ],
@@ -275,7 +276,9 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       ),
 
       // Bottom CTA Button: Mark all as read
-      bottomNavigationBar: SafeArea(
+      bottomNavigationBar: state.selectedTab == NotificationTab.Read 
+        ? const SizedBox.shrink()
+        : SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.base),
           child: SizedBox(
@@ -337,9 +340,12 @@ class _SectionHeader extends StatelessWidget {
           children: [
             Text(
               title,
-              style: AppTextStyles.body15Strong.copyWith(
-                color: AppColors.white,
-                fontWeight: FontWeight.w600,
+              style: const TextStyle(
+                color: Color(0xFF797A7E),
+                fontSize: 12,
+                fontFamily: 'Outfit',
+                fontWeight: FontWeight.w400,
+                height: 1.75,
               ),
             ),
             AppSpacing.gapHSm,
@@ -354,9 +360,12 @@ class _SectionHeader extends StatelessWidget {
               ),
               child: Text(
                 '$count',
-                style: AppTextStyles.body12.copyWith(
-                  color: AppColors.white70,
-                  fontWeight: FontWeight.w500,
+                style: const TextStyle(
+                  color: Color(0xFF797A7E),
+                  fontSize: 12,
+                  fontFamily: 'Outfit',
+                  fontWeight: FontWeight.w400,
+                  height: 1.75,
                 ),
               ),
             ),

@@ -14,6 +14,7 @@ class NotificationItem {
     this.avatarUrl,
     this.actionLabel,
     this.category,
+    this.payload,
   });
 
   final String id;
@@ -26,6 +27,7 @@ class NotificationItem {
   final String? avatarUrl;
   final String? actionLabel;
   final String? category;
+  final Map<String, dynamic>? payload;
 
   NotificationItem copyWith({
     String? id,
@@ -38,6 +40,7 @@ class NotificationItem {
     String? avatarUrl,
     String? actionLabel,
     String? category,
+    Map<String, dynamic>? payload,
   }) {
     return NotificationItem(
       id: id ?? this.id,
@@ -50,6 +53,7 @@ class NotificationItem {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       actionLabel: actionLabel ?? this.actionLabel,
       category: category ?? this.category,
+      payload: payload ?? this.payload,
     );
   }
 
@@ -67,7 +71,8 @@ class NotificationItem {
           senderName == other.senderName &&
           avatarUrl == other.avatarUrl &&
           actionLabel == other.actionLabel &&
-          category == other.category;
+          category == other.category &&
+          payload == other.payload;
 
   @override
   int get hashCode =>
@@ -80,5 +85,6 @@ class NotificationItem {
       senderName.hashCode ^
       avatarUrl.hashCode ^
       actionLabel.hashCode ^
-      category.hashCode;
+      category.hashCode ^
+      payload.hashCode;
 }

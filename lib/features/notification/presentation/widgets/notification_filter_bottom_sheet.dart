@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/colors.dart';
+import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../domain/models/notification_counts.dart';
 
 class FilterOption {
-  const FilterOption({
-    required this.id,
-    required this.label,
-    this.count,
-  });
+  const FilterOption({required this.id, required this.label, this.count});
 
   final String id;
   final String label;
@@ -19,33 +17,31 @@ class FilterOption {
 class NotificationFilterBottomSheet extends StatefulWidget {
   const NotificationFilterBottomSheet({
     super.key,
+    required this.counts,
     required this.selectedCategory,
     required this.onApply,
     required this.onClearAll,
   });
 
+  final NotificationCounts counts;
   final String selectedCategory;
   final ValueChanged<String> onApply;
   final VoidCallback onClearAll;
 
   static Future<void> show({
     required BuildContext context,
+    required NotificationCounts counts,
     required String selectedCategory,
     required ValueChanged<String> onApply,
     required VoidCallback onClearAll,
   }) {
     return showModalBottomSheet<void>(
       context: context,
-      backgroundColor: const Color(0xFF282828),
       isScrollControlled: true,
-      barrierColor: Colors.black.withValues(alpha: 0.6),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(40),
-          topRight: Radius.circular(40),
-        ),
-      ),
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => NotificationFilterBottomSheet(
+        counts: counts,
         selectedCategory: selectedCategory,
         onApply: onApply,
         onClearAll: onClearAll,
@@ -62,13 +58,13 @@ class _NotificationFilterBottomSheetState
     extends State<NotificationFilterBottomSheet> {
   late String _currentCategory;
 
-  static const List<FilterOption> _options = [
-    FilterOption(id: 'All', label: 'All', count: 10),
-    FilterOption(id: 'Unread', label: 'Unread', count: 2),
-    FilterOption(id: 'Mentions', label: 'Mentions', count: 1),
-    FilterOption(id: 'Payments', label: 'Payments', count: 2),
-    FilterOption(id: 'Projects', label: 'Projects', count: 2),
-    FilterOption(id: 'Files', label: 'Files', count: 2),
+  List<FilterOption> get _options => [
+    FilterOption(id: 'All', label: 'All', count: widget.counts.all),
+    FilterOption(id: 'Unread', label: 'Unread', count: widget.counts.unread),
+    FilterOption(id: 'Mentions', label: 'Mentions', count: widget.counts.mentions),
+    FilterOption(id: 'Payments', label: 'Payments', count: widget.counts.payments),
+    FilterOption(id: 'Projects', label: 'Projects', count: widget.counts.projects),
+    FilterOption(id: 'Files', label: 'Files', count: widget.counts.files),
   ];
 
   @override
@@ -79,185 +75,141 @@ class _NotificationFilterBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFF282828),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(40),
-            topRight: Radius.circular(40),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Color(0x0C110C2E),
-              blurRadius: 50,
-              offset: Offset(20, 0),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.base,
-          AppSpacing.md,
-          AppSpacing.base,
-          AppSpacing.base,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Handle bar
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.white30,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.base,
+        AppSpacing.sm,
+        AppSpacing.base,
+        AppSpacing.xl,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          /// Top Drag Handle
+          Center(
+            child: Container(
+              width: 38,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.white30,
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            AppSpacing.verticalBase,
+          ),
+          const SizedBox(height: AppSpacing.base),
 
-            // Header: Filter By title & Close button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Filter By',
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+          /// Title Header + Close Button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Filter By',
+                style: AppTextStyles.titleLarge.copyWith(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.bold,
                 ),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: ShapeDecoration(
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(
-                          width: 0.50,
-                          color: Color(0xB2DDDDDD),
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      color: Color(0xB2DDDDDD),
-                      size: 16,
-                    ),
-                  ),
-                ),
-              ],
+              ),
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.close, color: AppColors.white),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.base),
+
+          const Divider(color: AppColors.surfaceVariant, height: 1),
+          const SizedBox(height: AppSpacing.xl),
+
+          /// Card Container
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceInput,
+              borderRadius: AppRadii.lgAll,
             ),
-            AppSpacing.verticalBase,
-
-            // Options List Container (Frame 2087328894)
-            Flexible(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                  itemCount: _options.length,
-                  separatorBuilder: (context, index) => const SizedBox.shrink(),
-                  itemBuilder: (context, index) {
-                    final opt = _options[index];
-                    final isSelected = _currentCategory.toLowerCase() == opt.id.toLowerCase();
-
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () {
-                        setState(() {
-                          _currentCategory = opt.id;
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.base,
-                          vertical: AppSpacing.md,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text(
-                                    opt.label,
-                                    style: AppTextStyles.body14.copyWith(
-                                      color: isSelected ? AppColors.white : AppColors.white70,
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Options
+                ..._options.map((opt) {
+                  final isSelected =
+                      _currentCategory.toLowerCase() == opt.id.toLowerCase();
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        _currentCategory = opt.id;
+                      });
+                    },
+                    borderRadius: AppRadii.lgAll,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.base,
+                        vertical: AppSpacing.md,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text(
+                                  opt.label,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: isSelected
+                                        ? AppColors.white
+                                        : AppColors.white70,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                  ),
+                                ),
+                                if (opt.count != null) ...[
+                                  AppSpacing.gapHSm,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF282828),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      opt.count! < 10
+                                          ? '0${opt.count}'
+                                          : '${opt.count}',
+                                      style: AppTextStyles.body12.copyWith(
+                                        color: AppColors.white70,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
-                                  if (opt.count != null) ...[
-                                    AppSpacing.gapHSm,
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF282828),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Text(
-                                        opt.count! < 10 ? '0${opt.count}' : '${opt.count}',
-                                        style: AppTextStyles.body12.copyWith(
-                                          color: AppColors.white70,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
                                 ],
-                              ),
+                              ],
                             ),
-                            // Radio indicator matching Figma
-                            Container(
-                              width: 22,
-                              height: 22,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: isSelected ? AppColors.primary : Colors.transparent,
-                                border: Border.all(
-                                  color: isSelected ? AppColors.primary : AppColors.white30,
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: isSelected
-                                  ? Center(
-                                      child: Container(
-                                        width: 7,
-                                        height: 7,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFF1E1E1E),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    )
-                                  : null,
-                            ),
-                          ],
-                        ),
+                          ),
+                          _CustomRadioButton(isSelected: isSelected),
+                        ],
                       ),
-                    );
-                  },
-                ),
-              ),
+                    ),
+                  );
+                }),
+              ],
             ),
-            AppSpacing.verticalXl,
+          ),
+          const SizedBox(height: AppSpacing.xxl),
 
-            // Footer Buttons Row (Clear All & Apply)
-            Row(
-              children: [
-                // Clear All Button
-                Expanded(
+          /// Action Buttons
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 48,
                   child: OutlinedButton(
                     onPressed: () {
                       setState(() {
@@ -267,26 +219,25 @@ class _NotificationFilterBottomSheetState
                       Navigator.of(context).pop();
                     },
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E1E1E),
-                      side: const BorderSide(color: Color(0x33FFFFFF)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: AppColors.white30),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadii.lgAll,
                       ),
                     ),
                     child: Text(
                       'Clear All',
-                      style: AppTextStyles.body14.copyWith(
+                      style: AppTextStyles.buttonMedium.copyWith(
                         color: AppColors.white,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-                AppSpacing.gapHMd,
-
-                // Apply Button
-                Expanded(
+              ),
+              const SizedBox(width: AppSpacing.base),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
                   child: ElevatedButton(
                     onPressed: () {
                       widget.onApply(_currentCategory);
@@ -294,25 +245,57 @@ class _NotificationFilterBottomSheetState
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadii.lgAll,
                       ),
                     ),
                     child: Text(
                       'Apply',
-                      style: AppTextStyles.body14.copyWith(
+                      style: AppTextStyles.buttonMedium.copyWith(
                         color: AppColors.onPrimary,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CustomRadioButton extends StatelessWidget {
+  final bool isSelected;
+
+  const _CustomRadioButton({required this.isSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 22,
+      height: 22,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isSelected ? AppColors.primary : AppColors.white30,
+          width: 2,
         ),
       ),
+      child: isSelected
+          ? Center(
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary,
+                ),
+              ),
+            )
+          : null,
     );
   }
 }

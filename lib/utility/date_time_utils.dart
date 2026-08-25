@@ -66,6 +66,9 @@ class DateTimeUtils {
   /// `05/19/2026` — month-first date input.
   static const String kMonthFirstDateInputPattern = "MM/dd/yyyy";
 
+  /// `October 11 • 09:20AM`
+  static const String kNotificationDatePattern = "MMMM dd • hh:mma";
+
   // ───────────────────────────────────────────────────────────────
 
   /// ✅ Format Date → MM-dd-yyyy
@@ -86,6 +89,17 @@ class DateTimeUtils {
       if (date == null) return fallback;
 
       return DateFormat(kDatePattern).format(date);
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  /// ✅ Format DateTime → October 11 • 09:20AM
+  static String formatNotificationDate(DateTime? date, {String fallback = "--"}) {
+    try {
+      if (date == null) return fallback;
+
+      return DateFormat(kNotificationDatePattern).format(date.toLocal());
     } catch (_) {
       return fallback;
     }
