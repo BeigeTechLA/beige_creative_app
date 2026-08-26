@@ -284,7 +284,7 @@ class _NotificationSectionScreenState
           child: SizedBox(
             height: 52,
             child: ElevatedButton(
-              onPressed: items.isEmpty ? null : () => notifier.markAllAsRead(),
+              onPressed: (items.isEmpty || state.isMarkingAllAsRead) ? null : () => notifier.markAllAsRead(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 disabledBackgroundColor: AppColors.surfaceVariant,
@@ -296,11 +296,21 @@ class _NotificationSectionScreenState
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.done_all,
-                    size: AppSpacing.xl,
-                    color: items.isEmpty ? AppColors.white38 : AppColors.onPrimary,
-                  ),
+                  if (state.isMarkingAllAsRead)
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: AppColors.onPrimary,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  else
+                    Icon(
+                      Icons.done_all,
+                      size: AppSpacing.xl,
+                      color: items.isEmpty ? AppColors.white38 : AppColors.onPrimary,
+                    ),
                   AppSpacing.gapHSm,
                   Text(
                     'Mark all as read',

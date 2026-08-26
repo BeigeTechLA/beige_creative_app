@@ -64,7 +64,11 @@ class _NotificationSettingsScreenState
             const SizedBox(height: 4),
             Text(
               'Choose how you want to receive notifications',
-              style: AppTextStyles.body14.copyWith(color: AppColors.white60),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.white60,
+                fontSize: 14,
+              ),
+
             ),
             const SizedBox(height: 20),
 
@@ -85,7 +89,7 @@ class _NotificationSettingsScreenState
             const SizedBox(height: 16),
 
             // Email Notifications Row
-            _NotificationRow(
+         /*   _NotificationRow(
               iconData: Icons.mail_outline,
               iconBorderColor: AppColors.magentaAccent,
               iconBgColor: AppColors.purpleWash,
@@ -97,7 +101,7 @@ class _NotificationSettingsScreenState
                 NotificationCategorySheet.show(context, type: NotificationCategoryType.email);
               },
               onTapRow: () => NotificationCategorySheet.show(context, type: NotificationCategoryType.email),
-            ),
+            ),*/
             const SizedBox(height: 24),
 /*
             // Smart Delivery Info Box (Matches mockup design)

@@ -130,7 +130,7 @@ class _NotificationCategorySheetState
                     },
                   ),
                   const SizedBox(height: 16),
-                  _CategoryRow(
+                 /* _CategoryRow(
                     svgAsset: AppAssets.notificationCategoryPayments,
                     title: 'Payments',
                     subtitle: 'Invoices, payment receipts, & reminders',
@@ -140,7 +140,7 @@ class _NotificationCategorySheetState
                         _localState = _localState.copyWith(categoryPayouts: val);
                       });
                     },
-                  ),
+                  ),*/
                   const SizedBox(height: 16),
                   _CategoryRow(
                     svgAsset: AppAssets.notificationCategoryMessages,
@@ -166,7 +166,7 @@ class _NotificationCategorySheetState
                     },
                   ),
                   const SizedBox(height: 16),
-                  _CategoryRow(
+                 /* _CategoryRow(
                     svgAsset: AppAssets.notificationCategoryProposals,
                     title: 'Proposals',
                     subtitle: 'Proposal shares, approvals, & feedback',
@@ -176,9 +176,9 @@ class _NotificationCategorySheetState
                         _localState = _localState.copyWith(categoryProposals: val);
                       });
                     },
-                  ),
+                  ),*/
                   const SizedBox(height: 16),
-                  _CategoryRow(
+                 /* _CategoryRow(
                     svgAsset: AppAssets.notificationCategoryFiles,
                     title: 'Files',
                     subtitle: 'File uploads, shares, & review requests',
@@ -188,9 +188,9 @@ class _NotificationCategorySheetState
                         _localState = _localState.copyWith(categoryFiles: val);
                       });
                     },
-                  ),
+                  ),*/
                   const SizedBox(height: 16),
-                  _CategoryRow(
+                  /*_CategoryRow(
                     svgAsset: AppAssets.notificationCategorySystem,
                     title: 'System',
                     subtitle: 'System alerts & account updates',
@@ -200,7 +200,7 @@ class _NotificationCategorySheetState
                         _localState = _localState.copyWith(categorySystem: val);
                       });
                     },
-                  ),
+                  ),*/
                 ],
               ),
             ),

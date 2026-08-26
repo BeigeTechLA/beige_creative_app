@@ -26,7 +26,7 @@ class NotificationSettingsRemoteSource {
     }
   }
 
-  /// Fetches push notifications preferences (`GET /push-notifications/preferences`).
+  /// Fetches push notifications preferences (`GET /push-notifications/preferencespush-notifications/preferences`).
   Future<Map<String, dynamic>> getPushNotificationsPreferences() async {
     try {
       final sessionId = await _sessionStore.getAppSessionId();

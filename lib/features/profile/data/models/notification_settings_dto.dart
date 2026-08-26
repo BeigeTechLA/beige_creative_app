@@ -48,42 +48,42 @@ class NotificationPreferencesDto {
 
 class NotificationTopicsDto {
   final bool shoots;
-  final bool payments;
+  // final bool payments;
   final bool messages;
   final bool meetings;
-  final bool proposals;
+  // final bool proposals;
   final bool files;
-  final bool system;
+  // final bool system;
 
   const NotificationTopicsDto({
     this.shoots = true,
-    this.payments = true,
+    // this.payments = true,
     this.messages = true,
     this.meetings = true,
-    this.proposals = true,
+    // this.proposals = true,
     this.files = true,
-    this.system = true,
+    // this.system = true,
   });
 
   Map<String, dynamic> toJson() => {
         'shoots': shoots,
-        'payments': payments,
+        // 'payments': payments,
         'messages': messages,
         'meetings': meetings,
-        'proposals': proposals,
+        // 'proposals': proposals,
         'files': files,
-        'system': system,
+        // 'system': system,
       };
 
   factory NotificationTopicsDto.fromJson(Map<String, dynamic> json) {
     return NotificationTopicsDto(
       shoots: json['shoots'] as bool? ?? true,
-      payments: json['payments'] as bool? ?? true,
+      // payments: json['payments'] as bool? ?? true,
       messages: json['messages'] as bool? ?? true,
       meetings: json['meetings'] as bool? ?? true,
-      proposals: json['proposals'] as bool? ?? true,
+      // proposals: json['proposals'] as bool? ?? true,
       files: json['files'] as bool? ?? true,
-      system: json['system'] as bool? ?? true,
+      // system: json['system'] as bool? ?? true,
     );
   }
 }

@@ -29,6 +29,7 @@ final notificationCountProvider = FutureProvider.autoDispose<NotificationCounts>
 class NotificationListState {
   const NotificationListState({
     this.isLoading = false,
+    this.isMarkingAllAsRead = false,
     this.notifications = const [],
     this.selectedTab = NotificationTab.unread,
     this.searchQuery = '',
@@ -37,14 +38,19 @@ class NotificationListState {
   });
 
   final bool isLoading;
+  final bool isMarkingAllAsRead;
   final List<NotificationItem> notifications;
   final NotificationTab selectedTab;
   final String searchQuery;
   final String selectedCategory;
   final String? errorMessage;
 
-  /// Returns list since backend is handling filtering.
+  /// Returns list since backend is handling filtering,
+  /// but we filter locally for unread tab to instantly remove marked-as-read items.
   List<NotificationItem> get filteredNotifications {
+    if (selectedTab == NotificationTab.unread) {
+      return notifications.where((n) => !n.isRead).toList();
+    }
     return notifications;
   }
 
@@ -52,6 +58,7 @@ class NotificationListState {
 
   NotificationListState copyWith({
     bool? isLoading,
+    bool? isMarkingAllAsRead,
     List<NotificationItem>? notifications,
     NotificationTab? selectedTab,
     String? searchQuery,
@@ -60,6 +67,7 @@ class NotificationListState {
   }) {
     return NotificationListState(
       isLoading: isLoading ?? this.isLoading,
+      isMarkingAllAsRead: isMarkingAllAsRead ?? this.isMarkingAllAsRead,
       notifications: notifications ?? this.notifications,
       selectedTab: selectedTab ?? this.selectedTab,
       searchQuery: searchQuery ?? this.searchQuery,
@@ -176,13 +184,15 @@ class NotificationListNotifier extends AutoDisposeNotifier<NotificationListState
 
   Future<void> markAllAsRead() async {
     try {
+      state = state.copyWith(isMarkingAllAsRead: true);
       final repo = ref.read(notificationRepositoryProvider);
       await repo.markAllAsRead();
       
       final updated = state.notifications.map((item) => item.copyWith(isRead: true)).toList();
-      state = state.copyWith(notifications: updated);
+      state = state.copyWith(notifications: updated, isMarkingAllAsRead: false);
       ref.invalidate(notificationCountProvider);
     } catch (e) {
+      state = state.copyWith(isMarkingAllAsRead: false);
       // Keep existing state on error
     }
   }

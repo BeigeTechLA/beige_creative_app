@@ -122,7 +122,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                               color: AppColors.white,
                             ),
                           ),
-                          AppIconTapTarget(
+                       /*   AppIconTapTarget(
                             semanticLabel: 'Filter',
                             onTap: () {
                               NotificationFilterBottomSheet.show(
@@ -142,7 +142,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                                 BlendMode.srcIn,
                               ),
                             ),
-                          ),
+                          ),*/
                         ],
                       ),
                       AppSpacing.verticalXxs,
@@ -284,7 +284,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
           child: SizedBox(
             height: 52,
             child: ElevatedButton(
-              onPressed: filtered.isEmpty ? null : () => notifier.markAllAsRead(),
+              onPressed: (filtered.isEmpty || state.isMarkingAllAsRead) ? null : () => notifier.markAllAsRead(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 disabledBackgroundColor: AppColors.surfaceVariant,
@@ -296,11 +296,21 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.done_all,
-                    size: AppSpacing.xl,
-                    color: filtered.isEmpty ? AppColors.white38 : AppColors.onPrimary,
-                  ),
+                  if (state.isMarkingAllAsRead)
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: AppColors.onPrimary,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  else
+                    Icon(
+                      Icons.done_all,
+                      size: AppSpacing.xl,
+                      color: filtered.isEmpty ? AppColors.white38 : AppColors.onPrimary,
+                    ),
                   AppSpacing.gapHSm,
                   Text(
                     'Mark all as read',

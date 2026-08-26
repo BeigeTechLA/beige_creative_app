@@ -151,12 +151,12 @@ class NotificationSettingsNotifier extends Notifier<NotificationSettingsState> {
           pushEnabled: state.pushNotifications,
           topics: NotificationTopicsDto(
             shoots: state.categoryShoots,
-            payments: state.categoryPayouts,
+            // payments: state.categoryPayouts,
             messages: state.categoryMessages,
             meetings: state.categoryMeetings,
-            proposals: state.categoryProposals,
+            // proposals: state.categoryProposals,
             files: state.categoryFiles,
-            system: state.categorySystem,
+            // system: state.categorySystem,
           ),
         ),
       );
@@ -211,12 +211,12 @@ class NotificationSettingsNotifier extends Notifier<NotificationSettingsState> {
         "email_enabled": state.emailNotifications,
         "email_topics": {
           "shoots": state.categoryShoots,
-          "payments": state.categoryPayouts,
+          // "payments": state.categoryPayouts,
           "messages": state.categoryMessages,
           "meetings": state.categoryMeetings,
-          "proposals": state.categoryProposals,
+          // "proposals": state.categoryProposals,
           "files": state.categoryFiles,
-          "system": state.categorySystem,
+          // "system": state.categorySystem,
         }
       };
 
