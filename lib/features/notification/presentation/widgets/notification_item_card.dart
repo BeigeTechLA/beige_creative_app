@@ -66,18 +66,12 @@ class _NotificationItemCardState extends State<NotificationItemCard>
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.smd),
       child: GestureDetector(
-        onTapDown: (_) {
-          if (widget.onTap != null) _controller.forward();
-        },
-        onTapUp: (_) {
-          if (widget.onTap != null) {
-            _controller.reverse();
-            widget.onTap!();
-          }
-        },
-        onTapCancel: () {
-          if (widget.onTap != null) _controller.reverse();
-        },
+        onTapDown: widget.onTap != null ? (_) => _controller.forward() : null,
+        onTapUp: widget.onTap != null ? (_) {
+          _controller.reverse();
+          widget.onTap!();
+        } : null,
+        onTapCancel: widget.onTap != null ? () => _controller.reverse() : null,
         child: ScaleTransition(
           scale: _scaleAnimation,
           child: Container(
@@ -121,18 +115,18 @@ class _NotificationItemCardState extends State<NotificationItemCard>
                             senderName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.body12.copyWith(
+                            style: AppTextStyles.body14.copyWith(
                               color: AppColors.white,
                               fontWeight: FontWeight.w400,
-                              height: 1.75,
+                              height: 1.5,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             timestampText,
-                            style: AppTextStyles.body10.copyWith(
+                            style: AppTextStyles.body12.copyWith(
                               color: AppColors.white54,
-                              height: 2.10,
+                              height: 1.8,
                             ),
                           ),
                         ],
@@ -173,7 +167,8 @@ class _NotificationItemCardState extends State<NotificationItemCard>
                     vertical: AppSpacing.smd,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF282828),
+                    color: AppColors.textHeading,
+
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: const Color(0xFFE2E2E3).withValues(alpha: 0.1),
@@ -188,10 +183,12 @@ class _NotificationItemCardState extends State<NotificationItemCard>
                       if (colonIndex == -1) {
                         return Text(
                           msg,
-                          style: AppTextStyles.body10.copyWith(
+                          maxLines: widget.isBackCard ? 1 : null,
+                          overflow: widget.isBackCard ? TextOverflow.ellipsis : null,
+                          style: AppTextStyles.body13.copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.w400,
-                            height: 1.35,
+                            height: 1.45,
                           ),
                         );
                       }
@@ -204,20 +201,22 @@ class _NotificationItemCardState extends State<NotificationItemCard>
                           children: [
                             TextSpan(
                               text: prefix,
-                              style: AppTextStyles.body10.copyWith(
+                              style: AppTextStyles.body13.copyWith(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
                             TextSpan(
                               text: rest,
-                              style: AppTextStyles.body10.copyWith(
+                              style: AppTextStyles.body13.copyWith(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
                           ],
                         ),
+                        maxLines: widget.isBackCard ? 1 : null,
+                        overflow: widget.isBackCard ? TextOverflow.ellipsis : null,
                         style: const TextStyle(height: 1.35),
                       );
                     },

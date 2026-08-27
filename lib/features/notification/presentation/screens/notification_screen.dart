@@ -17,6 +17,7 @@ import '../providers/notification_list_providers.dart';
 import '../widgets/empty_notification_widget.dart';
 import '../widgets/notification_filter_bottom_sheet.dart';
 import '../widgets/notification_stacked_cards.dart';
+import '../../../../shared/widgets/app_segmented_control.dart';
 import 'notification_section_screen.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
@@ -156,67 +157,14 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                       AppSpacing.verticalBase,
 
                       // Segmented Tab Selector (Unread / Read)
-                      Container(
-                        height: 46,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
-                          borderRadius: AppRadii.lgAll,
-                        ),
-                        padding: const EdgeInsets.all(AppSpacing.xxs),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => notifier.selectTab(NotificationTab.unread),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: state.selectedTab == NotificationTab.unread
-                                        ? AppColors.primary
-                                        : AppColors.transparent,
-                                    borderRadius: AppRadii.mdAll,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Unread',
-                                    style: AppTextStyles.body14.copyWith(
-                                      color: state.selectedTab == NotificationTab.unread
-                                          ? AppColors.onPrimary
-                                          : AppColors.white70,
-                                      fontWeight: state.selectedTab == NotificationTab.unread
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => notifier.selectTab(NotificationTab.Read),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: state.selectedTab == NotificationTab.Read
-                                        ? AppColors.primary
-                                        : AppColors.transparent,
-                                    borderRadius: AppRadii.mdAll,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Read',
-                                    style: AppTextStyles.body14.copyWith(
-                                      color: state.selectedTab == NotificationTab.Read
-                                          ? AppColors.onPrimary
-                                          : AppColors.white70,
-                                      fontWeight: state.selectedTab == NotificationTab.Read
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      AppSegmentedControl(
+                        items: const ['Unread', 'Read'],
+                        selectedIndex: state.selectedTab == NotificationTab.unread ? 0 : 1,
+                        onValueChanged: (index) {
+                          notifier.selectTab(
+                            index == 0 ? NotificationTab.unread : NotificationTab.Read,
+                          );
+                        },
                       ),
                       AppSpacing.verticalBase,
 

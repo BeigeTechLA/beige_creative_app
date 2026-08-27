@@ -79,7 +79,7 @@ class _NotificationSectionScreenState
     final notifier = ref.read(notificationListProvider.notifier);
     final countsAsync = ref.watch(notificationCountProvider);
     final counts = countsAsync.value ?? const NotificationCounts();
-    final filtered = state.filteredNotifications;
+    final filtered = state.notifications;
 
     final items = filtered.where((item) {
       final isT = _isToday(item.createdAt);
@@ -136,7 +136,7 @@ class _NotificationSectionScreenState
                                 color: AppColors.white,
                               ),
                             ),
-                            AppIconTapTarget(
+                        /*    AppIconTapTarget(
                               semanticLabel: 'Filter',
                               onTap: () {
                                 NotificationFilterBottomSheet.show(
@@ -156,7 +156,7 @@ class _NotificationSectionScreenState
                                   BlendMode.srcIn,
                                 ),
                               ),
-                            ),
+                            ),*/
                           ],
                         ),
                         AppSpacing.verticalBase,
@@ -284,7 +284,12 @@ class _NotificationSectionScreenState
           child: SizedBox(
             height: 52,
             child: ElevatedButton(
-              onPressed: (items.isEmpty || state.isMarkingAllAsRead) ? null : () => notifier.markAllAsRead(),
+              onPressed: (items.isEmpty || state.isMarkingAllAsRead) ? null : () {
+                final unreadIds = items.where((i) => !i.isRead).map((i) => i.id).toList();
+                if (unreadIds.isNotEmpty) {
+                  notifier.markMultipleAsRead(unreadIds);
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 disabledBackgroundColor: AppColors.surfaceVariant,

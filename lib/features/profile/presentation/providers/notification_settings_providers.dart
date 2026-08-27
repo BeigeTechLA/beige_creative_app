@@ -75,6 +75,20 @@ class NotificationSettingsState {
       categorySystem: categorySystem ?? this.categorySystem,
     );
   }
+
+  /// IMPORTANT: When you uncomment a category in the UI (e.g. categoryPayouts),
+  /// you must ALSO uncomment it here so the main Push/Email Notification 
+  /// switch automatically toggles ON/OFF based on active categories!
+  bool get isAnyActiveCategoryEnabled {
+    return categoryShoots ||
+        // categoryPayouts ||
+        categoryMessages ||
+        categoryMeetings ||
+        // categoryProposals ||
+        // categoryFiles ||
+        // categorySystem ||
+        false;
+  }
 }
 
 class NotificationSettingsNotifier extends Notifier<NotificationSettingsState> {
@@ -128,13 +142,7 @@ class NotificationSettingsNotifier extends Notifier<NotificationSettingsState> {
     try {
       final repo = ref.read(notificationSettingsRepositoryProvider);
       
-      final allFalse = !state.categoryShoots &&
-          !state.categoryPayouts &&
-          !state.categoryMessages &&
-          !state.categoryMeetings &&
-          !state.categoryProposals &&
-          !state.categoryFiles &&
-          !state.categorySystem;
+      final allFalse = !state.isAnyActiveCategoryEnabled;
 
       if (allFalse && state.pushNotifications) {
         state = state.copyWith(pushNotifications: false);
@@ -193,13 +201,7 @@ class NotificationSettingsNotifier extends Notifier<NotificationSettingsState> {
     try {
       final repo = ref.read(notificationSettingsRepositoryProvider);
       
-      final allFalse = !state.categoryShoots &&
-          !state.categoryPayouts &&
-          !state.categoryMessages &&
-          !state.categoryMeetings &&
-          !state.categoryProposals &&
-          !state.categoryFiles &&
-          !state.categorySystem;
+      final allFalse = !state.isAnyActiveCategoryEnabled;
 
       if (allFalse && state.emailNotifications) {
         state = state.copyWith(emailNotifications: false);

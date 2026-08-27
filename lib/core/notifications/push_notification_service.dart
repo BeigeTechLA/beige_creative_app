@@ -10,6 +10,8 @@ import 'package:go_router/go_router.dart';
 import '../../app/colors.dart';
 import '../../app/navigator_key.dart';
 import '../../app/routes.dart';
+import '../../features/messages/presentation/routes/messages_args.dart';
+import '../../features/shoots/presentation/routes/shoots_args.dart';
 import 'notification_payload.dart';
 
 /// Top-level background message handler required by Firebase Messaging.
@@ -21,8 +23,81 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   } catch (e) {
     // Ignore initialization errors in background
   }
+  
   if (kDebugMode) {
     print('[PushNotificationService] Background message received: ${message.messageId}');
+  }
+
+  // If the message has no notification payload, it's a data-only message.
+  if (message.notification == null) {
+    try {
+      final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+      
+      const androidInitSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const darwinInitSettings = DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+      );
+      const initSettings = InitializationSettings(android: androidInitSettings, iOS: darwinInitSettings);
+      
+      await flutterLocalNotificationsPlugin.initialize(
+        settings: initSettings,
+      );
+
+      final title = message.data['title'] ?? 'New Notification';
+      final body = message.data['body'] ?? '';
+      
+      final payload = NotificationPayload.fromMap(message.data);
+      
+      String channelId = 'beige_general_channel';
+      String channelName = 'General Updates';
+      Importance importance = Importance.defaultImportance;
+      
+      switch (payload.type) {
+        case NotificationType.chat:
+          channelId = 'beige_chat_channel';
+          channelName = 'Chat Messages';
+          importance = Importance.max;
+          break;
+        case NotificationType.booking:
+          channelId = 'beige_booking_channel';
+          channelName = 'Booking Updates';
+          importance = Importance.high;
+          break;
+        case NotificationType.meeting:
+          channelId = 'beige_meeting_channel';
+          channelName = 'Meeting Reminders';
+          importance = Importance.high;
+          break;
+        default:
+          break;
+      }
+
+      final androidDetails = AndroidNotificationDetails(
+        channelId,
+        channelName,
+        importance: importance,
+        priority: importance == Importance.max || importance == Importance.high ? Priority.high : Priority.defaultPriority,
+        color: AppColors.primary,
+        icon: '@mipmap/ic_launcher',
+      );
+      
+      const darwinDetails = DarwinNotificationDetails();
+      final notificationDetails = NotificationDetails(android: androidDetails, iOS: darwinDetails);
+
+      await flutterLocalNotificationsPlugin.show(
+        id: message.hashCode,
+        title: title,
+        body: body,
+        notificationDetails: notificationDetails,
+        payload: jsonEncode(message.data),
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('[PushNotificationService] Error showing background local notification: $e');
+      }
+    }
   }
 }
 
@@ -341,8 +416,8 @@ class PushNotificationService {
       case NotificationType.chat:
         if (payload.chatId != null && payload.chatId!.isNotEmpty) {
           router.pushNamed(
-            Routes.chatDetails.name,
-            pathParameters: {'id': payload.chatId!},
+            Routes.chat.name,
+            extra: ChatArgs(conversationId: payload.chatId!).toExtra(),
           );
         } else {
           router.goNamed(Routes.messages.name);
@@ -353,7 +428,7 @@ class PushNotificationService {
         if (payload.bookingId != null && payload.bookingId!.isNotEmpty) {
           router.pushNamed(
             Routes.upcomingShootDetails.name,
-            pathParameters: {'id': payload.bookingId!},
+            extra: UpcomingShootDetailsArgs(projectId: int.tryParse(payload.bookingId!)).toExtra(),
           );
         } else {
           router.goNamed(Routes.shoots.name);

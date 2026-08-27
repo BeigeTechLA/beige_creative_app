@@ -123,7 +123,12 @@ class NotificationListNotifier extends AutoDisposeNotifier<NotificationListState
   }
 
   void selectTab(NotificationTab tab) {
-    state = state.copyWith(selectedTab: tab, selectedCategory: 'All', searchQuery: '');
+    state = state.copyWith(
+      selectedTab: tab, 
+      selectedCategory: 'All', 
+      searchQuery: '',
+      notifications: [],
+    );
     fetchNotifications();
   }
 
@@ -189,6 +194,30 @@ class NotificationListNotifier extends AutoDisposeNotifier<NotificationListState
       await repo.markAllAsRead();
       
       final updated = state.notifications.map((item) => item.copyWith(isRead: true)).toList();
+      state = state.copyWith(notifications: updated, isMarkingAllAsRead: false);
+      ref.invalidate(notificationCountProvider);
+    } catch (e) {
+      state = state.copyWith(isMarkingAllAsRead: false);
+      // Keep existing state on error
+    }
+  }
+
+  Future<void> markMultipleAsRead(List<String> ids) async {
+    if (ids.isEmpty) return;
+    try {
+      state = state.copyWith(isMarkingAllAsRead: true);
+      final repo = ref.read(notificationRepositoryProvider);
+      
+      // Call markAsRead for each id concurrently
+      await Future.wait(ids.map((id) => repo.markAsRead(id)));
+      
+      final updated = state.notifications.map((item) {
+        if (ids.contains(item.id)) {
+          return item.copyWith(isRead: true);
+        }
+        return item;
+      }).toList();
+
       state = state.copyWith(notifications: updated, isMarkingAllAsRead: false);
       ref.invalidate(notificationCountProvider);
     } catch (e) {
