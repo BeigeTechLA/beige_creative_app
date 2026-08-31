@@ -59,12 +59,15 @@ class _NotificationFilterBottomSheetState
   late String _currentCategory;
 
   List<FilterOption> get _options => [
-    FilterOption(id: 'All', label: 'All', count: widget.counts.all),
-    FilterOption(id: 'Unread', label: 'Unread', count: widget.counts.unread),
-    FilterOption(id: 'Mentions', label: 'Mentions', count: widget.counts.mentions),
-    FilterOption(id: 'Payments', label: 'Payments', count: widget.counts.payments),
-    FilterOption(id: 'Projects', label: 'Projects', count: widget.counts.projects),
-    FilterOption(id: 'Files', label: 'Files', count: widget.counts.files),
+    // FilterOption(id: 'All', label: 'All', count: widget.counts.all),
+    // FilterOption(id: 'Unread', label: 'Unread', count: widget.counts.unread),
+    // FilterOption(id: 'Mentions', label: 'Mentions', count: widget.counts.mentions),
+    // FilterOption(id: 'Payments', label: 'Payments', count: widget.counts.payments),
+    // FilterOption(id: 'Projects', label: 'Projects', count: widget.counts.projects),
+    // FilterOption(id: 'Files', label: 'Files', count: widget.counts.files),
+    FilterOption(id: 'Shoots', label: 'Shoots', count: widget.counts.shoots),
+    FilterOption(id: 'Messages', label: 'Messages', count: widget.counts.messages),
+    FilterOption(id: 'Meetings', label: 'Meetings', count: widget.counts.meetings),
   ];
 
   @override

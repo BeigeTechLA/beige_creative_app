@@ -123,7 +123,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                               color: AppColors.white,
                             ),
                           ),
-                       /*   AppIconTapTarget(
+                          AppIconTapTarget(
                             semanticLabel: 'Filter',
                             onTap: () {
                               NotificationFilterBottomSheet.show(
@@ -143,7 +143,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                                 BlendMode.srcIn,
                               ),
                             ),
-                          ),*/
+                          ),
                         ],
                       ),
                       AppSpacing.verticalXxs,
@@ -152,6 +152,64 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                         style: AppTextStyles.body13.copyWith(
                           color: AppColors.white60,
                           height: 1.35,
+                        ),
+                      ),
+                      AppSpacing.verticalBase,
+
+                      // Search Bar Input Container
+                      Container(
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius: AppRadii.lgAll,
+                          border: Border.all(
+                            color: AppColors.white.withValues(alpha: 0.08),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.mld),
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(
+                              AppAssets.searchIcon,
+                              width: AppSpacing.lg,
+                              height: AppSpacing.lg,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.white54,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            AppSpacing.gapHSmd,
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: notifier.setSearchQuery,
+                                style: AppTextStyles.body14.copyWith(
+                                  color: AppColors.white,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: 'Search Notifications...',
+                                  hintStyle: AppTextStyles.body14.copyWith(
+                                    color: AppColors.white38,
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                              ),
+                            ),
+                            if (_searchController.text.isNotEmpty)
+                              GestureDetector(
+                                onTap: () {
+                                  _searchController.clear();
+                                  notifier.setSearchQuery('');
+                                },
+                                child: const Icon(
+                                  Icons.clear,
+                                  color: AppColors.white54,
+                                  size: AppSpacing.lg,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                       AppSpacing.verticalBase,

@@ -136,7 +136,7 @@ class _NotificationSectionScreenState
                                 color: AppColors.white,
                               ),
                             ),
-                        /*    AppIconTapTarget(
+                            AppIconTapTarget(
                               semanticLabel: 'Filter',
                               onTap: () {
                                 NotificationFilterBottomSheet.show(
@@ -156,7 +156,7 @@ class _NotificationSectionScreenState
                                   BlendMode.srcIn,
                                 ),
                               ),
-                            ),*/
+                            ),
                           ],
                         ),
                         AppSpacing.verticalBase,

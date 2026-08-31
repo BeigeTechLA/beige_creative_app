@@ -5,6 +5,9 @@ class NotificationCounts {
   final int payments;
   final int projects;
   final int files;
+  final int shoots;
+  final int messages;
+  final int meetings;
 
   const NotificationCounts({
     this.all = 0,
@@ -13,6 +16,9 @@ class NotificationCounts {
     this.payments = 0,
     this.projects = 0,
     this.files = 0,
+    this.shoots = 0,
+    this.messages = 0,
+    this.meetings = 0,
   });
 
   factory NotificationCounts.fromJson(Map<String, dynamic> json) {
@@ -23,6 +29,9 @@ class NotificationCounts {
       payments: json['payments'] as int? ?? 0,
       projects: json['projects'] as int? ?? 0,
       files: json['files'] as int? ?? 0,
+      shoots: json['shoots'] as int? ?? 0,
+      messages: json['messages'] as int? ?? 0,
+      meetings: json['meetings'] as int? ?? 0,
     );
   }
 }
