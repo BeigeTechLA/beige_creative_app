@@ -82,12 +82,21 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         color: AppColors.primary,
         icon: '@mipmap/ic_launcher',
       );
+
+      final androidImplementation = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      if (androidImplementation != null) {
+        await androidImplementation.createNotificationChannel(AndroidNotificationChannel(
+          channelId,
+          channelName,
+          importance: importance,
+        ));
+      }
       
       const darwinDetails = DarwinNotificationDetails();
       final notificationDetails = NotificationDetails(android: androidDetails, iOS: darwinDetails);
 
       await flutterLocalNotificationsPlugin.show(
-        id: message.hashCode,
+        id: message.hashCode & 0x7FFFFFFF,
         title: title,
         body: body,
         notificationDetails: notificationDetails,
@@ -228,9 +237,9 @@ class PushNotificationService {
 
     // 3. Configure iOS foreground notification presentation options
     await _fcm.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
+      alert: false,
+      badge: false,
+      sound: false,
     );
 
     if (kDebugMode) {
@@ -306,9 +315,35 @@ class PushNotificationService {
     return Priority.defaultPriority;
   }
 
+  Future<String?> fetchToken() async {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      String? apnsToken = await _fcm.getAPNSToken();
+      int attempts = 0;
+      while (apnsToken == null && attempts < 5) {
+        await Future.delayed(const Duration(seconds: 1));
+        apnsToken = await _fcm.getAPNSToken();
+        attempts++;
+      }
+      if (apnsToken == null) {
+        if (kDebugMode) {
+          debugPrint('[PushNotificationService] APNS token not set yet. Skipping FCM token fetch.');
+        }
+        return null;
+      }
+    }
+    return await _fcm.getToken();
+  }
+
+  Future<String?> ensureToken() async {
+    if (_fcmToken != null) return _fcmToken;
+    final token = await fetchToken();
+    if (token != null) _fcmToken = token;
+    return token;
+  }
+
   /// Fetch and listen for FCM Token updates.
   void _setupTokenManagement() {
-    _fcm.getToken().then((token) {
+    fetchToken().then((token) {
       _fcmToken = token;
       if (kDebugMode) {
         debugPrint('[PushNotificationService] FCM Token: $_fcmToken');
@@ -364,7 +399,7 @@ class PushNotificationService {
     );
 
     await _localNotifications.show(
-      id: message.hashCode,
+      id: message.hashCode & 0x7FFFFFFF,
       title: title,
       body: body,
       notificationDetails: notificationDetails,
@@ -439,6 +474,7 @@ class PushNotificationService {
 
       case NotificationType.meeting:
         if (payload.meetingId != null && payload.meetingId!.isNotEmpty) {
+          // Using goNamed here because meetings is a top-level tab route in StatefulShellRoute
           router.goNamed(
             Routes.meetings.name,
             queryParameters: {'meetingId': payload.meetingId!},
