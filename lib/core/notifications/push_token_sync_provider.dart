@@ -28,8 +28,7 @@ final pushTokenSyncProvider = Provider<void>((ref) {
   ref.listen<bool>(authStateProvider, (previous, next) async {
     if (next && previous != next) {
       // User just logged in
-      await pushService.requestPermissions();
-      
+
       final token = pushService.fcmToken;
       if (token != null && token.isNotEmpty) {
         final sessionStore = ref.read(sessionStoreProvider);

@@ -103,6 +103,16 @@ class _FakeSession implements SessionStore {
   Future<bool> isLoggedIn() async => writtenToken != null;
   @override
   Future<void> clearSession() async {}
+  @override
+  Future<String?> readFcmToken() async => null;
+  @override
+  Future<void> writeFcmToken(String fcmToken) async {}
+  @override
+  Future<void> clearFcmToken() async {}
+  @override
+  Future<String> getAppSessionId() async => 'fake-app-session-id';
+  @override
+  Future<void> clearAppSessionId() async {}
 }
 
 class _FakeTelemetry implements TelemetryClient {

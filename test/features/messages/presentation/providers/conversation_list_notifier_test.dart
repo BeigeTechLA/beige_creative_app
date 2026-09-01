@@ -324,6 +324,16 @@ class _FakeSession implements SessionStore {
   @override
   Future<void> clearRefreshToken() async {}
   @override
+  Future<String?> readFcmToken() async => null;
+  @override
+  Future<void> writeFcmToken(String fcmToken) async {}
+  @override
+  Future<void> clearFcmToken() async {}
+  @override
+  Future<String> getAppSessionId() async => 'fake-app-session-id';
+  @override
+  Future<void> clearAppSessionId() async {}
+  @override
   Future<UserSnapshot?> readUser() async => null;
   @override
   Future<void> clearUser() async {}

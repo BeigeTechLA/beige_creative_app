@@ -174,8 +174,10 @@ class PushNotificationService {
     // Setup multi-channel local notifications for Android & iOS
     await _setupLocalNotifications();
 
+    // Request permissions on app open according to iOS & Android best practices
+    await requestPermissions();
+
     // Fetch initial FCM token & listen for refreshes
-    // Permissions will be requested explicitly after login
     _setupTokenManagement();
 
     // Handle initial notification tap if launched from terminated state

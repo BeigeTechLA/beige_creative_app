@@ -79,6 +79,8 @@ class FakePrefsSessionBackend implements PrefsSessionBackend {
 
   @override
   Future<String> getAppSessionId() async => 'fake-app-session-id';
+  @override
+  Future<void> clearAppSessionId() async {}
 }
 
 /// Sets up the default `registerFallbackValue` calls required by every mock
