@@ -57,8 +57,10 @@ class _NotificationSettingsScreenState
 
             Text(
               'Notification Settings',
-              style: AppTextStyles.displayStrong16w600.copyWith(
+              style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 4),
@@ -74,9 +76,7 @@ class _NotificationSettingsScreenState
 
             // Push Notifications Row
             _NotificationRow(
-              iconData: Icons.smartphone_outlined,
-              iconBorderColor: AppColors.blueElectric,
-              iconBgColor: AppColors.blueSkyWash,
+              svgAsset: AppAssets.icPushNotification,
               title: 'Push Notifications',
               subtitle: 'Receive notifications on your mobile device',
               value: state.pushNotifications,
@@ -90,7 +90,7 @@ class _NotificationSettingsScreenState
 
             // Email Notifications Row
          /*   _NotificationRow(
-              iconData: Icons.mail_outline,
+              svgAsset: AppAssets.icEmailNotification,
               iconBorderColor: AppColors.magentaAccent,
               iconBgColor: AppColors.purpleWash,
               title: 'Email Notifications',
@@ -192,9 +192,7 @@ class _NotificationSettingsScreenState
 
 class _NotificationRow extends StatelessWidget {
   const _NotificationRow({
-    required this.iconData,
-    required this.iconBorderColor,
-    required this.iconBgColor,
+    required this.svgAsset,
     required this.title,
     required this.subtitle,
     required this.value,
@@ -202,9 +200,7 @@ class _NotificationRow extends StatelessWidget {
     this.onTapRow,
   });
 
-  final IconData iconData;
-  final Color iconBorderColor;
-  final Color iconBgColor;
+  final String svgAsset;
   final String title;
   final String subtitle;
   final bool value;
@@ -220,15 +216,10 @@ class _NotificationRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
         child: Row(
           children: [
-            Container(
+            SvgPicture.asset(
+              svgAsset,
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                borderRadius: AppRadii.lgAll,
-                border: Border.all(color: iconBorderColor, width: 1.5),
-              ),
-              child: Icon(iconData, color: iconBorderColor, size: 20),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -237,15 +228,18 @@ class _NotificationRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTextStyles.body15Strong.copyWith(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: AppTextStyles.body12.copyWith(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.white60,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -254,7 +248,7 @@ class _NotificationRow extends StatelessWidget {
             AppToggleSwitch(
               value: value,
               onChanged: onChanged,
-              width: 44,
+              width: 41,
               height: 26,
             ),
           ],
