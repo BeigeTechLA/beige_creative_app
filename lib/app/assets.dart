@@ -33,6 +33,8 @@ class AppAssets {
   static const String notificationCategoryFiles = '$_notificationSvg/Files.svg';
   static const String notificationCategorySystem = '$_notificationSvg/System.svg';
   static const String notificationEmptyState = '$_notificationSvg/notification empty state.svg';
+  static const String icPushNotification = '$_notificationSvg/notifications_phone.svg';
+  static const String icEmailNotification = '$_notificationSvg/ic_email_notification.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SVG — Message

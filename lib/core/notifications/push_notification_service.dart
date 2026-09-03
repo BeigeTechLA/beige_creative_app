@@ -78,9 +78,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         channelId,
         channelName,
         importance: importance,
-        priority: importance == Importance.max || importance == Importance.high ? Priority.high : Priority.defaultPriority,
+        priority: importance == Importance.max ? Priority.max : (importance == Importance.high ? Priority.high : Priority.defaultPriority),
         color: AppColors.primary,
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
       );
 
       final androidImplementation = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
@@ -251,7 +251,7 @@ class PushNotificationService {
 
   /// Setup flutter_local_notifications plugin and create dedicated Android channels.
   Future<void> _setupLocalNotifications() async {
-    const androidInitSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidInitSettings = AndroidInitializationSettings('@drawable/ic_notification');
     const darwinInitSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -309,7 +309,10 @@ class PushNotificationService {
   }
 
   Priority _getPriorityForImportance(Importance importance) {
-    if (importance == Importance.max || importance == Importance.high) {
+    if (importance == Importance.max) {
+      return Priority.max;
+    }
+    if (importance == Importance.high) {
       return Priority.high;
     }
     return Priority.defaultPriority;
@@ -374,8 +377,8 @@ class PushNotificationService {
     final channel = _getChannelForType(payload.type);
 
     final notification = message.notification;
-    final title = notification?.title ?? message.data['title'] ?? 'Notification';
-    final body = notification?.body ?? message.data['body'] ?? '';
+    final title = notification?.title ?? message.data['title'] ?? message.data['name'] ?? 'Notification';
+    final body = notification?.body ?? message.data['body'] ?? message.data['message'] ?? message.data['content'] ?? message.data['text'] ?? '';
 
     final androidDetails = AndroidNotificationDetails(
       channel.id,
@@ -384,7 +387,7 @@ class PushNotificationService {
       importance: channel.importance,
       priority: _getPriorityForImportance(channel.importance),
       color: AppColors.primary,
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
     );
 
     const darwinDetails = DarwinNotificationDetails(

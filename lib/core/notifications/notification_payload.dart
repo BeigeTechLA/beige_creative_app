@@ -72,8 +72,8 @@ class NotificationPayload {
 
     return NotificationPayload(
       type: type,
-      title: title ?? data['title']?.toString(),
-      body: body ?? data['body']?.toString(),
+      title: title ?? data['title']?.toString() ?? data['name']?.toString(),
+      body: body ?? data['body']?.toString() ?? data['message']?.toString() ?? data['content']?.toString() ?? data['text']?.toString(),
       chatId: data['chatId']?.toString() ?? data['chat_id']?.toString() ?? data['room_id']?.toString() ?? data['chat_room_id']?.toString(),
       bookingId: data['bookingId']?.toString() ?? data['booking_id']?.toString() ?? data['shoot_id']?.toString() ?? data['order_id']?.toString(),
       meetingId: data['meetingId']?.toString() ?? data['meeting_id']?.toString(),
