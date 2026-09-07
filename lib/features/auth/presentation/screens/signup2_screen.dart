@@ -16,6 +16,8 @@ import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/custom_multi_selectfield.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
+import '../../../../core/providers/auth_state_provider.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/signup_notifier.dart';
 import '../providers/signup_state.dart';
@@ -32,6 +34,7 @@ class SignUp2Screen extends ConsumerStatefulWidget {
   final int step1Progress;
   final String? location;
   final String? workingDistance;
+  final bool isResume;
 
   const SignUp2Screen({
     super.key,
@@ -43,6 +46,7 @@ class SignUp2Screen extends ConsumerStatefulWidget {
     this.location,
     this.workingDistance,
     required this.step1Progress,
+    this.isResume = false,
   });
 
   @override
@@ -62,8 +66,38 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
     hourlyRateController.addListener(() => setState(() {}));
     bioController.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(signupNotifierProvider.notifier).loadStep2Lookups();
+      _initializeResumeFlow();
     });
+  }
+
+  Future<void> _initializeResumeFlow() async {
+    final notifier = ref.read(signupNotifierProvider.notifier);
+    final user = ref.read(currentSessionUserProvider);
+    notifier.seedStep2Resume(
+      crewMemberId: widget.crewMemberId ?? user?.crewMemberId,
+      firstName: widget.firstName ?? user?.firstName,
+      lastName: widget.lastName ?? user?.lastName,
+      email: widget.email ?? user?.email,
+      location: widget.location ?? user?.location,
+      workingDistance: widget.workingDistance ?? user?.workingDistance,
+      step1Progress: widget.step1Progress == 0 ? 30 : widget.step1Progress,
+    );
+    await notifier.loadStep1Prefill();
+    if (!mounted) return;
+    final resumed = ref.read(signupNotifierProvider);
+    _setControllerIfEmpty(
+      yearOfExperienceController,
+      resumed.experienceDisplay,
+    );
+    _setControllerIfEmpty(hourlyRateController, resumed.hourlyRateDisplay);
+    _setControllerIfEmpty(bioController, resumed.bioDisplay);
+    await notifier.loadStep2Lookups();
+  }
+
+  void _setControllerIfEmpty(TextEditingController controller, String value) {
+    if (controller.text.trim().isEmpty && value.trim().isNotEmpty) {
+      controller.text = value.trim();
+    }
   }
 
   @override
@@ -86,13 +120,13 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
     context.pushNamed(
       Routes.signupStep3.name,
       extra: SignUpStep3Args(
-        crewMemberId: widget.crewMemberId,
+        crewMemberId: state.crewMemberId,
         profileImage: widget.profileImage,
-        email: widget.email,
-        firstName: widget.firstName,
-        lastName: widget.lastName,
-        location: widget.location,
-        workingDistance: widget.workingDistance,
+        email: state.email,
+        firstName: state.firstName,
+        lastName: state.lastName,
+        location: state.location,
+        workingDistance: state.workingDistance,
         primaryRole: state.selectedRoles.join(', '),
         experience: yearOfExperienceController.text.trim(),
         hourlyRate: hourlyRateController.text.trim(),
@@ -100,6 +134,7 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
         skills: state.selectedSkills.join(', '),
         equipments: state.selectedEquipments.join(', '),
         step2Progress: state.step2Progress,
+        isResume: widget.isResume,
       ).toExtra(),
     );
   }
@@ -122,282 +157,378 @@ class SignUp2ScreenState extends ConsumerState<SignUp2Screen> {
       bio: bioController.text,
     );
 
-    return AppScaffold(
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                const SignUp2Header(),
-                const SizedBox(height: 20),
-                Transform.translate(
-                  offset: const Offset(0, -30),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.xl,
-                          100,
-                          AppSpacing.xl,
-                          AppSpacing.xl,
-                        ),
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.base,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.background,
-                          borderRadius: AppRadii.massiveAll,
-                          border: Border.all(
-                            color: AppColors.white.withValues(alpha: 0.06),
-                            width: 1,
+    return PopScope(
+      // System back must not slip to Step 1 (account already registered) or
+      // leave the signup token dangling. Intercept and cancel to Login.
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        await notifier.cancelSignup();
+        if (context.mounted) context.goNamed(Routes.login.name);
+      },
+      child: AppScaffold(
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  SignUp2Header(
+                    currentStep: widget.isResume ? 1 : 2,
+                    totalSteps: widget.isResume ? 2 : 3,
+                    // Step 1 registers the account server-side (crew_member_id);
+                    // there is no update API, so Step 2 is forward-only. Exit is
+                    // via the "Login" link (cancelSignup), never back to Step 1.
+                    showBack: false,
+                  ),
+                  const SizedBox(height: 20),
+                  Transform.translate(
+                    offset: const Offset(0, -30),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.xl,
+                            100,
+                            AppSpacing.xl,
+                            AppSpacing.xl,
+                          ),
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.base,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: AppRadii.massiveAll,
+                            border: Border.all(
+                              color: AppColors.white.withValues(alpha: 0.06),
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 50),
+                              CustomMultiSelectField(
+                                label: 'Primary Role*',
+                                value: state.selectedRoles.join(', '),
+                                hasValue: state.selectedRoles.isNotEmpty,
+                                onTap: () async {
+                                  await showSignUp2LookupSheet(
+                                    context: context,
+                                    title: 'Select Roles',
+                                    options: state.roles
+                                        .map((r) => r.name)
+                                        .toList(),
+                                    initiallySelected: state.selectedRoles,
+                                    onToggle: (name, selected) => notifier
+                                        .toggleRole(name, selected: selected),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 20),
+                              CustomTextField(
+                                label: 'Year of Experience*',
+                                controller: yearOfExperienceController,
+                                keyboardType: TextInputType.number,
+                                maxLength: 2,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              CustomTextField(
+                                label: 'Hourly Rate*',
+                                controller: hourlyRateController,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                hint: '0.00',
+                                prefixIcon: SizedBox(
+                                  width: 30,
+                                  child: Center(
+                                    child: Text(
+                                      '\$',
+                                      style: AppTextStyles.body15.copyWith(
+                                        color: AppColors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                inputFormatters: [
+                                  TextInputFormatter.withFunction((
+                                    oldValue,
+                                    newValue,
+                                  ) {
+                                    final regExp = RegExp(r'^\d*\.?\d{0,2}$');
+                                    if (regExp.hasMatch(newValue.text)) {
+                                      return newValue;
+                                    }
+                                    return oldValue;
+                                  }),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              CustomTextField(
+                                label: 'Bio / About',
+                                controller: bioController,
+                                maxLines: 4,
+                                keyboardType: TextInputType.multiline,
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Text(
+                                    '  Highlight your creative focus.',
+                                    style: AppTextStyles.body12.copyWith(
+                                      color: AppColors.greyShade737,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              CustomMultiSelectField(
+                                label: 'Add Skills',
+                                value: '',
+                                hasValue: false,
+                                onTap: () async {
+                                  await showSignUp2LookupSheet(
+                                    context: context,
+                                    title: 'Select Skills',
+                                    options: state.skills
+                                        .map((s) => s.name)
+                                        .toList(),
+                                    initiallySelected: state.selectedSkills,
+                                    onToggle: (name, selected) => notifier
+                                        .toggleSkill(name, selected: selected),
+                                  );
+                                },
+                              ),
+                              if (state.selectedSkills.isNotEmpty) ...[
+                                const SizedBox(height: 10),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Wrap(
+                                    spacing: 6,
+                                    runSpacing: 6,
+                                    children: state.selectedSkills
+                                        .map(
+                                          (item) => Chip(
+                                            label: Text(
+                                              item,
+                                              style: AppTextStyles.inherit
+                                                  .copyWith(
+                                                    color: AppColors.white,
+                                                    fontSize: 13,
+                                                  ),
+                                            ),
+                                            backgroundColor: AppColors.white
+                                                .withValues(alpha: 0.15),
+                                            side: BorderSide.none,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            materialTapTargetSize:
+                                                MaterialTapTargetSize
+                                                    .shrinkWrap,
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 4,
+                                            ),
+                                            labelPadding:
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 4,
+                                                ),
+                                            deleteIcon: const Icon(
+                                              Icons.close,
+                                              size: 14,
+                                              color: AppColors.white,
+                                            ),
+                                            onDeleted: () =>
+                                                notifier.toggleSkill(
+                                                  item,
+                                                  selected: false,
+                                                ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 20),
+                              CustomMultiSelectField(
+                                label: 'Add Equipment',
+                                value: '',
+                                hasValue: false,
+                                onTap: () async {
+                                  await showModalBottomSheet(
+                                    context: context,
+                                    backgroundColor: AppColors.surfaceCropSheet,
+                                    isScrollControlled: true,
+                                    useSafeArea: true,
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: AppRadii.topHuge,
+                                    ),
+                                    builder: (_) =>
+                                        const _EquipmentSelectionSheet(),
+                                  );
+                                },
+                              ),
+                              if (state.selectedEquipments.isNotEmpty) ...[
+                                const SizedBox(height: 10),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Wrap(
+                                    spacing: 6,
+                                    runSpacing: 6,
+                                    children: state.selectedEquipments
+                                        .map(
+                                          (item) => Chip(
+                                            label: Text(
+                                              item,
+                                              style: AppTextStyles.inherit
+                                                  .copyWith(
+                                                    color: AppColors.white,
+                                                    fontSize: 13,
+                                                  ),
+                                            ),
+                                            backgroundColor: AppColors.white
+                                                .withValues(alpha: 0.15),
+                                            side: BorderSide.none,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            materialTapTargetSize:
+                                                MaterialTapTargetSize
+                                                    .shrinkWrap,
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 4,
+                                            ),
+                                            labelPadding:
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 4,
+                                                ),
+                                            deleteIcon: const Icon(
+                                              Icons.close,
+                                              size: 14,
+                                              color: AppColors.white,
+                                            ),
+                                            onDeleted: () =>
+                                                notifier.removeEquipment(item),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 30),
+                              AppCtaButton(
+                                label: 'Next',
+                                height: 55,
+                                enabled: !state.isSubmittingStep2,
+                                onPressed: _submit,
+                              ),
+                              if (!ref.watch(authStateProvider)) ...[
+                                const SizedBox(height: 20),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Already have an account? ',
+                                      style: AppTextStyles.body15Medium
+                                          .copyWith(color: AppColors.white60),
+                                    ),
+                                    InkWell(
+                                      onTap: () async {
+                                        await ref
+                                            .read(
+                                              signupNotifierProvider.notifier,
+                                            )
+                                            .cancelSignup();
+                                        if (context.mounted) {
+                                          context.goNamed(Routes.login.name);
+                                        }
+                                      },
+                                      child: Text(
+                                        'Login',
+                                        style: AppTextStyles.body15Strong
+                                            .copyWith(
+                                              color: AppColors.white,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ] else if (widget.isResume) ...[
+                                const SizedBox(height: 20),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Wrong account? ',
+                                      style: AppTextStyles.body15Medium
+                                          .copyWith(color: AppColors.white60),
+                                    ),
+                                    InkWell(
+                                      onTap: () => ref
+                                          .read(authStateProvider.notifier)
+                                          .logout(),
+                                      child: Text(
+                                        'Log out',
+                                        style: AppTextStyles.body15Strong
+                                            .copyWith(
+                                              color: AppColors.white,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ],
                           ),
                         ),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 50),
-                            CustomMultiSelectField(
-                              label: 'Primary Role*',
-                              value: state.selectedRoles.join(', '),
-                              hasValue: state.selectedRoles.isNotEmpty,
-                              onTap: () async {
-                                await showSignUp2LookupSheet(
-                                  context: context,
-                                  title: 'Select Roles',
-                                  options: state.roles
-                                      .map((r) => r.name)
-                                      .toList(),
-                                  initiallySelected: state.selectedRoles,
-                                  onToggle: (name, selected) => notifier
-                                      .toggleRole(name, selected: selected),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                            CustomTextField(
-                              label: 'Year of Experience*',
-                              controller: yearOfExperienceController,
-                              keyboardType: TextInputType.number,
-                              maxLength: 2,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            CustomTextField(
-                              label: 'Hourly Rate*',
-                              controller: hourlyRateController,
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              hint: '0.00',
-                              prefixIcon: SizedBox(
-                                width: 30,
-                                child: Center(
-                                  child: Text(
-                                    '\$',
-                                    style: AppTextStyles.body15.copyWith(
-                                      color: AppColors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              inputFormatters: [
-                                TextInputFormatter.withFunction((oldValue, newValue) {
-                                  final regExp = RegExp(r'^\d*\.?\d{0,2}$');
-                                  if (regExp.hasMatch(newValue.text)) {
-                                    return newValue;
-                                  }
-                                  return oldValue;
-                                }),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            CustomTextField(
-                              label: 'Bio / About',
-                              controller: bioController,
-                              maxLines: 4,
-                              keyboardType: TextInputType.multiline,
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Text(
-                                  '  Highlight your creative focus.',
-                                  style: AppTextStyles.body12.copyWith(
-                                    color: AppColors.greyShade737,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            CustomMultiSelectField(
-                              label: 'Add Skills',
-                              value: '',
-                              hasValue: false,
-                              onTap: () async {
-                                await showSignUp2LookupSheet(
-                                  context: context,
-                                  title: 'Select Skills',
-                                  options: state.skills
-                                      .map((s) => s.name)
-                                      .toList(),
-                                  initiallySelected: state.selectedSkills,
-                                  onToggle: (name, selected) => notifier
-                                      .toggleSkill(name, selected: selected),
-                                );
-                              },
-                            ),
-                            if (state.selectedSkills.isNotEmpty) ...[
-                              const SizedBox(height: 10),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Wrap(
-                                  spacing: 6,
-                                  runSpacing: 6,
-                                  children: state.selectedSkills
-                                      .map(
-                                        (item) => Chip(
-                                          label: Text(
-                                            item,
-                                            style: AppTextStyles.inherit.copyWith(
-                                              color: AppColors.white,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                          backgroundColor: AppColors.white.withValues(alpha: 0.15),
-                                          side: BorderSide.none,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                          visualDensity: VisualDensity.compact,
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                          labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                                          deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.white),
-                                          onDeleted: () => notifier.toggleSkill(
-                                            item,
-                                            selected: false,
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                              ),
-                            ],
-                            const SizedBox(height: 20),
-                            CustomMultiSelectField(
-                              label: 'Add Equipment',
-                              value: '',
-                              hasValue: false,
-                              onTap: () async {
-                                await showModalBottomSheet(
-                                  context: context,
-                                  backgroundColor: AppColors.surfaceCropSheet,
-                                  isScrollControlled: true,
-                                  useSafeArea: true,
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: AppRadii.topHuge,
-                                  ),
-                                  builder: (_) => const _EquipmentSelectionSheet(),
-                                );
-                              },
-                            ),
-                            if (state.selectedEquipments.isNotEmpty) ...[
-                              const SizedBox(height: 10),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Wrap(
-                                  spacing: 6,
-                                  runSpacing: 6,
-                                  children: state.selectedEquipments
-                                      .map(
-                                        (item) => Chip(
-                                          label: Text(
-                                            item,
-                                            style: AppTextStyles.inherit.copyWith(
-                                              color: AppColors.white,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                          backgroundColor: AppColors.white.withValues(alpha: 0.15),
-                                          side: BorderSide.none,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                          visualDensity: VisualDensity.compact,
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                          labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                                          deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.white),
-                                          onDeleted: () => notifier.removeEquipment(item),
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                              ),
-                            ],
-                            const SizedBox(height: 30),
-                            AppCtaButton(
-                              label: 'Next',
-                              height: 55,
-                              enabled: !state.isSubmittingStep2,
-                              onPressed: _submit,
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Already have an account? ',
-                                  style: AppTextStyles.body15Medium
-                                      .copyWith(color: AppColors.white60),
-                                ),
-                                InkWell(
-                                  onTap: () =>
-                                      context.goNamed(Routes.login.name),
-                                  child: Text(
-                                    'Login',
-                                    style: AppTextStyles.body15Strong.copyWith(
-                                      color: AppColors.white,
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        const SizedBox(height: 20),
+                        Positioned(
+                          top: -40,
+                          left: 20,
+                          right: 20,
+                          child: SignUp2PreviewCard(
+                            firstName: state.firstName,
+                            lastName: state.lastName,
+                            email: state.email,
+                            profileImage: widget.profileImage,
+                            location: state.location,
+                            workingDistance: state.workingDistance,
+                            primaryRole: state.selectedRoles.join(', '),
+                            experience: yearOfExperienceController.text.trim(),
+                            hourlyRate: hourlyRateController.text.trim(),
+                            bio: bioController.text.trim(),
+                            skills: state.selectedSkills.join(', '),
+                            equipments: state.selectedEquipments.join(', '),
+                            completionPercent: completionPercent,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      Positioned(
-                        top: -40,
-                        left: 20,
-                        right: 20,
-                        child: SignUp2PreviewCard(
-                          firstName: widget.firstName ?? '',
-                          lastName: widget.lastName ?? '',
-                          email: widget.email ?? '',
-                          profileImage: widget.profileImage,
-                          location: widget.location ?? '',
-                          workingDistance: widget.workingDistance ?? '',
-                          primaryRole: state.selectedRoles.join(', '),
-                          experience: yearOfExperienceController.text.trim(),
-                          hourlyRate: hourlyRateController.text.trim(),
-                          bio: bioController.text.trim(),
-                          skills: state.selectedSkills.join(', '),
-                          equipments: state.selectedEquipments.join(', '),
-                          completionPercent: completionPercent,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          if (state.isLoadingLookups || state.isSubmittingStep2)
-            const AppLoader(),
-        ],
+            if (state.isLoadingLookups || state.isSubmittingStep2)
+              const AppLoader(),
+          ],
+        ),
       ),
     );
   }
@@ -411,7 +542,8 @@ class _EquipmentSelectionSheet extends ConsumerStatefulWidget {
       _EquipmentSelectionSheetState();
 }
 
-class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionSheet> {
+class _EquipmentSelectionSheetState
+    extends ConsumerState<_EquipmentSelectionSheet> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -450,7 +582,9 @@ class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionShe
             alignment: Alignment.centerLeft,
             child: Text(
               'Select Equipment',
-              style: AppTextStyles.bodyLargeMedium.copyWith(color: AppColors.white),
+              style: AppTextStyles.bodyLargeMedium.copyWith(
+                color: AppColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -478,16 +612,25 @@ class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionShe
                             fontSize: 13,
                           ),
                         ),
-                        backgroundColor: AppColors.white.withValues(alpha: 0.15),
+                        backgroundColor: AppColors.white.withValues(
+                          alpha: 0.15,
+                        ),
                         side: BorderSide.none,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
                         labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                        deleteIcon: const Icon(Icons.close, size: 14, color: AppColors.white),
+                        deleteIcon: const Icon(
+                          Icons.close,
+                          size: 14,
+                          color: AppColors.white,
+                        ),
                         onDeleted: () => notifier.removeEquipment(item),
                       ),
                     )
@@ -506,44 +649,52 @@ class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionShe
                     ),
                   )
                 : state.equipmentSuggestions.isEmpty
-                    ? Center(
-                        child: Text(
-                          _searchController.text.trim().isEmpty
-                              ? 'Search to find equipment'
-                              : 'No equipment found',
-                          style: AppTextStyles.body14.copyWith(color: AppColors.white60),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: state.equipmentSuggestions.length,
-                        itemBuilder: (context, index) {
-                          final item = state.equipmentSuggestions[index].name;
-                          final isSelected = state.selectedEquipments.contains(item);
-                          return CheckboxListTile(
-                            value: isSelected,
-                            title: Text(
-                              item,
-                              style: AppTextStyles.body14Medium.copyWith(color: AppColors.white),
-                            ),
-                            activeColor: AppColors.primary,
-                            checkColor: AppColors.black,
-                            side: BorderSide(
-                              color: isSelected ? AppColors.primary : AppColors.lavenderGrey,
-                              width: 1.5,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.smAll,
-                            ),
-                            onChanged: (checked) {
-                              if (checked == true) {
-                                notifier.addEquipment(item);
-                              } else {
-                                notifier.removeEquipment(item);
-                              }
-                            },
-                          );
-                        },
+                ? Center(
+                    child: Text(
+                      _searchController.text.trim().isEmpty
+                          ? 'Search to find equipment'
+                          : 'No equipment found',
+                      style: AppTextStyles.body14.copyWith(
+                        color: AppColors.white60,
                       ),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: state.equipmentSuggestions.length,
+                    itemBuilder: (context, index) {
+                      final item = state.equipmentSuggestions[index].name;
+                      final isSelected = state.selectedEquipments.contains(
+                        item,
+                      );
+                      return CheckboxListTile(
+                        value: isSelected,
+                        title: Text(
+                          item,
+                          style: AppTextStyles.body14Medium.copyWith(
+                            color: AppColors.white,
+                          ),
+                        ),
+                        activeColor: AppColors.primary,
+                        checkColor: AppColors.black,
+                        side: BorderSide(
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.lavenderGrey,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: AppRadii.smAll,
+                        ),
+                        onChanged: (checked) {
+                          if (checked == true) {
+                            notifier.addEquipment(item);
+                          } else {
+                            notifier.removeEquipment(item);
+                          }
+                        },
+                      );
+                    },
+                  ),
           ),
           const SizedBox(height: 10),
           SizedBox(
@@ -556,13 +707,13 @@ class _EquipmentSelectionSheetState extends ConsumerState<_EquipmentSelectionShe
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadii.lgAll,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadii.lgAll),
               ),
               child: Text(
                 'Done',
-                style: AppTextStyles.body15.copyWith(color: AppColors.textHeading),
+                style: AppTextStyles.body15.copyWith(
+                  color: AppColors.textHeading,
+                ),
               ),
             ),
           ),

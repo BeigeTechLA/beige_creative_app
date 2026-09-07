@@ -9,6 +9,7 @@ import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../config/env.dart';
@@ -48,7 +49,13 @@ class ProfileHeader extends StatelessWidget {
           left: 16,
           child: AppIconTapTarget(
             semanticLabel: 'Back',
-            onTap: () => context.pop(true),
+            onTap: () {
+              if (context.canPop()) {
+                context.pop(true);
+              } else {
+                context.goNamed(Routes.home.name);
+              }
+            },
             icon: SvgPicture.asset(
               AppAssets.back,
               height: 24,

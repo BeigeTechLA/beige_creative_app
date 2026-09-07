@@ -6,6 +6,7 @@ import '../../../../app/routes.dart';
 import '../../../../core/restoration/draft_store.dart';
 import '../../../../core/restoration/restoration_keys.dart';
 import '../../../../core/restoration/restoration_providers.dart';
+import '../screens/application_rejected_screen.dart';
 import '../screens/forgot_password_otp_screen.dart';
 import '../screens/forgot_password_screen.dart';
 import '../screens/login_screen.dart';
@@ -45,6 +46,7 @@ final List<RouteBase> authRoutes = [
         location: args.location,
         workingDistance: args.workingDistance,
         step1Progress: args.step1Progress,
+        isResume: args.isResume,
       );
     },
   ),
@@ -69,6 +71,7 @@ final List<RouteBase> authRoutes = [
         skills: args.skills,
         equipments: args.equipments,
         step2Progress: args.step2Progress,
+        isResume: args.isResume,
       );
     },
   ),
@@ -122,6 +125,11 @@ final List<RouteBase> authRoutes = [
         featuredImages: args.featuredImages,
       );
     },
+  ),
+  GoRoute(
+    path: Routes.applicationRejected.path,
+    name: Routes.applicationRejected.name,
+    builder: (context, state) => const ApplicationRejectedScreen(),
   ),
 ];
 

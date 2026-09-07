@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-08-11 (Shoots top cards and top toolbar filter bidirectional alignment).
+Last updated: 2026-08-13 (signup profile API resume + temporary unverified auth).
 
 ## Read Order
 
@@ -30,6 +30,10 @@ Every AI session should read:
 - Messages post-login logout fix (2026-06-16): `AuthRepositoryImpl` now persists a `UserSnapshot` from `data.crew_member` when `data.user` is absent, matching the documented real login shape. `MessagesRemoteSource` no longer turns a missing local user snapshot into `UnauthorizedException`; it uses an empty `currentUserId` only for DTO ownership/read derivation. Real REST 401s still map through Dio and can trigger the existing logout path.
 - Messages socket host correction (2026-06-16): live probes showed `https://api.dev.beige.app/socket.io/?EIO=4&transport=websocket` returns Express 404 `Route not found`, while `https://api2.dev.beige.app/socket.io/?EIO=4&transport=polling` returns an Engine.IO open packet and WebSocket upgrade returns HTTP 101. `Env.socketUrl` dev default is now `https://api2.dev.beige.app`, with `CHAT_SOCKET_URL` dart-define override support; `MessagesSocketSource` sets path `/socket.io` and WebSocket-only transport.
 - Messages self-healing logout & inside-bubble headers (2026-06-16): Caught `UnauthorizedException` in messages and chat thread providers to automatically invoke `authStateProvider.notifier.logout()` to resolve retry/reload bugs. Relocated sender headers inside the message and audio bubbles, styling them with bold uppercase name text and title-cased role badge pills.
+- CP login/status routing (2026-08-12): login now fails closed unless `is_registration_complete` is `0/1`, `is_crew_verified` is `0/1/2`, and a crew identity is present. Incomplete users enter signup step 1; pending users land on Home behind a non-dismissible `ApplicationUnderReviewCard` dialog and can otherwise access only profile routes; approved users have full access; rejected users land on the revised support/logout screen. Profile refresh preserves or updates the persisted status flags, and offline state does not bypass these guards.
+- Real login-response compatibility (2026-08-13): `AuthRepositoryImpl` accepts canonical account flags from `data` or nested `data.user`, including boolean `is_registration_complete` and `is_crew_verified` values (mapped to internal `0/1` integers). It also supports boolean `is_crew_profile_completed` as a registration-complete alias and reads `user.crew_member_id`. Canonical numeric fields remain supported and unknown/missing statuses still fail closed.
+- Pending-review profile edits (2026-08-13): profile-details refresh preserves account-status and crew-identity fields in `UserSnapshot`, preventing the router from treating profile navigation as a status-less session and redirecting to Login. Pending users may view and update all profile sections while non-profile areas remain guarded. Profile responses also normalize boolean status flags to `0/1`.
+- Signup resume + temporary unverified auth (2026-08-13): incomplete/pending/rejected login tokens and user snapshots live in a dedicated Riverpod process-memory session, separate from `CompositeSessionStore`; the network layer prefers this token for current-run guarded calls, but an app kill/restart returns to Login. For `is_registration_complete == 0`, backend `is_step_2_complete == 1` resumes Signup Step 3 and `0`/missing resumes Step 2; both screens restore crew identity/profile data, and successful Step 2 updates the temporary flag. Step 2 binds saved primary roles, experience, hourly rate, bio, skills, and equipment from `POST creator/get-profile-detail`, retaining backend IDs for resubmission. Working-distance API capitalization variants are canonicalized to exact dropdown values. A loaded remote photo satisfies validation; `profile_photo` multipart data is sent only for a newly selected replacement. Profile/Home refreshes keep pending state temporary and promote the token/user to persistence only if the server reports approval.
 
 Active Phase 6 entry-point: `docs/phase6/README.md`.
 
@@ -80,8 +84,7 @@ Group D is complete. Home now uses:
 Most recent check (post Messages socket reflection fix):
 
 - `flutter analyze --fatal-infos`: 0 issues. CI enforces fatal infos on every PR.
-- `flutter test test/features/messages`: 26 / 26 passing.
-- `flutter test`: 512 / 514 passing (2 pre-existing shoots_repository_impl_test.dart failures persist).
+- `flutter test`: 519 / 521 passing (2 pre-existing shoots_repository_impl_test.dart failures persist).
 - `flutter test test/features/messages/presentation/screens/messages_screen_test.dart`: 3 / 3 passing.
 - `flutter test test/golden/messages_test.dart`: 3 / 3 passing.
 - `flutter test integration_test/login_logout_test.dart -d macos`: 1 / 1 passing.

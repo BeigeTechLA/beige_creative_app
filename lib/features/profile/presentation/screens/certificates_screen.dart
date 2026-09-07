@@ -77,6 +77,7 @@ class CertificatesScreen extends ConsumerWidget {
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.white,
                           ),
+                          textAlignVertical: TextAlignVertical.center,
                           decoration: InputDecoration(
                             hintText: 'Search',
                             hintStyle: AppTextStyles.bodyMedium.copyWith(
@@ -86,23 +87,20 @@ class CertificatesScreen extends ConsumerWidget {
                               Icons.search,
                               color: AppColors.white24,
                             ),
+                            prefixIconConstraints: const BoxConstraints(
+                              minWidth: 40,
+                              minHeight: 40,
+                            ),
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
                             border: InputBorder.none,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceVariant,
-                        borderRadius: AppRadii.lgAll,
-                      ),
-                      child: const Icon(Icons.tune, color: AppColors.white),
-                    ),
                   ],
                 ),
+                const SizedBox(height: AppSpacing.base),
                 Expanded(
                   child: ListView.builder(
                     itemCount: certs.length,

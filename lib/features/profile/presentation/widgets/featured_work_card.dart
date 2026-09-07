@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -105,33 +106,57 @@ class FeaturedWorkCard extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  left: 15,
-                  bottom: 15,
-                  right: 15,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            title,
-                            style: AppTextStyles.headingOutfitLg.copyWith(
-                              color: AppColors.white,
-                            ),
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: ClipRRect(
+                    borderRadius: AppRadii.xxxlAll,
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              AppColors.black.withValues(alpha: 0.0),
+                              AppColors.black.withValues(alpha: 0.4),
+                              AppColors.black.withValues(alpha: 0.75),
+                            ],
+                            stops: const [0.0, 0.4, 1.0],
                           ),
-                          GestureDetector(
-                            onTap: onTap,
-                            child: SvgPicture.asset(
-                              AppAssets.circleArrow,
-                              height: 30,
-                              width: 30,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: AppTextStyles.headingOutfitLg.copyWith(
+                                  color: AppColors.white,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: onTap,
+                              child: SvgPicture.asset(
+                                AppAssets.circleArrow,
+                                height: 30,
+                                width: 30,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 8),
-                    ],
+                    ),
                   ),
                 ),
               ],

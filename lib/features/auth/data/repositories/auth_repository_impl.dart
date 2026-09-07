@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -6,6 +5,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/session/session_store.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -37,8 +37,120 @@ class AuthRepositoryImpl implements AuthRepository {
     if (token.isEmpty) {
       throw Exception('Login response missing token');
     }
-    final user = _parseLoginUser(payload);
-    return LoginResult(token: token, user: user);
+    final rawCrewMember = payload['crew_member'] is Map
+        ? payload['crew_member'] as Map
+        : null;
+    final rawUserMap = payload['user'] is Map ? payload['user'] as Map : null;
+
+    final isRegistrationComplete =
+        _intValue(payload, ['is_registration_complete']) ??
+        (rawUserMap != null
+            ? _intValue(rawUserMap, [
+                'is_registration_complete',
+                'is_crew_profile_completed',
+              ])
+            : null) ??
+        (rawCrewMember != null
+            ? _intValue(rawCrewMember, [
+                'is_registration_complete',
+                'is_crew_profile_completed',
+              ])
+            : null);
+
+    final isCrewVerified =
+        _intValue(payload, ['is_crew_verified']) ??
+        (rawUserMap != null
+            ? _intValue(rawUserMap, ['is_crew_verified'])
+            : null) ??
+        (rawCrewMember != null
+            ? _intValue(rawCrewMember, ['is_crew_verified'])
+            : null);
+
+    final isStep2Complete =
+        _boolValue(payload, ['is_step_2_complete']) ??
+        (rawUserMap != null
+            ? _boolValue(rawUserMap, ['is_step_2_complete'])
+            : null) ??
+        (rawCrewMember != null
+            ? _boolValue(rawCrewMember, ['is_step_2_complete'])
+            : null);
+
+    if (isRegistrationComplete == null ||
+        !const {0, 1}.contains(isRegistrationComplete) ||
+        isCrewVerified == null ||
+        !const {0, 1, 2}.contains(isCrewVerified)) {
+      throw Exception('Login response missing valid account status');
+    }
+
+    final crewMemberId =
+        _intValue(payload, ['crew_member_id']) ??
+        (rawUserMap != null
+            ? _intValue(rawUserMap, ['crew_member_id'])
+            : null) ??
+        (rawCrewMember != null
+            ? _intValue(rawCrewMember, ['crew_member_id', 'id'])
+            : null);
+
+    final rawUser = _parseLoginUser(payload);
+    // The creator avatar belongs to the crew profile. Some login responses
+    // also include an account-level user image, which can be different. Prefer
+    // the crew-member value so pending-review UI shows the submitted profile.
+    final crewProfileImageUrl = rawCrewMember == null
+        ? null
+        : _stringValue(rawCrewMember, [
+            'profile_image_url',
+            'user_profile_image_url',
+            'profile_photo',
+          ]);
+    final user = rawUser != null
+        ? UserSnapshot(
+            id: rawUser.id,
+            firstName: rawUser.firstName,
+            lastName: rawUser.lastName,
+            name: rawUser.name,
+            email: rawUser.email,
+            phoneNumber: rawUser.phoneNumber,
+            location: rawUser.location,
+            workingDistance: rawUser.workingDistance,
+            role: rawUser.role,
+            userType: rawUser.userType,
+            profileImageUrl: crewProfileImageUrl ?? rawUser.profileImageUrl,
+            isRegistrationComplete: isRegistrationComplete,
+            isCrewVerified: isCrewVerified,
+            isStep2Complete: isStep2Complete,
+            crewMemberId: crewMemberId,
+          )
+        : (crewMemberId != null
+              ? UserSnapshot(
+                  id: crewMemberId.toString(),
+                  isRegistrationComplete: isRegistrationComplete,
+                  isCrewVerified: isCrewVerified,
+                  isStep2Complete: isStep2Complete,
+                  crewMemberId: crewMemberId,
+                )
+              : null);
+
+    if (user == null) {
+      throw Exception('Login response missing crew member identity');
+    }
+
+    // DEBUG(login-flags): remove once the post-signup flow is confirmed.
+    AppLogger.d(
+      'login flags: is_registration_complete=$isRegistrationComplete '
+      'is_crew_verified=$isCrewVerified is_step_2_complete=$isStep2Complete '
+      'crew_member_id=$crewMemberId tokenLen=${token.length} '
+      'user.isRegistrationComplete=${user.isRegistrationComplete} '
+      'user.isCrewVerified=${user.isCrewVerified}',
+    );
+
+    return LoginResult(
+      token: token,
+      user: user,
+      isRegistrationComplete: isRegistrationComplete,
+      isCrewVerified: isCrewVerified,
+      isStep2Complete: isStep2Complete,
+      crewMemberId: crewMemberId,
+    );
   }
 
   UserSnapshot? _parseLoginUser(Map<String, dynamic> payload) {
@@ -74,10 +186,15 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return UserSnapshot(
         id: id,
+        firstName: firstName,
+        lastName: lastName,
         name:
             _stringValue(rawCrewMember, ['name']) ??
             (fallbackName.isEmpty ? null : fallbackName),
         email: _stringValue(rawCrewMember, ['email']),
+        phoneNumber: _stringValue(rawCrewMember, ['phone_number', 'phone']),
+        location: _stringValue(rawCrewMember, ['location']),
+        workingDistance: _stringValue(rawCrewMember, ['working_distance']),
         role: _stringValue(rawCrewMember, ['role']),
         userType: _stringValue(rawCrewMember, ['user_type']),
         profileImageUrl: _stringValue(rawCrewMember, [
@@ -96,8 +213,13 @@ class AuthRepositoryImpl implements AuthRepository {
     if (id == null || id.isEmpty) return null;
     return UserSnapshot(
       id: id,
+      firstName: _stringValue(json, ['first_name', 'firstName']),
+      lastName: _stringValue(json, ['last_name', 'lastName']),
       name: _stringValue(json, ['name', 'full_name']),
       email: _stringValue(json, ['email']),
+      phoneNumber: _stringValue(json, ['phone_number', 'phone']),
+      location: _stringValue(json, ['location']),
+      workingDistance: _stringValue(json, ['working_distance']),
       role: _stringValue(json, ['role']),
       userType: _stringValue(json, ['user_type']),
       profileImageUrl: _stringValue(json, [
@@ -115,6 +237,32 @@ class AuthRepositoryImpl implements AuthRepository {
       if (value == null) continue;
       final text = value.toString();
       if (text.isNotEmpty) return text;
+    }
+    return null;
+  }
+
+  int? _intValue(Map<dynamic, dynamic> json, List<String> keys) {
+    for (final key in keys) {
+      final value = json[key];
+      if (value == null) continue;
+      if (value is bool) return value ? 1 : 0;
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      final parsed = int.tryParse(value.toString());
+      if (parsed != null) return parsed;
+    }
+    return null;
+  }
+
+  bool? _boolValue(Map<dynamic, dynamic> json, List<String> keys) {
+    for (final key in keys) {
+      final value = json[key];
+      if (value == null) continue;
+      if (value is bool) return value;
+      if (value is num) return value.toInt() == 1;
+      final normalized = value.toString().trim().toLowerCase();
+      if (normalized == 'true' || normalized == '1') return true;
+      if (normalized == 'false' || normalized == '0') return false;
     }
     return null;
   }
@@ -180,11 +328,19 @@ class AuthRepositoryImpl implements AuthRepository {
       'working_distance': payload.workingDistance,
       'lat': payload.latitude.toString(),
       'lng': payload.longitude.toString(),
-      'profile_photo': await MultipartFile.fromFile(
-        payload.profileImage.path,
-        filename: payload.profileImage.path.split('/').last,
-      ),
     });
+    final profileImage = payload.profileImage;
+    if (profileImage != null) {
+      formData.files.add(
+        MapEntry(
+          'profile_photo',
+          await MultipartFile.fromFile(
+            profileImage.path,
+            filename: profileImage.path.split('/').last,
+          ),
+        ),
+      );
+    }
     final response = await _client.dio.post<dynamic>(
       ApiEndpoints.register_step1,
       data: formData,
@@ -223,23 +379,20 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> registerStep3(Step3Payload payload) async {
-    final fields = <String, String>{
-      'crew_member_id': payload.crewMemberId.toString(),
-      'certifications': jsonEncode(
-        payload.certificationFiles.map((f) => f.path.split('/').last).toList(),
-      ),
-      'social_media_links': jsonEncode(payload.socialMediaLinks),
-      'portfolio_links': jsonEncode(payload.portfolioLinks),
-      'featured_work': jsonEncode(payload.featuredWork),
-    };
+  Future<List<int>> uploadStep3File({
+    required int crewMemberId,
+    required String fileType,
+    required List<File> files,
+  }) async {
+    final formData = FormData.fromMap({
+      'crew_member_id': crewMemberId.toString(),
+      'file_type': fileType,
+    });
 
-    final formData = FormData.fromMap(fields);
-
-    Future<void> appendFile(String field, File file) async {
+    for (final file in files) {
       formData.files.add(
         MapEntry(
-          field,
+          fileType,
           await MultipartFile.fromFile(
             file.path,
             filename: file.path.split('/').last,
@@ -248,26 +401,77 @@ class AuthRepositoryImpl implements AuthRepository {
       );
     }
 
-    if (payload.resume != null) await appendFile('resume', payload.resume!);
-    if (payload.portfolio != null) {
-      await appendFile('portfolio', payload.portfolio!);
+    final response = await _client.dio.post<dynamic>(
+      ApiEndpoints.register_step3_file,
+      data: formData,
+    );
+    _throwIfError(response.data, fallback: 'File upload failed');
+    return _extractFileIds(response.data);
+  }
+
+  List<int> _extractFileIds(dynamic responseData) {
+    final result = <int>[];
+    void addValue(dynamic val) {
+      if (val is int) {
+        result.add(val);
+      } else if (val is num) {
+        result.add(val.toInt());
+      } else if (val != null) {
+        final parsed = int.tryParse(val.toString());
+        if (parsed != null) result.add(parsed);
+      }
     }
-    for (final f in payload.certificationFiles) {
-      await appendFile('certifications', f);
+
+    if (responseData is Map<String, dynamic>) {
+      final inner = responseData['data'] ?? responseData;
+      if (inner is List) {
+        for (final item in inner) {
+          if (item is Map) {
+            addValue(item['crew_files_id'] ?? item['id'] ?? item['file_id']);
+          } else {
+            addValue(item);
+          }
+        }
+      } else if (inner is Map) {
+        final ids =
+            inner['crew_files_id'] ??
+            inner['file_id'] ??
+            inner['id'] ??
+            inner['crew_files_ids'];
+        if (ids is List) {
+          for (final item in ids) {
+            addValue(item);
+          }
+        } else {
+          addValue(ids);
+        }
+      } else {
+        addValue(inner);
+      }
+    } else if (responseData is List) {
+      for (final item in responseData) {
+        addValue(item);
+      }
     }
-    for (var i = 0; i < payload.recentWorkMediaFiles.length; i++) {
-      await appendFile('recent_work_media', payload.recentWorkMediaFiles[i]);
-      formData.fields.add(
-        MapEntry(
-          'recent_work_media_index',
-          payload.recentWorkMediaIndexes[i].toString(),
-        ),
-      );
-    }
+    return result;
+  }
+
+  @override
+  Future<void> registerStep3(Step3Payload payload) async {
+    final jsonPayload = <String, dynamic>{
+      'crew_member_id': payload.crewMemberId,
+      'social_media_links': payload.socialMediaLinks,
+      'portfolio_links': payload.portfolioLinks,
+      if (payload.resumeFileId != null) 'resume_file_id': payload.resumeFileId,
+      'portfolio_file_ids': payload.portfolioFileIds,
+      'certification_file_ids': payload.certificationFileIds,
+      'featured_work': payload.featuredWork,
+    };
 
     final response = await _client.dio.post<dynamic>(
       ApiEndpoints.register_step3,
-      data: formData,
+      data: jsonPayload,
+      options: Options(headers: {'Content-Type': 'application/json'}),
     );
     _throwIfError(response.data, fallback: 'Step 3 failed');
   }

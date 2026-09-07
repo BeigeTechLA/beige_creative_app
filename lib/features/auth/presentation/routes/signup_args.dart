@@ -15,6 +15,7 @@ class SignUpStep2Args {
     this.location,
     this.workingDistance,
     this.step1Progress = 0,
+    this.isResume = false,
   });
 
   final int? crewMemberId;
@@ -26,6 +27,10 @@ class SignUpStep2Args {
   final String? workingDistance;
   final int step1Progress;
 
+  /// True when the user reached this step via the login-resume path (profile
+  /// incomplete). Step 1 is already done, so the stepper collapses to 2 steps.
+  final bool isResume;
+
   Map<String, dynamic> toExtra() => {
         'crewMemberId': crewMemberId,
         'profileImage': profileImage,
@@ -35,6 +40,7 @@ class SignUpStep2Args {
         'location': location,
         'workingDistance': workingDistance,
         'step1Progress': step1Progress,
+        'isResume': isResume,
       };
 
   factory SignUpStep2Args.fromExtra(Object? extra) {
@@ -48,6 +54,7 @@ class SignUpStep2Args {
       location: m['location'] as String?,
       workingDistance: m['workingDistance'] as String?,
       step1Progress: (m['step1Progress'] as int?) ?? 0,
+      isResume: (m['isResume'] as bool?) ?? false,
     );
   }
 }
@@ -70,6 +77,7 @@ class SignUpStep3Args {
     this.skills = '',
     this.equipments = '',
     this.step2Progress = 0,
+    this.isResume = false,
   });
 
   final int? crewMemberId;
@@ -87,6 +95,10 @@ class SignUpStep3Args {
   final String equipments;
   final int step2Progress;
 
+  /// True when the user reached this step via the login-resume path. The
+  /// stepper collapses to 2 steps (this is the final one → "2/2").
+  final bool isResume;
+
   Map<String, dynamic> toExtra() => {
         'crewMemberId': crewMemberId,
         'profileImage': profileImage,
@@ -102,6 +114,7 @@ class SignUpStep3Args {
         'skills': skills,
         'equipments': equipments,
         'step2Progress': step2Progress,
+        'isResume': isResume,
       };
 
   factory SignUpStep3Args.fromExtra(Object? extra) {
@@ -121,6 +134,7 @@ class SignUpStep3Args {
       skills: (m['skills'] as String?) ?? '',
       equipments: (m['equipments'] as String?) ?? '',
       step2Progress: (m['step2Progress'] as int?) ?? 0,
+      isResume: (m['isResume'] as bool?) ?? false,
     );
   }
 }

@@ -111,7 +111,7 @@ class SignupRobot {
   // -- Step 3 ---------------------------------------------------------------
 
   Future<void> expectOnStep3() async {
-    expect(find.text('Add Social Links'), findsOneWidget);
+    expect(find.textContaining('Add Social Links'), findsOneWidget);
     expect(find.text('Create Profile'), findsOneWidget);
   }
 
@@ -126,13 +126,17 @@ class SignupRobot {
   }) async {
     _notifier
       ..setSocialLinks(socialLinks)
-      ..setPortfolioLinks(portfolioLinks)
-      ..setFeaturedProjects(featuredProjects, featuredProjectTitles)
-      ..setResumeFile(resume)
-      ..setPortfolioFile(portfolio);
+      ..setPortfolioLinks(portfolioLinks);
+    await _notifier.uploadResumeFile(resume);
+    await _notifier.uploadPortfolioFile(portfolio);
     for (final certificate in certificates) {
-      _notifier.addCertificate(certificate);
+      await _notifier.uploadCertificate(certificate);
     }
+    for (var i = 0; i < featuredProjects.length; i++) {
+      final title = i < featuredProjectTitles.length ? featuredProjectTitles[i] : '';
+      await _notifier.uploadFeaturedWork(title: title, files: featuredProjects[i]);
+    }
+    await settle();
   }
 
   Future<void> tapCreateProfile() async {
@@ -143,6 +147,10 @@ class SignupRobot {
 
   Future<void> expectOnLoginStub() async {
     expect(find.text('login-stub'), findsOneWidget);
+  }
+
+  Future<void> expectOnSignupSuccessStub() async {
+    expect(find.text('signup-success-stub'), findsOneWidget);
   }
 
   // -- Low-level helpers ----------------------------------------------------

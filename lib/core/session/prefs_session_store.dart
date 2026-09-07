@@ -23,7 +23,10 @@ class PrefsSessionStore implements PrefsSessionBackend {
   PrefsSessionStore(this._prefs);
 
   @override
-  Future<UserSnapshot?> readUser() async {
+  Future<UserSnapshot?> readUser() async => readUserSync();
+
+  @override
+  UserSnapshot? readUserSync() {
     final raw = _prefs.getString(_kUser);
     if (raw == null || raw.isEmpty) return null;
     try {

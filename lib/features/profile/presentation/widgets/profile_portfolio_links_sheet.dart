@@ -5,8 +5,8 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
-import '../../../../shared/widgets/loading.dart';
 
 typedef PortfolioLinkChange = void Function(VoidCallback mutator);
 
@@ -299,35 +299,16 @@ class _ProfilePortfolioLinksSheetState
                   controller: widget.linkController,
                 ),
                 const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
+                AppCtaButton(
+                  label: 'Save Link',
                   height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: AppRadii.xlAll,
-                      ),
-                    ),
-                    onPressed: isUpdating
-                        ? null
-                        : () => widget.onSaveLink(
-                              setUpdating: (val) =>
-                                  setState(() => isUpdating = val),
-                              getUpdating: () => isUpdating,
-                              onAdded: () =>
-                                  setState(() => showForm = false),
-                            ),
-                    child: isUpdating
-                        ? const AppCircularLoader(
-                            size: 20,
-                            strokeWidth: 2,
-                            color: AppColors.black,
-                          )
-                        : const Text(
-                            'Save Link',
-                            style: AppTextStyles.buttonMedium,
-                          ),
+                  isLoading: isUpdating,
+                  onPressed: () => widget.onSaveLink(
+                    setUpdating: (val) =>
+                        setState(() => isUpdating = val),
+                    getUpdating: () => isUpdating,
+                    onAdded: () =>
+                        setState(() => showForm = false),
                   ),
                 ),
               ],
@@ -370,22 +351,10 @@ class _ProfilePortfolioLinksSheetState
                 ),
                 const SizedBox(height: 16),
                 if (editingIndex == -1)
-                  SizedBox(
-                    width: double.infinity,
+                  AppCtaButton(
+                    label: 'Save',
                     height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadii.xlAll,
-                        ),
-                      ),
-                      onPressed: widget.onSaveAll,
-                      child: const Text(
-                        'Save',
-                        style: AppTextStyles.buttonMedium,
-                      ),
-                    ),
+                    onPressed: widget.onSaveAll,
                   ),
               ],
               const SizedBox(height: 10),

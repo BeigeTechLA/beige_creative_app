@@ -6,7 +6,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
+import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
@@ -230,6 +232,10 @@ class _MyprofileState extends ConsumerState<Myprofile> {
 
     final state = ref.watch(myProfileNotifierProvider);
     final profile = state.profile;
+    final currentUser = ref.watch(currentSessionUserProvider);
+    final isPendingReview =
+        (currentUser?.isRegistrationComplete == 1) &&
+        (currentUser?.isCrewVerified == 0);
 
     return AppScaffold(
       safeTop: false,
@@ -261,6 +267,10 @@ class _MyprofileState extends ConsumerState<Myprofile> {
                   ),
                   child: Column(
                     children: [
+                      if (isPendingReview) ...[
+                        _buildUnderReviewBanner(),
+                        const SizedBox(height: 20),
+                      ],
                       ProfileStatsPanel(
                         hourlyRateLabel:
                             '\$${double.tryParse(profile?.hourlyRate ?? '0')?.toInt() ?? 0}',
@@ -297,34 +307,92 @@ class _MyprofileState extends ConsumerState<Myprofile> {
   }
 
   Widget _identityRow(String email, String location) {
+    final hasEmail = email.trim().isNotEmpty;
+    final hasLocation = location.trim().isNotEmpty;
+    if (!hasEmail && !hasLocation) return const SizedBox.shrink();
+
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+      child: Column(
         children: [
-          Flexible(
-            child: Text(
-              email,
+          if (hasEmail)
+            Text(
+              email.trim(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTextStyles.body14.copyWith(color: AppColors.white60),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-            child: Text(
-              '|',
-              style: AppTextStyles.inherit14.copyWith(color: AppColors.white60),
-            ),
-          ),
-          Flexible(
-            child: Text(
-              location,
+          if (hasEmail && hasLocation) const SizedBox(height: 4),
+          if (hasLocation)
+            Text(
+              location.trim(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTextStyles.body14.copyWith(color: AppColors.white60),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUnderReviewBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.base),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceWarm,
+        borderRadius: AppRadii.lgAll,
+        border: Border.all(color: AppColors.borderGold, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.access_time_filled_rounded,
+                color: AppColors.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Application Under Review',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.body15Strong.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.shootStatusPendingBg,
+                  borderRadius: AppRadii.xsAll,
+                ),
+                child: Text(
+                  'Pending Review',
+                  style: AppTextStyles.bodySmallBold.copyWith(
+                    color: AppColors.shootStatusPendingFg,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Your registration is currently under review by our admin team. You can view and edit your profile while your application is being verified.',
+            style: AppTextStyles.body14.copyWith(
+              color: AppColors.white80,
+              height: 1.35,
             ),
           ),
         ],

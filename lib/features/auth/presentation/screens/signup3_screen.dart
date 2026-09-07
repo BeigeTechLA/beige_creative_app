@@ -14,6 +14,8 @@ import '../../../../app/text_styles.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
+import '../../../../core/providers/auth_state_provider.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../providers/signup_notifier.dart';
 import '../providers/signup_state.dart';
@@ -41,6 +43,7 @@ class SignUp3Screen extends ConsumerStatefulWidget {
   final String bio;
   final String skills;
   final String equipments;
+  final bool isResume;
 
   const SignUp3Screen({
     super.key,
@@ -58,6 +61,7 @@ class SignUp3Screen extends ConsumerStatefulWidget {
     this.skills = '',
     this.equipments = '',
     required this.step2Progress,
+    this.isResume = false,
   });
 
   @override
@@ -82,17 +86,34 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(signupNotifierProvider.notifier).seedStep3FromRoute(
-            crewMemberId: widget.crewMemberId,
-            primaryRole: widget.primaryRole,
-            experience: widget.experience,
-            hourlyRate: widget.hourlyRate,
-            bio: widget.bio,
-            skills: widget.skills,
-            equipments: widget.equipments,
-            step2Progress: widget.step2Progress,
-          );
+      _initializeResumeFlow();
     });
+  }
+
+  Future<void> _initializeResumeFlow() async {
+    final notifier = ref.read(signupNotifierProvider.notifier);
+    final user = ref.read(currentSessionUserProvider);
+    notifier.seedStep2Resume(
+      crewMemberId: widget.crewMemberId ?? user?.crewMemberId,
+      firstName: widget.firstName ?? user?.firstName,
+      lastName: widget.lastName ?? user?.lastName,
+      email: widget.email ?? user?.email,
+      location: widget.location ?? user?.location,
+      workingDistance: widget.workingDistance ?? user?.workingDistance,
+    );
+    await notifier.loadStep1Prefill();
+    if (!mounted) return;
+    final resumed = ref.read(signupNotifierProvider);
+    notifier.seedStep3FromRoute(
+      crewMemberId: widget.crewMemberId ?? resumed.crewMemberId,
+      primaryRole: widget.primaryRole,
+      experience: widget.experience,
+      hourlyRate: widget.hourlyRate,
+      bio: widget.bio,
+      skills: widget.skills,
+      equipments: widget.equipments,
+      step2Progress: widget.step2Progress == 0 ? 70 : widget.step2Progress,
+    );
   }
 
   @override
@@ -114,21 +135,21 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
       allowedExtensions: ['pdf', 'jpg', 'png'],
     );
     if (result != null && result.files.single.path != null) {
-      _notifier.addCertificate(File(result.files.single.path!));
+      await _notifier.uploadCertificate(File(result.files.single.path!));
     }
   }
 
   Future<void> _pickDocument() async {
     final result = await FilePicker.pickFiles(type: FileType.any);
     if (result != null && result.files.single.path != null) {
-      _notifier.setResumeFile(File(result.files.single.path!));
+      await _notifier.uploadResumeFile(File(result.files.single.path!));
     }
   }
 
   Future<void> _pickPortfolio() async {
     final result = await FilePicker.pickFiles(type: FileType.any);
     if (result != null && result.files.single.path != null) {
-      _notifier.setPortfolioFile(File(result.files.single.path!));
+      await _notifier.uploadPortfolioFile(File(result.files.single.path!));
     }
   }
 
@@ -182,6 +203,17 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
       featuredProjectsTitles: state.featuredProjectsTitles,
       selectedTags: state.selectedFeaturedTags,
       commit: _notifier.setFeaturedProjects,
+      onUploadAndSave: ({
+        required String title,
+        required List<File> files,
+        int? editIndex,
+      }) {
+        return _notifier.uploadFeaturedWork(
+          title: title,
+          files: files,
+          editIndex: editIndex,
+        );
+      },
       onError: _showSnack,
     );
     await showSignup3FeaturedSheet(context: context, controller: controller);
@@ -202,17 +234,19 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
   Widget build(BuildContext context) {
     final state = ref.watch(signupNotifierProvider);
 
-    ref.listen<String?>(
-      signupNotifierProvider.select((s) => s.errorMessage),
-      (prev, next) {
-        if (next != null && next.isNotEmpty) {
-          _showSnack(next);
-        }
-      },
-    );
+    ref.listen<String?>(signupNotifierProvider.select((s) => s.errorMessage), (
+      prev,
+      next,
+    ) {
+      if (next != null && next.isNotEmpty) {
+        _showSnack(next);
+      }
+    });
 
     final flattenedFeatured = _flattenedFeaturedImages(state);
     final progress = state.step2Progress + _progressFromState(state);
+    final isDocsUploaded =
+        state.resumeFileId != null || state.portfolioFileIds.isNotEmpty;
 
     return AppScaffold(
       body: Stack(
@@ -220,7 +254,11 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
           SingleChildScrollView(
             child: Column(
               children: [
-                const SignUp3Header(),
+                SignUp3Header(
+                  currentStep: widget.isResume ? 2 : 3,
+                  totalSteps: widget.isResume ? 2 : 3,
+                  isResume: widget.isResume,
+                ),
                 const SizedBox(height: 20),
                 Transform.translate(
                   offset: const Offset(0, -30),
@@ -231,7 +269,7 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                         width: double.infinity,
                         padding: const EdgeInsets.fromLTRB(
                           AppSpacing.xl,
-                          100,
+                          130,
                           AppSpacing.xl,
                           AppSpacing.xl,
                         ),
@@ -255,27 +293,35 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                                     .asMap()
                                     .entries
                                     .map((e) {
-                                  return SignUp3SavedLinkRow(
-                                    item: e.value,
-                                    backgroundColor: AppColors.black,
-                                    onEdit: () {
-                                      _editingSocialIndex = e.key;
-                                      _selectedSocialIndex =
-                                          kSignup3SocialNames
-                                              .indexOf(e.value['name']);
-                                      nameLinkController.text =
-                                          e.value['name'];
-                                      linkController.text = e.value['url'];
-                                      _openSocialSheet();
-                                    },
-                                    onDelete: () =>
-                                        _notifier.removeSocialLinkAt(e.key),
-                                  );
-                                }).toList(),
+                                      return SignUp3SavedLinkRow(
+                                        item: e.value,
+                                        backgroundColor: AppColors.black,
+                                        onEdit: () {
+                                          _editingSocialIndex = e.key;
+                                          _selectedSocialIndex =
+                                              kSignup3SocialNames.indexOf(
+                                                e.value['name'],
+                                              );
+                                          nameLinkController.text =
+                                              e.value['name'];
+                                          linkController.text = e.value['url'];
+                                          _openSocialSheet();
+                                        },
+                                        onDelete: () =>
+                                            _notifier.removeSocialLinkAt(e.key),
+                                      );
+                                    })
+                                    .toList(),
                               ),
                             SignUp3AddTile(
                               title: 'Add Social Links*',
-                              onTap: _openSocialSheet,
+                              onTap: () {
+                                _editingSocialIndex = null;
+                                _selectedSocialIndex = -1;
+                                nameLinkController.clear();
+                                linkController.clear();
+                                _openSocialSheet();
+                              },
                             ),
                             const SizedBox(height: 20),
                             if (state.savedPortfolioLinks.isNotEmpty)
@@ -284,32 +330,40 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                                     .asMap()
                                     .entries
                                     .map((e) {
-                                  return SignUp3SavedLinkRow(
-                                    item: e.value,
-                                    backgroundColor: AppColors.textSubtle,
-                                    onEdit: () {
-                                      _editingPortfolioIndex = e.key;
-                                      _selectedPortfolioIndex =
-                                          kSignup3PortfolioNames
-                                              .indexOf(e.value['name']);
-                                      portfolioLinkController.text =
-                                          e.value['url'];
-                                      _openPortfolioSheet();
-                                    },
-                                    onDelete: () => _notifier
-                                        .removePortfolioLinkAt(e.key),
-                                  );
-                                }).toList(),
+                                      return SignUp3SavedLinkRow(
+                                        item: e.value,
+                                        backgroundColor: AppColors.textSubtle,
+                                        onEdit: () {
+                                          _editingPortfolioIndex = e.key;
+                                          _selectedPortfolioIndex =
+                                              kSignup3PortfolioNames.indexOf(
+                                                e.value['name'],
+                                              );
+                                          portfolioLinkController.text =
+                                              e.value['url'];
+                                          _openPortfolioSheet();
+                                        },
+                                        onDelete: () => _notifier
+                                            .removePortfolioLinkAt(e.key),
+                                      );
+                                    })
+                                    .toList(),
                               ),
                             SignUp3AddTile(
                               title: 'Add Portfolio Link (Optional)',
-                              onTap: _openPortfolioSheet,
+                              onTap: () {
+                                _editingPortfolioIndex = null;
+                                _selectedPortfolioIndex = -1;
+                                portfolioLinkController.clear();
+                                _openPortfolioSheet();
+                              },
                             ),
                             const SizedBox(height: 20),
                             SignUp3FeaturedSection(
                               featuredProjects: state.featuredProjects,
                               featuredProjectsTitles:
                                   state.featuredProjectsTitles,
+                              isUploaded: state.featuredWorkFileIds.isNotEmpty,
                               onAdd: _openFeaturedSheet,
                               onEdit: (index) =>
                                   _openFeaturedSheet(editIndex: index),
@@ -318,6 +372,7 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                             const SizedBox(height: 16),
                             SignUp3CertificatesSection(
                               certificateFiles: state.certificateFiles,
+                              isUploaded: state.certificationFileIds.isNotEmpty,
                               onPick: _pickCertificate,
                               onDelete: _notifier.removeCertificateAt,
                             ),
@@ -327,32 +382,41 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                               decoration: BoxDecoration(
                                 color: AppColors.background,
                                 borderRadius: AppRadii.xxlAll,
-                                border:
-                                    Border.all(color: AppColors.white24),
+                                border: Border.all(color: AppColors.white24),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Upload Documents',
-                                    style: AppTextStyles.inherit14Strong
-                                        .copyWith(color: AppColors.white),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Upload Documents',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: AppTextStyles.inherit14Strong
+                                              .copyWith(color: AppColors.white),
+                                        ),
+                                      ),
+                                      if (isDocsUploaded) ...[
+                                        const SizedBox(width: 8),
+                                        const SignUp3CheckmarkBadge(),
+                                      ],
+                                    ],
                                   ),
                                   const SizedBox(height: 12),
                                   SignUp3DocumentBlock(
                                     label: 'Upload Resume/CV',
                                     file: state.resumeFile,
                                     onUpload: _pickDocument,
-                                    onDelete: () =>
-                                        _notifier.setResumeFile(null),
+                                    onDelete: _notifier.removeResumeFile,
                                   ),
                                   const SizedBox(height: 12),
                                   SignUp3DocumentBlock(
                                     label: 'Upload Portfolio',
                                     file: state.portfolioFile,
                                     onUpload: _pickPortfolio,
-                                    onDelete: () =>
-                                        _notifier.setPortfolioFile(null),
+                                    onDelete: _notifier.removePortfolioFile,
                                   ),
                                 ],
                               ),
@@ -361,32 +425,48 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                             AppCtaButton(
                               label: 'Create Profile',
                               height: 55,
-                              enabled: state.savedSocialLinks.isNotEmpty &&
-                                  !state.isSubmittingStep3,
+                              enabled:
+                                  state.savedSocialLinks.isNotEmpty &&
+                                  !state.isSubmittingStep3 &&
+                                  !state.isUploadingResume &&
+                                  !state.isUploadingPortfolio &&
+                                  !state.isUploadingCertifications &&
+                                  !state.isUploadingFeaturedWork,
                               onPressed: _submit,
                             ),
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Already have an account? ',
-                                  style: AppTextStyles.body15Medium
-                                      .copyWith(color: AppColors.white60),
-                                ),
-                                InkWell(
-                                  onTap: () =>
-                                      context.goNamed(Routes.login.name),
-                                  child: Text(
-                                    'Login',
-                                    style: AppTextStyles.body15Strong.copyWith(
-                                      color: AppColors.white,
-                                      decoration: TextDecoration.underline,
+                            if (!ref.watch(authStateProvider)) ...[
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Already have an account? ',
+                                    style: AppTextStyles.body15Medium.copyWith(
+                                      color: AppColors.white60,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                  InkWell(
+                                    onTap: () async {
+                                      await ref
+                                          .read(signupNotifierProvider.notifier)
+                                          .cancelSignup();
+                                      if (context.mounted) {
+                                        context.goNamed(Routes.login.name);
+                                      }
+                                    },
+                                    child: Text(
+                                      'Login',
+                                      style: AppTextStyles.body15Strong
+                                          .copyWith(
+                                            color: AppColors.white,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -405,8 +485,7 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                               color: AppColors.surfaceMid,
                               borderRadius: AppRadii.lgAll,
                               border: Border.all(
-                                color:
-                                    AppColors.white.withValues(alpha: 0.12),
+                                color: AppColors.white.withValues(alpha: 0.12),
                                 width: 1,
                               ),
                               boxShadow: AppShadows.ctaDark,
@@ -418,8 +497,9 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
                                   height: 28,
                                   width: 28,
                                   decoration: BoxDecoration(
-                                    color: AppColors.white
-                                        .withValues(alpha: 0.08),
+                                    color: AppColors.white.withValues(
+                                      alpha: 0.08,
+                                    ),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(

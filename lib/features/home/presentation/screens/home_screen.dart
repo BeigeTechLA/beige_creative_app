@@ -6,6 +6,9 @@ import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../core/providers/guest_mode_provider.dart';
+import '../../../../core/providers/core_providers.dart';
+import '../../../../core/session/session_store.dart';
+import '../../../profile/presentation/widgets/application_under_review_card.dart';
 import '../../../../shared/widgets/login_dialog.dart';
 import '../providers/home_notifier.dart';
 import '../widgets/common/home_section_divider.dart';
@@ -44,6 +47,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   late AnimationController _meetingsController;
   int _meetingsCurrentIndex = 0;
+  bool _underReviewDialogShown = false;
 
   @override
   void initState() {
@@ -82,6 +86,85 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         }
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showUnderReviewDialogIfNeeded();
+    });
+  }
+
+  bool _isPendingOrRejected(UserSnapshot? user) =>
+      user?.isRegistrationComplete == 1 &&
+      (user?.isCrewVerified == 0 || user?.isCrewVerified == 2);
+
+  Future<void> _showUnderReviewDialogIfNeeded() async {
+    if (!mounted || _underReviewDialogShown) return;
+    final user = ref.read(currentSessionUserProvider);
+    if (!_isPendingOrRejected(user)) return;
+
+    final homeProfileUrl =
+        ref.read(homeNotifierProvider).profileData?.profileImageUrl;
+    _underReviewDialogShown = true;
+    await ApplicationUnderReviewDialog.show<void>(
+      context,
+      profileImageUrl: (homeProfileUrl != null && homeProfileUrl.isNotEmpty)
+          ? homeProfileUrl
+          : user?.profileImageUrl,
+      initialCrewVerified: user?.isCrewVerified,
+      barrierDismissible: false,
+      onRefresh: _refreshApplicationStatus,
+      onGoToDashboard: () {
+        if (!mounted) return;
+        ref.invalidate(currentSessionUserProvider);
+        TopMessage.show(
+          context,
+          'Your application is approved. Welcome to Beige!',
+          type: TopMessageType.success,
+        );
+      },
+      onViewReason: null,
+      onCompleteProfile: () {
+        if (!mounted) return;
+        // The dialog helper dismisses the modal before invoking this callback.
+        // Push the profile on top of Home so returning can restore the review
+        // dialog without ever popping the root GoRouter page.
+        _underReviewDialogShown = false;
+        context.pushNamed(Routes.myProfile.name).then((_) {
+          if (!mounted) return;
+          ref.read(homeNotifierProvider.notifier).refreshAfterProfileReturn();
+          _showUnderReviewDialogIfNeeded();
+        });
+      },
+    );
+  }
+
+  /// Re-fetches `creator/get-profile-detail`, returns the fresh
+  /// `is_crew_verified` flag so the dialog can morph in place. Registration
+  /// regressions (`is_registration_complete == 0`) still route back into the
+  /// signup flow.
+  Future<int?> _refreshApplicationStatus() async {
+    await ref.read(homeNotifierProvider.notifier).refreshAfterProfileReturn();
+    if (!mounted) return null;
+
+    final profileData = ref.read(homeNotifierProvider).profileData;
+    final user = ref.read(currentSessionUserProvider);
+    final registrationComplete =
+        profileData?.isRegistrationComplete ?? user?.isRegistrationComplete;
+
+    if (registrationComplete == 0) {
+      Navigator.of(context, rootNavigator: true).pop();
+      context.goNamed(
+        user?.isStep2Complete == true
+            ? Routes.signupStep3.name
+            : Routes.signupStep2.name,
+      );
+      return null;
+    }
+
+    final verifiedFlag = profileData?.isCrewVerified ?? user?.isCrewVerified;
+    if (verifiedFlag == 1) {
+      ref.invalidate(currentSessionUserProvider);
+    }
+    return verifiedFlag;
   }
 
   @override
@@ -150,6 +233,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Widget build(BuildContext context) {
     final homeState = ref.watch(homeNotifierProvider);
     final notifier = ref.read(homeNotifierProvider.notifier);
+    final sessionUser = ref.watch(currentSessionUserProvider);
 
     // Reset carousel index when list shrinks.
     if (_currentIndex >= homeState.filteredUpcomingShootsList.length &&
@@ -174,8 +258,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             HomeWelcomeHeader(
               firstName: ref.watch(guestModeProvider)
                   ? 'Guest'
-                  : homeState.profileData?.firstName,
-              profileImageUrl: homeState.profileData?.profileImageUrl ?? "",
+                  : (homeState.profileData?.firstName ?? '').isNotEmpty
+                  ? homeState.profileData!.firstName
+                  : sessionUser?.firstName,
+              // Dashboard `profileDetail` can be null / arrive late; fall back to
+              // the session snapshot so the avatar loads immediately on login
+              // instead of flashing the placeholder or a stale image.
+              profileImageUrl:
+                  (homeState.profileData?.profileImageUrl.isNotEmpty ?? false)
+                  ? homeState.profileData!.profileImageUrl
+                  : (sessionUser?.profileImageUrl ?? ""),
               onAvatarTap: () {
                 if (_blockIfGuest()) return;
                 context.pushNamed(Routes.myProfile.name).then((value) {
@@ -192,7 +284,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               child: RefreshIndicator(
                 color: AppColors.primary,
                 backgroundColor: AppColors.surfaceMid,
-                onRefresh: () => notifier.refresh(),
+                onRefresh: () => notifier.refresh(isSilent: true),
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics(),
@@ -216,35 +308,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         const HomeSectionDivider(centerAlpha: 0.24),
 
                         if (homeState.upcomingShootsList.isNotEmpty) ...[
-                          const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
+                          const SizedBox(
+                            height: 18,
+                          ), // 18 + 6 (header padding) = 24 visual gap below divider
                           HomeUpcomingCarousel(
                             upcomingShoots: homeState.upcomingShootsList,
-                            hasOriginalShoots: homeState.upcomingShootsList.isNotEmpty,
+                            hasOriginalShoots:
+                                homeState.upcomingShootsList.isNotEmpty,
                             currentIndex: _currentIndex,
                             controller: _controller,
                             onCardTap: _onCardTap,
                             onSwipeNext: _goToNext,
                             onSwipePrevious: _goToPrevious,
                           ),
-                          const SizedBox(height: 24), // 24 visual gap above divider
+                          const SizedBox(
+                            height: 24,
+                          ), // 24 visual gap above divider
                           const HomeSectionDivider(centerAlpha: 0.24),
                         ],
 
-                        if (homeState.upcomingMeetingsList.isNotEmpty) ...[
-                          const SizedBox(height: 18), // 18 + 6 (header padding) = 24 visual gap below divider
-                          HomeUpcomingMeetingsCarousel(
-                            upcomingMeetings: homeState.upcomingMeetingsList,
-                            currentIndex: _meetingsCurrentIndex,
-                            controller: _meetingsController,
-                            onCardTap: _onMeetingCardTap,
-                            onSwipeNext: _goToNextMeeting,
-                            onSwipePrevious: _goToPreviousMeeting,
-                          ),
-                          // meetings stack has 25px bottom centering padding, so we don't need additional SizedBox!
-                          const HomeSectionDivider(centerAlpha: 0.24),
-                        ],
-
-                        const SizedBox(height: 24), // 24 visual gap below divider
+                        const SizedBox(
+                          height: 24,
+                        ), // 24 visual gap below divider
                         HomeAvailabilitySection(
                           focusedDay: homeState.focusedDay,
                           selectedEvent: homeState.selectedEvent,
@@ -260,9 +345,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           onDaySelected: (day, event) {
                             if (_blockIfGuest()) return;
                             if (event != 'Shoot') return;
-                            int? bookingId = homeState
-                                .availabilityDays[day]
-                                ?.bookingId;
+                            int? bookingId =
+                                homeState.availabilityDays[day]?.bookingId;
                             if (bookingId == null) {
                               for (final s in homeState.upcomingShootsList) {
                                 if (s.eventDate.year == day.year &&
@@ -283,17 +367,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             }
                           },
                         ),
-                        const SizedBox(height: 24), // 24 visual gap above divider
+                        const SizedBox(
+                          height: 24,
+                        ), // 24 visual gap above divider
                         const HomeSectionDivider(centerAlpha: 0.24),
 
+                        if (homeState.upcomingMeetingsList.isNotEmpty) ...[
+                          const SizedBox(
+                            height: 18,
+                          ), // 18 + 6 (header padding) = 24 visual gap below divider
+                          HomeUpcomingMeetingsCarousel(
+                            upcomingMeetings: homeState.upcomingMeetingsList,
+                            currentIndex: _meetingsCurrentIndex,
+                            controller: _meetingsController,
+                            onCardTap: _onMeetingCardTap,
+                            onSwipeNext: _goToNextMeeting,
+                            onSwipePrevious: _goToPreviousMeeting,
+                          ),
+                          // meetings stack has 25px bottom centering padding, so we don't need additional SizedBox!
+                          const HomeSectionDivider(centerAlpha: 0.24),
+                        ],
+
                         if (homeState.pendingRequestCards.isNotEmpty) ...[
-                          const SizedBox(height: 24), // 24 visual gap below divider
+                          const SizedBox(
+                            height: 24,
+                          ), // 24 visual gap below divider
                           HomePendingShootCard(
                             pendingShoot: data,
                             onAccept: (projectId) async {
                               if (_blockIfGuest()) return;
-                              final success =
-                                  await notifier.acceptDecline(projectId, 1);
+                              final success = await notifier.acceptDecline(
+                                projectId,
+                                1,
+                              );
                               if (!context.mounted) return;
                               if (success) {
                                 TopMessage.show(
@@ -302,8 +408,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                   type: TopMessageType.success,
                                 );
                               } else {
-                                final err =
-                                    ref.read(homeNotifierProvider).errorMessage;
+                                final err = ref
+                                    .read(homeNotifierProvider)
+                                    .errorMessage;
                                 TopMessage.show(
                                   context,
                                   err ?? 'Failed to accept shoot',
@@ -320,11 +427,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               notifier.refresh();
                             },
                           ),
-                          const SizedBox(height: 24), // 24 visual gap above divider
+                          const SizedBox(
+                            height: 24,
+                          ), // 24 visual gap above divider
                           const HomeSectionDivider(centerAlpha: 0.24),
                         ],
 
-                        const SizedBox(height: 24), // 24 visual gap below divider
+                        const SizedBox(
+                          height: 24,
+                        ), // 24 visual gap below divider
                         HomeShootStatusPanel(
                           successfulShoots: homeState.successfulShoots,
                           pendingShoots: homeState.pendingShootsCount,
@@ -334,16 +445,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           rangeOptions: const ['Week', 'Month', 'Year'],
                           onRangeChanged: notifier.changeStatsRange,
                         ),
-                        const SizedBox(height: 24), // 24 visual gap above divider
+                        const SizedBox(
+                          height: 24,
+                        ), // 24 visual gap above divider
                         const HomeSectionDivider(centerAlpha: 0.24),
 
-                        const SizedBox(height: 24), // 24 visual gap below divider
+                        const SizedBox(
+                          height: 24,
+                        ), // 24 visual gap below divider
                         HomeShootCategoriesPanel(
                           selectedTab: homeState.selectedTab,
                           categoryPhotoTotal: homeState.categoryPhotoTotal,
                           categoryVideoTotal: homeState.categoryVideoTotal,
-                          acceptPhotographyShoots: homeState.acceptPhotographyShoots,
-                          acceptVideographyShoots: homeState.acceptVideographyShoots,
+                          acceptPhotographyShoots:
+                              homeState.acceptPhotographyShoots,
+                          acceptVideographyShoots:
+                              homeState.acceptVideographyShoots,
                           rejectedPhoto: homeState.rejectedPhoto,
                           rejectedVideo: homeState.rejectedVideo,
                           requestPhoto: homeState.requestPhoto,
@@ -358,7 +475,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
           ],
         ),
-        if (homeState.isLoading || homeState.actionInFlightProjectId != 0)
+        if ((homeState.isLoading && homeState.profileData == null) ||
+            homeState.actionInFlightProjectId != 0)
           const AppLoadingOverlay(),
       ],
     );

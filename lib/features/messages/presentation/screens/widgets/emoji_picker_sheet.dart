@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../shared/widgets/app_search_field.dart';
+
 import '../../../../../app/colors.dart';
 import '../../../../../app/radii.dart';
 import '../../../../../app/spacing.dart';
@@ -344,51 +346,13 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
           const SizedBox(height: AppSpacing.md),
 
           // Search bar
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceInput,
-              borderRadius: BorderRadius.circular(AppRadii.lg),
-              border: Border.all(color: AppColors.dividerDark),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.search,
-                  color: AppColors.textTertiary,
-                  size: 20,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: TextField(
-                    controller: _searchCtrl,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Search emoji...',
-                      hintStyle: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textTertiary,
-                      ),
-                      isCollapsed: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: AppSpacing.md,
-                      ),
-                    ),
-                  ),
-                ),
-                if (_searchQuery.isNotEmpty)
-                  GestureDetector(
-                    onTap: _searchCtrl.clear,
-                    child: const Icon(
-                      Icons.clear,
-                      color: AppColors.textTertiary,
-                      size: 20,
-                    ),
-                  ),
-              ],
-            ),
+          AppSearchField(
+            controller: _searchCtrl,
+            hintText: 'Search emoji...',
+            fillColor: AppColors.surfaceInput,
+            borderColor: AppColors.dividerDark,
+            borderRadius: BorderRadius.circular(AppRadii.lg),
+            onClear: () => setState(() => _searchQuery = ''),
           ),
           const SizedBox(height: AppSpacing.sm),
 

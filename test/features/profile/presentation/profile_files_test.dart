@@ -5,12 +5,16 @@ import 'package:beige_creative_app/core/firebase/crashlytics_breadcrumbs.dart';
 import 'package:beige_creative_app/core/firebase/crashlytics_keys.dart';
 import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
 import 'package:beige_creative_app/config/env.dart';
+import 'package:beige_creative_app/core/providers/core_providers.dart';
+import 'package:beige_creative_app/core/session/session_store.dart';
 import 'package:beige_creative_app/features/profile/domain/repositories/profile_files_repository.dart';
 import 'package:beige_creative_app/features/profile/presentation/providers/profile_details_providers.dart';
 import 'package:beige_creative_app/features/profile/presentation/providers/profile_files_providers.dart';
 import 'package:beige_creative_app/model_class/myprofile_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../../helpers/mocks.dart';
 
 class _FakeRepo implements ProfileFilesRepository {
   int fetchCount = 0;
@@ -302,7 +306,10 @@ void main() {
       expect(container.read(certificatesNotifierProvider).files, isEmpty);
 
       expect(keys, [
-        (key: CrashlyticsKeys.featureArea, value: 'profile.upload.certifications'),
+        (
+          key: CrashlyticsKeys.featureArea,
+          value: 'profile.upload.certifications',
+        ),
       ]);
       expect(logs, [
         'profile.upload.certifications.start',
@@ -338,7 +345,10 @@ void main() {
       );
 
       expect(keys, [
-        (key: CrashlyticsKeys.featureArea, value: 'profile.upload.certifications'),
+        (
+          key: CrashlyticsKeys.featureArea,
+          value: 'profile.upload.certifications',
+        ),
       ]);
       expect(logs, [
         'profile.upload.certifications.start',
@@ -384,7 +394,10 @@ void main() {
       expect(hits.single.parameters, {'file_count': 2});
 
       expect(keys, [
-        (key: CrashlyticsKeys.featureArea, value: 'profile.upload.featured_work'),
+        (
+          key: CrashlyticsKeys.featureArea,
+          value: 'profile.upload.featured_work',
+        ),
       ]);
       expect(logs, [
         'profile.upload.featured_work.start count=2',
@@ -427,7 +440,10 @@ void main() {
       );
 
       expect(keys, [
-        (key: CrashlyticsKeys.featureArea, value: 'profile.upload.featured_work'),
+        (
+          key: CrashlyticsKeys.featureArea,
+          value: 'profile.upload.featured_work',
+        ),
       ]);
       expect(logs, [
         'profile.upload.featured_work.start count=2',
@@ -494,8 +510,49 @@ void main() {
       expect(repo.fetchCount, 1);
     });
 
-    test('refresh failure surfaces errorMessage and clears loading',
-        () async {
+    test(
+      'refresh preserves pending-review session status and crew identity',
+      () async {
+        final repo = _FakeRepo();
+        final prefs = FakePrefsSessionBackend();
+        await prefs.writeUser(
+          const UserSnapshot(
+            id: '797',
+            userType: '2',
+            isRegistrationComplete: 1,
+            isCrewVerified: 0,
+            crewMemberId: 559,
+          ),
+        );
+        final session = CompositeSessionStore(
+          secure: FakeSecureSessionBackend(),
+          prefs: prefs,
+        );
+        final container = ProviderContainer(
+          overrides: [
+            profileFilesRepositoryProvider.overrideWithValue(repo),
+            sessionStoreProvider.overrideWithValue(session),
+          ],
+        );
+        addTearDown(container.dispose);
+        container.listen<ProfileDetailsViewState>(
+          profileDetailsViewProvider,
+          (_, _) {},
+        );
+
+        await _drain(
+          container,
+          () => !container.read(profileDetailsViewProvider).isLoading,
+        );
+
+        final updatedUser = await session.readUser();
+        expect(updatedUser?.isRegistrationComplete, 1);
+        expect(updatedUser?.isCrewVerified, 0);
+        expect(updatedUser?.crewMemberId, 559);
+      },
+    );
+
+    test('refresh failure surfaces errorMessage and clears loading', () async {
       final repo = _FakeRepo()..throwOnFetch = true;
       final container = ProviderContainer(
         overrides: [profileFilesRepositoryProvider.overrideWithValue(repo)],

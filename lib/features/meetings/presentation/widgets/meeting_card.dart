@@ -183,10 +183,10 @@ class _MeetingCardState extends State<MeetingCard> {
             // 3. Calendar + time rows
             Row(
               children: [
-                const Icon(
-                  Icons.calendar_today_outlined,
-                  size: 16,
-                  color: AppColors.white,
+                SvgPicture.asset(
+                  AppAssets.icMeetingDatetime,
+                  width: 16,
+                  height: 16,
                 ),
                 const SizedBox(width: 8),
                 Text(

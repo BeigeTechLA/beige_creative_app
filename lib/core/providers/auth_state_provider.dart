@@ -4,6 +4,7 @@ import '../../features/notification/presentation/providers/notification_list_pro
 import '../firebase/telemetry_client.dart';
 import '../restoration/restoration_providers.dart';
 import 'core_providers.dart';
+import '../session/temporary_auth_session.dart';
 import '../../features/profile/presentation/providers/notification_settings_providers.dart';
 
 /// Boolean derived from session presence — single source of truth for

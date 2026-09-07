@@ -15,18 +15,13 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../../../service/google_config.dart';
+import '../../domain/models/working_distance_options.dart';
 import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/loading.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
 import 'signup1_profile_card.dart';
-
-const List<String> _distances = [
-  "Upto 50 Miles",
-  "Upto 75 miles",
-  "Upto 100 miles",
-  "I’m open to traveling",
-];
+import '../util/launch_policy_link.dart';
 
 class SignUp1Form extends StatelessWidget {
   final TextEditingController firstNameController;
@@ -47,6 +42,7 @@ class SignUp1Form extends StatelessWidget {
   final bool isLoggingIn;
   final bool isFormValid;
   final File? profileImage;
+  final String remoteProfileImageUrl;
 
   final void Function(GoogleMapController controller) onMapCreated;
   final Future<void> Function(LatLng latLng) onMapTap;
@@ -79,6 +75,7 @@ class SignUp1Form extends StatelessWidget {
     required this.isLoggingIn,
     required this.isFormValid,
     required this.profileImage,
+    this.remoteProfileImageUrl = '',
     required this.onMapCreated,
     required this.onMapTap,
     required this.onPlacePicked,
@@ -93,22 +90,14 @@ class SignUp1Form extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dropdownDistance = canonicalSignupWorkingDistance(selectedDistance);
     return Column(
       children: [
-        CustomTextField(
-          label: "First Name",
-          controller: firstNameController,
-        ),
+        CustomTextField(label: "First Name", controller: firstNameController),
         const SizedBox(height: 20),
-        CustomTextField(
-          label: "Last Name",
-          controller: lastNameController,
-        ),
+        CustomTextField(label: "Last Name", controller: lastNameController),
         const SizedBox(height: 20),
-        CustomTextField(
-          label: "Email Address",
-          controller: emailController,
-        ),
+        CustomTextField(label: "Email Address", controller: emailController),
         const SizedBox(height: 20),
         CustomTextField(
           label: "Phone Number",
@@ -149,11 +138,12 @@ class SignUp1Form extends StatelessWidget {
                         myLocationButtonEnabled: true,
                         zoomControlsEnabled: true,
                         compassEnabled: false,
-                        gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-                          Factory<OneSequenceGestureRecognizer>(
-                            () => EagerGestureRecognizer(),
-                          ),
-                        },
+                        gestureRecognizers:
+                            <Factory<OneSequenceGestureRecognizer>>{
+                              Factory<OneSequenceGestureRecognizer>(
+                                () => EagerGestureRecognizer(),
+                              ),
+                            },
                         onMapCreated: onMapCreated,
                         markers: {
                           Marker(
@@ -169,7 +159,7 @@ class SignUp1Form extends StatelessWidget {
         const SizedBox(height: 20),
         CustomDropdown<String>(
           label: "Working Distance*",
-          value: selectedDistance,
+          value: dropdownDistance,
           icon: SvgPicture.asset(
             AppAssets.dropdown,
             colorFilter: const ColorFilter.mode(
@@ -177,14 +167,15 @@ class SignUp1Form extends StatelessWidget {
               BlendMode.srcIn,
             ),
           ),
-          items: _distances
+          items: signupWorkingDistanceOptions
               .map(
                 (e) => DropdownMenuItem<String>(
                   value: e,
                   child: Text(
                     e,
-                    style: AppTextStyles.inherit
-                        .copyWith(color: AppColors.white),
+                    style: AppTextStyles.inherit.copyWith(
+                      color: AppColors.white,
+                    ),
                   ),
                 ),
               )
@@ -224,6 +215,7 @@ class SignUp1Form extends StatelessWidget {
         const SizedBox(height: 20),
         SignUp1ProfileCard(
           profileImage: profileImage,
+          remoteProfileImageUrl: remoteProfileImageUrl,
           onPickImage: onPickImage,
         ),
         const SizedBox(height: 24),
@@ -243,11 +235,7 @@ class SignUp1Form extends StatelessWidget {
                   border: Border.all(color: AppColors.white30),
                 ),
                 child: savePassword
-                    ? const Icon(
-                        Icons.check,
-                        size: 14,
-                        color: AppColors.black,
-                      )
+                    ? const Icon(Icons.check, size: 14, color: AppColors.black)
                     : null,
               ),
             ),
@@ -255,23 +243,45 @@ class SignUp1Form extends StatelessWidget {
             Expanded(
               child: RichText(
                 text: TextSpan(
-                  style: AppTextStyles.inherit13Tight
-                      .copyWith(color: AppColors.black),
+                  style: AppTextStyles.inherit13Tight.copyWith(
+                    color: AppColors.black,
+                  ),
                   children: [
                     TextSpan(
                       text: "I agree to the ",
-                      style: AppTextStyles.body13
-                          .copyWith(color: AppColors.white30),
+                      style: AppTextStyles.body13.copyWith(
+                        color: AppColors.white30,
+                      ),
                     ),
                     TextSpan(
-                      text: "Terms & Condition & Privacy Policy",
-                      style: AppTextStyles.body13Bold
-                          .copyWith(color: AppColors.white),
+                      text: "Terms & Condition",
+                      style: AppTextStyles.body13Bold.copyWith(
+                        color: AppColors.white,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () =>
+                            launchPolicyLink(context, termsAndConditionsUrl),
+                    ),
+                    TextSpan(
+                      text: " & ",
+                      style: AppTextStyles.body13.copyWith(
+                        color: AppColors.white30,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "Privacy Policy",
+                      style: AppTextStyles.body13Bold.copyWith(
+                        color: AppColors.white,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () =>
+                            launchPolicyLink(context, privacyPolicyUrl),
                     ),
                     TextSpan(
                       text: "\nset out of this site",
-                      style: AppTextStyles.body13
-                          .copyWith(color: AppColors.white30),
+                      style: AppTextStyles.body13.copyWith(
+                        color: AppColors.white30,
+                      ),
                     ),
                   ],
                 ),
@@ -328,12 +338,12 @@ class _LocationField extends StatelessWidget {
             googleAPIKey: GoogleConfig.placesApiKey,
             debounceTime: 600,
             isLatLngRequired: true,
-            textStyle:
-                AppTextStyles.inherit14.copyWith(color: AppColors.white),
+            textStyle: AppTextStyles.inherit14.copyWith(color: AppColors.white),
             inputDecoration: InputDecoration(
               border: InputBorder.none,
-              hintStyle: AppTextStyles.inherit
-                  .copyWith(color: AppColors.white30),
+              hintStyle: AppTextStyles.inherit.copyWith(
+                color: AppColors.white30,
+              ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.base,
                 vertical: AppSpacing.base,
@@ -354,9 +364,7 @@ class _LocationField extends StatelessWidget {
           left: 14,
           top: 0,
           child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.xs,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
             color: AppColors.background,
             child: Text(
               "Location*",

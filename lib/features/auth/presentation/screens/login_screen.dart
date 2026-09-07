@@ -15,8 +15,10 @@ import '../../../../shared/layouts/app_scaffold.dart';
 import '../../../../shared/widgets/new_text_field.dart';
 import '../../../../shared/widgets/top_message.dart';
 import '../../../../shared/widgets/loading.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../providers/login_notifier.dart';
 import '../providers/login_state.dart';
+import '../routes/signup_args.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -72,7 +74,42 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         TopMessage.show(context, next.errorMessage!);
       }
       if (next.loginSuccess && !(prev?.loginSuccess ?? false)) {
-        context.goNamed(Routes.home.name);
+        final user = ref.read(currentSessionUserProvider);
+        final isRegistrationComplete = user?.isRegistrationComplete;
+
+        if (isRegistrationComplete == 0) {
+          if (user?.isStep2Complete == true) {
+            context.goNamed(
+              Routes.signupStep3.name,
+              extra: SignUpStep3Args(
+                crewMemberId: user?.crewMemberId,
+                email: user?.email,
+                firstName: user?.firstName,
+                lastName: user?.lastName,
+                location: user?.location,
+                workingDistance: user?.workingDistance,
+                step2Progress: 70,
+                isResume: true,
+              ).toExtra(),
+            );
+          } else {
+            context.goNamed(
+              Routes.signupStep2.name,
+              extra: SignUpStep2Args(
+                crewMemberId: user?.crewMemberId,
+                email: user?.email,
+                firstName: user?.firstName,
+                lastName: user?.lastName,
+                location: user?.location,
+                workingDistance: user?.workingDistance,
+                step1Progress: 30,
+                isResume: true,
+              ).toExtra(),
+            );
+          }
+        } else if (isRegistrationComplete == 1) {
+          context.goNamed(Routes.home.name);
+        }
       }
     });
 
@@ -209,13 +246,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 onPressed: () {
                                   TextInput.finishAutofillContext();
                                   ref
-                                      .read(
-                                        loginNotifierProvider.notifier,
-                                      )
+                                      .read(loginNotifierProvider.notifier)
                                       .login(
                                         email: emailController.text,
-                                        password:
-                                            passwordController.text,
+                                        password: passwordController.text,
                                       );
                                 },
                               ),

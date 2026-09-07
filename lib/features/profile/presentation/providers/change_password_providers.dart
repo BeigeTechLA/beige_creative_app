@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/error_formatter.dart';
 import '../../../../core/utils/validators.dart';
 import '../../data/repositories/change_password_repository_impl.dart';
 import '../../domain/repositories/change_password_repository.dart';
@@ -74,7 +75,7 @@ class RequestOtpNotifier extends AutoDisposeNotifier<RequestOtpState> {
       AppLogger.e('RequestOtp failed', e, st);
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+        errorMessage: parseErrorMessage(e, fallback: 'Failed to request OTP'),
       );
       return false;
     }
@@ -146,10 +147,7 @@ class VerifyOtpNotifier extends AutoDisposeNotifier<VerifyOtpState> {
       AppLogger.e('VerifyOtp failed', e, st);
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage:
-            e.toString().replaceFirst('Exception: ', '').isEmpty
-                ? 'Invalid or expired OTP'
-                : e.toString().replaceFirst('Exception: ', ''),
+        errorMessage: parseErrorMessage(e, fallback: 'Invalid or expired OTP'),
       );
       return false;
     }
@@ -164,7 +162,7 @@ class VerifyOtpNotifier extends AutoDisposeNotifier<VerifyOtpState> {
       AppLogger.e('ResendOtp failed', e, st);
       state = state.copyWith(
         isResending: false,
-        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+        errorMessage: parseErrorMessage(e, fallback: 'Failed to resend OTP'),
       );
     }
   }
@@ -247,7 +245,7 @@ class NewPasswordNotifier extends AutoDisposeNotifier<NewPasswordState> {
       AppLogger.e('SetNewPassword failed', e, st);
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+        errorMessage: parseErrorMessage(e, fallback: 'Failed to set new password'),
       );
       return false;
     }

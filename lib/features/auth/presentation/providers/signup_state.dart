@@ -9,6 +9,9 @@ import '../../domain/repositories/auth_repository.dart';
 class SignupState {
   // Step 1 — collected via widget controllers; notifier owns non-text pieces.
   final File? profileImage;
+  final String remoteProfileImageUrl;
+  final bool isLoadingStep1Prefill;
+  final String? step1PrefillError;
   final LatLng? currentLatLng;
   final String selectedAddress;
   final bool showMap;
@@ -31,6 +34,11 @@ class SignupState {
   final String location;
   final String workingDistance;
 
+  /// Step-1 password held in memory only (never persisted) so the success
+  /// screen can auto-login a fresh signup — the register endpoints return no
+  /// token. Wiped by [SignupNotifier.reset].
+  final String password;
+
   // Step 2 lookups.
   final List<LookupOption> roles;
   final List<LookupOption> skills;
@@ -42,12 +50,15 @@ class SignupState {
   final List<String> selectedRoles;
   final List<String> selectedSkills;
   final List<String> selectedEquipments;
+  final List<int> selectedRoleIds;
+  final List<int> selectedSkillIds;
+  final List<int> selectedEquipmentIds;
 
   final bool isSubmittingStep2;
   final bool step2Success;
   final int step2Progress;
 
-  // Step 3 selections (mirrors legacy SignUp3ScreenState fields).
+  // Step 3 selections & uploaded file IDs.
   final List<Map<String, dynamic>> savedSocialLinks;
   final List<Map<String, dynamic>> savedPortfolioLinks;
   final List<List<File>> featuredProjects;
@@ -56,6 +67,18 @@ class SignupState {
   final List<File> certificateFiles;
   final File? resumeFile;
   final File? portfolioFile;
+
+  // File IDs returned from /auth/register-crew-step3-file
+  final int? resumeFileId;
+  final List<int> portfolioFileIds;
+  final List<int> certificationFileIds;
+  final List<List<int>> featuredWorkFileIds;
+
+  // Section-wise upload loading state.
+  final bool isUploadingFeaturedWork;
+  final bool isUploadingCertifications;
+  final bool isUploadingResume;
+  final bool isUploadingPortfolio;
 
   // Step 3 step-2 carry-through (joined display strings used by preview card).
   final String primaryRoleDisplay;
@@ -80,6 +103,9 @@ class SignupState {
 
   const SignupState({
     this.profileImage,
+    this.remoteProfileImageUrl = '',
+    this.isLoadingStep1Prefill = false,
+    this.step1PrefillError,
     this.currentLatLng,
     this.selectedAddress = 'Search or select location',
     this.showMap = false,
@@ -96,6 +122,7 @@ class SignupState {
     this.phone = '',
     this.location = '',
     this.workingDistance = '',
+    this.password = '',
     this.roles = const [],
     this.skills = const [],
     this.equipmentSuggestions = const [],
@@ -104,6 +131,9 @@ class SignupState {
     this.selectedRoles = const [],
     this.selectedSkills = const [],
     this.selectedEquipments = const [],
+    this.selectedRoleIds = const [],
+    this.selectedSkillIds = const [],
+    this.selectedEquipmentIds = const [],
     this.isSubmittingStep2 = false,
     this.step2Success = false,
     this.step2Progress = 0,
@@ -115,6 +145,14 @@ class SignupState {
     this.certificateFiles = const [],
     this.resumeFile,
     this.portfolioFile,
+    this.resumeFileId,
+    this.portfolioFileIds = const [],
+    this.certificationFileIds = const [],
+    this.featuredWorkFileIds = const [],
+    this.isUploadingFeaturedWork = false,
+    this.isUploadingCertifications = false,
+    this.isUploadingResume = false,
+    this.isUploadingPortfolio = false,
     this.primaryRoleDisplay = '',
     this.experienceDisplay = '',
     this.hourlyRateDisplay = '',
@@ -131,6 +169,10 @@ class SignupState {
 
   SignupState copyWith({
     File? profileImage,
+    String? remoteProfileImageUrl,
+    bool? isLoadingStep1Prefill,
+    String? step1PrefillError,
+    bool clearStep1PrefillError = false,
     LatLng? currentLatLng,
     String? selectedAddress,
     bool? showMap,
@@ -147,6 +189,7 @@ class SignupState {
     String? phone,
     String? location,
     String? workingDistance,
+    String? password,
     List<LookupOption>? roles,
     List<LookupOption>? skills,
     List<LookupOption>? equipmentSuggestions,
@@ -155,6 +198,9 @@ class SignupState {
     List<String>? selectedRoles,
     List<String>? selectedSkills,
     List<String>? selectedEquipments,
+    List<int>? selectedRoleIds,
+    List<int>? selectedSkillIds,
+    List<int>? selectedEquipmentIds,
     bool? isSubmittingStep2,
     bool? step2Success,
     int? step2Progress,
@@ -168,6 +214,15 @@ class SignupState {
     File? portfolioFile,
     bool clearResumeFile = false,
     bool clearPortfolioFile = false,
+    int? resumeFileId,
+    bool clearResumeFileId = false,
+    List<int>? portfolioFileIds,
+    List<int>? certificationFileIds,
+    List<List<int>>? featuredWorkFileIds,
+    bool? isUploadingFeaturedWork,
+    bool? isUploadingCertifications,
+    bool? isUploadingResume,
+    bool? isUploadingPortfolio,
     String? primaryRoleDisplay,
     String? experienceDisplay,
     String? hourlyRateDisplay,
@@ -185,6 +240,13 @@ class SignupState {
   }) {
     return SignupState(
       profileImage: profileImage ?? this.profileImage,
+      remoteProfileImageUrl:
+          remoteProfileImageUrl ?? this.remoteProfileImageUrl,
+      isLoadingStep1Prefill:
+          isLoadingStep1Prefill ?? this.isLoadingStep1Prefill,
+      step1PrefillError: clearStep1PrefillError
+          ? null
+          : (step1PrefillError ?? this.step1PrefillError),
       currentLatLng: currentLatLng ?? this.currentLatLng,
       selectedAddress: selectedAddress ?? this.selectedAddress,
       showMap: showMap ?? this.showMap,
@@ -201,6 +263,7 @@ class SignupState {
       phone: phone ?? this.phone,
       location: location ?? this.location,
       workingDistance: workingDistance ?? this.workingDistance,
+      password: password ?? this.password,
       roles: roles ?? this.roles,
       skills: skills ?? this.skills,
       equipmentSuggestions: equipmentSuggestions ?? this.equipmentSuggestions,
@@ -209,6 +272,9 @@ class SignupState {
       selectedRoles: selectedRoles ?? this.selectedRoles,
       selectedSkills: selectedSkills ?? this.selectedSkills,
       selectedEquipments: selectedEquipments ?? this.selectedEquipments,
+      selectedRoleIds: selectedRoleIds ?? this.selectedRoleIds,
+      selectedSkillIds: selectedSkillIds ?? this.selectedSkillIds,
+      selectedEquipmentIds: selectedEquipmentIds ?? this.selectedEquipmentIds,
       isSubmittingStep2: isSubmittingStep2 ?? this.isSubmittingStep2,
       step2Success: step2Success ?? this.step2Success,
       step2Progress: step2Progress ?? this.step2Progress,
@@ -217,13 +283,24 @@ class SignupState {
       featuredProjects: featuredProjects ?? this.featuredProjects,
       featuredProjectsTitles:
           featuredProjectsTitles ?? this.featuredProjectsTitles,
-      selectedFeaturedTags:
-          selectedFeaturedTags ?? this.selectedFeaturedTags,
+      selectedFeaturedTags: selectedFeaturedTags ?? this.selectedFeaturedTags,
       certificateFiles: certificateFiles ?? this.certificateFiles,
-      resumeFile:
-          clearResumeFile ? null : (resumeFile ?? this.resumeFile),
-      portfolioFile:
-          clearPortfolioFile ? null : (portfolioFile ?? this.portfolioFile),
+      resumeFile: clearResumeFile ? null : (resumeFile ?? this.resumeFile),
+      portfolioFile: clearPortfolioFile
+          ? null
+          : (portfolioFile ?? this.portfolioFile),
+      resumeFileId: clearResumeFileId
+          ? null
+          : (resumeFileId ?? this.resumeFileId),
+      portfolioFileIds: portfolioFileIds ?? this.portfolioFileIds,
+      certificationFileIds: certificationFileIds ?? this.certificationFileIds,
+      featuredWorkFileIds: featuredWorkFileIds ?? this.featuredWorkFileIds,
+      isUploadingFeaturedWork:
+          isUploadingFeaturedWork ?? this.isUploadingFeaturedWork,
+      isUploadingCertifications:
+          isUploadingCertifications ?? this.isUploadingCertifications,
+      isUploadingResume: isUploadingResume ?? this.isUploadingResume,
+      isUploadingPortfolio: isUploadingPortfolio ?? this.isUploadingPortfolio,
       primaryRoleDisplay: primaryRoleDisplay ?? this.primaryRoleDisplay,
       experienceDisplay: experienceDisplay ?? this.experienceDisplay,
       hourlyRateDisplay: hourlyRateDisplay ?? this.hourlyRateDisplay,
@@ -233,8 +310,7 @@ class SignupState {
       isSubmittingStep3: isSubmittingStep3 ?? this.isSubmittingStep3,
       step3Success: step3Success ?? this.step3Success,
       step3Progress: step3Progress ?? this.step3Progress,
-      signupStartedEmitted:
-          signupStartedEmitted ?? this.signupStartedEmitted,
+      signupStartedEmitted: signupStartedEmitted ?? this.signupStartedEmitted,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       toastMessage: clearToast ? null : (toastMessage ?? this.toastMessage),
     );

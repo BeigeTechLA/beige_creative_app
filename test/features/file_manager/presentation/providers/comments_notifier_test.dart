@@ -14,6 +14,8 @@ class _FakeSession implements SessionStore {
 
   @override
   Future<UserSnapshot?> readUser() async => user;
+  @override
+  UserSnapshot? readUserSync() => user;
 
   // Everything else — unused by CommentsNotifier.
   @override

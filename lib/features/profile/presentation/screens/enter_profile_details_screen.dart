@@ -173,14 +173,16 @@ class _EnterProfileDetailsScreenState
                   maxLines: 4,
                 ),
                 const SizedBox(height: 22),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Highlight your creative focus.',
-                    style: AppTextStyles.bodyMedium,
+                    style: AppTextStyles.body14.copyWith(
+                      color: AppColors.greyShade737,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 20),
                 CustomMultiSelectField(
                   label: 'Edit Skills',
                   value: '',
@@ -417,26 +419,13 @@ class _EnterProfileDetailsScreenState
                       ),
                     ),
                     const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
+                    AppCtaButton(
+                      label: 'Done',
                       height: 48,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          notifier.setSelectedSkills(draft);
-                          sheetCtx.pop();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: const Color(0xFF1D1D1B),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppRadii.lgAll,
-                          ),
-                        ),
-                        child: const Text(
-                          'Done',
-                          style: AppTextStyles.buttonMedium,
-                        ),
-                      ),
+                      onPressed: () {
+                        notifier.setSelectedSkills(draft);
+                        sheetCtx.pop();
+                      },
                     ),
                   ],
                 ),

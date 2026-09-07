@@ -4,6 +4,7 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 
 /// Bottom-sheet body for adding / editing tags on the featured-work form.
 /// Lifted from the orchestrator's `_openAddTagSheet` method (lines ~1467-1684)
@@ -168,33 +169,18 @@ class _FeaturedWorkAddTagSheetState extends State<FeaturedWorkAddTagSheet> {
                 }).toList(),
               ),
             const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.goldSoft,
-                  foregroundColor: AppColors.black,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.buttonVertical,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: AppRadii.xlAll,
-                  ),
-                ),
-                onPressed: () {
-                  final current = _tagController.text.trim();
-                  if (current.isNotEmpty && !_tempTags.contains(current)) {
-                    _tempTags.add(current);
-                    _tagController.clear();
-                  }
-                  widget.onSave(List<String>.of(_tempTags));
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Save',
-                  style: AppTextStyles.buttonMedium,
-                ),
-              ),
+            AppCtaButton(
+              label: 'Save',
+              height: 50,
+              onPressed: () {
+                final current = _tagController.text.trim();
+                if (current.isNotEmpty && !_tempTags.contains(current)) {
+                  _tempTags.add(current);
+                  _tagController.clear();
+                }
+                widget.onSave(List<String>.of(_tempTags));
+                Navigator.pop(context);
+              },
             ),
           ],
         ),

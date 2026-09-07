@@ -105,6 +105,32 @@ Follow the established migration pattern:
 - UI side effects (`SnackBar`, route changes, sheet pop) happen in widgets via `ref.listen`, not inside repositories.
 - Controllers may stay in `ConsumerStatefulWidget` when they are purely widget lifecycle state; notifier owns parsed values and business state.
 
+## Plan-First Workflow (Mandatory)
+
+Never start coding directly. For any non-trivial task:
+
+**1. Plan before code.** Produce a written plan first. No edits until the plan is reviewed.
+
+**2. Phase-wise plan as a table.** Break work into ordered phases. Use this exact format:
+
+| Phase | Goal | Files Touched | Done Criteria | Status |
+|-------|------|---------------|---------------|--------|
+| 1 | ... | ... | ... | Not Started |
+| 2 | ... | ... | ... | Not Started |
+
+Status is always one of: `Not Started`, `In Progress`, `Completed`.
+
+**3. Ask questions during planning.** Surface open questions, ambiguities, and decisions the user must make — ask them in the plan step, not mid-implementation.
+
+**4. Manual Test Summary at end of plan.** Close every plan with a "Manual Test Summary" section as a table:
+
+| # | Step | Expected Result | Edge Cases |
+|---|------|-----------------|------------|
+
+**5. Track and update live.** When executing, update the Status column each time you start/finish a phase: set `In Progress` when starting, `Completed` when done. Keep the table current every turn — never leave stale status.
+
+**6. Implement phase by phase** only after approval.
+
 ## Workflow Rules
 
 - Read the active task file before touching code.

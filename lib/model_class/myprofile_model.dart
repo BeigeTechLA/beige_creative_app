@@ -13,6 +13,7 @@ String _cleanString(dynamic value) {
 /// Ids arrive as int, num, or numeric string depending on endpoint version.
 /// Returns null (not 0) when absent so callers can chain fallback keys.
 int? _parseId(dynamic value) {
+  if (value is bool) return value ? 1 : 0;
   if (value is num) return value.toInt();
   if (value is String) return int.tryParse(value);
   return null;
@@ -34,16 +35,17 @@ class CrewFile {
   });
 
   factory CrewFile.fromJson(Map<String, dynamic> json) => CrewFile(
-        crewFilesId: (json["crew_files_id"] as num?)?.toInt() ??
-            (json["id"] as num?)?.toInt() ??
-            (json["crew_file_id"] as num?)?.toInt() ??
-            (json["file_id"] as num?)?.toInt() ??
-            0,
-        fileType: json["file_type"] ?? "",
-        filePath: json["file_path"] ?? "",
-        tag: json["tag"] ?? "",
-        title: json["title"] ?? "",
-      );
+    crewFilesId:
+        (json["crew_files_id"] as num?)?.toInt() ??
+        (json["id"] as num?)?.toInt() ??
+        (json["crew_file_id"] as num?)?.toInt() ??
+        (json["file_id"] as num?)?.toInt() ??
+        0,
+    fileType: json["file_type"] ?? "",
+    filePath: json["file_path"] ?? "",
+    tag: json["tag"] ?? "",
+    title: json["title"] ?? "",
+  );
 }
 
 class MyProfileModel {
@@ -95,6 +97,8 @@ class MyProfileData {
   final List<CrewFile> resumeFiles;
   final String profileImageUrl;
   final User user; // nested
+  final int? isRegistrationComplete;
+  final int? isCrewVerified;
 
   MyProfileData({
     required this.crewMemberId,
@@ -121,13 +125,16 @@ class MyProfileData {
     required this.certificateFiles,
     required this.resumeFiles,
     required this.profileImageUrl,
+    this.isRegistrationComplete,
+    this.isCrewVerified,
   });
 
   factory MyProfileData.fromJson(Map<String, dynamic> json) => MyProfileData(
     stats: json["stats"] ?? {},
     availability: json["availability"],
-    equipmentOwnership:
-        json["equipment_ownership"] is List ? json["equipment_ownership"] : [],
+    equipmentOwnership: json["equipment_ownership"] is List
+        ? json["equipment_ownership"]
+        : [],
     bio: json["bio"] ?? "",
     primaryRole: json["primary_role"]?.toString() ?? "",
     crewMemberFiles: json["crew_member_files"] is List
@@ -179,10 +186,12 @@ class MyProfileData {
           final parsed = jsonDecode(raw);
           if (parsed is List) {
             return Map<String, dynamic>.fromEntries(
-              parsed.map((e) => MapEntry(
-                e["platform"]?.toString() ?? "",
-                e["url"]?.toString() ?? "",
-              )),
+              parsed.map(
+                (e) => MapEntry(
+                  e["platform"]?.toString() ?? "",
+                  e["url"]?.toString() ?? "",
+                ),
+              ),
             );
           }
         } catch (_) {}
@@ -198,7 +207,8 @@ class MyProfileData {
               // Only `user_id` — top-level `id` on this payload is the crew
               // member row id, not the user id.
               "id": json["user_id"],
-              "name": json["display_name"] ??
+              "name":
+                  json["display_name"] ??
                   "${json["first_name"] ?? ""} ${json["last_name"] ?? ""}"
                       .trim(),
               "email": json["email"],
@@ -221,6 +231,24 @@ class MyProfileData {
             },
     ),
     profileImageUrl: json["profile_image_url"]?.toString() ?? "",
+    isRegistrationComplete: _parseId(
+      json["is_registration_complete"] ??
+          (json["user"] is Map
+              ? (json["user"] as Map)["is_registration_complete"]
+              : null) ??
+          (json["crew_member"] is Map
+              ? (json["crew_member"] as Map)["is_registration_complete"]
+              : null),
+    ),
+    isCrewVerified: _parseId(
+      json["is_crew_verified"] ??
+          (json["user"] is Map
+              ? (json["user"] as Map)["is_crew_verified"]
+              : null) ??
+          (json["crew_member"] is Map
+              ? (json["crew_member"] as Map)["is_crew_verified"]
+              : null),
+    ),
   );
 }
 
@@ -310,8 +338,9 @@ class User {
         ? List<Skill>.from(json["skills"].map((x) => Skill.fromJson(x)))
         : [],
 
-    equipmentOwnership:
-        json["equipment_ownership"] is List ? json["equipment_ownership"] : [],
+    equipmentOwnership: json["equipment_ownership"] is List
+        ? json["equipment_ownership"]
+        : [],
     availability: json["availability"]?.toString() ?? "",
     certifications: json["certifications"] is List
         ? (json["certifications"] as List).join(", ")
@@ -326,10 +355,12 @@ class User {
           final parsed = jsonDecode(raw);
           if (parsed is List) {
             return Map<String, dynamic>.fromEntries(
-              parsed.map((e) => MapEntry(
-                e["platform"]?.toString() ?? "",
-                e["url"]?.toString() ?? "",
-              )),
+              parsed.map(
+                (e) => MapEntry(
+                  e["platform"]?.toString() ?? "",
+                  e["url"]?.toString() ?? "",
+                ),
+              ),
             );
           }
         } catch (_) {}
@@ -346,9 +377,8 @@ class Skill {
 
   Skill({required this.id, required this.name});
 
-  factory Skill.fromJson(Map<String, dynamic> json) =>
-      Skill(
-        id: (json["id"] as num?)?.toInt() ?? 0,
-        name: json["name"]?.toString() ?? "",
-      );
+  factory Skill.fromJson(Map<String, dynamic> json) => Skill(
+    id: (json["id"] as num?)?.toInt() ?? 0,
+    name: json["name"]?.toString() ?? "",
+  );
 }

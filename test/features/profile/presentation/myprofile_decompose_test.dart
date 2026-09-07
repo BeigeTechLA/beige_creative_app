@@ -30,9 +30,9 @@ void main() {
       expect(find.text('Per Hour'), findsOneWidget);
       expect(find.text('Experience'), findsOneWidget);
       expect(find.text('Radius'), findsOneWidget);
-      // First 2 skills labelled, remainder collapsed.
-      expect(find.text('Skill 1'), findsOneWidget);
-      expect(find.text('Skill 2'), findsOneWidget);
+      // First 2 skills rendered by name, remainder collapsed.
+      expect(find.text('Editing'), findsOneWidget);
+      expect(find.text('Color'), findsOneWidget);
       expect(find.text('+1'), findsOneWidget);
     });
 
@@ -50,8 +50,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Skill 1'), findsOneWidget);
-      expect(find.text('Skill 2'), findsNothing);
+      expect(find.text('Only One'), findsOneWidget);
       expect(find.textContaining('+'), findsNothing);
     });
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:beige_creative_app/core/firebase/analytics_events.dart';
 import 'package:beige_creative_app/core/firebase/crashlytics_breadcrumbs.dart';
 import 'package:beige_creative_app/core/firebase/crashlytics_keys.dart';
@@ -6,6 +8,7 @@ import 'package:beige_creative_app/core/network/exceptions/exceptions.dart';
 import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
 import 'package:beige_creative_app/core/providers/core_providers.dart';
 import 'package:beige_creative_app/core/session/session_store.dart';
+import 'package:beige_creative_app/core/session/temporary_auth_session.dart';
 import 'package:beige_creative_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/login_notifier.dart';
 import 'package:beige_creative_app/features/auth/presentation/providers/login_state.dart';
@@ -13,6 +16,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../helpers/mocks.dart';
 
 class _FakeAuthRepo implements AuthRepository {
   String? capturedEmail;
@@ -29,14 +34,16 @@ class _FakeAuthRepo implements AuthRepository {
     capturedPassword = password;
     final err = throwError;
     if (err != null) throw err;
-    return result ??
-        const LoginResult(token: 'tok-123', user: null);
+    return result ?? const LoginResult(token: 'tok-123', user: null);
   }
 
   @override
   Future<void> requestPasswordReset(String email) async {}
   @override
-  Future<void> verifyResetOtp({required String email, required String otp}) async {}
+  Future<void> verifyResetOtp({
+    required String email,
+    required String otp,
+  }) async {}
   @override
   Future<void> resetPassword({
     required String email,
@@ -50,6 +57,13 @@ class _FakeAuthRepo implements AuthRepository {
   Future<void> registerStep2(Step2Payload payload) async {}
   @override
   Future<void> registerStep3(Step3Payload payload) async {}
+  @override
+  Future<List<int>> uploadStep3File({
+    required int crewMemberId,
+    required String fileType,
+    required List<File> files,
+  }) async =>
+      const [100];
   @override
   Future<List<LookupOption>> fetchRoles() async => const [];
   @override
@@ -78,9 +92,12 @@ class _FakeSession implements SessionStore {
     writtenLoginAt = when;
   }
 
-  // Unused — throw-style not needed since notifier never touches these.
   @override
-  Future<String?> readToken() async => null;
+  Future<String?> readToken() async => writtenToken;
+  @override
+  Future<UserSnapshot?> readUser() async => writtenUser;
+  @override
+  UserSnapshot? readUserSync() => writtenUser;
   @override
   Future<void> clearToken() async {}
   @override
@@ -89,8 +106,6 @@ class _FakeSession implements SessionStore {
   Future<void> writeRefreshToken(String token) async {}
   @override
   Future<void> clearRefreshToken() async {}
-  @override
-  Future<UserSnapshot?> readUser() async => null;
   @override
   Future<void> clearUser() async {}
   @override
@@ -162,7 +177,7 @@ class _FakeTelemetry implements TelemetryClient {
 
 ProviderContainer _container({
   required _FakeAuthRepo repo,
-  required _FakeSession session,
+  required SessionStore session,
   _FakeTelemetry? telemetry,
 }) {
   final c = ProviderContainer(
@@ -253,13 +268,8 @@ void main() {
       expect(s.isLoggingIn, isFalse);
       expect(s.errorMessage, isNull);
 
-      expect(keys, [
-        (key: CrashlyticsKeys.featureArea, value: 'auth.login'),
-      ]);
-      expect(logs, [
-        'auth.login.start',
-        'auth.login.success',
-      ]);
+      expect(keys, [(key: CrashlyticsKeys.featureArea, value: 'auth.login')]);
+      expect(logs, ['auth.login.start', 'auth.login.success']);
     });
 
     test('repo error surfaces message and keeps auth off', () async {
@@ -279,13 +289,80 @@ void main() {
       expect(s.loginSuccess, isFalse);
       expect(s.isLoggingIn, isFalse);
 
-      expect(keys, [
-        (key: CrashlyticsKeys.featureArea, value: 'auth.login'),
-      ]);
-      expect(logs, [
-        'auth.login.start',
-        'auth.login.failure reason=server',
-      ]);
+      expect(keys, [(key: CrashlyticsKeys.featureArea, value: 'auth.login')]);
+      expect(logs, ['auth.login.start', 'auth.login.failure reason=server']);
+    });
+
+    test('under-review crew login persists session across relaunch', () async {
+      final repo = _FakeAuthRepo()
+        ..result = const LoginResult(
+          token: 'pending-token',
+          isRegistrationComplete: 1,
+          isCrewVerified: 0,
+          crewMemberId: 559,
+          user: UserSnapshot(
+            id: '797',
+            isRegistrationComplete: 1,
+            isCrewVerified: 0,
+            crewMemberId: 559,
+          ),
+        );
+      final secure = FakeSecureSessionBackend();
+      final prefs = FakePrefsSessionBackend();
+      final session = CompositeSessionStore(secure: secure, prefs: prefs);
+      final c = _container(repo: repo, session: session);
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'user@example.com', password: 'secret');
+
+      expect(c.read(authStateProvider), isTrue);
+      // Under-review accounts persist (not the ephemeral temp session) so the
+      // review card survives an app relaunch.
+      expect(await session.readToken(), 'pending-token');
+      expect(session.readUserSync()?.crewMemberId, 559);
+      expect(c.read(temporaryAuthSessionProvider).token, isNull);
+      expect(await secure.readToken(), 'pending-token');
+
+      final restarted = CompositeSessionStore(secure: secure, prefs: prefs);
+      expect(await restarted.isLoggedIn(), isTrue);
+      expect(restarted.readUserSync()?.crewMemberId, 559);
+    });
+
+    test('incomplete-registration login stays process-only', () async {
+      final repo = _FakeAuthRepo()
+        ..result = const LoginResult(
+          token: 'resume-token',
+          isRegistrationComplete: 0,
+          isCrewVerified: 0,
+          crewMemberId: 559,
+          user: UserSnapshot(
+            id: '797',
+            isRegistrationComplete: 0,
+            isCrewVerified: 0,
+            crewMemberId: 559,
+          ),
+        );
+      final secure = FakeSecureSessionBackend();
+      final prefs = FakePrefsSessionBackend();
+      final session = CompositeSessionStore(secure: secure, prefs: prefs);
+      final c = _container(repo: repo, session: session);
+
+      await c
+          .read(loginNotifierProvider.notifier)
+          .login(email: 'user@example.com', password: 'secret');
+
+      expect(c.read(authStateProvider), isTrue);
+      expect(await session.readToken(), isNull);
+      expect(session.readUserSync(), isNull);
+      expect(c.read(temporaryAuthSessionProvider).token, 'resume-token');
+      expect(c.read(temporaryAuthSessionProvider).user?.crewMemberId, 559);
+      expect(await secure.readToken(), isNull);
+      expect(prefs.readUserSync(), isNull);
+
+      final restarted = CompositeSessionStore(secure: secure, prefs: prefs);
+      expect(await restarted.isLoggedIn(), isFalse);
+      expect(restarted.readUserSync(), isNull);
     });
   });
 
@@ -315,21 +392,27 @@ void main() {
       expect(telemetry.lastLoginMethod, 'password');
     });
 
-    test('login success without user payload skips telemetry identity',
-        () async {
-      final repo = _FakeAuthRepo()
-        ..result = const LoginResult(token: 'tok-only', user: null);
-      final session = _FakeSession();
-      final telemetry = _FakeTelemetry();
-      final c = _container(repo: repo, session: session, telemetry: telemetry);
+    test(
+      'login success without user payload skips telemetry identity',
+      () async {
+        final repo = _FakeAuthRepo()
+          ..result = const LoginResult(token: 'tok-only', user: null);
+        final session = _FakeSession();
+        final telemetry = _FakeTelemetry();
+        final c = _container(
+          repo: repo,
+          session: session,
+          telemetry: telemetry,
+        );
 
-      await c
-          .read(loginNotifierProvider.notifier)
-          .login(email: 'user@example.com', password: 'secret');
+        await c
+            .read(loginNotifierProvider.notifier)
+            .login(email: 'user@example.com', password: 'secret');
 
-      expect(telemetry.setIdentityCalls, 0);
-      expect(c.read(loginNotifierProvider).loginSuccess, isTrue);
-    });
+        expect(telemetry.setIdentityCalls, 0);
+        expect(c.read(loginNotifierProvider).loginSuccess, isTrue);
+      },
+    );
 
     test('login failure does not touch telemetry', () async {
       final repo = _FakeAuthRepo()..throwError = Exception('nope');
@@ -365,11 +448,11 @@ void main() {
           .login(email: 'u@example.com', password: 'pw');
 
       final names = telemetry.events.map((e) => e.name).toList();
-      expect(names.where((n) => n == AnalyticsEvents.loginSuccess), hasLength(1));
       expect(
-        names.where((n) => n == AnalyticsEvents.loginFailure),
-        isEmpty,
+        names.where((n) => n == AnalyticsEvents.loginSuccess),
+        hasLength(1),
       );
+      expect(names.where((n) => n == AnalyticsEvents.loginFailure), isEmpty);
     });
 
     test('login_success not emitted on failure', () async {
@@ -416,8 +499,7 @@ void main() {
     });
 
     test('login_failure tags NoInternetException as network', () async {
-      final repo = _FakeAuthRepo()
-        ..throwError = const NoInternetException();
+      final repo = _FakeAuthRepo()..throwError = const NoInternetException();
       final telemetry = _FakeTelemetry();
       final c = _container(
         repo: repo,
@@ -457,26 +539,28 @@ void main() {
       expect(failures.single.parameters, {'reason': 'server'});
     });
 
-    test('login_failure tags raw Exception (repo error:true branch) as server',
-        () async {
-      final repo = _FakeAuthRepo()..throwError = Exception('Login failed');
-      final telemetry = _FakeTelemetry();
-      final c = _container(
-        repo: repo,
-        session: _FakeSession(),
-        telemetry: telemetry,
-      );
+    test(
+      'login_failure tags raw Exception (repo error:true branch) as server',
+      () async {
+        final repo = _FakeAuthRepo()..throwError = Exception('Login failed');
+        final telemetry = _FakeTelemetry();
+        final c = _container(
+          repo: repo,
+          session: _FakeSession(),
+          telemetry: telemetry,
+        );
 
-      await c
-          .read(loginNotifierProvider.notifier)
-          .login(email: 'u@example.com', password: 'pw');
+        await c
+            .read(loginNotifierProvider.notifier)
+            .login(email: 'u@example.com', password: 'pw');
 
-      final failures = telemetry.events
-          .where((e) => e.name == AnalyticsEvents.loginFailure)
-          .toList();
-      expect(failures, hasLength(1));
-      expect(failures.single.parameters, {'reason': 'server'});
-    });
+        final failures = telemetry.events
+            .where((e) => e.name == AnalyticsEvents.loginFailure)
+            .toList();
+        expect(failures, hasLength(1));
+        expect(failures.single.parameters, {'reason': 'server'});
+      },
+    );
   });
 
   group('AuthStateNotifier.logout telemetry wiring', () {

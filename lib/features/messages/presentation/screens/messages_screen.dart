@@ -7,9 +7,9 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
-import '../../../../app/text_styles.dart';
 import '../../../../shared/widgets/app_empty_state.dart';
 import '../../../../shared/widgets/app_main_toolbar.dart';
+import '../../../../shared/widgets/app_search_field.dart';
 import '../../../../shared/widgets/loading.dart';
 import '../providers/conversation_list_providers.dart';
 import '../routes/messages_args.dart';
@@ -102,43 +102,13 @@ class _SearchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceInput,
-        borderRadius: AppRadii.lgAll,
-        border: Border.all(color: AppColors.dividerDark),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.search,
-            color: AppColors.textTertiary,
-            size: 20,
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              onChanged: onChanged,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textPrimary,
-              ),
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                isCollapsed: true,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: AppSpacing.md,
-                ),
-                hintText: 'Search conversation...',
-                hintStyle: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textTertiary,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+    return AppSearchField(
+      controller: controller,
+      hintText: 'Search conversation...',
+      onChanged: onChanged,
+      fillColor: AppColors.surfaceInput,
+      borderColor: AppColors.dividerDark,
+      borderRadius: AppRadii.lgAll,
     );
   }
 }

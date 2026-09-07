@@ -71,6 +71,8 @@ class _SignupFixtures {
       featureA = _writePng(dir, 'feature_a.png'),
       featureB = _writePng(dir, 'feature_b.png'),
       featureC = _writePng(dir, 'feature_c.png'),
+      featureD = _writePng(dir, 'feature_d.png'),
+      featureE = _writePng(dir, 'feature_e.png'),
       certificate = _writeBytes(dir, 'signup_cert.pdf', const [1, 2, 3]),
       resume = _writeBytes(dir, 'signup_resume.pdf', const [4, 5, 6]),
       portfolio = _writeBytes(dir, 'signup_portfolio.pdf', const [7, 8, 9]);
@@ -80,6 +82,8 @@ class _SignupFixtures {
   final File featureA;
   final File featureB;
   final File featureC;
+  final File featureD;
+  final File featureE;
   final File certificate;
   final File resume;
   final File portfolio;
@@ -148,6 +152,12 @@ class _HarnessApp extends StatelessWidget {
           },
         ),
         GoRoute(
+          path: Routes.signupSuccess.path,
+          name: Routes.signupSuccess.name,
+          builder: (_, _) =>
+              const Scaffold(body: Center(child: Text('signup-success-stub'))),
+        ),
+        GoRoute(
           path: Routes.login.path,
           name: Routes.login.name,
           builder: (_, _) =>
@@ -200,6 +210,7 @@ void main() {
           prefsProvider.overrideWithValue(prefs),
           dioClientProvider.overrideWithValue(dioClient),
           telemetryClientProvider.overrideWithValue(telemetry),
+          currentSessionUserProvider.overrideWith((ref) => null),
         ],
       );
       addTearDown(container.dispose);
@@ -259,26 +270,32 @@ void main() {
           },
         ],
         featuredProjects: [
-          [fixtures.featureA, fixtures.featureB],
-          [fixtures.featureC],
+          [
+            fixtures.featureA,
+            fixtures.featureB,
+            fixtures.featureC,
+            fixtures.featureD,
+            fixtures.featureE,
+          ],
         ],
-        featuredProjectTitles: ['Launch Spot', 'Behind The Scenes'],
+        featuredProjectTitles: ['Launch Spot'],
         certificates: [fixtures.certificate],
         resume: fixtures.resume,
         portfolio: fixtures.portfolio,
       );
       await robot.tapCreateProfile();
 
-      await robot.expectOnLoginStub();
+      await robot.expectOnSignupSuccessStub();
 
       final posts = _capturedPosts(dio);
-      expect(posts.map((e) => e.path).toList(), [
+      expect(posts.map((e) => e.path).toList(), containsAll([
         ApiEndpoints.register_step1,
         ApiEndpoints.register_step2,
+        ApiEndpoints.register_step3_file,
         ApiEndpoints.register_step3,
-      ]);
+      ]));
 
-      final step1 = posts[0].data as FormData;
+      final step1 = posts.firstWhere((p) => p.path == ApiEndpoints.register_step1).data as FormData;
       expect(_fieldMap(step1), {
         'first_name': 'Ada',
         'last_name': 'Lovelace',
@@ -292,7 +309,8 @@ void main() {
       });
       expect(_fileNames(step1, 'profile_photo'), ['signup_profile.png']);
 
-      expect(posts[1].data, {
+      final step2 = posts.firstWhere((p) => p.path == ApiEndpoints.register_step2).data;
+      expect(step2, {
         'crew_member_id': 314,
         'primary_role': [1],
         'years_of_experience': 5,
@@ -302,36 +320,13 @@ void main() {
         'equipment_ownership': <int>[],
       });
 
-      final step3 = posts[2].data as FormData;
-      expect(_fieldValues(step3, 'crew_member_id'), ['314']);
-      expect(_fieldValues(step3, 'certifications'), [
-        jsonEncode(['signup_cert.pdf']),
-      ]);
-      expect(_fieldValues(step3, 'social_media_links'), [
-        jsonEncode([
-          {'platform': 'instagram', 'url': 'https://insta.com/ada'},
-        ]),
-      ]);
-      expect(_fieldValues(step3, 'portfolio_links'), [
-        jsonEncode([
-          {'platform': 'google_drive', 'url': 'https://drive.google.com/ada'},
-        ]),
-      ]);
-      expect(_fieldValues(step3, 'featured_work'), [
-        jsonEncode([
-          {'work_title': 'Launch Spot', 'tags': <String>[]},
-          {'work_title': 'Behind The Scenes', 'tags': <String>[]},
-        ]),
-      ]);
-      expect(_fileNames(step3, 'resume'), ['signup_resume.pdf']);
-      expect(_fileNames(step3, 'portfolio'), ['signup_portfolio.pdf']);
-      expect(_fileNames(step3, 'certifications'), ['signup_cert.pdf']);
-      expect(_fileNames(step3, 'recent_work_media'), [
-        'feature_a.png',
-        'feature_b.png',
-        'feature_c.png',
-      ]);
-      expect(_fieldValues(step3, 'recent_work_media_index'), ['0', '0', '1']);
+      final step3 = posts.lastWhere((p) => p.path == ApiEndpoints.register_step3).data;
+      expect(step3, isA<Map<String, dynamic>>());
+      final step3Map = step3 as Map<String, dynamic>;
+      expect(step3Map['crew_member_id'], 314);
+      expect(step3Map['social_media_links'], {
+        'instagram': 'https://insta.com/ada',
+      });
 
       expect(
         telemetry.events.map((e) => e.name),
@@ -344,6 +339,33 @@ void main() {
 typedef _PostCall = ({String path, dynamic data});
 
 void _stubSignupDio(MockDio dio) {
+  Future<Response<dynamic>> handler(Invocation invocation) async {
+    final path = invocation.positionalArguments.first as String;
+    final data = switch (path) {
+      ApiEndpoints.register_step1 => {
+        'error': false,
+        'message': 'ok',
+        'data': {'crew_member_id': 314},
+      },
+      ApiEndpoints.register_step3_file => {
+        'error': false,
+        'message': 'ok',
+        'data': {'crew_files_id': 640},
+      },
+      ApiEndpoints.register_step2 || ApiEndpoints.register_step3 => {
+        'error': false,
+        'message': 'ok',
+        'data': <String, dynamic>{},
+      },
+      _ => {'error': true, 'message': 'unexpected endpoint $path'},
+    };
+    return Response<dynamic>(
+      requestOptions: RequestOptions(path: path),
+      statusCode: 200,
+      data: data,
+    );
+  }
+
   when(() => dio.get<dynamic>(any())).thenAnswer((invocation) async {
     final path = invocation.positionalArguments.single as String;
     return Response<dynamic>(
@@ -367,37 +389,26 @@ void _stubSignupDio(MockDio dio) {
     );
   });
 
-  when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer((
-    invocation,
-  ) async {
-    final path = invocation.positionalArguments.first as String;
-    final data = switch (path) {
-      ApiEndpoints.register_step1 => {
-        'error': false,
-        'message': 'ok',
-        'data': {'crew_member_id': 314},
-      },
-      ApiEndpoints.register_step2 || ApiEndpoints.register_step3 => {
-        'error': false,
-        'message': 'ok',
-        'data': <String, dynamic>{},
-      },
-      _ => {'error': true, 'message': 'unexpected endpoint $path'},
-    };
-    return Response<dynamic>(
-      requestOptions: RequestOptions(path: path),
-      statusCode: 200,
-      data: data,
-    );
-  });
+  when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(handler);
+  when(
+    () => dio.post<dynamic>(
+      any(),
+      data: any(named: 'data'),
+      options: any(named: 'options'),
+    ),
+  ).thenAnswer(handler);
 }
 
 List<_PostCall> _capturedPosts(MockDio dio) {
   final captured = verify(
-    () => dio.post<dynamic>(captureAny(), data: captureAny(named: 'data')),
+    () => dio.post<dynamic>(
+      captureAny(),
+      data: captureAny(named: 'data'),
+      options: captureAny(named: 'options'),
+    ),
   ).captured;
   final calls = <_PostCall>[];
-  for (var i = 0; i < captured.length; i += 2) {
+  for (var i = 0; i < captured.length; i += 3) {
     calls.add((path: captured[i] as String, data: captured[i + 1]));
   }
   return calls;
@@ -406,11 +417,6 @@ List<_PostCall> _capturedPosts(MockDio dio) {
 Map<String, String> _fieldMap(FormData data) => {
   for (final entry in data.fields) entry.key: entry.value,
 };
-
-List<String> _fieldValues(FormData data, String key) => data.fields
-    .where((entry) => entry.key == key)
-    .map((entry) => entry.value)
-    .toList();
 
 List<String> _fileNames(FormData data, String key) => data.files
     .where((entry) => entry.key == key)

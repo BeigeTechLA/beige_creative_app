@@ -52,6 +52,8 @@ class FakePrefsSessionBackend implements PrefsSessionBackend {
   @override
   Future<UserSnapshot?> readUser() async => _user;
   @override
+  UserSnapshot? readUserSync() => _user;
+  @override
   Future<void> writeUser(UserSnapshot user) async => _user = user;
   @override
   Future<void> clearUser() async => _user = null;

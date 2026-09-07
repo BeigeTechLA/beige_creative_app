@@ -56,11 +56,11 @@ class ProfileStatsPanel extends StatelessWidget {
     );
   }
 
-  // Legacy semantics: first 2 chips labelled "Skill 1"/"Skill 2", then "+N".
+  // Display first 2 skill names, then "+N" for remaining.
   List<Widget> _buildSkillChips(List<String> skills) {
     final chips = <Widget>[];
     for (int i = 0; i < skills.length && i < 2; i++) {
-      chips.add(_SkillChip(text: 'Skill ${i + 1}'));
+      chips.add(_SkillChip(text: skills[i]));
     }
     if (skills.length > 2) {
       chips.add(_SkillChip(text: '+${skills.length - 2}'));

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/providers/guest_mode_provider.dart';
 import '../../../../core/session/session_store.dart';
+import '../../../../core/session/temporary_auth_session.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../model_class/creator_dashboard_model.dart';
 import '../../../../model_class/myprofile_model.dart' as profile;
@@ -38,8 +39,12 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
   // ── Public API ──────────────────────────────────────────────────────────
 
   /// Fetches consolidated dashboard data in a single GET creator/dashboard call.
-  Future<void> refresh() async {
-    state = state.copyWith(isLoading: true, clearError: true);
+  Future<void> refresh({bool isSilent = false}) async {
+    if (!isSilent && state.profileData == null) {
+      state = state.copyWith(isLoading: true, clearError: true);
+    } else {
+      state = state.copyWith(clearError: true);
+    }
     if (ref.read(guestModeProvider)) {
       state = state.copyWith(isLoading: false);
       return;
@@ -245,12 +250,14 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     final availability = data.availability;
     final profileData = data.profileDetail;
 
-    final hasPhotoCrewStats = stats != null &&
+    final hasPhotoCrewStats =
+        stats != null &&
         (stats.photographyShoots > 0 ||
             stats.photoRejectedShoots > 0 ||
             stats.photoShootRequests > 0);
 
-    final hasVideoCrewStats = stats != null &&
+    final hasVideoCrewStats =
+        stats != null &&
         (stats.videographyShoots > 0 ||
             stats.videoRejectedShoots > 0 ||
             stats.videoShootRequests > 0);
@@ -281,24 +288,38 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       photographyShoots: stats?.photographyShoots,
       videographyShoots: stats?.videographyShoots,
       // Shoot categories
-      categoryPhotoTotal: (hasPhotoCrewStats &&
+      categoryPhotoTotal:
+          (hasPhotoCrewStats &&
               (stats.photoRejectedShoots > 0 || stats.photoShootRequests > 0))
           ? (stats.photographyShoots +
-              stats.photoRejectedShoots +
-              stats.photoShootRequests)
+                stats.photoRejectedShoots +
+                stats.photoShootRequests)
           : (categories?['photo']?['total'] as int? ??
-              ((stats?.photographyShoots ?? categories?['photo']?['acceptedShoots'] as int? ?? 0) +
-                  (stats?.photoRejectedShoots ?? categories?['photo']?['rejectedShoots'] as int? ?? 0) +
-                  (stats?.photoShootRequests ?? categories?['photo']?['shootRequests'] as int? ?? 0))),
-      categoryVideoTotal: (hasVideoCrewStats &&
+                ((stats?.photographyShoots ??
+                        categories?['photo']?['acceptedShoots'] as int? ??
+                        0) +
+                    (stats?.photoRejectedShoots ??
+                        categories?['photo']?['rejectedShoots'] as int? ??
+                        0) +
+                    (stats?.photoShootRequests ??
+                        categories?['photo']?['shootRequests'] as int? ??
+                        0))),
+      categoryVideoTotal:
+          (hasVideoCrewStats &&
               (stats.videoRejectedShoots > 0 || stats.videoShootRequests > 0))
           ? (stats.videographyShoots +
-              stats.videoRejectedShoots +
-              stats.videoShootRequests)
+                stats.videoRejectedShoots +
+                stats.videoShootRequests)
           : (categories?['video']?['total'] as int? ??
-              ((stats?.videographyShoots ?? categories?['video']?['acceptedShoots'] as int? ?? 0) +
-                  (stats?.videoRejectedShoots ?? categories?['video']?['rejectedShoots'] as int? ?? 0) +
-                  (stats?.videoShootRequests ?? categories?['video']?['shootRequests'] as int? ?? 0))),
+                ((stats?.videographyShoots ??
+                        categories?['video']?['acceptedShoots'] as int? ??
+                        0) +
+                    (stats?.videoRejectedShoots ??
+                        categories?['video']?['rejectedShoots'] as int? ??
+                        0) +
+                    (stats?.videoShootRequests ??
+                        categories?['video']?['shootRequests'] as int? ??
+                        0))),
       acceptPhotographyShoots: hasPhotoCrewStats
           ? stats.photographyShoots
           : (categories?['photo']?['acceptedShoots'] as int?),
@@ -331,17 +352,20 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
     );
   }
 
-  Future<void> _updateSessionUserSnapshot(profile.MyProfileData profileData) async {
+  Future<void> _updateSessionUserSnapshot(
+    profile.MyProfileData profileData,
+  ) async {
     try {
       final session = ref.read(sessionStoreProvider);
-      final currentUser = await session.readUser();
+      final temporarySession = ref.read(temporaryAuthSessionProvider);
+      final currentUser = temporarySession.user ?? await session.readUser();
       final profileId = profileData.user.id != 0
           ? profileData.user.id.toString()
           : null;
       final sessionId =
           (currentUser?.id.isNotEmpty ?? false) && currentUser!.id != '0'
-              ? currentUser.id
-              : null;
+          ? currentUser.id
+          : null;
       final resolvedId = profileId ?? sessionId;
       if (resolvedId == null) {
         AppLogger.w(
@@ -351,8 +375,23 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
       } else {
         final updatedUser = UserSnapshot(
           id: resolvedId,
+          firstName: profileData.firstName.isNotEmpty
+              ? profileData.firstName
+              : currentUser?.firstName,
+          lastName: profileData.lastName.isNotEmpty
+              ? profileData.lastName
+              : currentUser?.lastName,
           name: profileData.user.name,
           email: profileData.user.email,
+          phoneNumber: profileData.phoneNumber.isNotEmpty
+              ? profileData.phoneNumber
+              : currentUser?.phoneNumber,
+          location: profileData.location.isNotEmpty
+              ? profileData.location
+              : currentUser?.location,
+          workingDistance: profileData.workingDistance.isNotEmpty
+              ? profileData.workingDistance
+              : currentUser?.workingDistance,
           role:
               currentUser?.role ??
               (profileData.user.primaryRole.isNotEmpty
@@ -363,8 +402,30 @@ class HomeNotifier extends AutoDisposeNotifier<HomeState> {
           profileImageUrl: profileData.user.profileImageUrl.isNotEmpty
               ? profileData.user.profileImageUrl
               : currentUser?.profileImageUrl,
+          isRegistrationComplete:
+              profileData.isRegistrationComplete ??
+              currentUser?.isRegistrationComplete,
+          isCrewVerified:
+              profileData.isCrewVerified ?? currentUser?.isCrewVerified,
+          isStep2Complete: currentUser?.isStep2Complete,
+          crewMemberId: profileData.crewMemberId != 0
+              ? profileData.crewMemberId
+              : currentUser?.crewMemberId,
         );
-        await session.writeUser(updatedUser);
+        if (temporarySession.isActive && updatedUser.isCrewVerified == 1) {
+          await session.writeToken(temporarySession.token!);
+          await session.writeUser(updatedUser);
+          await session.writeLastLoginAt(
+            temporarySession.loginAt ?? DateTime.now().toUtc(),
+          );
+          ref.read(temporaryAuthSessionProvider.notifier).clear();
+        } else if (temporarySession.isActive) {
+          ref
+              .read(temporaryAuthSessionProvider.notifier)
+              .updateUser(updatedUser);
+        } else {
+          await session.writeUser(updatedUser);
+        }
       }
     } catch (e) {
       AppLogger.w('Failed to update session user snapshot: $e');

@@ -1,3 +1,4 @@
+import 'package:beige_creative_app/core/providers/core_providers.dart';
 import 'package:beige_creative_app/features/profile/presentation/providers/my_profile_providers.dart';
 import 'package:beige_creative_app/features/profile/presentation/screens/my_profile_screen.dart';
 import 'package:beige_creative_app/model_class/myprofile_model.dart';
@@ -66,6 +67,7 @@ Future<_FakeMyProfileNotifier> _pump(
     const Myprofile(),
     overrides: [
       myProfileNotifierProvider.overrideWith(() => fake),
+      currentSessionUserProvider.overrideWithValue(null),
     ],
   );
   // Drain asset-decode errors from AppAssets / SvgPicture / Lottie loaders.

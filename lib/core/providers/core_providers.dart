@@ -10,6 +10,7 @@ import '../network/interceptors/error_interceptor.dart';
 import '../network/interceptors/logging_interceptor.dart';
 import '../network/interceptors/retry_interceptor.dart';
 import '../session/session_store.dart';
+import '../session/temporary_auth_session.dart';
 
 /// App-wide singleton providers. None of these are `.autoDispose` — they live
 /// for the process lifetime per `MIGRATION_RULES.md` §3.10.
@@ -17,69 +18,72 @@ import '../session/session_store.dart';
 /// Resolved by overriding with `SharedPreferences.getInstance()` in `startApp`
 /// (or `Future.value(prefs)` inside test `pumpProviderApp`). Consumers call
 /// `ref.watch(sharedPreferencesProvider.future)` or `.requireValue` post-load.
-final sharedPreferencesProvider = FutureProvider<SharedPreferences>(
-  (ref) async {
-    throw UnimplementedError(
-      'sharedPreferencesProvider must be overridden in startApp / test harness.',
-    );
-  },
-);
+final sharedPreferencesProvider = FutureProvider<SharedPreferences>((
+  ref,
+) async {
+  throw UnimplementedError(
+    'sharedPreferencesProvider must be overridden in startApp / test harness.',
+  );
+});
 
 /// Synchronous handle to the same `SharedPreferences` instance, available
 /// once `startApp` has awaited `SharedPreferences.getInstance()`. Used by
 /// restoration / draft providers that need sync read on first router build.
-final prefsProvider = Provider<SharedPreferences>(
-  (ref) {
-    throw UnimplementedError(
-      'prefsProvider must be overridden in startApp / test harness.',
-    );
-  },
-);
+final prefsProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError(
+    'prefsProvider must be overridden in startApp / test harness.',
+  );
+});
 
 /// Concrete `SessionStore` implementations land in Task 3.13. Until overridden
 /// this provider throws — the override is wired in Task 3.16 (`pumpProviderApp`)
 /// and in `startApp` once Task 3.13 closes.
-final sessionStoreProvider = Provider<SessionStore>(
-  (ref) {
-    throw UnimplementedError(
-      'sessionStoreProvider must be overridden — concrete impl arrives in Task 3.13.',
-    );
-  },
-);
+final sessionStoreProvider = Provider<SessionStore>((ref) {
+  throw UnimplementedError(
+    'sessionStoreProvider must be overridden — concrete impl arrives in Task 3.13.',
+  );
+});
+
+/// Account snapshot for the active process. Pending/incomplete creators use
+/// the process-only session; approved creators use the persisted session.
+final currentSessionUserProvider = Provider<UserSnapshot?>((ref) {
+  return ref.watch(temporaryAuthSessionProvider).user ??
+      ref.watch(sessionStoreProvider).readUserSync();
+});
 
 /// Single Dio holder with interceptors attached in canonical order:
 /// `AppHeaders → Auth → Retry → Error → Logging` (dev only).
 /// Per `MIGRATION_RULES.md` §5.4. `AppHeaders` runs first so device / user-type
 /// stamps are present on retries and on the request copy seen by error logging.
-final dioClientProvider = Provider<DioClient>(
-  (ref) {
-    final session = ref.watch(sessionStoreProvider);
-    final client = DioClient();
-    client.attachInterceptors([
-      AppHeadersInterceptor(),
-      AuthInterceptor(
-        tokenReader: session.readToken,
-        onUnauthorized: () async {
-          await session.clearSession();
-          // 401 / token-expiry: drop telemetry identity too so the next
-          // crash report isn't attributed to a stale user. Skip the logout
-          // event — the user didn't choose this.
-          try {
-            await ref
-                .read(telemetryClientProvider)
-                .clearUserIdentity();
-          } catch (_) {
-            // Best-effort — interceptor must complete.
-          }
-        },
-      ),
-      RetryInterceptor(dio: client.dio),
-      ErrorInterceptor(),
-      if (kDebugMode) LoggingInterceptor(),
-    ]);
-    return client;
-  },
-);
+final dioClientProvider = Provider<DioClient>((ref) {
+  final session = ref.watch(sessionStoreProvider);
+  final client = DioClient();
+  client.attachInterceptors([
+    AppHeadersInterceptor(),
+    AuthInterceptor(
+      tokenReader: () async {
+        final temporaryToken = ref.read(temporaryAuthSessionProvider).token;
+        return temporaryToken ?? session.readToken();
+      },
+      onUnauthorized: () async {
+        ref.read(temporaryAuthSessionProvider.notifier).clear();
+        await session.clearSession();
+        // 401 / token-expiry: drop telemetry identity too so the next
+        // crash report isn't attributed to a stale user. Skip the logout
+        // event — the user didn't choose this.
+        try {
+          await ref.read(telemetryClientProvider).clearUserIdentity();
+        } catch (_) {
+          // Best-effort — interceptor must complete.
+        }
+      },
+    ),
+    RetryInterceptor(dio: client.dio),
+    ErrorInterceptor(),
+    if (kDebugMode) LoggingInterceptor(),
+  ]);
+  return client;
+});
 
 /// Connectivity moved to `lib/core/connectivity/connectivity_providers.dart`
 /// in the no-internet-handling work (debounced + reachability-checked status

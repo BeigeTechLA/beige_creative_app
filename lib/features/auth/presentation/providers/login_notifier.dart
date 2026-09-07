@@ -10,7 +10,9 @@ import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/providers/guest_mode_provider.dart';
+import '../../../../core/session/temporary_auth_session.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/error_formatter.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../service/prefs_service.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -86,11 +88,37 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
           .login(email: trimmedEmail, password: trimmedPassword);
 
       final session = ref.read(sessionStoreProvider);
-      await session.writeToken(result.token);
-      if (result.user != null) {
-        await session.writeUser(result.user!);
+      final user = result.user;
+      final loginAt = DateTime.now().toUtc();
+      // Approved crew persist as before. Additionally persist an under-review
+      // account (registration complete, verification pending) so it survives an
+      // app relaunch instead of dropping into the ephemeral temp session.
+      // Incomplete registration and rejected accounts stay ephemeral — unchanged.
+      final shouldPersistSession = result.isCrewVerified == 1 ||
+          (result.isRegistrationComplete == 1 && result.isCrewVerified == 0);
+      if (!shouldPersistSession) {
+        if (user == null) {
+          throw StateError('Ephemeral login user is unavailable');
+        }
+        // Ensure a previous approved login cannot survive underneath a
+        // pending/incomplete account. The new token stays process-only.
+        await session.clearSession();
+        ref
+            .read(temporaryAuthSessionProvider.notifier)
+            .begin(token: result.token, user: user, loginAt: loginAt);
+      } else {
+        ref.read(temporaryAuthSessionProvider.notifier).clear();
+        await session.writeToken(result.token);
+        if (user != null) {
+          await session.writeUser(user);
+        }
+        await session.writeLastLoginAt(loginAt);
+        // `currentSessionUserProvider` only reacts to the temp session; the
+        // persisted store write above is invisible to it. Refresh so the
+        // post-login navigation reads the just-written snapshot (the router
+        // does not bounce an under-review account off /login on its own).
+        ref.invalidate(currentSessionUserProvider);
       }
-      await session.writeLastLoginAt(DateTime.now().toUtc());
 
       try {
         if (state.savePassword) {
@@ -109,7 +137,6 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
       // Best-effort telemetry — never fail login on a wrapper error.
       try {
         final telemetry = ref.read(telemetryClientProvider);
-        final user = result.user;
         if (user != null) {
           await telemetry.setUserIdentity(userId: user.id, userRole: user.role);
         }
@@ -173,22 +200,7 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
   }
 
   String? _formatError(Object e) {
-    AppException? typed;
-    if (e is AppException) {
-      typed = e;
-    } else if (e is DioException && e.error is AppException) {
-      typed = e.error as AppException;
-    }
-    if (typed != null) {
-      final msg = typed.message.trim();
-      if (msg.isNotEmpty) return msg;
-    }
-    final raw = e.toString().replaceFirst('Exception: ', '');
-    if (raw.contains('{') && raw.contains('"message"')) {
-      final match = RegExp(r'"message":"(.*?)"').firstMatch(raw);
-      if (match != null) return match.group(1);
-    }
-    return raw.isEmpty ? null : raw;
+    return parseErrorMessage(e, fallback: 'Invalid email or password');
   }
 }
 

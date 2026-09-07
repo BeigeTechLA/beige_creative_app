@@ -6,17 +6,89 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../core/providers/auth_state_provider.dart';
+import '../../../../core/providers/core_providers.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../profile/presentation/providers/profile_details_providers.dart';
 import '../../../../shared/layouts/app_scaffold.dart';
+import '../../../../shared/widgets/top_message.dart';
+import '../providers/login_notifier.dart';
 import '../providers/signup_notifier.dart';
 import '../../../../shared/widgets/app_cta_button.dart';
 import 'view_details_screen.dart';
 
-class SignUpSuccessScreen extends ConsumerWidget {
+class SignUpSuccessScreen extends ConsumerStatefulWidget {
   const SignUpSuccessScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SignUpSuccessScreen> createState() =>
+      _SignUpSuccessScreenState();
+}
+
+class _SignUpSuccessScreenState extends ConsumerState<SignUpSuccessScreen> {
+  bool _entering = false;
+
+  /// Enter the app after profile completion. The register endpoints return no
+  /// token, so a fresh signup is auto-logged-in with the Step 1 credentials to
+  /// mint one; a resume session already holds a process-only token and only
+  /// needs its account-status snapshot refreshed. Either way we land on /home,
+  /// where the router shows the approved / under-review state from the
+  /// freshly fetched `is_crew_verified` flag.
+  Future<void> _goToDashboard() async {
+    if (_entering) return;
+    setState(() => _entering = true);
+
+    final isResume = ref.read(authStateProvider);
+    String? error;
+
+    if (isResume) {
+      // Token already present. Refresh the session snapshot so the router sees
+      // registration as complete (0 → 1) instead of bouncing back to Step 2.
+      await ref.read(profileDetailsViewProvider.notifier).refresh();
+      error = ref.read(profileDetailsViewProvider).errorMessage;
+    } else {
+      // Fresh signup — mint a token by logging in with the Step 1 creds held
+      // in memory. login() persists the session and flips auth state. Success
+      // is read off authStateProvider (a persistent NotifierProvider), NOT the
+      // auto-dispose login notifier — which may recycle across the await and
+      // report a stale loginSuccess.
+      final signup = ref.read(signupNotifierProvider);
+      await ref
+          .read(loginNotifierProvider.notifier)
+          .login(email: signup.email, password: signup.password);
+      if (!ref.read(authStateProvider)) {
+        error =
+            ref.read(loginNotifierProvider).errorMessage ??
+            'Could not enter the app. Please log in.';
+      }
+    }
+
+    // DEBUG(login-flags): remove once the post-signup flow is confirmed.
+    final u = ref.read(currentSessionUserProvider);
+    AppLogger.d(
+      'goToDashboard: isResume=$isResume authState=${ref.read(authStateProvider)} '
+      'error=$error snapshot.regComplete=${u?.isRegistrationComplete} '
+      'snapshot.crewVerified=${u?.isCrewVerified}',
+    );
+
+    if (!mounted) return;
+
+    if (error != null) {
+      setState(() => _entering = false);
+      TopMessage.show(context, error);
+      return;
+    }
+
+    ref.read(signupNotifierProvider.notifier).reset();
+    context.go(Routes.home.path);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(signupNotifierProvider);
+    // Hold the auto-dispose login notifier alive for the whole screen so its
+    // error message survives the login await in _goToDashboard.
+    ref.watch(loginNotifierProvider);
     final featuredFiles = state.featuredProjects.expand((p) => p).toList();
 
     return AppScaffold(
@@ -180,17 +252,17 @@ class SignUpSuccessScreen extends ConsumerWidget {
                                               : '₹${state.hourlyRateDisplay}',
                                           style: AppTextStyles.displayLabel16
                                               .copyWith(
-                                            color: AppColors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                                color: AppColors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                         TextSpan(
                                           text: ' /Hour',
                                           style: AppTextStyles
                                               .body11MediumLetter02
                                               .copyWith(
-                                            color: AppColors.white60,
-                                          ),
+                                                color: AppColors.white60,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -205,17 +277,16 @@ class SignUpSuccessScreen extends ConsumerWidget {
                                     state.experienceDisplay.isEmpty
                                         ? '0 Years'
                                         : '${state.experienceDisplay} Years',
-                                    style: AppTextStyles.displayLabel16.copyWith(
-                                      color: AppColors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: AppTextStyles.displayLabel16
+                                        .copyWith(
+                                          color: AppColors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                   ),
                                   Text(
                                     'Experience',
                                     style: AppTextStyles.body11MediumLetter02
-                                        .copyWith(
-                                      color: AppColors.white60,
-                                    ),
+                                        .copyWith(color: AppColors.white60),
                                   ),
                                 ],
                               ),
@@ -257,7 +328,8 @@ class SignUpSuccessScreen extends ConsumerWidget {
                                       const SizedBox(width: 4),
                                       Text(
                                         name,
-                                        style: AppTextStyles.body11MediumLetter02
+                                        style: AppTextStyles
+                                            .body11MediumLetter02
                                             .copyWith(color: AppColors.white),
                                       ),
                                     ],
@@ -327,10 +399,8 @@ class SignUpSuccessScreen extends ConsumerWidget {
               AppCtaButton(
                 label: 'Go to Dashboard',
                 height: 55,
-                onPressed: () {
-                  ref.read(signupNotifierProvider.notifier).reset();
-                  context.go(Routes.login.path);
-                },
+                isLoading: _entering,
+                onPressed: _goToDashboard,
               ),
             ],
           ),

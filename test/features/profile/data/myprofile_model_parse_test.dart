@@ -108,5 +108,42 @@ void main() {
       expect(model.data.skills.single.id, 7);
       expect(model.data.skills.single.name, 'Drone');
     });
+
+    test('parses account status flags from top-level profile data', () {
+      final json = profileResponse();
+      final data = json['data'] as Map<String, dynamic>;
+      data['is_registration_complete'] = 1;
+      data['is_crew_verified'] = 2;
+
+      final model = MyProfileModel.fromJson(json);
+
+      expect(model.data.isRegistrationComplete, 1);
+      expect(model.data.isCrewVerified, 2);
+    });
+
+    test('parses account status flags from nested user fallback', () {
+      final json = profileResponse();
+      final data = json['data'] as Map<String, dynamic>;
+      final user = data['user'] as Map<String, dynamic>;
+      user['is_registration_complete'] = '1';
+      user['is_crew_verified'] = '0';
+
+      final model = MyProfileModel.fromJson(json);
+
+      expect(model.data.isRegistrationComplete, 1);
+      expect(model.data.isCrewVerified, 0);
+    });
+
+    test('parses boolean account status flags from mobile API', () {
+      final json = profileResponse();
+      final data = json['data'] as Map<String, dynamic>;
+      data['is_registration_complete'] = true;
+      data['is_crew_verified'] = false;
+
+      final model = MyProfileModel.fromJson(json);
+
+      expect(model.data.isRegistrationComplete, 1);
+      expect(model.data.isCrewVerified, 0);
+    });
   });
 }

@@ -8,6 +8,7 @@ import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
+import '../../../../shared/widgets/app_cta_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import 'signup3_constants.dart';
 
@@ -35,7 +36,8 @@ Future<void> showSignup3PortfolioSheet({
   required BuildContext context,
   required Signup3PortfolioSheetController controller,
 }) {
-  bool showForm = controller.savedLinks.isEmpty;
+  bool showForm =
+      controller.savedLinks.isEmpty || controller.editingIndex != null;
   final localLinks = List<Map<String, dynamic>>.from(controller.savedLinks);
 
   return showModalBottomSheet<void>(
@@ -185,55 +187,42 @@ Future<void> showSignup3PortfolioSheet({
                         controller: controller.linkController,
                       ),
                       const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
+                      AppCtaButton(
+                        label: 'Save Link',
                         height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.goldSoft,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.xlAll,
-                            ),
-                          ),
-                          onPressed: () {
-                            if (controller.selectedIndex == -1 ||
-                                controller.linkController.text
-                                    .trim()
-                                    .isEmpty) {
-                              controller.onError(
-                                'Select platform & enter link',
-                              );
-                              return;
-                            }
-                            final next = List<Map<String, dynamic>>.from(localLinks);
-                            final entry = {
-                              'name': kSignup3PortfolioNames[
-                                  controller.selectedIndex],
-                              'url': controller.linkController.text.trim(),
-                              'icon': kSignup3PortfolioIcons[
-                                  controller.selectedIndex],
-                            };
-                            if (controller.editingIndex != null) {
-                              next[controller.editingIndex!] = entry;
-                            } else {
-                              next.add(entry);
-                            }
-                            controller.commitLinks(next);
-                            localLinks.clear();
-                            localLinks.addAll(next);
-                            setModalState(() {
-                              showForm = false;
-                              controller.editingIndex = null;
-                              controller.selectedIndex = -1;
-                              controller.linkController.clear();
-                            });
-                          },
-                          child: Text(
-                            'Save Link',
-                            style: AppTextStyles.inheritSemiBold
-                                .copyWith(color: AppColors.black),
-                          ),
-                        ),
+                        onPressed: () {
+                          if (controller.selectedIndex == -1 ||
+                              controller.linkController.text
+                                  .trim()
+                                  .isEmpty) {
+                            controller.onError(
+                              'Select platform & enter link',
+                            );
+                            return;
+                          }
+                          final next = List<Map<String, dynamic>>.from(localLinks);
+                          final entry = {
+                            'name': kSignup3PortfolioNames[
+                                controller.selectedIndex],
+                            'url': controller.linkController.text.trim(),
+                            'icon': kSignup3PortfolioIcons[
+                                controller.selectedIndex],
+                          };
+                          if (controller.editingIndex != null) {
+                            next[controller.editingIndex!] = entry;
+                          } else {
+                            next.add(entry);
+                          }
+                          controller.commitLinks(next);
+                          localLinks.clear();
+                          localLinks.addAll(next);
+                          setModalState(() {
+                            showForm = false;
+                            controller.editingIndex = null;
+                            controller.selectedIndex = -1;
+                            controller.linkController.clear();
+                          });
+                        },
                       ),
                     ],
                     if (!showForm) ...[
@@ -242,6 +231,7 @@ Future<void> showSignup3PortfolioSheet({
                         onTap: () {
                           setModalState(() {
                             showForm = true;
+                            controller.editingIndex = null;
                             controller.selectedIndex = -1;
                             controller.linkController.clear();
                           });
@@ -271,23 +261,10 @@ Future<void> showSignup3PortfolioSheet({
                         ),
                       ),
                       const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
+                      AppCtaButton(
+                        label: 'Save',
                         height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.goldSoft,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.xlAll,
-                            ),
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            'Save',
-                            style: AppTextStyles.inheritSemiBold
-                                .copyWith(color: AppColors.black),
-                          ),
-                        ),
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ],
                     const SizedBox(height: 10),
@@ -315,7 +292,10 @@ class _SavedPortfolioRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconStr = item['icon'].toString();
+    final iconStr = signup3ResolveLinkIcon(
+      item['icon']?.toString(),
+      item['name']?.toString(),
+    );
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.symmetric(
@@ -348,7 +328,7 @@ class _SavedPortfolioRow extends StatelessWidget {
                   height: 20,
                   width: 20,
                   colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
+                    AppColors.white,
                     BlendMode.srcIn,
                   ),
                 )
@@ -356,7 +336,7 @@ class _SavedPortfolioRow extends StatelessWidget {
                   iconStr,
                   height: 20,
                   width: 20,
-                  color: AppColors.primary,
+                  color: AppColors.white,
                 ),
           const SizedBox(width: 10),
           Expanded(

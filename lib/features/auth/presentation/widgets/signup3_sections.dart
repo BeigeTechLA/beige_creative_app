@@ -10,6 +10,7 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import '../../../../shared/widgets/common_file_viewer.dart';
+import 'signup3_constants.dart';
 
 class SignUp3AddTile extends StatelessWidget {
   final String title;
@@ -33,9 +34,13 @@ class SignUp3AddTile extends StatelessWidget {
             child: const Icon(Icons.add, color: AppColors.black, size: 16),
           ),
           const SizedBox(width: 14),
-          Text(
-            title,
-            style: AppTextStyles.body15.copyWith(color: AppColors.white30),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.body15.copyWith(color: AppColors.white30),
+            ),
           ),
         ],
       ),
@@ -59,7 +64,10 @@ class SignUp3SavedLinkRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconStr = item['icon'].toString();
+    final iconStr = signup3ResolveLinkIcon(
+      item['icon']?.toString(),
+      item['name']?.toString(),
+    );
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.all(AppSpacing.microInset),
@@ -81,7 +89,7 @@ class SignUp3SavedLinkRow extends StatelessWidget {
                     height: 20,
                     width: 20,
                     colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
+                      AppColors.white,
                       BlendMode.srcIn,
                     ),
                   )
@@ -89,13 +97,15 @@ class SignUp3SavedLinkRow extends StatelessWidget {
                     iconStr,
                     height: 15,
                     width: 15,
-                    color: AppColors.primary,
+                    color: AppColors.white,
                   ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               item['name'],
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.inheritSemiBold
                   .copyWith(color: AppColors.white),
             ),
@@ -114,12 +124,34 @@ class SignUp3SavedLinkRow extends StatelessWidget {
   }
 }
 
+class SignUp3CheckmarkBadge extends StatelessWidget {
+  const SignUp3CheckmarkBadge({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 20,
+      width: 20,
+      decoration: const BoxDecoration(
+        color: AppColors.success,
+        shape: BoxShape.circle,
+      ),
+      child: const Icon(
+        Icons.check,
+        size: 13,
+        color: AppColors.white,
+      ),
+    );
+  }
+}
+
 class SignUp3FeaturedSection extends StatelessWidget {
   final List<List<File>> featuredProjects;
   final List<String> featuredProjectsTitles;
   final VoidCallback onAdd;
   final void Function(int projectIndex) onEdit;
   final void Function(int projectIndex) onDelete;
+  final bool isUploaded;
 
   const SignUp3FeaturedSection({
     super.key,
@@ -128,10 +160,12 @@ class SignUp3FeaturedSection extends StatelessWidget {
     required this.onAdd,
     required this.onEdit,
     required this.onDelete,
+    this.isUploaded = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final showTick = isUploaded || featuredProjects.isNotEmpty;
     return Container(
       constraints: const BoxConstraints(minHeight: 220),
       padding: const EdgeInsets.all(AppSpacing.base),
@@ -146,10 +180,25 @@ class SignUp3FeaturedSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Featured Work',
-                style: AppTextStyles.bodyMediumStrong
-                    .copyWith(color: AppColors.white),
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'Featured Work*',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.bodyMediumStrong
+                            .copyWith(color: AppColors.white),
+                      ),
+                    ),
+                    if (showTick) ...[
+                      const SizedBox(width: 8),
+                      const SignUp3CheckmarkBadge(),
+                    ],
+                  ],
+                ),
               ),
               if (featuredProjects.isNotEmpty)
                 InkWell(
@@ -296,33 +345,45 @@ class SignUp3FeaturedSection extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: 190,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: images.length,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm,
-                          ),
-                          itemBuilder: (context, index) {
-                            return Container(
-                              width: MediaQuery.of(context).size.width *
-                                  0.75,
-                              margin: const EdgeInsets.only(
-                                right: AppSpacing.md,
-                              ),
-                              child: ClipRRect(
-                                borderRadius: AppRadii.xxlAll,
-                                child: Image.file(
-                                  images[index],
-                                  fit: BoxFit.cover,
+                      if (images.isNotEmpty)
+                        SizedBox(
+                          height: 190,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: images.length,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.sm,
+                            ),
+                            itemBuilder: (context, index) {
+                              return Container(
+                                width: MediaQuery.of(context).size.width * 0.75,
+                                margin: const EdgeInsets.only(
+                                  right: AppSpacing.md,
                                 ),
-                              ),
-                            );
-                          },
+                                child: ClipRRect(
+                                  borderRadius: AppRadii.xxlAll,
+                                  child: Image.file(
+                                    images[index],
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: AppColors.white24,
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.image,
+                                            size: 32,
+                                            color: AppColors.white30,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 );
@@ -338,16 +399,19 @@ class SignUp3CertificatesSection extends StatelessWidget {
   final List<File> certificateFiles;
   final VoidCallback onPick;
   final void Function(int index) onDelete;
+  final bool isUploaded;
 
   const SignUp3CertificatesSection({
     super.key,
     required this.certificateFiles,
     required this.onPick,
     required this.onDelete,
+    this.isUploaded = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final showTick = isUploaded || certificateFiles.isNotEmpty;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.base),
       decoration: BoxDecoration(
@@ -361,10 +425,25 @@ class SignUp3CertificatesSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Upload Certifications',
-                style: AppTextStyles.inherit14Strong
-                    .copyWith(color: AppColors.white),
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'Upload Certifications',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.inherit14Strong
+                            .copyWith(color: AppColors.white),
+                      ),
+                    ),
+                    if (showTick) ...[
+                      const SizedBox(width: 8),
+                      const SignUp3CheckmarkBadge(),
+                    ],
+                  ],
+                ),
               ),
               if (certificateFiles.isNotEmpty)
                 InkWell(

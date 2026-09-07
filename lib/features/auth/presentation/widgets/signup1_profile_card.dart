@@ -6,19 +6,28 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../../../config/env.dart';
 
 class SignUp1ProfileCard extends StatelessWidget {
   final File? profileImage;
+  final String remoteProfileImageUrl;
   final VoidCallback onPickImage;
 
   const SignUp1ProfileCard({
     super.key,
     required this.profileImage,
+    this.remoteProfileImageUrl = '',
     required this.onPickImage,
   });
 
   @override
   Widget build(BuildContext context) {
+    final remoteUrl = remoteProfileImageUrl.isEmpty
+        ? null
+        : (remoteProfileImageUrl.startsWith('http')
+              ? remoteProfileImageUrl
+              : '${Env.imageUrl}$remoteProfileImageUrl');
+    final hasImage = profileImage != null || remoteUrl != null;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.base),
       decoration: BoxDecoration(
@@ -45,9 +54,10 @@ class SignUp1ProfileCard extends StatelessWidget {
               CircleAvatar(
                 radius: 26,
                 backgroundColor: AppColors.surfaceMid,
-                backgroundImage:
-                    profileImage != null ? FileImage(profileImage!) : null,
-                child: profileImage == null
+                backgroundImage: profileImage != null
+                    ? FileImage(profileImage!)
+                    : (remoteUrl != null ? NetworkImage(remoteUrl) : null),
+                child: !hasImage
                     ? const Icon(
                         Icons.person_outline,
                         size: 28,
@@ -73,15 +83,13 @@ class SignUp1ProfileCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          profileImage == null
-                              ? Icons.camera_alt_outlined
-                              : Icons.refresh,
+                          !hasImage ? Icons.camera_alt_outlined : Icons.refresh,
                           size: 18,
                           color: AppColors.black,
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          profileImage == null
+                          !hasImage
                               ? "Upload Profile Picture"
                               : "ReUpload Profile Picture",
                           style: AppTextStyles.bodySmallMedium.copyWith(

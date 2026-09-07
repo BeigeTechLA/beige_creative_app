@@ -8,6 +8,7 @@ import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/error_formatter.dart';
 import '../../data/repositories/delete_account_repository_impl.dart';
 import '../../domain/repositories/delete_account_repository.dart';
 
@@ -80,7 +81,7 @@ class DeleteAccountNotifier extends AutoDisposeNotifier<DeleteAccountState> {
       AppLogger.e('DeleteAccount.requestDelete failed', e, st);
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+        errorMessage: parseErrorMessage(e, fallback: 'Failed to request delete'),
       );
       return false;
     }
@@ -104,7 +105,7 @@ class DeleteAccountNotifier extends AutoDisposeNotifier<DeleteAccountState> {
       AppLogger.e('DeleteAccount.confirmDelete failed', e, st);
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+        errorMessage: parseErrorMessage(e, fallback: 'Invalid or expired OTP'),
       );
       return false;
     }
@@ -119,7 +120,7 @@ class DeleteAccountNotifier extends AutoDisposeNotifier<DeleteAccountState> {
       AppLogger.e('DeleteAccount.resendOtp failed', e, st);
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+        errorMessage: parseErrorMessage(e, fallback: 'Failed to resend OTP'),
       );
     }
   }

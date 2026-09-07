@@ -99,20 +99,219 @@ void main() {
       },
     );
 
-    test('happy: missing user and crew_member still returns token', () async {
+    test('prefers crew profile photo over account user image', () async {
+      final body = loginResponse(
+        token: 'pending-token',
+        isRegistrationComplete: 1,
+        isCrewVerified: 0,
+      );
+      final payload = body['data'] as Map<String, dynamic>;
+      payload['user'] = {'id': 9, 'profile_image_url': 'account-avatar.jpg'};
+      (payload['crew_member'] as Map<String, dynamic>)['profile_image_url'] =
+          'submitted-crew-profile.jpg';
+      when(
+        () => dio.post<dynamic>(any(), data: any(named: 'data')),
+      ).thenAnswer((_) async => _ok(body, path: ApiEndpoints.login));
+
+      final result = await repo.login(email: 'a@b.c', password: 'pw');
+
+      expect(result.user?.profileImageUrl, 'submitted-crew-profile.jpg');
+    });
+
+    test('missing user and crew_member identity throws', () async {
       when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
         (_) async => _ok({
           'error': false,
           'message': 'ok',
-          'data': {'token': 't'},
+          'data': {
+            'token': 't',
+            'is_registration_complete': 1,
+            'is_crew_verified': 1,
+          },
+        }),
+      );
+
+      await expectLater(
+        repo.login(email: 'a@b.c', password: 'pw'),
+        throwsA(
+          predicate(
+            (e) => e.toString().contains('missing crew member identity'),
+          ),
+        ),
+      );
+    });
+
+    test(
+      'parses registration and verification flags from crew_member',
+      () async {
+        when(
+          () => dio.post<dynamic>(any(), data: any(named: 'data')),
+        ).thenAnswer(
+          (_) async => _ok(
+            loginResponse(
+              token: 'pending-token',
+              isRegistrationComplete: 1,
+              isCrewVerified: 0,
+            ),
+          ),
+        );
+
+        final result = await repo.login(email: 'a@b.c', password: 'pw');
+
+        expect(result.isRegistrationComplete, 1);
+        expect(result.isCrewVerified, 0);
+        expect(result.user?.isRegistrationComplete, 1);
+        expect(result.user?.isCrewVerified, 0);
+      },
+    );
+
+    test(
+      'parses boolean account status aliases from the real nested user shape',
+      () async {
+        when(
+          () => dio.post<dynamic>(any(), data: any(named: 'data')),
+        ).thenAnswer(
+          (_) async => _ok({
+            'error': false,
+            'code': 200,
+            'message': 'Login successful.',
+            'data': {
+              'token': 'real-shape-token',
+              'user': {
+                'id': 797,
+                'name': 'Test Creative',
+                'email': 'creative@example.com',
+                'phone_number': '1234567890',
+                'location': 'Mumbai',
+                'working_distance': 'Upto 25 Miles',
+                'role': 'Creative',
+                'user_type': 2,
+                'crew_member_id': 559,
+                'is_crew_registered': true,
+                'is_crew_profile_completed': true,
+                'is_crew_verified': false,
+              },
+              'permissions': <dynamic>[],
+            },
+          }),
+        );
+
+        final result = await repo.login(
+          email: 'creative@example.com',
+          password: 'pw',
+        );
+
+        expect(result.isRegistrationComplete, 1);
+        expect(result.isCrewVerified, 0);
+        expect(result.crewMemberId, 559);
+        expect(result.user?.id, '797');
+        expect(result.user?.userType, '2');
+        expect(result.user?.phoneNumber, '1234567890');
+        expect(result.user?.location, 'Mumbai');
+        expect(result.user?.workingDistance, 'Upto 25 Miles');
+        expect(result.user?.isRegistrationComplete, 1);
+        expect(result.user?.isCrewVerified, 0);
+        expect(result.user?.crewMemberId, 559);
+      },
+    );
+
+    test(
+      'parses canonical account status fields when API sends bools',
+      () async {
+        when(
+          () => dio.post<dynamic>(any(), data: any(named: 'data')),
+        ).thenAnswer(
+          (_) async => _ok({
+            'error': false,
+            'data': {
+              'token': 'boolean-status-token',
+              'is_registration_complete': true,
+              'is_crew_verified': false,
+              'user': {'id': 797, 'crew_member_id': 559, 'user_type': 2},
+            },
+          }),
+        );
+
+        final result = await repo.login(email: 'a@b.c', password: 'pw');
+
+        expect(result.isRegistrationComplete, 1);
+        expect(result.isCrewVerified, 0);
+        expect(result.user?.isRegistrationComplete, 1);
+        expect(result.user?.isCrewVerified, 0);
+      },
+    );
+
+    test('parses numeric is_step_2_complete = 1 as true', () async {
+      when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
+        (_) async => _ok({
+          'error': false,
+          'data': {
+            'token': 'step-status-token',
+            'user': {
+              'id': 797,
+              'crew_member_id': 559,
+              'is_registration_complete': false,
+              'is_crew_verified': false,
+              'is_step_2_complete': 1,
+            },
+          },
         }),
       );
 
       final result = await repo.login(email: 'a@b.c', password: 'pw');
 
-      expect(result.token, 't');
-      expect(result.user, isNull);
+      expect(result.isStep2Complete, isTrue);
+      expect(result.user?.isStep2Complete, isTrue);
     });
+
+    test('parses numeric is_step_2_complete = 0 as false', () async {
+      when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
+        (_) async => _ok({
+          'error': false,
+          'data': {
+            'token': 'step-status-token',
+            'user': {
+              'id': 797,
+              'crew_member_id': 559,
+              'is_registration_complete': 0,
+              'is_crew_verified': 0,
+              'is_step_2_complete': 0,
+            },
+          },
+        }),
+      );
+
+      final result = await repo.login(email: 'a@b.c', password: 'pw');
+
+      expect(result.isStep2Complete, isFalse);
+      expect(result.user?.isStep2Complete, isFalse);
+    });
+
+    test(
+      'missing or unknown account status throws instead of approving',
+      () async {
+        when(
+          () => dio.post<dynamic>(any(), data: any(named: 'data')),
+        ).thenAnswer(
+          (_) async => _ok({
+            'error': false,
+            'data': {
+              'token': 't',
+              'is_registration_complete': 1,
+              'is_crew_verified': 9,
+              'crew_member': {'id': 1},
+            },
+          }),
+        );
+
+        await expectLater(
+          repo.login(email: 'a@b.c', password: 'pw'),
+          throwsA(
+            predicate((e) => e.toString().contains('valid account status')),
+          ),
+        );
+      },
+    );
 
     test('error envelope (error: true) → throws with server message', () async {
       when(
@@ -385,6 +584,18 @@ void main() {
       profileImage: tempImage,
     );
 
+    Step1Payload payloadWithExistingPhoto() => const Step1Payload(
+      firstName: 'A',
+      lastName: 'B',
+      email: 'a@b.c',
+      phone: '555',
+      password: 'pw',
+      location: 'NYC',
+      workingDistance: '50',
+      latitude: 1.0,
+      longitude: 2.0,
+    );
+
     test('happy: returns crew_member_id as int', () async {
       when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
         (_) async => _ok({
@@ -401,6 +612,27 @@ void main() {
         () => dio.post<dynamic>(captureAny(), data: any(named: 'data')),
       ).captured.single;
       expect(path, ApiEndpoints.register_step1);
+    });
+
+    test('existing remote photo omits profile_photo multipart file', () async {
+      when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
+        (_) async => _ok({
+          'error': false,
+          'data': {'crew_member_id': 77},
+        }),
+      );
+
+      await repo.registerStep1(payloadWithExistingPhoto());
+
+      final captured =
+          verify(
+                () => dio.post<dynamic>(any(), data: captureAny(named: 'data')),
+              ).captured.single
+              as FormData;
+      expect(
+        captured.files.where((entry) => entry.key == 'profile_photo'),
+        isEmpty,
+      );
     });
 
     test(
@@ -516,35 +748,90 @@ void main() {
     });
   });
 
-  group('registerStep3', () {
-    Step3Payload payload() => const Step3Payload(
-      crewMemberId: 7,
-      socialMediaLinks: [],
-      portfolioLinks: [],
-      featuredWork: [],
-      certificationFiles: [],
-      resume: null,
-      portfolio: null,
-      recentWorkMediaFiles: [],
-      recentWorkMediaIndexes: [],
-    );
-
-    test('happy: posts to register_step3 endpoint', () async {
+  group('uploadStep3File', () {
+    test('happy: uploads file and returns parsed crew_files_id', () async {
       when(
         () => dio.post<dynamic>(any(), data: any(named: 'data')),
-      ).thenAnswer((_) async => _ok({'error': false}));
+      ).thenAnswer(
+        (_) async => _ok({
+          'error': false,
+          'data': {'crew_files_id': 640},
+        }),
+      );
 
-      await repo.registerStep3(payload());
+      final result = await repo.uploadStep3File(
+        crewMemberId: 2140,
+        fileType: 'resume',
+        files: [],
+      );
 
       final path = verify(
         () => dio.post<dynamic>(captureAny(), data: any(named: 'data')),
       ).captured.single;
-      expect(path, ApiEndpoints.register_step3);
+      expect(path, ApiEndpoints.register_step3_file);
+      expect(result, equals([640]));
+    });
+
+    test('error envelope → throws fallback "File upload failed"', () async {
+      when(
+        () => dio.post<dynamic>(any(), data: any(named: 'data')),
+      ).thenAnswer((_) async => _ok({'error': true}));
+
+      await expectLater(
+        repo.uploadStep3File(
+          crewMemberId: 2140,
+          fileType: 'resume',
+          files: [],
+        ),
+        throwsA(
+          predicate(
+            (e) =>
+                e is Exception && e.toString().contains('File upload failed'),
+          ),
+        ),
+      );
+    });
+  });
+
+  group('registerStep3', () {
+    Step3Payload payload() => const Step3Payload(
+      crewMemberId: 7,
+      socialMediaLinks: {'instagram': 'https://instagram.com/test'},
+      portfolioLinks: [],
+      featuredWork: [],
+      resumeFileId: 640,
+      portfolioFileIds: [641],
+      certificationFileIds: [642],
+    );
+
+    test('happy: posts to register_step3 endpoint', () async {
+      when(
+        () => dio.post<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
+      ).thenAnswer((_) async => _ok({'error': false}));
+
+      await repo.registerStep3(payload());
+
+      final captured = verify(
+        () => dio.post<dynamic>(
+          captureAny(),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
+      ).captured;
+      expect(captured.single, ApiEndpoints.register_step3);
     });
 
     test('error envelope → throws fallback "Step 3 failed"', () async {
       when(
-        () => dio.post<dynamic>(any(), data: any(named: 'data')),
+        () => dio.post<dynamic>(
+          any(),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
       ).thenAnswer((_) async => _ok({'error': true}));
 
       await expectLater(
