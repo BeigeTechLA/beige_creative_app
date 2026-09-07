@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:file_picker/file_picker.dart' as fp;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +9,6 @@ import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../domain/models/file_type.dart';
 import '../../domain/models/fm_folder_key.dart';
-import '../../domain/models/fm_node.dart';
-import '../providers/file_manager_repository_provider.dart';
-import '../providers/folder_contents_notifier.dart';
 import 'fm_choose_document_sheet.dart';
 import 'fm_file_type_icon.dart';
 
@@ -36,10 +32,8 @@ class FmUploadSheet extends ConsumerStatefulWidget {
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(borderRadius: AppRadii.topHuge),
-      builder: (context) => FmUploadSheet(
-        folderKey: folderKey,
-        folderName: folderName,
-      ),
+      builder: (context) =>
+          FmUploadSheet(folderKey: folderKey, folderName: folderName),
     );
   }
 
@@ -49,10 +43,9 @@ class FmUploadSheet extends ConsumerStatefulWidget {
 
 class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
   final List<_PickedFile> _queuedFiles = [];
-  bool _isUploading = false;
-  double _uploadProgress = 0.0;
-  int _uploadedCount = 0;
-  Timer? _uploadTimer;
+  final bool _isUploading = false;
+  final double _uploadProgress = 0.0;
+  final int _uploadedCount = 0;
   bool _cellularOverride = false;
 
   static const int _maxSizeLimit = 5 * 1024 * 1024 * 1024; // 5GB
@@ -72,12 +65,6 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
     'application/vnd.ms-powerpoint',
     'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   };
-
-  @override
-  void dispose() {
-    _uploadTimer?.cancel();
-    super.dispose();
-  }
 
   int get _totalSize => _queuedFiles.fold(0, (sum, f) => sum + f.sizeBytes);
   bool get _isSizeExceeded => _totalSize > _maxSizeLimit;
@@ -106,9 +93,9 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
           : await _pickDocuments();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Picker failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Picker failed: $e')));
       }
       return;
     }
@@ -163,7 +150,13 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
       allowMultiple: true,
       type: fp.FileType.custom,
       allowedExtensions: const [
-        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+        'pdf',
+        'doc',
+        'docx',
+        'xls',
+        'xlsx',
+        'ppt',
+        'pptx',
       ],
       withData: false, // stream from disk in FM8.04
     );
@@ -231,89 +224,18 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
   }
 
   void _startUpload() {
-    if (_queuedFiles.isEmpty || _isSizeExceeded || _isCountExceeded) return;
-
-    setState(() {
-      _isUploading = true;
-      _uploadProgress = 0.0;
-      _uploadedCount = 0;
-    });
-
-    // Simulate direct multipart upload progress
-    const ticks = 20;
-    int tick = 0;
-    _uploadTimer = Timer.periodic(const Duration(milliseconds: 150), (timer) {
-      tick++;
-      setState(() {
-        _uploadProgress = tick / ticks;
-        _uploadedCount = ((_queuedFiles.length * _uploadProgress).floor()).clamp(0, _queuedFiles.length);
-      });
-
-      if (tick >= ticks) {
-        timer.cancel();
-        _completeUpload();
-      }
-    });
-  }
-
-  void _completeUpload() async {
-    // Generate FmFile domain entities from queued files
-    final List<FmFile> newFiles = _queuedFiles.map((q) {
-      final id = 'fil_mock_${DateTime.now().millisecondsSinceEpoch}_${q.name.hashCode}';
-      return FmFile(
-        id: id,
-        name: q.name,
-        type: q.type,
-        sizeBytes: q.sizeBytes,
-        downloadUrl: 'https://files.dummy/uploads/${q.name}',
-        openedAt: DateTime.now(),
-        version: 1,
-        isLatest: true,
-        statusLabel: 'Raw Files Uploaded',
-        uploaderName: 'You (Crew)',
-      );
-    }).toList();
-
-    // Save to the dummy repository in-memory. Real upload flow (FM8)
-    // replaces this with presign + multipart PUT + confirm; until then
-    // the dummy adapter uses `externalId` as its tree key.
-    await ref.read(fileManagerRepositoryProvider).uploadFiles(
-          folderId: widget.folderKey.externalId,
-          files: newFiles,
-        );
-
-    // Invalidate the provider to reload the contents screen list
-    ref.invalidate(folderContentsNotifierProvider(widget.folderKey));
-
-    if (mounted) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Successfully uploaded ${newFiles.length} files to "${widget.folderName}"'),
-          backgroundColor: AppColors.success,
+    // FM8 multipart transfer is pending. Never simulate progress or save
+    // fabricated files while the app is displaying real API data.
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'File uploads are not available yet. No files were uploaded.',
         ),
-      );
-    }
+      ),
+    );
   }
 
-  void _cancelUpload() {
-    if (_isUploading) {
-      _uploadTimer?.cancel();
-      setState(() {
-        _isUploading = false;
-        _uploadProgress = 0.0;
-        _uploadedCount = 0;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Upload cancelled.'),
-          backgroundColor: AppColors.warning,
-        ),
-      );
-    } else {
-      Navigator.pop(context);
-    }
-  }
+  void _cancelUpload() => Navigator.pop(context);
 
   @override
   Widget build(BuildContext context) {
@@ -338,10 +260,17 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
 
             // Header Section
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
               child: Row(
                 children: [
-                  const Icon(Icons.cloud_upload_outlined, color: AppColors.primary, size: 28),
+                  const Icon(
+                    Icons.cloud_upload_outlined,
+                    color: AppColors.primary,
+                    size: 28,
+                  ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Column(
@@ -366,7 +295,11 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.textPrimary, size: 24),
+                    icon: const Icon(
+                      Icons.close,
+                      color: AppColors.textPrimary,
+                      size: 24,
+                    ),
                     onPressed: _cancelUpload,
                   ),
                 ],
@@ -392,13 +325,22 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
                     child: OutlinedButton(
                       onPressed: _cancelUpload,
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.borderGold, width: 1.2),
-                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        side: const BorderSide(
+                          color: AppColors.borderGold,
+                          width: 1.2,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.md,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: Text(
                         'Cancel',
-                        style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ),
@@ -406,19 +348,31 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
                   // Upload / Action button
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: (_queuedFiles.isEmpty || _isUploading || _isSizeExceeded || _isCountExceeded)
+                      onPressed:
+                          (_queuedFiles.isEmpty ||
+                              _isUploading ||
+                              _isSizeExceeded ||
+                              _isCountExceeded)
                           ? null
                           : _startUpload,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         disabledBackgroundColor: AppColors.disabled,
-                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.md,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: Text(
                         _isUploading ? 'Uploading...' : 'Upload Files',
                         style: AppTextStyles.labelLarge.copyWith(
-                          color: (_queuedFiles.isEmpty || _isUploading || _isSizeExceeded || _isCountExceeded)
+                          color:
+                              (_queuedFiles.isEmpty ||
+                                  _isUploading ||
+                                  _isSizeExceeded ||
+                                  _isCountExceeded)
                               ? AppColors.textTertiary
                               : AppColors.onPrimary,
                           fontWeight: FontWeight.w700,
@@ -485,12 +439,20 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
                   onPressed: _openPicker,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.sm,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: Text(
                     'Browse Files',
-                    style: AppTextStyles.labelMedium.copyWith(color: AppColors.onPrimary, fontWeight: FontWeight.bold),
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -540,7 +502,8 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
         if (_isSizeExceeded)
           _buildAlertCard(
             title: 'Size Limit Exceeded',
-            message: 'Your batch total size is ${_formatSize(_totalSize)}, which exceeds the 5GB maximum upload limit. Please remove some files.',
+            message:
+                'Your batch total size is ${_formatSize(_totalSize)}, which exceeds the 5GB maximum upload limit. Please remove some files.',
             isError: true,
           ),
 
@@ -548,7 +511,8 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
         if (_isCountExceeded)
           _buildAlertCard(
             title: 'File Count Exceeded',
-            message: 'You have queued ${_queuedFiles.length} files. The maximum allowed count per batch is 50 files.',
+            message:
+                'You have queued ${_queuedFiles.length} files. The maximum allowed count per batch is 50 files.',
             isError: true,
           ),
 
@@ -619,7 +583,11 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
                   ),
                   if (!_isUploading)
                     IconButton(
-                      icon: const Icon(Icons.delete_outline, color: AppColors.errorAccent, size: 20),
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: AppColors.errorAccent,
+                        size: 20,
+                      ),
                       onPressed: () {
                         setState(() {
                           _queuedFiles.removeAt(index);
@@ -639,7 +607,10 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
             icon: const Icon(Icons.add, color: AppColors.primary, size: 18),
             label: Text(
               'Add More Files',
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
       ],
@@ -665,18 +636,27 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
         children: [
           Row(
             children: [
-              Icon(isError ? Icons.error_outline : Icons.warning_amber_outlined, color: color, size: 20),
+              Icon(
+                isError ? Icons.error_outline : Icons.warning_amber_outlined,
+                color: color,
+                size: 20,
+              ),
               const SizedBox(width: AppSpacing.sm),
               Text(
                 title,
-                style: AppTextStyles.bodyLarge.copyWith(color: color, fontWeight: FontWeight.bold),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             message,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),
@@ -690,19 +670,29 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
       decoration: BoxDecoration(
         color: AppColors.warning.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.warning.withValues(alpha: 0.5), width: 1),
+        border: Border.all(
+          color: AppColors.warning.withValues(alpha: 0.5),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.wifi_off_outlined, color: AppColors.warning, size: 20),
+              const Icon(
+                Icons.wifi_off_outlined,
+                color: AppColors.warning,
+                size: 20,
+              ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
                   'Wi-Fi Upload Highly Recommended',
-                  style: AppTextStyles.bodyLarge.copyWith(color: AppColors.warning, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: AppColors.warning,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -710,7 +700,9 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Batch size is ${_formatSize(_totalSize)}. By default, uploads over 50MB run over Wi-Fi only.',
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           Row(
@@ -718,7 +710,10 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
             children: [
               Text(
                 'Allow Cellular Upload',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               Switch.adaptive(
                 value: _cellularOverride,

@@ -5,6 +5,14 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-09-07: File Manager real-data activation
+
+- Set the shared dummy-repository flag to false, activating existing Dio repositories for workspaces, folder browsing, file operations, and comments. Dummy implementations remain inactive for app use and explicitly injectable in tests.
+- Removed upload timer simulation, fabricated file IDs/URLs, in-memory save, and false success notification. Upload currently reports unavailable pending FM8 multipart implementation.
+- Updated the expanded preview test to explicitly inject comments and file-action fixtures; updated the feature API plan and AI handoff to supersede historical dummy-default notes.
+- Verification: File Manager static analysis passed; File Manager tests passed (23/23); `git diff --check` passed.
+- Remaining: authenticated device/backend verification, unresolved API contract questions, and real multipart uploads. A hot restart/relaunch is needed to discard an existing in-memory dummy provider value.
+
 ### 2026-08-20: Add Full-Width Glass Shadow Background Overlay to Featured Work Images
 
 - **Task**: Ensure image title text on `FeaturedWorkCard` ("Krunal test", "Candid", etc.) remains highly legible on white or light background images by adding a full-width frosted glass dark gradient overlay with vertically centered text and compact height.
@@ -4293,3 +4301,53 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
   - `flutter analyze --fatal-infos` — 0 issues.
   - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 5/5 tests passing.
 
+### 2026-09-07: File Manager enabled in drawer navigation
+
+- **Task**: Expose the existing File Manager shell branch in the drawer UI.
+- **Changed Files**:
+  - `lib/shared/layouts/app_shell.dart`
+  - `test/shared/layouts/app_shell_test.dart`
+- **Decisions**:
+  - Added the File Manager drawer item at branch index `2` using the existing
+    `AppAssets.activeFileManager` and `AppAssets.inactiveFileManager` assets.
+  - Kept File Manager hidden from the bottom navigation bar as intended by the
+    current shell design.
+- **Verification**:
+  - `flutter test test/shared/layouts/app_shell_test.dart --plain-name 'AppShell drawer exposes File Manager branch'` — passed.
+  - `flutter analyze --fatal-infos` — blocked by a pre-existing
+    `HomeNotifier.refresh` override mismatch in
+    `test/features/home/presentation/screens/home_screen_test.dart:32`.
+- **Remaining Risk**: The existing Payouts drawer test expects an item that is
+  intentionally omitted from the drawer and remains failing independently.
+
+### 2026-09-07: Debug login credential prefill
+
+- **Task**: Speed up local debug login testing with prefilled credentials.
+- **Changed Files**:
+  - `lib/features/auth/presentation/screens/login_screen.dart`
+  - `test/features/auth/presentation/screens/login_screen_test.dart`
+- **Decisions**:
+  - Prefill the requested email and password in `initState` only when
+    `kDebugMode` is true, so release builds do not include the convenience
+    behavior.
+  - Existing saved credentials still override the debug defaults during normal
+    hydration.
+- **Verification**:
+  - `flutter test test/features/auth/presentation/screens/login_screen_test.dart` — 6/6 passing.
+
+### 2026-09-07: File Manager added to bottom navigation
+
+- **Task**: Make File Manager available from both the drawer and bottom
+  navigation bar.
+- **Changed Files**:
+  - `lib/shared/layouts/app_shell.dart`
+  - `test/shared/layouts/app_shell_test.dart`
+- **Decisions**:
+  - Added branch index `2` to the bottom-bar branch list and inserted the
+    existing File Manager active/inactive icons and label between Shoots and
+    Messages.
+  - Kept the existing branch index and notifier invalidation behavior intact.
+- **Verification**:
+  - Bottom-bar branch-switch test passed.
+  - Drawer File Manager branch test updated to distinguish the bottom-bar and
+    drawer labels.

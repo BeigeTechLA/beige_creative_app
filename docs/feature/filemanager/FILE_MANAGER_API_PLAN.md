@@ -1,5 +1,17 @@
 # File Manager — API Integration Plan
 
+## Real-data activation — 2026-09-07
+
+- [x] Default all File Manager repository providers to real Dio implementations.
+- [x] Remove simulated upload progress and fabricated upload records; report uploads unavailable until FM8 is implemented.
+- [x] Keep widget-test comment fixtures explicit, independent of production defaults.
+- [ ] Verify authenticated browse/actions against the live backend on device.
+
+This update supersedes the dummy-default statements in the historical July
+snapshots below. Existing remote workspace, folder, file-action, and comment
+repositories are now selected by default with no dummy fallback. Multipart
+uploads remain pending; this activation does not complete FM8.
+
 **Overall status (audited 2026-07-14):** 🟡 In progress — **9 / 20 tasks
 complete, 1 partial, 7 blocked, 3 pending**. FM7 is implementation-complete,
 but the app still defaults to dummy repositories; the remote browse/file-ops

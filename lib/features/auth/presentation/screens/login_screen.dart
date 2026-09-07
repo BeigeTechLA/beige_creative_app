@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,6 +39,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.initState();
     emailController.addListener(_rebuild);
     passwordController.addListener(_rebuild);
+    if (kDebugMode) {
+      emailController.text = 'pranav+krunalCP@revurge.com';
+      passwordController.text = 'password1';
+    }
   }
 
   void _rebuild() => setState(() {});

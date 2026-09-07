@@ -37,6 +37,14 @@ Every AI session should read:
 
 Active Phase 6 entry-point: `docs/phase6/README.md`.
 
+## File Manager real-data activation (2026-09-07)
+
+`useDummyFileManagerProvider` now defaults to `false` for all File Manager
+repositories. Historical stub/dummy-default notes below are superseded by
+`docs/feature/filemanager/FILE_MANAGER_API_PLAN.md`. Simulated upload progress
+and fabricated files were removed; Upload reports unavailable pending FM8.
+Authenticated backend validation on device remains pending.
+
 ## Current Architecture
 
 - App startup: `lib/main_dev.dart` / `lib/main_prod.dart` call `startApp(Environment)` in `lib/main.dart`.

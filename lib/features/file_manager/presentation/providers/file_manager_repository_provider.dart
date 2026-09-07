@@ -6,12 +6,9 @@ import '../../data/repositories/file_manager_repository_remote.dart';
 import '../../data/sources/file_manager_remote_source.dart';
 import '../../domain/repositories/file_manager_repository.dart';
 
-/// Toggles between the dummy in-memory repo and the remote Dio repo.
-///
-/// **Default `true` until backend endpoints land.** Plan §8 documents the
-/// expected shape; flip to `false` once the API is confirmed and integration
-/// tested end-to-end. Premature flip → 404 on every list.
-final useDummyFileManagerProvider = StateProvider<bool>((_) => true);
+/// Real API data is the default across every File Manager screen.
+/// Dummy repositories remain available only for explicit development overrides.
+final useDummyFileManagerProvider = StateProvider<bool>((_) => false);
 
 final _remoteFileManagerSourceProvider = Provider<FileManagerRemoteSource>(
   (ref) => FileManagerRemoteSource(ref.watch(dioClientProvider)),
