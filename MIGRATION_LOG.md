@@ -5,6 +5,14 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-09-08: Fix App Store invalid large app icon (409)
+
+- **Status**: Local asset fix complete; fresh archive and App Store validation pending.
+- **Changes**: Converted all 16 `icon-ios-*.png` files in `ios/Runner/Assets.xcassets/AppIcon.appiconset/` to RGB PNGs without alpha, compositing transparent corners onto the existing beige background (`#E8D1AB`). Added defensive `remove_alpha_ios` and background settings in `pubspec.yaml` for future launcher generation.
+- **Decisions**: Preserved existing artwork, dimensions, catalog entries, and separate iOS asset maintenance (`ios: false`). This is a release asset fix outside the migration tasks; Phase 6 remains active per `docs/AI_HANDOFF.md`, superseding the entrypoint's older Phase 4 default.
+- **Verification**: `sips` confirms all 16 iOS icons have no alpha channel and retain their catalog dimensions, including the 1024×1024 large icon. No Dart code changed; Flutter tests are not relevant to PNG encoding.
+- **Remaining**: Build a new archive/IPA and validate/upload it; existing archives still contain the rejected assets.
+
 ### 2026-08-20: Add Full-Width Glass Shadow Background Overlay to Featured Work Images
 
 - **Task**: Ensure image title text on `FeaturedWorkCard` ("Krunal test", "Candid", etc.) remains highly legible on white or light background images by adding a full-width frosted glass dark gradient overlay with vertically centered text and compact height.
@@ -4292,4 +4300,3 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - **Verification**:
   - `flutter analyze --fatal-infos` — 0 issues.
   - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 5/5 tests passing.
-

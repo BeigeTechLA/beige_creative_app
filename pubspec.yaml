@@ -160,6 +160,10 @@ flutter:
 flutter_launcher_icons:
   android: "ic_launcher"
   ios: false
+  # The iOS catalog is maintained separately; keep its PNGs opaque RGB.
+  # Apply these settings if iOS generation is enabled in the future.
+  remove_alpha_ios: true
+  background_color_ios: "#E8D1AB"
   image_path: "assets/icon/icon.png"
   min_sdk_android: 21
   adaptive_icon_background: "#000000"
