@@ -5,6 +5,7 @@ import '../../../../../app/assets.dart';
 import '../../../../../app/colors.dart';
 import '../../../../../app/radii.dart';
 import '../../../../../app/spacing.dart';
+import '../../../../../utility/date_time_utils.dart';
 import '../../domain/models/affiliate_transaction.dart';
 
 class AffiliateTransactionTile extends StatefulWidget {
@@ -129,7 +130,7 @@ class _AffiliateTransactionTileState extends State<AffiliateTransactionTile> {
                 children: [
                   _DetailRow(
                     label: 'Booking Date',
-                    value: DateFormat('dd MMMM, yyyy').format(transaction.date),
+                    value: DateTimeUtils.formatFullMonthDate(transaction.date),
                   ),
                   AppSpacing.verticalSm,
                   _DetailRow(

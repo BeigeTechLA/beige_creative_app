@@ -29,7 +29,7 @@ class AffiliateRepositoryImpl implements AffiliateRepository {
       throw Exception('Affiliate dashboard returned unexpected payload');
     }
     return const AffiliateDashboardData(
-      summary: const AffiliateSummary(),
+      summary: AffiliateSummary(),
       transactions: [],
     );
   }
