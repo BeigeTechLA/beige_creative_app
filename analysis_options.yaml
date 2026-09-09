@@ -9,6 +9,15 @@
 # `// ignore: <rule>` (single line) or `// ignore_for_file: <rule>` (whole
 # file) with a `— reason: …` comment per `MIGRATION_RULES.md` §10.
 
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
 include: package:flutter_lints/flutter.yaml
 
 linter:
