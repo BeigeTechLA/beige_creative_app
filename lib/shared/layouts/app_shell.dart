@@ -15,6 +15,8 @@ import '../../config/env.dart';
 import '../../core/firebase/analytics_service.dart';
 import '../../core/providers/guest_mode_provider.dart';
 import '../../shared/widgets/login_dialog.dart';
+import '../../features/affiliate/presentation/providers/affiliate_notifier.dart'
+    show affiliateNotifierProvider;
 import '../../features/availability/presentation/providers/availability_providers.dart'
     show manageAvailabilityNotifierProvider;
 import '../../features/file_manager/presentation/providers/file_manager_root_notifier.dart'
@@ -78,6 +80,8 @@ class AppShell extends ConsumerWidget {
         ref.invalidate(meetingsListNotifierProvider);
       case 5:
         ref.invalidate(manageAvailabilityNotifierProvider);
+      case 6:
+        ref.invalidate(affiliateNotifierProvider);
     }
   }
 
@@ -443,6 +447,12 @@ class _AppShellDrawer extends ConsumerWidget {
       label: 'Manage Availability',
       activeIcon: AppAssets.activeManageAvailability,
       inactiveIcon: AppAssets.inactiveManageAvailability,
+    ),
+    _DrawerMenuItemData(
+      branchIndex: 6,
+      label: 'Affiliate',
+      activeIcon: AppAssets.activeAffiliate,
+      inactiveIcon: AppAssets.inactiveAffiliate,
     ),
   ];
 }

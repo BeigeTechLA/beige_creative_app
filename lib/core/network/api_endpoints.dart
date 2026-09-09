@@ -177,4 +177,8 @@ class ApiEndpoints {
       'external-chat/room/$roomId/details';
   static String chatParticipants(String roomId) =>
       'external-chat/participants/$roomId';
+
+  // ───── Affiliate ────────────────────────────────────────────────────────
+  static const String affiliateDashboard = 'affiliates/dashboard';
+  static const String updateReferralCode = 'affiliates/update/referral';
 }

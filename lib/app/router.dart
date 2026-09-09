@@ -11,6 +11,7 @@ import '../core/providers/guest_mode_provider.dart';
 import '../core/providers/onboarding_seen_provider.dart';
 import '../core/restoration/restoration_providers.dart';
 import '../core/session/temporary_auth_session.dart';
+import '../features/affiliate/presentation/screens/affiliate_screen.dart';
 import '../features/availability/presentation/routes/availability_routes.dart';
 import '../features/availability/presentation/screens/manage_availability_screen.dart';
 import '../features/auth/presentation/routes/auth_routes.dart';
@@ -308,10 +309,7 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.affiliate.path,
             name: Routes.affiliate.name,
-            builder: (context, state) => const MenuPlaceholderScreen(
-              title: 'Affiliate',
-              description: 'Affiliate tools arriving soon.',
-            ),
+            builder: (context, state) => const AffiliateScreen(),
           ),
         ],
       ),
