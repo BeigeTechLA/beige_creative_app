@@ -1,6 +1,41 @@
 # File Manager — API Integration Plan
 
+## Image previews — 2026-09-10
+
+- [x] Share image-extension detection across file DTOs and previews, including
+  mixed-case names, signed URLs, and generic MIME responses.
+- [x] Use one image-preview widget in file cards (all listing tabs/folders) and
+  the preview sheet. Prefer supplied thumbnail/preview URLs; otherwise request
+  a signed view URL for the file path, or use a legacy download URL.
+- [x] Keep placeholders on missing URLs, request failures, and unsupported image
+  codecs. Extension recognition does not guarantee platform decoder support.
+- [x] Add helper/DTO/provider regression tests.
+- [x] Reuse preview state across scroll disposal with value-based file keys and
+  a five-minute keep-alive capped by signed URL expiry (30-second margin).
+  Use stable version/metadata-based image cache keys and disable repeated fades.
+  Failed requests are released so returning to a card can retry.
+- [ ] Verify authenticated image rendering on device.
+
+The user's image-preview request supersedes historical no-inline-image rules
+below. Video/document external-open behavior remains unchanged.
+
 ## Real-data activation — 2026-09-07
+
+### Navigation review — 2026-09-10
+
+- [x] Trace repeated-folder navigation against the documented browse contract.
+- [x] Fix root-phase child browsing: the detail endpoint must be used only when
+  both phase is `root` and path is empty; children require `/files` with phase/path.
+- [x] Preserve the requested folder key when browse responses omit phase/path,
+  and cover nested navigation with regression tests.
+- [ ] Confirm parity with the running web flow and authenticated backend.
+
+Fixed root-phase child requests discarding the path and reloading workspace
+detail. Response parsing now retains requested phase/path when absent from the
+response. Five remote-source regression tests cover endpoint selection, nested
+navigation to files, and response-context precedence. All 28 File Manager tests
+pass; targeted static analysis is clean. Live authenticated verification remains
+pending.
 
 - [x] Default all File Manager repository providers to real Dio implementations.
 - [x] Remove simulated upload progress and fabricated upload records; report uploads unavailable until FM8 is implemented.
@@ -45,9 +80,9 @@ focused contracts (workspace list, folder browse, file ops), and thread
 `externalId + phase + path` through the presentation layer wherever we
 currently pass a bare `folderId`.
 
-**File opening policy (project rule):** the app **never** renders file
-content inline — no embedded video player, no image viewer, no PDF
-reader. Every open / download hands off to the OS (`url_launcher` with
+**File opening policy (updated 2026-09-10):** image previews render inline in
+cards and the preview sheet. Video and documents use external viewers.
+Explicit open / download hands off to the OS (`url_launcher` with
 `LaunchMode.externalApplication`, or `share_plus` for share). See §4.9.
 
 Two implementations remain in tree until the remote path is green:

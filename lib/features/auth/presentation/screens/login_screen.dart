@@ -40,7 +40,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     emailController.addListener(_rebuild);
     passwordController.addListener(_rebuild);
     if (kDebugMode) {
-      emailController.text = 'pranav+krunalCP@revurge.com';
+      emailController.text = 'pranav+RPcpdev2@revurge.com';//'pranav+krunalCP@revurge.com';
       passwordController.text = 'password1';
     }
   }

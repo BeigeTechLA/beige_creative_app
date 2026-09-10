@@ -15,6 +15,7 @@ import '../providers/comments_notifier.dart';
 import '../providers/file_ops_repository_provider.dart';
 import '../providers/node_action_notifier.dart';
 import 'fm_file_type_icon.dart';
+import 'fm_image_preview.dart';
 import 'fm_status_pill.dart';
 import 'fm_version_tag.dart';
 
@@ -43,10 +44,8 @@ class FmFilePreviewSheet extends ConsumerStatefulWidget {
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(borderRadius: AppRadii.topHuge),
-      builder: (context) => FmFilePreviewSheet(
-        file: file,
-        folderKey: folderKey,
-      ),
+      builder: (context) =>
+          FmFilePreviewSheet(file: file, folderKey: folderKey),
     );
   }
 
@@ -84,9 +83,7 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
 
     setState(() => _posting = true);
     try {
-      await ref
-          .read(commentsNotifierProvider(_fileMetaId).notifier)
-          .post(text);
+      await ref.read(commentsNotifierProvider(_fileMetaId).notifier).post(text);
       if (!mounted) return;
       _commentController.clear();
       FocusScope.of(context).unfocus();
@@ -124,16 +121,24 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
           children: [
             const SizedBox(height: AppSpacing.sm),
             ListTile(
-              leading: const Icon(Icons.check_circle_outline, color: AppColors.success),
+              leading: const Icon(
+                Icons.check_circle_outline,
+                color: AppColors.success,
+              ),
               title: const Text('Approve'),
               subtitle: const Text('Move to Final Deliverables.'),
               onTap: () => Navigator.pop(ctx, FmRevisionAction.approve),
             ),
             const Divider(height: 1, color: AppColors.dividerDark),
             ListTile(
-              leading: const Icon(Icons.change_circle_outlined, color: AppColors.warning),
+              leading: const Icon(
+                Icons.change_circle_outlined,
+                color: AppColors.warning,
+              ),
               title: const Text('Request Revision'),
-              subtitle: const Text('Create a new Version folder for the next cut.'),
+              subtitle: const Text(
+                'Create a new Version folder for the next cut.',
+              ),
               onTap: () => Navigator.pop(ctx, FmRevisionAction.requestRevision),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -190,8 +195,12 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final filepath = _fileMetaId;
-    final isDownloading = ref.watch(nodeActionNotifierProvider.select((s) => s.isDownloading(filepath)));
-    final downloadProgress = ref.watch(nodeActionNotifierProvider.select((s) => s.downloadProgress[filepath]));
+    final isDownloading = ref.watch(
+      nodeActionNotifierProvider.select((s) => s.isDownloading(filepath)),
+    );
+    final downloadProgress = ref.watch(
+      nodeActionNotifierProvider.select((s) => s.downloadProgress[filepath]),
+    );
     final commentsAsync = ref.watch(commentsNotifierProvider(filepath));
 
     return Padding(
@@ -213,7 +222,10 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
 
             // Header Row
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
               child: Row(
                 children: [
                   FmFileTypeIcon(type: widget.file.type, size: 40),
@@ -241,7 +253,11 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.textPrimary, size: 24),
+                    icon: const Icon(
+                      Icons.close,
+                      color: AppColors.textPrimary,
+                      size: 24,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -282,7 +298,11 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                           onPressed: widget.folderKey == null
                               ? null
                               : _openReviewChooser,
-                          icon: const Icon(Icons.rule, size: 18, color: AppColors.warning),
+                          icon: const Icon(
+                            Icons.rule,
+                            size: 18,
+                            color: AppColors.warning,
+                          ),
                           label: Text(
                             'Review',
                             style: AppTextStyles.labelMedium.copyWith(
@@ -291,9 +311,16 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppColors.warning, width: 1.2),
-                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            side: const BorderSide(
+                              color: AppColors.warning,
+                              width: 1.2,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.md,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ),
@@ -303,7 +330,9 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                         child: OutlinedButton.icon(
                           onPressed: isDownloading
                               ? null
-                              : () => ref.read(nodeActionNotifierProvider.notifier).downloadFile(filepath),
+                              : () => ref
+                                    .read(nodeActionNotifierProvider.notifier)
+                                    .downloadFile(filepath),
                           icon: isDownloading
                               ? const SizedBox(
                                   width: 14,
@@ -313,7 +342,11 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                                     color: AppColors.primary,
                                   ),
                                 )
-                              : const Icon(Icons.download_outlined, size: 18, color: AppColors.primary),
+                              : const Icon(
+                                  Icons.download_outlined,
+                                  size: 18,
+                                  color: AppColors.primary,
+                                ),
                           label: Text(
                             isDownloading
                                 ? '${((downloadProgress ?? 0.0) * 100).toInt()}%'
@@ -324,9 +357,16 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppColors.borderGold, width: 1.2),
-                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            side: const BorderSide(
+                              color: AppColors.borderGold,
+                              width: 1.2,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.md,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ),
@@ -336,8 +376,15 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                         child: OutlinedButton.icon(
                           onPressed: () => ref
                               .read(nodeActionNotifierProvider.notifier)
-                              .shareFile(filepath: filepath, subject: widget.file.name),
-                          icon: const Icon(Icons.share_outlined, size: 18, color: AppColors.primary),
+                              .shareFile(
+                                filepath: filepath,
+                                subject: widget.file.name,
+                              ),
+                          icon: const Icon(
+                            Icons.share_outlined,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
                           label: Text(
                             'Share',
                             style: AppTextStyles.labelMedium.copyWith(
@@ -346,9 +393,16 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppColors.borderGold, width: 1.2),
-                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            side: const BorderSide(
+                              color: AppColors.borderGold,
+                              width: 1.2,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.md,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ),
@@ -357,9 +411,8 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                   const SizedBox(height: AppSpacing.lg),
 
                   // Media Box — tap-through to the OS handler. Per
-                  // FILE_MANAGER_API_PLAN §4.9 the app never renders
-                  // file bytes inline; tap fetches a signed view URL
-                  // then hands off via `url_launcher(externalApplication)`.
+                  // Images share the card preview; tapping still opens the
+                  // original through the existing external viewer action.
                   AspectRatio(
                     aspectRatio: 16 / 9,
                     child: InkWell(
@@ -371,29 +424,35 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                         decoration: BoxDecoration(
                           color: AppColors.surfaceMid,
                           borderRadius: BorderRadius.circular(AppRadii.md),
-                          border: Border.all(color: AppColors.dividerDark, width: 1),
+                          border: Border.all(
+                            color: AppColors.dividerDark,
+                            width: 1,
+                          ),
                         ),
                         alignment: Alignment.center,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              widget.file.type == FileType.video
-                                  ? Icons.play_circle_outline
-                                  : Icons.open_in_new,
-                              size: 48,
-                              color: AppColors.primary,
-                            ),
-                            const SizedBox(height: AppSpacing.xs),
-                            Text(
-                              widget.file.type == FileType.video
-                                  ? 'Open in Player'
-                                  : 'Open in Viewer',
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
+                        child: FmImagePreview(
+                          file: widget.file,
+                          fallback: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                widget.file.type == FileType.video
+                                    ? Icons.play_circle_outline
+                                    : Icons.open_in_new,
+                                size: 48,
+                                color: AppColors.primary,
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: AppSpacing.xs),
+                              Text(
+                                widget.file.type == FileType.video
+                                    ? 'Open in Player'
+                                    : 'Open in Viewer',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -418,15 +477,28 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.sm),
-                        _metadataRow('Uploaded by', widget.file.uploaderName ?? 'Lana Guzman'),
+                        _metadataRow(
+                          'Uploaded by',
+                          widget.file.uploaderName ?? 'Lana Guzman',
+                        ),
                         _metadataRow(
                           'Last updated',
                           widget.file.openedAt != null
-                              ? DateFormat('MMM dd, yyyy · hh:mm a').format(widget.file.openedAt!)
+                              ? DateFormat(
+                                  'MMM dd, yyyy · hh:mm a',
+                                ).format(widget.file.openedAt!)
                               : 'June 26, 2026',
                         ),
-                        _metadataRow('File type', widget.file.type.name.toUpperCase()),
-                        _metadataRow('Current version', widget.file.version != null ? 'V${widget.file.version}' : 'V1'),
+                        _metadataRow(
+                          'File type',
+                          widget.file.type.name.toUpperCase(),
+                        ),
+                        _metadataRow(
+                          'Current version',
+                          widget.file.version != null
+                              ? 'V${widget.file.version}'
+                              : 'V1',
+                        ),
                       ],
                     ),
                   ),
@@ -457,11 +529,15 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                     ],
                     error: (e, _) => [
                       Container(
-                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.xl,
+                        ),
                         alignment: Alignment.center,
                         child: Text(
                           'Could not load comments.',
-                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.error,
+                          ),
                         ),
                       ),
                     ],
@@ -469,18 +545,20 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                       if (comments.isEmpty) {
                         return [
                           Container(
-                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.xl,
+                            ),
                             alignment: Alignment.center,
                             child: Text(
                               'No comments yet. Be the first to comment!',
-                              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textTertiary,
+                              ),
                             ),
                           ),
                         ];
                       }
-                      return [
-                        for (final c in comments) _commentTile(c),
-                      ];
+                      return [for (final c in comments) _commentTile(c)];
                     },
                   ),
                 ],
@@ -496,13 +574,20 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                   Expanded(
                     child: TextField(
                       controller: _commentController,
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Add a comment...',
-                        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
+                        hintStyle: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textTertiary,
+                        ),
                         fillColor: AppColors.surfaceInput,
                         filled: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.sm,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                           borderSide: BorderSide.none,
@@ -525,7 +610,11 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
                                 color: AppColors.onPrimary,
                               ),
                             )
-                          : const Icon(Icons.send, color: AppColors.onPrimary, size: 18),
+                          : const Icon(
+                              Icons.send,
+                              color: AppColors.onPrimary,
+                              size: 18,
+                            ),
                       onPressed: _posting ? null : _postComment,
                     ),
                   ),
@@ -604,7 +693,9 @@ class _FmFilePreviewSheetState extends ConsumerState<FmFilePreviewSheet> {
         children: [
           Text(
             label,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           Text(
             value,

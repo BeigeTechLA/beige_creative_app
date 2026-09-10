@@ -5,6 +5,38 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-09-10: File Manager scroll preview caching
+
+- Replaced FmFile object-identity provider keys with value-based request keys. Retain pending/successful URL state across scrolling for up to five minutes, shortened by server expiry with a 30-second margin; release failed requests for retry.
+- Added stable image-byte cache keys based on path/id, version, timestamp, and size so rotating URL signatures do not bypass the disk cache. Removed repeated fade-in/out in the shared preview widget.
+- Added regression coverage for scroll-away/return using recreated file objects, failed request recovery, expired URL eviction, and signature-independent/version-aware byte keys.
+- Verification: File Manager tests passed 37/37; File Manager static analysis passed; `git diff --check` passed. Updated feature checklist and handoff.
+- Remaining: live device scrolling verification. Replacement detection depends on backend version/timestamp/size changes; the existing image cache retains its own disk eviction policy.
+
+### 2026-09-10: Shared File Manager image previews
+
+- Added `isImageFile` in `file_type.dart`, reused by extension/type mapping, both file DTOs, and the shared preview path. Image extensions override generic MIME/type values.
+- Added `fileImagePreviewProvider` and `FmImagePreview`; all listing cards and the preview sheet now load supplied previews or signed view URLs, with legacy download URL fallback. Unavailable/unsupported images retain existing placeholders.
+- Updated API plan and handoff: the user's request explicitly supersedes the historical no-inline-image policy. External open actions remain available.
+- Verification: File Manager tests passed 33/33, including five new helper/DTO/provider tests. File Manager static analysis and `git diff --check` passed. Initial analysis found two brace-style infos, corrected before the passing final analysis.
+- Remaining: authenticated device rendering; HEIC/TIFF/SVG and other recognized extensions depend on decoder support or a server thumbnail and otherwise show placeholders.
+
+### 2026-09-10: File Manager folder contents endpoint fix
+
+- Confirmed `GET external-file-manager/workspace/{externalId}/files` was already defined and selected by the live repository. Fixed `FolderBrowseRemoteSource` to use workspace detail only for an empty root path; every child uses `/files` with phase and optional relative path.
+- Added requested-key fallback to `FmWorkspaceDetailDto` so absent response phase/path cannot reset nested navigation. Explicit response context continues to take precedence.
+- Added five remote-source regression tests for root children, Pre/Post entry, nested navigation to a file, and response context. Updated feature task checklist; unrelated existing edits preserved.
+- Verification: `flutter test --no-pub test/features/file_manager/` passed 28/28; targeted `flutter analyze --no-pub` passed; `git diff --check` passed. Initial test assertions compared map-containing records by identity; corrected to compare their fields before the passing run.
+- Remaining: live authenticated backend/device verification and web parity confirmation.
+
+### 2026-09-10: File Manager folder-loop review
+
+- Reviewed folder taps, folder keys, remote endpoint selection, and response parsing against the feature API/design documents.
+- Found a deterministic root-phase child navigation defect: `FolderBrowseRemoteSource.open` selects workspace detail for every root-phase key, discarding non-empty child paths and repeating the root listing.
+- Found an additional conditional risk: `FmWorkspaceDetailDto` resets missing response phase/path to root/empty instead of preserving request context.
+- Updated the feature API plan with pending fixes and validation. No runtime code changed; verification was static inspection, not a live web/device reproduction.
+- Current handoff/feature plan supersedes the old Phase 4 stub-only guidance. Existing uncommitted implementation changes were left intact.
+
 ### 2026-09-07: File Manager real-data activation
 
 - Set the shared dummy-repository flag to false, activating existing Dio repositories for workspaces, folder browsing, file operations, and comments. Dummy implementations remain inactive for app use and explicitly injectable in tests.

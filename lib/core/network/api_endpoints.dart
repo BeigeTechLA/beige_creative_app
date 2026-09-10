@@ -155,7 +155,6 @@ class ApiEndpoints {
   static const String comments = 'comments';
   static String commentReply(String id) => 'comments/$id/reply';
   static String commentById(String id) => 'comments/$id';
-  static const String fmCommonEvents = 'external-file-manager/common-events';
   static String fmCommonEvent(String extId) =>
       'external-file-manager/common-events/$extId';
   static String fmCommonEventCreatorFolder(String extId) =>

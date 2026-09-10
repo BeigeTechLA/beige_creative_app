@@ -18,12 +18,20 @@ class WorkspacesRemoteSource {
   final DioClient _client;
   Dio get _dio => _client.dio;
 
-  Future<FmPage<FmFolder>> list({String? cursor, int limit = 20}) async {
+  Future<FmPage<FmFolder>> list({
+    String? cursor,
+    int limit = 20,
+    String? workspaceType,
+  }) async {
     try {
       final page = int.tryParse(cursor ?? '') ?? 1;
       final resp = await _dio.get<dynamic>(
         ApiEndpoints.fmWorkspaces,
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          'workspaceType': ?workspaceType,
+        },
       );
       final data = FmJson.asMap(FmJson.unwrap(resp.data)) ?? const {};
       final items = FmJson.asList(data['workspaces'])
@@ -45,8 +53,16 @@ class WorkspacesRemoteSource {
 
   Future<List<FmCommonEvent>> listCommonEvents() async {
     try {
-      final resp = await _dio.get<dynamic>(ApiEndpoints.fmCommonEvents);
-      return FmCommonEventDto.listFromJson(FmJson.unwrap(resp.data));
+      final resp = await _dio.get<dynamic>(
+        ApiEndpoints.fmWorkspaces,
+        queryParameters: {
+          'page': 1,
+          'limit': 200,
+          'workspaceType': 'common-events',
+        },
+      );
+      final data = FmJson.asMap(FmJson.unwrap(resp.data)) ?? const {};
+      return FmCommonEventDto.listFromJson(data['workspaces']);
     } on DioException catch (e, st) {
       throw ExceptionHandler.mapDioException(e, st);
     }

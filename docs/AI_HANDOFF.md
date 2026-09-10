@@ -39,6 +39,16 @@ Active Phase 6 entry-point: `docs/phase6/README.md`.
 
 ## File Manager real-data activation (2026-09-07)
 
+Image-preview update (2026-09-10): the user's request supersedes the old
+no-inline-image policy. `isImageFile` centralizes extension detection;
+`FmImagePreview` and `fileImagePreviewProvider` render image previews in every
+file card and the preview sheet, using provided previews or signed view URLs.
+Unsupported codecs/request failures retain placeholders. Live device image
+verification is pending.
+Preview caching now uses value-based file keys, a bounded five-minute URL
+keep-alive (shortened by server expiry), and stable version/metadata-based image
+cache keys so scrolling does not repeatedly sign/download the same image.
+
 `useDummyFileManagerProvider` now defaults to `false` for all File Manager
 repositories. Historical stub/dummy-default notes below are superseded by
 `docs/feature/filemanager/FILE_MANAGER_API_PLAN.md`. Simulated upload progress

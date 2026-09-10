@@ -23,26 +23,31 @@ import 'fm_workspace_dto.dart';
 /// }
 /// ```
 ///
-/// The detail endpoint omits `phase` + `path`; treat them as `root` / ``.
+/// Missing `phase` + `path` retain the requested location when available.
 class FmWorkspaceDetailDto {
   static FmFolderContents fromJson(
     Map<String, dynamic> j, {
     required String externalId,
+    FmFolderKey? requestedKey,
   }) {
     final workspaceJson = FmJson.asMap(j['workspace']);
     final workspace = workspaceJson != null
         ? FmWorkspaceDto.fromJson(workspaceJson)
         : null;
 
-    final phase = FmPhaseX.fromApi(j['phase']?.toString());
-    final path = (j['path'] ?? '').toString();
+    final phase = j['phase'] == null
+        ? requestedKey?.phase ?? FmPhase.root
+        : FmPhaseX.fromApi(j['phase']?.toString());
+    final path = (j['path'] ?? requestedKey?.path ?? '').toString();
     final basePath = (j['basePath'] ?? '').toString();
 
     final key = FmFolderKey(externalId: externalId, phase: phase, path: path);
-    final folders = FmJson.asList(j['folders'])
-        .map((f) => FmFolderNodeDto.fromJson(f, parent: key))
-        .toList();
-    final files = FmJson.asList(j['files']).map(FmFileNodeDto.fromJson).toList();
+    final folders = FmJson.asList(
+      j['folders'],
+    ).map((f) => FmFolderNodeDto.fromJson(f, parent: key)).toList();
+    final files = FmJson.asList(
+      j['files'],
+    ).map(FmFileNodeDto.fromJson).toList();
 
     return FmFolderContents(
       key: key,

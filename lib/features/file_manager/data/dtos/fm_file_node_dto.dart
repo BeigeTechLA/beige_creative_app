@@ -31,11 +31,20 @@ import 'fm_envelope_dto.dart';
 class FmFileNodeDto {
   static FmFile fromJson(Map<String, dynamic> j) {
     final name = (j['name'] ?? '').toString();
-    final contentType = j['contentType']?.toString() ??
-        j['mimeType']?.toString();
+    final contentType =
+        j['contentType']?.toString() ?? j['mimeType']?.toString();
 
-    final type = contentType != null
+    // MIME wins when conclusive. But servers often serve RAW/obscure formats
+    // as `application/octet-stream` (→ `other`); fall back to the filename
+    // extension in that case so RAW (`.nef`, `.cr2`, …) and friends still
+    // land in the right bucket.
+    final mimeType = contentType != null
         ? FileTypeX.fromApi(_mimeBucket(contentType))
+        : FileType.other;
+    final type = isImageFile(name) || isImageFile(j['path']?.toString())
+        ? FileType.image
+        : mimeType != FileType.other
+        ? mimeType
         : FileTypeX.fromExtension(name);
 
     final uploader = FmJson.asMap(j['uploadedBy']);
@@ -50,8 +59,9 @@ class FmFileNodeDto {
       // Keep the field as an empty string so existing widgets that only
       // read `filepath` stay happy.
       downloadUrl: '',
-      previewUrl: _resolveUrl(j['thumbnailUrl']?.toString() ??
-          j['previewUrl']?.toString()),
+      previewUrl: _resolveUrl(
+        j['thumbnailUrl']?.toString() ?? j['previewUrl']?.toString(),
+      ),
       openedAt: FmJson.asDate(j['updatedAt']) ?? FmJson.asDate(j['createdAt']),
       version: FmJson.asInt(j['version']),
       isLatest: FmJson.asBool(j['isLatest'], orElse: true),
