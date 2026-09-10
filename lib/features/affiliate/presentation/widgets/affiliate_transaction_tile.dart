@@ -35,27 +35,7 @@ class _AffiliateTransactionTileState extends State<AffiliateTransactionTile> {
         : AppColors.affiliateLedgerSurface;
 
     return Container(
-      decoration: widget.isLast
-          ? ShapeDecoration(
-              color: tileColor,
-              shape: const RoundedRectangleBorder(
-                side: BorderSide(
-                  width: 0.50,
-                  color: AppColors.affiliateLedgerBorder,
-                ),
-                borderRadius: AppRadii.bottomLg,
-              ),
-            )
-          : BoxDecoration(
-              color: tileColor,
-              border: const Border(
-                bottom: BorderSide(
-                  color: AppColors.affiliateLedgerBorder,
-                  width: 0.5,
-                ),
-              ),
-            ),
-      clipBehavior: widget.isLast ? Clip.antiAlias : Clip.none,
+      color: tileColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

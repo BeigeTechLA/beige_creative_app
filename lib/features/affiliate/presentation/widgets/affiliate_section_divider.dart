@@ -20,6 +20,8 @@ class AffiliateSectionDivider extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.xl,
+
+
         vertical: AppSpacing.smd,
       ),
       child: Container(

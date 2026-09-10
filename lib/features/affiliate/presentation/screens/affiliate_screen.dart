@@ -195,7 +195,6 @@ class _ReferralLedgerHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       decoration: const BoxDecoration(
         color: AppColors.black,
-        borderRadius: AppRadii.bottomLg,
         border: Border(
           bottom: BorderSide(color: AppColors.affiliateLedgerBorder, width: 0.5),
         ),
