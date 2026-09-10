@@ -5,6 +5,14 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-09-08: Fix App Store invalid large app icon (409)
+
+- **Status**: Local asset fix complete; fresh archive and App Store validation pending.
+- **Changes**: Converted all 16 `icon-ios-*.png` files in `ios/Runner/Assets.xcassets/AppIcon.appiconset/` to RGB PNGs without alpha, compositing transparent corners onto the existing beige background (`#E8D1AB`). Added defensive `remove_alpha_ios` and background settings in `pubspec.yaml` for future launcher generation.
+- **Decisions**: Preserved existing artwork, dimensions, catalog entries, and separate iOS asset maintenance (`ios: false`). This is a release asset fix outside the migration tasks; Phase 6 remains active per `docs/AI_HANDOFF.md`, superseding the entrypoint's older Phase 4 default.
+- **Verification**: `sips` confirms all 16 iOS icons have no alpha channel and retain their catalog dimensions, including the 1024×1024 large icon. No Dart code changed; Flutter tests are not relevant to PNG encoding.
+- **Remaining**: Build a new archive/IPA and validate/upload it; existing archives still contain the rejected assets.
+
 ### 2026-09-10: File Manager scroll preview caching
 
 - Replaced FmFile object-identity provider keys with value-based request keys. Retain pending/successful URL state across scrolling for up to five minutes, shortened by server expiry with a 30-second margin; release failed requests for retry.
