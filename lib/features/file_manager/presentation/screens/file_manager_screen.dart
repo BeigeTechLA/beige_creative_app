@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -15,6 +16,7 @@ import '../providers/node_action_state.dart';
 import '../routes/file_manager_args.dart';
 import '../widgets/fm_actions_sheet.dart';
 import '../widgets/fm_delete_confirm_dialog.dart';
+import '../widgets/fm_share_sheet.dart';
 import '../widgets/fm_empty_view.dart';
 import '../widgets/fm_error_view.dart';
 import '../widgets/fm_recursive_list.dart';
@@ -51,12 +53,10 @@ class FileManagerScreen extends ConsumerWidget {
       case FmNodeAction.open:
         _openFolder(context, folder);
       case FmNodeAction.share:
-        // Workspace-root share = whole-workspace ZIP URL via the OS
-        // share sheet. Real `/share` OTP flow deferred to FM9.03.
-        await actions.downloadFolder(
-          trackingKey: folderPath,
-          externalId: folder.id,
-        );
+        // Email/OTP share sheet. The `/share` endpoint is deferred to
+        // FM9.03, so invite/save are surfaced as pending rather than
+        // fabricating a round-trip.
+        _openShareSheet(context, folder);
       case FmNodeAction.download:
         await actions.downloadFolder(
           trackingKey: folderPath,
@@ -75,6 +75,36 @@ class FileManagerScreen extends ConsumerWidget {
           ref.invalidate(fileManagerRootNotifierProvider);
         }
     }
+  }
+
+  /// Opens the reusable email/OTP share sheet for a folder. Persistence
+  /// via the `/share` endpoint lands in FM9.03; until then invite/save
+  /// surface a pending notice and `Copy Link` uses the clipboard.
+  void _openShareSheet(BuildContext context, FmFolder folder) {
+    FmShareSheet.show(
+      context,
+      target: FmShareTarget(
+        id: folder.id,
+        kind: FmNodeKind.folder,
+        name: folder.name,
+      ),
+      onInvite: (invite) => TopMessage.show(
+        context,
+        'Email sharing is not available yet',
+        type: TopMessageType.error,
+      ),
+      onSaveChanges: (_) => TopMessage.show(
+        context,
+        'Email sharing is not available yet',
+        type: TopMessageType.error,
+      ),
+      onCopyLink: (recipient) {
+        final link = recipient.shareLink;
+        if (link == null) return;
+        Clipboard.setData(ClipboardData(text: link));
+        TopMessage.show(context, 'Link copied', type: TopMessageType.success);
+      },
+    );
   }
 
   @override

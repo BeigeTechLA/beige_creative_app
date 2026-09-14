@@ -17,6 +17,8 @@ Future<FmNodeAction?> showFmActionsSheet(
 }) {
   return showModalBottomSheet<FmNodeAction>(
     context: context,
+    // Cover the bottom nav shell rather than render beneath it.
+    useRootNavigator: true,
     backgroundColor: AppColors.surface,
     shape: const RoundedRectangleBorder(borderRadius: AppRadii.topHuge),
     builder: (ctx) => _Sheet(kind: kind),
