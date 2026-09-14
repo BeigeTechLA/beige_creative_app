@@ -28,6 +28,16 @@ abstract class FileOpsRepository {
     String? path,
   });
 
+  /// Downloads the folder ZIP produced by [folderDownloadUrl] to
+  /// [savePath] on the device. The download is authenticated (Bearer via
+  /// the Dio auth interceptor); the folder-download endpoint is not a
+  /// public signed URL.
+  Future<void> downloadArchive({
+    required String url,
+    required String savePath,
+    void Function(int received, int total)? onProgress,
+  });
+
   /// `POST /external-file-manager/delete`. Callers pass folder paths
   /// with a trailing `/` and file paths without one — [FmPath.forDelete]
   /// normalizes this at the boundary.

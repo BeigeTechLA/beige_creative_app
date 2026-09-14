@@ -42,6 +42,18 @@ class FileOpsRepositoryDummy implements FileOpsRepository {
   }
 
   @override
+  Future<void> downloadArchive({
+    required String url,
+    required String savePath,
+    void Function(int received, int total)? onProgress,
+  }) async {
+    // Dummy path never touches disk; just simulate a completed transfer
+    // so the progress UI can be exercised without a backend.
+    await Future<void>.delayed(_latency);
+    onProgress?.call(100, 100);
+  }
+
+  @override
   Future<FmDeleteResult> delete(String filepath) async {
     await Future<void>.delayed(_latency);
 

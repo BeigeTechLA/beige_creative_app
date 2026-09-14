@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:beige_creative_app/features/file_manager/domain/models/fm_copy_result.dart';
 import 'package:beige_creative_app/features/file_manager/domain/models/fm_delete_result.dart';
 import 'package:beige_creative_app/features/file_manager/domain/models/fm_phase.dart';
@@ -16,6 +19,12 @@ class _Repo implements FileOpsRepository {
   int viewCalls = 0;
   int downloadCalls = 0;
   int folderDownloadCalls = 0;
+  Completer<FmSignedUrl>? folderResult;
+  (String, FmPhase?, String?)? folderScope;
+  int archiveCalls = 0;
+  bool throwOnArchive = false;
+  String? archiveUrl;
+  String? archiveSavePath;
   int deleteCalls = 0;
   bool throwOnDelete = false;
   bool deleteSucceeds = true;
@@ -39,14 +48,33 @@ class _Repo implements FileOpsRepository {
     String? path,
   }) async {
     folderDownloadCalls++;
+    folderScope = (externalId, phase, path);
+    if (folderResult != null) return folderResult!.future;
     return FmSignedUrl(url: 'https://zip/$externalId');
+  }
+
+  @override
+  Future<void> downloadArchive({
+    required String url,
+    required String savePath,
+    void Function(int received, int total)? onProgress,
+  }) async {
+    archiveCalls++;
+    archiveUrl = url;
+    archiveSavePath = savePath;
+    if (throwOnArchive) throw Exception('boom');
+    onProgress?.call(50, 100);
+    onProgress?.call(100, 100);
   }
 
   @override
   Future<FmDeleteResult> delete(String filepath) async {
     deleteCalls++;
     if (throwOnDelete) throw Exception('boom');
-    return FmDeleteResult(deleted: deleteSucceeds, deletedCount: deleteSucceeds ? 1 : 0);
+    return FmDeleteResult(
+      deleted: deleteSucceeds,
+      deletedCount: deleteSucceeds ? 1 : 0,
+    );
   }
 
   @override
@@ -87,11 +115,20 @@ void _stubPlatformChannels() {
     return null;
   });
 
-  const urlLauncherAndroid = MethodChannel('plugins.flutter.io/url_launcher_android');
+  const urlLauncherAndroid = MethodChannel(
+    'plugins.flutter.io/url_launcher_android',
+  );
   messenger.setMockMethodCallHandler(urlLauncherAndroid, (call) async => true);
 
   const share = MethodChannel('dev.fluttercommunity.plus/share');
   messenger.setMockMethodCallHandler(share, (call) async => 'ok');
+
+  // FmDownloadsSaver resolves a save path via path_provider — return the
+  // system temp dir so the (real) directory create/exists calls succeed.
+  const pathProvider = MethodChannel('plugins.flutter.io/path_provider');
+  messenger.setMockMethodCallHandler(pathProvider, (call) async {
+    return Directory.systemTemp.createTempSync('fm_dl_test').path;
+  });
 }
 
 void main() {
@@ -101,9 +138,9 @@ void main() {
   group('NodeActionNotifier', () {
     test('shareFile fetches view URL + emits shareCopied signal', () async {
       final repo = _Repo();
-      final container = ProviderContainer(overrides: [
-        fileOpsRepositoryProvider.overrideWithValue(repo),
-      ]);
+      final container = ProviderContainer(
+        overrides: [fileOpsRepositoryProvider.overrideWithValue(repo)],
+      );
       addTearDown(container.dispose);
       final sub = container.listen(
         nodeActionNotifierProvider,
@@ -122,35 +159,125 @@ void main() {
       expect(state.lastSignal?.kind, FmActionSignalKind.shareCopied);
     });
 
-    test('downloadFile fetches download URL + emits downloaded signal',
-        () async {
-      final repo = _Repo();
-      final container = ProviderContainer(overrides: [
-        fileOpsRepositoryProvider.overrideWithValue(repo),
-      ]);
-      addTearDown(container.dispose);
-      final sub = container.listen(
-        nodeActionNotifierProvider,
-        (_, _) {},
-        fireImmediately: true,
+    test(
+      'downloadFile fetches download URL + emits downloaded signal',
+      () async {
+        final repo = _Repo();
+        final container = ProviderContainer(
+          overrides: [fileOpsRepositoryProvider.overrideWithValue(repo)],
+        );
+        addTearDown(container.dispose);
+        final sub = container.listen(
+          nodeActionNotifierProvider,
+          (_, _) {},
+          fireImmediately: true,
+        );
+        addTearDown(sub.close);
+
+        await container
+            .read(nodeActionNotifierProvider.notifier)
+            .downloadFile('foo/bar.jpg');
+
+        expect(repo.downloadCalls, 1);
+        final state = container.read(nodeActionNotifierProvider);
+        expect(state.downloadProgress, isEmpty);
+        expect(state.lastSignal?.kind, FmActionSignalKind.downloaded);
+      },
+    );
+
+    test(
+      'folder download preserves scope, gates duplicate taps and saves ZIP',
+      () async {
+        final repo = _Repo()..folderResult = Completer<FmSignedUrl>();
+        final container = ProviderContainer(
+          overrides: [fileOpsRepositoryProvider.overrideWithValue(repo)],
+        );
+        addTearDown(container.dispose);
+        final sub = container.listen(nodeActionNotifierProvider, (_, _) {});
+        addTearDown(sub.close);
+        final notifier = container.read(nodeActionNotifierProvider.notifier);
+        final pending = notifier.downloadFolder(
+          trackingKey: 'folder',
+          externalId: '42',
+          phase: FmPhase.post,
+          path: 'Edits/V1',
+        );
+        expect(
+          container.read(nodeActionNotifierProvider).isDownloading('folder'),
+          isTrue,
+        );
+        await notifier.downloadFolder(trackingKey: 'folder', externalId: '42');
+        expect(repo.folderDownloadCalls, 1);
+        expect(repo.folderScope, ('42', FmPhase.post, 'Edits/V1'));
+        repo.folderResult!.complete(
+          const FmSignedUrl(url: 'https://example.com/folder.zip'),
+        );
+        await pending;
+        // Archive fetched in-app (no browser hand-off) and saved to disk.
+        expect(repo.archiveCalls, 1);
+        expect(repo.archiveSavePath, endsWith('.zip'));
+        expect(
+          container.read(nodeActionNotifierProvider).downloadProgress,
+          isEmpty,
+        );
+        expect(
+          container.read(nodeActionNotifierProvider).lastSignal?.kind,
+          FmActionSignalKind.downloaded,
+        );
+      },
+    );
+
+    test('folder download upgrades cleartext BEIGE host to https', () async {
+      final repo = _Repo()
+        ..folderResult = (Completer<FmSignedUrl>()
+          ..complete(
+            const FmSignedUrl(
+              url: 'http://api2.dev.beige.app/v1/gcp/download-folder?x=1',
+            ),
+          ));
+      final container = ProviderContainer(
+        overrides: [fileOpsRepositoryProvider.overrideWithValue(repo)],
       );
+      addTearDown(container.dispose);
+      final sub = container.listen(nodeActionNotifierProvider, (_, _) {});
       addTearDown(sub.close);
+      final notifier = container.read(nodeActionNotifierProvider.notifier);
+      await notifier.downloadFolder(trackingKey: 'folder', externalId: '42');
+      expect(repo.archiveUrl, startsWith('https://api2.dev.beige.app/'));
+    });
 
-      await container
-          .read(nodeActionNotifierProvider.notifier)
-          .downloadFile('foo/bar.jpg');
-
-      expect(repo.downloadCalls, 1);
-      final state = container.read(nodeActionNotifierProvider);
-      expect(state.downloadProgress, isEmpty);
-      expect(state.lastSignal?.kind, FmActionSignalKind.downloaded);
+    test('folder download failure surfaces error + allows retry', () async {
+      final repo = _Repo()..throwOnArchive = true;
+      final container = ProviderContainer(
+        overrides: [fileOpsRepositoryProvider.overrideWithValue(repo)],
+      );
+      addTearDown(container.dispose);
+      final sub = container.listen(nodeActionNotifierProvider, (_, _) {});
+      addTearDown(sub.close);
+      final notifier = container.read(nodeActionNotifierProvider.notifier);
+      await notifier.downloadFolder(trackingKey: 'folder', externalId: '42');
+      expect(
+        container.read(nodeActionNotifierProvider).downloadProgress,
+        isEmpty,
+      );
+      expect(
+        container.read(nodeActionNotifierProvider).lastSignal?.kind,
+        FmActionSignalKind.error,
+      );
+      repo.throwOnArchive = false;
+      await notifier.downloadFolder(trackingKey: 'folder', externalId: '42');
+      expect(repo.archiveCalls, 2);
+      expect(
+        container.read(nodeActionNotifierProvider).lastSignal?.kind,
+        FmActionSignalKind.downloaded,
+      );
     });
 
     test('delete success emits deleted signal + returns true', () async {
       final repo = _Repo();
-      final container = ProviderContainer(overrides: [
-        fileOpsRepositoryProvider.overrideWithValue(repo),
-      ]);
+      final container = ProviderContainer(
+        overrides: [fileOpsRepositoryProvider.overrideWithValue(repo)],
+      );
       addTearDown(container.dispose);
       final sub = container.listen(
         nodeActionNotifierProvider,
@@ -172,9 +299,9 @@ void main() {
 
     test('delete failure emits error signal + returns false', () async {
       final repo = _Repo()..throwOnDelete = true;
-      final container = ProviderContainer(overrides: [
-        fileOpsRepositoryProvider.overrideWithValue(repo),
-      ]);
+      final container = ProviderContainer(
+        overrides: [fileOpsRepositoryProvider.overrideWithValue(repo)],
+      );
       addTearDown(container.dispose);
       final sub = container.listen(
         nodeActionNotifierProvider,

@@ -31,6 +31,17 @@ class FileOpsRepositoryRemote implements FileOpsRepository {
   );
 
   @override
+  Future<void> downloadArchive({
+    required String url,
+    required String savePath,
+    void Function(int received, int total)? onProgress,
+  }) => _remote.downloadArchive(
+    url: url,
+    savePath: savePath,
+    onProgress: onProgress,
+  );
+
+  @override
   Future<FmDeleteResult> delete(String filepath) => _remote.delete(filepath);
 
   @override
