@@ -52,18 +52,15 @@ class FileOpsRemoteSource {
     FmPhase? phase,
     String? path,
   }) => _guard(() async {
-    // `phase` is intentionally NOT sent. The backend derives scope from
-    // `externalId` + `path` alone (verified against the working web curl);
-    // sending `phase` — including `phase:"root"` for common events — makes
-    // the request fail. Param retained on the signature for callers but
-    // omitted from the wire body.
     final body = <String, dynamic>{
       'externalId': externalId,
-      // 'phase': ?phase?.apiValue,  // omitted — see note above
-      // `path` is required by the endpoint; always send it, defaulting to
-      // '' for the root folder so the key is never dropped from the body.
-      'path': path ?? '',
     };
+    if (phase != null && phase != FmPhase.root) {
+      body['phase'] = phase.apiValue;
+    }
+    if (path != null && path.trim().isNotEmpty) {
+      body['path'] = path.trim();
+    }
     final resp = await _dio.post<dynamic>(
       ApiEndpoints.fmFolderDownloadUrl,
       data: body,

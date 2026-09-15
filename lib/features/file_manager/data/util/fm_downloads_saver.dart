@@ -18,10 +18,13 @@ class FmDownloadsSaver {
   const FmDownloadsSaver._();
 
   /// Returns an absolute file path (directory guaranteed to exist) for
-  /// [fileName]. The name is sanitised; a `.zip` extension is added when
-  /// missing.
-  static Future<String> resolvePath(String fileName) async {
-    final safeName = _sanitize(fileName);
+  /// [fileName]. The name is sanitised. If [isArchive] is true, `.zip` is
+  /// ensured.
+  static Future<String> resolvePath(
+    String fileName, {
+    bool isArchive = true,
+  }) async {
+    final safeName = _sanitize(fileName, isArchive: isArchive);
     final dir = await _targetDir();
     if (!await dir.exists()) {
       await dir.create(recursive: true);
@@ -40,7 +43,7 @@ class FmDownloadsSaver {
     return getApplicationDocumentsDirectory();
   }
 
-  static String _sanitize(String raw) {
+  static String _sanitize(String raw, {bool isArchive = true}) {
     var name = raw.trim();
     // Collapse to the trailing path segment if a full path slipped in.
     while (name.endsWith('/')) {
@@ -49,8 +52,10 @@ class FmDownloadsSaver {
     if (name.contains('/')) name = name.split('/').last;
     // Replace filesystem-hostile characters.
     name = name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
-    if (name.isEmpty) name = 'download';
-    if (!name.toLowerCase().endsWith('.zip')) name = '$name.zip';
+    if (name.isEmpty) name = isArchive ? 'download.zip' : 'download';
+    if (isArchive && !name.toLowerCase().endsWith('.zip')) {
+      name = '$name.zip';
+    }
     return name;
   }
 }

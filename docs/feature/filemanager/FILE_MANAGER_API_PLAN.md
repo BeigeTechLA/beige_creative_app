@@ -1,5 +1,29 @@
 # File Manager — API Integration Plan
 
+## Folder download verification — 2026-09-14
+
+- [x] Verify existing Download wiring to `POST /external-file-manager/folder-download-url`
+  through the remote repository, with `externalId` and optional `phase`/`path`.
+- [x] Reject unsuccessful response envelopes and invalid external URLs; retain
+  the folder action provider until the pending download finishes.
+- [x] Cover workspace/phase/nested request scope, signed response parsing,
+  duplicate taps, invalid URLs, and retry with regression tests.
+- [x] File Manager tests: 47/47 passed; targeted analysis and diff checks passed.
+- [ ] Verify authenticated ZIP generation and browser download on device.
+
+| Phase | Goal | Files Touched | Done Criteria | Status |
+|-------|------|---------------|---------------|--------|
+| 1 | Trace folder download wiring | Existing source and API plan | Confirm endpoint and folder scope | Completed |
+| 2 | Harden download handling | File ops source, action notifier, tests | Reject failed responses and invalid URLs; retain pending requests | Completed |
+| 3 | Verify and document | Feature checklist and migration log | Tests and analysis pass | Completed |
+
+Manual Test Summary:
+
+| # | Step | Expected Result | Edge Cases |
+|---|------|-----------------|------------|
+| 1 | Choose folder Download | Browser opens signed ZIP for selected scope | Workspace, Pre/Post, nested paths |
+| 2 | Retry after failure | Error clears and a new request starts | API failure, invalid URL |
+
 ## Image previews — 2026-09-10
 
 - [x] Share image-extension detection across file DTOs and previews, including

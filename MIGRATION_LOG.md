@@ -5,6 +5,42 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-09-15: File Manager In-App File & Folder Download Fixes
+
+- **Changes**:
+  - Corrected `POST /external-file-manager/folder-download-url` request payload serialization in `FileOpsRemoteSource` per official API documentation:
+    - Root workspace: `{ "externalId": externalId }` (omits empty phase and path).
+    - Phase root: `{ "externalId": externalId, "phase": "pre" | "post" }` (omits path).
+    - Subfolder: `{ "externalId": externalId, "phase": "pre" | "post", "path": path }`.
+  - Updated `FmFileNodeDto` to resolve `filepath` from `path ?? filepath ?? fullPath` fallback.
+  - Enhanced `FmDownloadsSaver` with `isArchive` parameter to support saving individual files with their original extensions (`.jpeg`, `.pdf`, etc.) as well as `.zip` folder archives.
+  - Updated `NodeActionNotifier.downloadFile` to stream and save files directly to device storage in-app (Documents/Downloads) with live determinate progress tracking and completion confirmation toasts.
+- **Verification**:
+  - `flutter analyze lib/features/file_manager test/features/file_manager`: 0 issues found.
+  - `flutter test test/features/file_manager`: 49/49 tests passing.
+
+### 2026-09-15: File Manager upload API wiring (Presigned PUT + Batch Confirm)
+
+- **Changes**:
+  - Implemented `UploadRepository` interface and `UploadRemoteSource` / `UploadRepositoryImpl` following Clean Architecture and Riverpod.
+  - Endpoint `POST /external-file-manager/upload-policies/batch` requests presigned S3/GCS URLs for selected upload items.
+  - Implemented direct binary stream PUT to storage presigned URLs with custom headers and byte progress callbacks (`onProgress`), bypassing backend proxies.
+  - Endpoint `POST /external-file-manager/files-uploaded/batch` registers completed uploads with backend database.
+  - Implemented `UploadNotifier` and `UploadState` tracking per-item and aggregate progress (`overallProgress`, `uploadedCount`, `failedCount`).
+  - Wired `FmUploadSheet` to `uploadNotifierProvider` with automatic UI progress updates and folder contents refresh on completion.
+  - Implemented `UploadRepositoryDummy` for test and offline dev support.
+- **Verification**:
+  - `flutter analyze lib/features/file_manager`: 0 issues found.
+  - `flutter test test/features/file_manager`: 51/51 tests passing.
+
+### 2026-09-14: File Manager folder download verification and hardening
+
+- Existing folder Download already calls `POST external-file-manager/folder-download-url` through the live repository and opens the signed ZIP URL externally. Preserved the documented externalId/optional phase/path contract.
+- FileOpsRemoteSource now rejects unsuccessful envelopes. NodeActionNotifier validates HTTP(S) URLs before external handoff and holds a keep-alive while folder downloads are pending.
+- Added remote-source request/response tests and notifier coverage for folder scope, duplicate taps, malformed URLs, and retry. Updated the feature API checklist; no files moved.
+- Verification: `flutter test --no-pub test/features/file_manager/` passed 47/47; `flutter analyze --no-pub lib/features/file_manager test/features/file_manager` passed; `git diff --check` passed.
+- Current handoff and feature API plan supersede historical Phase 4 stub-only guidance. Existing staged folder-structure documentation was preserved. Live authenticated ZIP generation/browser download remains pending.
+
 ### 2026-09-08: Fix App Store invalid large app icon (409)
 
 - **Status**: Local asset fix complete; fresh archive and App Store validation pending.

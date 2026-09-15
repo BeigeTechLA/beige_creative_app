@@ -37,27 +37,36 @@ void main() {
     });
   });
 
-  test('whole workspace sends empty path and parses signed URL', () async {
+  test('whole workspace sends externalId only and parses signed URL', () async {
     final result = await source.folderDownloadUrl(externalId: '42');
-    expect(body, {'externalId': '42', 'path': ''});
+    expect(body, {'externalId': '42'});
     expect(result.url, 'https://example.com/folder.zip');
     expect(result.expiresAt, isNotNull);
   });
 
-  // `phase` is never sent — backend scopes by externalId + path alone.
-  for (final phase in FmPhase.values) {
-    test('${phase.name} sends path only, never phase', () async {
-      await source.folderDownloadUrl(
-        externalId: '42',
-        phase: phase,
-        path: 'Edits/Version 1',
-      );
-      expect(body, {
-        'externalId': '42',
-        'path': 'Edits/Version 1',
-      });
+  test('phase root sends externalId + phase', () async {
+    await source.folderDownloadUrl(
+      externalId: '42',
+      phase: FmPhase.post,
+    );
+    expect(body, {
+      'externalId': '42',
+      'phase': 'post',
     });
-  }
+  });
+
+  test('nested folder sends externalId + phase + path', () async {
+    await source.folderDownloadUrl(
+      externalId: '42',
+      phase: FmPhase.post,
+      path: 'Edits/Version 1',
+    );
+    expect(body, {
+      'externalId': '42',
+      'phase': 'post',
+      'path': 'Edits/Version 1',
+    });
+  });
 
   test('common-event folder sends externalId + path', () async {
     await source.folderDownloadUrl(
@@ -69,15 +78,6 @@ void main() {
       'externalId': 'event_new_common_1788171403257',
       'path': 'Rachana DevCP2',
     });
-  });
-
-  test('empty path sent as required field', () async {
-    await source.folderDownloadUrl(
-      externalId: '42',
-      phase: FmPhase.pre,
-      path: '',
-    );
-    expect(body, {'externalId': '42', 'path': ''});
   });
 
   test('unsuccessful envelope cannot return a download URL', () async {

@@ -7,8 +7,12 @@ import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
+import '../../data/util/fm_path.dart';
 import '../../domain/models/file_type.dart';
 import '../../domain/models/fm_folder_key.dart';
+import '../providers/folder_contents_notifier.dart';
+import '../providers/upload_notifier.dart';
+import '../providers/upload_state.dart';
 import 'fm_choose_document_sheet.dart';
 import 'fm_file_type_icon.dart';
 
@@ -43,9 +47,6 @@ class FmUploadSheet extends ConsumerStatefulWidget {
 
 class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
   final List<_PickedFile> _queuedFiles = [];
-  final bool _isUploading = false;
-  final double _uploadProgress = 0.0;
-  final int _uploadedCount = 0;
   bool _cellularOverride = false;
 
   static const int _maxSizeLimit = 5 * 1024 * 1024 * 1024; // 5GB
@@ -223,16 +224,60 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
     }
   }
 
-  void _startUpload() {
-    // FM8 multipart transfer is pending. Never simulate progress or save
-    // fabricated files while the app is displaying real API data.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'File uploads are not available yet. No files were uploaded.',
-        ),
-      ),
+  Future<void> _startUpload() async {
+    final folderState =
+        ref.read(folderContentsNotifierProvider(widget.folderKey));
+    final rootPath = folderState.workspace?.workspaceMeta?.rootPath ??
+        folderState.basePath;
+
+    final tasks = _queuedFiles.map((f) {
+      final remoteFilePath = folderState.basePath.isNotEmpty
+          ? FmPath.join(folderState.basePath, f.name)
+          : FmPath.filePath(
+              rootPath: rootPath.isEmpty ? widget.folderKey.externalId : rootPath,
+              phase: widget.folderKey.phase,
+              relative: widget.folderKey.path,
+              fileName: f.name,
+            );
+      return UploadTaskItem(
+        id: '${f.name}_${DateTime.now().microsecondsSinceEpoch}',
+        name: f.name,
+        localPath: f.localPath,
+        remoteFilePath: remoteFilePath,
+        mimeType: f.mimeType,
+        sizeBytes: f.sizeBytes,
+      );
+    }).toList();
+
+    final success = await ref.read(uploadNotifierProvider.notifier).startUpload(
+      items: tasks,
+      folderKey: widget.folderKey,
     );
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.primary,
+          content: Text(
+            '${tasks.length} file${tasks.length == 1 ? '' : 's'} uploaded successfully.',
+            style: const TextStyle(color: AppColors.onPrimary),
+          ),
+        ),
+      );
+    } else {
+      final uploadState = ref.read(uploadNotifierProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.errorAccent,
+          content: Text(
+            uploadState.errorMessage ?? 'Upload failed for one or more files.',
+          ),
+        ),
+      );
+    }
   }
 
   void _cancelUpload() => Navigator.pop(context);
@@ -240,6 +285,8 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
+    final uploadState = ref.watch(uploadNotifierProvider);
+    final isUploading = uploadState.isUploading;
 
     return Padding(
       padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
@@ -300,7 +347,7 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
                       color: AppColors.textPrimary,
                       size: 24,
                     ),
-                    onPressed: _cancelUpload,
+                    onPressed: isUploading ? null : _cancelUpload,
                   ),
                 ],
               ),
@@ -311,7 +358,7 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
             Expanded(
               child: _queuedFiles.isEmpty
                   ? _buildEmptyState()
-                  : _buildQueuedState(),
+                  : _buildQueuedState(uploadState),
             ),
 
             // Actions Bottom Bar
@@ -323,7 +370,7 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
                   // Cancel button
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _cancelUpload,
+                      onPressed: isUploading ? null : _cancelUpload,
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(
                           color: AppColors.borderGold,
@@ -350,7 +397,7 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
                     child: ElevatedButton(
                       onPressed:
                           (_queuedFiles.isEmpty ||
-                              _isUploading ||
+                              isUploading ||
                               _isSizeExceeded ||
                               _isCountExceeded)
                           ? null
@@ -366,11 +413,11 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
                         ),
                       ),
                       child: Text(
-                        _isUploading ? 'Uploading...' : 'Upload Files',
+                        isUploading ? 'Uploading...' : 'Upload Files',
                         style: AppTextStyles.labelLarge.copyWith(
                           color:
                               (_queuedFiles.isEmpty ||
-                                  _isUploading ||
+                                  isUploading ||
                                   _isSizeExceeded ||
                                   _isCountExceeded)
                               ? AppColors.textTertiary
@@ -463,24 +510,28 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
     );
   }
 
-  Widget _buildQueuedState() {
+  Widget _buildQueuedState(UploadState uploadState) {
+    final isUploading = uploadState.isUploading;
+    final uploadedCount = uploadState.uploadedCount;
+    final uploadProgress = uploadState.overallProgress;
+
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
         // Upload Progress Section (if uploading)
-        if (_isUploading) ...[
+        if (isUploading) ...[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Uploading $_uploadedCount of ${_queuedFiles.length} files...',
+                'Uploading $uploadedCount of ${_queuedFiles.length} files...',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
-                '${(_uploadProgress * 100).toInt()}%',
+                '${(uploadProgress * 100).toInt()}%',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
@@ -490,7 +541,7 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
           ),
           const SizedBox(height: AppSpacing.sm),
           LinearProgressIndicator(
-            value: _uploadProgress,
+            value: uploadProgress,
             color: AppColors.primary,
             backgroundColor: AppColors.surfaceMid,
             borderRadius: BorderRadius.circular(4),
@@ -518,7 +569,7 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
 
         // Wi-Fi Warning Card
         if (_needsWifiWarning && !_isSizeExceeded && !_isCountExceeded)
-          _buildWifiWarningCard(),
+          _buildWifiWarningCard(isUploading: isUploading),
 
         // Batch Queue Summary Title
         Row(
@@ -581,7 +632,7 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
                       ],
                     ),
                   ),
-                  if (!_isUploading)
+                  if (!isUploading)
                     IconButton(
                       icon: const Icon(
                         Icons.delete_outline,
@@ -601,7 +652,7 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
         ),
 
         // Add More trigger
-        if (!_isUploading && !_isCountExceeded)
+        if (!isUploading && !_isCountExceeded)
           TextButton.icon(
             onPressed: _openPicker,
             icon: const Icon(Icons.add, color: AppColors.primary, size: 18),
@@ -663,7 +714,7 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
     );
   }
 
-  Widget _buildWifiWarningCard() {
+  Widget _buildWifiWarningCard({required bool isUploading}) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.lg),
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -718,7 +769,7 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
               Switch.adaptive(
                 value: _cellularOverride,
                 activeThumbColor: AppColors.primary,
-                onChanged: _isUploading
+                onChanged: isUploading
                     ? null
                     : (val) {
                         setState(() {

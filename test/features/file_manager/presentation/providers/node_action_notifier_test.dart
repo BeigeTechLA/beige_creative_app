@@ -179,9 +179,11 @@ void main() {
             .downloadFile('foo/bar.jpg');
 
         expect(repo.downloadCalls, 1);
+        expect(repo.archiveCalls, 1);
         final state = container.read(nodeActionNotifierProvider);
         expect(state.downloadProgress, isEmpty);
         expect(state.lastSignal?.kind, FmActionSignalKind.downloaded);
+        expect(state.lastSignal?.message, startsWith('Saved to'));
       },
     );
 

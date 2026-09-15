@@ -9,6 +9,7 @@ import 'package:beige_creative_app/features/file_manager/domain/models/fm_phase.
 import 'package:beige_creative_app/features/file_manager/presentation/widgets/fm_file_preview_sheet.dart';
 import 'package:beige_creative_app/features/file_manager/presentation/widgets/fm_status_pill.dart';
 import 'package:beige_creative_app/features/file_manager/presentation/widgets/fm_upload_sheet.dart';
+import 'package:beige_creative_app/features/file_manager/presentation/providers/file_manager_repository_provider.dart';
 import 'package:beige_creative_app/features/file_manager/presentation/widgets/fm_version_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -94,6 +95,13 @@ void main() {
     testWidgets('FmUploadSheet displays empty dropzone and picking state', (
       tester,
     ) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       await tester.pumpProviderApp(
         Builder(
           builder: (context) => ElevatedButton(
@@ -105,6 +113,9 @@ void main() {
             child: const Text('Show Upload'),
           ),
         ),
+        overrides: [
+          useDummyFileManagerProvider.overrideWith((ref) => true),
+        ],
       );
       await tester.pumpAndSettle();
 

@@ -69,7 +69,7 @@ class FmFileNodeDto {
       uploaderName: uploader != null
           ? FmJson.nonEmpty(uploader['name'])
           : FmJson.nonEmpty(j['uploaderName']),
-      filepath: FmJson.nonEmpty(j['path']),
+      filepath: FmJson.nonEmpty(j['path'] ?? j['filepath'] ?? j['fullPath']),
     );
   }
 

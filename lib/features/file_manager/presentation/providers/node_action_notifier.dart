@@ -58,23 +58,41 @@ class NodeActionNotifier extends AutoDisposeNotifier<NodeActionState> {
     }
   }
 
-  /// Downloads a file by handing the signed URL to the OS browser (which
-  /// prompts the user for save location).
-  Future<void> downloadFile(String filepath) async {
+  /// Downloads a file **in-app** and saves it to device storage (Downloads/Files).
+  /// Streams byte progress directly to [state.downloadProgress[filepath]].
+  Future<void> downloadFile(String filepath, {String? fileName}) async {
     if (state.isDownloading(filepath)) return;
+    final keepAlive = ref.keepAlive();
     state = state.copyWith(
       downloadProgress: {...state.downloadProgress, filepath: 0.0},
       clearSignal: true,
     );
     try {
       final signed = await _repo.downloadUrl(filepath);
-      await _openExternal(signed.url);
+      final url = _preferHttps(signed.url);
+      final savePath = await FmDownloadsSaver.resolvePath(
+        fileName ?? filepath,
+        isArchive: false,
+      );
+      await _repo.downloadArchive(
+        url: url,
+        savePath: savePath,
+        onProgress: (received, total) {
+          if (total <= 0) return;
+          state = state.copyWith(
+            downloadProgress: {
+              ...state.downloadProgress,
+              filepath: received / total,
+            },
+          );
+        },
+      );
       final next = {...state.downloadProgress}..remove(filepath);
       state = state.copyWith(
         downloadProgress: next,
-        lastSignal: const FmActionSignal(
+        lastSignal: FmActionSignal(
           kind: FmActionSignalKind.downloaded,
-          message: 'Opened in browser',
+          message: 'Saved to ${FmDownloadsSaver.displayLocation}',
         ),
       );
     } catch (e) {
@@ -83,9 +101,11 @@ class NodeActionNotifier extends AutoDisposeNotifier<NodeActionState> {
         downloadProgress: next,
         lastSignal: const FmActionSignal(
           kind: FmActionSignalKind.error,
-          message: 'Failed to open download',
+          message: 'Failed to download file',
         ),
       );
+    } finally {
+      keepAlive.close();
     }
   }
 
