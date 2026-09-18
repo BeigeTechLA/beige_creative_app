@@ -70,8 +70,8 @@ class _StepRow extends StatelessWidget {
                   ),
                   child: SvgPicture.asset(
                     step.svgPath,
-                    width: 24,
-                    height: 24,
+                    width: 28,
+                    height: 28,
                   ),
                 ),
                 if (!isLast)
