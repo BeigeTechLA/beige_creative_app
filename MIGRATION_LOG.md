@@ -4427,3 +4427,41 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
   - Bottom-bar branch-switch test passed.
   - Drawer File Manager branch test updated to distinguish the bottom-bar and
     drawer labels.
+
+### 2026-09-21: FM9.03 — File Manager share API binding
+
+- Added share domain models/contract, authenticated Dio repository, access-log
+  endpoint, and Riverpod state for listing, creating and revoking grants.
+- Bound root/phase-folder Share UI to real requests. Added public-link creation,
+  email invites with both permissions, copy, removal, activity logs and retry.
+  Replaced optimistic local recipient edits and placeholder notices; Done closes
+  the sheet because individual mutations persist immediately.
+- Updated caller screens, `fm_share_sheet.dart`, endpoint constants, API task
+  checklist and AI handoff. Tests added for repository, notifier and share sheet.
+- User API overrides the prior `download` permission: send `view_download`.
+  Create responses omit IDs; refresh access to obtain the numeric `shareId` and
+  disable revoke when missing. A failed GET after create retains the returned
+  link. Shared tokens across public/email grants do not merge recipients.
+- Contract limitations: GET share/log response samples are still missing.
+  Adapters accept explicit list containers and camelCase fields documented in
+  the task follow-up; unknown shapes fail visibly. Phase-root POST targeting
+  follows the supplied GET target tuple and awaits backend validation. Nested
+  paths are blocked until their addressing contract is confirmed; file system
+  sharing is preserved. FM9.03 remains partial for these confirmations.
+- Verification: `flutter test --no-pub test/features/file_manager --reporter
+  expanded` — 68/68 passed, including 19 new sharing tests. Scoped
+  `flutter analyze --no-pub --fatal-infos lib/features/file_manager
+  lib/core/network/api_endpoints.dart test/features/file_manager` — no issues.
+  Device/backend verification remains pending; no live shares were created.
+
+### 2026-09-21: File Manager iOS compile verification
+
+- Rechecked the reported File Manager compile failures. The current source
+  includes matching `workspaceType`, nullable-safe page handling,
+  `downloadArchive`, `requestedKey`, and shared `isImageFile` definitions.
+- Verification: feature analysis passed; all 68 File Manager tests passed;
+  `flutter build ios --no-codesign --debug --flavor dev -t lib/main_dev.dart`
+  produced `build/ios/iphoneos/Runner.app`.
+- Full-project analysis still reports the unrelated existing
+  `_FakeHomeNotifier.refresh` override in
+  `test/features/home/presentation/screens/home_screen_test.dart:32`.

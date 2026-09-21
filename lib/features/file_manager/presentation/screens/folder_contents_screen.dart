@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -105,9 +104,6 @@ class _FolderContentsScreenState extends ConsumerState<FolderContentsScreen> {
       case FmNodeAction.open:
         _openChildFolder(context, folder);
       case FmNodeAction.share:
-        // Email/OTP share sheet. The `/share` endpoint is deferred to
-        // FM9.03, so invite/save are surfaced as pending rather than
-        // fabricating a round-trip.
         _openShareSheet(context, folder);
       case FmNodeAction.download:
         await actions.downloadFolder(
@@ -131,34 +127,20 @@ class _FolderContentsScreenState extends ConsumerState<FolderContentsScreen> {
     }
   }
 
-  /// Opens the reusable email/OTP share sheet for a folder. Persistence
-  /// via the `/share` endpoint lands in FM9.03; until then invite/save
-  /// surface a pending notice and `Copy Link` uses the clipboard.
   void _openShareSheet(BuildContext context, FmFolder folder) {
-    FmShareSheet.show(
-      context,
-      target: FmShareTarget(
-        id: folder.id,
-        kind: FmNodeKind.folder,
-        name: folder.name,
-      ),
-      onInvite: (invite) => TopMessage.show(
-        context,
-        'Email sharing is not available yet',
-        type: TopMessageType.error,
-      ),
-      onSaveChanges: (_) => TopMessage.show(
-        context,
-        'Email sharing is not available yet',
-        type: TopMessageType.error,
-      ),
-      onCopyLink: (recipient) {
-        final link = recipient.shareLink;
-        if (link == null) return;
-        Clipboard.setData(ClipboardData(text: link));
-        TopMessage.show(context, 'Link copied', type: TopMessageType.success);
-      },
+    final target = FmShareTarget(
+      key: folder.nextKey ?? widget.folderKey.child(folder.name),
+      name: folder.name,
     );
+    if (!target.isSupported) {
+      TopMessage.show(
+        context,
+        'Sharing nested folders is not available yet.',
+        type: TopMessageType.error,
+      );
+      return;
+    }
+    FmShareSheet.show(context, target: target);
   }
 
   Future<void> _onFileMore(

@@ -142,6 +142,8 @@ class ApiEndpoints {
   static const String fmRevisionReview =
       'external-file-manager/revision-file/review';
   static const String fmShare = 'external-file-manager/share';
+  static const String fmShareAccessLogs =
+      'external-file-manager/share/access-logs';
   static const String fmShareRequestOtp =
       'external-file-manager/share/request-otp';
   static const String fmShareVerifyOtp =

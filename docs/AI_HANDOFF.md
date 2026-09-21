@@ -55,6 +55,18 @@ repositories. Historical stub/dummy-default notes below are superseded by
 and fabricated files were removed; Upload reports unavailable pending FM8.
 Authenticated backend validation on device remains pending.
 
+## File Manager sharing follow-up (2026-09-21)
+
+FM9.03 now binds the existing share sheet to authenticated create/get/revoke
+and access-log calls using `SharesRepository` and `sharesNotifierProvider`.
+Workspace and production-phase roots support public view/download links and
+email invitations with view/download or upload/download. Successful mutations
+update access; create refreshes to resolve the numeric revoke ID. GET schemas
+are provisional pending response examples, and nested-folder sharing stays
+disabled until its scope contract is confirmed. See the FM9.03 follow-up in
+`docs/feature/filemanager/FILE_MANAGER_API_PLAN.md`; overall task remains partial.
+Verification: 68 File Manager tests pass; scoped static analysis is clean.
+
 ## Current Architecture
 
 - App startup: `lib/main_dev.dart` / `lib/main_prod.dart` call `startApp(Environment)` in `lib/main.dart`.

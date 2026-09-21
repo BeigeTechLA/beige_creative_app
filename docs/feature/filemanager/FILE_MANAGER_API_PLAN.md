@@ -1315,7 +1315,7 @@ Upload sheet still calls the deprecated `FileManagerRepository.uploadFiles`
 |---|:-:|------|--------------------------|
 | 9.01 | ✅ | `CommentsRepository` (domain + remote + dummy) + `CommentsRemoteSource` + `commentsNotifierProvider(fileMetaId)` (AutoDisposeAsyncNotifier family) with post / reply / delete; preview sheet swapped from local `_comments` to notifier state (loading / error / empty / thread with nested replies) | `domain/repositories/comments_repository.dart`, `data/sources/comments_remote_source.dart`, `data/repositories/comments_repository_{remote,dummy}.dart`, `presentation/providers/comments_{notifier,repository_provider}.dart`, `presentation/widgets/fm_file_preview_sheet.dart` |
 | 9.02 | 🟡 | Common Events root-tab list already wired in 7.02 (via `WorkspacesRepository.listCommonEvents`). Still to do: `CommonEventsRepository.createCreatorFolder` + CTA inside a common event | `presentation/screens/file_manager_screen.dart` |
-| 9.03 | ⏳ | `/share` create + get + revoke — in-app share manager screen | new screen |
+| 9.03 | 🟡 | Share manager bound to create/get/revoke/access-logs for workspace and phase roots; GET schemas and nested-folder addressing await backend confirmation (2026-09-21) | `fm_share_sheet.dart`, `shares_notifier.dart`, `shares_repository_remote.dart`, `fm_share.dart`, share tests |
 | 9.04 | ⏳ | External share OTP flow (public route surface) | new — separate Dio instance |
 
 Public share endpoints (17-19) require an unauthenticated Dio instance
@@ -1488,3 +1488,52 @@ Deleted after FM7.03 stable:
 - Integration test candidate (`integration_test/`): browse root → open
   workspace → open Post → open Raw Footage → send-for-edits (fake
   backend). Deferred to FM8.05 once the flow is code-complete.
+
+
+### FM9.03 — Share UI API binding (2026-09-21)
+
+User-approved implementation follows the supplied create/revoke contracts,
+which supersede the older deferred-share notes above.
+
+| Phase | Goal | Files Touched | Done Criteria | Status |
+|-------|------|---------------|---------------|--------|
+| 1 | Add API models and repository | `fm_share.dart`, `shares_repository.dart`, `shares_repository_remote.dart`, endpoints | Supplied create/revoke payloads implemented; GET adapters present | Completed |
+| 2 | Connect UI through Riverpod | `shares_notifier.dart`, share sheet, root/nested screen callers | Backend-driven share actions with loading, errors, copy and activity | Completed |
+| 3 | Verify and document | Three share test files, this plan, handoff, migration log | File Manager tests and scoped static analysis pass | Completed |
+
+- [x] Workspace share creation: `resourceType=workspace`, `externalId`,
+  `accessMode=anyone_with_link` or `email_only`, optional email, message,
+  `permission=view_download` or `upload_download` (email only).
+- [x] Phase roots use `resourceType=folder`, workspace `externalId`, and
+  `phase=pre/post`; GET matches the supplied example. The same targeting is
+  used for POST, pending live verification of that inferred POST scope.
+- [x] Create/revoke use the existing authenticated Dio client through a domain
+  repository and Riverpod notifier. No screen-level network calls.
+- [x] Only successful mutations change displayed access; failed invites keep
+  the entered form. Duplicate taps are disabled during requests.
+- [x] Refresh after create obtains `shareId`; a failed refresh preserves the
+  returned URL. Removal is disabled without a server-provided positive ID.
+- [x] Public and email recipients remain distinct even when tokens match, as
+  demonstrated by the supplied examples. Copy uses the returned URL.
+- [x] Existing Save Changes footer becomes Done: each invite/revoke is saved
+  immediately; there is no documented batch-save endpoint.
+- [x] 68 File Manager tests pass (19 new sharing tests); focused analysis clean.
+- [ ] Confirm GET response schemas. Provisional adapters accept `data: []` or
+  `data: {shares: []}` / `{logs: []}`. Shares use camelCase `shareId` (or `id`),
+  `accessMode`, `email`, `permission`, `shareToken`, `shareUrl`; logs use `action`,
+  `email`, `createdAt`. These GET shapes are assumptions, not supplied examples.
+  Unknown containers/permissions surface an error instead of an empty list.
+- [ ] Confirm nested-folder addressing before enabling it. Nonempty folder
+  paths are blocked in the UI and repository; they never fall back to sharing
+  the whole workspace or phase. Leaf-file system sharing remains unchanged.
+- [ ] Validate against authenticated backend responses and on a device.
+
+**Manual Test Summary**
+
+| # | Step | Expected Result | Edge Cases |
+|---|------|-----------------|------------|
+| 1 | Open workspace Share and create a link | POST uses workspace ID; returned URL is copyable | Failed GET does not erase a just-created URL |
+| 2 | Invite email with either permission and optional note | Exact API permission and message sent | Invalid email, repeat taps, failed invite preserves input |
+| 3 | Reopen sheet and remove public/email access | GET loads entries; DELETE sends numeric shareId | Missing ID disables removal; failed revoke keeps entry |
+| 4 | Open Activity Log | GET renders history or empty state | Unsupported response/network failure shows retry |
+| 5 | Share production phase / nested folder | Phase query targets correct workspace; nested folder reports unavailable | Never widen nested scope |
