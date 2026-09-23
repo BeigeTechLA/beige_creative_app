@@ -4377,6 +4377,19 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
   - `flutter analyze --fatal-infos` — 0 issues.
   - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 5/5 tests passing.
 
+### 2026-09-21: Affiliate summary scroll behavior
+
+- Moved `AffiliateStatsGrid` into the main `SingleChildScrollView` in `lib/features/affiliate/presentation/screens/affiliate_screen.dart`, removing the fixed summary area and redundant body wrappers. Horizontal card scrolling and pull-to-refresh are preserved.
+- Updated the related 4.23 follow-up checklist. Phase 6 remains active per `docs/AI_HANDOFF.md`; the older Phase 4 default does not reopen migration work.
+- Verification: affiliate static analysis passes; existing affiliate widget test passes (1/1); full analysis finds an unrelated invalid `HomeNotifier.refresh` override in `test/features/home/presentation/screens/home_screen_test.dart:32`.
+- Remaining verification: device check of vertical/horizontal scrolling and pull-to-refresh; no device run performed.
+
+### 2026-09-21: Affiliate stats tiles footer
+
+- Reused `HomeSectionDivider(centerAlpha: 0.24)` below the affiliate summary tiles in `lib/features/affiliate/presentation/screens/affiliate_screen.dart`, matching dashboard insets and section spacing with existing tokens. The divider scrolls with the stats and page content.
+- Updated the related task 4.23 follow-up checklist; no architecture or active-phase changes.
+- Verification: Dart formatting and affiliate static analysis pass. Visual device verification remains outstanding.
+
 ### 2026-09-07: File Manager enabled in drawer navigation
 
 - **Task**: Expose the existing File Manager shell branch in the drawer UI.

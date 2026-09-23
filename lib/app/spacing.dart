@@ -148,6 +148,15 @@ class AppSpacing {
   static const double sectionGap = 24;
   static const double bottomNavHeight = 60;
 
+  // Affiliate dashboard Figma dimensions
+  static const double affiliateStatCardWidth = 139;
+  static const double affiliateStatCardHeight = 60;
+  static const double affiliateLedgerIconSize = 24;
+  static const double affiliateLedgerIconGlyphSize = 13;
+  static const double affiliateStepIconSize = 60;
+  static const double affiliateStepIconGlyphSize = 28;
+  static const double affiliateCodeEditIconSize = 14;
+
   /// Top inset for the Signup Step 1 form while its preview card is visible.
   /// Reserves the card's positioned footprint plus a standard 16px gap.
   static const double signupPreviewFormTop = 136;

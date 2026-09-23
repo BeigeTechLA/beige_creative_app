@@ -239,6 +239,19 @@ class AppColors {
   /// Circle gradient — bottom
   static const Color circleGradientBottom = Color(0xFF434341);
 
+  // Affiliate dashboard
+  static const Color affiliateLedgerSurface = Color(0xFF171717);
+  static const Color affiliateLedgerIconSurface = Color(0xFF141414);
+  static const Color affiliateLedgerBorder = Color(0xFF3D3D3D);
+  static const Color affiliateCompletedBackground = Color(0xFFD4FFE3);
+  static const Color affiliateCompletedForeground = Color(0xFF16A34A);
+  static const Color affiliateCancelRed = Color(0xFFDC2626);
+  static const Color affiliateNoteBackground = Color(0xFFFBE8C9);
+  static const Color affiliateDashedLine = Color(0xFF4A4A4A);
+  static const Color affiliateChevronBgExpanded = Color(0xFF1F1C16);
+  static const Color affiliateDetailText = Color(0xFFF5F5F5);
+  static const Color affiliateDetailValue = Color(0xFFA0A0A0);
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // FUNCTIONAL
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
