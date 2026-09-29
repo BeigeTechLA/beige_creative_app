@@ -148,3 +148,19 @@ After each task:
   - the canonical coding pattern changes
   - a discrepancy between Claude and Codex behavior is discovered
   - a deferred item becomes active
+
+## Shared session expiry (2026-09-29)
+
+Backend responses through `dioClientProvider` expire the session only when the
+top-level `code` is exactly `SESSION_EXPIRED` or `TOKEN_INVALID`, on both HTTP
+success and error responses. `TOKEN_MISSING`, absent/unknown codes, HTTP status
+alone, and message text do not trigger logout. This supersedes the earlier
+status-only 401 policy. Messages/Meetings no longer expire sessions on generic
+`UnauthorizedException`; the shared interceptor owns this decision.
+`AuthStateNotifier.expireSession()` revokes Riverpod auth state so the router
+redirects protected routes to Login and clears temporary/persisted auth,
+cached user snapshot, restoration, drafts and telemetry. Cleanup is shared
+with explicit logout and deduplicated until `markLoggedIn`; automatic expiry
+emits no user-initiated logout event. Storage cleanup failures are logged.
+Direct storage transfers and sockets remain outside this HTTP policy;
+real-device/backend verification remains pending.

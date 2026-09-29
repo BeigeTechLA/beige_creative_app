@@ -33,3 +33,28 @@ The harness mounts the real `LoginScreen`, `LoginNotifier`, `SessionStore`,
 `authStateProvider`, and auth-driven GoRouter refresh. It intentionally uses a
 minimal 2-route router so the test stays focused on login/session/logout rather
 than full shell rendering.
+
+## Session-expiry follow-up (2026-09-29)
+
+- [x] Centralize HTTP 401 cleanup in `AuthStateNotifier.expireSession()` and
+  connect the shared Dio callback to it. Auth state changes notify the router.
+- [x] Share cleanup with explicit logout, deduplicate repeated expiry, clear
+  temporary/persisted sessions, cached user snapshot, restoration and drafts.
+- [x] Route Messages/Meetings unauthorized fallbacks through expiry without
+  emitting a user-initiated logout event.
+- [x] Add real Dio interceptor/provider tests for the supplied missing-token
+  401, repeated failures, re-login, 200/403 exclusions and cleanup failure.
+- [ ] Verify expired-token navigation against the backend on a device.
+
+Scope extends this completed journey task for the requested session-expiry fix;
+the original integration-test status is unchanged.
+
+## Backend code contract correction (2026-09-29)
+
+- [x] Supersede status-only expiry with exact `SESSION_EXPIRED` / `TOKEN_INVALID`
+  matching in both success and error response handlers.
+- [x] Preserve sessions for `TOKEN_MISSING`, missing/unknown codes and message-only errors.
+- [x] Remove generic unauthorized logout fallbacks from Messages/Meetings.
+- [x] Cover both allowed codes and excluded codes across HTTP 200/401/403,
+  alongside cleanup, deduplication, re-login and explicit logout tests.
+- [ ] Verify the updated contract on device against the backend.

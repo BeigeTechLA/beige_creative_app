@@ -1,7 +1,7 @@
 part of 'app_exception.dart';
 
-/// HTTP 401 — token expired, missing, or invalid. AuthInterceptor should
-/// trigger refresh/logout flow before this surfaces to the repository.
+/// HTTP 401. This exception alone does not indicate session expiry.
+/// AuthInterceptor ends sessions only for explicit backend expiry codes.
 final class UnauthorizedException extends AppException {
   const UnauthorizedException({
     String message = 'Unauthorized',

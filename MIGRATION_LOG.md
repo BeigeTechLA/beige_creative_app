@@ -4478,3 +4478,48 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - Full-project analysis still reports the unrelated existing
   `_FakeHomeNotifier.refresh` override in
   `test/features/home/presentation/screens/home_screen_test.dart:32`.
+
+### 2026-09-29: Shared HTTP 401 session-expiry handling
+
+- User confirmed HTTP 401 with `Token is required. Please provide a valid token.`
+  means the session must end. Match HTTP status, not mutable message text.
+- Added `AuthStateNotifier.expireSession()` and wired the shared Dio callback
+  to it. Shared cleanup with explicit logout now revokes auth state immediately,
+  clears temporary/persisted session, invalidates the cached user snapshot, and
+  clears restoration, drafts and telemetry. Repeated expiry shares cleanup until
+  the next successful login; automatic expiry emits no manual logout event.
+- Updated Messages/Meetings unauthorized fallbacks to use expiry. Cleanup errors
+  are logged independently so a storage/telemetry failure cannot strand the 401
+  request or prevent in-memory revocation and remaining cleanup.
+- Added `test/core/providers/session_expiry_test.dart`; updated Phase 6 task 6.11
+  follow-up and AI handoff. Current handoff's Phase 6 context supersedes the older
+  Phase 4 default in the repo entry instructions.
+- Verification: 89 tests passed across session-expiry, session store, login,
+  signup, delete-account and Messages notifier suites. Scoped Flutter analysis
+  of changed providers/test passed; `git diff --check` passed.
+- Additional router suite: 2 existing failures expect rejected users
+  to redirect to `/application-rejected`, contrary to current unchanged Home
+  routing. The new expiry test verifies the protected-route Login redirect.
+- Limitations: real-device/backend expiry verification remains pending. Failed
+  persistent storage deletion may leave credentials on disk although in-memory
+  access is revoked. Socket and direct cloud-storage authentication remain
+  separate. Existing user changes to `pubspec.lock` were preserved.
+
+### 2026-09-29: Backend session-expiry code contract correction
+
+- Supersedes today's earlier status-only 401 policy per the updated server
+  contract: only exact top-level `SESSION_EXPIRED` and `TOKEN_INVALID` codes
+  trigger automatic logout. `TOKEN_MISSING`, unknown/missing codes and message
+  text do not. Checks apply to both successful and failed HTTP responses.
+- Updated AuthInterceptor and its exception/auth-state documentation; removed
+  generic UnauthorizedException logout fallbacks in Messages/Meetings so they
+  cannot bypass the shared allowlist. Existing cleanup and explicit logout stay
+  intact. Preserved unrelated existing work, including pubspec.lock.
+- Expanded session_expiry_test.dart across HTTP 200/401/403 and all allowed and
+  excluded codes; changed the conversation notifier regression to assert that a
+  generic unauthorized failure preserves auth while displaying the error.
+- Updated task 6.11 and AI_HANDOFF.md. Phase 6 remains the current context,
+  superseding the older Phase 4 defaults in the entrypoint.
+- Verification: focused session/provider/network/Messages suites passed 60/60;
+  scoped static analysis passed; git diff --check passed.
+- Remaining: real-device verification against the updated backend contract.
