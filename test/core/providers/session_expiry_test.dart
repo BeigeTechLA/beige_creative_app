@@ -221,4 +221,33 @@ void main() {
     expect(await session.readToken(), isNull);
     verify(() => telemetry.clearUserIdentity(emitLogoutEvent: true)).called(1);
   });
+
+  test(
+    'tokenless request with an expiry code never ends the session',
+    () async {
+      final tokenlessSession = CompositeSessionStore(
+        secure: FakeSecureSessionBackend(),
+        prefs: FakePrefsSessionBackend(),
+      );
+      await tokenlessSession.writeUser(user);
+      container.updateOverrides([
+        sessionStoreProvider.overrideWithValue(tokenlessSession),
+        prefsProvider.overrideWithValue(prefs),
+        telemetryClientProvider.overrideWithValue(telemetry),
+        authStateProvider.overrideWith(() => AuthStateNotifier(initial: true)),
+      ]);
+      dio = container.read(dioClientProvider).dio;
+      dio.httpClientAdapter = adapter;
+
+      await expectLater(
+        dio.get<dynamic>('/protected'),
+        throwsA(isA<DioException>()),
+      );
+
+      // No token on the request → the expiry code must be ignored.
+      expect(container.read(authStateProvider), isTrue);
+      expect(await tokenlessSession.readUser(), user);
+      verifyNever(() => telemetry.clearUserIdentity());
+    },
+  );
 }
