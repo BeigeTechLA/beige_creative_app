@@ -36,10 +36,7 @@ class _FakeLoginNotifier extends AutoDisposeNotifier<LoginState>
       state = state.copyWith(savePassword: value);
 
   @override
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     loginCalls++;
     capturedEmail = email;
     capturedPassword = password;
@@ -63,8 +60,7 @@ GoRouter _router() {
       GoRoute(
         path: '/forgot-password',
         name: Routes.forgotPassword.name,
-        builder: (_, _) =>
-            const Scaffold(body: Text('forgot-password-stub')),
+        builder: (_, _) => const Scaffold(body: Text('forgot-password-stub')),
       ),
       GoRoute(
         path: '/signup1',
@@ -84,9 +80,7 @@ Future<_FakeLoginNotifier> _pump(
     FlutterError.onError = (_) {};
     await tester.pumpRouterApp(
       _router(),
-      overrides: [
-        loginNotifierProvider.overrideWith(() => fake),
-      ],
+      overrides: [loginNotifierProvider.overrideWith(() => fake)],
     );
     await tester.pump();
   });
@@ -107,6 +101,10 @@ void main() {
   testWidgets('Login button is disabled while form is empty', (tester) async {
     await _pump(tester);
 
+    await tester.enterText(find.byType(TextField).first, '');
+    await tester.enterText(find.byType(TextField).at(1), '');
+    await tester.pump();
+
     final loginBtn = tester.widget<ElevatedButton>(
       find.ancestor(
         of: find.text('Login'),
@@ -116,8 +114,16 @@ void main() {
     expect(loginBtn.onPressed, isNull);
   });
 
-  testWidgets('tapping Login with valid form invokes notifier.login',
-      (tester) async {
+  testWidgets('prefills debug login credentials', (tester) async {
+    await _pump(tester);
+
+    expect(find.text('pranav+krunalCP@revurge.com'), findsOneWidget);
+    expect(find.text('password1'), findsOneWidget);
+  });
+
+  testWidgets('tapping Login with valid form invokes notifier.login', (
+    tester,
+  ) async {
     final fake = await _pump(tester);
 
     await tester.enterText(find.byType(TextField).first, 'user@example.com');
@@ -132,8 +138,9 @@ void main() {
     expect(fake.capturedPassword, 'hunter2');
   });
 
-  testWidgets('hydrates email + password from savedCredentialsLoaded state',
-      (tester) async {
+  testWidgets('hydrates email + password from savedCredentialsLoaded state', (
+    tester,
+  ) async {
     await _pump(
       tester,
       initial: const LoginState(
@@ -147,7 +154,9 @@ void main() {
     expect(find.text('saved-pw'), findsOneWidget);
   });
 
-  testWidgets('renders AppLoadingOverlay when isLoggingIn=true', (tester) async {
+  testWidgets('renders AppLoadingOverlay when isLoggingIn=true', (
+    tester,
+  ) async {
     await _pump(
       tester,
       initial: const LoginState(

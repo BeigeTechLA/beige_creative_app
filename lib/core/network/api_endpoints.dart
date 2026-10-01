@@ -142,6 +142,8 @@ class ApiEndpoints {
   static const String fmRevisionReview =
       'external-file-manager/revision-file/review';
   static const String fmShare = 'external-file-manager/share';
+  static const String fmShareAccessLogs =
+      'external-file-manager/share/access-logs';
   static const String fmShareRequestOtp =
       'external-file-manager/share/request-otp';
   static const String fmShareVerifyOtp =
@@ -155,7 +157,6 @@ class ApiEndpoints {
   static const String comments = 'comments';
   static String commentReply(String id) => 'comments/$id/reply';
   static String commentById(String id) => 'comments/$id';
-  static const String fmCommonEvents = 'external-file-manager/common-events';
   static String fmCommonEvent(String extId) =>
       'external-file-manager/common-events/$extId';
   static String fmCommonEventCreatorFolder(String extId) =>
@@ -177,4 +178,8 @@ class ApiEndpoints {
       'external-chat/room/$roomId/details';
   static String chatParticipants(String roomId) =>
       'external-chat/participants/$roomId';
+
+  // ───── Affiliate ────────────────────────────────────────────────────────
+  static const String affiliateDashboard = 'affiliates/dashboard';
+  static const String updateReferralCode = 'affiliates/update/referral';
 }

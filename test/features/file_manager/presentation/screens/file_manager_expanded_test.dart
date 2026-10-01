@@ -1,3 +1,7 @@
+import 'package:beige_creative_app/features/file_manager/data/repositories/file_ops_repository_dummy.dart';
+import 'package:beige_creative_app/features/file_manager/presentation/providers/file_ops_repository_provider.dart';
+import 'package:beige_creative_app/features/file_manager/data/repositories/comments_repository_dummy.dart';
+import 'package:beige_creative_app/features/file_manager/presentation/providers/comments_repository_provider.dart';
 import 'package:beige_creative_app/features/file_manager/domain/models/file_type.dart';
 import 'package:beige_creative_app/features/file_manager/domain/models/fm_folder_key.dart';
 import 'package:beige_creative_app/features/file_manager/domain/models/fm_node.dart';
@@ -5,6 +9,7 @@ import 'package:beige_creative_app/features/file_manager/domain/models/fm_phase.
 import 'package:beige_creative_app/features/file_manager/presentation/widgets/fm_file_preview_sheet.dart';
 import 'package:beige_creative_app/features/file_manager/presentation/widgets/fm_status_pill.dart';
 import 'package:beige_creative_app/features/file_manager/presentation/widgets/fm_upload_sheet.dart';
+import 'package:beige_creative_app/features/file_manager/presentation/providers/file_manager_repository_provider.dart';
 import 'package:beige_creative_app/features/file_manager/presentation/widgets/fm_version_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,7 +18,9 @@ import '../../../../helpers/pump_app.dart';
 
 void main() {
   group('FileManager Expanded UI Widgets', () {
-    testWidgets('FmVersionTag renders version numbers correctly', (tester) async {
+    testWidgets('FmVersionTag renders version numbers correctly', (
+      tester,
+    ) async {
       await tester.pumpProviderApp(
         const FmVersionTag(version: 2, isLatest: true),
       );
@@ -33,7 +40,9 @@ void main() {
       expect(find.byIcon(Icons.edit_note_outlined), findsOneWidget);
     });
 
-    testWidgets('FmFilePreviewSheet renders preview, metadata, and comments', (tester) async {
+    testWidgets('FmFilePreviewSheet renders preview, metadata, and comments', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -61,6 +70,12 @@ void main() {
             child: const Text('Show Sheet'),
           ),
         ),
+        overrides: [
+          fileOpsRepositoryProvider.overrideWithValue(FileOpsRepositoryDummy()),
+          commentsRepositoryProvider.overrideWithValue(
+            CommentsRepositoryDummy(),
+          ),
+        ],
       );
       await tester.pumpAndSettle();
 
@@ -77,7 +92,16 @@ void main() {
       expect(find.text('Add a comment...'), findsOneWidget);
     });
 
-    testWidgets('FmUploadSheet displays empty dropzone and picking state', (tester) async {
+    testWidgets('FmUploadSheet displays empty dropzone and picking state', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       await tester.pumpProviderApp(
         Builder(
           builder: (context) => ElevatedButton(
@@ -89,6 +113,9 @@ void main() {
             child: const Text('Show Upload'),
           ),
         ),
+        overrides: [
+          useDummyFileManagerProvider.overrideWith((ref) => true),
+        ],
       );
       await tester.pumpAndSettle();
 

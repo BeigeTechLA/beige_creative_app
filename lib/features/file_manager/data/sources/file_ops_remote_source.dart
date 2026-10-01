@@ -54,15 +54,41 @@ class FileOpsRemoteSource {
   }) => _guard(() async {
     final body = <String, dynamic>{
       'externalId': externalId,
-      'phase': ?phase?.apiValue,
-      'path': ?(path?.isEmpty ?? true ? null : path),
     };
+    if (phase != null && phase != FmPhase.root) {
+      body['phase'] = phase.apiValue;
+    }
+    if (path != null && path.trim().isNotEmpty) {
+      body['path'] = path.trim();
+    }
     final resp = await _dio.post<dynamic>(
       ApiEndpoints.fmFolderDownloadUrl,
       data: body,
     );
+    final envelope = FmJson.asMap(resp.data);
+    if (envelope?['success'] == false) {
+      throw StateError('Folder download request failed');
+    }
     final data = FmJson.asMap(FmJson.unwrap(resp.data)) ?? const {};
     return FmSignedUrlDto.fromJson(data);
+  });
+
+  /// Streams a server-generated archive (folder ZIP) straight to
+  /// [savePath] on disk. Uses the shared [DioClient] so the auth
+  /// interceptor attaches the Bearer token — the folder-download endpoint
+  /// (`api2.../gcp/download-folder`) is an authenticated BEIGE route, not
+  /// a public signed URL, so a browser hand-off cannot fetch it.
+  Future<void> downloadArchive({
+    required String url,
+    required String savePath,
+    void Function(int received, int total)? onProgress,
+  }) => _guard(() async {
+    await _dio.download(
+      url,
+      savePath,
+      onReceiveProgress: onProgress,
+      options: Options(followRedirects: true, responseType: ResponseType.bytes),
+    );
   });
 
   Future<FmDeleteResult> delete(String filepath) => _guard(() async {

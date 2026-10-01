@@ -8,11 +8,12 @@ import '../../domain/models/file_type.dart';
 import '../../domain/models/fm_node.dart';
 import '../util/relative_time.dart';
 import 'fm_file_type_icon.dart';
+import 'fm_image_preview.dart';
 import 'fm_version_tag.dart';
 import 'fm_status_pill.dart';
 
 /// File row with header (small icon + name + ⋮), large preview block
-/// (icon-only per FM4 scope), status badges, and footer.
+/// (image when available), status badges, and footer.
 class FmFileCard extends StatelessWidget {
   final FmFile file;
   final VoidCallback? onTap;
@@ -90,7 +91,10 @@ class FmFileCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppRadii.md),
                   ),
                   alignment: Alignment.center,
-                  child: _DocumentPreview(type: file.type),
+                  child: FmImagePreview(
+                    file: file,
+                    fallback: _DocumentPreview(type: file.type),
+                  ),
                 ),
               ),
               if (file.version != null || file.statusLabel != null) ...[

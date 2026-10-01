@@ -23,11 +23,12 @@ class FolderBrowseRemoteSource {
     try {
       // Root of a workspace = detail endpoint (returns Pre/Post cards).
       // Anything below root = /files endpoint scoped by phase + path.
+      final isWorkspaceRoot = key.phase == FmPhase.root && key.path.isEmpty;
       final resp = await _dio.get<dynamic>(
-        key.phase == FmPhase.root
+        isWorkspaceRoot
             ? ApiEndpoints.fmWorkspace(key.externalId)
             : ApiEndpoints.fmWorkspaceFiles(key.externalId),
-        queryParameters: key.phase == FmPhase.root
+        queryParameters: isWorkspaceRoot
             ? null
             : {
                 'phase': key.phase.apiValue,
@@ -35,7 +36,11 @@ class FolderBrowseRemoteSource {
               },
       );
       final data = FmJson.asMap(FmJson.unwrap(resp.data)) ?? const {};
-      return FmWorkspaceDetailDto.fromJson(data, externalId: key.externalId);
+      return FmWorkspaceDetailDto.fromJson(
+        data,
+        externalId: key.externalId,
+        requestedKey: key,
+      );
     } on DioException catch (e, st) {
       throw ExceptionHandler.mapDioException(e, st);
     }

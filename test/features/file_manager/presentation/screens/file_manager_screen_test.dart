@@ -17,7 +17,11 @@ class _WorkspacesRepo implements WorkspacesRepository {
   final List<FmFolder> roots;
 
   @override
-  Future<FmPage<FmFolder>> list({String? cursor, int limit = 20}) async {
+  Future<FmPage<FmFolder>> list({
+    String? cursor,
+    int limit = 20,
+    String? workspaceType,
+  }) async {
     return FmPage<FmFolder>(items: roots, nextCursor: null);
   }
 

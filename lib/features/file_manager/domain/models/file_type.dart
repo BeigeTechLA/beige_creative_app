@@ -4,6 +4,34 @@
 /// [FileType.other] so a single rogue extension never breaks rendering.
 enum FileType { pdf, doc, sheet, image, video, audio, zip, other }
 
+/// Detects image filenames and paths, including signed URLs and mixed case.
+bool isImageFile(String? nameOrPath) {
+  if (nameOrPath == null) return false;
+  final value = nameOrPath.trim();
+  final uri = Uri.tryParse(value);
+  final path = uri?.hasScheme == true ? uri!.path : value.split('?').first;
+  final name = path.split('/').last.toLowerCase();
+  final dot = name.lastIndexOf('.');
+  if (dot < 0) return false;
+  return const {
+    'jpg',
+    'jpeg',
+    'jfif',
+    'png',
+    'gif',
+    'webp',
+    'bmp',
+    'wbmp',
+    'ico',
+    'heic',
+    'heif',
+    'avif',
+    'tif',
+    'tiff',
+    'svg',
+  }.contains(name.substring(dot + 1));
+}
+
 extension FileTypeX on FileType {
   String get apiValue {
     switch (this) {
@@ -27,6 +55,7 @@ extension FileTypeX on FileType {
   }
 
   static FileType fromApi(String? value) {
+    if (isImageFile('file.${value?.trim()}')) return FileType.image;
     switch (value?.toLowerCase()) {
       case 'pdf':
         return FileType.pdf;
@@ -45,12 +74,31 @@ extension FileTypeX on FileType {
       case 'jpeg':
       case 'gif':
       case 'webp':
+      case 'bmp':
+      case 'tif':
+      case 'tiff':
+      // Camera RAW formats: classified as image for icon/category, but kept
+      // out of [isImageFile] since Flutter can't decode them — the preview
+      // falls back to the image-doc icon instead of a doomed network fetch.
+      case 'raw':
+      case 'nef':
+      case 'cr2':
+      case 'arw':
+      case 'orf':
+      case 'dng':
         return FileType.image;
       case 'video':
       case 'mp4':
       case 'mov':
       case 'avi':
       case 'mkv':
+      case 'webm':
+      case 'mpg':
+      case 'mpeg':
+      case 'wmv':
+      case 'flv':
+      case '3gp':
+      case 'ogg':
         return FileType.video;
       case 'audio':
       case 'mp3':
@@ -69,6 +117,7 @@ extension FileTypeX on FileType {
   /// Used by the dummy source + as a last-resort fallback when the backend
   /// only returns a filename.
   static FileType fromExtension(String fileName) {
+    if (isImageFile(fileName)) return FileType.image;
     final dot = fileName.lastIndexOf('.');
     if (dot < 0 || dot == fileName.length - 1) return FileType.other;
     return fromApi(fileName.substring(dot + 1));

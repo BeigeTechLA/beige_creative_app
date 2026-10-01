@@ -5,6 +5,42 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-09-15: File Manager In-App File & Folder Download Fixes
+
+- **Changes**:
+  - Corrected `POST /external-file-manager/folder-download-url` request payload serialization in `FileOpsRemoteSource` per official API documentation:
+    - Root workspace: `{ "externalId": externalId }` (omits empty phase and path).
+    - Phase root: `{ "externalId": externalId, "phase": "pre" | "post" }` (omits path).
+    - Subfolder: `{ "externalId": externalId, "phase": "pre" | "post", "path": path }`.
+  - Updated `FmFileNodeDto` to resolve `filepath` from `path ?? filepath ?? fullPath` fallback.
+  - Enhanced `FmDownloadsSaver` with `isArchive` parameter to support saving individual files with their original extensions (`.jpeg`, `.pdf`, etc.) as well as `.zip` folder archives.
+  - Updated `NodeActionNotifier.downloadFile` to stream and save files directly to device storage in-app (Documents/Downloads) with live determinate progress tracking and completion confirmation toasts.
+- **Verification**:
+  - `flutter analyze lib/features/file_manager test/features/file_manager`: 0 issues found.
+  - `flutter test test/features/file_manager`: 49/49 tests passing.
+
+### 2026-09-15: File Manager upload API wiring (Presigned PUT + Batch Confirm)
+
+- **Changes**:
+  - Implemented `UploadRepository` interface and `UploadRemoteSource` / `UploadRepositoryImpl` following Clean Architecture and Riverpod.
+  - Endpoint `POST /external-file-manager/upload-policies/batch` requests presigned S3/GCS URLs for selected upload items.
+  - Implemented direct binary stream PUT to storage presigned URLs with custom headers and byte progress callbacks (`onProgress`), bypassing backend proxies.
+  - Endpoint `POST /external-file-manager/files-uploaded/batch` registers completed uploads with backend database.
+  - Implemented `UploadNotifier` and `UploadState` tracking per-item and aggregate progress (`overallProgress`, `uploadedCount`, `failedCount`).
+  - Wired `FmUploadSheet` to `uploadNotifierProvider` with automatic UI progress updates and folder contents refresh on completion.
+  - Implemented `UploadRepositoryDummy` for test and offline dev support.
+- **Verification**:
+  - `flutter analyze lib/features/file_manager`: 0 issues found.
+  - `flutter test test/features/file_manager`: 51/51 tests passing.
+
+### 2026-09-14: File Manager folder download verification and hardening
+
+- Existing folder Download already calls `POST external-file-manager/folder-download-url` through the live repository and opens the signed ZIP URL externally. Preserved the documented externalId/optional phase/path contract.
+- FileOpsRemoteSource now rejects unsuccessful envelopes. NodeActionNotifier validates HTTP(S) URLs before external handoff and holds a keep-alive while folder downloads are pending.
+- Added remote-source request/response tests and notifier coverage for folder scope, duplicate taps, malformed URLs, and retry. Updated the feature API checklist; no files moved.
+- Verification: `flutter test --no-pub test/features/file_manager/` passed 47/47; `flutter analyze --no-pub lib/features/file_manager test/features/file_manager` passed; `git diff --check` passed.
+- Current handoff and feature API plan supersede historical Phase 4 stub-only guidance. Existing staged folder-structure documentation was preserved. Live authenticated ZIP generation/browser download remains pending.
+
 ### 2026-09-08: Fix App Store invalid large app icon (409)
 
 - **Status**: Local asset fix complete; fresh archive and App Store validation pending.
@@ -12,6 +48,46 @@
 - **Decisions**: Preserved existing artwork, dimensions, catalog entries, and separate iOS asset maintenance (`ios: false`). This is a release asset fix outside the migration tasks; Phase 6 remains active per `docs/AI_HANDOFF.md`, superseding the entrypoint's older Phase 4 default.
 - **Verification**: `sips` confirms all 16 iOS icons have no alpha channel and retain their catalog dimensions, including the 1024×1024 large icon. No Dart code changed; Flutter tests are not relevant to PNG encoding.
 - **Remaining**: Build a new archive/IPA and validate/upload it; existing archives still contain the rejected assets.
+
+### 2026-09-10: File Manager scroll preview caching
+
+- Replaced FmFile object-identity provider keys with value-based request keys. Retain pending/successful URL state across scrolling for up to five minutes, shortened by server expiry with a 30-second margin; release failed requests for retry.
+- Added stable image-byte cache keys based on path/id, version, timestamp, and size so rotating URL signatures do not bypass the disk cache. Removed repeated fade-in/out in the shared preview widget.
+- Added regression coverage for scroll-away/return using recreated file objects, failed request recovery, expired URL eviction, and signature-independent/version-aware byte keys.
+- Verification: File Manager tests passed 37/37; File Manager static analysis passed; `git diff --check` passed. Updated feature checklist and handoff.
+- Remaining: live device scrolling verification. Replacement detection depends on backend version/timestamp/size changes; the existing image cache retains its own disk eviction policy.
+
+### 2026-09-10: Shared File Manager image previews
+
+- Added `isImageFile` in `file_type.dart`, reused by extension/type mapping, both file DTOs, and the shared preview path. Image extensions override generic MIME/type values.
+- Added `fileImagePreviewProvider` and `FmImagePreview`; all listing cards and the preview sheet now load supplied previews or signed view URLs, with legacy download URL fallback. Unavailable/unsupported images retain existing placeholders.
+- Updated API plan and handoff: the user's request explicitly supersedes the historical no-inline-image policy. External open actions remain available.
+- Verification: File Manager tests passed 33/33, including five new helper/DTO/provider tests. File Manager static analysis and `git diff --check` passed. Initial analysis found two brace-style infos, corrected before the passing final analysis.
+- Remaining: authenticated device rendering; HEIC/TIFF/SVG and other recognized extensions depend on decoder support or a server thumbnail and otherwise show placeholders.
+
+### 2026-09-10: File Manager folder contents endpoint fix
+
+- Confirmed `GET external-file-manager/workspace/{externalId}/files` was already defined and selected by the live repository. Fixed `FolderBrowseRemoteSource` to use workspace detail only for an empty root path; every child uses `/files` with phase and optional relative path.
+- Added requested-key fallback to `FmWorkspaceDetailDto` so absent response phase/path cannot reset nested navigation. Explicit response context continues to take precedence.
+- Added five remote-source regression tests for root children, Pre/Post entry, nested navigation to a file, and response context. Updated feature task checklist; unrelated existing edits preserved.
+- Verification: `flutter test --no-pub test/features/file_manager/` passed 28/28; targeted `flutter analyze --no-pub` passed; `git diff --check` passed. Initial test assertions compared map-containing records by identity; corrected to compare their fields before the passing run.
+- Remaining: live authenticated backend/device verification and web parity confirmation.
+
+### 2026-09-10: File Manager folder-loop review
+
+- Reviewed folder taps, folder keys, remote endpoint selection, and response parsing against the feature API/design documents.
+- Found a deterministic root-phase child navigation defect: `FolderBrowseRemoteSource.open` selects workspace detail for every root-phase key, discarding non-empty child paths and repeating the root listing.
+- Found an additional conditional risk: `FmWorkspaceDetailDto` resets missing response phase/path to root/empty instead of preserving request context.
+- Updated the feature API plan with pending fixes and validation. No runtime code changed; verification was static inspection, not a live web/device reproduction.
+- Current handoff/feature plan supersedes the old Phase 4 stub-only guidance. Existing uncommitted implementation changes were left intact.
+
+### 2026-09-07: File Manager real-data activation
+
+- Set the shared dummy-repository flag to false, activating existing Dio repositories for workspaces, folder browsing, file operations, and comments. Dummy implementations remain inactive for app use and explicitly injectable in tests.
+- Removed upload timer simulation, fabricated file IDs/URLs, in-memory save, and false success notification. Upload currently reports unavailable pending FM8 multipart implementation.
+- Updated the expanded preview test to explicitly inject comments and file-action fixtures; updated the feature API plan and AI handoff to supersede historical dummy-default notes.
+- Verification: File Manager static analysis passed; File Manager tests passed (23/23); `git diff --check` passed.
+- Remaining: authenticated device/backend verification, unresolved API contract questions, and real multipart uploads. A hot restart/relaunch is needed to discard an existing in-memory dummy provider value.
 
 ### 2026-08-20: Add Full-Width Glass Shadow Background Overlay to Featured Work Images
 
@@ -4300,3 +4376,150 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - **Verification**:
   - `flutter analyze --fatal-infos` — 0 issues.
   - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 5/5 tests passing.
+
+### 2026-09-21: Affiliate summary scroll behavior
+
+- Moved `AffiliateStatsGrid` into the main `SingleChildScrollView` in `lib/features/affiliate/presentation/screens/affiliate_screen.dart`, removing the fixed summary area and redundant body wrappers. Horizontal card scrolling and pull-to-refresh are preserved.
+- Updated the related 4.23 follow-up checklist. Phase 6 remains active per `docs/AI_HANDOFF.md`; the older Phase 4 default does not reopen migration work.
+- Verification: affiliate static analysis passes; existing affiliate widget test passes (1/1); full analysis finds an unrelated invalid `HomeNotifier.refresh` override in `test/features/home/presentation/screens/home_screen_test.dart:32`.
+- Remaining verification: device check of vertical/horizontal scrolling and pull-to-refresh; no device run performed.
+
+### 2026-09-21: Affiliate stats tiles footer
+
+- Reused `HomeSectionDivider(centerAlpha: 0.24)` below the affiliate summary tiles in `lib/features/affiliate/presentation/screens/affiliate_screen.dart`, matching dashboard insets and section spacing with existing tokens. The divider scrolls with the stats and page content.
+- Updated the related task 4.23 follow-up checklist; no architecture or active-phase changes.
+- Verification: Dart formatting and affiliate static analysis pass. Visual device verification remains outstanding.
+
+### 2026-09-07: File Manager enabled in drawer navigation
+
+- **Task**: Expose the existing File Manager shell branch in the drawer UI.
+- **Changed Files**:
+  - `lib/shared/layouts/app_shell.dart`
+  - `test/shared/layouts/app_shell_test.dart`
+- **Decisions**:
+  - Added the File Manager drawer item at branch index `2` using the existing
+    `AppAssets.activeFileManager` and `AppAssets.inactiveFileManager` assets.
+  - Kept File Manager hidden from the bottom navigation bar as intended by the
+    current shell design.
+- **Verification**:
+  - `flutter test test/shared/layouts/app_shell_test.dart --plain-name 'AppShell drawer exposes File Manager branch'` — passed.
+  - `flutter analyze --fatal-infos` — blocked by a pre-existing
+    `HomeNotifier.refresh` override mismatch in
+    `test/features/home/presentation/screens/home_screen_test.dart:32`.
+- **Remaining Risk**: The existing Payouts drawer test expects an item that is
+  intentionally omitted from the drawer and remains failing independently.
+
+### 2026-09-07: Debug login credential prefill
+
+- **Task**: Speed up local debug login testing with prefilled credentials.
+- **Changed Files**:
+  - `lib/features/auth/presentation/screens/login_screen.dart`
+  - `test/features/auth/presentation/screens/login_screen_test.dart`
+- **Decisions**:
+  - Prefill the requested email and password in `initState` only when
+    `kDebugMode` is true, so release builds do not include the convenience
+    behavior.
+  - Existing saved credentials still override the debug defaults during normal
+    hydration.
+- **Verification**:
+  - `flutter test test/features/auth/presentation/screens/login_screen_test.dart` — 6/6 passing.
+
+### 2026-09-07: File Manager added to bottom navigation
+
+- **Task**: Make File Manager available from both the drawer and bottom
+  navigation bar.
+- **Changed Files**:
+  - `lib/shared/layouts/app_shell.dart`
+  - `test/shared/layouts/app_shell_test.dart`
+- **Decisions**:
+  - Added branch index `2` to the bottom-bar branch list and inserted the
+    existing File Manager active/inactive icons and label between Shoots and
+    Messages.
+  - Kept the existing branch index and notifier invalidation behavior intact.
+- **Verification**:
+  - Bottom-bar branch-switch test passed.
+  - Drawer File Manager branch test updated to distinguish the bottom-bar and
+    drawer labels.
+
+### 2026-09-21: FM9.03 — File Manager share API binding
+
+- Added share domain models/contract, authenticated Dio repository, access-log
+  endpoint, and Riverpod state for listing, creating and revoking grants.
+- Bound root/phase-folder Share UI to real requests. Added public-link creation,
+  email invites with both permissions, copy, removal, activity logs and retry.
+  Replaced optimistic local recipient edits and placeholder notices; Done closes
+  the sheet because individual mutations persist immediately.
+- Updated caller screens, `fm_share_sheet.dart`, endpoint constants, API task
+  checklist and AI handoff. Tests added for repository, notifier and share sheet.
+- User API overrides the prior `download` permission: send `view_download`.
+  Create responses omit IDs; refresh access to obtain the numeric `shareId` and
+  disable revoke when missing. A failed GET after create retains the returned
+  link. Shared tokens across public/email grants do not merge recipients.
+- Contract limitations: GET share/log response samples are still missing.
+  Adapters accept explicit list containers and camelCase fields documented in
+  the task follow-up; unknown shapes fail visibly. Phase-root POST targeting
+  follows the supplied GET target tuple and awaits backend validation. Nested
+  paths are blocked until their addressing contract is confirmed; file system
+  sharing is preserved. FM9.03 remains partial for these confirmations.
+- Verification: `flutter test --no-pub test/features/file_manager --reporter
+  expanded` — 68/68 passed, including 19 new sharing tests. Scoped
+  `flutter analyze --no-pub --fatal-infos lib/features/file_manager
+  lib/core/network/api_endpoints.dart test/features/file_manager` — no issues.
+  Device/backend verification remains pending; no live shares were created.
+
+### 2026-09-21: File Manager iOS compile verification
+
+- Rechecked the reported File Manager compile failures. The current source
+  includes matching `workspaceType`, nullable-safe page handling,
+  `downloadArchive`, `requestedKey`, and shared `isImageFile` definitions.
+- Verification: feature analysis passed; all 68 File Manager tests passed;
+  `flutter build ios --no-codesign --debug --flavor dev -t lib/main_dev.dart`
+  produced `build/ios/iphoneos/Runner.app`.
+- Full-project analysis still reports the unrelated existing
+  `_FakeHomeNotifier.refresh` override in
+  `test/features/home/presentation/screens/home_screen_test.dart:32`.
+
+### 2026-09-29: Shared HTTP 401 session-expiry handling
+
+- User confirmed HTTP 401 with `Token is required. Please provide a valid token.`
+  means the session must end. Match HTTP status, not mutable message text.
+- Added `AuthStateNotifier.expireSession()` and wired the shared Dio callback
+  to it. Shared cleanup with explicit logout now revokes auth state immediately,
+  clears temporary/persisted session, invalidates the cached user snapshot, and
+  clears restoration, drafts and telemetry. Repeated expiry shares cleanup until
+  the next successful login; automatic expiry emits no manual logout event.
+- Updated Messages/Meetings unauthorized fallbacks to use expiry. Cleanup errors
+  are logged independently so a storage/telemetry failure cannot strand the 401
+  request or prevent in-memory revocation and remaining cleanup.
+- Added `test/core/providers/session_expiry_test.dart`; updated Phase 6 task 6.11
+  follow-up and AI handoff. Current handoff's Phase 6 context supersedes the older
+  Phase 4 default in the repo entry instructions.
+- Verification: 89 tests passed across session-expiry, session store, login,
+  signup, delete-account and Messages notifier suites. Scoped Flutter analysis
+  of changed providers/test passed; `git diff --check` passed.
+- Additional router suite: 2 existing failures expect rejected users
+  to redirect to `/application-rejected`, contrary to current unchanged Home
+  routing. The new expiry test verifies the protected-route Login redirect.
+- Limitations: real-device/backend expiry verification remains pending. Failed
+  persistent storage deletion may leave credentials on disk although in-memory
+  access is revoked. Socket and direct cloud-storage authentication remain
+  separate. Existing user changes to `pubspec.lock` were preserved.
+
+### 2026-09-29: Backend session-expiry code contract correction
+
+- Supersedes today's earlier status-only 401 policy per the updated server
+  contract: only exact top-level `SESSION_EXPIRED` and `TOKEN_INVALID` codes
+  trigger automatic logout. `TOKEN_MISSING`, unknown/missing codes and message
+  text do not. Checks apply to both successful and failed HTTP responses.
+- Updated AuthInterceptor and its exception/auth-state documentation; removed
+  generic UnauthorizedException logout fallbacks in Messages/Meetings so they
+  cannot bypass the shared allowlist. Existing cleanup and explicit logout stay
+  intact. Preserved unrelated existing work, including pubspec.lock.
+- Expanded session_expiry_test.dart across HTTP 200/401/403 and all allowed and
+  excluded codes; changed the conversation notifier regression to assert that a
+  generic unauthorized failure preserves auth while displaying the error.
+- Updated task 6.11 and AI_HANDOFF.md. Phase 6 remains the current context,
+  superseding the older Phase 4 defaults in the entrypoint.
+- Verification: focused session/provider/network/Messages suites passed 60/60;
+  scoped static analysis passed; git diff --check passed.
+- Remaining: real-device verification against the updated backend contract.

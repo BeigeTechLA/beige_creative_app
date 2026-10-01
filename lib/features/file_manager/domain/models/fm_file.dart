@@ -11,9 +11,7 @@ class FmFile extends FmNode {
   /// the DTO boundary before reaching this entity.
   final String downloadUrl;
 
-  /// Optional remote thumbnail. Ignored in FM4 (icon-only previews) but
-  /// kept on the entity so the future inline-preview phase can opt in
-  /// without a domain change.
+  /// Optional remote image thumbnail, preferred over fetching a signed URL.
   final String? previewUrl;
 
   /// The version number of this file (e.g., 1, 2)

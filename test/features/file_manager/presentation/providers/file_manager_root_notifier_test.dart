@@ -21,7 +21,11 @@ class _FakeWorkspacesRepo implements WorkspacesRepository {
   final List<FmCommonEvent> _commonEvents;
 
   @override
-  Future<FmPage<FmFolder>> list({String? cursor, int limit = 20}) async {
+  Future<FmPage<FmFolder>> list({
+    String? cursor,
+    int limit = 20,
+    String? workspaceType,
+  }) async {
     final page = int.tryParse(cursor ?? '') ?? 1;
     final idx = page - 1;
     if (idx < 0 || idx >= _pages.length) {

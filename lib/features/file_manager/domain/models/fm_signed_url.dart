@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 /// Short-lived signed URL returned by the view / download / folder-
-/// download endpoints. Always hands off to the OS (`url_launcher` with
-/// `LaunchMode.externalApplication`) — the app never fetches the bytes
-/// itself.
+/// download endpoints. Used for image previews and external open/download.
 @immutable
 class FmSignedUrl {
   final String url;

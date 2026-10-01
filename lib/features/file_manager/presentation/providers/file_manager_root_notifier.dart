@@ -11,8 +11,9 @@ import 'workspaces_repository_provider.dart';
 
 /// Root screen notifier. Backed by [WorkspacesRepository]:
 ///
-/// - `all` / `recent` / `linked` → `list()` on the workspaces endpoint
-///   (paginated). `recent` sorts client-side by `openedAt` desc.
+/// - `all` / `linked` → `list()` on the workspaces endpoint (paginated).
+/// - `recent` → `list(workspaceType: 'recent', limit: 10)` — server
+///   returns the feed newest-first; no client-side sort.
 /// - `commonEvents` → `listCommonEvents()` (unpaginated in the API doc;
 ///   surfaced as a single page).
 ///
@@ -46,7 +47,10 @@ class FileManagerRootNotifier extends AutoDisposeNotifier<FileManagerRootState> 
         return;
       }
 
-      final page = await _repo.list();
+      final page = await _repo.list(
+        workspaceType: _workspaceTypeFor(state.tab),
+        limit: _limitFor(state.tab),
+      );
       state = state.copyWith(
         items: _applyTabFilter(page.items, state.tab),
         cursor: page.nextCursor,
@@ -66,7 +70,11 @@ class FileManagerRootNotifier extends AutoDisposeNotifier<FileManagerRootState> 
     if (state.tab == FmTab.commonEvents) return;
     state = state.copyWith(status: FmListStatus.loadingMore);
     try {
-      final page = await _repo.list(cursor: state.cursor);
+      final page = await _repo.list(
+        cursor: state.cursor,
+        workspaceType: _workspaceTypeFor(state.tab),
+        limit: _limitFor(state.tab),
+      );
       state = state.copyWith(
         items: _applyTabFilter(
           [...state.items, ...page.items],
@@ -104,10 +112,9 @@ class FileManagerRootNotifier extends AutoDisposeNotifier<FileManagerRootState> 
       case FmTab.all:
         return items;
       case FmTab.recent:
-        final sorted = [...items]
-          ..sort((a, b) => (b.openedAt ?? DateTime(0))
-              .compareTo(a.openedAt ?? DateTime(0)));
-        return sorted;
+        // Server returns newest-first via `workspaceType=recent`; no
+        // client-side re-sort needed.
+        return items;
       case FmTab.linked:
         return items
             .where((f) => f.linkState == LinkState.linked)
@@ -134,6 +141,16 @@ class FileManagerRootNotifier extends AutoDisposeNotifier<FileManagerRootState> 
       visibleUntil: e.visibleUntil,
     ),
   );
+
+  /// Server-side `workspaceType` filter for a tab, or `null` for the
+  /// default (all) listing. `recent` is the only server-filtered tab;
+  /// `linked` still slices client-side.
+  String? _workspaceTypeFor(FmTab tab) =>
+      tab == FmTab.recent ? 'recent' : null;
+
+  /// Page size per tab. Recent is a short, paginated feed (10); the rest
+  /// use the default page size.
+  int _limitFor(FmTab tab) => tab == FmTab.recent ? 10 : 20;
 
   String _messageFor(Object e) => 'Failed to load folders';
 }

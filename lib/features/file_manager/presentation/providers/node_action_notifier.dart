@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../data/util/fm_downloads_saver.dart';
 import '../../domain/models/fm_phase.dart';
 import '../../domain/repositories/file_ops_repository.dart';
 import 'file_ops_repository_provider.dart';
@@ -57,23 +58,41 @@ class NodeActionNotifier extends AutoDisposeNotifier<NodeActionState> {
     }
   }
 
-  /// Downloads a file by handing the signed URL to the OS browser (which
-  /// prompts the user for save location).
-  Future<void> downloadFile(String filepath) async {
+  /// Downloads a file **in-app** and saves it to device storage (Downloads/Files).
+  /// Streams byte progress directly to [state.downloadProgress[filepath]].
+  Future<void> downloadFile(String filepath, {String? fileName}) async {
     if (state.isDownloading(filepath)) return;
+    final keepAlive = ref.keepAlive();
     state = state.copyWith(
       downloadProgress: {...state.downloadProgress, filepath: 0.0},
       clearSignal: true,
     );
     try {
       final signed = await _repo.downloadUrl(filepath);
-      await _openExternal(signed.url);
+      final url = _preferHttps(signed.url);
+      final savePath = await FmDownloadsSaver.resolvePath(
+        fileName ?? filepath,
+        isArchive: false,
+      );
+      await _repo.downloadArchive(
+        url: url,
+        savePath: savePath,
+        onProgress: (received, total) {
+          if (total <= 0) return;
+          state = state.copyWith(
+            downloadProgress: {
+              ...state.downloadProgress,
+              filepath: received / total,
+            },
+          );
+        },
+      );
       final next = {...state.downloadProgress}..remove(filepath);
       state = state.copyWith(
         downloadProgress: next,
-        lastSignal: const FmActionSignal(
+        lastSignal: FmActionSignal(
           kind: FmActionSignalKind.downloaded,
-          message: 'Opened in browser',
+          message: 'Saved to ${FmDownloadsSaver.displayLocation}',
         ),
       );
     } catch (e) {
@@ -82,22 +101,30 @@ class NodeActionNotifier extends AutoDisposeNotifier<NodeActionState> {
         downloadProgress: next,
         lastSignal: const FmActionSignal(
           kind: FmActionSignalKind.error,
-          message: 'Failed to open download',
+          message: 'Failed to download file',
         ),
       );
+    } finally {
+      keepAlive.close();
     }
   }
 
-  /// Downloads a folder (server-generated ZIP). Same OS handoff as
-  /// [downloadFile]. Progress keyed by [trackingKey] so the UI can gate
-  /// its spinner — pass the folder's path so widgets share the same id.
+  /// Downloads a folder (server-generated ZIP) **in-app** and saves it to
+  /// device storage — no browser hand-off. The folder-download endpoint is
+  /// authenticated, so the transfer runs through the Dio client (Bearer
+  /// attached) rather than `launchUrl`. Real transfer progress is reported
+  /// on [trackingKey] so the UI can show a determinate bar. Pass the
+  /// folder's path as [trackingKey] so widgets share the same id, and
+  /// [fileName] for a nicer saved-file name (defaults to the folder name).
   Future<void> downloadFolder({
     required String trackingKey,
     required String externalId,
     FmPhase? phase,
     String? path,
+    String? fileName,
   }) async {
     if (state.isDownloading(trackingKey)) return;
+    final keepAlive = ref.keepAlive();
     state = state.copyWith(
       downloadProgress: {...state.downloadProgress, trackingKey: 0.0},
       clearSignal: true,
@@ -108,13 +135,29 @@ class NodeActionNotifier extends AutoDisposeNotifier<NodeActionState> {
         phase: phase,
         path: path,
       );
-      await _openExternal(signed.url);
+      final url = _preferHttps(signed.url);
+      final savePath = await FmDownloadsSaver.resolvePath(
+        fileName ?? signed.filepath ?? path ?? externalId,
+      );
+      await _repo.downloadArchive(
+        url: url,
+        savePath: savePath,
+        onProgress: (received, total) {
+          if (total <= 0) return;
+          state = state.copyWith(
+            downloadProgress: {
+              ...state.downloadProgress,
+              trackingKey: received / total,
+            },
+          );
+        },
+      );
       final next = {...state.downloadProgress}..remove(trackingKey);
       state = state.copyWith(
         downloadProgress: next,
-        lastSignal: const FmActionSignal(
+        lastSignal: FmActionSignal(
           kind: FmActionSignalKind.downloaded,
-          message: 'Opened folder download in browser',
+          message: 'Saved to ${FmDownloadsSaver.displayLocation}',
         ),
       );
     } catch (e) {
@@ -126,6 +169,8 @@ class NodeActionNotifier extends AutoDisposeNotifier<NodeActionState> {
           message: 'Failed to download folder',
         ),
       );
+    } finally {
+      keepAlive.close();
     }
   }
 
@@ -185,8 +230,26 @@ class NodeActionNotifier extends AutoDisposeNotifier<NodeActionState> {
     state = state.copyWith(clearSignal: true);
   }
 
+  /// The folder-download URL comes back as `http://api2.…beige.app/…`.
+  /// Cleartext HTTP is blocked on Android release builds (and iOS ATS), so
+  /// upgrade BEIGE hosts to `https` before the transfer.
+  String _preferHttps(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return url;
+    if (uri.scheme == 'http' && uri.host.endsWith('beige.app')) {
+      return uri.replace(scheme: 'https').toString();
+    }
+    return url;
+  }
+
   Future<void> _openExternal(String url) async {
-    final uri = Uri.parse(url);
+    final uri = Uri.tryParse(url);
+    if (uri == null ||
+        !uri.hasAuthority ||
+        uri.host.isEmpty ||
+        (uri.scheme != 'https' && uri.scheme != 'http')) {
+      throw StateError('Download response contains an invalid URL');
+    }
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok) {
       throw StateError('launchUrl returned false for $url');

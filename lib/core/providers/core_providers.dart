@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../firebase/telemetry_client.dart';
+import 'auth_state_provider.dart';
 import '../network/dio_client.dart';
 import '../network/interceptors/app_headers_interceptor.dart';
 import '../network/interceptors/auth_interceptor.dart';
@@ -65,18 +65,8 @@ final dioClientProvider = Provider<DioClient>((ref) {
         final temporaryToken = ref.read(temporaryAuthSessionProvider).token;
         return temporaryToken ?? session.readToken();
       },
-      onUnauthorized: () async {
-        ref.read(temporaryAuthSessionProvider.notifier).clear();
-        await session.clearSession();
-        // 401 / token-expiry: drop telemetry identity too so the next
-        // crash report isn't attributed to a stale user. Skip the logout
-        // event — the user didn't choose this.
-        try {
-          await ref.read(telemetryClientProvider).clearUserIdentity();
-        } catch (_) {
-          // Best-effort — interceptor must complete.
-        }
-      },
+      onUnauthorized: () =>
+          ref.read(authStateProvider.notifier).expireSession(),
     ),
     RetryInterceptor(dio: client.dio),
     ErrorInterceptor(),

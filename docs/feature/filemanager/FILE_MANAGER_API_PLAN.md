@@ -1,5 +1,76 @@
 # File Manager — API Integration Plan
 
+## Folder download verification — 2026-09-14
+
+- [x] Verify existing Download wiring to `POST /external-file-manager/folder-download-url`
+  through the remote repository, with `externalId` and optional `phase`/`path`.
+- [x] Reject unsuccessful response envelopes and invalid external URLs; retain
+  the folder action provider until the pending download finishes.
+- [x] Cover workspace/phase/nested request scope, signed response parsing,
+  duplicate taps, invalid URLs, and retry with regression tests.
+- [x] File Manager tests: 47/47 passed; targeted analysis and diff checks passed.
+- [ ] Verify authenticated ZIP generation and browser download on device.
+
+| Phase | Goal | Files Touched | Done Criteria | Status |
+|-------|------|---------------|---------------|--------|
+| 1 | Trace folder download wiring | Existing source and API plan | Confirm endpoint and folder scope | Completed |
+| 2 | Harden download handling | File ops source, action notifier, tests | Reject failed responses and invalid URLs; retain pending requests | Completed |
+| 3 | Verify and document | Feature checklist and migration log | Tests and analysis pass | Completed |
+
+Manual Test Summary:
+
+| # | Step | Expected Result | Edge Cases |
+|---|------|-----------------|------------|
+| 1 | Choose folder Download | Browser opens signed ZIP for selected scope | Workspace, Pre/Post, nested paths |
+| 2 | Retry after failure | Error clears and a new request starts | API failure, invalid URL |
+
+## Image previews — 2026-09-10
+
+- [x] Share image-extension detection across file DTOs and previews, including
+  mixed-case names, signed URLs, and generic MIME responses.
+- [x] Use one image-preview widget in file cards (all listing tabs/folders) and
+  the preview sheet. Prefer supplied thumbnail/preview URLs; otherwise request
+  a signed view URL for the file path, or use a legacy download URL.
+- [x] Keep placeholders on missing URLs, request failures, and unsupported image
+  codecs. Extension recognition does not guarantee platform decoder support.
+- [x] Add helper/DTO/provider regression tests.
+- [x] Reuse preview state across scroll disposal with value-based file keys and
+  a five-minute keep-alive capped by signed URL expiry (30-second margin).
+  Use stable version/metadata-based image cache keys and disable repeated fades.
+  Failed requests are released so returning to a card can retry.
+- [ ] Verify authenticated image rendering on device.
+
+The user's image-preview request supersedes historical no-inline-image rules
+below. Video/document external-open behavior remains unchanged.
+
+## Real-data activation — 2026-09-07
+
+### Navigation review — 2026-09-10
+
+- [x] Trace repeated-folder navigation against the documented browse contract.
+- [x] Fix root-phase child browsing: the detail endpoint must be used only when
+  both phase is `root` and path is empty; children require `/files` with phase/path.
+- [x] Preserve the requested folder key when browse responses omit phase/path,
+  and cover nested navigation with regression tests.
+- [ ] Confirm parity with the running web flow and authenticated backend.
+
+Fixed root-phase child requests discarding the path and reloading workspace
+detail. Response parsing now retains requested phase/path when absent from the
+response. Five remote-source regression tests cover endpoint selection, nested
+navigation to files, and response-context precedence. All 28 File Manager tests
+pass; targeted static analysis is clean. Live authenticated verification remains
+pending.
+
+- [x] Default all File Manager repository providers to real Dio implementations.
+- [x] Remove simulated upload progress and fabricated upload records; report uploads unavailable until FM8 is implemented.
+- [x] Keep widget-test comment fixtures explicit, independent of production defaults.
+- [ ] Verify authenticated browse/actions against the live backend on device.
+
+This update supersedes the dummy-default statements in the historical July
+snapshots below. Existing remote workspace, folder, file-action, and comment
+repositories are now selected by default with no dummy fallback. Multipart
+uploads remain pending; this activation does not complete FM8.
+
 **Overall status (audited 2026-07-14):** 🟡 In progress — **9 / 20 tasks
 complete, 1 partial, 7 blocked, 3 pending**. FM7 is implementation-complete,
 but the app still defaults to dummy repositories; the remote browse/file-ops
@@ -33,9 +104,9 @@ focused contracts (workspace list, folder browse, file ops), and thread
 `externalId + phase + path` through the presentation layer wherever we
 currently pass a bare `folderId`.
 
-**File opening policy (project rule):** the app **never** renders file
-content inline — no embedded video player, no image viewer, no PDF
-reader. Every open / download hands off to the OS (`url_launcher` with
+**File opening policy (updated 2026-09-10):** image previews render inline in
+cards and the preview sheet. Video and documents use external viewers.
+Explicit open / download hands off to the OS (`url_launcher` with
 `LaunchMode.externalApplication`, or `share_plus` for share). See §4.9.
 
 Two implementations remain in tree until the remote path is green:
@@ -1244,7 +1315,7 @@ Upload sheet still calls the deprecated `FileManagerRepository.uploadFiles`
 |---|:-:|------|--------------------------|
 | 9.01 | ✅ | `CommentsRepository` (domain + remote + dummy) + `CommentsRemoteSource` + `commentsNotifierProvider(fileMetaId)` (AutoDisposeAsyncNotifier family) with post / reply / delete; preview sheet swapped from local `_comments` to notifier state (loading / error / empty / thread with nested replies) | `domain/repositories/comments_repository.dart`, `data/sources/comments_remote_source.dart`, `data/repositories/comments_repository_{remote,dummy}.dart`, `presentation/providers/comments_{notifier,repository_provider}.dart`, `presentation/widgets/fm_file_preview_sheet.dart` |
 | 9.02 | 🟡 | Common Events root-tab list already wired in 7.02 (via `WorkspacesRepository.listCommonEvents`). Still to do: `CommonEventsRepository.createCreatorFolder` + CTA inside a common event | `presentation/screens/file_manager_screen.dart` |
-| 9.03 | ⏳ | `/share` create + get + revoke — in-app share manager screen | new screen |
+| 9.03 | 🟡 | Share manager bound to create/get/revoke/access-logs for workspace and phase roots; GET schemas and nested-folder addressing await backend confirmation (2026-09-21) | `fm_share_sheet.dart`, `shares_notifier.dart`, `shares_repository_remote.dart`, `fm_share.dart`, share tests |
 | 9.04 | ⏳ | External share OTP flow (public route surface) | new — separate Dio instance |
 
 Public share endpoints (17-19) require an unauthenticated Dio instance
@@ -1417,3 +1488,52 @@ Deleted after FM7.03 stable:
 - Integration test candidate (`integration_test/`): browse root → open
   workspace → open Post → open Raw Footage → send-for-edits (fake
   backend). Deferred to FM8.05 once the flow is code-complete.
+
+
+### FM9.03 — Share UI API binding (2026-09-21)
+
+User-approved implementation follows the supplied create/revoke contracts,
+which supersede the older deferred-share notes above.
+
+| Phase | Goal | Files Touched | Done Criteria | Status |
+|-------|------|---------------|---------------|--------|
+| 1 | Add API models and repository | `fm_share.dart`, `shares_repository.dart`, `shares_repository_remote.dart`, endpoints | Supplied create/revoke payloads implemented; GET adapters present | Completed |
+| 2 | Connect UI through Riverpod | `shares_notifier.dart`, share sheet, root/nested screen callers | Backend-driven share actions with loading, errors, copy and activity | Completed |
+| 3 | Verify and document | Three share test files, this plan, handoff, migration log | File Manager tests and scoped static analysis pass | Completed |
+
+- [x] Workspace share creation: `resourceType=workspace`, `externalId`,
+  `accessMode=anyone_with_link` or `email_only`, optional email, message,
+  `permission=view_download` or `upload_download` (email only).
+- [x] Phase roots use `resourceType=folder`, workspace `externalId`, and
+  `phase=pre/post`; GET matches the supplied example. The same targeting is
+  used for POST, pending live verification of that inferred POST scope.
+- [x] Create/revoke use the existing authenticated Dio client through a domain
+  repository and Riverpod notifier. No screen-level network calls.
+- [x] Only successful mutations change displayed access; failed invites keep
+  the entered form. Duplicate taps are disabled during requests.
+- [x] Refresh after create obtains `shareId`; a failed refresh preserves the
+  returned URL. Removal is disabled without a server-provided positive ID.
+- [x] Public and email recipients remain distinct even when tokens match, as
+  demonstrated by the supplied examples. Copy uses the returned URL.
+- [x] Existing Save Changes footer becomes Done: each invite/revoke is saved
+  immediately; there is no documented batch-save endpoint.
+- [x] 68 File Manager tests pass (19 new sharing tests); focused analysis clean.
+- [ ] Confirm GET response schemas. Provisional adapters accept `data: []` or
+  `data: {shares: []}` / `{logs: []}`. Shares use camelCase `shareId` (or `id`),
+  `accessMode`, `email`, `permission`, `shareToken`, `shareUrl`; logs use `action`,
+  `email`, `createdAt`. These GET shapes are assumptions, not supplied examples.
+  Unknown containers/permissions surface an error instead of an empty list.
+- [ ] Confirm nested-folder addressing before enabling it. Nonempty folder
+  paths are blocked in the UI and repository; they never fall back to sharing
+  the whole workspace or phase. Leaf-file system sharing remains unchanged.
+- [ ] Validate against authenticated backend responses and on a device.
+
+**Manual Test Summary**
+
+| # | Step | Expected Result | Edge Cases |
+|---|------|-----------------|------------|
+| 1 | Open workspace Share and create a link | POST uses workspace ID; returned URL is copyable | Failed GET does not erase a just-created URL |
+| 2 | Invite email with either permission and optional note | Exact API permission and message sent | Invalid email, repeat taps, failed invite preserves input |
+| 3 | Reopen sheet and remove public/email access | GET loads entries; DELETE sends numeric shareId | Missing ID disables removal; failed revoke keeps entry |
+| 4 | Open Activity Log | GET renders history or empty state | Unsupported response/network failure shows retry |
+| 5 | Share production phase / nested folder | Phase query targets correct workspace; nested folder reports unavailable | Never widen nested scope |

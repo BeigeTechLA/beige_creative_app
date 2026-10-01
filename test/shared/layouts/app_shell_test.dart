@@ -164,6 +164,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('B: 0'), findsOneWidget);
 
+    // File Manager is also available in the bottom navigation bar.
+    await tester.tap(find.text('File Manager'));
+    await tester.pumpAndSettle();
+    expect(find.text('C: 0'), findsOneWidget);
+
     // Back to Dashboard.
     await tester.tap(find.text('Dashboard'));
     await tester.pumpAndSettle();
@@ -192,6 +197,25 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('F: 0'), findsOneWidget);
+  });
+
+  testWidgets('AppShell drawer exposes File Manager branch', (tester) async {
+    await tester.pumpWidget(
+      _wrap(MaterialApp.router(routerConfig: _harnessRouter())),
+    );
+    await tester.pumpAndSettle();
+
+    final scaffoldState = tester.state<ScaffoldState>(
+      find.byType(Scaffold).first,
+    );
+    scaffoldState.openDrawer();
+    await tester.pumpAndSettle();
+
+    expect(find.text('File Manager'), findsNWidgets(2));
+    await tester.tap(find.text('File Manager').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('C: 0'), findsOneWidget);
   });
 
   testWidgets('AppShell drawer item switches to future Payouts branch', (

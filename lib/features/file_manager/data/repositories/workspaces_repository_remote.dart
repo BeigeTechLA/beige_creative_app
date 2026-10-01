@@ -12,8 +12,12 @@ class WorkspacesRepositoryRemote implements WorkspacesRepository {
   final WorkspacesRemoteSource _remote;
 
   @override
-  Future<FmPage<FmFolder>> list({String? cursor, int limit = 20}) =>
-      _remote.list(cursor: cursor, limit: limit);
+  Future<FmPage<FmFolder>> list({
+    String? cursor,
+    int limit = 20,
+    String? workspaceType,
+  }) =>
+      _remote.list(cursor: cursor, limit: limit, workspaceType: workspaceType);
 
   @override
   Future<List<FmCommonEvent>> listCommonEvents() =>

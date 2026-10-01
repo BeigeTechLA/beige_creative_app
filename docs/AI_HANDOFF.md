@@ -37,6 +37,36 @@ Every AI session should read:
 
 Active Phase 6 entry-point: `docs/phase6/README.md`.
 
+## File Manager real-data activation (2026-09-07)
+
+Image-preview update (2026-09-10): the user's request supersedes the old
+no-inline-image policy. `isImageFile` centralizes extension detection;
+`FmImagePreview` and `fileImagePreviewProvider` render image previews in every
+file card and the preview sheet, using provided previews or signed view URLs.
+Unsupported codecs/request failures retain placeholders. Live device image
+verification is pending.
+Preview caching now uses value-based file keys, a bounded five-minute URL
+keep-alive (shortened by server expiry), and stable version/metadata-based image
+cache keys so scrolling does not repeatedly sign/download the same image.
+
+`useDummyFileManagerProvider` now defaults to `false` for all File Manager
+repositories. Historical stub/dummy-default notes below are superseded by
+`docs/feature/filemanager/FILE_MANAGER_API_PLAN.md`. Simulated upload progress
+and fabricated files were removed; Upload reports unavailable pending FM8.
+Authenticated backend validation on device remains pending.
+
+## File Manager sharing follow-up (2026-09-21)
+
+FM9.03 now binds the existing share sheet to authenticated create/get/revoke
+and access-log calls using `SharesRepository` and `sharesNotifierProvider`.
+Workspace and production-phase roots support public view/download links and
+email invitations with view/download or upload/download. Successful mutations
+update access; create refreshes to resolve the numeric revoke ID. GET schemas
+are provisional pending response examples, and nested-folder sharing stays
+disabled until its scope contract is confirmed. See the FM9.03 follow-up in
+`docs/feature/filemanager/FILE_MANAGER_API_PLAN.md`; overall task remains partial.
+Verification: 68 File Manager tests pass; scoped static analysis is clean.
+
 ## Current Architecture
 
 - App startup: `lib/main_dev.dart` / `lib/main_prod.dart` call `startApp(Environment)` in `lib/main.dart`.
@@ -118,3 +148,19 @@ After each task:
   - the canonical coding pattern changes
   - a discrepancy between Claude and Codex behavior is discovered
   - a deferred item becomes active
+
+## Shared session expiry (2026-09-29)
+
+Backend responses through `dioClientProvider` expire the session only when the
+top-level `code` is exactly `SESSION_EXPIRED` or `TOKEN_INVALID`, on both HTTP
+success and error responses. `TOKEN_MISSING`, absent/unknown codes, HTTP status
+alone, and message text do not trigger logout. This supersedes the earlier
+status-only 401 policy. Messages/Meetings no longer expire sessions on generic
+`UnauthorizedException`; the shared interceptor owns this decision.
+`AuthStateNotifier.expireSession()` revokes Riverpod auth state so the router
+redirects protected routes to Login and clears temporary/persisted auth,
+cached user snapshot, restoration, drafts and telemetry. Cleanup is shared
+with explicit logout and deduplicated until `markLoggedIn`; automatic expiry
+emits no user-initiated logout event. Storage cleanup failures are logged.
+Direct storage transfers and sockets remain outside this HTTP policy;
+real-device/backend verification remains pending.

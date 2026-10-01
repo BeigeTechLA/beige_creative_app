@@ -141,9 +141,15 @@ class AppCountCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          number.padLeft(2, '0'),
-                          style: countStyle,
+                        Expanded(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              number.padLeft(2, '0'),
+                              style: countStyle,
+                            ),
+                          ),
                         ),
                         SvgPicture.asset(
                           iconPath,
