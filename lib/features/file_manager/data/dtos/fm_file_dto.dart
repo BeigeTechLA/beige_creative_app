@@ -10,7 +10,9 @@ class FmFileDto {
   static FmFile fromJson(Map<String, dynamic> j) {
     final name = (j['name'] ?? '').toString();
     final typeStr = j['type']?.toString();
-    final type = typeStr != null
+    final type = isImageFile(name)
+        ? FileType.image
+        : typeStr != null
         ? FileTypeX.fromApi(typeStr)
         : FileTypeX.fromExtension(name);
     return FmFile(

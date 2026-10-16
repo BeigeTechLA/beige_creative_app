@@ -66,27 +66,34 @@ class _DriverRepo implements MessagesRepository {
   void notifyStopTyping(String conversationId) {}
 
   @override
-  Future<Message> sendText(String conversationId, String body,
-          {String? replyToId}) =>
-      throw UnimplementedError();
+  Future<Message> sendText(
+    String conversationId,
+    String body, {
+    String? replyToId,
+  }) => throw UnimplementedError();
 
   @override
-  Future<Message> sendAudio(String conversationId, String localPath,
-          Duration duration) =>
-      throw UnimplementedError();
+  Future<Message> sendAudio(
+    String conversationId,
+    String localPath,
+    Duration duration,
+  ) => throw UnimplementedError();
 
   @override
-  Future<Message> sendAttachment(String conversationId,
-          {required String localPath,
-          required String name,
-          required String mimeType,
-          required int sizeBytes}) =>
-      throw UnimplementedError();
+  Future<Message> sendAttachment(
+    String conversationId, {
+    required String localPath,
+    required String name,
+    required String mimeType,
+    required int sizeBytes,
+  }) => throw UnimplementedError();
 
   @override
   Future<void> editMessage(
-          String conversationId, String messageId, String newBody) =>
-      throw UnimplementedError();
+    String conversationId,
+    String messageId,
+    String newBody,
+  ) => throw UnimplementedError();
 
   @override
   Future<void> deleteMessage(String conversationId, String messageId) =>
@@ -105,8 +112,7 @@ class _DriverRepo implements MessagesRepository {
     required String conversationId,
     required String messageId,
     required String emoji,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 }
 
 void main() {
@@ -130,11 +136,13 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     repo = _DriverRepo();
-    container = ProviderContainer(overrides: [
-      messagesRepositoryProvider.overrideWithValue(repo),
-      sessionStoreProvider.overrideWithValue(_FakeSession()),
-      prefsProvider.overrideWithValue(prefs),
-    ]);
+    container = ProviderContainer(
+      overrides: [
+        messagesRepositoryProvider.overrideWithValue(repo),
+        sessionStoreProvider.overrideWithValue(_FakeSession()),
+        prefsProvider.overrideWithValue(prefs),
+      ],
+    );
   });
 
   tearDown(() async {
@@ -182,8 +190,7 @@ void main() {
     await hydrate();
     repo.listCalls = 0;
 
-    repo.globalCtrl
-        .add(const TypingStarted('room_1', 'user_angela', 'Angela'));
+    repo.globalCtrl.add(const TypingStarted('room_1', 'user_angela', 'Angela'));
     await Future<void>.delayed(
       kConversationRefreshThrottle + const Duration(milliseconds: 50),
     );
@@ -191,102 +198,108 @@ void main() {
     expect(repo.listCalls, 0);
   });
 
-  test('ChatRoomCreated adds room directly without triggering API refetch', () async {
-    await hydrate();
-    repo.listCalls = 0;
+  test(
+    'ChatRoomCreated adds room directly without triggering API refetch',
+    () async {
+      await hydrate();
+      repo.listCalls = 0;
 
-    const newRoom = Conversation(
-      id: 'room_new',
-      title: 'New Project Room',
-      unreadCount: 0,
-      isOnline: false,
-      participantIds: ['user_1'],
-    );
+      const newRoom = Conversation(
+        id: 'room_new',
+        title: 'New Project Room',
+        unreadCount: 0,
+        isOnline: false,
+        participantIds: ['user_1'],
+      );
 
-    repo.globalCtrl.add(const ChatRoomCreated(newRoom));
-    await Future<void>.delayed(
-      kConversationRefreshThrottle + const Duration(milliseconds: 50),
-    );
+      repo.globalCtrl.add(const ChatRoomCreated(newRoom));
+      await Future<void>.delayed(
+        kConversationRefreshThrottle + const Duration(milliseconds: 50),
+      );
 
-    expect(repo.listCalls, 0);
-    final items = container.read(conversationListProvider).items;
-    expect(items, hasLength(2));
-    expect(items.first.id, 'room_new');
-    expect(items.first.title, 'New Project Room');
-  });
+      expect(repo.listCalls, 0);
+      final items = container.read(conversationListProvider).items;
+      expect(items, hasLength(2));
+      expect(items.first.id, 'room_new');
+      expect(items.first.title, 'New Project Room');
+    },
+  );
 
-  test('ChatRoomCreated correctly parses user sample payload and prepends room', () async {
-    await hydrate();
-    repo.listCalls = 0;
+  test(
+    'ChatRoomCreated correctly parses user sample payload and prepends room',
+    () async {
+      await hydrate();
+      repo.listCalls = 0;
 
-    final samplePayload = {
-      'success': true,
-      'type': 'addedToChat',
-      'event': 'chatRoomCreated',
-      'roomId': 'room_id',
-      'chatRoomId': 'room_id',
-      'orderId': 'order_id',
-      'externalOrderRef': 'booking_id',
-      'name': 'corporate_rachana_#4511',
-      'room': {
-        'id': 'room_id',
-        'chat_id': '688',
+      final samplePayload = {
+        'success': true,
+        'type': 'addedToChat',
+        'event': 'chatRoomCreated',
+        'roomId': 'room_id',
+        'chatRoomId': 'room_id',
+        'orderId': 'order_id',
+        'externalOrderRef': 'booking_id',
         'name': 'corporate_rachana_#4511',
-        'client_snapshot': {
-          'id': '720',
-          'name': 'Client Name',
-          'email': 'client@example.com',
-          'role': 'client',
+        'room': {
+          'id': 'room_id',
+          'chat_id': '688',
+          'name': 'corporate_rachana_#4511',
+          'client_snapshot': {
+            'id': '720',
+            'name': 'Client Name',
+            'email': 'client@example.com',
+            'role': 'client',
+          },
+          'cp_ids': [
+            {
+              'id': '555',
+              'name': 'CP Name',
+              'email': 'cp@example.com',
+              'decision': 'pending',
+              'role': 'cp',
+            },
+          ],
+          'manager_ids': [],
+          'production_ids': [],
+          'order_id': 'order_id',
+          'external_order_ref': '4511',
+          'last_message': null,
+          'status': 'active',
+          'unread_counts': {},
+          'createdAt': '2026-07-28T04:07:56.875Z',
+          'updatedAt': '2026-07-28T04:07:56.875Z',
         },
-        'cp_ids': [
-          {
-            'id': '555',
-            'name': 'CP Name',
-            'email': 'cp@example.com',
-            'decision': 'pending',
-            'role': 'cp',
-          }
-        ],
-        'manager_ids': [],
-        'production_ids': [],
-        'order_id': 'order_id',
-        'external_order_ref': '4511',
-        'last_message': null,
-        'status': 'active',
-        'unread_counts': {},
+        'createdBy': {
+          'id': '288',
+          'email': 'admin@beigecorporation.io',
+          'name': 'Admin',
+          'role': 'admin',
+        },
         'createdAt': '2026-07-28T04:07:56.875Z',
-        'updatedAt': '2026-07-28T04:07:56.875Z',
-      },
-      'createdBy': {
-        'id': '288',
-        'email': 'admin@beigecorporation.io',
-        'name': 'Admin',
-        'role': 'admin',
-      },
-      'createdAt': '2026-07-28T04:07:56.875Z',
-    };
+      };
 
-    final roomRaw = samplePayload['room'] as Map<String, dynamic>;
-    final conversation = ConversationDto.fromRestJson(
-      roomRaw,
-      currentUserId: '555',
-    );
+      final roomRaw = samplePayload['room'] as Map<String, dynamic>;
+      final conversation = ConversationDto.fromRestJson(
+        roomRaw,
+        currentUserId: '555',
+      );
 
-    repo.globalCtrl.add(ChatRoomCreated(conversation));
-    await Future<void>.delayed(
-      kConversationRefreshThrottle + const Duration(milliseconds: 50),
-    );
+      repo.globalCtrl.add(ChatRoomCreated(conversation));
+      await Future<void>.delayed(
+        kConversationRefreshThrottle + const Duration(milliseconds: 50),
+      );
 
-    expect(repo.listCalls, 0);
-    final items = container.read(conversationListProvider).items;
-    expect(items, hasLength(2));
-    expect(items.first.id, 'room_id');
-    expect(items.first.title, 'corporate_rachana_#4511');
-    expect(items.first.linkedShootId, '4511');
-    expect(items.first.participantIds, containsAll(['555', '720']));
-  });
+      expect(repo.listCalls, 0);
+      final items = container.read(conversationListProvider).items;
+      expect(items, hasLength(2));
+      expect(items.first.id, 'room_id');
+      expect(items.first.title, 'corporate_rachana_#4511');
+      expect(items.first.linkedShootId, '4511');
+      expect(items.first.participantIds, containsAll(['555', '720']));
+    },
+  );
 
-  test('unauthorized exception triggers session logout', () async {
+  test('generic unauthorized exception preserves session', () async {
     repo.listError = const UnauthorizedException();
 
     container.read(authStateProvider.notifier).markLoggedIn();
@@ -302,7 +315,11 @@ void main() {
       await Future<void>.delayed(Duration.zero);
     }
 
-    expect(container.read(authStateProvider), false);
+    expect(container.read(authStateProvider), true);
+    expect(
+      container.read(conversationListProvider).errorMessage,
+      'Failed to load conversations',
+    );
   });
 }
 

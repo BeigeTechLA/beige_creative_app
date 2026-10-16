@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/exceptions/exceptions.dart';
-import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../domain/models/meeting.dart';
 import '../../domain/models/meeting_filter.dart';
@@ -34,11 +31,7 @@ class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
       state = state.copyWith(
         currentUserId: user?.id,
         allItems: all,
-        items: applyLocalMeetingFilters(
-          all,
-          tab: null,
-          filter: state.filter,
-        ),
+        items: applyLocalMeetingFilters(all, tab: null, filter: state.filter),
         status: MeetingsListStatus.ready,
       );
     } catch (e) {
@@ -46,9 +39,6 @@ class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
         status: MeetingsListStatus.error,
         error: _messageFor(e),
       );
-      if (e is UnauthorizedException) {
-        unawaited(ref.read(authStateProvider.notifier).logout());
-      }
     }
   }
 
@@ -124,9 +114,6 @@ class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
         pendingRsvpIds: state.pendingRsvpIds.difference({meetingId}),
         rsvpError: _messageFor(e),
       );
-      if (e is UnauthorizedException) {
-        unawaited(ref.read(authStateProvider.notifier).logout());
-      }
       return false;
     }
   }

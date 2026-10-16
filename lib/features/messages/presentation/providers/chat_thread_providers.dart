@@ -7,7 +7,6 @@ import '../../../../config/env.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
-import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../domain/entities/message.dart';
@@ -334,9 +333,6 @@ class ChatThreadNotifier
         isLoading: false,
         errorMessage: 'Failed to load messages',
       );
-      if (e is UnauthorizedException) {
-        unawaited(ref.read(authStateProvider.notifier).logout());
-      }
     }
   }
 
@@ -456,9 +452,6 @@ class ChatThreadNotifier
         ],
         errorMessage: 'Could not add reaction',
       );
-      if (e is UnauthorizedException) {
-        unawaited(ref.read(authStateProvider.notifier).logout());
-      }
     }
   }
 
@@ -582,9 +575,6 @@ class ChatThreadNotifier
         ],
         errorMessage: 'Could not send message',
       );
-      if (e is UnauthorizedException) {
-        unawaited(ref.read(authStateProvider.notifier).logout());
-      }
     }
   }
 
@@ -610,9 +600,6 @@ class ChatThreadNotifier
     } catch (e, st) {
       // Read receipts are best-effort — never bubble to UI.
       AppLogger.e('Mark read failed', e, st);
-      if (e is UnauthorizedException) {
-        unawaited(ref.read(authStateProvider.notifier).logout());
-      }
     }
   }
 
@@ -630,9 +617,6 @@ class ChatThreadNotifier
     } catch (e, st) {
       AppLogger.e('Send audio failed', e, st);
       state = state.copyWith(errorMessage: 'Could not send voice note');
-      if (e is UnauthorizedException) {
-        unawaited(ref.read(authStateProvider.notifier).logout());
-      }
     }
   }
 

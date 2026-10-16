@@ -202,6 +202,18 @@ class AppRadii {
     bottomRight: Radius.circular(AppRadii.xl),
   );
 
+  /// Top-only rounding — 12px
+  static const BorderRadius topLg = BorderRadius.only(
+    topLeft: Radius.circular(AppRadii.lg),
+    topRight: Radius.circular(AppRadii.lg),
+  );
+
+  /// Bottom-only rounding — 12px
+  static const BorderRadius bottomLg = BorderRadius.only(
+    bottomLeft: Radius.circular(AppRadii.lg),
+    bottomRight: Radius.circular(AppRadii.lg),
+  );
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // STANDALONE Radius constants
   // — For widgets that take a Radius (not BorderRadius), e.g. DottedBorder.

@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/network/exceptions/exceptions.dart';
-import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../data/local/unread_store.dart';
@@ -163,11 +161,12 @@ class ConversationListNotifier
       updatedItems = List<Conversation>.from(state.items);
       final existing = state.items[existingIndex];
       final mergedConv =
-          (newConv.lastMessage == null || newConv.lastMessage!.preview.isEmpty) &&
-                  existing.lastMessage != null &&
-                  existing.lastMessage!.preview.isNotEmpty
-              ? newConv.copyWith(lastMessage: existing.lastMessage)
-              : newConv;
+          (newConv.lastMessage == null ||
+                  newConv.lastMessage!.preview.isEmpty) &&
+              existing.lastMessage != null &&
+              existing.lastMessage!.preview.isNotEmpty
+          ? newConv.copyWith(lastMessage: existing.lastMessage)
+          : newConv;
       updatedItems[existingIndex] = mergedConv;
     } else {
       updatedItems = [newConv, ...state.items];
@@ -256,9 +255,6 @@ class ConversationListNotifier
         isLoading: false,
         errorMessage: 'Failed to load conversations',
       );
-      if (e is UnauthorizedException) {
-        unawaited(ref.read(authStateProvider.notifier).logout());
-      }
     }
   }
 

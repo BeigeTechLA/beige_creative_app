@@ -29,7 +29,7 @@ class _FakeHomeNotifier extends HomeNotifier {
   HomeState build() => _seed ?? HomeState(isLoading: false);
 
   @override
-  Future<void> refresh() async {
+  Future<void> refresh({bool isSilent = false}) async {
     refreshCalls++;
   }
 }

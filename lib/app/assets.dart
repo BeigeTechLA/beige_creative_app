@@ -19,6 +19,8 @@ class AppAssets {
   static const String _messageSvg = 'assets/svg/message';
   static const String _meetingSvg = 'assets/svg/meeting';
   static const String _notificationSvg = 'assets/svg/notification';
+  static const String _affiliateSvg = 'assets/svg/affiliate';
+  static const String _notificationSvg = 'assets/svg/notification';
   static const String _onboarding = 'assets/onboarding';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -54,6 +56,25 @@ class AppAssets {
   static const String icGoogleMeet = '$_meetingSvg/ic_google_meet.svg';
   static const String meetingEmptyState =
       '$_meetingSvg/meeting_empty_state.svg';
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // SVG — Affiliate
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  static const String affiliateArrowDown = '$_affiliateSvg/arrow_down.svg';
+  static const String affiliateArrowTop = '$_affiliateSvg/arrow_top.svg';
+  static const String affiliateCalendar = '$_affiliateSvg/calendar.svg';
+  static const String affiliateConversionRate =
+      '$_affiliateSvg/conversion_rate.svg';
+  static const String affiliateMoney = '$_affiliateSvg/money.svg';
+  static const String affiliatePendingPayouts =
+      '$_affiliateSvg/pending_payouts.svg';
+  static const String affiliateShare = '$_affiliateSvg/share.svg';
+  static const String affiliateTotalEarnings =
+      '$_affiliateSvg/total_earnings.svg';
+  static const String affiliateTotalReferrals =
+      '$_affiliateSvg/total_referrals.svg';
+  static const String affiliateEditPen = '$_affiliateSvg/edit_pen.svg';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // Active Icons (Bottom Nav / Drawer)

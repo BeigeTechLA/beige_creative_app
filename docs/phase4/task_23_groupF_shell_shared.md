@@ -50,3 +50,6 @@ Replace the legacy `Mainscreen` shell with `StatefulShellRoute.indexedStack`. Re
   Shoots and Messages screen headers now exactly match their drawer labels.
   Meetings and Manage Availability already matched, while Dashboard retains its
   purpose-built welcome header.
+
+- [x] 2026-09-21 Affiliate follow-up: moved the horizontal summary stats into the main vertical scroll; retained horizontal card scrolling and pull-to-refresh. Affiliate analysis and existing widget test pass.
+- [x] 2026-09-21 Affiliate tiles footer: reused the dashboard gradient divider below the summary tiles, matching its opacity, horizontal inset, and section spacing in the main scroll. Focused analysis passes.

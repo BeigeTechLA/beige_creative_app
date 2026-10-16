@@ -44,6 +44,18 @@ class FmUploadPolicyDto {
     );
   }
 
-  static List<FmUploadPolicy> listFromJson(Map<String, dynamic> j) =>
-      FmJson.asList(j['items']).map(fromJson).toList();
+  static List<FmUploadPolicy> listFromJson(dynamic j) {
+    if (j is List) {
+      return FmJson.asList(j).map(fromJson).toList();
+    }
+    if (j is Map<String, dynamic>) {
+      final items = j['items'] ?? j['uploadPolicies'] ?? j['policies'] ?? j['data'];
+      if (items != null) {
+        if (items is List) {
+          return FmJson.asList(items).map(fromJson).toList();
+        }
+      }
+    }
+    return const [];
+  }
 }

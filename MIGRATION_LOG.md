@@ -5,6 +5,448 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-09-15: File Manager In-App File & Folder Download Fixes
+
+- **Changes**:
+  - Corrected `POST /external-file-manager/folder-download-url` request payload serialization in `FileOpsRemoteSource` per official API documentation:
+    - Root workspace: `{ "externalId": externalId }` (omits empty phase and path).
+    - Phase root: `{ "externalId": externalId, "phase": "pre" | "post" }` (omits path).
+    - Subfolder: `{ "externalId": externalId, "phase": "pre" | "post", "path": path }`.
+  - Updated `FmFileNodeDto` to resolve `filepath` from `path ?? filepath ?? fullPath` fallback.
+  - Enhanced `FmDownloadsSaver` with `isArchive` parameter to support saving individual files with their original extensions (`.jpeg`, `.pdf`, etc.) as well as `.zip` folder archives.
+  - Updated `NodeActionNotifier.downloadFile` to stream and save files directly to device storage in-app (Documents/Downloads) with live determinate progress tracking and completion confirmation toasts.
+- **Verification**:
+  - `flutter analyze lib/features/file_manager test/features/file_manager`: 0 issues found.
+  - `flutter test test/features/file_manager`: 49/49 tests passing.
+
+### 2026-09-15: File Manager upload API wiring (Presigned PUT + Batch Confirm)
+
+- **Changes**:
+  - Implemented `UploadRepository` interface and `UploadRemoteSource` / `UploadRepositoryImpl` following Clean Architecture and Riverpod.
+  - Endpoint `POST /external-file-manager/upload-policies/batch` requests presigned S3/GCS URLs for selected upload items.
+  - Implemented direct binary stream PUT to storage presigned URLs with custom headers and byte progress callbacks (`onProgress`), bypassing backend proxies.
+  - Endpoint `POST /external-file-manager/files-uploaded/batch` registers completed uploads with backend database.
+  - Implemented `UploadNotifier` and `UploadState` tracking per-item and aggregate progress (`overallProgress`, `uploadedCount`, `failedCount`).
+  - Wired `FmUploadSheet` to `uploadNotifierProvider` with automatic UI progress updates and folder contents refresh on completion.
+  - Implemented `UploadRepositoryDummy` for test and offline dev support.
+- **Verification**:
+  - `flutter analyze lib/features/file_manager`: 0 issues found.
+  - `flutter test test/features/file_manager`: 51/51 tests passing.
+
+### 2026-09-14: File Manager folder download verification and hardening
+
+- Existing folder Download already calls `POST external-file-manager/folder-download-url` through the live repository and opens the signed ZIP URL externally. Preserved the documented externalId/optional phase/path contract.
+- FileOpsRemoteSource now rejects unsuccessful envelopes. NodeActionNotifier validates HTTP(S) URLs before external handoff and holds a keep-alive while folder downloads are pending.
+- Added remote-source request/response tests and notifier coverage for folder scope, duplicate taps, malformed URLs, and retry. Updated the feature API checklist; no files moved.
+- Verification: `flutter test --no-pub test/features/file_manager/` passed 47/47; `flutter analyze --no-pub lib/features/file_manager test/features/file_manager` passed; `git diff --check` passed.
+- Current handoff and feature API plan supersede historical Phase 4 stub-only guidance. Existing staged folder-structure documentation was preserved. Live authenticated ZIP generation/browser download remains pending.
+
+### 2026-09-08: Fix App Store invalid large app icon (409)
+
+- **Status**: Local asset fix complete; fresh archive and App Store validation pending.
+- **Changes**: Converted all 16 `icon-ios-*.png` files in `ios/Runner/Assets.xcassets/AppIcon.appiconset/` to RGB PNGs without alpha, compositing transparent corners onto the existing beige background (`#E8D1AB`). Added defensive `remove_alpha_ios` and background settings in `pubspec.yaml` for future launcher generation.
+- **Decisions**: Preserved existing artwork, dimensions, catalog entries, and separate iOS asset maintenance (`ios: false`). This is a release asset fix outside the migration tasks; Phase 6 remains active per `docs/AI_HANDOFF.md`, superseding the entrypoint's older Phase 4 default.
+- **Verification**: `sips` confirms all 16 iOS icons have no alpha channel and retain their catalog dimensions, including the 1024×1024 large icon. No Dart code changed; Flutter tests are not relevant to PNG encoding.
+- **Remaining**: Build a new archive/IPA and validate/upload it; existing archives still contain the rejected assets.
+
+### 2026-09-10: File Manager scroll preview caching
+
+- Replaced FmFile object-identity provider keys with value-based request keys. Retain pending/successful URL state across scrolling for up to five minutes, shortened by server expiry with a 30-second margin; release failed requests for retry.
+- Added stable image-byte cache keys based on path/id, version, timestamp, and size so rotating URL signatures do not bypass the disk cache. Removed repeated fade-in/out in the shared preview widget.
+- Added regression coverage for scroll-away/return using recreated file objects, failed request recovery, expired URL eviction, and signature-independent/version-aware byte keys.
+- Verification: File Manager tests passed 37/37; File Manager static analysis passed; `git diff --check` passed. Updated feature checklist and handoff.
+- Remaining: live device scrolling verification. Replacement detection depends on backend version/timestamp/size changes; the existing image cache retains its own disk eviction policy.
+
+### 2026-09-10: Shared File Manager image previews
+
+- Added `isImageFile` in `file_type.dart`, reused by extension/type mapping, both file DTOs, and the shared preview path. Image extensions override generic MIME/type values.
+- Added `fileImagePreviewProvider` and `FmImagePreview`; all listing cards and the preview sheet now load supplied previews or signed view URLs, with legacy download URL fallback. Unavailable/unsupported images retain existing placeholders.
+- Updated API plan and handoff: the user's request explicitly supersedes the historical no-inline-image policy. External open actions remain available.
+- Verification: File Manager tests passed 33/33, including five new helper/DTO/provider tests. File Manager static analysis and `git diff --check` passed. Initial analysis found two brace-style infos, corrected before the passing final analysis.
+- Remaining: authenticated device rendering; HEIC/TIFF/SVG and other recognized extensions depend on decoder support or a server thumbnail and otherwise show placeholders.
+
+### 2026-09-10: File Manager folder contents endpoint fix
+
+- Confirmed `GET external-file-manager/workspace/{externalId}/files` was already defined and selected by the live repository. Fixed `FolderBrowseRemoteSource` to use workspace detail only for an empty root path; every child uses `/files` with phase and optional relative path.
+- Added requested-key fallback to `FmWorkspaceDetailDto` so absent response phase/path cannot reset nested navigation. Explicit response context continues to take precedence.
+- Added five remote-source regression tests for root children, Pre/Post entry, nested navigation to a file, and response context. Updated feature task checklist; unrelated existing edits preserved.
+- Verification: `flutter test --no-pub test/features/file_manager/` passed 28/28; targeted `flutter analyze --no-pub` passed; `git diff --check` passed. Initial test assertions compared map-containing records by identity; corrected to compare their fields before the passing run.
+- Remaining: live authenticated backend/device verification and web parity confirmation.
+
+### 2026-09-10: File Manager folder-loop review
+
+- Reviewed folder taps, folder keys, remote endpoint selection, and response parsing against the feature API/design documents.
+- Found a deterministic root-phase child navigation defect: `FolderBrowseRemoteSource.open` selects workspace detail for every root-phase key, discarding non-empty child paths and repeating the root listing.
+- Found an additional conditional risk: `FmWorkspaceDetailDto` resets missing response phase/path to root/empty instead of preserving request context.
+- Updated the feature API plan with pending fixes and validation. No runtime code changed; verification was static inspection, not a live web/device reproduction.
+- Current handoff/feature plan supersedes the old Phase 4 stub-only guidance. Existing uncommitted implementation changes were left intact.
+
+### 2026-09-07: File Manager real-data activation
+
+- Set the shared dummy-repository flag to false, activating existing Dio repositories for workspaces, folder browsing, file operations, and comments. Dummy implementations remain inactive for app use and explicitly injectable in tests.
+- Removed upload timer simulation, fabricated file IDs/URLs, in-memory save, and false success notification. Upload currently reports unavailable pending FM8 multipart implementation.
+- Updated the expanded preview test to explicitly inject comments and file-action fixtures; updated the feature API plan and AI handoff to supersede historical dummy-default notes.
+- Verification: File Manager static analysis passed; File Manager tests passed (23/23); `git diff --check` passed.
+- Remaining: authenticated device/backend verification, unresolved API contract questions, and real multipart uploads. A hot restart/relaunch is needed to discard an existing in-memory dummy provider value.
+
+### 2026-08-20: Add Full-Width Glass Shadow Background Overlay to Featured Work Images
+
+- **Task**: Ensure image title text on `FeaturedWorkCard` ("Krunal test", "Candid", etc.) remains highly legible on white or light background images by adding a full-width frosted glass dark gradient overlay with vertically centered text and compact height.
+- **Changes**:
+  - `lib/features/profile/presentation/widgets/featured_work_card.dart`: Added full-width (`left: 0, right: 0, bottom: 0`) `ClipRRect` wrapped `BackdropFilter` frosted glass container (`sigmaX: 8, sigmaY: 8`) with a dark top-to-bottom `LinearGradient` overlay (`black` 0% -> 40% -> 75% opacity). Set symmetric `EdgeInsets.symmetric(horizontal: 16, vertical: 14)` and `CrossAxisAlignment.center` so title text is centered vertically in the background.
+- **Verification**:
+  - `flutter analyze lib/features/profile/presentation/widgets/featured_work_card.dart`: 0 issues found.
+
+
+- **Task**: Extract clean, user-friendly customer messages (e.g., "Invalid or expired OTP.") and strip technical `DioException [bad response]... RequestOptions.validateStatus` debug dumps from UI overlays.
+- **Changes**:
+  - `lib/core/utils/error_formatter.dart`: Added `parseErrorMessage(dynamic error, {String? fallback})` to extract response payload messages and sanitize raw exception strings.
+  - `lib/features/auth/presentation/providers/forgot_password_notifier.dart`: Updated error formatting to use `parseErrorMessage`.
+  - `lib/features/profile/presentation/providers/change_password_providers.dart`: Updated `requestOtp`, `verifyOtp`, `resendOtp`, and `setNewPassword` error handlers.
+  - `lib/features/profile/presentation/providers/delete_account_providers.dart`: Updated delete account notifier error handlers.
+  - `lib/features/auth/presentation/providers/login_notifier.dart`: Updated login failure error formatter.
+- **Verification**:
+  - `flutter analyze`: 0 issues found across all modified files.
+
+### 2026-08-20: Standardize Save CTA Button Theme Across Profile Sheets
+
+- **Task**: Align font family (`Unbounded`), font size (`14px`), font weight (`w500`), and dark label text (`AppColors.textHeading`) of "Save" / "Save Link" bottom sheet action buttons in Profile to match the "Next" CTA button theme.
+- **Changes**:
+  - `lib/features/profile/presentation/widgets/profile_social_links_sheet.dart`: Replaced raw `ElevatedButton` for `Save Link` and `Save` with `AppCtaButton`.
+  - `lib/features/profile/presentation/widgets/profile_portfolio_links_sheet.dart`: Replaced raw `ElevatedButton` for `Save Link` and `Save` with `AppCtaButton`.
+  - `lib/features/profile/presentation/widgets/featured_work_add_tag_sheet.dart`: Replaced raw `ElevatedButton` for `Save` with `AppCtaButton`.
+- **Verification**:
+  - `flutter analyze lib/features/profile/presentation/`: 0 issues found.
+
+### 2026-08-20: Remove Filter Icon and Adjust Spacing in Certificates Listing
+
+- **Task**: Remove filter icon (`Icons.tune`) from search bar row and add 16px vertical padding (`AppSpacing.base`) between search input and certificate list.
+- **Changes**:
+  - `lib/features/profile/presentation/screens/certificates_screen.dart`: Removed `Icons.tune` filter button container and horizontal gap; added `const SizedBox(height: AppSpacing.base)` between search bar and `Expanded` `ListView`.
+- **Verification**:
+  - `flutter analyze lib/features/profile/presentation/screens/certificates_screen.dart`: 0 issues found.
+
+### 2026-08-20: Fix Dashboard Pull-to-Refresh Dual Loader Issue
+
+- **Task**: Fix double loader display (top `RefreshIndicator` spinner + center `AppLoadingOverlay` 5-dot animation) when pulling to refresh on Dashboard.
+- **Changes**:
+  - `lib/features/home/presentation/providers/home_notifier.dart`: Updated `refresh({bool isSilent = false})` to avoid setting `isLoading = true` when refreshing existing dashboard data or performing silent updates.
+  - `lib/features/home/presentation/screens/home_screen.dart`: Passed `isSilent: true` to `notifier.refresh()` in `RefreshIndicator` and updated `AppLoadingOverlay` visibility condition to `(homeState.isLoading && homeState.profileData == null) || homeState.actionInFlightProjectId != 0`.
+- **Verification**:
+  - `flutter analyze lib/features/home/`: 0 issues found.
+
+### 2026-08-20: Update Calendar Icon in MeetingCard to SVG
+
+- **Task**: Replace `Icons.calendar_today_outlined` on line 187 of `meeting_card.dart` with SVG asset `AppAssets.icMeetingDatetime`.
+- **Changes**:
+  - `lib/features/meetings/presentation/widgets/meeting_card.dart`: Replaced Material icon with `SvgPicture.asset(AppAssets.icMeetingDatetime, width: 16, height: 16)`.
+- **Verification**:
+  - `dart analyze lib/features/meetings/presentation/widgets/meeting_card.dart`: 0 issues found.
+
+### 2026-08-20: Reorder Dashboard Sections (Availability above Upcoming Meetings)
+
+- **Task**: Reorder sections on Dashboard (`HomeScreen`) per Figma sequence: Availability section moved above Upcoming Meetings.
+- **Changes**:
+  - `lib/features/home/presentation/screens/home_screen.dart`: Repositioned `HomeAvailabilitySection` above `HomeUpcomingMeetingsCarousel`.
+- **Verification**:
+  - `flutter analyze lib/features/home/presentation/screens/home_screen.dart`: 0 issues found.
+  - `flutter test test/features/home/presentation/screens/home_screen_test.dart`: All 6 tests passed cleanly.
+
+### 2026-08-20: Fix Notes (optional) Label Spacing in Add Availability Screen
+
+- **Task**: Fix text formatting for the notes input field label in `Add Availability` screen to add a space between `Notes` and `(optional)`.
+- **Changes**:
+  - `lib/features/availability/presentation/screens/add_availability_screen.dart`: Updated `CustomTextField` label from `'Notes(optional)'` to `'Notes (optional)'`.
+- **Verification**:
+  - `flutter analyze lib/features/availability/presentation/screens/add_availability_screen.dart`: 0 issues found.
+
+### 2026-08-19: Standardize "Done" Bottom Sheet CTA Button Typography & Font Style
+
+- **Task**: Align font family (`Unbounded`), font size (`14px`), font weight (`w500`), and dark label text (`AppColors.textHeading`) of "Done" bottom sheet action buttons to match the "Next" CTA button from SignUp Step 1.
+- **Changes**:
+  - `lib/features/auth/presentation/widgets/signup2_lookup_sheet.dart`: Replaced raw `ElevatedButton` for "Done" with `AppCtaButton(label: 'Done', height: 48, ...)` so typography (Unbounded font, size 14, weight w500, color `AppColors.textHeading`) matches the "Next" button in SignUp Step 1.
+  - `lib/features/profile/presentation/screens/enter_profile_details_screen.dart`: Updated skills bottom sheet "Done" button to use `AppCtaButton`.
+  - `lib/features/auth/presentation/widgets/signup3_social_sheet.dart` & `signup3_portfolio_sheet.dart`: Replaced bottom action buttons with `AppCtaButton` for unified CTA typography.
+- **Verification**:
+  - `flutter analyze`: 0 issues found across all modified files.
+  - `flutter test test/features/auth/presentation/screens/signup1_screen_test.dart test/features/auth/presentation/screens/signup3_screen_test.dart`: All tests passing.
+
+### 2026-08-19: Signup Step 1 Preview Card/Form Overlap Fix
+
+- **Task**: Fix the Signup Step 1 profile preview card covering the `First Name` field when partial profile data makes the preview visible.
+- **Changed Files**:
+  - `lib/app/spacing.dart`
+  - `lib/features/auth/presentation/screens/signup1_screen.dart`
+  - `test/features/auth/presentation/screens/signup1_screen_test.dart`
+- **Decisions**:
+  - Preserved the existing floating `Positioned(top: -40)` preview treatment.
+  - Replaced the undersized 110px form inset with the named `AppSpacing.signupPreviewFormTop` token (136px), reserving the preview's 120px positioned footprint plus a standard 16px gap.
+  - Added screen-level geometry tests at 360px and 393px widths. Tests load the production Outfit and Unbounded fonts so width/layout behavior matches the app rather than Flutter's wide default test font.
+- **Verification**:
+  - `flutter test test/features/auth/presentation/signup1_widgets_test.dart test/features/auth/presentation/screens/signup1_screen_test.dart`: 5 / 5 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+
+### 2026-08-19: Flex Layout Constraints & UI Overflow Prevention (SignUp Step 3 & My Profile)
+
+- **Task**: Fix layout overflow errors on narrow viewports and high-DPI resolution screens (e.g. 6.43-inch 2400x1080 resolution display) in SignUp Step 3 headers ("Upload Certifications", "Featured Work*", "Upload Documents", "Add Social Links*") and My Profile banner ("Application Under Review").
+- **Changes**:
+  - `lib/features/auth/presentation/widgets/signup3_sections.dart`: Wrapped title rows in `Expanded` and title text in `Flexible` with `TextOverflow.ellipsis` for `SignUp3CertificatesSection` and `SignUp3FeaturedSection`. Wrapped tile text in `SignUp3AddTile` and link name in `SignUp3SavedLinkRow` with `Expanded`, `maxLines: 1`, and `TextOverflow.ellipsis`.
+  - `lib/features/auth/presentation/screens/signup3_screen.dart`: Wrapped "Upload Documents" header text in `Expanded` with `TextOverflow.ellipsis`.
+  - `lib/features/auth/presentation/widgets/signup3_document_block.dart`: Wrapped empty state document label in `Flexible` with `TextOverflow.ellipsis`.
+  - `lib/features/profile/presentation/screens/my_profile_screen.dart`: Updated `_buildUnderReviewBanner()` header `Row` by wrapping `Text('Application Under Review')` in `Expanded` with `TextOverflow.ellipsis` and using flexible `SizedBox(width: AppSpacing.xs)` before the "Pending Review" pill.
+  - `test/features/profile/presentation/screens/my_profile_screen_test.dart`: Added `currentSessionUserProvider` override to prevent `UnimplementedError` during test execution.
+- **Verification**:
+  - `flutter analyze`: 0 issues found across modified files.
+  - `flutter test test/features/profile/presentation/screens/my_profile_screen_test.dart`: 3 / 3 tests passing cleanly.
+  - `flutter test test/features/auth/ test/features/profile/`: All widget and unit tests passing cleanly.
+
+### 2026-08-19: Step 3 Section-wise File Uploads & Section Completion Badges
+
+- **Task**: Upgrade Step 3 file uploads to section-wise `POST auth/register-crew-step3-file` calls, add visual green checkmark badge indicators (`#22C55E`) on completed sections (matching Option 1 design), enforce 30MB total file limit for Portfolio & Featured Work and 5MB per file limit for Resume & Certifications, and update `POST auth/register-crew-step3` to send JSON payload with returned file IDs (`resume_file_id`, `portfolio_file_ids`, `certification_file_ids`, `featured_work.[].fileIds`).
+- **Changes**:
+  - `lib/core/network/api_endpoints.dart`: Added `register_step3_file` (`"auth/register-crew-step3-file"`).
+  - `lib/features/auth/domain/repositories/auth_repository.dart`: Added `uploadStep3File` method and updated `Step3Payload` constructor for file ID arrays and JSON serialization.
+  - `lib/features/auth/data/repositories/auth_repository_impl.dart`: Implemented `uploadStep3File` with defensive `_extractFileIds` helper; updated `registerStep3` to send `application/json` payload containing stored file IDs.
+  - `lib/features/auth/presentation/providers/signup_state.dart`: Added file ID fields (`resumeFileId`, `portfolioFileIds`, `certificationFileIds`, `featuredWorkFileIds`) and upload loading indicators.
+  - `lib/features/auth/presentation/providers/signup_notifier.dart`: Implemented section-wise upload methods (`uploadResumeFile`, `uploadPortfolioFile`, `uploadCertificate`, `uploadFeaturedWork`), validation for file size limits (30MB vs 5MB), and backward-compatible helper setters.
+  - `lib/features/auth/presentation/widgets/signup3_sections.dart`: Added `SignUp3CheckmarkBadge` (Emerald Green `#22C55E` with white checkmark) and updated section cards to render tick marks when completed.
+  - `lib/features/auth/presentation/widgets/signup3_featured_sheet.dart`: Added async upload on save with loading state indicator ("Uploading...").
+  - `lib/features/auth/presentation/screens/signup3_screen.dart`: Wired section upload actions and checkmark badges.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues found across workspace.
+  - `flutter test test/features/auth/`: All 134 auth unit and widget tests passed cleanly.
+  - `flutter test test/features/auth/presentation/screens/signup3_screen_test.dart`: 2 / 2 tests passing.
+
+### 2026-08-18: Search Hint Vertical Alignment Fix & AppSearchField Consolidation
+
+- **Task**: Fix search hint text and cursor vertical alignment in `ShootsScreen` search box and standardize search fields across the app.
+- **Changes**:
+  - Created `AppSearchField` shared widget in [`lib/shared/widgets/app_search_field.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/shared/widgets/app_search_field.dart).
+  - Updated [`shoots_screen.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/features/shoots/presentation/screens/shoots_screen.dart) to use `AppSearchField`.
+  - Updated [`messages_screen.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/features/messages/presentation/screens/messages_screen.dart) to use `AppSearchField`.
+  - Updated [`fm_search_field.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/features/file_manager/presentation/widgets/fm_search_field.dart) to use `AppSearchField`.
+  - Updated [`emoji_picker_sheet.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/features/messages/presentation/screens/widgets/emoji_picker_sheet.dart) to use `AppSearchField`.
+  - Created unit/widget tests in [`test/shared/widgets/app_search_field_test.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/test/shared/widgets/app_search_field_test.dart).
+- **Verification**:
+  - `flutter test test/shared/widgets/app_search_field_test.dart`: All tests passed.
+  - `flutter analyze`: Passed clean with 0 issues.
+
+### 2026-08-18: Navigation Bar & Drawer Inactive Color Alignment with `biegeapp`
+
+- **Task**: Align `biegeCPapp` bottom navigation bar and drawer menu inactive item color tokens with `biegeapp`.
+- **Changes**:
+  - Set `_AppShellBottomBar` unselected item color to `AppColors.white70` (`Color(0xB2FFFFFF)`) in [`lib/shared/layouts/app_shell.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/shared/layouts/app_shell.dart#L167).
+  - Set `_DrawerItem` inactive item color to `AppColors.white38` (`Color(0x61FFFFFF)`) in [`lib/shared/layouts/app_shell.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/shared/layouts/app_shell.dart#L502).
+- **Verification**:
+  - `flutter analyze lib/app/colors.dart lib/shared/layouts/app_shell.dart`: 0 issues found.
+
+### 2026-08-18: Edit Professional Details Form Sublabel Styling & Spacing Fix
+
+- **Task**: Update "Highlight your creative focus." text color to `#737373` (`AppColors.greyShade737`) and add `20px` bottom spacing before the "Edit Skills" dropdown on the Edit Professional Details screen form.
+- **Changes**:
+  - Modified [`enter_profile_details_screen.dart`](file:///Users/krunaldoshi/Developer/workspaceProjects/biegeCPapp/lib/features/profile/presentation/screens/enter_profile_details_screen.dart).
+- **Verification**:
+  - `flutter analyze lib/features/profile/presentation/screens/enter_profile_details_screen.dart`: No issues found!
+
+### 2026-08-18: Real Skills Display Fix in ProfileStatsPanel
+
+- **Task**: Fix "Skill 1" and "Skill 2" placeholder chips showing on the "My Profile" screen instead of actual skill names loaded from the profile API response.
+- **Changes**:
+  - Modified `_buildSkillChips` in `lib/features/profile/presentation/widgets/profile_stats_panel.dart` to use `skills[i]` instead of `'Skill ${i + 1}'`.
+  - Updated widget test expectations in `test/features/profile/presentation/myprofile_decompose_test.dart`.
+- **Verification**:
+  - `flutter test test/features/profile/presentation/myprofile_decompose_test.dart`: All tests passed.
+
+### 2026-08-17: Search Box Vertical Alignment & Padding Fix
+
+- **Task**: Fix search box text and hint padding not being vertically centered across the app.
+- **Changes**:
+  - Updated search `TextField`s in `certificates_screen.dart`, `resume_screen.dart`, `shoots_screen.dart`, `fm_search_field.dart`, `messages_screen.dart`, and `emoji_picker_sheet.dart`.
+  - Added `textAlignVertical: TextAlignVertical.center`, `isDense: true`, `contentPadding: EdgeInsets.zero`, and `prefixIconConstraints`.
+- **Verification**:
+  - `flutter analyze` on all 6 modified files: No issues found!
+
+### 2026-08-17: Profile Header Email & Location Text Wrapping
+
+- **Task**: Wrap long user email and location text under creator name on `MyProfile` screen into stacked lines instead of clipping with ellipses on a single row.
+- **Changes**:
+  - Modified `_identityRow` in `my_profile_screen.dart` to use a stacked `Column` layout.
+  - Email displays centered on Line 1, Location displays centered on Line 2 with 4px gap.
+- **Verification**:
+  - `flutter analyze lib/features/profile/presentation/screens/my_profile_screen.dart`: No issues found!
+
+### 2026-08-14: Rejection Screen Removal & In-Place Accepted/Rejected Card Binding
+
+- **Task**: Remove standalone `ApplicationRejectedScreen` and bind accepted (`is_crew_verified == 1`) and rejected (`is_crew_verified == 2`) states directly to `ApplicationUnderReviewCard` in-place morphing.
+- **Changes**:
+  - Expanded `MyProfileData.fromJson` to check `json["crew_member"]` map for `is_crew_verified` and `is_registration_complete`.
+  - Updated `ApplicationUnderReviewDialog` to initialize with `initialCrewVerified`. Removed automatic `_dismiss()` from `onViewReason` in `_ReviewDialogBodyState` so tapping View Reason keeps the status dialog locked without exposing background app options.
+  - Updated `router.dart` and `login_screen.dart` to route both pending (`0`) and rejected (`2`) creators to `Home` with the non-dismissible status card overlay, restricting app navigation for unaccepted profiles.
+- **Verification**:
+  - `flutter test test/features/profile/presentation/widgets/application_under_review_card_test.dart test/features/home/presentation/screens/home_screen_test.dart`: 13/13 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+
+### 2026-08-14: Reactive Application Under Review Dialog Avatar Fix
+
+- **Task**: Fix `ApplicationUnderReviewCard` displaying a stale/wrong avatar image after login instead of the updated creator profile image shown in the header and left drawer.
+- **Changes**:
+  - Converted `ApplicationUnderReviewCard` from `StatelessWidget` to `ConsumerWidget`.
+  - Added reactive watching of `homeNotifierProvider` (`profileData?.profileImageUrl`) and `currentSessionUserProvider` inside `ApplicationUnderReviewCard`, resolving `effectiveImageUrl` dynamically.
+  - Updated `HomeScreen._showUnderReviewDialogIfNeeded` to prioritize `homeNotifierProvider`'s `profileData?.profileImageUrl` at launch time.
+  - Updated `application_under_review_card_test.dart` test suite harness and verified dialog widget tests pass.
+- **Verification**:
+  - `flutter test test/features/profile/presentation/widgets/application_under_review_card_test.dart`: 4/4 passing.
+  - `flutter test test/features/home/presentation/screens/home_screen_test.dart`: 6/6 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+
+### 2026-08-14: Pending Review Dialog Avatar & Navigation Fix
+
+- **Task**: Fix the pending-review dialog showing an account avatar instead of the submitted crew profile photo and crashing when `Complete Your Profile` is tapped.
+- **Changes**:
+  - Login snapshot parsing now prefers the crew-member profile image over a conflicting account-level user image.
+  - Removed the duplicate root-navigator pop from the Home completion callback; the dialog helper remains the single owner of modal dismissal before Home pushes the Profile route.
+  - Added regressions for conflicting login avatar fields and pending-review dialog navigation without emptying the GoRouter stack.
+- **Verification**:
+  - Focused Home, under-review dialog, and auth repository tests: 51 / 51 passing.
+  - Full `flutter analyze --fatal-infos`: 0 issues.
+
+### 2026-08-14: Profile Details Bottom Sheet Modern Redesign
+
+- **Task**: Fix container transparency, text contrast, legibility, and layout aesthetics in `ViewDetailsScreen` (Profile Details modal bottom sheet).
+- **Changes**:
+  - Replaced uncolored container background with solid dark sheet container (`AppColors.background`, `AppRadii.topMassive`).
+  - Added drag handle indicator, sticky header row with title and close action (`AppIconTapTarget`).
+  - Redesigned Profile Hero summary card with avatar border ring, name, role badge, email, location, and working distance meta icons.
+  - Formatted Skills and Equipments into dynamic wrap pill chips with subtle borders and clear contrast.
+  - Formatted Hourly Rate with gold currency badge container (`AppColors.goldPaleCream`).
+  - Added quote card container with accent left border for Bio text.
+  - Added featured work gallery header item count badge and horizontal scroll list.
+- **Decisions**:
+  - User selected Option 1 (Modern Dark Glassmorphic Sheet).
+  - Maintained full backward compatibility with `ViewDetailsScreen` constructor arguments and call sites (`SignUp3PreviewCard`, `SignupSuccessScreen`, `AuthRoutes`).
+- **Verification**:
+  - `flutter analyze lib/features/auth/presentation/screens/view_details_screen.dart`: 0 issues.
+
+
+### 2026-08-13: Signup Resume Profile API & Temporary Unverified Auth
+
+- **Task**: Prefill Signup Step 1 when an incomplete CP logs in, and prevent unverified CP sessions from surviving an app restart.
+- **Changes**:
+  - Login snapshots now retain available first/last name, phone, location, and working-distance fields in addition to existing identity/status data.
+  - Added a dedicated `TemporaryAuthSessionNotifier`, separate from `CompositeSessionStore`. Logins where `is_crew_verified != 1` clear persistent auth storage and keep token/user/login-time only in Riverpod process memory, so app termination returns the user to Login.
+  - The auth interceptor prefers the temporary token while it exists, allowing guarded creator APIs without writing that token to secure storage. Logout and HTTP 401 clear both temporary and persistent auth.
+  - Signup Step 1 now calls `POST creator/get-profile-detail` with temporary authentication, maps available name/email/phone/location/distance/coordinates/profile-photo fields through a focused auth repository, and merges non-empty API values over the login snapshot fallback.
+  - Step 1 blocks editing while the prefill request is active, displays the existing remote profile photo, and provides a retry message on fetch failure without erasing login fallback data. Normal unauthenticated signup does not call the creator profile endpoint.
+  - Working-distance values from login/profile APIs are canonicalized case-insensitively against the dropdown options (for example `Upto 50 miles` → `Upto 50 Miles`), preventing `DropdownButtonFormField` value assertions.
+  - An existing remote profile photo now satisfies Step 1 validation and progress. The registration multipart request omits `profile_photo` when the creator keeps that image, and includes it only when a replacement local file is selected.
+  - Corrected incomplete-profile resume routing: `is_registration_complete == 0` now lands on Signup Step 2 because Step 1 is account registration. Step 2 seeds the existing crew ID and identity from temporary/profile session data, and the router prevents this state from returning to Step 1.
+  - Added backend `is_step_2_complete` routing for incomplete profiles. The login parser accepts boolean/numeric/string values from `data`, `data.user`, or `data.crew_member`; `true` resumes Step 3 and `false`/missing resumes Step 2. Successful Step 2 submission updates the temporary snapshot immediately so the guarded Step 3 route opens.
+  - Approved CP logins (`is_crew_verified == 1`) continue to use persistent secure/session storage.
+  - Profile/Home snapshot refreshes update temporary state without persistence while pending. If a refresh reports approval, the active token/user are promoted to persistent storage and temporary auth is cleared.
+- **Verification**:
+  - Focused temporary-session, token-selection, login, profile-detail repository, Signup Step 1 prefill/widget, router, Profile, and Home regressions: 89 / 89 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `git diff --check`: clean.
+
+### 2026-08-13: Pending-Review Profile Edit Session Preservation
+
+- **Task**: Keep the Profile area editable for pending-review users and prevent “Edit Profile” navigation from appearing to log them out.
+- **Changes**:
+  - `ProfileDetailsViewNotifier.refresh()` now preserves or refreshes `isRegistrationComplete`, `isCrewVerified`, and `crewMemberId` when rebuilding the persisted `UserSnapshot`.
+  - Profile model status parsing now maps boolean mobile API flags to the internal `0/1` representation.
+  - Added regressions for pending-session preservation, boolean profile flags, and router access to profile/edit routes while under review.
+- **Decisions**:
+  - Profile refresh remains allowed to promote a pending user when the server supplies a new status; absent flags retain the authenticated session’s existing restrictions instead of being erased.
+  - Pending users retain access to profile details, personal/professional edits, featured works, certificates, and resume. Unrelated app areas remain guarded.
+- **Verification**:
+  - Focused profile model/notifier and router tests: 40 / 40 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `git diff --check`: clean.
+
+### 2026-08-13: Real Login Response Status Compatibility
+
+- **Task**: Fix valid login responses being rejected as `Login response missing valid account status` when the API returns boolean status fields under `data.user`.
+- **Changes**:
+  - `AuthRepositoryImpl` now reads status flags and `crew_member_id` from nested `data.user` in addition to the existing top-level and `crew_member` shapes.
+  - Boolean `is_crew_profile_completed` maps to internal registration status `0/1`; boolean `is_crew_verified` maps to verification status `0/1`.
+  - Canonical boolean `is_registration_complete` and `is_crew_verified` fields are also explicitly covered.
+  - Added repository regression tests matching both observed mobile API response shapes.
+- **Decisions**:
+  - `is_crew_profile_completed` is the compatibility alias for `is_registration_complete`; `is_crew_registered` is not used because account creation alone does not prove the signup/profile flow is complete.
+  - Existing numeric canonical fields retain precedence, and missing or unsupported statuses continue to fail closed.
+- **Verification**:
+  - `flutter test test/features/auth/data/repositories/auth_repository_impl_test.dart`: 37 / 37 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `git diff --check`: clean.
+
+### 2026-08-12: CP Status Login Guard Hardening & Home Review Modal
+
+- **Task**: Verify and complete login routing for registration/crew-verification flags, present the existing `ApplicationUnderReviewCard` as a non-dismissible Home dialog, and soften the rejected-state content.
+- **Changes**:
+  - Login parsing now requires valid `is_registration_complete` (`0/1`), `is_crew_verified` (`0/1/2`), and crew identity; missing/unknown status fails closed instead of defaulting to approved.
+  - Pending CPs land on Home behind a non-dismissible `ApplicationUnderReviewDialog`. Back and barrier taps are blocked; Refresh Status keeps the dialog open while pending, and Complete Your Profile enters the allowed profile area.
+  - Pending users can access Home only as the blocked landing surface plus profile routes; other routes redirect back to Home. Offline state no longer bypasses auth/status guards.
+  - Profile/dashboard refresh parses and preserves the two account-status flags so refreshing cannot accidentally erase the restriction. If refreshed data reports approved, incomplete, or rejected, the dialog routes accordingly.
+  - Rejected-state heading/body copy now communicates the decision respectfully and points users toward support or future reapplication guidance.
+- **Verification**:
+  - Focused router/auth/Home/profile/dialog tests: 93 / 93 passing.
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter test integration_test/login_logout_test.dart -d macos`: 1 / 1 passing (native dependency warnings only).
+  - `git diff --check`: clean.
+
+---
+
+### 2026-08-12: Application Under Review Standalone Card & Dialog Component (Option A)
+
+- **Task**: Create reusable `ApplicationUnderReviewCard` and helper `ApplicationUnderReviewDialog` based on design screenshot for embedded screen or modal dialog usage with dynamic profile image URL binding and placeholder fallback.
+- **Changed Files**:
+  - `lib/features/profile/presentation/widgets/application_under_review_card.dart` [NEW]
+  - `test/features/profile/presentation/widgets/application_under_review_card_test.dart` [NEW]
+- **Decisions**:
+  - Implemented Option A (Champagne Warm Gold design spec): warm gradient container (`#E8DBCA` → `#DCCBB5`), overlapping circular avatar with gold halo ring border, off-white "NEXT STEPS" sub-card (`#F2EFEA`), dark onyx "Refresh Status" CTA button (`#121212`), and full-width Champagne Gold "Complete Your Profile" CTA button (`#E7D8C4`).
+  - Added profile image resolution logic: binds `${Env.imageUrl}$profileImageUrl` via `CachedNetworkImage` when present, falling back gracefully to `AppAssets.userCircle` SVG placeholder when empty, null, or on error.
+  - Exposed `ApplicationUnderReviewDialog.show(context)` static helper method to pop the widget inside a modal dialog overlay with translucent backdrop.
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/features/profile/presentation/widgets/application_under_review_card_test.dart` — 2 / 2 tests passing.
+
+---
+
+### 2026-08-12: Conditional Login & Verification Flag Guard Implementation
+
+- **Task**: Implement conditional login and navigation guard based on API flags (`is_registration_complete` and `is_crew_verified`), hide "Already have an account? Login" during active signup wizard, add Application Under Review banner on Profile screen, and create Application Rejected screen.
+- **Changed Files**:
+  - `lib/core/session/session_store.dart`
+  - `lib/core/session/prefs_session_store.dart`
+  - `lib/features/auth/domain/repositories/auth_repository.dart`
+  - `lib/features/auth/data/repositories/auth_repository_impl.dart`
+  - `lib/app/routes.dart`
+  - `lib/app/router.dart`
+  - `lib/features/auth/presentation/routes/auth_routes.dart`
+  - `lib/features/auth/presentation/screens/login_screen.dart`
+  - `lib/features/auth/presentation/screens/signup1_screen.dart`
+  - `lib/features/auth/presentation/screens/signup2_screen.dart`
+  - `lib/features/auth/presentation/screens/signup3_screen.dart`
+  - `lib/features/auth/presentation/screens/application_rejected_screen.dart` [NEW]
+  - `lib/features/profile/presentation/screens/my_profile_screen.dart`
+  - `test/app/router_test.dart`
+  - `test/helpers/mocks.dart`
+  - `test/features/auth/presentation/login_notifier_test.dart`
+  - `test/features/file_manager/presentation/providers/comments_notifier_test.dart`
+  - `test/features/messages/presentation/providers/conversation_list_notifier_test.dart`
+  - `test/features/profile/presentation/delete_account_test.dart`
+- **Decisions**:
+  - **Case 1 (`is_registration_complete == 0`)**: Intercept in `appRedirect()` and navigate to `/signup-step-1` (resuming signup wizard). Wrapped "Already have an account? Login" row in `if (!ref.watch(authStateProvider))` across signup screens 1, 2, and 3 to hide it when the user is logged in.
+  - **Case 2 (`is_registration_complete == 1 && is_crew_verified == 0`)**: Application under review state. Restrict navigation in `appRedirect()` exclusively to profile screens (`/my-profile`, `/profile-details`, `/edit-profile`, etc.), redirecting non-profile route access to `/my-profile`. Positioned "Application Under Review" banner with Dark Luxury styling (`AppColors.surfaceWarm` + 1px gold border + amber status badge) directly inside `my_profile_screen.dart` right above `ProfileStatsPanel`.
+  - **Case 3 (`is_registration_complete == 1 && is_crew_verified == 1`)**: Full creator app access (`/home`).
+  - **Case 4 (`is_registration_complete == 1 && is_crew_verified == 2`)**: Application rejected state. Restrict navigation in `appRedirect()` to `/application-rejected`. Built `ApplicationRejectedScreen` featuring dark luxury styling, "Contact Support" (`url_launcher` mailto trigger), and "Log Out" action.
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues found.
+  - `flutter test test/app/router_test.dart test/features/auth/data/repositories/auth_repository_impl_test.dart` — 50 / 50 tests passing.
+  - `flutter test` — 519 tests passing (0 regressions).
+
+---
+
 ### 2026-08-11: Shoots Top Cards and Top Toolbar Status Filter Bidirectional Alignment & Auto-Scroll
 
 - **Task**: Align and bidirectionally synchronize top count cards (`Pending Shoots`, `Confirmed Shoots`, `Completed Shoots`, `Declined`) with top toolbar filter icon, and auto-scroll horizontal cards list into view when selected.
@@ -3887,3 +4329,197 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
   - `FeaturedWorkUploadSheet` & `Signup3FeaturedSheet` enforce `1 <= totalImages <= 5` validation, hide `+` picker tile when totalImages >= 5, and display `'Maximum 5 images allowed'` when exceeding max 5.
 - **Verification**:
   - `flutter test test/features/profile`: 96 / 96 tests passing.
+### 2026-08-13: Numeric Step 2 Completion Contract
+
+- Confirmed login and session parsing treat backend `is_step_2_complete: 1`
+  as complete and `is_step_2_complete: 0` as incomplete.
+- Added regression coverage for both numeric values in the auth repository and
+  `UserSnapshot` deserialization.
+### 2026-08-13: Signup Step 2 Profile Resume Binding
+
+- Extended the existing `POST creator/get-profile-detail` resume mapping to
+  include primary roles, years of experience, hourly rate, bio, skills, and
+  equipment ownership.
+- Step 2 now hydrates its text controllers and selector chips from the profile
+  response. Saved lookup IDs are retained so unchanged values submit correctly;
+  role and skill names are resolved against the existing lookup APIs.
+- Verification: focused resume-repository and SignupNotifier tests pass;
+  `flutter analyze --fatal-infos` reports no issues.
+
+### 2026-08-18: Signup Step 3 Social Link Icon Missing Asset Fix
+
+- **Task**: Fix broken Facebook icon (and general social/portfolio link icons) on Signup Step 3 when coming from login flow with prefilled incomplete profile.
+- **Root Cause**: Prefilled social and portfolio link maps from backend lacked the `'icon'` property, causing `SignUp3SavedLinkRow` and modal rows to evaluate `item['icon'].toString()` to `"null"`, which failed `Image.asset('null')` asset lookup.
+- **Changed Files**:
+  - `lib/features/auth/presentation/widgets/signup3_constants.dart`
+  - `lib/features/auth/presentation/providers/signup_notifier.dart`
+  - `lib/features/auth/presentation/widgets/signup3_sections.dart`
+  - `lib/features/auth/presentation/widgets/signup3_social_sheet.dart`
+  - `lib/features/auth/presentation/widgets/signup3_portfolio_sheet.dart`
+  - `test/features/auth/presentation/signup_notifier_test.dart`
+- **Decisions**:
+  - Added `signup3SocialIcon`, `signup3PortfolioIcon`, and `signup3ResolveLinkIcon` helpers to `signup3_constants.dart`.
+  - Hydrated `'icon'` asset paths during `prefill.socialMediaLinks` and `prefill.portfolioLinks` mapping in `SignupNotifier.loadStep1Prefill()`.
+  - Updated `SignUp3SavedLinkRow`, `_SavedSocialRow`, and `_SavedPortfolioRow` to safely resolve icon paths and render in white SVG tint style (Option 2).
+- **Verification**: `flutter test test/features/auth/presentation/signup_notifier_test.dart` (32/32 tests passing).
+
+### 2026-08-20: Upcoming Shoot Details Team Members Ratio Display Fix
+
+- **Task**: Fix Team Members ratio display `(08/01)` when assigned count exceeds backend `total_required`.
+- **Changed Files**:
+  - `lib/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart`
+  - `test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart`
+- **Decisions**:
+  - Clamped `totalRequired` count using `math.max(mydata?.teamSummary.totalRequired ?? 0, assignedCount)` so assigned member count never exceeds total required count (rendering `(08/08)` instead of `(08/01)`).
+  - Preserved 2-digit zero-padding format (`Option 2`).
+  - Updated ratio label style to `AppTextStyles.displayLabel14Strong.copyWith(color: AppColors.primary)` to use `Unbounded` font with `#E8D1AB` (`AppColors.primary`).
+- **Verification**:
+  - `flutter analyze --fatal-infos` — 0 issues.
+  - `flutter test test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart` — 5/5 tests passing.
+
+### 2026-09-21: Affiliate summary scroll behavior
+
+- Moved `AffiliateStatsGrid` into the main `SingleChildScrollView` in `lib/features/affiliate/presentation/screens/affiliate_screen.dart`, removing the fixed summary area and redundant body wrappers. Horizontal card scrolling and pull-to-refresh are preserved.
+- Updated the related 4.23 follow-up checklist. Phase 6 remains active per `docs/AI_HANDOFF.md`; the older Phase 4 default does not reopen migration work.
+- Verification: affiliate static analysis passes; existing affiliate widget test passes (1/1); full analysis finds an unrelated invalid `HomeNotifier.refresh` override in `test/features/home/presentation/screens/home_screen_test.dart:32`.
+- Remaining verification: device check of vertical/horizontal scrolling and pull-to-refresh; no device run performed.
+
+### 2026-09-21: Affiliate stats tiles footer
+
+- Reused `HomeSectionDivider(centerAlpha: 0.24)` below the affiliate summary tiles in `lib/features/affiliate/presentation/screens/affiliate_screen.dart`, matching dashboard insets and section spacing with existing tokens. The divider scrolls with the stats and page content.
+- Updated the related task 4.23 follow-up checklist; no architecture or active-phase changes.
+- Verification: Dart formatting and affiliate static analysis pass. Visual device verification remains outstanding.
+
+### 2026-09-07: File Manager enabled in drawer navigation
+
+- **Task**: Expose the existing File Manager shell branch in the drawer UI.
+- **Changed Files**:
+  - `lib/shared/layouts/app_shell.dart`
+  - `test/shared/layouts/app_shell_test.dart`
+- **Decisions**:
+  - Added the File Manager drawer item at branch index `2` using the existing
+    `AppAssets.activeFileManager` and `AppAssets.inactiveFileManager` assets.
+  - Kept File Manager hidden from the bottom navigation bar as intended by the
+    current shell design.
+- **Verification**:
+  - `flutter test test/shared/layouts/app_shell_test.dart --plain-name 'AppShell drawer exposes File Manager branch'` — passed.
+  - `flutter analyze --fatal-infos` — blocked by a pre-existing
+    `HomeNotifier.refresh` override mismatch in
+    `test/features/home/presentation/screens/home_screen_test.dart:32`.
+- **Remaining Risk**: The existing Payouts drawer test expects an item that is
+  intentionally omitted from the drawer and remains failing independently.
+
+### 2026-09-07: Debug login credential prefill
+
+- **Task**: Speed up local debug login testing with prefilled credentials.
+- **Changed Files**:
+  - `lib/features/auth/presentation/screens/login_screen.dart`
+  - `test/features/auth/presentation/screens/login_screen_test.dart`
+- **Decisions**:
+  - Prefill the requested email and password in `initState` only when
+    `kDebugMode` is true, so release builds do not include the convenience
+    behavior.
+  - Existing saved credentials still override the debug defaults during normal
+    hydration.
+- **Verification**:
+  - `flutter test test/features/auth/presentation/screens/login_screen_test.dart` — 6/6 passing.
+
+### 2026-09-07: File Manager added to bottom navigation
+
+- **Task**: Make File Manager available from both the drawer and bottom
+  navigation bar.
+- **Changed Files**:
+  - `lib/shared/layouts/app_shell.dart`
+  - `test/shared/layouts/app_shell_test.dart`
+- **Decisions**:
+  - Added branch index `2` to the bottom-bar branch list and inserted the
+    existing File Manager active/inactive icons and label between Shoots and
+    Messages.
+  - Kept the existing branch index and notifier invalidation behavior intact.
+- **Verification**:
+  - Bottom-bar branch-switch test passed.
+  - Drawer File Manager branch test updated to distinguish the bottom-bar and
+    drawer labels.
+
+### 2026-09-21: FM9.03 — File Manager share API binding
+
+- Added share domain models/contract, authenticated Dio repository, access-log
+  endpoint, and Riverpod state for listing, creating and revoking grants.
+- Bound root/phase-folder Share UI to real requests. Added public-link creation,
+  email invites with both permissions, copy, removal, activity logs and retry.
+  Replaced optimistic local recipient edits and placeholder notices; Done closes
+  the sheet because individual mutations persist immediately.
+- Updated caller screens, `fm_share_sheet.dart`, endpoint constants, API task
+  checklist and AI handoff. Tests added for repository, notifier and share sheet.
+- User API overrides the prior `download` permission: send `view_download`.
+  Create responses omit IDs; refresh access to obtain the numeric `shareId` and
+  disable revoke when missing. A failed GET after create retains the returned
+  link. Shared tokens across public/email grants do not merge recipients.
+- Contract limitations: GET share/log response samples are still missing.
+  Adapters accept explicit list containers and camelCase fields documented in
+  the task follow-up; unknown shapes fail visibly. Phase-root POST targeting
+  follows the supplied GET target tuple and awaits backend validation. Nested
+  paths are blocked until their addressing contract is confirmed; file system
+  sharing is preserved. FM9.03 remains partial for these confirmations.
+- Verification: `flutter test --no-pub test/features/file_manager --reporter
+  expanded` — 68/68 passed, including 19 new sharing tests. Scoped
+  `flutter analyze --no-pub --fatal-infos lib/features/file_manager
+  lib/core/network/api_endpoints.dart test/features/file_manager` — no issues.
+  Device/backend verification remains pending; no live shares were created.
+
+### 2026-09-21: File Manager iOS compile verification
+
+- Rechecked the reported File Manager compile failures. The current source
+  includes matching `workspaceType`, nullable-safe page handling,
+  `downloadArchive`, `requestedKey`, and shared `isImageFile` definitions.
+- Verification: feature analysis passed; all 68 File Manager tests passed;
+  `flutter build ios --no-codesign --debug --flavor dev -t lib/main_dev.dart`
+  produced `build/ios/iphoneos/Runner.app`.
+- Full-project analysis still reports the unrelated existing
+  `_FakeHomeNotifier.refresh` override in
+  `test/features/home/presentation/screens/home_screen_test.dart:32`.
+
+### 2026-09-29: Shared HTTP 401 session-expiry handling
+
+- User confirmed HTTP 401 with `Token is required. Please provide a valid token.`
+  means the session must end. Match HTTP status, not mutable message text.
+- Added `AuthStateNotifier.expireSession()` and wired the shared Dio callback
+  to it. Shared cleanup with explicit logout now revokes auth state immediately,
+  clears temporary/persisted session, invalidates the cached user snapshot, and
+  clears restoration, drafts and telemetry. Repeated expiry shares cleanup until
+  the next successful login; automatic expiry emits no manual logout event.
+- Updated Messages/Meetings unauthorized fallbacks to use expiry. Cleanup errors
+  are logged independently so a storage/telemetry failure cannot strand the 401
+  request or prevent in-memory revocation and remaining cleanup.
+- Added `test/core/providers/session_expiry_test.dart`; updated Phase 6 task 6.11
+  follow-up and AI handoff. Current handoff's Phase 6 context supersedes the older
+  Phase 4 default in the repo entry instructions.
+- Verification: 89 tests passed across session-expiry, session store, login,
+  signup, delete-account and Messages notifier suites. Scoped Flutter analysis
+  of changed providers/test passed; `git diff --check` passed.
+- Additional router suite: 2 existing failures expect rejected users
+  to redirect to `/application-rejected`, contrary to current unchanged Home
+  routing. The new expiry test verifies the protected-route Login redirect.
+- Limitations: real-device/backend expiry verification remains pending. Failed
+  persistent storage deletion may leave credentials on disk although in-memory
+  access is revoked. Socket and direct cloud-storage authentication remain
+  separate. Existing user changes to `pubspec.lock` were preserved.
+
+### 2026-09-29: Backend session-expiry code contract correction
+
+- Supersedes today's earlier status-only 401 policy per the updated server
+  contract: only exact top-level `SESSION_EXPIRED` and `TOKEN_INVALID` codes
+  trigger automatic logout. `TOKEN_MISSING`, unknown/missing codes and message
+  text do not. Checks apply to both successful and failed HTTP responses.
+- Updated AuthInterceptor and its exception/auth-state documentation; removed
+  generic UnauthorizedException logout fallbacks in Messages/Meetings so they
+  cannot bypass the shared allowlist. Existing cleanup and explicit logout stay
+  intact. Preserved unrelated existing work, including pubspec.lock.
+- Expanded session_expiry_test.dart across HTTP 200/401/403 and all allowed and
+  excluded codes; changed the conversation notifier regression to assert that a
+  generic unauthorized failure preserves auth while displaying the error.
+- Updated task 6.11 and AI_HANDOFF.md. Phase 6 remains the current context,
+  superseding the older Phase 4 defaults in the entrypoint.
+- Verification: focused session/provider/network/Messages suites passed 60/60;
+  scoped static analysis passed; git diff --check passed.
+- Remaining: real-device verification against the updated backend contract.

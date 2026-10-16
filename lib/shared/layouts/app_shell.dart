@@ -16,6 +16,8 @@ import '../../core/firebase/analytics_service.dart';
 import '../../core/notifications/push_notification_service.dart';
 import '../../core/providers/guest_mode_provider.dart';
 import '../../shared/widgets/login_dialog.dart';
+import '../../features/affiliate/presentation/providers/affiliate_notifier.dart'
+    show affiliateNotifierProvider;
 import '../../features/availability/presentation/providers/availability_providers.dart'
     show manageAvailabilityNotifierProvider;
 import '../../features/file_manager/presentation/providers/file_manager_root_notifier.dart'
@@ -93,6 +95,8 @@ class _AppShellState extends ConsumerState<AppShell> {
         ref.invalidate(meetingsListNotifierProvider);
       case 5:
         ref.invalidate(manageAvailabilityNotifierProvider);
+      case 6:
+        ref.invalidate(affiliateNotifierProvider);
     }
   }
 
@@ -122,6 +126,8 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.3,
       body: ClipRect(child: widget.shell),
+      // Branches 4+ remain drawer-only. Hide the bar when current branch
+      // isn't in the visible set instead of clamping to Dashboard.
       // File Manager (branch 2) hidden from bottom bar pre-release; branches
       // 4+ are drawer-only. Hide the bar when current branch isn't in the
       // visible set instead of clamping to Dashboard.
@@ -135,9 +141,8 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 }
 
-/// Branch indices surfaced in the bottom bar, in visual order. File Manager
-/// (branch 2) is intentionally omitted for release; code and route remain.
-const List<int> _bottomBarBranches = [0, 1, 3];
+/// Branch indices surfaced in the bottom bar, in visual order.
+const List<int> _bottomBarBranches = [0, 1, 2, 3];
 
 class _AppShellBottomBar extends StatelessWidget {
   final int currentBranchIndex;
@@ -163,6 +168,12 @@ class _AppShellBottomBar extends StatelessWidget {
         activeIcon: AppAssets.activeShoots,
         inactiveIcon: AppAssets.inactiveShoots,
         activeWidth: 46,
+      ),
+      _BottomBarItemData(
+        branchIndex: 2,
+        label: 'File Manager',
+        activeIcon: AppAssets.activeFileManager,
+        inactiveIcon: AppAssets.inactiveFileManager,
       ),
       _BottomBarItemData(
         branchIndex: 3,
@@ -426,8 +437,8 @@ class _AppShellDrawer extends ConsumerWidget {
     );
   }
 
-  // File Manager (branch 2), Affiliate (branch 6), Payouts (branch 7)
-  // intentionally omitted for release; code and routes stay wired.
+  // Affiliate (branch 6) and Payouts (branch 7) remain hidden until their
+  // screens are ready. File Manager is available from both nav surfaces.
   static const List<_DrawerMenuItemData> _drawerItems = [
     _DrawerMenuItemData(
       branchIndex: 0,
@@ -440,6 +451,12 @@ class _AppShellDrawer extends ConsumerWidget {
       label: 'Shoots',
       activeIcon: AppAssets.activeShoots,
       inactiveIcon: AppAssets.inactiveShoots,
+    ),
+    _DrawerMenuItemData(
+      branchIndex: 2,
+      label: 'File Manager',
+      activeIcon: AppAssets.activeFileManager,
+      inactiveIcon: AppAssets.inactiveFileManager,
     ),
     _DrawerMenuItemData(
       branchIndex: 3,
@@ -458,6 +475,12 @@ class _AppShellDrawer extends ConsumerWidget {
       label: 'Manage Availability',
       activeIcon: AppAssets.activeManageAvailability,
       inactiveIcon: AppAssets.inactiveManageAvailability,
+    ),
+    _DrawerMenuItemData(
+      branchIndex: 6,
+      label: 'Affiliate',
+      activeIcon: AppAssets.activeAffiliate,
+      inactiveIcon: AppAssets.inactiveAffiliate,
     ),
   ];
 }

@@ -5,9 +5,8 @@ import '../models/fm_revision_action.dart';
 import '../models/fm_revision_result.dart';
 import '../models/fm_signed_url.dart';
 
-/// Path-addressed file operations. All URL-returning methods hand the
-/// URL to the OS via `url_launcher` / `share_plus` — see
-/// `FILE_MANAGER_API_PLAN.md` §4.9. The app never streams the bytes.
+/// Path-addressed file operations. Image previews consume signed view URLs;
+/// explicit open/share actions hand URLs to the OS.
 ///
 /// Split from the legacy `FileManagerRepository` facade so FM7.05+
 /// callers can migrate at their own pace.
@@ -27,6 +26,16 @@ abstract class FileOpsRepository {
     required String externalId,
     FmPhase? phase,
     String? path,
+  });
+
+  /// Downloads the folder ZIP produced by [folderDownloadUrl] to
+  /// [savePath] on the device. The download is authenticated (Bearer via
+  /// the Dio auth interceptor); the folder-download endpoint is not a
+  /// public signed URL.
+  Future<void> downloadArchive({
+    required String url,
+    required String savePath,
+    void Function(int received, int total)? onProgress,
   });
 
   /// `POST /external-file-manager/delete`. Callers pass folder paths

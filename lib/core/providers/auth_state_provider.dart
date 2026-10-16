@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/notification/presentation/providers/notification_list_providers.dart';
 import '../firebase/telemetry_client.dart';
 import '../restoration/restoration_providers.dart';
+import '../utils/app_logger.dart';
 import 'core_providers.dart';
 import '../session/temporary_auth_session.dart';
 import '../../features/profile/presentation/providers/notification_settings_providers.dart';
@@ -22,38 +23,55 @@ class AuthStateNotifier extends Notifier<bool> {
   @override
   bool build() => initial;
 
+  Future<void>? _endingSession;
+
   /// Call after a successful login flow has already written the session.
   /// Flips the auth state so the router redirect re-evaluates.
   void markLoggedIn() {
+    _endingSession = null;
     state = true;
   }
 
-  /// Clears the session and flips auth state to `false`. Caller is
-  /// responsible for `context.goNamed(Routes.login.name)`; the redirect will
-  /// also enforce the bounce if anything resurrects the authed tree.
-  Future<void> logout() async {
-    try {
-      final sessionStore = ref.read(sessionStoreProvider);
-      final sessionId = await sessionStore.getAppSessionId();
-      await ref.read(notificationRepositoryProvider).removeFcmToken(sessionId: sessionId);
-    } catch (_) {
-      // Swallow errors to ensure logout completes locally
-    }
+  /// Shared backend session-expiry path. The router observes auth state and returns to Login.
+  /// Repeated failures for the same session share one cleanup operation.
+  Future<void> expireSession() =>
+      _endingSession ??= _endSession(emitLogoutEvent: false);
 
-    await ref.read(sessionStoreProvider).clearSession();
-    await ref.read(routeRestorationServiceProvider).clearAll();
-    await ref.read(draftStoreProvider).clearAll();
-    ref.invalidate(notificationSettingsProvider);
-    // Clear telemetry identity + emit `logout`. Best-effort — never fail
-    // logout on a wrapper error.
-    try {
-      await ref
-          .read(telemetryClientProvider)
-          .clearUserIdentity(emitLogoutEvent: true);
-    } catch (_) {
-      // Swallow — logout must complete regardless.
-    }
+  /// Explicit user logout uses the same cleanup and records the logout event.
+  Future<void> logout() =>
+      _endingSession ??= _endSession(emitLogoutEvent: true);
+
+  Future<void> _endSession({required bool emitLogoutEvent}) async {
+    // Revoke access immediately, even if storage or telemetry cleanup fails.
     state = false;
+    ref.read(temporaryAuthSessionProvider.notifier).clear();
+    ref.invalidate(notificationSettingsProvider);
+    await _cleanUp(
+      'session',
+      () => ref.read(sessionStoreProvider).clearSession(),
+    );
+    ref.invalidate(currentSessionUserProvider);
+    await _cleanUp(
+      'route restoration',
+      () => ref.read(routeRestorationServiceProvider).clearAll(),
+    );
+    await _cleanUp('drafts', () => ref.read(draftStoreProvider).clearAll());
+    await _cleanUp(
+      'telemetry',
+      () => ref
+          .read(telemetryClientProvider)
+          .clearUserIdentity(emitLogoutEvent: emitLogoutEvent),
+    );
+  }
+
+  Future<void> _cleanUp(String label, Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (error, stack) {
+      // A cleanup failure must not strand the original API request or prevent
+      // the remaining cleanup operations and the router's auth redirect.
+      AppLogger.e('Failed to clear $label on session end', error, stack);
+    }
   }
 }
 

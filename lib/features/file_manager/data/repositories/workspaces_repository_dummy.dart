@@ -11,11 +11,21 @@ class WorkspacesRepositoryDummy implements WorkspacesRepository {
   static const Duration _latency = Duration(milliseconds: 300);
 
   @override
-  Future<FmPage<FmFolder>> list({String? cursor, int limit = 20}) async {
+  Future<FmPage<FmFolder>> list({
+    String? cursor,
+    int limit = 20,
+    String? workspaceType,
+  }) async {
     await Future<void>.delayed(_latency);
     final roots = (DummyFileTree.tree[DummyFileTree.rootKey] ?? const [])
         .whereType<FmFolder>()
         .toList();
+
+    // Mimic the server-side `recent` filter: sort newest-first.
+    if (workspaceType == 'recent') {
+      roots.sort((a, b) => (b.openedAt ?? DateTime(0))
+          .compareTo(a.openedAt ?? DateTime(0)));
+    }
 
     final offset = int.tryParse(cursor ?? '0') ?? 0;
     final end = (offset + limit).clamp(0, roots.length);

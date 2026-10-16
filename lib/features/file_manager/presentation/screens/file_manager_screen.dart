@@ -15,6 +15,7 @@ import '../providers/node_action_state.dart';
 import '../routes/file_manager_args.dart';
 import '../widgets/fm_actions_sheet.dart';
 import '../widgets/fm_delete_confirm_dialog.dart';
+import '../widgets/fm_share_sheet.dart';
 import '../widgets/fm_empty_view.dart';
 import '../widgets/fm_error_view.dart';
 import '../widgets/fm_recursive_list.dart';
@@ -51,12 +52,7 @@ class FileManagerScreen extends ConsumerWidget {
       case FmNodeAction.open:
         _openFolder(context, folder);
       case FmNodeAction.share:
-        // Workspace-root share = whole-workspace ZIP URL via the OS
-        // share sheet. Real `/share` OTP flow deferred to FM9.03.
-        await actions.downloadFolder(
-          trackingKey: folderPath,
-          externalId: folder.id,
-        );
+        _openShareSheet(context, folder);
       case FmNodeAction.download:
         await actions.downloadFolder(
           trackingKey: folderPath,
@@ -75,6 +71,22 @@ class FileManagerScreen extends ConsumerWidget {
           ref.invalidate(fileManagerRootNotifierProvider);
         }
     }
+  }
+
+  void _openShareSheet(BuildContext context, FmFolder folder) {
+    final target = FmShareTarget(
+      key: folder.nextKey ?? FmFolderKey(externalId: folder.id),
+      name: folder.name,
+    );
+    if (!target.isSupported) {
+      TopMessage.show(
+        context,
+        'Sharing nested folders is not available yet.',
+        type: TopMessageType.error,
+      );
+      return;
+    }
+    FmShareSheet.show(context, target: target);
   }
 
   @override
