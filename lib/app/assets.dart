@@ -20,7 +20,6 @@ class AppAssets {
   static const String _meetingSvg = 'assets/svg/meeting';
   static const String _notificationSvg = 'assets/svg/notification';
   static const String _affiliateSvg = 'assets/svg/affiliate';
-  static const String _notificationSvg = 'assets/svg/notification';
   static const String _onboarding = 'assets/onboarding';
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
