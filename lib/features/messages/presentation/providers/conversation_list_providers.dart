@@ -50,7 +50,7 @@ class ConversationListState {
 }
 
 class ConversationListNotifier
-    extends AutoDisposeNotifier<ConversationListState>
+    extends Notifier<ConversationListState>
     with WidgetsBindingObserver {
   Timer? _debounce;
   Timer? _refreshThrottle;
@@ -109,6 +109,7 @@ class ConversationListNotifier
     } catch (e) {
       AppLogger.w('conv bootstrap session read failed: $e');
     }
+    if (!ref.mounted) return;
     _hydratedFromDisk = true;
     await refresh();
   }
@@ -241,6 +242,9 @@ class ConversationListNotifier
     try {
       final repo = ref.read(messagesRepositoryProvider);
       final items = await repo.listConversations(query: startedQuery);
+      // riverpod 3 throws if `ref`/`state` are touched after the provider was
+      // disposed mid-fetch (autoDispose / widget teardown). Bail out quietly.
+      if (!ref.mounted) return;
       if (state.query != startedQuery) return;
       final reconciled = _reconcile(items);
       state = state.copyWith(items: reconciled, isLoading: false);
@@ -249,6 +253,7 @@ class ConversationListNotifier
       // snippet. Failures are swallowed: the row keeps its empty preview.
       unawaited(_hydratePreviews(reconciled));
     } catch (e, st) {
+      if (!ref.mounted) return;
       if (state.query != startedQuery) return;
       AppLogger.e('Conversations refresh failed', e, st);
       state = state.copyWith(
@@ -424,7 +429,7 @@ class ConversationListNotifier
 }
 
 final conversationListProvider =
-    AutoDisposeNotifierProvider<
+    NotifierProvider.autoDispose<
       ConversationListNotifier,
       ConversationListState
     >(ConversationListNotifier.new);

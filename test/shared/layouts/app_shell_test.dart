@@ -6,8 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-class _FakeHomeNotifier extends AutoDisposeNotifier<HomeState>
-    implements HomeNotifier {
+class _FakeHomeNotifier extends Notifier<HomeState> implements HomeNotifier {
   @override
   HomeState build() => HomeState();
 
@@ -17,9 +16,7 @@ class _FakeHomeNotifier extends AutoDisposeNotifier<HomeState>
 
 Widget _wrap(Widget child) {
   return ProviderScope(
-    overrides: [
-      homeNotifierProvider.overrideWith(_FakeHomeNotifier.new),
-    ],
+    overrides: [homeNotifierProvider.overrideWith(_FakeHomeNotifier.new)],
     child: child,
   );
 }
@@ -218,7 +215,7 @@ void main() {
     expect(find.text('C: 0'), findsOneWidget);
   });
 
-  testWidgets('AppShell drawer item switches to future Payouts branch', (
+  testWidgets('AppShell drawer hides the unavailable Payouts branch', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -232,14 +229,7 @@ void main() {
     scaffoldState.openDrawer();
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.text('Payouts'),
-      220,
-      scrollable: find.byType(Scrollable).last,
-    );
-    await tester.tap(find.text('Payouts'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('H: 0'), findsOneWidget);
+    expect(find.text('Payouts'), findsNothing);
+    expect(find.text('A: 0'), findsOneWidget);
   });
 }

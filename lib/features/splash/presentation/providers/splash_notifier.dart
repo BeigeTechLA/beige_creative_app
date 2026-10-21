@@ -8,7 +8,7 @@ import 'splash_state.dart';
 /// screen can react to a state transition via `ref.listen` instead of a raw
 /// callback chain. Keeps the screen presentation-only — navigation effects
 /// fire from the listener.
-class SplashNotifier extends AutoDisposeNotifier<SplashState> {
+class SplashNotifier extends Notifier<SplashState> {
   @override
   SplashState build() => const SplashState();
 
@@ -19,6 +19,6 @@ class SplashNotifier extends AutoDisposeNotifier<SplashState> {
 }
 
 final splashNotifierProvider =
-    AutoDisposeNotifierProvider<SplashNotifier, SplashState>(
+    NotifierProvider.autoDispose<SplashNotifier, SplashState>(
   SplashNotifier.new,
 );

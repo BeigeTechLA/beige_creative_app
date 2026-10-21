@@ -4523,3 +4523,311 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - Verification: focused session/provider/network/Messages suites passed 60/60;
   scoped static analysis passed; git diff --check passed.
 - Remaining: real-device verification against the updated backend contract.
+
+### 2026-10-19: Standalone Flutter upgrade + iOS 27 readiness plan created
+
+- **Changes**:
+  - New standalone plan `docs/upgrade/FLUTTER_IOS27_UPGRADE.md` (NOT a migration
+    phase; tracked separately from the Phase 6 sequence): full plugin upgrade (all
+    outdated deps to latest resolvable, including breaking majors) plus iOS 27 /
+    Xcode 27 cutover. 12 tasks (U-01–U-12), ~12.5 effort-days.
+  - Captured dependency audit snapshot from `flutter pub outdated` +
+    `ios/Podfile.lock` on Flutter 3.47.0 / Dart 3.13.0.
+- **Decisions**:
+  - Scope = full upgrade before iOS 27 (per user): includes riverpod 2→3,
+    go_router 14→18, socket_io 2→3 as tracked tasks, not deferred.
+  - Sequencing: pin Flutter → Tier A safe bumps → iOS privacy manifest →
+    iOS-27-critical native majors (Firebase, file_picker, maps/location) → deep
+    Dart-only majors → iOS 27 cutover last, after the dep tree is green.
+  - iOS 27 native gates identified: Firebase 11.15 → 12.x (via firebase_* major),
+    DKImagePickerController 4.3.9 removal (file_picker 13), GoogleMaps 9.4 bump,
+    and the still-missing app-level `PrivacyInfo.xcprivacy`.
+- **Constraints Maintained**:
+  - Audit-only; no code or pubspec edits yet. Each task to merge only with
+    `flutter analyze --fatal-infos` + full `flutter test` + a local iOS build green.
+- **Next**: await go-ahead on task U-01 (pin Flutter 3.47.0).
+
+### 2026-10-21: Upgrade plan reordered — strict low→high impact
+
+- **Changes**:
+  - Re-sequenced `docs/upgrade/FLUTTER_IOS27_UPGRADE.md` to strict low-impact →
+    high-impact ordering, iOS 27 cutover last (per user request). Renumbered task
+    list, Tier B task-column references, and per-task detail headers; synced
+    `docs/AI_HANDOFF.md`. Re-verified `flutter pub outdated` on Flutter 3.47.0 —
+    audit snapshot still accurate.
+  - New order: U-01 pin Flutter → U-02 safe bumps → U-03 iOS privacy manifest →
+    U-04 Dart-only majors batch (share_plus/package_info/cached_network_image/
+    open_file/secure_storage) → U-05 file_picker 11→13 → U-06 maps+geolocator+
+    geocoding apple → U-07 socket_io 2→3 → U-08 riverpod 2→3 → U-09 go_router
+    14→18 → U-10 Firebase major (native 12.x) → U-11 iOS 27 cutover → U-12 regression.
+- **Decisions**:
+  - Firebase major moved from U-04 to U-10: it is the biggest native change and an
+    iOS-27 gate, but builds on Xcode 16+, so it lands last among the majors yet
+    still before the Xcode 27 cutover.
+  - Forced dependency overrides to pure blast-radius order: riverpod (U-08) before
+    go_router (U-09) because `routerProvider` sits on riverpod; socket_io leads the
+    High tier (U-07) as the most contained (messages-only) migration.
+  - geocoding 4→5 grouped into the native location task (U-06) rather than the
+    Dart-only batch, since `geocoding_darwin` is a native change.
+- **Constraints Maintained**:
+  - Still audit-only; no code or pubspec edits. Per-task gates unchanged.
+- **Next**: await go-ahead on task U-01 (pin Flutter 3.47.0).
+
+### 2026-10-21: Upgrade Phase 1 complete — U-01 pin + U-02 safe bumps
+
+- **Changes**:
+  - U-01: Added `.fvmrc` (`{"flutter":"3.47.0"}`); pinned `flutter-version: '3.47.0'`
+    in `.github/workflows/ci.yml` and `integration.yml` (kept `channel: stable`, `cache: true`).
+  - U-02: `flutter pub upgrade` (in-constraint) — 87 deps moved in `pubspec.lock`,
+    no `pubspec.yaml` edits. Notable: dio 5.9→5.11, connectivity_plus 7.1→7.3,
+    google_maps_flutter 2.17→2.19, shared_preferences/url_launcher/table_calendar/intl/lottie patch+minor.
+  - dio 5.11 added `DioExceptionType.transformTimeout`; added it to the timeout
+    case group in `lib/core/network/exceptions/exception_handler.dart:142`.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built Runner.app (105.7s).
+  - Full `flutter test` deferred to U-12 (user decision). Noted pre-existing (NOT
+    upgrade-caused) failures: `test/app/router_connectivity_test.dart` redirect
+    assertions fail on both old and new lock; `login_screen_test.dart: prefills
+    debug login credentials` hangs (10-min per-test timeout). Both parked for U-12.
+- **Decisions**:
+  - Build-per-phase is the gate (user); test suite runs once at U-12.
+- **Next**: U-03 iOS `PrivacyInfo.xcprivacy` app manifest (Phase 2).
+
+### 2026-10-21: Upgrade U-03 — iOS app privacy manifest
+
+- **Changes**:
+  - Added `ios/Runner/PrivacyInfo.xcprivacy` (app-level). `NSPrivacyTracking=false`,
+    empty tracking domains, empty `NSPrivacyCollectedDataTypes`, and four Required
+    Reason API declarations: UserDefaults `CA92.1`, FileTimestamp `C617.1`,
+    SystemBootTime `35F9.1`, DiskSpace `E174.1`.
+  - Wired into Runner target in `ios/Runner.xcodeproj/project.pbxproj`: new
+    PBXFileReference `AA0100000000000000000F01` + PBXBuildFile `AA0100000000000000000F02`,
+    added to the Runner PBXGroup and the Resources (Copy Bundle Resources) phase.
+- **Verification**:
+  - `plutil -lint` OK for both the manifest and `project.pbxproj`.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built; manifest
+    present at `build/ios/iphoneos/Runner.app/PrivacyInfo.xcprivacy`.
+- **Decisions**:
+  - Plugin pods ship their own manifests (ios/Pods/**) — not re-declared; Apple
+    aggregates. Only first-party/engine-level Required Reason APIs declared here.
+  - `NSPrivacyCollectedDataTypes` left empty: authoritative disclosure lives in
+    App Store Connect. **U-11 follow-up**: PM/legal to confirm collected-data label
+    (email, name, phone, precise location, photos, analytics, crash data).
+- **Next**: U-04 Dart-only majors batch (share_plus/package_info/cached_network_image/open_file/secure_storage).
+
+### 2026-10-21: Upgrade U-04 + U-05 — 6 majors landed together (win32 coupling)
+
+- **Changes**:
+  - Bumped in `pubspec.yaml`: share_plus ^13, package_info_plus ^10,
+    cached_network_image ^4, open_file ^4, flutter_secure_storage ^11,
+    file_picker ^13.1.0. Resolved: file_picker 13.1.0, share_plus 13.3.1,
+    package_info_plus 10.2.2, cached_network_image 4.0.4, open_file 4.0.0,
+    flutter_secure_storage 11.2.0, win32 6.4.0.
+  - share_plus call site: `Share.shareUri` → `SharePlus.instance.share(ShareParams(uri:))`
+    in `node_action_notifier.dart`.
+  - file_picker 13 migration: `common_uploader.dart` + `signup3_screen.dart` →
+    `FilePicker.pickFile()` (returns `PlatformFile?`); `fm_upload_sheet.dart` →
+    `FilePicker.pickFiles()` (returns `List<PlatformFile>`, dropped
+    `allowMultiple`/`withData`, `size` → `await length()`).
+  - package_info/cached_network_image/open_file/secure_storage: no code change.
+- **Decisions**:
+  - **U-05 pulled forward into U-04** (user-approved): share_plus 13 / package_info 10 /
+    secure_storage 11 all require `win32 ^6`, blocked by `file_picker 11` (`win32 ^5.9`).
+    Only file_picker 13 lifts it, so all 6 majors resolved as one atomic batch.
+  - file_picker 13 drops the ancient `DKImagePickerController` pod (verified absent).
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - CocoaPods: 36 pods, `Pods/FirebaseCrashlytics/run` present, `file_picker_darwin`
+    pod present, `DKImagePickerController` absent.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built; manifest still
+    bundled at `Runner.app/PrivacyInfo.xcprivacy`.
+- **⚠️ SPM recovery**: Flutter SPM was enabled globally; a `flutter clean` +
+  `rm -rf ios/Pods` caused Flutter to silently migrate Runner to Swift Package
+  Manager (rewrote `project.pbxproj`, dropped 65→4 pods, broke the committed
+  Crashlytics `run` build phase). Recovered by disabling SPM
+  (`flutter config --no-enable-swift-package-manager`), reverting pbxproj,
+  re-applying the privacy-manifest entries, then clean/pub get/pod install.
+  Project stays CocoaPods for this upgrade; SPM adoption deferred to U-11.
+- **Next**: U-06 (google_maps_flutter 2.19 + geolocator/geocoding apple; geocoding 4→5).
+
+### 2026-10-21: Upgrade U-06 — geocoding 4→5; iOS-27 cutover (U-11) descoped
+
+- **Scope change (user)**: iOS 27 / Xcode 27 compatibility is NOT being done.
+  **U-11 skipped.** Plugin upgrades (U-07→U-10) + U-12 regression continue; the
+  privacy manifest stays (general App Store requirement).
+- **Changes**:
+  - google_maps_flutter 2.19.0 + geolocator 14.0.2 / geolocator_apple 2.4.2 already
+    landed in-constraint via U-02 lock bumps; no further work needed for U-06.
+  - geocoding ^5.0.0 (+ `geocoding_platform_interface` dev dep ^5.0.0). Native impl
+    `geocoding_ios` → `geocoding_darwin` 1.0.3.
+  - geocoding 5 removed top-level helpers; migrated `location_service.dart` and
+    `signup1_screen.dart` to `Geocoding().placemarkFromCoordinates(...)`.
+  - Rewrote `test/utility/location_service_test.dart` geocoding mock to the v5 seam:
+    mock `GeocodingPlatformFactory.instance` → `createGeocoding` → mock `Geocoding`
+    (platform-interface, via `gpi` prefix); `registerFallbackValue(GeocodingCreationParams())`.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter test test/utility/location_service_test.dart`: 9/9 pass.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built; `geocoding_darwin`
+    pod present.
+- **Next**: U-07 (socket_io_client 2→3, messages only).
+
+### 2026-10-21: Upgrade U-07 — socket_io_client 2→3
+
+- **Changes**:
+  - `socket_io_client` ^3.0.0 → resolved 3.1.6 (socket_io_common 3.1.1, + new
+    pure-Dart `web_socket` transitive). No native pod.
+  - Only call site: `lib/features/messages/data/sources/messages_socket_source.dart`.
+    v3 kept the v2 surface (`io.io`, `OptionBuilder`, `onConnect`/`onConnectError`/
+    `onError`/`onDisconnect`/`onReconnect`/`onAny`, `on`, `emit`, `connected`,
+    `dispose`) — **zero API breaks**.
+  - Modernized the forceNew Manager-cache bypass: replaced the raw
+    `options['forceNew'] = true` map hack (with its now-false "not exposed in v2.x"
+    comment) with `OptionBuilder.enableForceNew()`. v3 honors `opts['forceNew']`
+    identically, so the stale-Manager-after-logout fix is preserved.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built.
+  - Runtime connect/send/receive + reconnect verification deferred to U-12 device smoke.
+- **Next**: U-08 (flutter_riverpod 2→3 — foundation before go_router).
+
+### 2026-10-21: Upgrade U-08 — flutter_riverpod 2→3 (lib-complete)
+
+- **Changes** (all `lib/`; `flutter_riverpod` ^3.0.0 → 3.4.3 / riverpod 3.1.0):
+  - v3 removed the `AutoDispose*` Notifier base classes + `AutoDisposeNotifierProvider(Family)`
+    constructors. Migration map applied across 29 provider files:
+    - `AutoDisposeNotifier<T>` → `Notifier<T>`; `AutoDisposeNotifierProvider<N,T>(` →
+      `NotifierProvider.autoDispose<N,T>(`.
+    - `AutoDisposeFutureProvider(Family)<` → `FutureProvider.autoDispose(.family)<`.
+    - `AutoDisposeAsyncNotifierProvider.family` → `AsyncNotifierProvider.autoDispose.family`.
+    - `AutoDisposeNotifierProviderFamily<` → `NotifierProvider.autoDispose.family<`.
+  - **Family notifiers (6)** lost the inherited `arg` getter — migrated to constructor
+    injection (`extends Notifier<T>` / `AsyncNotifier<T>`, add `final Arg x;` +
+    `X(this.x);`, `build(Arg x)` → `build()`): upcoming_shoot, shoots (CancelShoot),
+    chat_thread, folder_contents, comments (async-family), shares.
+  - **StateProvider** moved to `package:flutter_riverpod/legacy.dart` — added that import
+    to the 4 `StateProvider<T>` sites (onboarding_seen, file_manager_repository,
+    active_chat_room, my_profile); dropped now-unused main import where StateProvider
+    was the only symbol.
+  - Fixed one return-**type** annotation broken by the bulk edit:
+    `FutureProvider.autoDispose<String?>` → `FutureProvider<String?>` in
+    file_image_preview_provider.dart (autoDispose is a builder, not a type in v3).
+- **Verification**:
+  - `flutter analyze --fatal-infos lib/`: 0 issues.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built.
+- **Deferred to U-12 (user: tests at end)**: `test/**` riverpod-3 migration — mock
+  notifiers extend removed `AutoDispose*` classes, `Override` type, `pump_app` helper,
+  and `state`/`ref` cascades. Same mechanical patterns as above apply. Runtime behavior
+  checks (autoDispose timing, v3 auto-retry on provider error) → U-12 device smoke.
+- **Next**: U-09 (go_router 14→18, on the riverpod 3 base).
+
+### 2026-10-21: Upgrade U-09 — go_router 14→18
+
+- **Changes**:
+  - `go_router` ^18.0.0 → resolved 18.1.1 (on the riverpod 3 base from U-08).
+  - **No code changes needed.** The router (split in 5.08) already uses the modern
+    APIs the 15–18 majors standardized on: `state.matchedLocation` (not the removed
+    `state.location`), named routes, `StatefulShellRoute`, `refreshListenable`,
+    `redirect`. All 58 `go_router` call sites (mostly `context.goNamed`/`pushNamed`)
+    are forward-compatible.
+- **Verification**:
+  - `flutter analyze --fatal-infos lib/`: 0 issues.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built.
+  - Route navigation + guarded redirects (pending/rejected fail-closed) runtime check → U-12.
+- **Next**: U-10 (Firebase group major — core 3→5, analytics 11→13, crashlytics 4→6; native FB 12.x).
+
+### 2026-10-21: Upgrade U-10 — Firebase group major (native FB 12.x)
+
+- **Changes**:
+  - `firebase_core` ^5.0.0 (5.0.0), `firebase_analytics` ^13.0.0 (13.0.0),
+    `firebase_crashlytics` ^6.0.0 (6.0.0). Native pods → Firebase 12.19.0
+    (FirebaseCore/Analytics/Crashlytics, GoogleAppMeasurement 12.x).
+  - **No Dart code changes** — the API is stable across these majors for our usage
+    (`lib/core/firebase/*`: init, analytics logEvent/observer, crashlytics recordError/
+    setCustomKey). Analyze clean.
+- **Pod resolution gotcha**: `pod install` kept the old Firebase 11.15 because the
+  Podfile.lock pinned the firebase_* **dev pods** at old versions. Fix was
+  `pod update firebase_core firebase_analytics firebase_crashlytics` (the path-based
+  dev pods), which cascaded `Firebase/CoreOnly` to 12.19.0.
+- **Stale-artifact build failure**: first build after the bump failed with
+  `'FLTFirebaseCorePlugin' has different definitions in different modules` — stale
+  `build/ios/.../firebase_core.framework` from the pre-bump compile. `flutter clean` +
+  rebuild fixed it; SPM stayed disabled (0 SPM refs in pbxproj after clean), so no
+  re-migration.
+- **Verification**:
+  - `flutter analyze --fatal-infos lib/`: 0 issues.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built (clean rebuild).
+  - Forced-crash (Crashlytics console) + event (Analytics DebugView) on device → U-12.
+- **Note (future)**: CocoaPods warns `FirebaseCore` is deprecated in favor of the
+  Firebase Apple SDK via SPM; CocoaPods versions stop publishing after Oct 2026.
+  Not blocking now (project stays CocoaPods); revisit if/when adopting SPM.
+- **Next**: U-12 regression — includes the deferred riverpod-3 **test/** migration.
+
+### 2026-10-21: Upgrade U-12 regression (in progress)
+
+- **test/ riverpod-3 migration (done — full-project `flutter analyze --fatal-infos`: 0 issues)**:
+  - Fake notifiers `extends AutoDisposeNotifier<X>` → `extends Notifier<X>` (5 files:
+    forgot_password, login_screen, my_profile_notifier, application_under_review_card,
+    app_shell tests).
+  - `Override` type is NOT in the `flutter_riverpod.dart` show-list in v3 — it lives in
+    `package:flutter_riverpod/misc.dart`. Added that import to `test/helpers/pump_app.dart`
+    + onboarding_screen_test.
+  - `_FakeDetailNotifier` (upcoming_shoot test): subclass of the now constructor-required
+    `UpcomingShootDetailNotifier` → `: super(0)`, `build(int)` → `build()`.
+  - Family provider override: `.overrideWith(() => fake)` deprecated in riverpod 3.4 →
+    `.overrideWith2((arg) => fake)`.
+- **Full suite** (`flutter test --timeout 90s`): running; ~20 failures. Interim triage:
+  - **Pre-existing (not upgrade-caused)**: `router_connectivity_test` (4) — confirmed
+    failing on the pre-upgrade lock back in Phase 1; `login_screen_test` prefills/hang (1);
+    `router_test` (2) + `routes_analytics_test` (1) under review.
+  - **Golden pixel diffs** (`buttons` 3, `cards` 2, `messages` 1): SDK/rendering shift from
+    the Flutter + dependency bumps — regen on the pinned SDK, not real defects
+    (CLAUDE.md: cross-SDK golden diffs are noise).
+  - **Riverpod-3 behavior (investigating)**: `file_image_preview_provider_test`
+    (expected 2 calls, got 12 — likely v3 autoDispose/rebuild-timing change);
+    `comments_notifier_test`; widget tests `app_shell`/`app_button`/`app_loading`/
+    `messages_screen` pending error extraction.
+- **Deferred device smoke (U-12)**: Firebase forced-crash + event; file pick/upload;
+  maps/geocode; realtime socket; guarded redirects — on real iOS device.
+
+### 2026-10-21: U-12 parallel Codex CI/native review
+
+- Claude retains test generation/migration and related regression fixes; Codex
+  edited no test or production Dart files and ran no competing full suite/build.
+- `.github/workflows/integration.yml`: disable Swift Package Manager for the iOS
+  matrix before dependency installation. The local Flutter global setting was
+  absent from CI, risking the documented CocoaPods/Crashlytics migration failure.
+- Updated the standalone upgrade checklist and shared handoff. Historical
+  Phase 4 defaults and the handoff's stale "Next: U-06" do not describe this task;
+  the standalone U-12 regression plan governs. No files moved.
+- Verification: `flutter analyze --no-pub --fatal-infos lib/` passes; Ruby YAML
+  parse/order assertion passes; `plutil -lint` passes for the privacy manifest,
+  Runner project and AppFrameworkInfo; `git diff --check` passes.
+- Remaining: Claude's final suite results, device-binding verification for
+  integration tests, remote CI, and real-device smoke. No claim of full regression
+  completion; U-12 stays in progress and U-11 stays skipped.
+
+
+### 2026-10-21: U-12 Codex takeover — local regression green, paused by user
+
+- Took over after Claude stopped. Fixed 11 stale/harness failures in route,
+  analytics, login, loading/button and drawer tests without changing production
+  routing/UI behavior. Preserved existing Claude changes and goldens.
+- Full unit/widget/golden suite: **749/749 pass** with coverage. Full-project
+  analysis after integration-binding changes: **0 issues**. Coverage is
+  **11209/21804 = 51.41%**; 70% CI threshold remains unchanged.
+- Unsigned dev iOS build passes. Native macOS app also builds after resolving
+  stale Firebase 11.15 pods to 12.19.0; Flutter migrated macOS minimum to 12.0.
+  Changed macOS Podfile, lockfile and project deployment targets.
+- Both `integration_test` entry points now use the device integration binding.
+  Native login test started but did not complete; app foregrounding failed
+  (`open returned 1`). User requested stop, so runner was interrupted; resulting
+  stream/sink shutdown errors are cancellation diagnostics. Neither native
+  journey is claimed green. No remote CI/device smoke performed.
+- Updated standalone upgrade plan, AI handoff and Phase 6.13 coverage status.
+  No files moved, no commit/push/release. `git diff --check` passes.
+- **Paused at user request.** Resume native journeys/foreground issue first,
+  then Android/iOS CI and real-device smoke. Coverage lift and privacy disclosure
+  confirmation remain pending; U-11 stays skipped. Exact resume command and
+  durable results are in `docs/upgrade/FLUTTER_IOS27_UPGRADE.md`.

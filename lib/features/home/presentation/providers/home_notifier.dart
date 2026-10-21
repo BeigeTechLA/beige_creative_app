@@ -21,7 +21,7 @@ final homeRepositoryProvider = Provider<HomeRepository>(
 );
 
 final homeNotifierProvider =
-    AutoDisposeNotifierProvider<HomeNotifier, HomeState>(HomeNotifier.new);
+    NotifierProvider.autoDispose<HomeNotifier, HomeState>(HomeNotifier.new);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Notifier
@@ -29,7 +29,7 @@ final homeNotifierProvider =
 
 /// Orchestrates fetching of the Home dashboard via the consolidated
 /// `GET creator/dashboard` endpoint.
-class HomeNotifier extends AutoDisposeNotifier<HomeState> {
+class HomeNotifier extends Notifier<HomeState> {
   @override
   HomeState build() {
     Future.microtask(refresh);

@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('AppCircularLoader renders CircularProgressIndicator', (tester) async {
+  testWidgets('AppCircularLoader renders CircularProgressIndicator', (
+    tester,
+  ) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: AppCircularLoader()),
-      ),
+      const MaterialApp(home: Scaffold(body: AppCircularLoader())),
     );
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('AppCircularLoader forces sized square when size is passed', (tester) async {
+  testWidgets('AppCircularLoader forces sized square when size is passed', (
+    tester,
+  ) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: AppCircularLoader(size: 24)),
-      ),
+      const MaterialApp(home: Scaffold(body: AppCircularLoader(size: 24))),
     );
 
     final box = tester.firstWidget<SizedBox>(find.byType(SizedBox));
@@ -28,7 +28,7 @@ void main() {
   testWidgets('AppLoader renders Lottie asset', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(body: AppLoader()),
+        home: Scaffold(body: Stack(children: [AppLoader()])),
       ),
     );
 
@@ -37,9 +37,7 @@ void main() {
 
   testWidgets('AppScreenLoader renders Lottie asset', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: AppScreenLoader()),
-      ),
+      const MaterialApp(home: Scaffold(body: AppScreenLoader())),
     );
 
     expect(find.byType(AppScreenLoader), findsOneWidget);
@@ -47,9 +45,7 @@ void main() {
 
   testWidgets('AppSuccessAnimation renders success Lottie', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: AppSuccessAnimation()),
-      ),
+      const MaterialApp(home: Scaffold(body: AppSuccessAnimation())),
     );
 
     expect(find.byType(AppSuccessAnimation), findsOneWidget);
@@ -57,9 +53,7 @@ void main() {
 
   testWidgets('AppImageLoader renders loader Lottie', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: AppImageLoader()),
-      ),
+      const MaterialApp(home: Scaffold(body: AppImageLoader())),
     );
 
     expect(find.byType(AppImageLoader), findsOneWidget);
@@ -70,10 +64,7 @@ void main() {
       const MaterialApp(
         home: Scaffold(
           body: Stack(
-            children: [
-              Text('Background content'),
-              AppLoadingOverlay(),
-            ],
+            children: [Text('Background content'), AppLoadingOverlay()],
           ),
         ),
       ),

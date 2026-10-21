@@ -17,7 +17,7 @@ import 'package:beige_creative_app/model_class/myprofile_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _FakeHomeNotifier extends AutoDisposeNotifier<HomeState>
+class _FakeHomeNotifier extends Notifier<HomeState>
     implements HomeNotifier {
   @override
   HomeState build() => HomeState();

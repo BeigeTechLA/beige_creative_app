@@ -88,13 +88,12 @@ class MessagesSocketSource {
         .enableReconnection()
         .setReconnectionDelay(2000)
         .setReconnectionDelayMax(15000)
+        // Force a fresh Manager on every call. `socket_io_client` caches
+        // Managers by URL — after user A logout the disposed manager stays in
+        // the cache, so user B's `io.io()` returns the broken instance and
+        // never reconnects. `forceNew` bypasses the Manager cache.
+        .enableForceNew()
         .build();
-    // Force a fresh Manager on every call. `socket_io_client` caches Managers
-    // by URL — after user A logout the disposed manager stays in the cache,
-    // so user B's `io.io()` returns the broken instance and never reconnects.
-    // `forceNew` bypasses the Manager cache (option not exposed by
-    // `OptionBuilder` in v2.x; passed via the raw options map).
-    options['forceNew'] = true;
     final socket = io.io(Env.socketUrl, options);
 
     _socket = socket;

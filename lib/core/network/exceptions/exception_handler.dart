@@ -139,6 +139,7 @@ class ExceptionHandler {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
         return TimeoutException(cause: e, stackTrace: st);
       case DioExceptionType.cancel:
         return RequestCancelledException(cause: e, stackTrace: st);

@@ -10,14 +10,14 @@ final affiliateRepositoryProvider = Provider<AffiliateRepository>(
 );
 
 final affiliateNotifierProvider =
-    AutoDisposeNotifierProvider<AffiliateNotifier, AffiliateState>(
+    NotifierProvider.autoDispose<AffiliateNotifier, AffiliateState>(
   AffiliateNotifier.new,
 );
 
 
 
 /// Orchestrates fetching and user actions for the Affiliate screen.
-class AffiliateNotifier extends AutoDisposeNotifier<AffiliateState> {
+class AffiliateNotifier extends Notifier<AffiliateState> {
   @override
   AffiliateState build() {
     Future.microtask(refresh);

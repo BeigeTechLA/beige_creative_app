@@ -42,6 +42,7 @@ void main() {
     test('expected opt-outs are flagged false', () {
       const expectedOptOuts = {
         'splash',
+        'signup_success',
         'profile_password_success',
         'delete_account_success',
         'shoot_cancelotties',
@@ -61,6 +62,7 @@ void main() {
     test('all other routes default to trackScreenView: true', () {
       const optOuts = {
         'splash',
+        'signup_success',
         'profile_password_success',
         'delete_account_success',
         'shoot_cancelotties',
@@ -96,7 +98,8 @@ void main() {
         expect(
           spec!.featureArea,
           entry.value,
-          reason: 'Routes.${entry.key} should map to featureArea "${entry.value}"',
+          reason:
+              'Routes.${entry.key} should map to featureArea "${entry.value}"',
         );
       }
     });

@@ -12,7 +12,7 @@ import 'onboarding_state.dart';
 ///
 /// `markSeen()` persists via `SessionStore` AND flips
 /// `onboardingSeenProvider` for the (sync) router redirect.
-class OnboardingNotifier extends AutoDisposeNotifier<OnboardingState> {
+class OnboardingNotifier extends Notifier<OnboardingState> {
   @override
   OnboardingState build() => const OnboardingState();
 
@@ -37,6 +37,6 @@ class OnboardingNotifier extends AutoDisposeNotifier<OnboardingState> {
 }
 
 final onboardingNotifierProvider =
-    AutoDisposeNotifierProvider<OnboardingNotifier, OnboardingState>(
+    NotifierProvider.autoDispose<OnboardingNotifier, OnboardingState>(
   OnboardingNotifier.new,
 );

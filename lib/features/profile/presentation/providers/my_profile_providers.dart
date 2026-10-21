@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../../core/firebase/analytics_events.dart';
 import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
@@ -95,7 +96,7 @@ class MyProfileState {
   }
 }
 
-class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
+class MyProfileNotifier extends Notifier<MyProfileState> {
   // Mutable backing lists handed to bottom sheets so they can mutate in place.
   // After each mutation the sheet/parent calls `commitSocial` / `commitPortfolio`
   // which emits a fresh immutable copy in `state`.
@@ -366,6 +367,6 @@ class MyProfileNotifier extends AutoDisposeNotifier<MyProfileState> {
 }
 
 final myProfileNotifierProvider =
-    AutoDisposeNotifierProvider<MyProfileNotifier, MyProfileState>(
+    NotifierProvider.autoDispose<MyProfileNotifier, MyProfileState>(
       MyProfileNotifier.new,
     );

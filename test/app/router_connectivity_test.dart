@@ -8,6 +8,8 @@ void main() {
     test('offline + protected route → stay (returns null)', () {
       final result = appRedirect(
         isAuth: true,
+        isRegistrationComplete: 1,
+        isCrewVerified: 1,
         hasSeenOnboarding: true,
         connStatus: ConnectivityStatus.offline,
         location: Routes.shoots.path,
@@ -15,8 +17,7 @@ void main() {
       expect(result, isNull);
     });
 
-    test('offline + public route → falls through to auth/onboarding rules',
-        () {
+    test('offline + public route → falls through to auth/onboarding rules', () {
       // Unauthed user on /login while offline should stay on /login (not
       // get bounced back to /login because it already is, and not be sent
       // anywhere protected).
@@ -54,6 +55,8 @@ void main() {
     test('online + authed user on protected route → null', () {
       final result = appRedirect(
         isAuth: true,
+        isRegistrationComplete: 1,
+        isCrewVerified: 1,
         hasSeenOnboarding: true,
         connStatus: ConnectivityStatus.online,
         location: Routes.home.path,
@@ -64,6 +67,8 @@ void main() {
     test('online + authed user on /login → /home', () {
       final result = appRedirect(
         isAuth: true,
+        isRegistrationComplete: 1,
+        isCrewVerified: 1,
         hasSeenOnboarding: true,
         connStatus: ConnectivityStatus.online,
         location: Routes.login.path,
@@ -77,6 +82,8 @@ void main() {
       // will then show over /home — fine; behaviour unchanged from online.)
       final result = appRedirect(
         isAuth: true,
+        isRegistrationComplete: 1,
+        isCrewVerified: 1,
         hasSeenOnboarding: true,
         connStatus: ConnectivityStatus.offline,
         location: Routes.login.path,

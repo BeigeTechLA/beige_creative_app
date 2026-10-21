@@ -51,7 +51,7 @@ class FilesListState {
 // Resume.
 // ─────────────────────────────────────────────────────────────────────────────
 
-class ResumeNotifier extends AutoDisposeNotifier<FilesListState> {
+class ResumeNotifier extends Notifier<FilesListState> {
   @override
   FilesListState build() {
     Future.microtask(refresh);
@@ -109,7 +109,7 @@ class ResumeNotifier extends AutoDisposeNotifier<FilesListState> {
 }
 
 final resumeNotifierProvider =
-    AutoDisposeNotifierProvider<ResumeNotifier, FilesListState>(
+    NotifierProvider.autoDispose<ResumeNotifier, FilesListState>(
       ResumeNotifier.new,
     );
 
@@ -117,7 +117,7 @@ final resumeNotifierProvider =
 // Certificates.
 // ─────────────────────────────────────────────────────────────────────────────
 
-class CertificatesNotifier extends AutoDisposeNotifier<FilesListState> {
+class CertificatesNotifier extends Notifier<FilesListState> {
   @override
   FilesListState build() {
     Future.microtask(refresh);
@@ -177,7 +177,7 @@ class CertificatesNotifier extends AutoDisposeNotifier<FilesListState> {
 }
 
 final certificatesNotifierProvider =
-    AutoDisposeNotifierProvider<CertificatesNotifier, FilesListState>(
+    NotifierProvider.autoDispose<CertificatesNotifier, FilesListState>(
       CertificatesNotifier.new,
     );
 
@@ -211,7 +211,7 @@ class FeaturedWorkState {
   }
 }
 
-class FeaturedWorkNotifier extends AutoDisposeNotifier<FeaturedWorkState> {
+class FeaturedWorkNotifier extends Notifier<FeaturedWorkState> {
   @override
   FeaturedWorkState build() {
     Future.microtask(refresh);
@@ -287,6 +287,6 @@ class FeaturedWorkNotifier extends AutoDisposeNotifier<FeaturedWorkState> {
 }
 
 final featuredWorkNotifierProvider =
-    AutoDisposeNotifierProvider<FeaturedWorkNotifier, FeaturedWorkState>(
+    NotifierProvider.autoDispose<FeaturedWorkNotifier, FeaturedWorkState>(
       FeaturedWorkNotifier.new,
     );

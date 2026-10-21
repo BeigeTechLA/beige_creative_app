@@ -169,6 +169,14 @@ void main() {
     final repo = CommentsRepositoryDummy();
     final container = _container(repo: repo);
     addTearDown(container.dispose);
+    // riverpod 3 auto-disposes the family notifier the instant no one listens;
+    // hold a subscription so it survives the post() round-trip (matches the
+    // other post/reply/delete tests above).
+    final sub = container.listen(
+      commentsNotifierProvider(fileMetaId),
+      (_, _) {},
+    );
+    addTearDown(sub.close);
     await container.read(commentsNotifierProvider(fileMetaId).future);
 
     final c = await container

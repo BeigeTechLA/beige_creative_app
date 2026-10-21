@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../helpers/mocks.dart';
 
-class _FakeHomeNotifier extends AutoDisposeNotifier<HomeState>
+class _FakeHomeNotifier extends Notifier<HomeState>
     implements HomeNotifier {
   @override
   HomeState build() => HomeState();

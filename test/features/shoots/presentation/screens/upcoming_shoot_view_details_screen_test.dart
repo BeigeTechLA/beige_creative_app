@@ -17,13 +17,13 @@ import '../../../../helpers/pump_app.dart';
 /// refresh + Dio call. Seeded `MyData` drives on-screen text.
 
 class _FakeDetailNotifier extends UpcomingShootDetailNotifier {
-  _FakeDetailNotifier({this.seed});
+  _FakeDetailNotifier({this.seed}) : super(0);
 
   final UpcomingShootDetailState? seed;
   int refreshCalls = 0;
 
   @override
-  UpcomingShootDetailState build(int arg) =>
+  UpcomingShootDetailState build() =>
       seed ?? const UpcomingShootDetailState(isLoading: false);
 
   @override
@@ -88,7 +88,7 @@ Future<_FakeDetailNotifier> _pump(
   await tester.pumpRouterApp(
     _router(projectId),
     overrides: [
-      upcomingShootDetailProvider.overrideWith(() => fake),
+      upcomingShootDetailProvider.overrideWith2((arg) => fake),
     ],
   );
   tester.takeException();

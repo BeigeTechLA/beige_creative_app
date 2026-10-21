@@ -10,7 +10,7 @@ import '../../domain/repositories/meetings_repository.dart';
 import 'meetings_list_state.dart';
 import 'meetings_repository_provider.dart';
 
-class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
+class MeetingsListNotifier extends Notifier<MeetingsListState> {
   late final MeetingsRepository _repo;
 
   @override
@@ -133,6 +133,6 @@ class MeetingsListNotifier extends AutoDisposeNotifier<MeetingsListState> {
 }
 
 final meetingsListNotifierProvider =
-    AutoDisposeNotifierProvider<MeetingsListNotifier, MeetingsListState>(
+    NotifierProvider.autoDispose<MeetingsListNotifier, MeetingsListState>(
       MeetingsListNotifier.new,
     );

@@ -23,7 +23,7 @@ final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepositoryImpl(ref.read(dioClientProvider)),
 );
 
-class LoginNotifier extends AutoDisposeNotifier<LoginState> {
+class LoginNotifier extends Notifier<LoginState> {
   @override
   LoginState build() {
     Future.microtask(loadSavedCredentials);
@@ -205,4 +205,4 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> {
 }
 
 final loginNotifierProvider =
-    AutoDisposeNotifierProvider<LoginNotifier, LoginState>(LoginNotifier.new);
+    NotifierProvider.autoDispose<LoginNotifier, LoginState>(LoginNotifier.new);

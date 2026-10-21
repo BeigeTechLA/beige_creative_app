@@ -3,7 +3,38 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-08-13 (signup profile API resume + temporary unverified auth).
+Last updated: 2026-10-21 (paused at user request; resume native integration tomorrow).
+
+## Standalone Flutter upgrade — current status
+
+Canonical plan: `docs/upgrade/FLUTTER_IOS27_UPGRADE.md`. This work is separate
+from the migration phases. U-01–U-10 are implemented on Flutter 3.47.0 / Dart
+3.13.0. **U-11 iOS 27 / Xcode 27 cutover remains skipped by user decision.**
+The app privacy manifest remains in place; release data disclosures still need
+confirmation before distribution.
+
+The user stopped Claude's parallel work and assigned the remaining U-12 work to
+Codex. **749/749 unit, widget and golden tests pass** with coverage; full-project
+`flutter analyze --no-pub --fatal-infos` reports no issues. The unsigned dev iOS
+build passes. Coverage is **11209 / 21804 = 51.41%**, below the unchanged 70% CI gate.
+
+Remaining regression fixes updated stale route/analytics/loading/drawer test
+expectations and removed the login test's global Flutter-error suppression.
+Claude's Riverpod migrations, retry fix and regenerated goldens are preserved.
+Both integration entry points now use `IntegrationTestWidgetsFlutterBinding`.
+The macOS Firebase lockfile was updated to 12.19.0 after its old 11.15.0 pin
+blocked native integration execution; Flutter also raised macOS minimum to 12.0.
+Native macOS compilation passed, but login/logout execution did not complete:
+Flutter reported `Failed to foreground app; open returned 1`. The runner was
+interrupted at the user's stop request; cancellation emitted stream/sink shutdown
+errors. Neither native journey is marked passed. Resume at the upgrade plan's
+**U-12 takeover report — paused 2026-10-21**, which contains the exact command.
+
+**Work is paused at the user’s request. U-12 remains open** for native integration, real-device smoke and Android/iOS CI verification.
+Coverage lift belongs to Phase 6.14 / 6.13 and is still pending. CocoaPods remains
+the native dependency manager: local SPM is disabled and iOS CI explicitly
+runs `flutter config --no-enable-swift-package-manager` before resolving packages.
+Do not treat old log entries or the earlier parallel ownership note as current.
 
 ## Read Order
 
@@ -23,7 +54,7 @@ Every AI session should read:
 - Phase 3: complete. Foundations are in place.
 - Phase 4: **complete**. `23 / 23` tasks done.
 - Phase 5: **complete** — `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31.
-- Phase 6: in progress — 13 / 15 tasks done. Tasks 6.01 (test helpers) closed 2026-05-31; 6.02–6.12 closed 2026-06-03. 6.13 implementation is in place but the task remains 🟡 pending the first GitHub Actions Android/iOS run and coverage lift: `.github/workflows/ci.yml` now runs `flutter test --coverage`, uploads LCOV, writes a summary, and enforces `COVERAGE_MINIMUM=70`; `.github/workflows/integration.yml` runs Android emulator + iOS simulator integration tests on `push` to `main`. Current refreshed LCOV is `5358 / 11129 = 48.14%`, so the new gate will fail until coverage is raised. 6.11 added the login → home → logout journey; 6.12 added signup1 → signup2 → signup3. Both integration files still pass locally with `flutter test <file> -d macos`; device CI may require the documented binding swap to `IntegrationTestWidgetsFlutterBinding`. Next: `6.14` (models/utils/validators tests) and first remote CI feedback for `6.13`.
+- Phase 6: in progress — 13 / 15 tasks done. Tasks 6.01 (test helpers) closed 2026-05-31; 6.02–6.12 closed 2026-06-03. 6.13 implementation is in place but the task remains 🟡 pending the first GitHub Actions Android/iOS run and coverage lift: `.github/workflows/ci.yml` now runs `flutter test --coverage`, uploads LCOV, writes a summary, and enforces `COVERAGE_MINIMUM=70`; `.github/workflows/integration.yml` runs Android emulator + iOS simulator integration tests on `push` to `main`. Current refreshed LCOV is `11209 / 21804 = 51.41%`, so the new gate will fail until coverage is raised. 6.11 added the login → home → logout journey; 6.12 added signup1 → signup2 → signup3. Both integration files now use `IntegrationTestWidgetsFlutterBinding`; see the standalone upgrade report for current execution results. Next: `6.14` (models/utils/validators tests) and first remote CI feedback for `6.13`.
 - Task 6.15 (Location service + Google Maps consolidation) is 🟢 complete. Native iOS Maps wiring is fixed and aligned with rotated keys. LocationService and LocationException are fully unit tested (all 9 test cases passing) and verified clean.
 - Meetings UI Card & Create Meeting Screen redesign: complete as of 2026-06-09, matching Option 1 of the mockup specifications.
 - Messages UI sidecar plan (`docs/feature/MESSAGES_UI_PLAN.md`): M1–M5 are complete as of 2026-06-09. M5 added motion polish, a11y labels/touch-target fixes, message goldens, and widget tests. M6 remains pending for real REST + socket.io integration and is outside the completed UI scope.
@@ -87,7 +118,7 @@ For migrated features:
 - Create a data repository implementation under `data/repositories/`.
 - Expose repository and notifier providers under `presentation/providers/`.
 - Use immutable state classes with `copyWith`.
-- Use `AutoDisposeNotifier`, `AutoDisposeFamilyNotifier`, or `AsyncNotifier`.
+- Riverpod 3: use `Notifier` / `AsyncNotifier` with `.autoDispose` provider builders; family notifiers receive their argument through the constructor.
 - Screens are `ConsumerWidget` or `ConsumerStatefulWidget`.
 - Screens use `ref.watch` for state and `ref.read(provider.notifier)` for commands.
 - Use `ref.listen` in widgets for user-visible side effects like snackbars, route changes, and sheet dismissal.
@@ -164,3 +195,16 @@ with explicit logout and deduplicated until `markLoggedIn`; automatic expiry
 emits no user-initiated logout event. Storage cleanup failures are logged.
 Direct storage transfers and sockets remain outside this HTTP policy;
 real-device/backend verification remains pending.
+
+## Upgrade parallel coordination (2026-10-21)
+
+Claude owns U-12 test migration/generation and related regression fixes. Codex
+completed a separate CI/native configuration review and added an iOS-only
+`flutter config --no-enable-swift-package-manager` step to integration CI before
+dependency installation, preserving the verified CocoaPods/Crashlytics setup.
+Production Dart analysis, YAML/order checks, plist lint, and diff whitespace
+checks pass. No tests or production Dart files were edited by Codex in this pass.
+See the U-12 parallel review in `docs/upgrade/FLUTTER_IOS27_UPGRADE.md`.
+Full-suite results remain with Claude; simulator binding/remote CI and real-device
+smoke remain unverified. U-12 is active; U-11 remains skipped. The earlier
+"Next: U-06" sentence above is stale and superseded by this status.

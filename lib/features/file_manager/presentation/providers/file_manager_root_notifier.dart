@@ -19,7 +19,7 @@ import 'workspaces_repository_provider.dart';
 ///
 /// Filters other than pagination happen in-memory — the API does not
 /// currently accept a tab or query param on these endpoints.
-class FileManagerRootNotifier extends AutoDisposeNotifier<FileManagerRootState> {
+class FileManagerRootNotifier extends Notifier<FileManagerRootState> {
   late WorkspacesRepository _repo;
 
   @override
@@ -155,7 +155,7 @@ class FileManagerRootNotifier extends AutoDisposeNotifier<FileManagerRootState> 
   String _messageFor(Object e) => 'Failed to load folders';
 }
 
-final fileManagerRootNotifierProvider = AutoDisposeNotifierProvider<
+final fileManagerRootNotifierProvider = NotifierProvider.autoDispose<
   FileManagerRootNotifier,
   FileManagerRootState
 >(FileManagerRootNotifier.new);

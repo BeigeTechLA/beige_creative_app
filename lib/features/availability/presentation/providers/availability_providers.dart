@@ -70,7 +70,7 @@ class ManageAvailabilityState {
 }
 
 class ManageAvailabilityNotifier
-    extends AutoDisposeNotifier<ManageAvailabilityState> {
+    extends Notifier<ManageAvailabilityState> {
   @override
   ManageAvailabilityState build() {
     Future.microtask(refresh);
@@ -121,7 +121,7 @@ class ManageAvailabilityNotifier
 }
 
 final manageAvailabilityNotifierProvider =
-    AutoDisposeNotifierProvider<
+    NotifierProvider.autoDispose<
       ManageAvailabilityNotifier,
       ManageAvailabilityState
     >(ManageAvailabilityNotifier.new);
@@ -188,7 +188,7 @@ class AddAvailabilityState {
 }
 
 class AddAvailabilityNotifier
-    extends AutoDisposeNotifier<AddAvailabilityState> {
+    extends Notifier<AddAvailabilityState> {
   @override
   AddAvailabilityState build() => const AddAvailabilityState();
 
@@ -364,6 +364,6 @@ int _durationDays(String startDate, String endDate) {
 }
 
 final addAvailabilityNotifierProvider =
-    AutoDisposeNotifierProvider<AddAvailabilityNotifier, AddAvailabilityState>(
+    NotifierProvider.autoDispose<AddAvailabilityNotifier, AddAvailabilityState>(
       AddAvailabilityNotifier.new,
     );

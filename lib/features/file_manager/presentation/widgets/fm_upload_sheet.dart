@@ -147,8 +147,9 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
   }
 
   Future<List<_PickedFile>> _pickDocuments() async {
+    // file_picker 13: pickFiles returns List<PlatformFile> directly (multi by
+    // default, empty on cancel); no withData (streams from disk in FM8.04).
     final result = await fp.FilePicker.pickFiles(
-      allowMultiple: true,
       type: fp.FileType.custom,
       allowedExtensions: const [
         'pdf',
@@ -159,16 +160,15 @@ class _FmUploadSheetState extends ConsumerState<FmUploadSheet> {
         'ppt',
         'pptx',
       ],
-      withData: false, // stream from disk in FM8.04
     );
-    if (result == null) return const [];
+    if (result.isEmpty) return const [];
     return [
-      for (final f in result.files)
+      for (final f in result)
         if (f.path != null)
           _PickedFile(
             name: f.name,
             localPath: f.path!,
-            sizeBytes: f.size,
+            sizeBytes: await f.length() ?? 0,
             mimeType: _mimeFromName(f.name),
             type: FileTypeX.fromExtension(f.name),
           ),

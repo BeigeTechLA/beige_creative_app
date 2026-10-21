@@ -13,9 +13,14 @@ import 'package:beige_creative_app/features/messages/presentation/screens/chat_d
 import 'package:beige_creative_app/features/messages/presentation/screens/chat_thread_screen.dart';
 import 'package:beige_creative_app/features/messages/presentation/screens/messages_screen.dart';
 import 'package:beige_creative_app/features/messages/presentation/screens/widgets/details_section_card.dart';
+import 'package:beige_creative_app/core/providers/core_providers.dart';
+import 'package:beige_creative_app/core/session/session_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
+class _MockSessionStore extends Mock implements SessionStore {}
 
 class _FakeMessagesRepository implements MessagesRepository {
   final sentBodies = <String>[];
@@ -204,9 +209,18 @@ Future<void> _pumpWithRepo(
   Widget child,
   _FakeMessagesRepository repo,
 ) async {
+  final session = _MockSessionStore();
+  when(session.readUser).thenAnswer((_) async => null);
+  when(session.readUserSync).thenReturn(null);
+  when(session.readToken).thenAnswer((_) async => null);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [messagesRepositoryProvider.overrideWithValue(repo)],
+      overrides: [
+        messagesRepositoryProvider.overrideWithValue(repo),
+        // riverpod 3 builds the chat notifiers eagerly; the send path reads
+        // sessionStore, so it must be overridden (default impl throws).
+        sessionStoreProvider.overrideWithValue(session),
+      ],
       child: MaterialApp(
         home: Scaffold(
           drawer: const Drawer(child: Text('drawer-open')),

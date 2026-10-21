@@ -88,7 +88,7 @@ class ShootsListState {
   }
 }
 
-class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
+class ShootsListNotifier extends Notifier<ShootsListState> {
   Timer? _debounce;
 
   @override
@@ -416,7 +416,7 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
 }
 
 final shootsListProvider =
-    AutoDisposeNotifierProvider<ShootsListNotifier, ShootsListState>(
+    NotifierProvider.autoDispose<ShootsListNotifier, ShootsListState>(
       ShootsListNotifier.new,
     );
 
@@ -454,10 +454,13 @@ class CancelShootState {
   }
 }
 
-class CancelShootNotifier
-    extends AutoDisposeFamilyNotifier<CancelShootState, int> {
+class CancelShootNotifier extends Notifier<CancelShootState> {
+  CancelShootNotifier(this.arg);
+
+  final int arg;
+
   @override
-  CancelShootState build(int arg) {
+  CancelShootState build() {
     return const CancelShootState();
   }
 
@@ -512,7 +515,7 @@ class CancelShootNotifier
 }
 
 final cancelShootProvider =
-    AutoDisposeNotifierProviderFamily<
+    NotifierProvider.autoDispose.family<
       CancelShootNotifier,
       CancelShootState,
       int

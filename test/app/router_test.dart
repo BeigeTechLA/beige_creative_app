@@ -277,20 +277,17 @@ void main() {
       }
     });
 
-    test(
-      'authed user with is_registration_complete == 1 and is_crew_verified == 2 (rejected) redirects to /application-rejected',
-      () {
-        final res = appRedirect(
-          isAuth: true,
-          hasSeenOnboarding: true,
-          connStatus: ConnectivityStatus.online,
-          location: Routes.home.path,
-          isRegistrationComplete: 1,
-          isCrewVerified: 2,
-        );
-        expect(res, equals(Routes.applicationRejected.path));
-      },
-    );
+    test('rejected CP stays on Home with the status overlay', () {
+      final res = appRedirect(
+        isAuth: true,
+        hasSeenOnboarding: true,
+        connStatus: ConnectivityStatus.online,
+        location: Routes.home.path,
+        isRegistrationComplete: 1,
+        isCrewVerified: 2,
+      );
+      expect(res, isNull);
+    });
 
     test(
       'approved CP (is_registration_complete == 1 and is_crew_verified == 1) has full access',
@@ -354,7 +351,7 @@ void main() {
         isRegistrationComplete: 1,
         isCrewVerified: 2,
       );
-      expect(rejected, Routes.applicationRejected.path);
+      expect(rejected, isNull);
     });
   });
 }
