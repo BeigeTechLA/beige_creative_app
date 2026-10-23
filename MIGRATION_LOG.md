@@ -4777,17 +4777,33 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
     `UpcomingShootDetailNotifier` → `: super(0)`, `build(int)` → `build()`.
   - Family provider override: `.overrideWith(() => fake)` deprecated in riverpod 3.4 →
     `.overrideWith2((arg) => fake)`.
-- **Full suite** (`flutter test --timeout 90s`): running; ~20 failures. Interim triage:
-  - **Pre-existing (not upgrade-caused)**: `router_connectivity_test` (4) — confirmed
-    failing on the pre-upgrade lock back in Phase 1; `login_screen_test` prefills/hang (1);
-    `router_test` (2) + `routes_analytics_test` (1) under review.
-  - **Golden pixel diffs** (`buttons` 3, `cards` 2, `messages` 1): SDK/rendering shift from
-    the Flutter + dependency bumps — regen on the pinned SDK, not real defects
-    (CLAUDE.md: cross-SDK golden diffs are noise).
-  - **Riverpod-3 behavior (investigating)**: `file_image_preview_provider_test`
-    (expected 2 calls, got 12 — likely v3 autoDispose/rebuild-timing change);
-    `comments_notifier_test`; widget tests `app_shell`/`app_button`/`app_loading`/
-    `messages_screen` pending error extraction.
+- **Full suite — GREEN**: `flutter test` → **749/749 pass, 0 failures**; `analyze
+  --fatal-infos` 0 issues. The first post-migration run had ~20 failures; resolved by:
+  - **Riverpod-3 runtime fixes (Claude, production + test)**:
+    - `comments_notifier_test` "post via notifier persists…": added the `container.listen`
+      keepAlive the other post/reply/delete tests already had — v3 auto-disposes the
+      family notifier the instant no one listens, so `post()`'s `ref.read` hit a disposed
+      Ref. Test-only; the app always has a live listener.
+    - `file_image_preview_provider_test` "failed request not retained" (expected 2 calls,
+      got 12): **riverpod 3 auto-retries failed providers by default** — a failed image
+      sign was retried ~6× with backoff. Added `retry: (_, _) => null` to
+      `_imagePreviewProvider` (correct: UI shows a placeholder and re-requests on scroll-in).
+    - `messages_screen_test` "optimistic message": (a) `_pumpWithRepo` now overrides
+      `sessionStoreProvider` (v3 builds the chat notifiers eagerly → the send path reads
+      session; default impl throws); (b) guarded `ConversationListNotifier.refresh()` /
+      `_bootstrap` with `if (!ref.mounted) return;` after awaits — v3 throws
+      `UnmountedRefException` if `ref`/`state` are touched after a mid-fetch dispose.
+  - **Golden diffs** (`buttons`/`cards`/`messages`): regenerated on the pinned SDK
+    (`flutter test --update-goldens test/golden/`) — SDK/dep rendering shift, not defects.
+  - **Stale harness failures** (route/analytics/login/loading/button/drawer tests):
+    fixed by Codex in parallel (no production routing/UI behavior changed). See the two
+    Codex entries below. (My earlier "pre-existing" triage of these was wrong — most were
+    compile cascades from the broken riverpod fake-notifiers, now migrated.)
+- **Integration tests**: Codex switched both `integration_test` entry points to the
+  device `IntegrationTestWidgetsFlutterBinding` for CI emulator/device runs. Under local
+  `flutter test -d macos` the native app fails to foreground (`open returned 1`) — an
+  environment limitation, not a code regression. Needs a real device/emulator (CI) to
+  run green. Not reverted (intentional for CI).
 - **Deferred device smoke (U-12)**: Firebase forced-crash + event; file pick/upload;
   maps/geocode; realtime socket; guarded redirects — on real iOS device.
 
