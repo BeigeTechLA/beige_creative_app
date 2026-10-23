@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../features/notification/presentation/providers/notification_list_providers.dart';
 import '../firebase/telemetry_client.dart';
 import '../restoration/restoration_providers.dart';
 import '../utils/app_logger.dart';

@@ -13,22 +13,73 @@ class NotificationListResponseDto {
 
   factory NotificationListResponseDto.fromJson(Map<String, dynamic> json) {
     dynamic rawData = json['data'];
-    
-    // Handle { "data": { "items": [...] } } structure from /app-notifications
+
+    // Handle { "data": { "items": [...] } } or { "data": { "data": [...] } } structure
     if (rawData is Map<String, dynamic>) {
       if (rawData['items'] != null) {
         rawData = rawData['items'];
       } else if (rawData['data'] != null) {
         rawData = rawData['data'];
       }
+    } else if (rawData == null && json['items'] != null) {
+      rawData = json['items'];
     }
-    
-    final list = (rawData as List?)?.map((e) => NotificationItemDto.fromJson(e).toDomain()).toList() ?? [];
-    
+
+    final list = (rawData as List?)
+            ?.whereType<Map>()
+            .map((e) => NotificationItemDto.fromJson(e).toDomain())
+            .toList() ??
+        [];
+
+    int resolvedTotal = list.length;
+    if (json['data'] is Map<String, dynamic>) {
+      final mapData = json['data'] as Map<String, dynamic>;
+      if (mapData['pagination'] is Map) {
+        final total = mapData['pagination']['total'];
+        if (total is int) {
+          resolvedTotal = total;
+        } else if (total is num) {
+          resolvedTotal = total.toInt();
+        } else if (total is String) {
+          resolvedTotal = int.tryParse(total) ?? list.length;
+        }
+      }
+    } else if (json['pagination'] is Map) {
+      final total = (json['pagination'] as Map)['total'];
+      if (total is int) {
+        resolvedTotal = total;
+      } else if (total is num) {
+        resolvedTotal = total.toInt();
+      } else if (total is String) {
+        resolvedTotal = int.tryParse(total) ?? list.length;
+      }
+    } else if (json['total'] != null) {
+      final total = json['total'];
+      if (total is int) {
+        resolvedTotal = total;
+      } else if (total is num) {
+        resolvedTotal = total.toInt();
+      } else if (total is String) {
+        resolvedTotal = int.tryParse(total) ?? list.length;
+      }
+    }
+
+    int resolvedUnread = 0;
+    final unreadRaw = json['unread_count'] ??
+        json['unreadCount'] ??
+        (json['data'] is Map ? (json['data'] as Map)['unread_count'] : null);
+    if (unreadRaw is int) {
+      resolvedUnread = unreadRaw;
+    } else if (unreadRaw is num) {
+      resolvedUnread = unreadRaw.toInt();
+    } else if (unreadRaw is String) {
+      resolvedUnread = int.tryParse(unreadRaw) ?? 0;
+    }
+
     return NotificationListResponseDto(
       data: list,
-      totalCount: json['data']?['pagination']?['total'] ?? list.length,
-      unreadCount: json['unread_count'] ?? 0, // Will implement unread count later if provided
+      totalCount: resolvedTotal,
+      unreadCount: resolvedUnread,
     );
   }
 }
@@ -60,7 +111,15 @@ class NotificationItemDto {
     this.payload,
   });
 
-  factory NotificationItemDto.fromJson(Map<String, dynamic> json) {
+  factory NotificationItemDto.fromJson(dynamic raw) {
+    if (raw is! Map) {
+      return NotificationItemDto(
+        id: '',
+        title: 'Notification',
+        message: '',
+      );
+    }
+    final json = Map<String, dynamic>.from(raw);
     return NotificationItemDto(
       id: json['id']?.toString() ?? '',
       title: json['title'] ?? json['subject'] ?? 'Notification',
@@ -72,7 +131,7 @@ class NotificationItemDto {
       avatarUrl: json['sender']?['profile_image_url']?.toString() ?? json['avatar_url']?.toString(),
       actionLabel: json['action_label']?.toString(),
       category: json['category']?.toString(),
-      payload: json['payload'] as Map<String, dynamic>?,
+      payload: json['payload'] is Map ? Map<String, dynamic>.from(json['payload'] as Map) : null,
     );
   }
 

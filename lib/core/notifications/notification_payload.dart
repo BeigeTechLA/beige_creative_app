@@ -4,6 +4,7 @@ enum NotificationType {
   chat,
   booking,
   meeting,
+  files,
   profile,
   deeplink,
   unknown,
@@ -16,6 +17,8 @@ class NotificationPayload {
   final String? chatId;
   final String? bookingId;
   final String? meetingId;
+  final String? folderId;
+  final String? filePath;
   final String? targetRoute;
   final Map<String, dynamic> rawMap;
 
@@ -26,58 +29,139 @@ class NotificationPayload {
     this.chatId,
     this.bookingId,
     this.meetingId,
+    this.folderId,
+    this.filePath,
     this.targetRoute,
     required this.rawMap,
   });
 
   factory NotificationPayload.fromMap(Map<String, dynamic> data, {String? title, String? body}) {
-    final typeString = (data['type'] ?? data['notification_type'] ?? '').toString().toLowerCase();
+    final payloadMap = data['payload'] is Map<String, dynamic>
+        ? data['payload'] as Map<String, dynamic>
+        : (data['payload'] is Map ? Map<String, dynamic>.from(data['payload'] as Map) : null);
+
+    Object? resolveKey(List<String> keys) {
+      for (final k in keys) {
+        if (data[k] != null && data[k].toString().isNotEmpty) return data[k];
+      }
+      if (payloadMap != null) {
+        for (final k in keys) {
+          if (payloadMap[k] != null && payloadMap[k].toString().isNotEmpty) return payloadMap[k];
+        }
+      }
+      return null;
+    }
+
+    final topic = (resolveKey(['topic', 'category']) ?? '').toString().toLowerCase().trim();
+    final typeString = (resolveKey(['type', 'notification_type', 'event']) ?? '').toString().toLowerCase().trim();
 
     NotificationType type;
-    switch (typeString) {
-      case 'chat':
-      case 'message':
-      case 'new_message':
-      case 'direct_message':
-        type = NotificationType.chat;
-        break;
-      case 'booking':
-      case 'shoot':
-      case 'order':
-        type = NotificationType.booking;
-        break;
-      case 'meeting':
-        type = NotificationType.meeting;
-        break;
-      case 'profile':
-      case 'account':
-        type = NotificationType.profile;
-        break;
-      case 'deeplink':
-      case 'route':
-        type = NotificationType.deeplink;
-        break;
-      default:
-        // Infer from data fields if type is missing or unknown
-        if (data.containsKey('chat_id') || data.containsKey('chatId') || data.containsKey('room_id') || data.containsKey('conversationId') || data.containsKey('chat_room_id')) {
-          type = NotificationType.chat;
-        } else if (data.containsKey('booking_id') || data.containsKey('bookingId') || data.containsKey('shoot_id')) {
-          type = NotificationType.booking;
-        } else if (data.containsKey('meeting_id') || data.containsKey('meetingId')) {
-          type = NotificationType.meeting;
-        } else {
-          type = NotificationType.unknown;
-        }
+
+    // 1. Check Topic match first
+    if (topic == 'shoots' || topic == 'shoot' || topic == 'booking') {
+      type = NotificationType.booking;
+    } else if (topic == 'messages' || topic == 'message' || topic == 'chat') {
+      type = NotificationType.chat;
+    } else if (topic == 'meetings' || topic == 'meeting') {
+      type = NotificationType.meeting;
+    } else if (topic == 'files' || topic == 'file') {
+      type = NotificationType.files;
+    } else if (topic == 'profile' || topic == 'account') {
+      type = NotificationType.profile;
     }
+    // 2. Check Event / Type match
+    else if (typeString.startsWith('booking') || typeString.startsWith('shoot') || typeString == 'order') {
+      type = NotificationType.booking;
+    } else if (typeString.contains('message') || typeString.contains('chat') || typeString == 'mention') {
+      type = NotificationType.chat;
+    } else if (typeString.contains('meeting')) {
+      type = NotificationType.meeting;
+    } else if (typeString.contains('file') || typeString.contains('revision') || typeString.contains('version')) {
+      type = NotificationType.files;
+    } else if (typeString.contains('profile') || typeString.contains('account')) {
+      type = NotificationType.profile;
+    } else if (typeString == 'deeplink' || typeString == 'route') {
+      type = NotificationType.deeplink;
+    }
+    // 3. Fallback to key heuristics
+    else if (resolveKey(['chat_room_id', 'chatRoomId', 'room_id', 'roomId', 'chat_id', 'chatId', 'conversation_id', 'conversationId']) != null) {
+      type = NotificationType.chat;
+    } else if (resolveKey(['file_id', 'fileId', 'folder_id', 'folderId', 'filepath', 'filePath']) != null) {
+      type = NotificationType.files;
+    } else if (resolveKey(['meeting_id', 'meetingId']) != null) {
+      type = NotificationType.meeting;
+    } else if (resolveKey(['booking_id', 'bookingId', 'shoot_id', 'order_id']) != null) {
+      type = NotificationType.booking;
+    } else if (resolveKey(['targetRoute', 'route', 'path']) != null) {
+      type = NotificationType.deeplink;
+    } else {
+      type = NotificationType.unknown;
+    }
+
+    final chatId = resolveKey([
+      'chat_room_id',
+      'chatRoomId',
+      'room_id',
+      'roomId',
+      'chat_id',
+      'chatId',
+      'conversation_id',
+      'conversationId',
+    ])?.toString();
+
+    final bookingId = resolveKey([
+      'booking_id',
+      'bookingId',
+      'shoot_id',
+      'order_id',
+      'project_id',
+      'projectId',
+    ])?.toString();
+
+    final meetingId = resolveKey([
+      'meeting_id',
+      'meetingId',
+    ])?.toString();
+
+    final folderId = resolveKey([
+      'folder_id',
+      'folderId',
+      'booking_id',
+      'bookingId',
+      'project_id',
+      'projectId',
+    ])?.toString();
+
+    final filePath = resolveKey([
+      'filepath',
+      'filePath',
+      'file_path',
+      'fileUrl',
+      'file_url',
+    ])?.toString();
+
+    final targetRoute = resolveKey([
+      'targetRoute',
+      'route',
+      'path',
+    ])?.toString();
+
+    final resolvedTitle = title ??
+        resolveKey(['title', 'name', 'subject'])?.toString();
+
+    final resolvedBody = body ??
+        resolveKey(['body', 'message', 'content', 'text'])?.toString();
 
     return NotificationPayload(
       type: type,
-      title: title ?? data['title']?.toString() ?? data['name']?.toString(),
-      body: body ?? data['body']?.toString() ?? data['message']?.toString() ?? data['content']?.toString() ?? data['text']?.toString(),
-      chatId: data['chatId']?.toString() ?? data['chat_id']?.toString() ?? data['room_id']?.toString() ?? data['chat_room_id']?.toString(),
-      bookingId: data['bookingId']?.toString() ?? data['booking_id']?.toString() ?? data['shoot_id']?.toString() ?? data['order_id']?.toString(),
-      meetingId: data['meetingId']?.toString() ?? data['meeting_id']?.toString(),
-      targetRoute: data['targetRoute']?.toString() ?? data['route']?.toString(),
+      title: resolvedTitle,
+      body: resolvedBody,
+      chatId: chatId,
+      bookingId: bookingId,
+      meetingId: meetingId,
+      folderId: folderId,
+      filePath: filePath,
+      targetRoute: targetRoute,
       rawMap: Map<String, dynamic>.from(data),
     );
   }

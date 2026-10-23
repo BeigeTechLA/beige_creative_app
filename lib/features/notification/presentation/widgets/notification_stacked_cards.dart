@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/colors.dart';
-import '../../../../app/radii.dart';
-import '../../../../app/spacing.dart';
 import '../../domain/models/notification_item.dart';
 import 'notification_item_card.dart';
 

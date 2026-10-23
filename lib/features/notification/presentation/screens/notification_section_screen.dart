@@ -79,7 +79,7 @@ class _NotificationSectionScreenState
     final notifier = ref.read(notificationListProvider.notifier);
     final countsAsync = ref.watch(notificationCountProvider);
     final counts = countsAsync.value ?? const NotificationCounts();
-    final filtered = state.notifications;
+    final filtered = state.filteredNotifications;
 
     final items = filtered.where((item) {
       final isT = _isToday(item.createdAt);
@@ -253,10 +253,16 @@ class _NotificationSectionScreenState
                                   item: item,
                                   onTap: () {
                                     notifier.markAsRead(item.id);
-                                    if (item.payload != null) {
-                                      final payload = NotificationPayload.fromMap(item.payload!);
-                                      PushNotificationService.instance.handleNotificationClick(payload);
-                                    }
+                                    final data = <String, dynamic>{
+                                      'id': item.id,
+                                      'title': item.title,
+                                      'message': item.message,
+                                      if (item.type != null) 'type': item.type,
+                                      if (item.category != null) 'category': item.category,
+                                      if (item.payload != null) ...item.payload!,
+                                    };
+                                    final payload = NotificationPayload.fromMap(data);
+                                    PushNotificationService.instance.handleNotificationClick(payload);
                                   },
                                 ),
                               ),

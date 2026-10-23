@@ -80,7 +80,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         importance: importance,
         priority: importance == Importance.max ? Priority.max : (importance == Importance.high ? Priority.high : Priority.defaultPriority),
         color: AppColors.primary,
-        icon: '@drawable/ic_notification',
+        icon: '@mipmap/ic_launcher',
+        largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
       );
 
       final androidImplementation = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
@@ -251,7 +252,8 @@ class PushNotificationService {
 
   /// Setup flutter_local_notifications plugin and create dedicated Android channels.
   Future<void> _setupLocalNotifications() async {
-    const androidInitSettings = AndroidInitializationSettings('@drawable/ic_notification');
+    const androidInitSettings =
+        AndroidInitializationSettings('@drawable/ic_notification');
     const darwinInitSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -301,6 +303,7 @@ class PushNotificationService {
         return _bookingChannel;
       case NotificationType.meeting:
         return _meetingChannel;
+      case NotificationType.files:
       case NotificationType.profile:
       case NotificationType.deeplink:
       case NotificationType.unknown:
@@ -388,6 +391,7 @@ class PushNotificationService {
       priority: _getPriorityForImportance(channel.importance),
       color: AppColors.primary,
       icon: '@drawable/ic_notification',
+      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
     );
 
     const darwinDetails = DarwinNotificationDetails(
@@ -487,6 +491,18 @@ class PushNotificationService {
         }
         break;
 
+      case NotificationType.files:
+        final folderId = payload.folderId ?? payload.bookingId;
+        if (folderId != null && folderId.isNotEmpty) {
+          router.pushNamed(
+            Routes.filesFolder.name,
+            pathParameters: {'id': folderId},
+          );
+        } else {
+          router.goNamed(Routes.files.name);
+        }
+        break;
+
       case NotificationType.profile:
         router.goNamed(Routes.myProfile.name);
         break;
@@ -495,7 +511,7 @@ class PushNotificationService {
         if (payload.targetRoute != null && payload.targetRoute!.isNotEmpty) {
           router.push(payload.targetRoute!);
         } else {
-          router.goNamed(Routes.home.name);
+          router.pushNamed(Routes.notificationList.name);
         }
         break;
 
@@ -503,7 +519,7 @@ class PushNotificationService {
         if (payload.targetRoute != null && payload.targetRoute!.isNotEmpty) {
           router.push(payload.targetRoute!);
         } else {
-          router.goNamed(Routes.home.name);
+          router.pushNamed(Routes.notificationList.name);
         }
         break;
     }
