@@ -3,13 +3,51 @@
 Standalone upgrade plan. **Not part of the migration phases** — tracked on its
 own, separate from `docs/phase6/` and the `MIGRATION_PLAN.md` phase sequence.
 
-**Overall status:** 🟡 In Progress · 10 / 12 tasks done · U-12 paused by user (local suite green; native integration/device checks pending)
-**Created:** 2026-10-19 · **Updated:** 2026-10-21 (local regression verified; paused at user request)
+**Overall status:** 🟡 In Progress · 10 / 12 tasks 🟢 · U-11 ⏭️ skipped · U-12 🟡 (local regression green; device/CI checks pending)
+**Created:** 2026-10-19 · **Updated:** 2026-10-21
 
 > **Scope change 2026-10-21 (user):** iOS 27 / Xcode 27 compatibility is **not**
-> being done. **U-11 is skipped.** Plugin upgrades (U-07→U-10) and the U-12
-> regression still proceed. The privacy manifest (U-03) stays — it is a general
-> App Store requirement, not iOS-27-specific.
+> being done. **U-11 is skipped.** The privacy manifest (U-03) stays — it is a
+> general App Store requirement, not iOS-27-specific.
+
+---
+
+## Summary
+
+### ✅ Done (committed — `e7804ca`, Flutter 3.47.0 / Dart 3.13.0)
+
+- **All plugin upgrades landed (U-01→U-10)** incl. every breaking major:
+  - file_picker `13.1.0` · share_plus `13.3.1` · package_info_plus `10.2.2` ·
+    cached_network_image `4.0.4` · open_file `4.0.0` · flutter_secure_storage `11.2.0` ·
+    geocoding `5.0.0` · socket_io_client `3.1.6` · **flutter_riverpod `3.4.3`** ·
+    **go_router `18.1.1`** · **Firebase** core `5.0.0` / analytics `13.0.0` /
+    crashlytics `6.0.0` (native **FirebasePods 12.19.0**) · win32 `6.4.0` · dio `5.11`.
+- **iOS app privacy manifest** (`ios/Runner/PrivacyInfo.xcprivacy`) added + bundled
+  (4 Required-Reason APIs, tracking=false). `DKImagePickerController` pod dropped.
+- **Flutter pinned 3.47.0** (`.fvmrc` + both CI workflows); CI adds an SPM-off step.
+  Project stays on **CocoaPods** (SPM disabled — it broke the Crashlytics build phase).
+- **Local regression green**: `flutter analyze --fatal-infos` 0 issues ·
+  `flutter test` **749 / 749** (unit + widget + golden) · unsigned iOS dev build ✓.
+  Riverpod-3 runtime fixes + regenerated goldens included.
+
+### ⏳ Remaining (U-12 open)
+
+- **Native integration journeys** — both `integration_test` entries use the device
+  binding; local `-d macos` fails to foreground (`open returned 1`, env limit).
+  Run on a real device / emulator.
+- **Real-device smoke** — Firebase forced-crash + event · file pick/upload ·
+  maps + geocode autofill · socket realtime connect/send/reconnect · guarded redirects.
+- **Remote CI** — Android emulator + iOS simulator integration run.
+- **Coverage** — `51.41%` vs the unchanged 70% CI gate (belongs to Phase 6.14/6.13).
+- **Privacy disclosures** — `NSPrivacyCollectedDataTypes` left empty; PM/legal to confirm
+  the App Store data-collection label before distribution.
+
+### ⏭️ Skipped / deferred
+
+- **U-11** iOS 27 / Xcode 27 cutover + TestFlight — skipped by user.
+- **CocoaPods → SPM** — FirebaseCore CocoaPods deprecates after Oct 2026; revisit later.
+
+Per-task detail + decisions live in `MIGRATION_LOG.md`; per-task plan tables are below.
 
 | Field | Value |
 |---|---|
@@ -46,26 +84,6 @@ Ordered low-impact → high-impact; iOS 27 cutover last. Tier banding in the Ris
 **Total est.:** ~12.5 effort-days.
 
 **Ordering rationale:** U-01→U-02 are infra/no-code. U-03→U-06 are Med: U-03 is iOS-config-only (float-anywhere, landed early so it is not forgotten), then Dart-only API churn, then the two native-touching plugin bumps (file_picker darwin, maps/location). U-07→U-10 are High: socket_io first (smallest blast radius), then riverpod (foundation for the router), then go_router (depends on riverpod 3), then Firebase (biggest native change + iOS-27 gate, builds on Xcode 16+ so it lands before the cutover). U-11 cutover last; U-12 regression closes.
-
----
-
-## Phase structure
-
-The 12 tasks group into 6 phases by risk tier. A phase closes only when all its
-tasks are 🟢 and the phase Done Criteria holds. Phases run in order; within a
-phase, tasks are order-free **except** where noted.
-
-| Phase | Goal | Tasks | Files Touched | Done Criteria | Status |
-|---|---|---|---|---|---|
-| 1 — Foundation (Low) | Pin SDK + land every in-constraint bump | U-01, U-02 | `.fvmrc`, `.github/workflows/*.yml`, `pubspec.lock` | CI resolves 3.47.0; `pub upgrade` resolved; analyze+test+iOS build green | Completed |
-| 2 — Isolated + Dart-only majors (Med) | iOS privacy manifest + Dart-only major API migrations | U-03, U-04 | `ios/Runner/PrivacyInfo.xcprivacy`; share_plus / package_info / cached_network_image / open_file / secure_storage call sites | Manifest present; 5 majors migrated; gates green | Completed |
-| 3 — Native plugin bumps (Med) | file_picker darwin + maps/location native | U-05, U-06 | `pubspec.yaml`, `ios/Podfile.lock`, picker/map/geocode call sites | `pod install` clean (DKImagePicker gone); pick+map+geocode work on iOS; gates green | Completed |
-| 4 — Deep Dart migrations (High) | socket_io → riverpod → go_router majors | U-07, U-08, U-09 | messages socket source; all `presentation/providers/*`; `lib/app/router.dart` + route files | Realtime works; provider state intact; all routes navigate + guards fail closed; gates green | Completed (lib; riverpod test migration → U-12) |
-| 5 — Firebase native major (High) | FB group → native iOS 12.x | U-10 | `pubspec.yaml`, `ios/Podfile.lock`, firebase init/analytics/crashlytics sites | FB 12.x pods resolve; forced crash + event verified on device; gates green | Completed (device crash/event verify → U-12) |
-| 6 — Regression (High) | Full regression (iOS 27 cutover U-11 descoped) | ~~U-11~~, U-12 | `test/**`, goldens | All suites + device smoke green | In Progress (U-11 skipped) |
-
-**Fixed intra-phase order:** Phase 4 runs U-07 → U-08 → U-09 (go_router needs the
-riverpod 3 base). All other within-phase tasks are order-free.
 
 ---
 
