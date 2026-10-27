@@ -5,6 +5,26 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-10-27: Updated Android adaptive launcher artwork
+
+- **Status**: Completed asset setup outside phase task scope; Phase 6 unchanged. Installed-device verification remains pending.
+- **Changes**: Replaced `assets/icon/icon_foreground.png` with transparent black BEIGE CP artwork using the updated user-provided `icon.png` as reference. Changed adaptive background to matching `#E8D1AB` in `pubspec.yaml`; regenerated five legacy and five adaptive Android density assets and background color. iOS generation remains disabled.
+- **Method**: Built-in image generation edit. Prompt: remove beige rounded-square background; preserve black stylized BEIGE and CP, spacing and centered composition; retain generous transparent padding; no redesign, extra text, shadows or beige boundary. Generated result visually reviewed over beige.
+- **Verification**: `dart run flutter_launcher_icons` succeeded; all 10 PNG dimensions, foreground transparency, adaptive XML and background checked. Resampled foreground alpha peaks can be 254 rather than 255. `git diff --check` passed. Existing user changes preserved. No Dart logic changed; fresh-install visual check pending.
+
+### 2026-10-27: Android launcher icon setup audit
+
+- **Status**: Static inspection complete; no launcher configuration or artwork changed. Outside phase task scope; Phase 6 status unchanged.
+- **Verification**: Manifest resolves `@mipmap/ic_launcher`; all five legacy PNG densities (48–192 px), adaptive foreground densities (108–432 px), adaptive XML, and black background resource are present. Source images are 1024×1024; generated artwork visually inspected. Dev/prod share main resources.
+- **Findings**: `docs/icons/` artwork is not wired into generation. Five `mipmap-*/ic_launcher_foreground.png` files are unreferenced by current launcher XML (which uses drawable resources). No monochrome layer configured.
+- **Remaining**: Installed-device appearance and packaged APK/AAB resources were not verified. Existing user changes preserved.
+
+### 2026-10-26: Android release signing configuration
+
+- **Changes**: Kept the existing properties-backed release signing config in `android/app/build.gradle.kts`; release builds now always select it instead of falling back to debug signing when `android/key.properties` is absent.
+- **Verification**: Configured keystore exists. `keytool -certreq` successfully validated the store password, alias, and private-key signing with the configured key password; temporary CSR removed. `git diff --check` passed. No passwords or key material logged.
+- **Scope / remaining work**: Release setup follow-up outside the migration task checklists; Phase 6 remains active. Production AAB build and Play Console upload/certificate matching are not yet verified.
+
 ### 2026-09-15: File Manager In-App File & Folder Download Fixes
 
 - **Changes**:
