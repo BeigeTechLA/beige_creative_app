@@ -3,12 +3,14 @@
 Standalone upgrade plan. **Not part of the migration phases** — tracked on its
 own, separate from `docs/phase6/` and the `MIGRATION_PLAN.md` phase sequence.
 
-**Overall status:** 🟡 In Progress · 10 / 12 tasks 🟢 · U-11 ⏭️ skipped · U-12 🟡 (local regression green; device/CI checks pending)
-**Created:** 2026-10-19 · **Updated:** 2026-10-21
+**Overall status:** 🟡 In Progress · 11 / 12 tasks 🟢 · U-11 🟢 (code + iOS 27 SDK build; device QA pending) · U-12 🟡 (local regression green; device/CI checks pending)
+**Created:** 2026-10-19 · **Updated:** 2026-10-29
 
-> **Scope change 2026-10-21 (user):** iOS 27 / Xcode 27 compatibility is **not**
-> being done. **U-11 is skipped.** The privacy manifest (U-03) stays — it is a
-> general App Store requirement, not iOS-27-specific.
+> **Scope change 2026-10-29 (user):** iOS 27 / Xcode 27 cutover is **back in
+> scope** — reversing the 2026-10-21 skip — to match the sibling `biegeapp`
+> migration. **U-11 UIScene lifecycle migration done + builds against the iOS
+> 27.1 SDK** (see U-11 below). TestFlight validation + device QA remain human.
+> The privacy manifest (U-03) stays — a general App Store requirement.
 
 ---
 
@@ -42,9 +44,30 @@ own, separate from `docs/phase6/` and the `MIGRATION_PLAN.md` phase sequence.
 - **Privacy disclosures** — `NSPrivacyCollectedDataTypes` left empty; PM/legal to confirm
   the App Store data-collection label before distribution.
 
+### ✅ U-11 iOS 27 cutover — code + build done (2026-10-29)
+
+Reinstated 2026-10-29 to mirror `biegeapp`. The **only** iOS-27-SDK-required
+source change is the UIScene lifecycle migration, now applied:
+
+- `ios/Runner/AppDelegate.swift` → adopts `FlutterImplicitEngineDelegate`; plugin
+  registration moved from `didFinishLaunchingWithOptions` to
+  `didInitializeImplicitFlutterEngine(_:)` (`engineBridge.pluginRegistry`). GMS key
+  init (read from `GMSApiKey` Info.plist entry) kept in `didFinishLaunchingWithOptions`.
+- `ios/Runner/Info.plist` → added `UIApplicationSceneManifest` with
+  `UISceneDelegateClassName = FlutterSceneDelegate` (storyboard `Main`).
+- `[CP] Embed Pods Frameworks` build phase already present — no pbxproj change needed
+  (unlike `biegeapp`, which had to add it).
+- Toolchain: Xcode **27.1** (`27A9275`) + iOS **27.1** SDK installed/selected;
+  `pod install` clean (36 pods, SPM kept off); `flutter build ios --flavor dev
+  --release --no-codesign` → ✓ `Runner.app` **54.8MB**, built vs **iphoneos27.1**,
+  **no UIScene warning**. Built app plist confirmed to carry the scene manifest.
+- `flutter analyze --no-pub` → **0 issues**.
+
+**Remaining (human):** device/runtime QA on iOS 27 (cold launch, background→resume,
+deep links), full smoke checklist, and TestFlight validation with the privacy manifest.
+
 ### ⏭️ Skipped / deferred
 
-- **U-11** iOS 27 / Xcode 27 cutover + TestFlight — skipped by user.
 - **CocoaPods → SPM** — FirebaseCore CocoaPods deprecates after Oct 2026; revisit later.
 
 Per-task detail + decisions live in `MIGRATION_LOG.md`; per-task plan tables are below.
@@ -78,7 +101,7 @@ Ordered low-impact → high-impact; iOS 27 cutover last. Tier banding in the Ris
 | U-08 | flutter_riverpod 2→3 migration (foundation — before go_router) | 🟢 | High | 2.5d |
 | U-09 | go_router 14→18 migration (on riverpod 3 base) | 🟢 | High | 1.5d |
 | U-10 | Firebase group major: core 3→5, analytics 11→13, crashlytics 4→6 (native FB 12.x, iOS-27 gate) | 🟢 | High | 1d |
-| U-11 | iOS 27 / Xcode 27 cutover + TestFlight validation | ⏭️ | High | 1d |
+| U-11 | iOS 27 / Xcode 27 cutover (UIScene migration + SDK build; TestFlight pending) | 🟢 | High | 1d |
 | U-12 | Full regression: analyze, unit, widget, golden, integration, device smoke | 🟡 | Med | 1d |
 
 **Total est.:** ~12.5 effort-days.
@@ -211,8 +234,9 @@ can decide SPM adoption separately.
 
 | Phase | Goal | Files Touched | Done Criteria | Status |
 |-------|------|---------------|---------------|--------|
-| 1 | Xcode 27 toolchain | CI macos image, local Xcode 27 | `flutter build ipa --flavor prod` green | Not Started |
-| 2 | TestFlight validate | — | Upload accepted; privacy manifest passes | Not Started |
+| 1 | UIScene lifecycle migration (iOS 27 SDK requirement) | `ios/Runner/AppDelegate.swift`, `ios/Runner/Info.plist` | Adopts `FlutterImplicitEngineDelegate`; Info.plist carries `UIApplicationSceneManifest`/`FlutterSceneDelegate`; built plist confirms scene manifest | Completed (2026-10-29) |
+| 2 | Xcode 27 toolchain build | local Xcode 27.1 / iOS 27.1 SDK | `pod install` clean; `flutter build ios --flavor dev --release --no-codesign` green vs iphoneos27.1, no UIScene warning; `flutter analyze` 0 | Completed (2026-10-29, Runner.app 54.8MB) |
+| 3 | Device QA + TestFlight validate | — | iOS 27 device smoke (launch/background/deep links); upload accepted; privacy manifest passes | Not Started (human) |
 
 ---
 
