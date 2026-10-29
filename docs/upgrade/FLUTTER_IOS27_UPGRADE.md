@@ -66,6 +66,28 @@ source change is the UIScene lifecycle migration, now applied:
 **Remaining (human):** device/runtime QA on iOS 27 (cold launch, background→resume,
 deep links), full smoke checklist, and TestFlight validation with the privacy manifest.
 
+### ✅ Tier A safe re-sweep (2026-10-29, commit `d259e15`)
+
+Second in-constraint `flutter pub upgrade` pass (no pubspec `^` edits, no majors),
+run after the U-11 cutover. 38 deps changed, gate re-verified green.
+
+- **Bumped:** cached_network_image 4.0.5 · connectivity_plus 7.3.2 · file_picker 13.3.0 ·
+  flutter_svg 2.3.2 · geocoding 5.0.1 · lottie 3.7.0 · + ~20 transitive patches
+  (geolocator_apple 2.4.3, sqflite 2.4.5, shared_preferences_*, vector_graphics_compiler 1.3.3,
+  image_picker_ios, firebase_*_platform_interface, etc.).
+- **Firebase trio HELD + pinned exact** (`firebase_core 5.0.0` / `firebase_analytics 13.0.0` /
+  `firebase_crashlytics 6.0.0` → native Firebase pod **12.19.0**). The available patches
+  (5.1.0 / 13.0.1 / 6.0.1) pin Firebase **12.19.3**, which is **SPM-only** — CocoaPods
+  publishing ended Oct 2026. `pod install` fails on it. This project stays on CocoaPods,
+  so these are pinned (caret removed) until a future SPM cutover. See SPM follow-up below.
+- **geolocator held at 14.0.2** (latest 14.1.2 blocked by pinned dev platform-interface deps
+  `geolocator_platform_interface ^4.2.6` / `geocoding_platform_interface`).
+- **9 dark-mode goldens regenerated** (SVG-icon components: button+icon, text field, file/folder
+  cards, message bubbles/tiles) for the flutter_svg 2.3.2 / vector_graphics_compiler 1.3.3
+  rasterization shift — pixel drift only, no functional change.
+- **Gate:** `flutter analyze --no-pub` **0 issues** · `flutter test` **749 / 749** ·
+  iOS 27.1 SDK release build ✓ `Runner.app` **55.0MB**.
+
 ### ⏭️ Skipped / deferred
 
 - **CocoaPods → SPM** — FirebaseCore CocoaPods deprecates after Oct 2026; revisit later.
@@ -357,3 +379,13 @@ Full-suite log: `/tmp/beige-upgrade-final-tests.log`; final analysis log:
 `/tmp/beige-upgrade-analyze-final.log`; iOS build log:
 `/tmp/beige-upgrade-ios-build.log`. These are temporary diagnostics; the results
 above are the durable handoff. U-12 remains open and is paused at user request.
+
+
+### SPM warning follow-up (2026-10-29)
+
+- [x] Persist the existing CocoaPods choice in `pubspec.yaml` using
+  `flutter.config.enable-swift-package-manager: false`.
+- [x] `flutter pub get --offline` passes; generated plugin metadata confirms
+  SPM disabled for iOS and macOS; `git diff --check` passes.
+- Native build/device smoke not repeated for this configuration-only fix.
+  Future SPM migration stays deferred; broader U-12 regression stays paused.
