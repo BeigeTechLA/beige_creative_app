@@ -278,7 +278,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
   GoogleMaps: 0608099d4870cac8754bdba9b6953db543432438
   GoogleUtilities: 7dc09b3fa9ecb5c2298b952313d14628b61b9da3
-  image_picker_ios: c06ac6fe6dc36476da54dbe860dbf2a1ef20fe1e
+  image_picker_ios: 9285ee31b06d6e15629dd5713b890f0c457a0a8b
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   open_file_ios: c1143c28b4c65f721cdd58d9fba2f7a1c55206cd

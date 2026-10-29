@@ -57,9 +57,14 @@ dependencies:
   connectivity_plus: ^7.0.0
   url_launcher: ^6.3.0
   share_plus: ^13.0.0
-  firebase_core: ^5.0.0
-  firebase_analytics: ^13.0.0
-  firebase_crashlytics: ^6.0.0
+  # Pinned exact: firebase_* 5.0.0/13.0.0/6.0.0 map to native Firebase pod
+  # 12.19.0, the last version published to CocoaPods. Patches 5.1.0/13.0.1/
+  # 6.0.1 pin Firebase 12.19.3, which is SPM-only (CocoaPods publishing
+  # stopped after Oct 2026). This project stays on CocoaPods, so these must
+  # stay pinned until a future SPM cutover. Do not re-add the caret (^).
+  firebase_core: 5.0.0
+  firebase_analytics: 13.0.0
+  firebase_crashlytics: 6.0.0
   package_info_plus: ^10.0.0
 
   socket_io_client: ^3.0.0
@@ -94,6 +99,9 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  # Keep native dependencies on CocoaPods until the planned SPM migration.
+  config:
+    enable-swift-package-manager: false
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
