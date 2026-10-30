@@ -58,7 +58,7 @@ class NotificationPayload {
     NotificationType type;
 
     // 1. Check Topic match first
-    if (topic == 'shoots' || topic == 'shoot' || topic == 'booking') {
+    if (topic == 'shoots' || topic == 'shoot' || topic == 'booking' || topic == 'bookings') {
       type = NotificationType.booking;
     } else if (topic == 'messages' || topic == 'message' || topic == 'chat') {
       type = NotificationType.chat;
@@ -70,7 +70,11 @@ class NotificationPayload {
       type = NotificationType.profile;
     }
     // 2. Check Event / Type match
-    else if (typeString.startsWith('booking') || typeString.startsWith('shoot') || typeString == 'order') {
+    else if (typeString.startsWith('booking') ||
+        typeString.startsWith('shoot') ||
+        typeString == 'order' ||
+        typeString.contains('shoot') ||
+        typeString.contains('reschedule')) {
       type = NotificationType.booking;
     } else if (typeString.contains('message') || typeString.contains('chat') || typeString == 'mention') {
       type = NotificationType.chat;
@@ -107,6 +111,7 @@ class NotificationPayload {
       'chatId',
       'conversation_id',
       'conversationId',
+      if (type == NotificationType.chat) 'id',
     ])?.toString();
 
     final bookingId = resolveKey([
@@ -116,11 +121,13 @@ class NotificationPayload {
       'order_id',
       'project_id',
       'projectId',
+      if (type == NotificationType.booking) 'id',
     ])?.toString();
 
     final meetingId = resolveKey([
       'meeting_id',
       'meetingId',
+      if (type == NotificationType.meeting) 'id',
     ])?.toString();
 
     final folderId = resolveKey([

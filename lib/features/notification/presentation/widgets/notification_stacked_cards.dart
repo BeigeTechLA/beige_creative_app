@@ -8,10 +8,12 @@ class NotificationStackedCards extends StatefulWidget {
     super.key,
     required this.items,
     this.onTap,
+    this.onActionTap,
   });
 
   final List<NotificationItem> items;
   final VoidCallback? onTap;
+  final ValueChanged<NotificationItem>? onActionTap;
 
   @override
   State<NotificationStackedCards> createState() =>
@@ -80,11 +82,14 @@ class _NotificationStackedCardsState extends State<NotificationStackedCards>
 
     final n = widget.items.length;
 
-    // Only 1 item -> No stack, just the card
+    // Only 1 item -> No stack, just the single card with separate action tap
     if (n == 1) {
       return NotificationItemCard(
         item: widget.items[0],
-        onTap: widget.onTap, // Still support fallback tap if only 1 item
+        onTap: null,
+        onActionTap: widget.onActionTap != null
+            ? () => widget.onActionTap!(widget.items[0])
+            : null,
       );
     }
 
@@ -130,6 +135,7 @@ class _NotificationStackedCardsState extends State<NotificationStackedCards>
                         item: next2Datum,
                         isBackCard: true,
                         onTap: null,
+                        onActionTap: null,
                       ),
                     ),
                   ),
@@ -148,6 +154,7 @@ class _NotificationStackedCardsState extends State<NotificationStackedCards>
                         item: nextDatum,
                         isBackCard: true,
                         onTap: null,
+                        onActionTap: null,
                       ),
                     ),
                   ),
@@ -167,6 +174,9 @@ class _NotificationStackedCardsState extends State<NotificationStackedCards>
                   child: NotificationItemCard(
                     item: currentDatum,
                     onTap: null,
+                    onActionTap: widget.onActionTap != null
+                        ? () => widget.onActionTap!(currentDatum)
+                        : null,
                   ),
                 ),
               ],

@@ -107,10 +107,11 @@ class UpcomingShootViewDetails extends ConsumerWidget {
       safeTop: false,
       body: Stack(
         children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          if (mydata != null)
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Stack(
                   children: [
                     SizedBox(
@@ -255,8 +256,29 @@ class UpcomingShootViewDetails extends ConsumerWidget {
                 _InfoCard(mydata: mydata),
               ],
             ),
-          ),
-          if (state.isLoading || state.isSubmitting) AppLoader(),
+          )
+          else ...[
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: AppSpacing.lg,
+                    top: AppSpacing.sm,
+                  ),
+                  child: AppIconTapTarget(
+                    semanticLabel: 'Back',
+                    onTap: () => context.pop(),
+                    icon: SvgPicture.asset(AppAssets.back),
+                  ),
+                ),
+              ),
+            ),
+            const Center(
+              child: AppCircularLoader(),
+            ),
+          ],
+          if (state.isLoading || state.isSubmitting) const AppLoader(),
         ],
       ),
     );
@@ -372,6 +394,22 @@ class _InfoCard extends StatelessWidget {
                           ),
                         ],
                       ),
+                      if (mydata?.project.creativeName.isNotEmpty == true) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Creative Name',
+                              style: AppTextStyles.body12.copyWith(
+                                color: AppColors.white80,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.xxs),
+                            _Chip(text: mydata!.project.creativeName),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -570,6 +608,66 @@ class _InfoCard extends StatelessWidget {
                 ? mydata!.clientContact.email
                 : 'No email found',
           ),
+          if (mydata?.project.multiDaySchedules.isNotEmpty == true) ...[
+            const SizedBox(height: AppSpacing.xxl),
+            Text(
+              'Multi-Day Schedule',
+              style: AppTextStyles.displayLabel14Strong.copyWith(
+                color: AppColors.white,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ...mydata!.project.multiDaySchedules.map((schedule) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceMid,
+                  borderRadius: AppRadii.lgAll,
+                  border: Border.all(
+                    color: AppColors.white.withValues(alpha: 0.08),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Day ${schedule.dayNumber}',
+                          style: AppTextStyles.bodyMediumStrong.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        if (schedule.date.isNotEmpty)
+                          Text(
+                            DateTimeUtils.formatReadableDate(schedule.date),
+                            style: AppTextStyles.body12.copyWith(
+                              color: AppColors.white70,
+                            ),
+                          ),
+                      ],
+                    ),
+                    if (schedule.startTime.isNotEmpty || schedule.endTime.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.xxs),
+                      Text(
+                        '${DateTimeUtils.formatTime(schedule.startTime)} - ${DateTimeUtils.formatTime(schedule.endTime)}',
+                        style: AppTextStyles.body12.copyWith(color: AppColors.white60),
+                      ),
+                    ],
+                    if (schedule.location.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.xxs),
+                      Text(
+                        schedule.location,
+                        style: AppTextStyles.body12.copyWith(color: AppColors.white60),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            }),
+          ],
           const SizedBox(height: AppSpacing.xxl),
         ],
       ),
@@ -870,3 +968,4 @@ class _ContactItem extends StatelessWidget {
     );
   }
 }
+

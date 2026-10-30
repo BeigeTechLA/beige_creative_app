@@ -19,6 +19,9 @@ import '../widgets/notification_filter_bottom_sheet.dart';
 import '../widgets/notification_stacked_cards.dart';
 import '../../../../shared/widgets/app_segmented_control.dart';
 import 'notification_section_screen.dart';
+import '../../../../core/notifications/notification_payload.dart';
+import '../../../../core/notifications/push_notification_service.dart';
+import '../../domain/models/notification_item.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
   const NotificationScreen({super.key});
@@ -54,6 +57,19 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         isTodaySection: isToday,
       ),
     );
+  }
+
+  void _handleNotificationAction(NotificationItem item) {
+    final data = <String, dynamic>{
+      'id': item.id,
+      'title': item.title,
+      'message': item.message,
+      if (item.type != null) 'type': item.type,
+      if (item.category != null) 'category': item.category,
+      if (item.payload != null) ...item.payload!,
+    };
+    final payload = NotificationPayload.fromMap(data);
+    PushNotificationService.instance.handleNotificationClick(payload);
   }
 
   @override
@@ -249,7 +265,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                           AppSpacing.verticalBase,
                           NotificationStackedCards(
                             items: todayItems,
-                            onTap: () => _navigateToSection('Today', true),
+                            onActionTap: _handleNotificationAction,
                           ),
                           AppSpacing.verticalXxl,
                         ],
@@ -265,7 +281,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                           AppSpacing.verticalBase,
                           NotificationStackedCards(
                             items: olderItems,
-                            onTap: () => _navigateToSection('Yesterday', false),
+                            onActionTap: _handleNotificationAction,
                           ),
                           AppSpacing.verticalXxl,
                         ],

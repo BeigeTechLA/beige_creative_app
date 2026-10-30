@@ -134,3 +134,6 @@ final upcomingShootDetailProvider =
       UpcomingShootDetailState,
       int
     >(UpcomingShootDetailNotifier.new);
+
+/// Alias provider for auto-fetching booking/shoot summary details by ID.
+final shootSummaryNotifierProvider = upcomingShootDetailProvider;

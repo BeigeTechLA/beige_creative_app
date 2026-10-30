@@ -130,9 +130,16 @@ class Shoot {
 
       shootTypeId: json["shoot_type_id"], // ✅ null allowed
 
-      shootType: json["shoot_type"] ?? "",
-      shootTypeImageUrl:
-          json["shoot_type_image_url"] ?? "",
+      shootType: json["shoot_type"] is Map
+          ? (json["shoot_type"]["name"]?.toString() ??
+              json["shoot_type"]["shoot_type"]?.toString() ??
+              "")
+          : (json["shoot_type"]?.toString() ?? ""),
+      shootTypeImageUrl: json["shoot_type_image_url"] ??
+          (json["shoot_type"] is Map
+              ? (json["shoot_type"]["image_url"] ?? json["shoot_type"]["image"])
+              : "") ??
+          "",
 
       totalAmount: json["total_amount"] ?? 0, // ✅ direct
 

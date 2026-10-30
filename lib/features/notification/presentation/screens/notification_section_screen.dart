@@ -251,8 +251,8 @@ class _NotificationSectionScreenState
                               ...items.map(
                                 (item) => NotificationItemCard(
                                   item: item,
-                                  onTap: () {
-                                    notifier.markAsRead(item.id);
+                                  onTap: null,
+                                  onActionTap: () {
                                     final data = <String, dynamic>{
                                       'id': item.id,
                                       'title': item.title,

@@ -62,8 +62,16 @@ class UpcomingShootDatum {
   String toRawJson() => json.encode(toJson());
 
   factory UpcomingShootDatum.fromJson(Map<String, dynamic> json) => UpcomingShootDatum(
-    shootType: json["shoot_type"] ?? "",
-    shootTypeImageUrl: json["shoot_type_image_url"] ?? "",
+    shootType: json["shoot_type"] is Map
+        ? (json["shoot_type"]["name"]?.toString() ??
+            json["shoot_type"]["shoot_type"]?.toString() ??
+            "")
+        : (json["shoot_type"]?.toString() ?? ""),
+    shootTypeImageUrl: json["shoot_type_image_url"] ??
+        (json["shoot_type"] is Map
+            ? (json["shoot_type"]["image_url"] ?? json["shoot_type"]["image"])
+            : "") ??
+        "",
     projectId: json["project_id"] ?? 0,
     projectName: json["project_name"] ?? "",
     eventDate: json["event_date"] != null ? DateTime.parse(json["event_date"]).toLocal() : DateTime.now(),

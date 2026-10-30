@@ -16,7 +16,11 @@ final List<RouteBase> shootsRoutes = [
     name: Routes.upcomingShootDetails.name,
     builder: (context, state) {
       final args = UpcomingShootDetailsArgs.fromExtra(state.extra);
-      return UpcomingShootViewDetails(projectid: args.projectId);
+      final bookingIdFromQuery = int.tryParse(state.uri.queryParameters['booking_id'] ?? '') ??
+          int.tryParse(state.uri.queryParameters['bookingId'] ?? '') ??
+          int.tryParse(state.uri.queryParameters['projectId'] ?? '') ??
+          int.tryParse(state.uri.queryParameters['id'] ?? '');
+      return UpcomingShootViewDetails(projectid: args.projectId ?? bookingIdFromQuery);
     },
   ),
   GoRoute(
