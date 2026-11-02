@@ -5,6 +5,23 @@
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
 
+### 2026-10-30: AGP 9 upgrade — Phase 0 audit + Phase 1/2 execution (legacy-compat)
+
+- **Context**: Separate standalone effort. Canonical plan: [`docs/upgrade/AGP9_UPGRADE.md`](docs/upgrade/AGP9_UPGRADE.md). Triggered by an Android Studio "Gradle 8.14 incompatible with Gradle JVM 25" import error (AS now bundles JDK 25; Gradle 8.14 max Java = 24). Immediate IDE fix is unrelated to AGP: set Gradle JDK to 21/17. AGP 9 tracked as optional/future.
+- **Phase 0 (dep audit)**: GREEN. 21 Android-native plugins inspected from the pub cache; all set `namespace`, none use removed APIs. firebase_core/analytics/crashlytics + package_info_plus + share_plus are explicitly AGP9 built-in-Kotlin aware. 3 watch items (not blockers): `android_file_picker 2.1.2` (self-tagged temp AGP workaround, upstream #2170), `open_file_android 1.1.0` (compileSdk 34, least maintained), `jni`/`jni_flutter` (native `.so`, compileSdk 35, AGP9 NDK r28c default).
+- **Changes** (`android/`):
+  - `gradle-wrapper.properties`: Gradle `8.14` → `9.1.0`.
+  - `settings.gradle.kts`: AGP `com.android.application` `8.11.1` → `9.0.1`; `com.google.gms.google-services` `4.4.2` → `4.5.0`; `com.google.firebase.crashlytics` `3.0.2` → `3.0.7`. Kotlin plugin `2.2.20` kept applied (legacy mode).
+  - `gradle.properties`: added `android.builtInKotlin=false` + `android.newDsl=false` (legacy-compat).
+  - `app/build.gradle.kts`: added `buildFeatures { resValues = true }` — AGP 9 disables `resValues` by default and the flavors use `resValue("string", "app_name", ...)`.
+  - Kotlin plugin `2.2.20` → `2.3.20` — Flutter warns it drops KGP < 2.3.20 support soon.
+- **Decisions**:
+  - Merged plan Phases 1+2. AGP 8.11 + Gradle 9 is not an officially supported intermediate (AGP 8.11 min Gradle is 8.13, Gradle-9 pairing untested), so jumped straight to the first valid checkpoint: Gradle 9.1.0 + AGP 9.0.1 together.
+  - Legacy-compat mode first (`builtInKotlin=false`, `newDsl=false`) to de-risk `android_file_picker`'s hacky `kotlinOptions` workaround before the built-in-Kotlin flip (Phase 3).
+  - Crashlytics `3.0.7` chosen: `3.0.6`+ confirmed AGP9-OK (firebase-android-sdk #7652 was a classpath error, not a plugin bug).
+- **Verification**: build must run on JBR 21 — the default AS JDK 25 exceeds Gradle 9.1's supported Java range. `flutter build apk --flavor dev --dart-define-from-file=env/dev.json -t lib/main_dev.dart --debug` with `JAVA_HOME` → JBR 21 → **PASS** (`assembleDevDebug` 91.8s → `build/app/outputs/flutter-apk/app-dev-debug.apk`). All 3 watch-item plugins compiled. Only benign warnings (legacy-KGP future-drop note, obsolete source/target 8, geolocator deprecated API).
+- **Remaining**: Phase 3 (flip to built-in Kotlin: `builtInKotlin=true`/`newDsl=true`, drop KGP) and Phase 4–5 (Crashlytics mapping upload + on-device smoke, both flavors, release/AAB) still open. Legacy-compat is a fully supported stable checkpoint; the KGP warning concerns *future* Flutter versions only.
+
 ### 2026-09-15: File Manager In-App File & Folder Download Fixes
 
 - **Changes**:
@@ -4847,3 +4864,16 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
   then Android/iOS CI and real-device smoke. Coverage lift and privacy disclosure
   confirmation remain pending; U-11 stays skipped. Exact resume command and
   durable results are in `docs/upgrade/FLUTTER_IOS27_UPGRADE.md`.
+
+
+### 2026-10-29: Project-level Google Maps SPM warning fix
+
+- Added `flutter.config.enable-swift-package-manager: false` to `pubspec.yaml`,
+  persisting the existing CocoaPods decision across developer checkouts.
+- Updated standalone upgrade follow-up and shared handoff; no files moved.
+  Phase 4 is closed; the standalone upgrade governs this configuration fix.
+- Verification: `flutter pub get --offline` passes without the reported warning;
+  generated plugin metadata confirms SPM disabled for iOS/macOS.
+  `git diff --check` passes. No native build/device smoke repeated.
+- Concurrent Firebase pins and dependency/native lockfile edits were preserved.
+  This does not add SPM support to the plugin; future SPM adoption stays deferred.

@@ -30,6 +30,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    // AGP 9 makes resValues opt-in (disabled by default). The product flavors
+    // below declare resValue("string", "app_name", ...), so enable it.
+    buildFeatures {
+        resValues = true
+    }
 
     defaultConfig {
         applicationId = "com.app.cpbeige"

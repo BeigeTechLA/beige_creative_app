@@ -19,10 +19,13 @@ pluginManagement {
 
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
-    id("com.android.application") version "8.11.1" apply false
-    id("org.jetbrains.kotlin.android") version "2.2.20" apply false
-    id("com.google.gms.google-services") version "4.4.2" apply false
-    id("com.google.firebase.crashlytics") version "3.0.2" apply false
+    id("com.android.application") version "9.0.1" apply false
+    // Kotlin plugin kept applied: AGP 9 is running in legacy-compat mode
+    // (android.builtInKotlin=false, android.newDsl=false). Remove when the
+    // built-in-Kotlin flip (AGP9_UPGRADE.md Phase 3) lands.
+    id("org.jetbrains.kotlin.android") version "2.3.20" apply false
+    id("com.google.gms.google-services") version "4.5.0" apply false
+    id("com.google.firebase.crashlytics") version "3.0.7" apply false
 }
 
 include(":app")

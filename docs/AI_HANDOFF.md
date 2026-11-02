@@ -3,7 +3,19 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-10-21 (paused at user request; resume native integration tomorrow).
+Last updated: 2026-10-30 (AGP 9 upgrade started — see section below).
+
+## AGP 9 upgrade (new, 2026-10-30)
+
+Separate standalone effort, canonical plan: `docs/upgrade/AGP9_UPGRADE.md`.
+Not a migration phase. Phase 0 dep audit = GREEN (no blockers, 3 watch items:
+`android_file_picker`, `open_file_android`, `jni`). Phases 1+2 executed together
+(AGP 8.11→9.0.1, Gradle 8.14→9.1.0, gms 4.4.2→4.5.0, crashlytics 3.0.2→3.0.7)
+in **legacy-compat mode** (`android.builtInKotlin=false`, `android.newDsl=false`).
+Built-in-Kotlin flip = Phase 3, not yet done. **Builds must use JBR 21** (set
+`JAVA_HOME`); the AS-bundled JDK 25 exceeds Gradle 9.1's Java range and also
+causes the AS "Gradle 8.14 incompatible with JVM 25" import error — fix is to
+set the IDE Gradle JDK to 21/17.
 
 ## Standalone Flutter upgrade — current status
 
@@ -34,6 +46,9 @@ errors. Neither native journey is marked passed. Resume at the upgrade plan's
 Coverage lift belongs to Phase 6.14 / 6.13 and is still pending. CocoaPods remains
 the native dependency manager: local SPM is disabled and iOS CI explicitly
 runs `flutter config --no-enable-swift-package-manager` before resolving packages.
+As of 2026-10-29, `pubspec.yaml` also sets
+`flutter.config.enable-swift-package-manager: false`, making this choice portable
+across checkouts and avoiding the Google Maps SPM compatibility warning.
 Do not treat old log entries or the earlier parallel ownership note as current.
 
 ## Read Order
