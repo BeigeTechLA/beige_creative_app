@@ -4877,3 +4877,24 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
   `git diff --check` passes. No native build/device smoke repeated.
 - Concurrent Firebase pins and dependency/native lockfile edits were preserved.
   This does not add SPM support to the plugin; future SPM adoption stays deferred.
+
+### 2026-11-02: Android emulator storage recovery
+
+- Investigated successful APK build followed by insufficient internal storage
+  during installation. Emulator `/data` initially had 425 MB free; cache trim
+  and install retry did not resolve it.
+- User authorized removing `com.app.beige.dev` and its local data. Removal
+  returned an internal error, but subsequent inspection showed no third-party
+  packages and 707 MB available. Existing dev APK installed successfully.
+- `adb shell am start -W` for `com.app.cpbeige.dev/com.app.cpbeige.MainActivity`
+  returned `Status: ok`. Updated `docs/upgrade/AGP9_UPGRADE.md`; no source files
+  changed or moved. Kotlin migration and full device regression remain pending.
+
+### 2026-11-03: Release R8 unblock + verification gate + AGP Phase 3 deferred
+
+- **Context**: Sibling-parity pass against `biegeapp` (client app, upgrade code-complete 2026-11-02). Ran the beige verification gate on CP. Canonical plan: [`docs/upgrade/CP_UPGRADE_GAP_PLAN.md`](docs/upgrade/CP_UPGRADE_GAP_PLAN.md).
+- **Blocker found + fixed**: AGP-9 bump had only been verified via a **debug** build. First **release** build failed `:app:minifyDevReleaseWithR8` — `app/build.gradle.kts` `proguardFiles(...)` references `proguard-rules.pro`, which did not exist. Created `android/app/proguard-rules.pro` (OkHttp `-dontwarn` block; no Stripe rules — CP has no `flutter_stripe`, unlike beige).
+- **Decision**: AGP9 Phase 3 (flip to built-in Kotlin, `builtInKotlin=true`/`newDsl=true`, drop KGP) **Deferred** — match beige, stay legacy-compat. The KGP build warning is future-only and is resolved by the already-landed Firebase majors; flipping would force re-verification of `android_file_picker`'s `kotlinOptions` hack, `open_file_android`, and `jni` native build under `newDsl` for no current benefit.
+- **Verification (gate GREEN, 2026-11-03)**: `flutter analyze` 0 issues · `flutter test` 749/749 · dev release APK ✓ 74.8MB · prod release APK ✓ 74.8MB.
+- **Constraints maintained**: zero Dart/source changes; only a new Android ProGuard config file added. All prior upgrade work untouched. iOS pins unchanged (firebase_core exact 5.0.0 → native FirebasePods 12.19.0, no `$FirebaseSDKVersion` override needed).
+- **Remaining**: commit (this), prod/dev AAB, Crashlytics mapping-upload verify, full device + iOS 27 / TestFlight QA.

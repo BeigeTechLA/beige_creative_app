@@ -1,8 +1,11 @@
 # AGP 9 Upgrade Plan
 
-Status: **Phases 0–2 complete, build green** (Gradle 9.1.0 + AGP 9.0.1,
-legacy-compat). `assembleDevDebug` passes on JBR 21 → `app-dev-debug.apk`.
-Remaining: Phase 3 (built-in-Kotlin flip), Phase 4–5 (runtime/device verify).
+Status: **Phases 0–2 complete, release build green** (Gradle 9.1.0 + AGP 9.0.1,
+legacy-compat). Both-flavor **release** APK builds green (74.8MB) as of
+2026-11-03 after adding the missing `proguard-rules.pro` (see §5 note).
+Phase 3 (built-in-Kotlin flip) **Deferred** by user decision 2026-11-03 — match
+sibling `biegeapp`, stay legacy-compat (KGP warning is future-only, resolved by
+the already-landed Firebase majors). Remaining: Phase 4–5 (runtime/device verify).
 Owner: Android build.
 Date: 2026-10-30.
 
@@ -137,6 +140,16 @@ App `compileSdk` = `flutter.compileSdkVersion` (36). All libraries ≤ 36. AGP 9
 | `com.google.firebase.crashlytics` | 3.0.2 | **3.0.7** | 3.0.6+ confirmed AGP9-OK (firebase-android-sdk #7652 = classpath, not plugin bug) |
 | `org.jetbrains.kotlin.android` | 2.2.20 | **2.3.20** (kept in legacy mode) | Flutter drops KGP < 2.3.20 support soon; remove entirely at Phase 3 |
 
+### Release R8 fix (2026-11-03)
+
+The AGP-9 bump had only ever been verified with a **debug** build
+(`app-dev-debug.apk`). The first **release** build failed
+`:app:minifyDevReleaseWithR8` — `app/build.gradle.kts` `proguardFiles(...)`
+references `proguard-rules.pro`, which did not exist. Created
+`android/app/proguard-rules.pro` (OkHttp `-dontwarn` block; no Stripe rules —
+CP has no `flutter_stripe`). Both-flavor release APK then built green (74.8MB).
+Gate re-run same day: `flutter analyze` 0 issues · `flutter test` 749/749.
+
 ### Execution fixes applied (2026-10-30)
 
 Surfaced by the first build and fixed to reach green:
@@ -160,7 +173,7 @@ deprecated-API note.
 |-------|------|---------------|---------------|--------|
 | 0 | Dep audit: confirm each plugin + Firebase/gms AGP9-ready | pubspec.lock, pub cache | GREEN, 3 watch items, 5 bumps listed | Completed |
 | 1+2 | **Merged** — Gradle 9.1.0 + AGP 9.0.1 + gms 4.5.0 + crashlytics 3.0.7, Kotlin 2.3.20, **legacy-compat** (`builtInKotlin=false`, `newDsl=false`) | `gradle-wrapper.properties`, `settings.gradle.kts`, `gradle.properties`, `app/build.gradle.kts` | dev debug build green on JBR 21 | Completed |
-| 3 | Flip to built-in Kotlin (`builtInKotlin=true`, `newDsl=true`); drop KGP plugin | `settings.gradle.kts`, `app/build.gradle.kts`, `gradle.properties` | Kotlin compiles, jvmTarget 11 intact, build green | Not Started |
+| 3 | ~~Flip to built-in Kotlin~~ (`builtInKotlin=true`, `newDsl=true`); drop KGP plugin | `settings.gradle.kts`, `app/build.gradle.kts`, `gradle.properties` | — | **Deferred** (2026-11-03, match beige) |
 | 4 | Firebase mapping-upload verify | — | Crashlytics mapping upload + google-services work | Not Started |
 | 5 | Full regression: both flavors APK+AAB+release, on-device smoke | — | All build variants pass; maps/auth/upload/file flows work | Not Started |
 
@@ -184,6 +197,18 @@ android_file_picker's hack, then flip to built-in Kotlin (Phase 3) once Phases
 ---
 
 ## 7. References
+
+### Emulator install follow-up (2026-11-02)
+
+- Dev debug APK built, but installation failed because emulator-5554 had only
+  425 MB free on `/data`. Cache trimming did not resolve the failure.
+- User approved removing `com.app.beige.dev` and its local data. Uninstall
+  reported an internal error, but subsequent package inspection showed no
+  third-party packages and available storage increased to 707 MB.
+- Existing `app-dev-debug.apk` then installed successfully; launching
+  `com.app.cpbeige.dev/com.app.cpbeige.MainActivity` returned `Status: ok`.
+- Install/launch verification only; Phase 3 and broader Phase 5 regression
+  remain pending. No Gradle or application code changes.
 
 - AGP 9.0.0 release notes — https://developer.android.com/build/releases/agp-9-0-0-release-notes
 - Gradle 9 upgrade guide — https://docs.gradle.org/current/userguide/upgrading_major_version_9.html
