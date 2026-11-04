@@ -1,3 +1,7 @@
+import 'package:beige_creative_app/app/route_page_builder.dart';
+import 'package:beige_creative_app/app/routes.dart';
+import 'package:beige_creative_app/app/theme.dart';
+import 'package:beige_creative_app/features/shoots/presentation/routes/shoots_routes.dart';
 import 'package:beige_creative_app/app/assets.dart';
 import 'package:beige_creative_app/app/colors.dart';
 import 'package:beige_creative_app/config/env.dart';
@@ -72,8 +76,7 @@ GoRouter _router(int projectId) {
     routes: [
       GoRoute(
         path: '/details',
-        builder: (_, _) =>
-            UpcomingShootViewDetails(projectid: projectId),
+        builder: (_, _) => UpcomingShootViewDetails(projectid: projectId),
       ),
     ],
   );
@@ -87,9 +90,7 @@ Future<_FakeDetailNotifier> _pump(
   final fake = _FakeDetailNotifier(seed: seed);
   await tester.pumpRouterApp(
     _router(projectId),
-    overrides: [
-      upcomingShootDetailProvider.overrideWith2((arg) => fake),
-    ],
+    overrides: [upcomingShootDetailProvider.overrideWith2((arg) => fake)],
   );
   tester.takeException();
   return fake;
@@ -98,8 +99,45 @@ Future<_FakeDetailNotifier> _pump(
 void main() {
   setUpAll(() => Env.init(Environment.dev));
 
-  testWidgets('renders client name + project ID label from seeded MyData',
-      (tester) async {
+  testWidgets('production shoot route edge swipe returns to the caller', (
+    tester,
+  ) async {
+    final fake = _FakeDetailNotifier(
+      seed: UpcomingShootDetailState(data: _seedData(), isLoading: false),
+    );
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          pageBuilder: appPageBuilder(
+            (_, _) => const Scaffold(body: Text('Shoot list')),
+          ),
+        ),
+        ...shootsRoutes,
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpRouterApp(
+      router,
+      theme: AppTheme.dark(),
+      overrides: [upcomingShootDetailProvider.overrideWith2((arg) => fake)],
+    );
+    await tester.pumpAndSettle();
+    router.pushNamed(
+      Routes.upcomingShootDetails.name,
+      extra: {'projectId': 42},
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('ID: #42'), findsOneWidget);
+    await tester.dragFrom(const Offset(1, 300), const Offset(650, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('Shoot list'), findsOneWidget);
+    expect(router.canPop(), isFalse);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+
+  testWidgets('renders client name + project ID label from seeded MyData', (
+    tester,
+  ) async {
     await _pump(
       tester,
       projectId: 42,
@@ -168,17 +206,15 @@ void main() {
     await _pump(
       tester,
       projectId: 1,
-      seed: UpcomingShootDetailState(
-        data: _seedData(),
-        isSubmitting: true,
-      ),
+      seed: UpcomingShootDetailState(data: _seedData(), isSubmitting: true),
     );
 
     expect(find.byType(AppLoader), findsOneWidget);
   });
 
-  testWidgets('renders team members section from cp_profiles / team_members',
-      (tester) async {
+  testWidgets('renders team members section from cp_profiles / team_members', (
+    tester,
+  ) async {
     final data = MyData.fromJson({
       'project': {
         'project_id': 42,
@@ -223,10 +259,7 @@ void main() {
     await _pump(
       tester,
       projectId: 42,
-      seed: UpcomingShootDetailState(
-        data: data,
-        isLoading: false,
-      ),
+      seed: UpcomingShootDetailState(data: data, isLoading: false),
     );
 
     expect(find.text('Team Members'), findsOneWidget);
@@ -238,58 +271,56 @@ void main() {
   });
 
   testWidgets(
-      'clamps totalRequired count to assigned count when total_required is less than assigned members',
-      (tester) async {
-    final data = MyData.fromJson({
-      'project': {
-        'project_id': 42,
-        'project_name': 'Skyline Shoot',
-        'status': 'active',
-        'image_url': null,
-        'event_date': '2026-06-15',
-        'start_time': '09:00',
-        'end_time': '17:00',
-        'event_location': 'NYC',
-        'shoot_type': 'Editorial',
-        'booking_type': 'Solo',
-        'last_updated': null,
-        'total_time_duration_hours': 8,
-        'budget': 1200,
-        'total_amount': 1200,
-        'id_label': '42',
-      },
-      'payment_state': 'pending',
-      'cp_profiles': [
-        {
-          'id': 1,
-          'name': 'Emma Hale',
-          'role_name': 'Project Manager',
-          'profile_image_url': '',
+    'clamps totalRequired count to assigned count when total_required is less than assigned members',
+    (tester) async {
+      final data = MyData.fromJson({
+        'project': {
+          'project_id': 42,
+          'project_name': 'Skyline Shoot',
+          'status': 'active',
+          'image_url': null,
+          'event_date': '2026-06-15',
+          'start_time': '09:00',
+          'end_time': '17:00',
+          'event_location': 'NYC',
+          'shoot_type': 'Editorial',
+          'booking_type': 'Solo',
+          'last_updated': null,
+          'total_time_duration_hours': 8,
+          'budget': 1200,
+          'total_amount': 1200,
+          'id_label': '42',
         },
-        {
-          'id': 2,
-          'name': 'Adam Brooks',
-          'role_name': 'Production Manager',
-          'profile_image_url': '',
+        'payment_state': 'pending',
+        'cp_profiles': [
+          {
+            'id': 1,
+            'name': 'Emma Hale',
+            'role_name': 'Project Manager',
+            'profile_image_url': '',
+          },
+          {
+            'id': 2,
+            'name': 'Adam Brooks',
+            'role_name': 'Production Manager',
+            'profile_image_url': '',
+          },
+        ],
+        'team_summary': {'assigned_count': 2, 'total_required': 1},
+        'client_contact': {
+          'full_name': 'Jane Director',
+          'email': 'jane@example.com',
+          'phone': '555',
         },
-      ],
-      'team_summary': {'assigned_count': 2, 'total_required': 1},
-      'client_contact': {
-        'full_name': 'Jane Director',
-        'email': 'jane@example.com',
-        'phone': '555',
-      },
-    });
+      });
 
-    await _pump(
-      tester,
-      projectId: 42,
-      seed: UpcomingShootDetailState(
-        data: data,
-        isLoading: false,
-      ),
-    );
+      await _pump(
+        tester,
+        projectId: 42,
+        seed: UpcomingShootDetailState(data: data, isLoading: false),
+      );
 
-    expect(find.text('(02/02)'), findsOneWidget);
-  });
+      expect(find.text('(02/02)'), findsOneWidget);
+    },
+  );
 }

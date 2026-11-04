@@ -30,6 +30,7 @@ import '../features/shoots/presentation/screens/shoots_screen.dart';
 import '../features/splash/presentation/screens/splash_screen.dart';
 import '../shared/layouts/app_shell.dart';
 import 'navigator_key.dart';
+import 'route_page_builder.dart';
 import 'routes.dart';
 
 /// Built once per [ProviderScope]. Reads `authStateProvider` +
@@ -239,23 +240,23 @@ final List<RouteBase> appRoutes = [
   GoRoute(
     path: Routes.splash.path,
     name: Routes.splash.name,
-    builder: (context, state) => const SplashScreen(),
+    pageBuilder: appPageBuilder((context, state) => const SplashScreen()),
   ),
   GoRoute(
     path: Routes.onboarding.path,
     name: Routes.onboarding.name,
-    builder: (context, state) => const OnboardingScreen(),
+    pageBuilder: appPageBuilder((context, state) => const OnboardingScreen()),
   ),
   StatefulShellRoute.indexedStack(
-    builder: (context, state, navigationShell) =>
-        AppShell(shell: navigationShell),
+    pageBuilder: (context, state, navigationShell) =>
+        appRoutePage(state, AppShell(shell: navigationShell)),
     branches: [
       StatefulShellBranch(
         routes: [
           GoRoute(
             path: Routes.home.path,
             name: Routes.home.name,
-            builder: (context, state) => const HomeScreen(),
+            pageBuilder: appPageBuilder((context, state) => const HomeScreen()),
           ),
         ],
       ),
@@ -264,7 +265,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.shoots.path,
             name: Routes.shoots.name,
-            builder: (context, state) => const ShootsScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const ShootsScreen(),
+            ),
           ),
         ],
       ),
@@ -273,7 +276,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.files.path,
             name: Routes.files.name,
-            builder: (context, state) => const FileManagerScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const FileManagerScreen(),
+            ),
           ),
         ],
       ),
@@ -282,7 +287,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.messages.path,
             name: Routes.messages.name,
-            builder: (context, state) => const MessagesScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const MessagesScreen(),
+            ),
           ),
         ],
       ),
@@ -291,7 +298,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.meetings.path,
             name: Routes.meetings.name,
-            builder: (context, state) => const MeetingsScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const MeetingsScreen(),
+            ),
           ),
         ],
       ),
@@ -300,7 +309,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.manageAvailability.path,
             name: Routes.manageAvailability.name,
-            builder: (context, state) => const ManageAvailabilityScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const ManageAvailabilityScreen(),
+            ),
           ),
         ],
       ),
@@ -309,7 +320,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.affiliate.path,
             name: Routes.affiliate.name,
-            builder: (context, state) => const AffiliateScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const AffiliateScreen(),
+            ),
           ),
         ],
       ),
@@ -318,9 +331,11 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.payouts.path,
             name: Routes.payouts.name,
-            builder: (context, state) => const MenuPlaceholderScreen(
-              title: 'Payouts',
-              description: 'Payouts arriving soon.',
+            pageBuilder: appPageBuilder(
+              (context, state) => const MenuPlaceholderScreen(
+                title: 'Payouts',
+                description: 'Payouts arriving soon.',
+              ),
             ),
           ),
         ],

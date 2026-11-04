@@ -4898,3 +4898,46 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - **Verification (gate GREEN, 2026-11-03)**: `flutter analyze` 0 issues · `flutter test` 749/749 · dev release APK ✓ 74.8MB · prod release APK ✓ 74.8MB.
 - **Constraints maintained**: zero Dart/source changes; only a new Android ProGuard config file added. All prior upgrade work untouched. iOS pins unchanged (firebase_core exact 5.0.0 → native FirebasePods 12.19.0, no `$FirebaseSDKVersion` override needed).
 - **Remaining**: commit (this), prod/dev AAB, Crashlytics mapping-upload verify, full device + iOS 27 / TestFlight QA.
+
+### 2026-11-04: Clean pub cache and launch iOS simulator
+
+- Ran `flutter clean`, `dart pub cache clean --force`, and `flutter pub get` successfully; dependency lockfiles unchanged.
+- Ran `flutter run --no-pub --flavor dev -t lib/main_dev.dart -d B7CE2193-F41E-4581-9A57-587AD25D2B55` on the booted iPhone 18 Pro (iOS 27.0).
+- CocoaPods and Xcode build passed; Flutter attached and Firebase initialized successfully. No source changes; broader regression work remains paused.
+
+### 2026-11-04: Shoot details back-button visibility
+
+- Screenshot showed the existing white arrow blending into the bright header photo; it also belonged to the scrolling header.
+- Updated `upcoming_shoot_view_details_screen.dart` to pin the existing accessible 44-point control above content with a token-based dark circle and white icon. Added named Shoots fallback when no route can pop.
+- Updated Phase 4 task 4.13 follow-up. No files moved.
+- Verification: scoped Flutter analysis clean, existing details widget tests 5/5 pass, diff whitespace check clean, hot reload successful, simulator screenshot visually verified. Manual scrolling/navigation not exercised.
+
+### 2026-11-04: Match requested non-sticky shoot-details back arrow
+
+- User requested the plain arrow from the reference screenshot and explicitly rejected sticky positioning because it covers scrolling content.
+- Removed the circular background and moved the control back inside the scrolling image header. Retained accessible tap target and guarded pop/named Shoots fallback.
+- Updated task 4.13 follow-up; scoped analysis clean and simulator hot reload applied. No new tests for this positioning/style adjustment.
+
+### 2026-11-04: App-wide iOS swipe-back root cause confirmed
+
+- Investigated reported gesture failure beyond shoot details. GoRouter 18.1.1 detects `material_ui.MaterialApp`, but app uses Flutter SDK `MaterialApp`; default route builders therefore produce `NoTransitionPage` with no iOS swipe detector.
+- Diagnostic test: real left-edge drag fails with default page creation and passes with explicit SDK `MaterialPage`, using AppTheme and the same global tap detector. This supersedes the earlier edge-position explanation.
+- Recorded outstanding fix in the standalone Flutter upgrade plan. No production routing/dependency changes; temporary diagnostic moved outside the suite to `/tmp/beige_swipe_back_diagnostic_test.dart`.
+
+### 2026-11-04: Phase-wise iOS swipe-back fix plan
+
+- Created `docs/upgrade/IOS_SWIPE_BACK_FIX_PLAN.md` at user request with six phases, task-level status tracking, explicit completion criteria, regression checks, and 18 manual QA cases plus result tracker.
+- Audited drawer: menu destinations select shell branches; profile pushes after drawer closure. Included root drawer versus pushed-page gesture interaction, drawer-only branches and state preservation.
+- Linked plan from standalone upgrade tracking and AI handoff. Diagnosis marked Completed; implementation and QA Not Started, pending plan review. No production code changes in this planning task.
+- Verification: reviewed route/drawer source and checked diff whitespace. No additional runtime verification claimed.
+
+### 2026-11-04: iOS swipe-back fix implemented + native verified (Phases 2–6)
+
+- **Context**: Follow-up to U-09 in [`docs/upgrade/FLUTTER_IOS27_UPGRADE.md`](docs/upgrade/FLUTTER_IOS27_UPGRADE.md); canonical plan [`docs/upgrade/IOS_SWIPE_BACK_FIX_PLAN.md`](docs/upgrade/IOS_SWIPE_BACK_FIX_PLAN.md). GoRouter 18.1.1 detects `material_ui.MaterialApp` while the app uses SDK `MaterialApp`, so builder-based routes got `NoTransitionPage` with no Cupertino edge-swipe detector.
+- **Changes**:
+  - New `lib/app/route_page_builder.dart`: `appRoutePage(state, child)` + `appPageBuilder(builder)` create explicit SDK `MaterialPage`s preserving `state.pageKey`, route name, path+query arguments and a page-key-derived `restorationId`.
+  - `lib/app/router.dart` + feature route files (`auth`, `availability`, `file_manager`, `messages`, `profile`, `shoots`): all 45 ordinary routes switched from `builder:` to `pageBuilder: appPageBuilder(...)`; the StatefulShellRoute page uses `appRoutePage`. Shoot-cancellation `CustomTransitionPage` (opacity/barrier/slide) preserved as the sole exception.
+  - New tests: `test/app/route_page_builder_test.dart` (helper metadata + edge-swipe/no-history), `test/app/route_page_coverage_test.dart` (every production route explicitly chooses an SDK page or the cancellation modal, count-matched to `Routes.all`), `integration_test/navigation_back_test.dart` (deterministic gesture + real AppShell cases). Updated `upcoming_shoot_view_details_screen_test.dart` and `app_shell_test.dart`.
+- **Decisions**: shared helper over per-route hand-rolled pages to keep metadata consistent; no package-cache patch, downgrade, UI-library migration or global drag detector; guards/redirects/branch state/navigator ownership untouched; drawer items switch branches while the profile card pushes a route.
+- **Verification**: `flutter test` 761/761 · `flutter analyze --no-pub --fatal-infos` 0 issues · `integration_test/navigation_back_test.dart` **14/14** on iPhone 18 Pro sim (iOS 27.0) and **14/14** on Pixel 9 API 36 emulator (Android 16). Logs `/tmp/beige-swipe-ios-integration.log`, `/tmp/beige-swipe-android-integration.log`. Android final `adb uninstall` `DELETE_FAILED_INTERNAL_ERROR` is post-test cleanup noise. Plan Phases 2–4 and 6 (review/handoff) Completed.
+- **Remaining**: Phase 5 interactive human gesture QA (Q01–Q18) and physical-iPhone smoke are **not done** (require a human at the device); tracked Not Started in the plan's QA tracker. No unverified completion claimed.

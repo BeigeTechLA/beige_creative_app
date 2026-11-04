@@ -252,6 +252,16 @@ can decide SPM adoption separately.
 |-------|------|---------------|---------------|--------|
 | 1 | Migrate router + redirects | `lib/app/router.dart`, route call sites | analyze green; all routes navigate | Completed (no code changes needed — 14.8 APIs forward-compatible with 18) |
 
+**U-09 follow-up — iOS swipe-back (2026-11-04):** go_router 18.1.1 detects
+`material_ui.MaterialApp`, not this app's SDK `MaterialApp`, so its WidgetsApp
+fallback created `NoTransitionPage`s with no Cupertino edge-swipe detector.
+Fixed app-wide with explicit SDK `MaterialPage` creation via
+`lib/app/route_page_builder.dart` across all 45 ordinary routes + the shell
+page; the shoot-cancellation `CustomTransitionPage` is preserved. Native
+integration suites pass 14/14 on both iOS 27 sim and Pixel 9 API 36 emulator.
+Canonical plan: `docs/upgrade/IOS_SWIPE_BACK_FIX_PLAN.md`. Interactive manual
+gesture QA (Q01–Q18) and physical-device smoke remain pending (human).
+
 ### U-11 iOS 27 cutover
 
 | Phase | Goal | Files Touched | Done Criteria | Status |
@@ -389,3 +399,21 @@ above are the durable handoff. U-12 remains open and is paused at user request.
   SPM disabled for iOS and macOS; `git diff --check` passes.
 - Native build/device smoke not repeated for this configuration-only fix.
   Future SPM migration stays deferred; broader U-12 regression stays paused.
+
+### Simulator launch maintenance (2026-11-04)
+
+- [x] Clean Flutter build outputs and shared pub cache, then restore dependencies.
+- [x] Build and launch dev entrypoint on iPhone 18 Pro / iOS 27.0 simulator; Flutter VM service connected and Firebase initialization succeeded.
+- This verifies startup only; U-12 integration journeys and broader smoke checks remain pending.
+
+### App-wide iOS swipe-back diagnosis (2026-11-04)
+
+- [x] Confirmed GoRouter 18.1.1 app-type detection imports `MaterialApp` from `material_ui`, whereas this app imports Flutter SDK Material widgets. These are distinct types.
+- [x] Confirmed GoRouter consequently selects its WidgetsApp fallback (`NoTransitionPage`), which lacks the Cupertino edge-swipe detector despite a valid back stack.
+- [x] Diagnostic iOS widget test reproduces failed edge swipe with default GoRoute builder; identical test with an explicit Flutter `MaterialPage` passes, including the app's keyboard-dismiss GestureDetector and theme.
+- [ ] Fix default page creation across routes using explicit SDK Material pages; preserve custom modal transitions and intentional pop guards. Add permanent navigation regression coverage before closing.
+- Temporary diagnostic retained at `/tmp/beige_swipe_back_diagnostic_test.dart`; no navigation implementation changes made during this investigation.
+
+**Tracked fix plan:** [`IOS_SWIPE_BACK_FIX_PLAN.md`](IOS_SWIPE_BACK_FIX_PLAN.md)
+contains the phase/task status tables, drawer/main-tab behavior contract and
+manual QA matrix. Diagnosis is complete; implementation is awaiting plan review.

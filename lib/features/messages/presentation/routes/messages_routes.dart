@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/route_page_builder.dart';
 import '../../../../app/routes.dart';
 import '../screens/chat_details_screen.dart';
 import '../screens/chat_thread_screen.dart';
@@ -11,20 +12,20 @@ final List<RouteBase> messagesRoutes = [
   GoRoute(
     path: Routes.chat.path,
     name: Routes.chat.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final args = ChatArgs.fromExtra(state.extra);
       return ChatThreadScreen(
         conversationId: args.conversationId,
         contactName: args.contactName,
       );
-    },
+    }),
   ),
   GoRoute(
     path: Routes.chatDetails.path,
     name: Routes.chatDetails.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final args = ChatDetailsArgs.fromExtra(state.extra);
       return ChatDetailsScreen(conversationId: args.conversationId);
-    },
+    }),
   ),
 ];

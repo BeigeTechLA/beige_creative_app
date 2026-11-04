@@ -3,7 +3,7 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-10-30 (AGP 9 upgrade started — see section below).
+Last updated: 2026-11-04 (iOS swipe-back fix implemented + native verified — see section below).
 
 ## AGP 9 upgrade (new, 2026-10-30)
 
@@ -223,3 +223,35 @@ See the U-12 parallel review in `docs/upgrade/FLUTTER_IOS27_UPGRADE.md`.
 Full-suite results remain with Claude; simulator binding/remote CI and real-device
 smoke remain unverified. U-12 is active; U-11 remains skipped. The earlier
 "Next: U-06" sentence above is stale and superseded by this status.
+
+## App-wide iOS swipe-back follow-up (2026-11-04)
+
+Canonical plan: `docs/upgrade/IOS_SWIPE_BACK_FIX_PLAN.md`. **Implemented;** Phases
+1–4 and 6 (review/handoff) complete. Phase 5 open only for interactive human
+gesture QA (Q01–Q18) and physical-device smoke.
+
+Root cause: GoRouter 18.1.1 detects the separate `material_ui.MaterialApp`, while
+this app uses SDK MaterialApp, so its WidgetsApp fallback created
+`NoTransitionPage`s with no Cupertino edge-swipe detector. Verified by an iOS
+edge-swipe diagnostic that fails with the default page and passes with an
+explicit SDK `MaterialPage`.
+
+**Page convention (new cross-tool rule):** ordinary GoRoutes must create pages
+explicitly through `lib/app/route_page_builder.dart`, not via `builder:`. Use
+`pageBuilder: appPageBuilder((context, state) => Screen())` for ordinary routes
+and `appRoutePage(state, child)` for the shell page. The helper preserves
+`state.pageKey`, route name, path+query arguments and a `restorationId` derived
+from the page key. All 45 ordinary routes + the StatefulShellRoute page use it;
+the shoot-cancellation `CustomTransitionPage` is the one intentional exception
+(keep its opacity/barrier/slide). Do not reintroduce bare `builder:` for a
+swipe-eligible route. `state.extra` parsing stays inside feature builders.
+Branch state, navigator ownership, guards and redirects are unchanged; drawer
+items switch branches while the profile card pushes a route.
+
+Verification: full suite 761/761; `flutter analyze --no-pub --fatal-infos` clean;
+native integration `integration_test/navigation_back_test.dart` 14/14 on both
+iOS 27 sim and Pixel 9 API 36 emulator. Coverage tests
+`test/app/route_page_coverage_test.dart` + `test/app/route_page_builder_test.dart`
+pin the convention against the live route tree. Broader upgrade work is not
+implicitly resumed. The shoot-header back arrow remains non-sticky and without a
+circular background per user preference.

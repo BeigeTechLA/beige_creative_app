@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/assets.dart';
 import '../../../../app/colors.dart';
 import '../../../../app/radii.dart';
+import '../../../../app/routes.dart';
 import '../../../../app/spacing.dart';
 import '../../../../app/text_styles.dart';
 import '../../../../config/env.dart';
@@ -166,16 +167,27 @@ class UpcomingShootViewDetails extends ConsumerWidget {
                     Positioned(
                       top: MediaQuery.of(context).padding.top + AppSpacing.sm,
                       left: AppSpacing.lg,
-                      right: AppSpacing.lg,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          AppIconTapTarget(
-                            semanticLabel: 'Back',
-                            onTap: () => context.pop(),
-                            icon: SvgPicture.asset(AppAssets.back),
+                      child: Tooltip(
+                        message: 'Back',
+                        child: AppIconTapTarget(
+                          semanticLabel: 'Back',
+                          onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.goNamed(Routes.shoots.name);
+                            }
+                          },
+                          icon: SvgPicture.asset(
+                            AppAssets.back,
+                            width: 24,
+                            height: 24,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.white,
+                              BlendMode.srcIn,
+                            ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
                     Positioned(

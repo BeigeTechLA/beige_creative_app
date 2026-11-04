@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/route_page_builder.dart';
 import '../../../../app/routes.dart';
 import '../screens/app_preferences_screen.dart';
 import 'profile_args.dart';
@@ -28,107 +29,117 @@ final List<RouteBase> profileRoutes = [
   GoRoute(
     path: Routes.myProfile.path,
     name: Routes.myProfile.name,
-    builder: (context, state) => const Myprofile(),
+    pageBuilder: appPageBuilder((context, state) => const Myprofile()),
   ),
   GoRoute(
     path: Routes.cropImage.path,
     name: Routes.cropImage.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final file = state.extra as File;
       return CropImageScreen(imageFile: file);
-    },
+    }),
   ),
   GoRoute(
     path: Routes.editPersonalDetails.path,
     name: Routes.editPersonalDetails.name,
-    builder: (context, state) => const EditPersonalDetailsScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const EditPersonalDetailsScreen(),
+    ),
   ),
   GoRoute(
     path: Routes.enterProfessionalDetails.path,
     name: Routes.enterProfessionalDetails.name,
-    builder: (context, state) => const EnterProfileDetailsScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const EnterProfileDetailsScreen(),
+    ),
   ),
   GoRoute(
     path: Routes.profileDetails.path,
     name: Routes.profileDetails.name,
-    builder: (context, state) => const ProfileDetails1Screen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const ProfileDetails1Screen(),
+    ),
   ),
   GoRoute(
     path: Routes.featuredWorks.path,
     name: Routes.featuredWorks.name,
-    builder: (context, state) => const FeaturedWorkList(),
+    pageBuilder: appPageBuilder((context, state) => const FeaturedWorkList()),
   ),
   GoRoute(
     path: Routes.featuredWorkDetails.path,
     name: Routes.featuredWorkDetails.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final args = FeaturedWorkDetailsArgs.fromExtra(state.extra);
-      return FeaturedWorkDetailsScreen(
-        title: args.title,
-        images: args.images,
-      );
-    },
+      return FeaturedWorkDetailsScreen(title: args.title, images: args.images);
+    }),
   ),
   GoRoute(
     path: Routes.certificates.path,
     name: Routes.certificates.name,
-    builder: (context, state) => const CertificatesScreen(),
+    pageBuilder: appPageBuilder((context, state) => const CertificatesScreen()),
   ),
   GoRoute(
     path: Routes.resume.path,
     name: Routes.resume.name,
-    builder: (context, state) => const ResumeScreen(),
+    pageBuilder: appPageBuilder((context, state) => const ResumeScreen()),
   ),
   GoRoute(
     path: Routes.appPreferences.path,
     name: Routes.appPreferences.name,
-    builder: (context, state) => const AppPreferencesScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const AppPreferencesScreen(),
+    ),
   ),
   GoRoute(
     path: Routes.changePassword.path,
     name: Routes.changePassword.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final args = ChangePasswordArgs.fromExtra(state.extra);
       return ChangePasswordScreen(email: args.email);
-    },
+    }),
   ),
   GoRoute(
     path: Routes.profileOtp.path,
     name: Routes.profileOtp.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final args = ProfileOtpArgs.fromExtra(state.extra);
       return ProfileOtpScreen(email: args.email);
-    },
+    }),
   ),
   GoRoute(
     path: Routes.newPassword.path,
     name: Routes.newPassword.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final args = ProfileNewPasswordArgs.fromExtra(state.extra);
-      return ProfileNewPasswordScreen(
-        email: args.email,
-        otp: args.otp,
-      );
-    },
+      return ProfileNewPasswordScreen(email: args.email, otp: args.otp);
+    }),
   ),
   GoRoute(
     path: Routes.profilePasswordSuccess.path,
     name: Routes.profilePasswordSuccess.name,
-    builder: (context, state) => const ProfileYoureAllSetScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const ProfileYoureAllSetScreen(),
+    ),
   ),
   GoRoute(
     path: Routes.deleteAccount.path,
     name: Routes.deleteAccount.name,
-    builder: (context, state) => const DeleteAccountScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const DeleteAccountScreen(),
+    ),
   ),
   GoRoute(
     path: Routes.deleteAccountOtp.path,
     name: Routes.deleteAccountOtp.name,
-    builder: (context, state) => const DeleteAccountOtpScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const DeleteAccountOtpScreen(),
+    ),
   ),
   GoRoute(
     path: Routes.deleteAccountSuccess.path,
     name: Routes.deleteAccountSuccess.name,
-    builder: (context, state) => const DeleteAccountLottieScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const DeleteAccountLottieScreen(),
+    ),
   ),
 ];

@@ -1,6 +1,9 @@
+import 'package:beige_creative_app/app/route_page_builder.dart';
+import 'package:beige_creative_app/app/router.dart';
+import 'package:beige_creative_app/app/routes.dart';
+import 'package:flutter/foundation.dart';
 import 'package:beige_creative_app/features/home/presentation/providers/home_notifier.dart';
 import 'package:beige_creative_app/features/home/presentation/providers/home_state.dart';
-import 'package:beige_creative_app/shared/layouts/app_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55,15 +58,41 @@ GoRouter _harnessRouter() {
   return GoRouter(
     initialLocation: '/a',
     routes: [
+      GoRoute(
+        path: '/profile',
+        name: Routes.myProfile.name,
+        pageBuilder: appPageBuilder(
+          (context, state) => Scaffold(
+            body: Column(
+              children: [
+                const Text('Profile details'),
+                TextButton(
+                  onPressed: () => context.push('/profile-child'),
+                  child: const Text('Edit profile'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/profile-child',
+        pageBuilder: appPageBuilder(
+          (_, _) => const Scaffold(body: Text('Profile child')),
+        ),
+      ),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => AppShell(shell: shell),
+        pageBuilder: appRoutes
+            .whereType<StatefulShellRoute>()
+            .single
+            .pageBuilder,
         branches: [
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: '/a',
                 name: 'home',
-                builder: (_, _) => const _Counter('A'),
+                pageBuilder: appPageBuilder((_, _) => const _Counter('A')),
               ),
             ],
           ),
@@ -72,7 +101,7 @@ GoRouter _harnessRouter() {
               GoRoute(
                 path: '/b',
                 name: 'shoots',
-                builder: (_, _) => const _Counter('B'),
+                pageBuilder: appPageBuilder((_, _) => const _Counter('B')),
               ),
             ],
           ),
@@ -81,7 +110,7 @@ GoRouter _harnessRouter() {
               GoRoute(
                 path: '/c',
                 name: 'files',
-                builder: (_, _) => const _Counter('C'),
+                pageBuilder: appPageBuilder((_, _) => const _Counter('C')),
               ),
             ],
           ),
@@ -90,7 +119,7 @@ GoRouter _harnessRouter() {
               GoRoute(
                 path: '/d',
                 name: 'messages',
-                builder: (_, _) => const _Counter('D'),
+                pageBuilder: appPageBuilder((_, _) => const _Counter('D')),
               ),
             ],
           ),
@@ -99,7 +128,7 @@ GoRouter _harnessRouter() {
               GoRoute(
                 path: '/e',
                 name: 'meetings',
-                builder: (_, _) => const _Counter('E'),
+                pageBuilder: appPageBuilder((_, _) => const _Counter('E')),
               ),
             ],
           ),
@@ -108,7 +137,7 @@ GoRouter _harnessRouter() {
               GoRoute(
                 path: '/f',
                 name: 'manage_availability',
-                builder: (_, _) => const _Counter('F'),
+                pageBuilder: appPageBuilder((_, _) => const _Counter('F')),
               ),
             ],
           ),
@@ -117,7 +146,7 @@ GoRouter _harnessRouter() {
               GoRoute(
                 path: '/g',
                 name: 'affiliate',
-                builder: (_, _) => const _Counter('G'),
+                pageBuilder: appPageBuilder((_, _) => const _Counter('G')),
               ),
             ],
           ),
@@ -126,7 +155,7 @@ GoRouter _harnessRouter() {
               GoRoute(
                 path: '/h',
                 name: 'payouts',
-                builder: (_, _) => const _Counter('H'),
+                pageBuilder: appPageBuilder((_, _) => const _Counter('H')),
               ),
             ],
           ),
@@ -137,6 +166,107 @@ GoRouter _harnessRouter() {
 }
 
 void main() {
+  testWidgets(
+    'drawer profile and nested swipe return to the originating branch',
+    (tester) async {
+      final router = _harnessRouter();
+      addTearDown(router.dispose);
+      await tester.pumpWidget(_wrap(MaterialApp.router(routerConfig: router)));
+      await tester.pumpAndSettle();
+      for (final branch in ['/a', '/b', '/c', '/d', '/e', '/f', '/g']) {
+        router.go(branch);
+        await tester.pumpAndSettle();
+        final label = String.fromCharCode(
+          'A'.codeUnitAt(0) + branch.codeUnitAt(1) - 'a'.codeUnitAt(0),
+        );
+        await tester.tap(find.text('bump-$label'));
+        await tester.pumpAndSettle();
+        final scaffold = tester.state<ScaffoldState>(
+          find.byType(Scaffold).first,
+        );
+        scaffold.openDrawer();
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Loading...').first);
+        await tester.pumpAndSettle();
+        expect(find.text('Profile details'), findsOneWidget);
+        expect(scaffold.isDrawerOpen, isFalse);
+        await tester.tap(find.text('Edit profile'));
+        await tester.pumpAndSettle();
+        await tester.dragFrom(const Offset(1, 300), const Offset(650, 0));
+        await tester.pumpAndSettle();
+        expect(find.text('Profile details'), findsOneWidget);
+        await tester.dragFrom(const Offset(1, 300), const Offset(650, 0));
+        await tester.pumpAndSettle();
+        expect(find.text('$label: 1'), findsOneWidget);
+        expect(scaffold.isDrawerOpen, isFalse);
+        expect(router.canPop(), isFalse);
+      }
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+  );
+
+  testWidgets('every drawer item switches branch without adding back history', (
+    tester,
+  ) async {
+    final router = _harnessRouter();
+    addTearDown(router.dispose);
+    await tester.pumpWidget(_wrap(MaterialApp.router(routerConfig: router)));
+    await tester.pumpAndSettle();
+    const labels = [
+      'Dashboard',
+      'Shoots',
+      'File Manager',
+      'Messages',
+      'Meetings',
+      'Manage Availability',
+      'Affiliate',
+    ];
+    for (var index = 0; index < labels.length; index++) {
+      final scaffold = tester.state<ScaffoldState>(find.byType(Scaffold).first);
+      scaffold.openDrawer();
+      await tester.pumpAndSettle();
+      final target = find.descendant(
+        of: find.byType(Drawer),
+        matching: find.text(labels[index]),
+      );
+      await tester.ensureVisible(target);
+      await tester.tap(target);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('${String.fromCharCode(65 + index)}: 0'),
+        findsOneWidget,
+      );
+      expect(scaffold.isDrawerOpen, isFalse);
+      expect(router.canPop(), isFalse);
+    }
+  });
+
+  testWidgets(
+    'root edge drag opens drawer and dismissal preserves branch',
+    (tester) async {
+      final router = _harnessRouter();
+      addTearDown(router.dispose);
+      await tester.pumpWidget(_wrap(MaterialApp.router(routerConfig: router)));
+      await tester.pumpAndSettle();
+      final scaffold = tester.state<ScaffoldState>(find.byType(Scaffold).first);
+      await tester.dragFrom(const Offset(1, 300), const Offset(500, 0));
+      await tester.pumpAndSettle();
+      expect(scaffold.isDrawerOpen, isTrue);
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        await tester.binding.handlePopRoute();
+      } else {
+        await tester.dragFrom(const Offset(250, 300), const Offset(-500, 0));
+      }
+      await tester.pumpAndSettle();
+      expect(scaffold.isDrawerOpen, isFalse);
+      expect(find.text('A: 0'), findsOneWidget);
+    },
+    variant: TargetPlatformVariant({
+      TargetPlatform.iOS,
+      TargetPlatform.android,
+    }),
+  );
+
   testWidgets('AppShell preserves per-branch state across tab switches', (
     tester,
   ) async {

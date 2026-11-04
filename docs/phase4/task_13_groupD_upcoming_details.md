@@ -51,3 +51,11 @@ icons. The event information row also uses `ic_shoot_date.svg`,
 **Post-completion type-chip update (2026-08-05):** Shoot Type and Booking Type
 chips are borderless and use the shared `AppColors.surfaceChip` (`#323131`)
 background.
+
+**Back-button visibility follow-up (2026-11-04):**
+- [x] Keep the back control outside scrolling content, below the status bar, with a dark circular background and white icon (44-point tap target).
+- [x] Pop to the caller when available; otherwise navigate to the named Shoots route.
+- [x] Scoped analysis clean; existing details widget tests 5/5 pass; hot reload and simulator screenshot confirm visibility over the bright header photo.
+- Manual scroll/back interaction remains to be checked; no broader migration status change.
+
+**Back-button preference correction (2026-11-04):** Supersedes the fixed/circular treatment above. Per user reference and scrolling feedback, the white arrow has no background and lives inside the image header so it scrolls away without covering content. The 44-point tap target, tooltip, and named-route fallback remain. Scoped analysis passes; hot reload applied.
