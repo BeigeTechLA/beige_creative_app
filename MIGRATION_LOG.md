@@ -4941,3 +4941,31 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - **Decisions**: shared helper over per-route hand-rolled pages to keep metadata consistent; no package-cache patch, downgrade, UI-library migration or global drag detector; guards/redirects/branch state/navigator ownership untouched; drawer items switch branches while the profile card pushes a route.
 - **Verification**: `flutter test` 761/761 · `flutter analyze --no-pub --fatal-infos` 0 issues · `integration_test/navigation_back_test.dart` **14/14** on iPhone 18 Pro sim (iOS 27.0) and **14/14** on Pixel 9 API 36 emulator (Android 16). Logs `/tmp/beige-swipe-ios-integration.log`, `/tmp/beige-swipe-android-integration.log`. Android final `adb uninstall` `DELETE_FAILED_INTERNAL_ERROR` is post-test cleanup noise. Plan Phases 2–4 and 6 (review/handoff) Completed.
 - **Remaining**: Phase 5 interactive human gesture QA (Q01–Q18) and physical-iPhone smoke are **not done** (require a human at the device); tracked Not Started in the plan's QA tracker. No unverified completion claimed.
+
+
+## 2026-11-09 — Account deletion UI-only parity with beigeapp
+
+Ported the three-screen deletion redesign and nine SVGs from beigeapp `2f8cdab`.
+Adapted named routes, existing CP theme and success animation. Kept the old success
+class as a compatibility alias. Disabled notifier request/confirm/resend methods;
+removed logout and deletion analytics from this flow. Future API work is TODO only.
+Updated regression tests to reflect preview-only behavior rather than legacy live deletion.
+Full-project Flutter analysis passed; git diff --check passed. Widget execution was
+blocked by sandbox denial writing ~/.dart-tool telemetry during native hook compilation,
+even with a temporary writable SDK. Device QA is pending. Existing pubspec edits preserved.
+
+
+2026-11-09 OTP sizing correction: moved 7px gaps from inside Expanded cells
+to Row spacing, giving all six fields equal width in both CP and User apps.
+
+### 2026-11-09: Pending-work commit and deletion API binding note
+
+- Added an explicit API-binding-pending TODO above `DeleteAccountNotifier`;
+  the deletion flow remains preview-only. No runtime behavior changed in this pass.
+- Included pending deletion screens/widgets/routes, nine SVG assets, regression
+  tests, handoff documentation, UI audit and version bump to `2.0.1+0`.
+- Ignored generated `android/build/` reports; no source files moved.
+- Verification: `flutter analyze --no-pub --fatal-infos` clean;
+  `flutter test --no-pub test/features/profile/presentation/delete_account_test.dart`
+  passes 3/3, resolving the earlier test-execution blocker; diff whitespace clean.
+- Device visual QA and API integration remain pending.

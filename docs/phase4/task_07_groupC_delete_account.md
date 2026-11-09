@@ -46,3 +46,37 @@ Migrate the linear 3-screen delete-account flow: confirm → OTP → lottie succ
 **Session-clear ordering:** Session cleared *after* the backend confirms the deletion, not before. If `confirmDelete` throws, the user stays logged in — they can retry the OTP entry. Test `repo failure leaves session intact` enforces this.
 
 **Calibration:** ~45 min vs. 2d budget. Similar shape to 4.06 (3 screens, OTP timer, multi-step flow) but fewer notifiers. Group C pattern is consolidating: ~45-60 min per standard-shape unit.
+
+
+## UI-only redesign — 2026-11-09
+
+User approved parity with beigeapp commit `2f8cdab`, explicitly excluding API calls.
+This supersedes the legacy live deletion/session-clear behavior documented above.
+
+| Phase | Goal | Files Touched | Done Criteria | Status |
+|-------|------|---------------|---------------|--------|
+| 1 | Port information, OTP and requested screens | Profile screens, widgets, SVG assets, routes | Same UI-only journey as beigeapp | Completed |
+| 2 | Disable legacy actions | delete_account_providers.dart | No request, resend, confirm, logout or deletion-event side effects | Completed |
+| 3 | Verify and document | delete_account_test.dart, migration log | Analysis and focused tests | Completed |
+
+Full-project analysis: no issues. Diff whitespace check passed. Focused tests updated
+for inert notifier methods, paste/resend/navigation and narrow keyboard layouts.
+Commit verification on 2026-11-09: all 3 focused tests pass; the earlier sandbox
+execution blocker is resolved. Explicit API-binding-pending comment added to the notifier.
+Future API integration points are TODO comments. Scheduled date remains a placeholder.
+Existing repository retained but is not called by the flow or disabled notifier.
+
+### Manual Test Summary
+
+| # | Step | Expected Result | Edge Cases |
+|---|------|-----------------|------------|
+| 1 | Preferences → Delete account | Warning and six cards; Continue opens OTP | Scroll small screens |
+| 2 | Enter/paste six digits, then resend | CTA enables, resend resets fields with preview notice | Partial/non-digit input, keyboard, large text |
+| 3 | Continue to requested preview | Animation, date placeholder and preview notice | No logout, email, API request or deletion analytics |
+| 4 | Navigate back | Previous screen restored | iOS swipe-back |
+
+Device visual verification remains pending.
+
+
+2026-11-09 OTP sizing correction: moved 7px gaps from inside Expanded cells
+to Row spacing, giving all six fields equal width in both CP and User apps.

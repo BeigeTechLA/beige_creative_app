@@ -9,7 +9,7 @@ import 'profile_args.dart';
 import '../screens/certificates_screen.dart';
 import '../screens/change_password_screen.dart';
 import '../screens/crop_image_screen.dart';
-import '../screens/delete_account_lottie_screen.dart';
+import '../screens/delete_account_success_screen.dart';
 import '../screens/delete_account_otp_screen.dart';
 import '../screens/delete_account_screen.dart';
 import '../screens/edit_personal_details_screen.dart';
@@ -139,7 +139,7 @@ final List<RouteBase> profileRoutes = [
     path: Routes.deleteAccountSuccess.path,
     name: Routes.deleteAccountSuccess.name,
     pageBuilder: appPageBuilder(
-      (context, state) => const DeleteAccountLottieScreen(),
+      (context, state) => const DeleteAccountSuccessScreen(),
     ),
   ),
 ];

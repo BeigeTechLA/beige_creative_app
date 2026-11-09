@@ -255,3 +255,11 @@ iOS 27 sim and Pixel 9 API 36 emulator. Coverage tests
 pin the convention against the live route tree. Broader upgrade work is not
 implicitly resumed. The shoot-header back arrow remains non-sticky and without a
 circular background per user preference.
+
+
+## Account deletion preview — 2026-11-09
+
+Deletion screens now match beigeapp `2f8cdab`. User explicitly requires UI-only:
+no deletion APIs, session clearing or deletion analytics. Legacy notifier actions
+are inert with TODO integration comments. Do not restore live calls without a new
+request. See phase4/task_07_groupC_delete_account.md for verification status.
