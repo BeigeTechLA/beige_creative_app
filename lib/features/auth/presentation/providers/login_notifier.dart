@@ -7,6 +7,7 @@ import '../../../../core/firebase/analytics_events.dart';
 import '../../../../core/firebase/crashlytics_breadcrumbs.dart';
 import '../../../../core/firebase/telemetry_client.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/providers/account_status_provider.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/providers/guest_mode_provider.dart';
@@ -86,6 +87,10 @@ class LoginNotifier extends Notifier<LoginState> {
       final result = await ref
           .read(authRepositoryProvider)
           .login(email: trimmedEmail, password: trimmedPassword);
+
+      await ref
+          .read(accountStatusProvider.notifier)
+          .setStatus(result.accountStatus);
 
       final session = ref.read(sessionStoreProvider);
       final user = result.user;

@@ -4,6 +4,8 @@ import '../firebase/telemetry_client.dart';
 import '../restoration/restoration_providers.dart';
 import '../utils/app_logger.dart';
 import 'core_providers.dart';
+import 'account_status_provider.dart';
+import '../../features/profile/presentation/providers/delete_account_providers.dart';
 import '../session/temporary_auth_session.dart';
 
 /// Boolean derived from session presence — single source of truth for
@@ -41,6 +43,9 @@ class AuthStateNotifier extends Notifier<bool> {
   Future<void> _endSession({required bool emitLogoutEvent}) async {
     // Revoke access immediately, even if storage or telemetry cleanup fails.
     state = false;
+    // Invalidate immediately so pending requests cannot repopulate another
+    // session's deletion state. The success receipt survives until screen exit.
+    ref.invalidate(deletionProvider);
     ref.read(temporaryAuthSessionProvider.notifier).clear();
     await _cleanUp(
       'session',
@@ -52,6 +57,11 @@ class AuthStateNotifier extends Notifier<bool> {
       () => ref.read(routeRestorationServiceProvider).clearAll(),
     );
     await _cleanUp('drafts', () => ref.read(draftStoreProvider).clearAll());
+    await _cleanUp(
+      'account status',
+      () => ref.read(prefsProvider).remove('account_status'),
+    );
+    ref.invalidate(accountStatusProvider);
     await _cleanUp(
       'telemetry',
       () => ref

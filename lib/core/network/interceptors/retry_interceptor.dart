@@ -51,6 +51,7 @@ class RetryInterceptor extends Interceptor {
   }
 
   bool _shouldRetry(DioException err) {
+    if (err.requestOptions.extra['skipRetry'] == true) return false;
     if (err.type == DioExceptionType.cancel) return false;
     final status = err.response?.statusCode;
     if (status == null) {

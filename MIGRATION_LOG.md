@@ -4969,3 +4969,39 @@ to Row spacing, giving all six fields equal width in both CP and User apps.
   `flutter test --no-pub test/features/profile/presentation/delete_account_test.dart`
   passes 3/3, resolving the earlier test-execution blocker; diff whitespace clean.
 - Device visual QA and API integration remain pending.
+
+
+### 2026-11-17: Task 4.07 account deletion Figma review
+
+- Reviewed supplied Figma information screen and related OTP, requested, pending, cancel and cancelled frames against current working-tree source. Findings recorded in `docs/phase4/task_07_groupC_delete_account.md`; no production edits or files moved.
+- Main finding: sixth OTP digit triggers deletion confirmation before the explicit CTA. Additional differences: card layout/badges/type, omitted 60-day copy, recovery wording, requested-screen extras and date alignment.
+- Verification: focused deletion tests pass 3/3. Their direct OTP entry bypasses OTP-request state, leaving automatic submission untested. No native visual or live API verification claimed.
+- Documentation discrepancy: uncommitted source now binds APIs and logout despite older preview-only handoff; preserved all existing work. Review does not authorize API changes.
+
+
+### 2026-11-17: CP deletion parity audit and functional fixes
+
+- User authorized comparison with beigeapp and correction of CP issues. Preserved
+  existing uncommitted API integration and unrelated changes; beigeapp untouched.
+- Deletion repository uses shared canonical creative headers instead of duplicate
+  hyphenated headers, and typed server exceptions preserve backend error copy.
+- OTP entry/paste no longer auto-confirms; confirmation requires the explicit CTA.
+- RetryInterceptor honors skipRetry, preventing duplicate destructive requests
+  after server or transport failures. Ordinary request retries remain unchanged.
+- Auth cleanup invalidates deletion state immediately and account status after
+  persisted status removal; success receipt remains available until screen exit.
+- Added repository transport regressions and strengthened OTP/session tests.
+  Updated task 4.07 and handoff; no files moved.
+- Verification: full-project analysis clean; diff whitespace clean. Flutter test
+  execution blocked by sandbox denial of localhost server binding (zero test
+  cases executed). Temporary SDK/config copies allowed analysis without altering
+  the installed SDK. Native and live backend verification remains pending.
+
+
+2026-11-17 commit verification: full-project `flutter analyze --no-pub` passes;
+focused deletion widget/repository, session expiry and router tests pass 59/59.
+This supersedes the earlier sandbox-blocked test result. Native visual/live API
+checks and remaining Figma layout/copy differences are still pending.
+
+Login notifier verification: fixed its missing mocked preferences override;
+all 17 login tests now pass (76 focused tests total).

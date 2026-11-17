@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../app/colors.dart';
 import '../../../../app/routes.dart';
 import '../../../../app/text_styles.dart';
+import '../providers/delete_account_providers.dart';
 import '../widgets/delete_flow_widgets.dart';
 
-class DeleteAccountScreen extends StatelessWidget {
+class DeleteAccountScreen extends ConsumerWidget {
   const DeleteAccountScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
     backgroundColor: AppColors.background,
     body: SafeArea(
       child: Center(
@@ -118,12 +121,9 @@ class DeleteAccountScreen extends StatelessWidget {
               ),
               const _InfoCard(
                 icon: 'hourglass',
-                title: '60-day Grace Period',
+                title: 'Grace Period',
                 description:
-                    'Your eligible data will be scheduled for deletion after ',
-                highlighted: '60 days.',
-                suffix:
-                    ' You can cancel your request during this period by completing the required verification',
+                    'Your eligible data will be scheduled for deletion. You can cancel your request before the scheduled deletion date.',
               ),
             ],
           ),
@@ -139,9 +139,26 @@ class DeleteAccountScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
             child: DeleteFlowButton(
-              label: 'Continue & Proceed to Verification',
-              // TODO(delete-account-api): Request a challenge before navigation.
-              onPressed: () => context.pushNamed(Routes.deleteAccountOtp.name),
+              label: ref.watch(deletionProvider).busy
+                  ? 'Sending code…'
+                  : 'Continue & Proceed to Verification',
+              onPressed: ref.watch(deletionProvider).busy
+                  ? null
+                  : () async {
+                      final sent = await ref
+                          .read(deletionProvider.notifier)
+                          .requestOtp();
+                      if (!context.mounted) return;
+                      if (sent) {
+                        context.pushNamed(Routes.deleteAccountOtp.name);
+                      } else {
+                        final error = ref.read(deletionProvider).error ??
+                            'Unable to send verification code. Please try again.';
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(error)),
+                        );
+                      }
+                    },
             ),
           ),
         ),
@@ -155,71 +172,56 @@ class _InfoCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.description,
-    this.highlighted,
-    this.suffix,
   });
-  final String icon, title, description;
-  final String? highlighted, suffix;
+
+  final String icon;
+  final String title;
+  final String description;
+
   @override
   Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(bottom: 10),
+    margin: const EdgeInsets.only(bottom: 12),
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: AppColors.iconBackground,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: DeleteFlowStyle.border, width: .5),
     ),
-    child: Column(
+    child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: .2),
-            borderRadius: BorderRadius.circular(6),
+          width: 32,
+          height: 32,
+          decoration: const BoxDecoration(
+            color: AppColors.background,
+            shape: BoxShape.circle,
           ),
           child: Center(
             child: SvgPicture.asset(
               'assets/svg/delete_flow_$icon.svg',
-              width: switch (icon) {
-                'user' => 12.25,
-                'profile' => 13.5,
-                'calendar' => 12.875,
-                _ => 15,
-              },
-              height: switch (icon) {
-                'user' || 'calendar' => 13.5,
-                'profile' => 12.25,
-                _ => 15,
-              },
+              width: 16,
+              height: 16,
             ),
           ),
         ),
-        const SizedBox(height: 10),
-        Text(
-          title,
-          style: AppTextStyles.bodyMediumStrong.copyWith(
-            color: AppColors.white,
-          ),
-        ),
-        const SizedBox(height: 5),
-        Text.rich(
-          TextSpan(
-            text: description,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (highlighted != null)
-                TextSpan(
-                  text: highlighted,
-                  style: const TextStyle(color: AppColors.primary),
+              Text(
+                title,
+                style: AppTextStyles.bodyMediumStrong.copyWith(
+                  color: AppColors.white,
                 ),
-              if (suffix != null) TextSpan(text: suffix),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: DeleteFlowStyle.body,
+              ),
             ],
-          ),
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.white60,
-            fontWeight: FontWeight.w500,
-            height: 1.2,
           ),
         ),
       ],

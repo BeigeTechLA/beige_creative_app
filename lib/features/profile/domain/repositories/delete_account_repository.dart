@@ -1,8 +1,8 @@
-/// Two-step delete-account flow contract:
-/// 1. `requestDelete(reason)` triggers the OTP email.
-/// 2. `confirmDelete(otp)` finalizes; backend revokes the user account.
+import '../models/deletion_request.dart';
+
 abstract class DeleteAccountRepository {
-  Future<void> requestDelete(String reason);
-  Future<void> confirmDelete(String otp);
-  Future<void> resendOtp();
+  Future<void> requestOtp();
+  Future<DeletionRequest> confirm(String otp);
+  Future<DeletionRequest> status();
+  Future<DeletionRequest> cancel();
 }

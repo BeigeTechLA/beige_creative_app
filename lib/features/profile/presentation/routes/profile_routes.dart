@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/route_page_builder.dart';
 import '../../../../app/routes.dart';
+import '../screens/account_recovery_screens.dart';
 import '../screens/app_preferences_screen.dart';
 import 'profile_args.dart';
 import '../screens/certificates_screen.dart';
@@ -140,6 +141,20 @@ final List<RouteBase> profileRoutes = [
     name: Routes.deleteAccountSuccess.name,
     pageBuilder: appPageBuilder(
       (context, state) => const DeleteAccountSuccessScreen(),
+    ),
+  ),
+  GoRoute(
+    path: Routes.accountDeletionPending.path,
+    name: Routes.accountDeletionPending.name,
+    pageBuilder: appPageBuilder(
+      (context, state) => const AccountDeletionPendingScreen(),
+    ),
+  ),
+  GoRoute(
+    path: Routes.cancelAccountDeletion.path,
+    name: Routes.cancelAccountDeletion.name,
+    pageBuilder: appPageBuilder(
+      (context, state) => const CancelAccountDeletionScreen(),
     ),
   ),
 ];

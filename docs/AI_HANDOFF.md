@@ -263,3 +263,22 @@ Deletion screens now match beigeapp `2f8cdab`. User explicitly requires UI-only:
 no deletion APIs, session clearing or deletion analytics. Legacy notifier actions
 are inert with TODO integration comments. Do not restore live calls without a new
 request. See phase4/task_07_groupC_delete_account.md for verification status.
+
+
+## CP deletion functional audit — 2026-11-17
+
+The user authorized comparing beigeapp deletion with CP and fixing CP defects.
+The current working tree is API-bound; older preview-only instructions are
+historical. The repository now relies on canonical creative identity headers,
+OTP completion waits for the explicit CTA, and RetryInterceptor honors skipRetry.
+Logout clears in-memory deletion/account-status state while retaining the receipt
+until success-screen exit. Typed backend rejections preserve readable messages.
+See task 4.07 for the audit and regression coverage. Full analysis passes; runtime
+tests remain unverified because this sandbox denies Flutter's localhost test
+server socket. Existing unrelated work and beigeapp source were preserved.
+
+
+2026-11-17 commit verification: full-project `flutter analyze --no-pub` passes;
+focused deletion widget/repository, session expiry and router tests pass 59/59.
+This supersedes the earlier sandbox-blocked test result. Native visual/live API
+checks and remaining Figma layout/copy differences are still pending.

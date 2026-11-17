@@ -91,8 +91,17 @@ class ApiEndpoints {
   static String shootCategories(String tab) =>
       "creator/shoot-categories?tab=$tab";
 
-  static const String accountDeleted = 'auth/user/delete-account/request';
-  static const String account_deleted_otp = 'auth/user/delete-account/confirm';
+  static const String deleteAccountRequest = 'auth/user/delete-account/request';
+  static const String deleteAccountConfirm = 'auth/user/delete-account/confirm';
+  static const String deleteAccountStatus =
+      'auth/user/delete-account/requests/me';
+  static const String deleteAccountCancel =
+      'auth/user/delete-account/requests/me/cancel';
+
+  @Deprecated('Use deleteAccountRequest instead')
+  static const String accountDeleted = deleteAccountRequest;
+  @Deprecated('Use deleteAccountConfirm instead')
+  static const String account_deleted_otp = deleteAccountConfirm;
 
   // ───── Meetings (MT8) ────────────────────────────────────────────────────
   static const String meetings = 'external-meetings';

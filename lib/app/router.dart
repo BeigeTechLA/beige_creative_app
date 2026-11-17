@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/connectivity/connectivity_providers.dart';
 import '../core/connectivity/connectivity_status.dart';
 import '../core/firebase/app_analytics_observer.dart';
+import '../core/providers/account_status_provider.dart';
 import '../core/providers/auth_state_provider.dart';
 import '../core/providers/core_providers.dart';
 import '../core/providers/guest_mode_provider.dart';
@@ -24,6 +25,7 @@ import '../features/meetings/presentation/screens/meetings_screen.dart';
 import '../features/messages/presentation/routes/messages_routes.dart';
 import '../features/messages/presentation/screens/messages_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../features/profile/presentation/providers/delete_account_providers.dart';
 import '../features/profile/presentation/routes/profile_routes.dart';
 import '../features/shoots/presentation/routes/shoots_routes.dart';
 import '../features/shoots/presentation/screens/shoots_screen.dart';
@@ -47,13 +49,32 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: notifier,
     observers: [AppAnalyticsObserver()],
     redirect: (context, state) {
+      final location = state.matchedLocation;
+      final accountStatus = ref.read(accountStatusProvider);
+      final isLoggedIn = ref.read(authStateProvider);
+
+      final accountRedirect = accountStatusRedirect(
+        authenticated: isLoggedIn,
+        status: accountStatus,
+        location: location,
+        cancellationComplete: ref.read(deletionProvider).cancelled,
+        confirmedReceipt: ref.read(deletionReceiptProvider) != null,
+      );
+      if (accountRedirect != null) return accountRedirect;
+
+      // A just-confirmed receipt is public after automatic session cleanup.
+      if (location == Routes.deleteAccountSuccess.path) return null;
+      if (isLoggedIn && accountStatus != AccountStatus.active) {
+        return null;
+      }
+
       final currentUser = ref.read(currentSessionUserProvider);
       return appRedirect(
-        isAuth: ref.read(authStateProvider),
+        isAuth: isLoggedIn,
         isGuest: ref.read(guestModeProvider),
         hasSeenOnboarding: ref.read(onboardingSeenProvider),
         connStatus: ref.read(connectivityStatusProvider),
-        location: state.matchedLocation,
+        location: location,
         isRegistrationComplete: currentUser?.isRegistrationComplete,
         isCrewVerified: currentUser?.isCrewVerified,
         isStep2Complete: currentUser?.isStep2Complete,
@@ -163,7 +184,9 @@ String? appRedirect({
           location == Routes.profilePasswordSuccess.path ||
           location == Routes.deleteAccount.path ||
           location == Routes.deleteAccountOtp.path ||
-          location == Routes.deleteAccountSuccess.path;
+          location == Routes.deleteAccountSuccess.path ||
+          location == Routes.accountDeletionPending.path ||
+          location == Routes.cancelAccountDeletion.path;
 
       if (!isPendingAllowedRoute &&
           location != Routes.splash.path &&
@@ -213,6 +236,10 @@ class _AuthRefreshNotifier extends ChangeNotifier {
       temporaryAuthSessionProvider,
       (previous, next) => notifyListeners(),
     );
+    _accountStatusSub = _ref.listen<AccountStatus>(
+      accountStatusProvider,
+      (previous, next) => notifyListeners(),
+    );
   }
   final Ref _ref;
   late final ProviderSubscription<bool> _authSub;
@@ -220,6 +247,7 @@ class _AuthRefreshNotifier extends ChangeNotifier {
   late final ProviderSubscription<bool> _onboardingSub;
   late final ProviderSubscription<ConnectivityStatus> _connSub;
   late final ProviderSubscription<TemporaryAuthState> _temporaryAuthSub;
+  late final ProviderSubscription<AccountStatus> _accountStatusSub;
 
   @override
   void dispose() {
@@ -228,6 +256,7 @@ class _AuthRefreshNotifier extends ChangeNotifier {
     _onboardingSub.close();
     _connSub.close();
     _temporaryAuthSub.close();
+    _accountStatusSub.close();
     super.dispose();
   }
 }
