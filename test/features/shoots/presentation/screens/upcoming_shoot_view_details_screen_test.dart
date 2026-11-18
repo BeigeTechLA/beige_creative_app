@@ -9,6 +9,8 @@ import 'package:beige_creative_app/features/shoots/presentation/providers/upcomi
 import 'package:beige_creative_app/features/shoots/presentation/screens/upcoming_shoot_view_details_screen.dart';
 import 'package:beige_creative_app/model_class/upcoming_shootview_model.dart';
 import 'package:beige_creative_app/shared/widgets/loading.dart';
+import 'package:beige_creative_app/features/shoots/presentation/widgets/shoot_details_header.dart';
+import 'package:beige_creative_app/shared/widgets/app_icon_tap_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -40,11 +42,12 @@ MyData _seedData({
   String clientName = 'Jane Director',
   String idLabel = '#42',
   int projectId = 42,
+  String projectName = 'Skyline',
 }) {
   return MyData.fromJson({
     'project': {
       'project_id': projectId,
-      'project_name': 'Skyline',
+      'project_name': projectName,
       'status': 'confirmed',
       'image_url': null,
       'event_date': '2026-06-15',
@@ -92,12 +95,218 @@ Future<_FakeDetailNotifier> _pump(
     _router(projectId),
     overrides: [upcomingShootDetailProvider.overrideWith2((arg) => fake)],
   );
-  tester.takeException();
+  expect(tester.takeException(), isNull);
   return fake;
+}
+
+Future<GoRouter> _pumpProductionRoute(
+  WidgetTester tester, {
+  bool rootDetails = false,
+  MyData? data,
+}) async {
+  final fake = _FakeDetailNotifier(
+    seed: UpcomingShootDetailState(data: data ?? _seedData()),
+  );
+  final router = GoRouter(
+    initialLocation: rootDetails ? Routes.upcomingShootDetails.path : '/',
+    routes: [
+      GoRoute(
+        path: '/',
+        pageBuilder: appPageBuilder(
+          (_, _) => const Scaffold(body: Text('Caller')),
+        ),
+      ),
+      GoRoute(
+        path: Routes.shoots.path,
+        name: Routes.shoots.name,
+        pageBuilder: appPageBuilder(
+          (_, _) => const Scaffold(body: Text('Shoots fallback')),
+        ),
+      ),
+      ...shootsRoutes,
+    ],
+  );
+  addTearDown(router.dispose);
+  await tester.pumpRouterApp(
+    router,
+    theme: AppTheme.dark(),
+    overrides: [upcomingShootDetailProvider.overrideWith2((arg) => fake)],
+  );
+  await tester.pumpAndSettle();
+  if (!rootDetails) {
+    router.pushNamed(
+      Routes.upcomingShootDetails.name,
+      extra: {'projectId': 42},
+    );
+    await tester.pumpAndSettle();
+  }
+  return router;
+}
+
+Future<void> _collapseHeader(WidgetTester tester) async {
+  await tester.drag(find.byType(CustomScrollView), const Offset(0, -420));
+  await tester.pumpAndSettle();
+  expect(
+    find.byKey(const ValueKey('shoot-details-toolbar-title')),
+    findsOneWidget,
+  );
+  expect(find.byTooltip('Back').hitTestable(), findsOneWidget);
 }
 
 void main() {
   setUpAll(() => Env.init(Environment.dev));
+
+  testWidgets('header handles notch, long name and large text on narrow screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.dark(),
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(320, 700),
+            padding: EdgeInsets.only(top: 59),
+            textScaler: TextScaler.linear(2),
+          ),
+          child: Scaffold(
+            body: CustomScrollView(
+              slivers: [
+                ShootDetailsHeader(
+                  project: _seedData(
+                    projectName:
+                        'An extremely long wedding project name that should wrap and truncate safely',
+                  ).project,
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 1200)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(
+      tester.getTopLeft(find.byTooltip('Back')).dy,
+      greaterThanOrEqualTo(59),
+    );
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -700));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('shoot-details-toolbar-title')),
+      findsOneWidget,
+    );
+    expect(find.byTooltip('Back').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('missing project uses Shoot Details in collapsed toolbar', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.dark(),
+        home: const Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              ShootDetailsHeader(project: null),
+              SliverToBoxAdapter(child: SizedBox(height: 1200)),
+            ],
+          ),
+        ),
+      ),
+    );
+    await _collapseHeader(tester);
+    expect(find.text('Shoot Details'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final collapsed in [false, true]) {
+    testWidgets('back arrow returns to caller, collapsed=$collapsed', (
+      tester,
+    ) async {
+      final router = await _pumpProductionRoute(tester);
+      if (collapsed) await _collapseHeader(tester);
+      final target = find.descendant(
+        of: find.byTooltip('Back'),
+        matching: find.byType(AppIconTapTarget),
+      );
+      expect(tester.getSize(target), const Size(48, 48));
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      expect(find.text('Caller'), findsOneWidget);
+      expect(router.canPop(), isFalse);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('root back arrow opens Shoots, collapsed=$collapsed', (
+      tester,
+    ) async {
+      await _pumpProductionRoute(tester, rootDetails: true);
+      if (collapsed) await _collapseHeader(tester);
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      expect(find.text('Shoots fallback'), findsOneWidget);
+    });
+  }
+
+  testWidgets('collapse retains back position and expand restores hero title', (
+    tester,
+  ) async {
+    await _pumpProductionRoute(tester);
+    final expandedBack = tester.getTopLeft(find.byTooltip('Back'));
+    expect(
+      find.byKey(const ValueKey('shoot-details-toolbar-title')),
+      findsNothing,
+    );
+    await _collapseHeader(tester);
+    expect(tester.getTopLeft(find.byTooltip('Back')), expandedBack);
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, 1000));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('shoot-details-toolbar-title')),
+      findsNothing,
+    );
+    expect(find.text('ID: #42').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('collapsed iOS swipe can cancel then complete', (tester) async {
+    final router = await _pumpProductionRoute(tester);
+    await _collapseHeader(tester);
+    final scrollable = find
+        .descendant(
+          of: find.byType(CustomScrollView),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    final before = tester.state<ScrollableState>(scrollable).position.pixels;
+    final gesture = await tester.startGesture(const Offset(1, 300));
+    await gesture.moveBy(const Offset(80, 0));
+    await tester.pump(const Duration(milliseconds: 500));
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(router.canPop(), isTrue);
+    expect(tester.state<ScrollableState>(scrollable).position.pixels, before);
+    await tester.dragFrom(const Offset(1, 300), const Offset(650, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('Caller'), findsOneWidget);
+    expect(router.canPop(), isFalse);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+
+  testWidgets('Android system back returns after header collapse', (
+    tester,
+  ) async {
+    await _pumpProductionRoute(tester);
+    await _collapseHeader(tester);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Caller'), findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
   testWidgets('production shoot route edge swipe returns to the caller', (
     tester,

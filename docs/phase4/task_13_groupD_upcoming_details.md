@@ -37,6 +37,25 @@ Migrate the 1,184-LOC shoot details screen. Fix hardcoded endpoint string litera
 - [x] Accept + Decline flow wired
 
 ## Notes
+### Sticky header proposal — 2026-11-13
+
+- [x] Prepared [phase-wise change plan](../feature/SHOOT_DETAILS_STICKY_HEADER_PLAN.md) for a collapsing photo and pinned toolbar, including navigation and visual QA.
+- [x] User approved; implemented collapsing photo/pinned toolbar in CP Shoot Details. This supersedes the previous non-sticky preference. Host tests 23/23; iOS simulator navigation 29/29; scoped analysis and whitespace checks pass. Synthetic white-image renders reviewed at three scroll positions.
+- [ ] Physical-device, native Android, landscape and authenticated live-photo/error-state smoke remain pending; see plan execution report.
+
+### Header/navigation review — 2026-11-13
+
+- [x] Figma `7343:62991` shows a creator profile with Back/Share/Favourite; no exact screen found in this CP repository. Auth ViewDetails is a different profile-preview layout.
+- [x] Related Shoot Details contrast issue: gradient ends at safe-area inset + 32; the 44-point back target starts at inset + 8. Recommend maintaining darkness through the entire toolbar before fading, retaining the scrolling/plain-arrow preference.
+- [x] Back callback pops or falls back to named Shoots; route uses SDK MaterialPage. Focused route/page/details tests pass 13/13, including production shoot-route iOS edge swipe and shared Android system back.
+- Review only; no UI changes. Arrow tap/fallback inspected in source, no fresh device interaction. Exact Figma screen events remain unverified because that screen was not found here.
+
+### Android navigation QA — 2026-11-12
+
+- [x] Wedding #4596 loads, scrolls and returns using Android Back on dev API 36 emulator.
+- [ ] Resolve Brand & Product #3052 detail HTTP 400 (`Invalid v4 shoot_type.`) and literal `null` values after failure. Route/Back work; contract/data and error-state follow-up remain open.
+- Full host suite: 756 passed. See [navigation report](../upgrade/ANDROID_NAVIGATION_QA_2026-11-12.md).
+
 - Re: "4 hardcoded endpoints" claim in original plan: actual count was **1 live hardcoded URL** (`creator/project-details/<id>`). The decline/cancel/accept buttons in legacy were commented-out / dead code, so their endpoints never made it to runtime. Migration preserved the live accept-project flow (which already used `ApiEndpoints.acceptdeclineproject`) and added the project-details helper.
 - First use of `AutoDisposeFamilyNotifier<State, int>` + `AutoDisposeNotifierProviderFamily<Notifier, State, int>` in the codebase — keyed by `projectId`.
 - Legacy file size reduction: 1,184 LOC → 386 LOC orchestrator (~67% drop) — bulk savings came from stripping unreachable methods, not just decomposing into Riverpod state.

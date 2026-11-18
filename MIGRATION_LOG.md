@@ -1,5 +1,41 @@
 # Migration Log — Beige Creative App (Crew)
 
+### 2026-11-13: Shoot Details sticky header implemented
+
+- User approved the plan. Extracted the image/metadata into feature-local `shoot_details_header.dart`; screen uses `CustomScrollView`, pinned `SliverAppBar` and body adapter. Plain 48-point back control, collapsed project title, safe-area/status-icon styling and existing pop/named Shoots fallback retained. Supersedes the earlier non-sticky preference.
+- Visual QA caught intermediate-scroll white-on-white contrast: keep the top gradient outside the moving photo. Added a pure-white-image pixel regression at four scroll offsets, real-screen navigation/layout tests, and included details cases in native navigation integration.
+- Verification: focused host tests **23/23**; iPhone 18 Pro iOS 27 simulator integration **29/29** (`/tmp/cp-sticky-header-ios-tests.log`); scoped analysis and whitespace checks pass. Expanded/middle/collapsed synthetic-image renders inspected. Full suite not rerun.
+- Updated task 4.13, plan execution/entry-flow notes and AI handoff. Physical-device/native Android/landscape/authenticated live-data smoke remain pending; no Android device connected. No APIs, routes or body business logic changed. Existing unrelated work preserved.
+
+### 2026-11-13: Shoot Details sticky header change plan
+
+- Added `docs/feature/SHOOT_DETAILS_STICKY_HEADER_PLAN.md` at user request and linked task 4.13. Proposes a collapsing photo, opaque pinned toolbar, 48-point back target, existing navigation callback, focused tests and manual QA matrix.
+- Scope assumes CP Shoot Details; the Figma creator profile remains unmapped. Implementation awaits plan review; prior non-sticky preference is proposed for replacement, not yet changed.
+- Inspected current screen, scaffold and navigation plan. Documentation-only change; no new runtime verification or production edits.
+
+### 2026-11-13: Figma header contrast and back-navigation review
+
+- Reviewed Figma `7343:62991` (creator profile); no exact screen found in CP source. Signup profile preview differs. Related Shoot Details white arrow sits near the transparent end of its short top gradient.
+- Recommend extending darkness through the toolbar before fading; preserve the prior scrolling/plain-arrow preference. No production changes or files moved.
+- Inspected Shoot Details pop/named Shoots fallback and explicit SDK MaterialPage. `flutter test --no-pub test/app/route_page_builder_test.dart test/app/route_page_coverage_test.dart test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart`: 13/13 pass. Includes iOS production shoot-route swipe, cancelled generic swipe, and generic Android system back; icon tap/fallback source-reviewed only.
+- Updated task 4.13 review notes. Exact Figma screen navigation and fresh device gestures remain unverified; target screen/repository needs identification before implementation.
+
+### 2026-11-12: Android dev navigation smoke
+
+- Launched dev/debug on running Android 16 API 36 emulator. Flutter automatically
+  recovered insufficient install storage by uninstalling/reinstalling the app.
+- Exercised four tabs, drawer destinations, shoot details, nested File Manager
+  folders/image preview, profile forms/credentials/settings, deletion UI preview
+  and Android Back. See `docs/upgrade/ANDROID_NAVIGATION_QA_2026-11-12.md` for matrix.
+- Found #3052 details HTTP 400 (`Invalid v4 shoot_type.`), with null/default data
+  displayed after failure. Wedding #4596 loads. Notification bell has no handler.
+- Targeted host tests 72 passed; full `flutter test --no-pub` 756 passed.
+  No fresh native integration or iOS claim. Missing-data and live mutation flows
+  remain unverified. Left app signed in on Dashboard; no production code changes.
+- Updated Phase 4 task 4.13 open follow-up and 4.07 preview verification.
+  Current code/handoff supersedes the supplied historical Phase 4 active default;
+  this is QA follow-up, not reopening the migration or paused upgrade work.
+
 > Decisions, judgment calls, and deviations from `MIGRATION_PLAN.md` / `MIGRATION_RULES.md` are logged here during migration.
 > Format: date (ISO), section header. Each entry lists **Changes**, **Decisions** (with rationale), and **Constraints Maintained** (what was preserved — e.g., zero visual drift, `flutter analyze` zero errors).
 >

@@ -3,7 +3,25 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-11-04 (iOS swipe-back fix implemented + native verified — see section below).
+Last updated: 2026-11-13 (Shoot Details sticky header — see section below).
+
+## Shoot Details sticky header — 2026-11-13
+
+User approved `docs/feature/SHOOT_DETAILS_STICKY_HEADER_PLAN.md`. Shoot Details
+now uses a collapsing photo and pinned charcoal toolbar, with a plain 48-point
+back target and collapsed project title. This supersedes the November 4
+non-sticky preference for this screen. Keep the top contrast overlay attached
+to the toolbar, outside the scrolling photo, so bright images remain safe
+through intermediate collapse states. No Share/Favourite actions were added.
+The referenced Figma creator profile is not present in this CP repository.
+
+Navigation still pops to the caller or falls back to named Shoots when the
+button has no history; SDK MaterialPage routing is retained. Focused host tests
+pass 23/23, including white-image contrast at four offsets and real-screen
+back/gesture cases; scoped analysis is clean. Native iOS simulator navigation
+passes 29/29 on iOS 27.0. Physical-device,
+native Android, landscape and authenticated live-data smoke remain pending;
+see the linked plan for details.
 
 ## AGP 9 upgrade (new, 2026-10-30)
 
@@ -253,8 +271,8 @@ native integration `integration_test/navigation_back_test.dart` 14/14 on both
 iOS 27 sim and Pixel 9 API 36 emulator. Coverage tests
 `test/app/route_page_coverage_test.dart` + `test/app/route_page_builder_test.dart`
 pin the convention against the live route tree. Broader upgrade work is not
-implicitly resumed. The shoot-header back arrow remains non-sticky and without a
-circular background per user preference.
+implicitly resumed. The November 4 plain/non-sticky arrow preference has since been superseded
+by the approved November 13 sticky-header plan above; the arrow stays plain.
 
 
 ## Account deletion preview — 2026-11-09
