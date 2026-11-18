@@ -77,7 +77,7 @@ class NotificationListState {
   }
 }
 
-class NotificationListNotifier extends AutoDisposeNotifier<NotificationListState> {
+class NotificationListNotifier extends Notifier<NotificationListState> {
   @override
   NotificationListState build() {
     // Initial fetch
@@ -242,6 +242,6 @@ class NotificationListNotifier extends AutoDisposeNotifier<NotificationListState
 }
 
 final notificationListProvider =
-    AutoDisposeNotifierProvider<NotificationListNotifier, NotificationListState>(
+    NotifierProvider.autoDispose<NotificationListNotifier, NotificationListState>(
   NotificationListNotifier.new,
 );

@@ -337,6 +337,10 @@ class PushNotificationService {
         return null;
       }
     }
+    // register()/onRegistered emit the FID, not the legacy FCM token the
+    // backend stores. Keep getToken() until the backend confirms FID/direct-send
+    // support.
+    // ignore: deprecated_member_use
     return await _fcm.getToken();
   }
 
@@ -363,6 +367,9 @@ class PushNotificationService {
       }
     });
 
+    // see fetchToken(); onRegistered emits the FID, not the FCM token. Keep
+    // onTokenRefresh until the backend migrates.
+    // ignore: deprecated_member_use
     _fcm.onTokenRefresh.listen((newToken) {
       _fcmToken = newToken;
       if (kDebugMode) {

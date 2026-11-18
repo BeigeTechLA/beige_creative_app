@@ -22,7 +22,7 @@ final List<RouteBase> shootsRoutes = [
           int.tryParse(state.uri.queryParameters['projectId'] ?? '') ??
           int.tryParse(state.uri.queryParameters['id'] ?? '');
       return UpcomingShootViewDetails(projectid: args.projectId ?? bookingIdFromQuery);
-    },
+    }),
   ),
   GoRoute(
     path: Routes.cancelShoot.path,
