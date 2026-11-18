@@ -1,300 +1,241 @@
-import 'package:beige_creative_app/core/firebase/analytics_events.dart';
-import 'package:beige_creative_app/core/firebase/telemetry_client.dart';
-import 'package:beige_creative_app/core/providers/auth_state_provider.dart';
+import 'package:beige_creative_app/app/routes.dart';
+import 'package:beige_creative_app/app/theme.dart';
+import 'package:beige_creative_app/core/providers/account_status_provider.dart';
 import 'package:beige_creative_app/core/providers/core_providers.dart';
-import 'package:beige_creative_app/core/session/session_store.dart';
+import 'package:beige_creative_app/features/profile/domain/models/deletion_request.dart';
 import 'package:beige_creative_app/features/profile/domain/repositories/delete_account_repository.dart';
 import 'package:beige_creative_app/features/profile/presentation/providers/delete_account_providers.dart';
+import 'package:beige_creative_app/features/profile/presentation/screens/delete_account_otp_screen.dart';
+import 'package:beige_creative_app/features/profile/presentation/screens/delete_account_screen.dart';
+import 'package:beige_creative_app/features/profile/presentation/screens/delete_account_success_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _FakeRepo implements DeleteAccountRepository {
-  bool requestCalled = false;
-  bool confirmCalled = false;
-  bool resendCalled = false;
-  String? lastReason;
-  String? lastOtp;
-  bool throwOnRequest = false;
-  bool throwOnConfirm = false;
+class FakeDeleteAccountRepository implements DeleteAccountRepository {
+  bool otpRequested = false;
+  String? confirmedOtp;
 
   @override
-  Future<void> requestDelete(String reason) async {
-    requestCalled = true;
-    lastReason = reason;
-    if (throwOnRequest) throw Exception('User not found');
+  Future<void> requestOtp() async {
+    otpRequested = true;
   }
 
   @override
-  Future<void> confirmDelete(String otp) async {
-    confirmCalled = true;
-    lastOtp = otp;
-    if (throwOnConfirm) throw Exception('Invalid OTP');
+  Future<DeletionRequest> confirm(String otp) async {
+    confirmedOtp = otp;
+    return DeletionRequest(
+      id: 'DEL-12345',
+      status: 'deletion_pending',
+      scheduledAt: DateTime(2026, 5, 15),
+      confirmationEmailSent: true,
+    );
   }
 
   @override
-  Future<void> resendOtp() async {
-    resendCalled = true;
+  Future<DeletionRequest> status() async {
+    return DeletionRequest(
+      id: 'DEL-12345',
+      status: 'deletion_pending',
+      scheduledAt: DateTime(2026, 5, 15),
+      confirmationEmailSent: true,
+    );
+  }
+
+  @override
+  Future<DeletionRequest> cancel() async {
+    return DeletionRequest(
+      id: 'DEL-12345',
+      status: 'cancelled',
+      scheduledAt: DateTime(2026, 5, 15),
+    );
   }
 }
 
-class _FakeSession implements SessionStore {
-  bool cleared = false;
-
-  @override
-  Future<void> clearSession() async {
-    cleared = true;
-  }
-
-  // Unused in these tests — throw so accidental use is loud.
-  @override
-  Future<String?> readToken() async => null;
-  @override
-  Future<void> writeToken(String token) async {}
-  @override
-  Future<void> clearToken() async {}
-  @override
-  Future<String?> readRefreshToken() async => null;
-  @override
-  Future<void> writeRefreshToken(String token) async {}
-  @override
-  Future<void> clearRefreshToken() async {}
-  @override
-  Future<UserSnapshot?> readUser() async => null;
-  @override
-  UserSnapshot? readUserSync() => null;
-  @override
-  Future<void> writeUser(UserSnapshot user) async {}
-  @override
-  Future<void> clearUser() async {}
-  @override
-  Future<DateTime?> readLastLoginAt() async => null;
-  @override
-  Future<void> writeLastLoginAt(DateTime when) async {}
-  @override
-  Future<bool> readOnboardingSeen() async => false;
-  @override
-  Future<void> writeOnboardingSeen(bool seen) async {}
-  @override
-  Future<bool> isLoggedIn() async => false;
-  @override
-  Future<String?> readFcmToken() async => null;
-  @override
-  Future<void> writeFcmToken(String fcmToken) async {}
-  @override
-  Future<void> clearFcmToken() async {}
-  @override
-  Future<String> getAppSessionId() async => 'fake-app-session-id';
-  @override
-  Future<void> clearAppSessionId() async {}
-}
-
-class _RecordingTelemetry implements TelemetryClient {
-  final List<({String name, Map<String, Object>? parameters})> events =
-      <({String name, Map<String, Object>? parameters})>[];
-
-  @override
-  Future<void> setUserIdentity({
-    required String userId,
-    String? userRole,
-    String loginMethod = 'password',
-  }) async {}
-
-  @override
-  Future<void> clearUserIdentity({bool emitLogoutEvent = false}) async {}
-
-  @override
-  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
-    events.add((name: name, parameters: parameters));
-  }
-
-  @override
-  Future<void> recordError(
-    Object error,
-    StackTrace? stack, {
-    String? reason,
-    bool fatal = false,
-  }) async {}
-}
-
-Future<ProviderContainer> _container({
-  required _FakeRepo repo,
-  _FakeSession? session,
-  _RecordingTelemetry? telemetry,
-}) async {
-  // Phase B — logout() now wipes restoration + draft stores, both backed
-  // by SharedPreferences via prefsProvider. Mock-init prefs so the
-  // override resolves to a real (in-memory) instance.
-  SharedPreferences.setMockInitialValues({});
-  final prefs = await SharedPreferences.getInstance();
-  final c = ProviderContainer(
-    overrides: [
-      deleteAccountRepositoryProvider.overrideWithValue(repo),
-      if (session != null)
-        sessionStoreProvider.overrideWithValue(session),
-      prefsProvider.overrideWithValue(prefs),
-      if (telemetry != null)
-        telemetryClientProvider.overrideWithValue(telemetry),
-    ],
-  );
-  addTearDown(c.dispose);
-  return c;
-}
+GoRouter router({String initial = '/', bool stubSuccess = false}) => GoRouter(
+  initialLocation: initial,
+  routes: [
+    GoRoute(path: '/', builder: (_, _) => const DeleteAccountScreen()),
+    GoRoute(
+      path: '/otp',
+      name: Routes.deleteAccountOtp.name,
+      builder: (_, _) => const DeleteAccountOtpScreen(),
+    ),
+    GoRoute(
+      path: '/success',
+      name: Routes.deleteAccountSuccess.name,
+      builder: (_, _) => stubSuccess
+          ? const Scaffold(body: Text('Confirmed receipt'))
+          : const DeleteAccountSuccessScreen(),
+    ),
+  ],
+);
 
 void main() {
-  group('DeleteAccountNotifier.requestDelete', () {
-    test('rejects when no reason selected', () async {
-      final repo = _FakeRepo();
-      final c = await _container(repo: repo);
-      final ok = await c
-          .read(deleteAccountNotifierProvider.notifier)
-          .requestDelete();
-      expect(ok, isFalse);
-      expect(repo.requestCalled, isFalse);
-      expect(
-        c.read(deleteAccountNotifierProvider).validationMessage,
-        'Please select delete reason',
-      );
-    });
-
-    test('happy path posts reason', () async {
-      final repo = _FakeRepo();
-      final c = await _container(repo: repo);
-      final notifier = c.read(deleteAccountNotifierProvider.notifier);
-      notifier.selectReason('Others');
-      final ok = await notifier.requestDelete();
-      expect(ok, isTrue);
-      expect(repo.lastReason, 'Others');
-      expect(c.read(deleteAccountNotifierProvider).requestOk, isTrue);
-    });
-
-    test('surfaces repo error', () async {
-      final repo = _FakeRepo()..throwOnRequest = true;
-      final c = await _container(repo: repo);
-      final notifier = c.read(deleteAccountNotifierProvider.notifier);
-      notifier.selectReason('Others');
-      final ok = await notifier.requestDelete();
-      expect(ok, isFalse);
-      expect(
-        c.read(deleteAccountNotifierProvider).errorMessage,
-        'User not found',
-      );
-    });
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
   });
 
-  group('DeleteAccountNotifier.confirmDelete', () {
-    test('rejects partial OTP', () async {
-      final repo = _FakeRepo();
-      final session = _FakeSession();
-      final c = await _container(repo: repo, session: session);
-      final ok = await c
-          .read(deleteAccountNotifierProvider.notifier)
-          .confirmDelete('123');
-      expect(ok, isFalse);
-      expect(repo.confirmCalled, isFalse);
-      expect(session.cleared, isFalse);
-    });
+  test('deletion notifier lifecycle: request, confirm, cancel', () async {
+    final prefs = await SharedPreferences.getInstance();
+    final repo = FakeDeleteAccountRepository();
+    final container = ProviderContainer(
+      overrides: [
+        prefsProvider.overrideWithValue(prefs),
+        deleteAccountRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
+    addTearDown(container.dispose);
 
-    test('happy path clears session + flips auth state', () async {
-      final repo = _FakeRepo();
-      final session = _FakeSession();
-      final c = await _container(repo: repo, session: session);
-      c.read(authStateProvider.notifier).state = true;
+    final notifier = container.read(deletionProvider.notifier);
 
-      final ok = await c
-          .read(deleteAccountNotifierProvider.notifier)
-          .confirmDelete('123456');
-      expect(ok, isTrue);
-      expect(repo.lastOtp, '123456');
-      expect(session.cleared, isTrue);
-      expect(c.read(authStateProvider), isFalse);
-      expect(c.read(deleteAccountNotifierProvider).confirmOk, isTrue);
-    });
+    // Initial state
+    expect(container.read(deletionProvider).busy, isFalse);
+    expect(container.read(deletionProvider).otpSent, isFalse);
 
-    test('repo failure leaves session intact', () async {
-      final repo = _FakeRepo()..throwOnConfirm = true;
-      final session = _FakeSession();
-      final c = await _container(repo: repo, session: session);
-      c.read(authStateProvider.notifier).state = true;
+    // Request OTP
+    final requested = await notifier.requestOtp();
+    expect(requested, isTrue);
+    expect(repo.otpRequested, isTrue);
+    expect(container.read(deletionProvider).otpSent, isTrue);
 
-      final ok = await c
-          .read(deleteAccountNotifierProvider.notifier)
-          .confirmDelete('123456');
-      expect(ok, isFalse);
-      expect(session.cleared, isFalse);
-      expect(c.read(authStateProvider), isTrue);
-      expect(
-        c.read(deleteAccountNotifierProvider).errorMessage,
-        'Invalid OTP',
-      );
-    });
+    // Confirm OTP
+    final confirmed = await notifier.confirm('123456');
+    expect(confirmed, isTrue);
+    expect(repo.confirmedOtp, '123456');
+    expect(
+      container.read(accountStatusProvider),
+      AccountStatus.deletionPending,
+    );
+    expect(container.read(deletionReceiptProvider)?.id, 'DEL-12345');
+
+    // Cancel deletion
+    final cancelled = await notifier.cancel();
+    expect(cancelled, isTrue);
+    expect(container.read(accountStatusProvider), AccountStatus.active);
+    expect(container.read(deletionProvider).cancelled, isTrue);
   });
 
-  group('DeleteAccountNotifier event emission (B1)', () {
-    test('emits account_deletion_requested on confirm success', () async {
-      final repo = _FakeRepo();
-      final session = _FakeSession();
-      final telemetry = _RecordingTelemetry();
-      final c = await _container(
-        repo: repo,
-        session: session,
-        telemetry: telemetry,
-      );
-      c.read(authStateProvider.notifier).state = true;
+  testWidgets('OTP entry screen supports typing and paste autofill', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(375, 812);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
 
-      final ok = await c
-          .read(deleteAccountNotifierProvider.notifier)
-          .confirmDelete('123456');
-      expect(ok, isTrue);
-      final hits = telemetry.events
-          .where((e) => e.name == AnalyticsEvents.accountDeletionRequested)
-          .toList();
-      expect(hits, hasLength(1));
-      expect(hits.single.parameters, isNull);
-    });
+    final prefs = await SharedPreferences.getInstance();
+    final repo = FakeDeleteAccountRepository();
+    final r = router(initial: '/otp', stubSuccess: true);
+    addTearDown(r.dispose);
 
-    test('does not emit account_deletion_requested on confirm failure',
-        () async {
-      final repo = _FakeRepo()..throwOnConfirm = true;
-      final session = _FakeSession();
-      final telemetry = _RecordingTelemetry();
-      final c = await _container(
-        repo: repo,
-        session: session,
-        telemetry: telemetry,
-      );
-      c.read(authStateProvider.notifier).state = true;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          prefsProvider.overrideWithValue(prefs),
+          deleteAccountRepositoryProvider.overrideWithValue(repo),
+        ],
+        child: MaterialApp.router(routerConfig: r, theme: AppTheme.dark()),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      final ok = await c
-          .read(deleteAccountNotifierProvider.notifier)
-          .confirmDelete('123456');
-      expect(ok, isFalse);
-      expect(
-        telemetry.events
-            .where((e) => e.name == AnalyticsEvents.accountDeletionRequested),
-        isEmpty,
-      );
-    });
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(DeleteAccountOtpScreen)),
+    );
+    await container.read(deletionProvider.notifier).requestOtp();
+    await tester.pump();
 
-    test('does not emit on validation rejection (partial OTP)', () async {
-      final repo = _FakeRepo();
-      final session = _FakeSession();
-      final telemetry = _RecordingTelemetry();
-      final c = await _container(
-        repo: repo,
-        session: session,
-        telemetry: telemetry,
-      );
+    // Verify initial button is disabled without 6 digits
+    expect(
+      tester.widget<ElevatedButton>(find.byType(ElevatedButton)).onPressed,
+      isNull,
+    );
 
-      final ok = await c
-          .read(deleteAccountNotifierProvider.notifier)
-          .confirmDelete('123');
-      expect(ok, isFalse);
-      expect(
-        telemetry.events
-            .where((e) => e.name == AnalyticsEvents.accountDeletionRequested),
-        isEmpty,
+    // Paste 6 digits into first field
+    await tester.enterText(
+      find.byKey(const ValueKey('deletion-otp-0')),
+      '123456',
+    );
+    await tester.pump();
+
+    expect(repo.confirmedOtp, isNull);
+    expect(r.routeInformationProvider.value.uri.path, '/otp');
+
+    // Verify all 6 fields filled
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('deletion-otp-5')))
+          .controller!
+          .text,
+      '6',
+    );
+    expect(
+      tester.widget<ElevatedButton>(find.byType(ElevatedButton)).onPressed,
+      isNotNull,
+    );
+
+    // Resend clears fields
+    await tester.tap(find.text('Resend OTP'));
+    await tester.pump();
+    expect(repo.otpRequested, isTrue);
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('deletion-otp-0')))
+          .controller!
+          .text,
+      '',
+    );
+    for (var i = 0; i < 6; i++) {
+      await tester.enterText(
+        find.byKey(ValueKey('deletion-otp-$i')),
+        '${i + 1}',
       );
-    });
+    }
+    await tester.pump();
+    expect(repo.confirmedOtp, isNull);
+    await tester.ensureVisible(find.text('Verify & Delete my Account'));
+    await tester.tap(find.text('Verify & Delete my Account'));
+    await tester.pumpAndSettle();
+    expect(repo.confirmedOtp, '123456');
+    expect(find.text('Confirmed receipt'), findsOneWidget);
+  });
+
+  testWidgets('OTP fits a narrow viewport with keyboard and large text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    tester.view.viewInsets = const FakeViewPadding(bottom: 240);
+    addTearDown(tester.view.reset);
+
+    final prefs = await SharedPreferences.getInstance();
+    final repo = FakeDeleteAccountRepository();
+    final r = router(initial: '/otp');
+    addTearDown(r.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          prefsProvider.overrideWithValue(prefs),
+          deleteAccountRepositoryProvider.overrideWithValue(repo),
+        ],
+        child: MaterialApp.router(
+          routerConfig: r,
+          theme: AppTheme.dark(),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: const TextScaler.linear(1.6)),
+            child: child!,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Verify & Delete my Account'));
+    expect(tester.takeException(), isNull);
   });
 }

@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 /// `roomId` of the chat thread the user is currently viewing, or `null` when
 /// no thread is open. `ChatThreadNotifier` sets on `build` and clears in

@@ -22,16 +22,16 @@ class SharesState {
   final String? error;
 }
 
-class SharesNotifier
-    extends AutoDisposeFamilyNotifier<SharesState, FmShareTarget> {
-  late FmShareTarget _target;
+class SharesNotifier extends Notifier<SharesState> {
+  SharesNotifier(this._target);
+
+  final FmShareTarget _target;
   bool _disposed = false;
   bool _refreshing = false;
   SharesRepository get _repo => ref.read(sharesRepositoryProvider);
 
   @override
-  SharesState build(FmShareTarget arg) {
-    _target = arg;
+  SharesState build() {
     ref.onDispose(() => _disposed = true);
     Future.microtask(() {
       if (!_disposed) refresh();

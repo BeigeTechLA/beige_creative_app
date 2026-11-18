@@ -7,7 +7,8 @@ import 'location_exception.dart';
 class LocationService {
   static Future<String> getAddressFromLatLng(LatLng latLng) async {
     try {
-      final placemarks = await placemarkFromCoordinates(
+      // geocoding 5: top-level helpers removed; use the Geocoding instance API.
+      final placemarks = await Geocoding().placemarkFromCoordinates(
         latLng.latitude,
         latLng.longitude,
       );

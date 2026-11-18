@@ -1,9 +1,62 @@
 # Migration Log — Beige Creative App (Crew)
 
+### 2026-11-13: Shoot Details sticky header implemented
+
+- User approved the plan. Extracted the image/metadata into feature-local `shoot_details_header.dart`; screen uses `CustomScrollView`, pinned `SliverAppBar` and body adapter. Plain 48-point back control, collapsed project title, safe-area/status-icon styling and existing pop/named Shoots fallback retained. Supersedes the earlier non-sticky preference.
+- Visual QA caught intermediate-scroll white-on-white contrast: keep the top gradient outside the moving photo. Added a pure-white-image pixel regression at four scroll offsets, real-screen navigation/layout tests, and included details cases in native navigation integration.
+- Verification: focused host tests **23/23**; iPhone 18 Pro iOS 27 simulator integration **29/29** (`/tmp/cp-sticky-header-ios-tests.log`); scoped analysis and whitespace checks pass. Expanded/middle/collapsed synthetic-image renders inspected. Full suite not rerun.
+- Updated task 4.13, plan execution/entry-flow notes and AI handoff. Physical-device/native Android/landscape/authenticated live-data smoke remain pending; no Android device connected. No APIs, routes or body business logic changed. Existing unrelated work preserved.
+
+### 2026-11-13: Shoot Details sticky header change plan
+
+- Added `docs/feature/SHOOT_DETAILS_STICKY_HEADER_PLAN.md` at user request and linked task 4.13. Proposes a collapsing photo, opaque pinned toolbar, 48-point back target, existing navigation callback, focused tests and manual QA matrix.
+- Scope assumes CP Shoot Details; the Figma creator profile remains unmapped. Implementation awaits plan review; prior non-sticky preference is proposed for replacement, not yet changed.
+- Inspected current screen, scaffold and navigation plan. Documentation-only change; no new runtime verification or production edits.
+
+### 2026-11-13: Figma header contrast and back-navigation review
+
+- Reviewed Figma `7343:62991` (creator profile); no exact screen found in CP source. Signup profile preview differs. Related Shoot Details white arrow sits near the transparent end of its short top gradient.
+- Recommend extending darkness through the toolbar before fading; preserve the prior scrolling/plain-arrow preference. No production changes or files moved.
+- Inspected Shoot Details pop/named Shoots fallback and explicit SDK MaterialPage. `flutter test --no-pub test/app/route_page_builder_test.dart test/app/route_page_coverage_test.dart test/features/shoots/presentation/screens/upcoming_shoot_view_details_screen_test.dart`: 13/13 pass. Includes iOS production shoot-route swipe, cancelled generic swipe, and generic Android system back; icon tap/fallback source-reviewed only.
+- Updated task 4.13 review notes. Exact Figma screen navigation and fresh device gestures remain unverified; target screen/repository needs identification before implementation.
+
+### 2026-11-12: Android dev navigation smoke
+
+- Launched dev/debug on running Android 16 API 36 emulator. Flutter automatically
+  recovered insufficient install storage by uninstalling/reinstalling the app.
+- Exercised four tabs, drawer destinations, shoot details, nested File Manager
+  folders/image preview, profile forms/credentials/settings, deletion UI preview
+  and Android Back. See `docs/upgrade/ANDROID_NAVIGATION_QA_2026-11-12.md` for matrix.
+- Found #3052 details HTTP 400 (`Invalid v4 shoot_type.`), with null/default data
+  displayed after failure. Wedding #4596 loads. Notification bell has no handler.
+- Targeted host tests 72 passed; full `flutter test --no-pub` 756 passed.
+  No fresh native integration or iOS claim. Missing-data and live mutation flows
+  remain unverified. Left app signed in on Dashboard; no production code changes.
+- Updated Phase 4 task 4.13 open follow-up and 4.07 preview verification.
+  Current code/handoff supersedes the supplied historical Phase 4 active default;
+  this is QA follow-up, not reopening the migration or paused upgrade work.
+
 > Decisions, judgment calls, and deviations from `MIGRATION_PLAN.md` / `MIGRATION_RULES.md` are logged here during migration.
 > Format: date (ISO), section header. Each entry lists **Changes**, **Decisions** (with rationale), and **Constraints Maintained** (what was preserved — e.g., zero visual drift, `flutter analyze` zero errors).
 >
 > See also: [`MIGRATION_PLAN.md`](MIGRATION_PLAN.md) · [`MIGRATION_RULES.md`](MIGRATION_RULES.md) · [`docs/migration/`](docs/migration/) (phase plans).
+
+### 2026-10-30: AGP 9 upgrade — Phase 0 audit + Phase 1/2 execution (legacy-compat)
+
+- **Context**: Separate standalone effort. Canonical plan: [`docs/upgrade/AGP9_UPGRADE.md`](docs/upgrade/AGP9_UPGRADE.md). Triggered by an Android Studio "Gradle 8.14 incompatible with Gradle JVM 25" import error (AS now bundles JDK 25; Gradle 8.14 max Java = 24). Immediate IDE fix is unrelated to AGP: set Gradle JDK to 21/17. AGP 9 tracked as optional/future.
+- **Phase 0 (dep audit)**: GREEN. 21 Android-native plugins inspected from the pub cache; all set `namespace`, none use removed APIs. firebase_core/analytics/crashlytics + package_info_plus + share_plus are explicitly AGP9 built-in-Kotlin aware. 3 watch items (not blockers): `android_file_picker 2.1.2` (self-tagged temp AGP workaround, upstream #2170), `open_file_android 1.1.0` (compileSdk 34, least maintained), `jni`/`jni_flutter` (native `.so`, compileSdk 35, AGP9 NDK r28c default).
+- **Changes** (`android/`):
+  - `gradle-wrapper.properties`: Gradle `8.14` → `9.1.0`.
+  - `settings.gradle.kts`: AGP `com.android.application` `8.11.1` → `9.0.1`; `com.google.gms.google-services` `4.4.2` → `4.5.0`; `com.google.firebase.crashlytics` `3.0.2` → `3.0.7`. Kotlin plugin `2.2.20` kept applied (legacy mode).
+  - `gradle.properties`: added `android.builtInKotlin=false` + `android.newDsl=false` (legacy-compat).
+  - `app/build.gradle.kts`: added `buildFeatures { resValues = true }` — AGP 9 disables `resValues` by default and the flavors use `resValue("string", "app_name", ...)`.
+  - Kotlin plugin `2.2.20` → `2.3.20` — Flutter warns it drops KGP < 2.3.20 support soon.
+- **Decisions**:
+  - Merged plan Phases 1+2. AGP 8.11 + Gradle 9 is not an officially supported intermediate (AGP 8.11 min Gradle is 8.13, Gradle-9 pairing untested), so jumped straight to the first valid checkpoint: Gradle 9.1.0 + AGP 9.0.1 together.
+  - Legacy-compat mode first (`builtInKotlin=false`, `newDsl=false`) to de-risk `android_file_picker`'s hacky `kotlinOptions` workaround before the built-in-Kotlin flip (Phase 3).
+  - Crashlytics `3.0.7` chosen: `3.0.6`+ confirmed AGP9-OK (firebase-android-sdk #7652 was a classpath error, not a plugin bug).
+- **Verification**: build must run on JBR 21 — the default AS JDK 25 exceeds Gradle 9.1's supported Java range. `flutter build apk --flavor dev --dart-define-from-file=env/dev.json -t lib/main_dev.dart --debug` with `JAVA_HOME` → JBR 21 → **PASS** (`assembleDevDebug` 91.8s → `build/app/outputs/flutter-apk/app-dev-debug.apk`). All 3 watch-item plugins compiled. Only benign warnings (legacy-KGP future-drop note, obsolete source/target 8, geolocator deprecated API).
+- **Remaining**: Phase 3 (flip to built-in Kotlin: `builtInKotlin=true`/`newDsl=true`, drop KGP) and Phase 4–5 (Crashlytics mapping upload + on-device smoke, both flavors, release/AAB) still open. Legacy-compat is a fully supported stable checkpoint; the KGP warning concerns *future* Flutter versions only.
 
 ### 2026-09-15: File Manager In-App File & Folder Download Fixes
 
@@ -4523,3 +4576,468 @@ Phase 4 closed. 23/23 tasks done across 6 groups (A pilot, B low-API tabs, C pro
 - Verification: focused session/provider/network/Messages suites passed 60/60;
   scoped static analysis passed; git diff --check passed.
 - Remaining: real-device verification against the updated backend contract.
+
+### 2026-10-19: Standalone Flutter upgrade + iOS 27 readiness plan created
+
+- **Changes**:
+  - New standalone plan `docs/upgrade/FLUTTER_IOS27_UPGRADE.md` (NOT a migration
+    phase; tracked separately from the Phase 6 sequence): full plugin upgrade (all
+    outdated deps to latest resolvable, including breaking majors) plus iOS 27 /
+    Xcode 27 cutover. 12 tasks (U-01–U-12), ~12.5 effort-days.
+  - Captured dependency audit snapshot from `flutter pub outdated` +
+    `ios/Podfile.lock` on Flutter 3.47.0 / Dart 3.13.0.
+- **Decisions**:
+  - Scope = full upgrade before iOS 27 (per user): includes riverpod 2→3,
+    go_router 14→18, socket_io 2→3 as tracked tasks, not deferred.
+  - Sequencing: pin Flutter → Tier A safe bumps → iOS privacy manifest →
+    iOS-27-critical native majors (Firebase, file_picker, maps/location) → deep
+    Dart-only majors → iOS 27 cutover last, after the dep tree is green.
+  - iOS 27 native gates identified: Firebase 11.15 → 12.x (via firebase_* major),
+    DKImagePickerController 4.3.9 removal (file_picker 13), GoogleMaps 9.4 bump,
+    and the still-missing app-level `PrivacyInfo.xcprivacy`.
+- **Constraints Maintained**:
+  - Audit-only; no code or pubspec edits yet. Each task to merge only with
+    `flutter analyze --fatal-infos` + full `flutter test` + a local iOS build green.
+- **Next**: await go-ahead on task U-01 (pin Flutter 3.47.0).
+
+### 2026-10-21: Upgrade plan reordered — strict low→high impact
+
+- **Changes**:
+  - Re-sequenced `docs/upgrade/FLUTTER_IOS27_UPGRADE.md` to strict low-impact →
+    high-impact ordering, iOS 27 cutover last (per user request). Renumbered task
+    list, Tier B task-column references, and per-task detail headers; synced
+    `docs/AI_HANDOFF.md`. Re-verified `flutter pub outdated` on Flutter 3.47.0 —
+    audit snapshot still accurate.
+  - New order: U-01 pin Flutter → U-02 safe bumps → U-03 iOS privacy manifest →
+    U-04 Dart-only majors batch (share_plus/package_info/cached_network_image/
+    open_file/secure_storage) → U-05 file_picker 11→13 → U-06 maps+geolocator+
+    geocoding apple → U-07 socket_io 2→3 → U-08 riverpod 2→3 → U-09 go_router
+    14→18 → U-10 Firebase major (native 12.x) → U-11 iOS 27 cutover → U-12 regression.
+- **Decisions**:
+  - Firebase major moved from U-04 to U-10: it is the biggest native change and an
+    iOS-27 gate, but builds on Xcode 16+, so it lands last among the majors yet
+    still before the Xcode 27 cutover.
+  - Forced dependency overrides to pure blast-radius order: riverpod (U-08) before
+    go_router (U-09) because `routerProvider` sits on riverpod; socket_io leads the
+    High tier (U-07) as the most contained (messages-only) migration.
+  - geocoding 4→5 grouped into the native location task (U-06) rather than the
+    Dart-only batch, since `geocoding_darwin` is a native change.
+- **Constraints Maintained**:
+  - Still audit-only; no code or pubspec edits. Per-task gates unchanged.
+- **Next**: await go-ahead on task U-01 (pin Flutter 3.47.0).
+
+### 2026-10-21: Upgrade Phase 1 complete — U-01 pin + U-02 safe bumps
+
+- **Changes**:
+  - U-01: Added `.fvmrc` (`{"flutter":"3.47.0"}`); pinned `flutter-version: '3.47.0'`
+    in `.github/workflows/ci.yml` and `integration.yml` (kept `channel: stable`, `cache: true`).
+  - U-02: `flutter pub upgrade` (in-constraint) — 87 deps moved in `pubspec.lock`,
+    no `pubspec.yaml` edits. Notable: dio 5.9→5.11, connectivity_plus 7.1→7.3,
+    google_maps_flutter 2.17→2.19, shared_preferences/url_launcher/table_calendar/intl/lottie patch+minor.
+  - dio 5.11 added `DioExceptionType.transformTimeout`; added it to the timeout
+    case group in `lib/core/network/exceptions/exception_handler.dart:142`.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built Runner.app (105.7s).
+  - Full `flutter test` deferred to U-12 (user decision). Noted pre-existing (NOT
+    upgrade-caused) failures: `test/app/router_connectivity_test.dart` redirect
+    assertions fail on both old and new lock; `login_screen_test.dart: prefills
+    debug login credentials` hangs (10-min per-test timeout). Both parked for U-12.
+- **Decisions**:
+  - Build-per-phase is the gate (user); test suite runs once at U-12.
+- **Next**: U-03 iOS `PrivacyInfo.xcprivacy` app manifest (Phase 2).
+
+### 2026-10-21: Upgrade U-03 — iOS app privacy manifest
+
+- **Changes**:
+  - Added `ios/Runner/PrivacyInfo.xcprivacy` (app-level). `NSPrivacyTracking=false`,
+    empty tracking domains, empty `NSPrivacyCollectedDataTypes`, and four Required
+    Reason API declarations: UserDefaults `CA92.1`, FileTimestamp `C617.1`,
+    SystemBootTime `35F9.1`, DiskSpace `E174.1`.
+  - Wired into Runner target in `ios/Runner.xcodeproj/project.pbxproj`: new
+    PBXFileReference `AA0100000000000000000F01` + PBXBuildFile `AA0100000000000000000F02`,
+    added to the Runner PBXGroup and the Resources (Copy Bundle Resources) phase.
+- **Verification**:
+  - `plutil -lint` OK for both the manifest and `project.pbxproj`.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built; manifest
+    present at `build/ios/iphoneos/Runner.app/PrivacyInfo.xcprivacy`.
+- **Decisions**:
+  - Plugin pods ship their own manifests (ios/Pods/**) — not re-declared; Apple
+    aggregates. Only first-party/engine-level Required Reason APIs declared here.
+  - `NSPrivacyCollectedDataTypes` left empty: authoritative disclosure lives in
+    App Store Connect. **U-11 follow-up**: PM/legal to confirm collected-data label
+    (email, name, phone, precise location, photos, analytics, crash data).
+- **Next**: U-04 Dart-only majors batch (share_plus/package_info/cached_network_image/open_file/secure_storage).
+
+### 2026-10-21: Upgrade U-04 + U-05 — 6 majors landed together (win32 coupling)
+
+- **Changes**:
+  - Bumped in `pubspec.yaml`: share_plus ^13, package_info_plus ^10,
+    cached_network_image ^4, open_file ^4, flutter_secure_storage ^11,
+    file_picker ^13.1.0. Resolved: file_picker 13.1.0, share_plus 13.3.1,
+    package_info_plus 10.2.2, cached_network_image 4.0.4, open_file 4.0.0,
+    flutter_secure_storage 11.2.0, win32 6.4.0.
+  - share_plus call site: `Share.shareUri` → `SharePlus.instance.share(ShareParams(uri:))`
+    in `node_action_notifier.dart`.
+  - file_picker 13 migration: `common_uploader.dart` + `signup3_screen.dart` →
+    `FilePicker.pickFile()` (returns `PlatformFile?`); `fm_upload_sheet.dart` →
+    `FilePicker.pickFiles()` (returns `List<PlatformFile>`, dropped
+    `allowMultiple`/`withData`, `size` → `await length()`).
+  - package_info/cached_network_image/open_file/secure_storage: no code change.
+- **Decisions**:
+  - **U-05 pulled forward into U-04** (user-approved): share_plus 13 / package_info 10 /
+    secure_storage 11 all require `win32 ^6`, blocked by `file_picker 11` (`win32 ^5.9`).
+    Only file_picker 13 lifts it, so all 6 majors resolved as one atomic batch.
+  - file_picker 13 drops the ancient `DKImagePickerController` pod (verified absent).
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - CocoaPods: 36 pods, `Pods/FirebaseCrashlytics/run` present, `file_picker_darwin`
+    pod present, `DKImagePickerController` absent.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built; manifest still
+    bundled at `Runner.app/PrivacyInfo.xcprivacy`.
+- **⚠️ SPM recovery**: Flutter SPM was enabled globally; a `flutter clean` +
+  `rm -rf ios/Pods` caused Flutter to silently migrate Runner to Swift Package
+  Manager (rewrote `project.pbxproj`, dropped 65→4 pods, broke the committed
+  Crashlytics `run` build phase). Recovered by disabling SPM
+  (`flutter config --no-enable-swift-package-manager`), reverting pbxproj,
+  re-applying the privacy-manifest entries, then clean/pub get/pod install.
+  Project stays CocoaPods for this upgrade; SPM adoption deferred to U-11.
+- **Next**: U-06 (google_maps_flutter 2.19 + geolocator/geocoding apple; geocoding 4→5).
+
+### 2026-10-21: Upgrade U-06 — geocoding 4→5; iOS-27 cutover (U-11) descoped
+
+- **Scope change (user)**: iOS 27 / Xcode 27 compatibility is NOT being done.
+  **U-11 skipped.** Plugin upgrades (U-07→U-10) + U-12 regression continue; the
+  privacy manifest stays (general App Store requirement).
+- **Changes**:
+  - google_maps_flutter 2.19.0 + geolocator 14.0.2 / geolocator_apple 2.4.2 already
+    landed in-constraint via U-02 lock bumps; no further work needed for U-06.
+  - geocoding ^5.0.0 (+ `geocoding_platform_interface` dev dep ^5.0.0). Native impl
+    `geocoding_ios` → `geocoding_darwin` 1.0.3.
+  - geocoding 5 removed top-level helpers; migrated `location_service.dart` and
+    `signup1_screen.dart` to `Geocoding().placemarkFromCoordinates(...)`.
+  - Rewrote `test/utility/location_service_test.dart` geocoding mock to the v5 seam:
+    mock `GeocodingPlatformFactory.instance` → `createGeocoding` → mock `Geocoding`
+    (platform-interface, via `gpi` prefix); `registerFallbackValue(GeocodingCreationParams())`.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter test test/utility/location_service_test.dart`: 9/9 pass.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built; `geocoding_darwin`
+    pod present.
+- **Next**: U-07 (socket_io_client 2→3, messages only).
+
+### 2026-10-21: Upgrade U-07 — socket_io_client 2→3
+
+- **Changes**:
+  - `socket_io_client` ^3.0.0 → resolved 3.1.6 (socket_io_common 3.1.1, + new
+    pure-Dart `web_socket` transitive). No native pod.
+  - Only call site: `lib/features/messages/data/sources/messages_socket_source.dart`.
+    v3 kept the v2 surface (`io.io`, `OptionBuilder`, `onConnect`/`onConnectError`/
+    `onError`/`onDisconnect`/`onReconnect`/`onAny`, `on`, `emit`, `connected`,
+    `dispose`) — **zero API breaks**.
+  - Modernized the forceNew Manager-cache bypass: replaced the raw
+    `options['forceNew'] = true` map hack (with its now-false "not exposed in v2.x"
+    comment) with `OptionBuilder.enableForceNew()`. v3 honors `opts['forceNew']`
+    identically, so the stale-Manager-after-logout fix is preserved.
+- **Verification**:
+  - `flutter analyze --fatal-infos`: 0 issues.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built.
+  - Runtime connect/send/receive + reconnect verification deferred to U-12 device smoke.
+- **Next**: U-08 (flutter_riverpod 2→3 — foundation before go_router).
+
+### 2026-10-21: Upgrade U-08 — flutter_riverpod 2→3 (lib-complete)
+
+- **Changes** (all `lib/`; `flutter_riverpod` ^3.0.0 → 3.4.3 / riverpod 3.1.0):
+  - v3 removed the `AutoDispose*` Notifier base classes + `AutoDisposeNotifierProvider(Family)`
+    constructors. Migration map applied across 29 provider files:
+    - `AutoDisposeNotifier<T>` → `Notifier<T>`; `AutoDisposeNotifierProvider<N,T>(` →
+      `NotifierProvider.autoDispose<N,T>(`.
+    - `AutoDisposeFutureProvider(Family)<` → `FutureProvider.autoDispose(.family)<`.
+    - `AutoDisposeAsyncNotifierProvider.family` → `AsyncNotifierProvider.autoDispose.family`.
+    - `AutoDisposeNotifierProviderFamily<` → `NotifierProvider.autoDispose.family<`.
+  - **Family notifiers (6)** lost the inherited `arg` getter — migrated to constructor
+    injection (`extends Notifier<T>` / `AsyncNotifier<T>`, add `final Arg x;` +
+    `X(this.x);`, `build(Arg x)` → `build()`): upcoming_shoot, shoots (CancelShoot),
+    chat_thread, folder_contents, comments (async-family), shares.
+  - **StateProvider** moved to `package:flutter_riverpod/legacy.dart` — added that import
+    to the 4 `StateProvider<T>` sites (onboarding_seen, file_manager_repository,
+    active_chat_room, my_profile); dropped now-unused main import where StateProvider
+    was the only symbol.
+  - Fixed one return-**type** annotation broken by the bulk edit:
+    `FutureProvider.autoDispose<String?>` → `FutureProvider<String?>` in
+    file_image_preview_provider.dart (autoDispose is a builder, not a type in v3).
+- **Verification**:
+  - `flutter analyze --fatal-infos lib/`: 0 issues.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built.
+- **Deferred to U-12 (user: tests at end)**: `test/**` riverpod-3 migration — mock
+  notifiers extend removed `AutoDispose*` classes, `Override` type, `pump_app` helper,
+  and `state`/`ref` cascades. Same mechanical patterns as above apply. Runtime behavior
+  checks (autoDispose timing, v3 auto-retry on provider error) → U-12 device smoke.
+- **Next**: U-09 (go_router 14→18, on the riverpod 3 base).
+
+### 2026-10-21: Upgrade U-09 — go_router 14→18
+
+- **Changes**:
+  - `go_router` ^18.0.0 → resolved 18.1.1 (on the riverpod 3 base from U-08).
+  - **No code changes needed.** The router (split in 5.08) already uses the modern
+    APIs the 15–18 majors standardized on: `state.matchedLocation` (not the removed
+    `state.location`), named routes, `StatefulShellRoute`, `refreshListenable`,
+    `redirect`. All 58 `go_router` call sites (mostly `context.goNamed`/`pushNamed`)
+    are forward-compatible.
+- **Verification**:
+  - `flutter analyze --fatal-infos lib/`: 0 issues.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built.
+  - Route navigation + guarded redirects (pending/rejected fail-closed) runtime check → U-12.
+- **Next**: U-10 (Firebase group major — core 3→5, analytics 11→13, crashlytics 4→6; native FB 12.x).
+
+### 2026-10-21: Upgrade U-10 — Firebase group major (native FB 12.x)
+
+- **Changes**:
+  - `firebase_core` ^5.0.0 (5.0.0), `firebase_analytics` ^13.0.0 (13.0.0),
+    `firebase_crashlytics` ^6.0.0 (6.0.0). Native pods → Firebase 12.19.0
+    (FirebaseCore/Analytics/Crashlytics, GoogleAppMeasurement 12.x).
+  - **No Dart code changes** — the API is stable across these majors for our usage
+    (`lib/core/firebase/*`: init, analytics logEvent/observer, crashlytics recordError/
+    setCustomKey). Analyze clean.
+- **Pod resolution gotcha**: `pod install` kept the old Firebase 11.15 because the
+  Podfile.lock pinned the firebase_* **dev pods** at old versions. Fix was
+  `pod update firebase_core firebase_analytics firebase_crashlytics` (the path-based
+  dev pods), which cascaded `Firebase/CoreOnly` to 12.19.0.
+- **Stale-artifact build failure**: first build after the bump failed with
+  `'FLTFirebaseCorePlugin' has different definitions in different modules` — stale
+  `build/ios/.../firebase_core.framework` from the pre-bump compile. `flutter clean` +
+  rebuild fixed it; SPM stayed disabled (0 SPM refs in pbxproj after clean), so no
+  re-migration.
+- **Verification**:
+  - `flutter analyze --fatal-infos lib/`: 0 issues.
+  - `flutter build ios --flavor dev --debug --no-codesign`: ✓ Built (clean rebuild).
+  - Forced-crash (Crashlytics console) + event (Analytics DebugView) on device → U-12.
+- **Note (future)**: CocoaPods warns `FirebaseCore` is deprecated in favor of the
+  Firebase Apple SDK via SPM; CocoaPods versions stop publishing after Oct 2026.
+  Not blocking now (project stays CocoaPods); revisit if/when adopting SPM.
+- **Next**: U-12 regression — includes the deferred riverpod-3 **test/** migration.
+
+### 2026-10-21: Upgrade U-12 regression (in progress)
+
+- **test/ riverpod-3 migration (done — full-project `flutter analyze --fatal-infos`: 0 issues)**:
+  - Fake notifiers `extends AutoDisposeNotifier<X>` → `extends Notifier<X>` (5 files:
+    forgot_password, login_screen, my_profile_notifier, application_under_review_card,
+    app_shell tests).
+  - `Override` type is NOT in the `flutter_riverpod.dart` show-list in v3 — it lives in
+    `package:flutter_riverpod/misc.dart`. Added that import to `test/helpers/pump_app.dart`
+    + onboarding_screen_test.
+  - `_FakeDetailNotifier` (upcoming_shoot test): subclass of the now constructor-required
+    `UpcomingShootDetailNotifier` → `: super(0)`, `build(int)` → `build()`.
+  - Family provider override: `.overrideWith(() => fake)` deprecated in riverpod 3.4 →
+    `.overrideWith2((arg) => fake)`.
+- **Full suite — GREEN**: `flutter test` → **749/749 pass, 0 failures**; `analyze
+  --fatal-infos` 0 issues. The first post-migration run had ~20 failures; resolved by:
+  - **Riverpod-3 runtime fixes (Claude, production + test)**:
+    - `comments_notifier_test` "post via notifier persists…": added the `container.listen`
+      keepAlive the other post/reply/delete tests already had — v3 auto-disposes the
+      family notifier the instant no one listens, so `post()`'s `ref.read` hit a disposed
+      Ref. Test-only; the app always has a live listener.
+    - `file_image_preview_provider_test` "failed request not retained" (expected 2 calls,
+      got 12): **riverpod 3 auto-retries failed providers by default** — a failed image
+      sign was retried ~6× with backoff. Added `retry: (_, _) => null` to
+      `_imagePreviewProvider` (correct: UI shows a placeholder and re-requests on scroll-in).
+    - `messages_screen_test` "optimistic message": (a) `_pumpWithRepo` now overrides
+      `sessionStoreProvider` (v3 builds the chat notifiers eagerly → the send path reads
+      session; default impl throws); (b) guarded `ConversationListNotifier.refresh()` /
+      `_bootstrap` with `if (!ref.mounted) return;` after awaits — v3 throws
+      `UnmountedRefException` if `ref`/`state` are touched after a mid-fetch dispose.
+  - **Golden diffs** (`buttons`/`cards`/`messages`): regenerated on the pinned SDK
+    (`flutter test --update-goldens test/golden/`) — SDK/dep rendering shift, not defects.
+  - **Stale harness failures** (route/analytics/login/loading/button/drawer tests):
+    fixed by Codex in parallel (no production routing/UI behavior changed). See the two
+    Codex entries below. (My earlier "pre-existing" triage of these was wrong — most were
+    compile cascades from the broken riverpod fake-notifiers, now migrated.)
+- **Integration tests**: Codex switched both `integration_test` entry points to the
+  device `IntegrationTestWidgetsFlutterBinding` for CI emulator/device runs. Under local
+  `flutter test -d macos` the native app fails to foreground (`open returned 1`) — an
+  environment limitation, not a code regression. Needs a real device/emulator (CI) to
+  run green. Not reverted (intentional for CI).
+- **Deferred device smoke (U-12)**: Firebase forced-crash + event; file pick/upload;
+  maps/geocode; realtime socket; guarded redirects — on real iOS device.
+
+### 2026-10-21: U-12 parallel Codex CI/native review
+
+- Claude retains test generation/migration and related regression fixes; Codex
+  edited no test or production Dart files and ran no competing full suite/build.
+- `.github/workflows/integration.yml`: disable Swift Package Manager for the iOS
+  matrix before dependency installation. The local Flutter global setting was
+  absent from CI, risking the documented CocoaPods/Crashlytics migration failure.
+- Updated the standalone upgrade checklist and shared handoff. Historical
+  Phase 4 defaults and the handoff's stale "Next: U-06" do not describe this task;
+  the standalone U-12 regression plan governs. No files moved.
+- Verification: `flutter analyze --no-pub --fatal-infos lib/` passes; Ruby YAML
+  parse/order assertion passes; `plutil -lint` passes for the privacy manifest,
+  Runner project and AppFrameworkInfo; `git diff --check` passes.
+- Remaining: Claude's final suite results, device-binding verification for
+  integration tests, remote CI, and real-device smoke. No claim of full regression
+  completion; U-12 stays in progress and U-11 stays skipped.
+
+
+### 2026-10-21: U-12 Codex takeover — local regression green, paused by user
+
+- Took over after Claude stopped. Fixed 11 stale/harness failures in route,
+  analytics, login, loading/button and drawer tests without changing production
+  routing/UI behavior. Preserved existing Claude changes and goldens.
+- Full unit/widget/golden suite: **749/749 pass** with coverage. Full-project
+  analysis after integration-binding changes: **0 issues**. Coverage is
+  **11209/21804 = 51.41%**; 70% CI threshold remains unchanged.
+- Unsigned dev iOS build passes. Native macOS app also builds after resolving
+  stale Firebase 11.15 pods to 12.19.0; Flutter migrated macOS minimum to 12.0.
+  Changed macOS Podfile, lockfile and project deployment targets.
+- Both `integration_test` entry points now use the device integration binding.
+  Native login test started but did not complete; app foregrounding failed
+  (`open returned 1`). User requested stop, so runner was interrupted; resulting
+  stream/sink shutdown errors are cancellation diagnostics. Neither native
+  journey is claimed green. No remote CI/device smoke performed.
+- Updated standalone upgrade plan, AI handoff and Phase 6.13 coverage status.
+  No files moved, no commit/push/release. `git diff --check` passes.
+- **Paused at user request.** Resume native journeys/foreground issue first,
+  then Android/iOS CI and real-device smoke. Coverage lift and privacy disclosure
+  confirmation remain pending; U-11 stays skipped. Exact resume command and
+  durable results are in `docs/upgrade/FLUTTER_IOS27_UPGRADE.md`.
+
+
+### 2026-10-29: Project-level Google Maps SPM warning fix
+
+- Added `flutter.config.enable-swift-package-manager: false` to `pubspec.yaml`,
+  persisting the existing CocoaPods decision across developer checkouts.
+- Updated standalone upgrade follow-up and shared handoff; no files moved.
+  Phase 4 is closed; the standalone upgrade governs this configuration fix.
+- Verification: `flutter pub get --offline` passes without the reported warning;
+  generated plugin metadata confirms SPM disabled for iOS/macOS.
+  `git diff --check` passes. No native build/device smoke repeated.
+- Concurrent Firebase pins and dependency/native lockfile edits were preserved.
+  This does not add SPM support to the plugin; future SPM adoption stays deferred.
+
+### 2026-11-02: Android emulator storage recovery
+
+- Investigated successful APK build followed by insufficient internal storage
+  during installation. Emulator `/data` initially had 425 MB free; cache trim
+  and install retry did not resolve it.
+- User authorized removing `com.app.beige.dev` and its local data. Removal
+  returned an internal error, but subsequent inspection showed no third-party
+  packages and 707 MB available. Existing dev APK installed successfully.
+- `adb shell am start -W` for `com.app.cpbeige.dev/com.app.cpbeige.MainActivity`
+  returned `Status: ok`. Updated `docs/upgrade/AGP9_UPGRADE.md`; no source files
+  changed or moved. Kotlin migration and full device regression remain pending.
+
+### 2026-11-03: Release R8 unblock + verification gate + AGP Phase 3 deferred
+
+- **Context**: Sibling-parity pass against `biegeapp` (client app, upgrade code-complete 2026-11-02). Ran the beige verification gate on CP. Canonical plan: [`docs/upgrade/CP_UPGRADE_GAP_PLAN.md`](docs/upgrade/CP_UPGRADE_GAP_PLAN.md).
+- **Blocker found + fixed**: AGP-9 bump had only been verified via a **debug** build. First **release** build failed `:app:minifyDevReleaseWithR8` — `app/build.gradle.kts` `proguardFiles(...)` references `proguard-rules.pro`, which did not exist. Created `android/app/proguard-rules.pro` (OkHttp `-dontwarn` block; no Stripe rules — CP has no `flutter_stripe`, unlike beige).
+- **Decision**: AGP9 Phase 3 (flip to built-in Kotlin, `builtInKotlin=true`/`newDsl=true`, drop KGP) **Deferred** — match beige, stay legacy-compat. The KGP build warning is future-only and is resolved by the already-landed Firebase majors; flipping would force re-verification of `android_file_picker`'s `kotlinOptions` hack, `open_file_android`, and `jni` native build under `newDsl` for no current benefit.
+- **Verification (gate GREEN, 2026-11-03)**: `flutter analyze` 0 issues · `flutter test` 749/749 · dev release APK ✓ 74.8MB · prod release APK ✓ 74.8MB.
+- **Constraints maintained**: zero Dart/source changes; only a new Android ProGuard config file added. All prior upgrade work untouched. iOS pins unchanged (firebase_core exact 5.0.0 → native FirebasePods 12.19.0, no `$FirebaseSDKVersion` override needed).
+- **Remaining**: commit (this), prod/dev AAB, Crashlytics mapping-upload verify, full device + iOS 27 / TestFlight QA.
+
+### 2026-11-04: Clean pub cache and launch iOS simulator
+
+- Ran `flutter clean`, `dart pub cache clean --force`, and `flutter pub get` successfully; dependency lockfiles unchanged.
+- Ran `flutter run --no-pub --flavor dev -t lib/main_dev.dart -d B7CE2193-F41E-4581-9A57-587AD25D2B55` on the booted iPhone 18 Pro (iOS 27.0).
+- CocoaPods and Xcode build passed; Flutter attached and Firebase initialized successfully. No source changes; broader regression work remains paused.
+
+### 2026-11-04: Shoot details back-button visibility
+
+- Screenshot showed the existing white arrow blending into the bright header photo; it also belonged to the scrolling header.
+- Updated `upcoming_shoot_view_details_screen.dart` to pin the existing accessible 44-point control above content with a token-based dark circle and white icon. Added named Shoots fallback when no route can pop.
+- Updated Phase 4 task 4.13 follow-up. No files moved.
+- Verification: scoped Flutter analysis clean, existing details widget tests 5/5 pass, diff whitespace check clean, hot reload successful, simulator screenshot visually verified. Manual scrolling/navigation not exercised.
+
+### 2026-11-04: Match requested non-sticky shoot-details back arrow
+
+- User requested the plain arrow from the reference screenshot and explicitly rejected sticky positioning because it covers scrolling content.
+- Removed the circular background and moved the control back inside the scrolling image header. Retained accessible tap target and guarded pop/named Shoots fallback.
+- Updated task 4.13 follow-up; scoped analysis clean and simulator hot reload applied. No new tests for this positioning/style adjustment.
+
+### 2026-11-04: App-wide iOS swipe-back root cause confirmed
+
+- Investigated reported gesture failure beyond shoot details. GoRouter 18.1.1 detects `material_ui.MaterialApp`, but app uses Flutter SDK `MaterialApp`; default route builders therefore produce `NoTransitionPage` with no iOS swipe detector.
+- Diagnostic test: real left-edge drag fails with default page creation and passes with explicit SDK `MaterialPage`, using AppTheme and the same global tap detector. This supersedes the earlier edge-position explanation.
+- Recorded outstanding fix in the standalone Flutter upgrade plan. No production routing/dependency changes; temporary diagnostic moved outside the suite to `/tmp/beige_swipe_back_diagnostic_test.dart`.
+
+### 2026-11-04: Phase-wise iOS swipe-back fix plan
+
+- Created `docs/upgrade/IOS_SWIPE_BACK_FIX_PLAN.md` at user request with six phases, task-level status tracking, explicit completion criteria, regression checks, and 18 manual QA cases plus result tracker.
+- Audited drawer: menu destinations select shell branches; profile pushes after drawer closure. Included root drawer versus pushed-page gesture interaction, drawer-only branches and state preservation.
+- Linked plan from standalone upgrade tracking and AI handoff. Diagnosis marked Completed; implementation and QA Not Started, pending plan review. No production code changes in this planning task.
+- Verification: reviewed route/drawer source and checked diff whitespace. No additional runtime verification claimed.
+
+### 2026-11-04: iOS swipe-back fix implemented + native verified (Phases 2–6)
+
+- **Context**: Follow-up to U-09 in [`docs/upgrade/FLUTTER_IOS27_UPGRADE.md`](docs/upgrade/FLUTTER_IOS27_UPGRADE.md); canonical plan [`docs/upgrade/IOS_SWIPE_BACK_FIX_PLAN.md`](docs/upgrade/IOS_SWIPE_BACK_FIX_PLAN.md). GoRouter 18.1.1 detects `material_ui.MaterialApp` while the app uses SDK `MaterialApp`, so builder-based routes got `NoTransitionPage` with no Cupertino edge-swipe detector.
+- **Changes**:
+  - New `lib/app/route_page_builder.dart`: `appRoutePage(state, child)` + `appPageBuilder(builder)` create explicit SDK `MaterialPage`s preserving `state.pageKey`, route name, path+query arguments and a page-key-derived `restorationId`.
+  - `lib/app/router.dart` + feature route files (`auth`, `availability`, `file_manager`, `messages`, `profile`, `shoots`): all 45 ordinary routes switched from `builder:` to `pageBuilder: appPageBuilder(...)`; the StatefulShellRoute page uses `appRoutePage`. Shoot-cancellation `CustomTransitionPage` (opacity/barrier/slide) preserved as the sole exception.
+  - New tests: `test/app/route_page_builder_test.dart` (helper metadata + edge-swipe/no-history), `test/app/route_page_coverage_test.dart` (every production route explicitly chooses an SDK page or the cancellation modal, count-matched to `Routes.all`), `integration_test/navigation_back_test.dart` (deterministic gesture + real AppShell cases). Updated `upcoming_shoot_view_details_screen_test.dart` and `app_shell_test.dart`.
+- **Decisions**: shared helper over per-route hand-rolled pages to keep metadata consistent; no package-cache patch, downgrade, UI-library migration or global drag detector; guards/redirects/branch state/navigator ownership untouched; drawer items switch branches while the profile card pushes a route.
+- **Verification**: `flutter test` 761/761 · `flutter analyze --no-pub --fatal-infos` 0 issues · `integration_test/navigation_back_test.dart` **14/14** on iPhone 18 Pro sim (iOS 27.0) and **14/14** on Pixel 9 API 36 emulator (Android 16). Logs `/tmp/beige-swipe-ios-integration.log`, `/tmp/beige-swipe-android-integration.log`. Android final `adb uninstall` `DELETE_FAILED_INTERNAL_ERROR` is post-test cleanup noise. Plan Phases 2–4 and 6 (review/handoff) Completed.
+- **Remaining**: Phase 5 interactive human gesture QA (Q01–Q18) and physical-iPhone smoke are **not done** (require a human at the device); tracked Not Started in the plan's QA tracker. No unverified completion claimed.
+
+
+## 2026-11-09 — Account deletion UI-only parity with beigeapp
+
+Ported the three-screen deletion redesign and nine SVGs from beigeapp `2f8cdab`.
+Adapted named routes, existing CP theme and success animation. Kept the old success
+class as a compatibility alias. Disabled notifier request/confirm/resend methods;
+removed logout and deletion analytics from this flow. Future API work is TODO only.
+Updated regression tests to reflect preview-only behavior rather than legacy live deletion.
+Full-project Flutter analysis passed; git diff --check passed. Widget execution was
+blocked by sandbox denial writing ~/.dart-tool telemetry during native hook compilation,
+even with a temporary writable SDK. Device QA is pending. Existing pubspec edits preserved.
+
+
+2026-11-09 OTP sizing correction: moved 7px gaps from inside Expanded cells
+to Row spacing, giving all six fields equal width in both CP and User apps.
+
+### 2026-11-09: Pending-work commit and deletion API binding note
+
+- Added an explicit API-binding-pending TODO above `DeleteAccountNotifier`;
+  the deletion flow remains preview-only. No runtime behavior changed in this pass.
+- Included pending deletion screens/widgets/routes, nine SVG assets, regression
+  tests, handoff documentation, UI audit and version bump to `2.0.1+0`.
+- Ignored generated `android/build/` reports; no source files moved.
+- Verification: `flutter analyze --no-pub --fatal-infos` clean;
+  `flutter test --no-pub test/features/profile/presentation/delete_account_test.dart`
+  passes 3/3, resolving the earlier test-execution blocker; diff whitespace clean.
+- Device visual QA and API integration remain pending.
+
+
+### 2026-11-17: Task 4.07 account deletion Figma review
+
+- Reviewed supplied Figma information screen and related OTP, requested, pending, cancel and cancelled frames against current working-tree source. Findings recorded in `docs/phase4/task_07_groupC_delete_account.md`; no production edits or files moved.
+- Main finding: sixth OTP digit triggers deletion confirmation before the explicit CTA. Additional differences: card layout/badges/type, omitted 60-day copy, recovery wording, requested-screen extras and date alignment.
+- Verification: focused deletion tests pass 3/3. Their direct OTP entry bypasses OTP-request state, leaving automatic submission untested. No native visual or live API verification claimed.
+- Documentation discrepancy: uncommitted source now binds APIs and logout despite older preview-only handoff; preserved all existing work. Review does not authorize API changes.
+
+
+### 2026-11-17: CP deletion parity audit and functional fixes
+
+- User authorized comparison with beigeapp and correction of CP issues. Preserved
+  existing uncommitted API integration and unrelated changes; beigeapp untouched.
+- Deletion repository uses shared canonical creative headers instead of duplicate
+  hyphenated headers, and typed server exceptions preserve backend error copy.
+- OTP entry/paste no longer auto-confirms; confirmation requires the explicit CTA.
+- RetryInterceptor honors skipRetry, preventing duplicate destructive requests
+  after server or transport failures. Ordinary request retries remain unchanged.
+- Auth cleanup invalidates deletion state immediately and account status after
+  persisted status removal; success receipt remains available until screen exit.
+- Added repository transport regressions and strengthened OTP/session tests.
+  Updated task 4.07 and handoff; no files moved.
+- Verification: full-project analysis clean; diff whitespace clean. Flutter test
+  execution blocked by sandbox denial of localhost server binding (zero test
+  cases executed). Temporary SDK/config copies allowed analysis without altering
+  the installed SDK. Native and live backend verification remains pending.
+
+
+2026-11-17 commit verification: full-project `flutter analyze --no-pub` passes;
+focused deletion widget/repository, session expiry and router tests pass 59/59.
+This supersedes the earlier sandbox-blocked test result. Native visual/live API
+checks and remaining Figma layout/copy differences are still pending.
+
+Login notifier verification: fixed its missing mocked preferences override;
+all 17 login tests now pass (76 focused tests total).

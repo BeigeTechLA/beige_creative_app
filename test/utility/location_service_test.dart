@@ -2,7 +2,8 @@ import 'package:beige_creative_app/utility/location_exception.dart';
 import 'package:beige_creative_app/utility/location_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geocoding_platform_interface/geocoding_platform_interface.dart';
+import 'package:geocoding_platform_interface/geocoding_platform_interface.dart'
+    as gpi;
 import 'package:geolocator/geolocator.dart';
 import 'package:geolocator_platform_interface/geolocator_platform_interface.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,23 +14,34 @@ class MockGeolocatorPlatform extends Mock
     with MockPlatformInterfaceMixin
     implements GeolocatorPlatform {}
 
-class MockGeocodingPlatform extends Mock
+// geocoding 5 seam: the app-facing `Geocoding()` delegates to the platform
+// instance created by `GeocodingPlatformFactory.instance.createGeocoding(...)`.
+// Mock the factory so every `Geocoding()` resolves to [mockGeocoding].
+class MockGeocodingFactory extends Mock
     with MockPlatformInterfaceMixin
-    implements GeocodingPlatform {}
+    implements gpi.GeocodingPlatformFactory {}
+
+class MockGeocoding extends Mock
+    with MockPlatformInterfaceMixin
+    implements gpi.Geocoding {}
 
 void main() {
   late MockGeolocatorPlatform mockGeolocator;
-  late MockGeocodingPlatform mockGeocoding;
+  late MockGeocoding mockGeocoding;
 
   setUpAll(() {
     registerFallbackValue(const LocationSettings());
+    registerFallbackValue(const gpi.GeocodingCreationParams());
   });
 
   setUp(() {
     mockGeolocator = MockGeolocatorPlatform();
-    mockGeocoding = MockGeocodingPlatform();
+    mockGeocoding = MockGeocoding();
     GeolocatorPlatform.instance = mockGeolocator;
-    GeocodingPlatform.instance = mockGeocoding;
+
+    final factory = MockGeocodingFactory();
+    when(() => factory.createGeocoding(any())).thenReturn(mockGeocoding);
+    gpi.GeocodingPlatformFactory.instance = factory;
   });
 
   group('LocationService.getAddressFromLatLng', () {

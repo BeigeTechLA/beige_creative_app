@@ -1,4 +1,6 @@
 import 'dart:typed_data';
+import 'package:beige_creative_app/core/providers/account_status_provider.dart';
+import 'package:beige_creative_app/features/profile/presentation/providers/delete_account_providers.dart';
 import 'dart:convert';
 
 import 'package:beige_creative_app/app/router.dart';
@@ -212,6 +214,37 @@ void main() {
       expect(container.read(authStateProvider), isFalse);
       expect(prefs.containsKey(DraftKeys.signUp), isFalse);
       verify(() => telemetry.clearUserIdentity()).called(1);
+    },
+  );
+
+  test(
+    'logout clears deletion state and status while retaining receipt',
+    () async {
+      adapter.status = 200;
+      adapter.body = {
+        'data': {'request_id': 'DEL-1'},
+      };
+      final notifier = container.read(deletionProvider.notifier);
+      await notifier.requestOtp();
+      await notifier.confirm('123456');
+      expect(
+        container.read(accountStatusProvider),
+        AccountStatus.deletionPending,
+      );
+      expect(container.read(deletionProvider).request, isNotNull);
+
+      await container.read(authStateProvider.notifier).logout();
+
+      expect(container.read(accountStatusProvider), AccountStatus.active);
+      expect(prefs.containsKey('account_status'), isFalse);
+      expect(container.read(deletionProvider).request, isNull);
+      expect(container.read(deletionProvider).otpSent, isFalse);
+      expect(container.read(deletionReceiptProvider)?.id, 'DEL-1');
+      container.read(authStateProvider.notifier).markLoggedIn();
+      expect(
+        await container.read(deletionProvider.notifier).confirm('123456'),
+        isFalse,
+      );
     },
   );
 

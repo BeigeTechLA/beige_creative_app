@@ -42,12 +42,16 @@ class _FakeShootsRepo implements ShootsRepository {
     lastCardStatus = status;
     if (throwOnFetchCardDetails) throw Exception('boom');
     if (cardShoots.isNotEmpty) return cardShoots;
+    // Mirror the real `creator/shoot-card-details` endpoint: it returns an
+    // exact, status-specific list filtered server-side. Filter purely on the
+    // `status` field so each status yields a clean list (the prod payload
+    // carries no field the client can re-filter on).
     final all = [...requests, ...shoots];
     if (all.isEmpty) return const [];
     return all.where((s) {
       final st = s.status.toLowerCase();
-      if (status == 'pending') return st == 'pending' || s.crewAccept == 0;
-      if (status == 'confirmed') return st == 'confirmed' || st == 'accepted' || s.crewAccept == 1;
+      if (status == 'pending') return st.contains('pending');
+      if (status == 'confirmed') return st == 'confirmed' || st == 'accepted';
       if (status == 'completed') return st == 'completed';
       if (status == 'rejected') return st == 'declined' || st == 'cancelled' || st == 'rejected';
       return false;
@@ -513,10 +517,15 @@ void main() {
       expect(c.read(shootsListProvider).visibleShoots.length, 1);
     });
 
-    test('setStatusFilter filters topCardShoots dataset when top card is active', () async {
+    test('setStatusFilter re-fetches status-specific card details when top card is active', () async {
+      // Card-details endpoint filters server-side; items carry no `status`
+      // field. Seed via requests/shoots so the fake returns per-status lists
+      // instead of a single pre-mixed cardShoots list.
       final repo = _FakeShootsRepo()
-        ..cardShoots = [
+        ..requests = [
           _shoot(id: 10, projectId: 10, status: 'pending', crewAccept: 0),
+        ]
+        ..shoots = [
           _shoot(id: 20, projectId: 20, status: 'confirmed', crewAccept: 1),
         ];
       final c = make(repo);
@@ -526,12 +535,36 @@ void main() {
 
       final notifier = c.read(shootsListProvider.notifier);
       await notifier.selectTopCard('Pending Shoots');
+      expect(repo.lastCardStatus, 'pending');
       expect(c.read(shootsListProvider).visibleShoots.length, 1);
       expect(c.read(shootsListProvider).visibleShoots.first.id, 10);
 
       await notifier.setStatusFilter('Confirmed');
+      expect(repo.lastCardStatus, 'confirmed');
       expect(c.read(shootsListProvider).visibleShoots.length, 1);
       expect(c.read(shootsListProvider).visibleShoots.first.id, 20);
+    });
+
+    test('server-filtered card list renders even when items lack a status field',
+        () async {
+      // Reproduces the completed-shoots bug: real shoot-card-details items have
+      // no `status` field, so the client-side status filter must be bypassed.
+      final repo = _FakeShootsRepo()
+        ..cardShoots = [
+          _shoot(id: 1, projectId: 1, crewAccept: 1),
+          _shoot(id: 2, projectId: 2, crewAccept: 1),
+        ];
+      final c = make(repo);
+      addTearDown(c.dispose);
+      c.listen(shootsListProvider, (_, _) {});
+      await _drain(() => !c.read(shootsListProvider).isLoading);
+
+      final notifier = c.read(shootsListProvider.notifier);
+      await notifier.selectTopCard('Completed Shoots');
+
+      expect(repo.lastCardStatus, 'completed');
+      expect(c.read(shootsListProvider).selectedStatusFilter, 'Completed');
+      expect(c.read(shootsListProvider).visibleShoots.length, 2);
     });
   });
 }

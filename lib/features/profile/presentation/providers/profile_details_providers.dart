@@ -58,7 +58,7 @@ class ProfileDetailsViewState {
 }
 
 class ProfileDetailsViewNotifier
-    extends AutoDisposeNotifier<ProfileDetailsViewState> {
+    extends Notifier<ProfileDetailsViewState> {
   @override
   ProfileDetailsViewState build() {
     Future.microtask(refresh);
@@ -145,7 +145,7 @@ class ProfileDetailsViewNotifier
 }
 
 final profileDetailsViewProvider =
-    AutoDisposeNotifierProvider<
+    NotifierProvider.autoDispose<
       ProfileDetailsViewNotifier,
       ProfileDetailsViewState
     >(ProfileDetailsViewNotifier.new);
@@ -200,7 +200,7 @@ class EditPersonalState {
   }
 }
 
-class EditPersonalNotifier extends AutoDisposeNotifier<EditPersonalState> {
+class EditPersonalNotifier extends Notifier<EditPersonalState> {
   @override
   EditPersonalState build() {
     Future.microtask(load);
@@ -280,7 +280,7 @@ class EditPersonalNotifier extends AutoDisposeNotifier<EditPersonalState> {
 }
 
 final editPersonalNotifierProvider =
-    AutoDisposeNotifierProvider<EditPersonalNotifier, EditPersonalState>(
+    NotifierProvider.autoDispose<EditPersonalNotifier, EditPersonalState>(
       EditPersonalNotifier.new,
     );
 
@@ -349,7 +349,7 @@ class EnterProfessionalState {
 }
 
 class EnterProfessionalNotifier
-    extends AutoDisposeNotifier<EnterProfessionalState> {
+    extends Notifier<EnterProfessionalState> {
   @override
   EnterProfessionalState build() {
     Future.microtask(load);
@@ -478,7 +478,7 @@ class EnterProfessionalNotifier
 }
 
 final enterProfessionalNotifierProvider =
-    AutoDisposeNotifierProvider<
+    NotifierProvider.autoDispose<
       EnterProfessionalNotifier,
       EnterProfessionalState
     >(EnterProfessionalNotifier.new);

@@ -130,26 +130,26 @@ class SignUp3ScreenState extends ConsumerState<SignUp3Screen> {
   SignupNotifier get _notifier => ref.read(signupNotifierProvider.notifier);
 
   Future<void> _pickCertificate() async {
-    final result = await FilePicker.pickFiles(
+    final file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'jpg', 'png'],
     );
-    if (result != null && result.files.single.path != null) {
-      await _notifier.uploadCertificate(File(result.files.single.path!));
+    if (file?.path != null) {
+      await _notifier.uploadCertificate(File(file!.path!));
     }
   }
 
   Future<void> _pickDocument() async {
-    final result = await FilePicker.pickFiles(type: FileType.any);
-    if (result != null && result.files.single.path != null) {
-      await _notifier.uploadResumeFile(File(result.files.single.path!));
+    final file = await FilePicker.pickFile(type: FileType.any);
+    if (file?.path != null) {
+      await _notifier.uploadResumeFile(File(file!.path!));
     }
   }
 
   Future<void> _pickPortfolio() async {
-    final result = await FilePicker.pickFiles(type: FileType.any);
-    if (result != null && result.files.single.path != null) {
-      await _notifier.uploadPortfolioFile(File(result.files.single.path!));
+    final file = await FilePicker.pickFile(type: FileType.any);
+    if (file?.path != null) {
+      await _notifier.uploadPortfolioFile(File(file!.path!));
     }
   }
 

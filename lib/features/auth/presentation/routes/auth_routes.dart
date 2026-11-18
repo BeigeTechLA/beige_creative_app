@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/route_page_builder.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/restoration/draft_store.dart';
 import '../../../../core/restoration/restoration_keys.dart';
@@ -24,19 +25,20 @@ final List<RouteBase> authRoutes = [
   GoRoute(
     path: Routes.login.path,
     name: Routes.login.name,
-    builder: (context, state) => const LoginScreen(),
+    pageBuilder: appPageBuilder((context, state) => const LoginScreen()),
   ),
   GoRoute(
     path: Routes.signupStep1.path,
     name: Routes.signupStep1.name,
-    builder: (context, state) => const SignUp1Screen(),
+    pageBuilder: appPageBuilder((context, state) => const SignUp1Screen()),
   ),
   GoRoute(
     path: Routes.signupStep2.path,
     name: Routes.signupStep2.name,
-    builder: (context, state) {
-      final args =
-          SignUpStep2Args.fromExtra(_signupExtraOrDraft(context, state.extra));
+    pageBuilder: appPageBuilder((context, state) {
+      final args = SignUpStep2Args.fromExtra(
+        _signupExtraOrDraft(context, state.extra),
+      );
       return SignUp2Screen(
         crewMemberId: args.crewMemberId,
         profileImage: args.profileImage,
@@ -48,14 +50,15 @@ final List<RouteBase> authRoutes = [
         step1Progress: args.step1Progress,
         isResume: args.isResume,
       );
-    },
+    }),
   ),
   GoRoute(
     path: Routes.signupStep3.path,
     name: Routes.signupStep3.name,
-    builder: (context, state) {
-      final args =
-          SignUpStep3Args.fromExtra(_signupExtraOrDraft(context, state.extra));
+    pageBuilder: appPageBuilder((context, state) {
+      final args = SignUpStep3Args.fromExtra(
+        _signupExtraOrDraft(context, state.extra),
+      );
       return SignUp3Screen(
         crewMemberId: args.crewMemberId,
         profileImage: args.profileImage,
@@ -73,41 +76,45 @@ final List<RouteBase> authRoutes = [
         step2Progress: args.step2Progress,
         isResume: args.isResume,
       );
-    },
+    }),
   ),
   GoRoute(
     path: Routes.signupSuccess.path,
     name: Routes.signupSuccess.name,
-    builder: (context, state) => const SignUpSuccessScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const SignUpSuccessScreen(),
+    ),
   ),
   GoRoute(
     path: Routes.forgotPassword.path,
     name: Routes.forgotPassword.name,
-    builder: (context, state) => const ForgotPasswordScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const ForgotPasswordScreen(),
+    ),
   ),
   GoRoute(
     path: Routes.forgotOtp.path,
     name: Routes.forgotOtp.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final data = state.extra as Map<String, dynamic>? ?? {};
       return ForgotPasswordOtpScreen(email: data['email'] ?? '');
-    },
+    }),
   ),
   GoRoute(
     path: Routes.resetPassword.path,
     name: Routes.resetPassword.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final data = state.extra as Map<String, dynamic>? ?? {};
       return ResetPasswordScreen(
         email: data['email'] ?? '',
         otp: data['otp'] ?? '',
       );
-    },
+    }),
   ),
   GoRoute(
     path: Routes.viewDetails.path,
     name: Routes.viewDetails.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final args = ViewDetailsArgs.fromExtra(state.extra);
       return ViewDetailsScreen(
         firstName: args.firstName,
@@ -124,12 +131,14 @@ final List<RouteBase> authRoutes = [
         equipments: args.equipments,
         featuredImages: args.featuredImages,
       );
-    },
+    }),
   ),
   GoRoute(
     path: Routes.applicationRejected.path,
     name: Routes.applicationRejected.name,
-    builder: (context, state) => const ApplicationRejectedScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const ApplicationRejectedScreen(),
+    ),
   ),
 ];
 

@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
@@ -34,9 +35,7 @@ import 'robots/signup_robot.dart';
 /// Run locally with:
 ///   `flutter test integration_test/signup_flow_test.dart -d macos`
 ///
-/// On-device promotion follows the 6.11 pattern: swap the binding to
-/// `IntegrationTestWidgetsFlutterBinding.ensureInitialized()` and run with a
-/// device id.
+/// Uses the device integration binding for macOS and emulator/simulator CI.
 
 class _StubTelemetry implements TelemetryClient {
   final List<({String name, Map<String, Object>? parameters})> events = [];
@@ -174,9 +173,7 @@ class _HarnessApp extends StatelessWidget {
 }
 
 void main() {
-  // Vm-mode binding. Swap to IntegrationTestWidgetsFlutterBinding for device
-  // promotion, matching integration_test/login_logout_test.dart.
-  TestWidgetsFlutterBinding.ensureInitialized();
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
     Env.init(Environment.dev);
@@ -288,14 +285,19 @@ void main() {
       await robot.expectOnSignupSuccessStub();
 
       final posts = _capturedPosts(dio);
-      expect(posts.map((e) => e.path).toList(), containsAll([
-        ApiEndpoints.register_step1,
-        ApiEndpoints.register_step2,
-        ApiEndpoints.register_step3_file,
-        ApiEndpoints.register_step3,
-      ]));
+      expect(
+        posts.map((e) => e.path).toList(),
+        containsAll([
+          ApiEndpoints.register_step1,
+          ApiEndpoints.register_step2,
+          ApiEndpoints.register_step3_file,
+          ApiEndpoints.register_step3,
+        ]),
+      );
 
-      final step1 = posts.firstWhere((p) => p.path == ApiEndpoints.register_step1).data as FormData;
+      final step1 =
+          posts.firstWhere((p) => p.path == ApiEndpoints.register_step1).data
+              as FormData;
       expect(_fieldMap(step1), {
         'first_name': 'Ada',
         'last_name': 'Lovelace',
@@ -309,7 +311,9 @@ void main() {
       });
       expect(_fileNames(step1, 'profile_photo'), ['signup_profile.png']);
 
-      final step2 = posts.firstWhere((p) => p.path == ApiEndpoints.register_step2).data;
+      final step2 = posts
+          .firstWhere((p) => p.path == ApiEndpoints.register_step2)
+          .data;
       expect(step2, {
         'crew_member_id': 314,
         'primary_role': [1],
@@ -320,7 +324,9 @@ void main() {
         'equipment_ownership': <int>[],
       });
 
-      final step3 = posts.lastWhere((p) => p.path == ApiEndpoints.register_step3).data;
+      final step3 = posts
+          .lastWhere((p) => p.path == ApiEndpoints.register_step3)
+          .data;
       expect(step3, isA<Map<String, dynamic>>());
       final step3Map = step3 as Map<String, dynamic>;
       expect(step3Map['crew_member_id'], 314);
@@ -389,7 +395,9 @@ void _stubSignupDio(MockDio dio) {
     );
   });
 
-  when(() => dio.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(handler);
+  when(
+    () => dio.post<dynamic>(any(), data: any(named: 'data')),
+  ).thenAnswer(handler);
   when(
     () => dio.post<dynamic>(
       any(),

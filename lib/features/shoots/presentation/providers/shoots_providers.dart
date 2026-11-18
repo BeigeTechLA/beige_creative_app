@@ -88,7 +88,7 @@ class ShootsListState {
   }
 }
 
-class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
+class ShootsListNotifier extends Notifier<ShootsListState> {
   Timer? _debounce;
 
   @override
@@ -343,11 +343,16 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
     List<Shoot>? topCardShoots,
   }) {
     final q = query.trim().toLowerCase();
+    // A non-null `topCardShoots` list came from the status-specific
+    // `creator/shoot-card-details` endpoint, which already filters by status
+    // server-side. Its items carry no `status` field, so re-applying the
+    // client-side status filter below would drop every row. Only search applies.
+    final bool serverFiltered = topCardShoots != null;
     final List<Shoot> source = topCardShoots ??
         (tabIndex == 0 ? data.requests : data.shoots);
 
     return source.where((s) {
-      if (statusFilter != 'All Status') {
+      if (!serverFiltered && statusFilter != 'All Status') {
         final statusLower = s.status.trim().toLowerCase();
         final isCompleted = statusLower == 'completed';
         final isDeclinedOrCancelled = statusLower == 'declined' ||
@@ -416,7 +421,7 @@ class ShootsListNotifier extends AutoDisposeNotifier<ShootsListState> {
 }
 
 final shootsListProvider =
-    AutoDisposeNotifierProvider<ShootsListNotifier, ShootsListState>(
+    NotifierProvider.autoDispose<ShootsListNotifier, ShootsListState>(
       ShootsListNotifier.new,
     );
 
@@ -454,10 +459,13 @@ class CancelShootState {
   }
 }
 
-class CancelShootNotifier
-    extends AutoDisposeFamilyNotifier<CancelShootState, int> {
+class CancelShootNotifier extends Notifier<CancelShootState> {
+  CancelShootNotifier(this.arg);
+
+  final int arg;
+
   @override
-  CancelShootState build(int arg) {
+  CancelShootState build() {
     return const CancelShootState();
   }
 
@@ -512,7 +520,7 @@ class CancelShootNotifier
 }
 
 final cancelShootProvider =
-    AutoDisposeNotifierProviderFamily<
+    NotifierProvider.autoDispose.family<
       CancelShootNotifier,
       CancelShootState,
       int

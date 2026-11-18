@@ -48,7 +48,7 @@ class RequestOtpState {
   }
 }
 
-class RequestOtpNotifier extends AutoDisposeNotifier<RequestOtpState> {
+class RequestOtpNotifier extends Notifier<RequestOtpState> {
   @override
   RequestOtpState build() => const RequestOtpState();
 
@@ -83,7 +83,7 @@ class RequestOtpNotifier extends AutoDisposeNotifier<RequestOtpState> {
 }
 
 final requestOtpNotifierProvider =
-    AutoDisposeNotifierProvider<RequestOtpNotifier, RequestOtpState>(
+    NotifierProvider.autoDispose<RequestOtpNotifier, RequestOtpState>(
   RequestOtpNotifier.new,
 );
 
@@ -127,7 +127,7 @@ class VerifyOtpState {
   }
 }
 
-class VerifyOtpNotifier extends AutoDisposeNotifier<VerifyOtpState> {
+class VerifyOtpNotifier extends Notifier<VerifyOtpState> {
   @override
   VerifyOtpState build() => const VerifyOtpState();
 
@@ -169,7 +169,7 @@ class VerifyOtpNotifier extends AutoDisposeNotifier<VerifyOtpState> {
 }
 
 final verifyOtpNotifierProvider =
-    AutoDisposeNotifierProvider<VerifyOtpNotifier, VerifyOtpState>(
+    NotifierProvider.autoDispose<VerifyOtpNotifier, VerifyOtpState>(
   VerifyOtpNotifier.new,
 );
 
@@ -209,7 +209,7 @@ class NewPasswordState {
   }
 }
 
-class NewPasswordNotifier extends AutoDisposeNotifier<NewPasswordState> {
+class NewPasswordNotifier extends Notifier<NewPasswordState> {
   @override
   NewPasswordState build() => const NewPasswordState();
 
@@ -253,6 +253,6 @@ class NewPasswordNotifier extends AutoDisposeNotifier<NewPasswordState> {
 }
 
 final newPasswordNotifierProvider =
-    AutoDisposeNotifierProvider<NewPasswordNotifier, NewPasswordState>(
+    NotifierProvider.autoDispose<NewPasswordNotifier, NewPasswordState>(
   NewPasswordNotifier.new,
 );

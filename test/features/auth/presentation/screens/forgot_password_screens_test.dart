@@ -17,7 +17,7 @@ import '../../../../helpers/pump_app.dart';
 /// failure → stay) are reachable without Dio or telemetry.
 
 class _FakeForgotPasswordNotifier
-    extends AutoDisposeNotifier<ForgotPasswordState>
+    extends Notifier<ForgotPasswordState>
     implements ForgotPasswordNotifier {
   _FakeForgotPasswordNotifier({
     this.initial = const ForgotPasswordState(),

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/route_page_builder.dart';
 import '../../../../app/routes.dart';
 import '../screens/folder_contents_screen.dart';
 import '../screens/success_screen.dart';
@@ -13,7 +14,7 @@ final List<RouteBase> fileManagerRoutes = [
   GoRoute(
     path: Routes.filesFolder.path,
     name: Routes.filesFolder.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final externalId = state.pathParameters['id'] ?? '';
       final args = FolderContentsArgs.fromRoute(
         externalId: externalId,
@@ -24,19 +25,21 @@ final List<RouteBase> fileManagerRoutes = [
         title: args.title,
         linkedProject: args.linkedProject,
       );
-    },
+    }),
   ),
   GoRoute(
     path: Routes.filesSuccess.path,
     name: Routes.filesSuccess.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final extra = state.extra as Map<String, dynamic>? ?? {};
       return SuccessScreen(
         title: extra['title']?.toString() ?? 'Success',
-        message: extra['message']?.toString() ?? 'Operation completed successfully.',
+        message:
+            extra['message']?.toString() ?? 'Operation completed successfully.',
         ctaText: extra['ctaText']?.toString() ?? 'Continue',
-        onCtaPressed: extra['onCtaPressed'] as VoidCallback? ?? () => context.pop(),
+        onCtaPressed:
+            extra['onCtaPressed'] as VoidCallback? ?? () => context.pop(),
       );
-    },
+    }),
   ),
 ];

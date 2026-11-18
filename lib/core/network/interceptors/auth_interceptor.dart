@@ -2,21 +2,20 @@ import 'package:dio/dio.dart';
 
 /// Injects `Authorization: Bearer <token>` on every request and reacts to
 /// explicit session-expiry codes by clearing the session and signalling logout.
+/// Also reacts to `ACCOUNT_DELETION_IN_PROGRESS` by signalling deletion-pending state.
 ///
 /// Extends `QueuedInterceptor` (not plain `Interceptor`) so concurrent
-/// requests are serialised through one token-read lane — important once a
-/// refresh-token flow lands. The current backend has no refresh endpoint
-/// (per `AUDIT_SEC.md`). HTTP status alone never ends a session, and a
-/// session-expiry code only ends the session when the failing request actually
-/// carried a token (guarded via the `_hadAuthToken` request flag).
-///
-/// `tokenReader` is async — `SessionStore` may read `flutter_secure_storage`.
-/// `onUnauthorized` is async to allow session-clear and router redirect.
+/// requests are serialised through one token-read lane.
 class AuthInterceptor extends QueuedInterceptor {
   final Future<String?> Function() tokenReader;
   final Future<void> Function()? onUnauthorized;
+  final Future<void> Function()? onDeletionPending;
 
-  AuthInterceptor({required this.tokenReader, this.onUnauthorized});
+  AuthInterceptor({
+    required this.tokenReader,
+    this.onUnauthorized,
+    this.onDeletionPending,
+  });
 
   @override
   Future<void> onRequest(
@@ -35,11 +34,19 @@ class AuthInterceptor extends QueuedInterceptor {
     handler.next(options);
   }
 
-  bool _endsSession(dynamic data, RequestOptions request) {
-    if (request.extra['_hadAuthToken'] != true) return false;
-    if (data is! Map) return false;
+  Future<void> _handleSessionError(dynamic data, RequestOptions request) async {
+    if (request.extra['_hadAuthToken'] != true) return;
+    if (data is! Map) return;
     final code = data['code']?.toString().toUpperCase();
-    return code == 'SESSION_EXPIRED' || code == 'TOKEN_INVALID';
+
+    if (code == 'ACCOUNT_DELETION_IN_PROGRESS' && onDeletionPending != null) {
+      await onDeletionPending!();
+    }
+
+    final sessionInvalid = code == 'SESSION_EXPIRED' || code == 'TOKEN_INVALID';
+    if (sessionInvalid && onUnauthorized != null) {
+      await onUnauthorized!();
+    }
   }
 
   @override
@@ -47,9 +54,7 @@ class AuthInterceptor extends QueuedInterceptor {
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) async {
-    if (_endsSession(response.data, response.requestOptions)) {
-      await onUnauthorized?.call();
-    }
+    await _handleSessionError(response.data, response.requestOptions);
     handler.next(response);
   }
 
@@ -58,9 +63,7 @@ class AuthInterceptor extends QueuedInterceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
-    if (_endsSession(err.response?.data, err.requestOptions)) {
-      await onUnauthorized?.call();
-    }
+    await _handleSessionError(err.response?.data, err.requestOptions);
     handler.next(err);
   }
 }

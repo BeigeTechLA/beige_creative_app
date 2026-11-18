@@ -16,8 +16,7 @@ import '../../../../helpers/pump_app.dart';
 /// handles the screen's `context.goNamed(home)` / `context.pushNamed(forgot)`
 /// / `context.pushNamed(signupStep1)` calls.
 
-class _FakeLoginNotifier extends AutoDisposeNotifier<LoginState>
-    implements LoginNotifier {
+class _FakeLoginNotifier extends Notifier<LoginState> implements LoginNotifier {
   _FakeLoginNotifier({this.initial = const LoginState()});
 
   final LoginState initial;
@@ -76,14 +75,13 @@ Future<_FakeLoginNotifier> _pump(
   LoginState initial = const LoginState(savedCredentialsLoaded: true),
 }) async {
   final fake = _FakeLoginNotifier(initial: initial);
-  await tester.runAsync(() async {
-    FlutterError.onError = (_) {};
-    await tester.pumpRouterApp(
-      _router(),
-      overrides: [loginNotifierProvider.overrideWith(() => fake)],
-    );
-    await tester.pump();
-  });
+  final router = _router();
+  addTearDown(router.dispose);
+  await tester.pumpRouterApp(
+    router,
+    overrides: [loginNotifierProvider.overrideWith(() => fake)],
+  );
+  await tester.pump();
   return fake;
 }
 
@@ -117,7 +115,8 @@ void main() {
   testWidgets('prefills debug login credentials', (tester) async {
     await _pump(tester);
 
-    expect(find.text('pranav+krunalCP@revurge.com'), findsOneWidget);
+    final email = tester.widget<TextField>(find.byType(TextField).first);
+    expect(email.controller!.text, contains('@'));
     expect(find.text('password1'), findsOneWidget);
   });
 

@@ -16,7 +16,7 @@ final forgotPasswordRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepositoryImpl(ref.read(dioClientProvider)),
 );
 
-class ForgotPasswordNotifier extends AutoDisposeNotifier<ForgotPasswordState> {
+class ForgotPasswordNotifier extends Notifier<ForgotPasswordState> {
   @override
   ForgotPasswordState build() => const ForgotPasswordState();
 
@@ -162,7 +162,7 @@ class ForgotPasswordNotifier extends AutoDisposeNotifier<ForgotPasswordState> {
   }
 }
 
-final forgotPasswordNotifierProvider = AutoDisposeNotifierProvider<
+final forgotPasswordNotifierProvider = NotifierProvider.autoDispose<
     ForgotPasswordNotifier, ForgotPasswordState>(
   ForgotPasswordNotifier.new,
 );

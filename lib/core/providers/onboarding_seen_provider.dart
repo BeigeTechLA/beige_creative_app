@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 /// Sync mirror of `PrefsSessionStore.readOnboardingSeen()` for the GoRouter
 /// `redirect:` callback (which is synchronous).

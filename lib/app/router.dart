@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/connectivity/connectivity_providers.dart';
 import '../core/connectivity/connectivity_status.dart';
 import '../core/firebase/app_analytics_observer.dart';
+import '../core/providers/account_status_provider.dart';
 import '../core/providers/auth_state_provider.dart';
 import '../core/providers/core_providers.dart';
 import '../core/providers/guest_mode_provider.dart';
@@ -25,12 +26,14 @@ import '../features/messages/presentation/routes/messages_routes.dart';
 import '../features/messages/presentation/screens/messages_screen.dart';
 import '../features/notification/presentation/routes/notification_routes.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../features/profile/presentation/providers/delete_account_providers.dart';
 import '../features/profile/presentation/routes/profile_routes.dart';
 import '../features/shoots/presentation/routes/shoots_routes.dart';
 import '../features/shoots/presentation/screens/shoots_screen.dart';
 import '../features/splash/presentation/screens/splash_screen.dart';
 import '../shared/layouts/app_shell.dart';
 import 'navigator_key.dart';
+import 'route_page_builder.dart';
 import 'routes.dart';
 
 /// Built once per [ProviderScope]. Reads `authStateProvider` +
@@ -47,13 +50,32 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: notifier,
     observers: [AppAnalyticsObserver()],
     redirect: (context, state) {
+      final location = state.matchedLocation;
+      final accountStatus = ref.read(accountStatusProvider);
+      final isLoggedIn = ref.read(authStateProvider);
+
+      final accountRedirect = accountStatusRedirect(
+        authenticated: isLoggedIn,
+        status: accountStatus,
+        location: location,
+        cancellationComplete: ref.read(deletionProvider).cancelled,
+        confirmedReceipt: ref.read(deletionReceiptProvider) != null,
+      );
+      if (accountRedirect != null) return accountRedirect;
+
+      // A just-confirmed receipt is public after automatic session cleanup.
+      if (location == Routes.deleteAccountSuccess.path) return null;
+      if (isLoggedIn && accountStatus != AccountStatus.active) {
+        return null;
+      }
+
       final currentUser = ref.read(currentSessionUserProvider);
       return appRedirect(
-        isAuth: ref.read(authStateProvider),
+        isAuth: isLoggedIn,
         isGuest: ref.read(guestModeProvider),
         hasSeenOnboarding: ref.read(onboardingSeenProvider),
         connStatus: ref.read(connectivityStatusProvider),
-        location: state.matchedLocation,
+        location: location,
         isRegistrationComplete: currentUser?.isRegistrationComplete,
         isCrewVerified: currentUser?.isCrewVerified,
         isStep2Complete: currentUser?.isStep2Complete,
@@ -163,7 +185,9 @@ String? appRedirect({
           location == Routes.profilePasswordSuccess.path ||
           location == Routes.deleteAccount.path ||
           location == Routes.deleteAccountOtp.path ||
-          location == Routes.deleteAccountSuccess.path;
+          location == Routes.deleteAccountSuccess.path ||
+          location == Routes.accountDeletionPending.path ||
+          location == Routes.cancelAccountDeletion.path;
 
       if (!isPendingAllowedRoute &&
           location != Routes.splash.path &&
@@ -213,6 +237,10 @@ class _AuthRefreshNotifier extends ChangeNotifier {
       temporaryAuthSessionProvider,
       (previous, next) => notifyListeners(),
     );
+    _accountStatusSub = _ref.listen<AccountStatus>(
+      accountStatusProvider,
+      (previous, next) => notifyListeners(),
+    );
   }
   final Ref _ref;
   late final ProviderSubscription<bool> _authSub;
@@ -220,6 +248,7 @@ class _AuthRefreshNotifier extends ChangeNotifier {
   late final ProviderSubscription<bool> _onboardingSub;
   late final ProviderSubscription<ConnectivityStatus> _connSub;
   late final ProviderSubscription<TemporaryAuthState> _temporaryAuthSub;
+  late final ProviderSubscription<AccountStatus> _accountStatusSub;
 
   @override
   void dispose() {
@@ -228,6 +257,7 @@ class _AuthRefreshNotifier extends ChangeNotifier {
     _onboardingSub.close();
     _connSub.close();
     _temporaryAuthSub.close();
+    _accountStatusSub.close();
     super.dispose();
   }
 }
@@ -240,23 +270,23 @@ final List<RouteBase> appRoutes = [
   GoRoute(
     path: Routes.splash.path,
     name: Routes.splash.name,
-    builder: (context, state) => const SplashScreen(),
+    pageBuilder: appPageBuilder((context, state) => const SplashScreen()),
   ),
   GoRoute(
     path: Routes.onboarding.path,
     name: Routes.onboarding.name,
-    builder: (context, state) => const OnboardingScreen(),
+    pageBuilder: appPageBuilder((context, state) => const OnboardingScreen()),
   ),
   StatefulShellRoute.indexedStack(
-    builder: (context, state, navigationShell) =>
-        AppShell(shell: navigationShell),
+    pageBuilder: (context, state, navigationShell) =>
+        appRoutePage(state, AppShell(shell: navigationShell)),
     branches: [
       StatefulShellBranch(
         routes: [
           GoRoute(
             path: Routes.home.path,
             name: Routes.home.name,
-            builder: (context, state) => const HomeScreen(),
+            pageBuilder: appPageBuilder((context, state) => const HomeScreen()),
           ),
         ],
       ),
@@ -265,7 +295,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.shoots.path,
             name: Routes.shoots.name,
-            builder: (context, state) => const ShootsScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const ShootsScreen(),
+            ),
           ),
         ],
       ),
@@ -274,7 +306,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.files.path,
             name: Routes.files.name,
-            builder: (context, state) => const FileManagerScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const FileManagerScreen(),
+            ),
           ),
         ],
       ),
@@ -283,7 +317,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.messages.path,
             name: Routes.messages.name,
-            builder: (context, state) => const MessagesScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const MessagesScreen(),
+            ),
           ),
         ],
       ),
@@ -292,7 +328,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.meetings.path,
             name: Routes.meetings.name,
-            builder: (context, state) => const MeetingsScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const MeetingsScreen(),
+            ),
           ),
         ],
       ),
@@ -301,7 +339,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.manageAvailability.path,
             name: Routes.manageAvailability.name,
-            builder: (context, state) => const ManageAvailabilityScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const ManageAvailabilityScreen(),
+            ),
           ),
         ],
       ),
@@ -310,7 +350,9 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.affiliate.path,
             name: Routes.affiliate.name,
-            builder: (context, state) => const AffiliateScreen(),
+            pageBuilder: appPageBuilder(
+              (context, state) => const AffiliateScreen(),
+            ),
           ),
         ],
       ),
@@ -319,9 +361,11 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: Routes.payouts.path,
             name: Routes.payouts.name,
-            builder: (context, state) => const MenuPlaceholderScreen(
-              title: 'Payouts',
-              description: 'Payouts arriving soon.',
+            pageBuilder: appPageBuilder(
+              (context, state) => const MenuPlaceholderScreen(
+                title: 'Payouts',
+                description: 'Payouts arriving soon.',
+              ),
             ),
           ),
         ],

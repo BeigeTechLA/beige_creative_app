@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/colors.dart';
+import '../../../../app/route_page_builder.dart';
 import '../../../../app/routes.dart';
 import '../screens/shoot_cancelled_lotties_screen.dart';
 import '../screens/shoot_cancelled_screen.dart';
@@ -14,7 +15,7 @@ final List<RouteBase> shootsRoutes = [
   GoRoute(
     path: Routes.upcomingShootDetails.path,
     name: Routes.upcomingShootDetails.name,
-    builder: (context, state) {
+    pageBuilder: appPageBuilder((context, state) {
       final args = UpcomingShootDetailsArgs.fromExtra(state.extra);
       final bookingIdFromQuery = int.tryParse(state.uri.queryParameters['booking_id'] ?? '') ??
           int.tryParse(state.uri.queryParameters['bookingId'] ?? '') ??
@@ -35,13 +36,13 @@ final List<RouteBase> shootsRoutes = [
         barrierColor: AppColors.black.withValues(alpha: 0.6),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 1),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-            )),
+            position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+                .animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  ),
+                ),
             child: child,
           );
         },
@@ -52,6 +53,8 @@ final List<RouteBase> shootsRoutes = [
   GoRoute(
     path: Routes.shootCancelotties.path,
     name: Routes.shootCancelotties.name,
-    builder: (context, state) => const ShootCancelledLottiesScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const ShootCancelledLottiesScreen(),
+    ),
   ),
 ];

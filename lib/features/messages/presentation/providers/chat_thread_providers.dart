@@ -189,12 +189,14 @@ class ChatThreadState {
   }
 }
 
-class ChatThreadNotifier
-    extends AutoDisposeFamilyNotifier<ChatThreadState, String> {
+class ChatThreadNotifier extends Notifier<ChatThreadState> {
+  ChatThreadNotifier(this.arg);
+
+  final String arg;
   StreamSubscription<ChatSocketEvent>? _eventsSub;
 
   @override
-  ChatThreadState build(String arg) {
+  ChatThreadState build() {
     final repo = ref.read(messagesRepositoryProvider);
     final activeRoomController = ref.read(activeChatRoomProvider.notifier);
     // Publish this thread as the active room so the conversation-list
@@ -624,7 +626,7 @@ class ChatThreadNotifier
 }
 
 final chatThreadProvider =
-    AutoDisposeNotifierProviderFamily<
+    NotifierProvider.autoDispose.family<
       ChatThreadNotifier,
       ChatThreadState,
       String

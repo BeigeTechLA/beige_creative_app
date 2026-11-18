@@ -154,7 +154,8 @@ class SignUp1ScreenState extends ConsumerState<SignUp1Screen> {
     ref.read(signupNotifierProvider.notifier).setCurrentLatLng(latLng);
     mapController?.animateCamera(CameraUpdate.newLatLngZoom(latLng, 14));
     try {
-      final placemarks = await placemarkFromCoordinates(
+      // geocoding 5: top-level helpers removed; use the Geocoding instance API.
+      final placemarks = await Geocoding().placemarkFromCoordinates(
         latLng.latitude,
         latLng.longitude,
       );

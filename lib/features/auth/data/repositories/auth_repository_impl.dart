@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/session/account_status.dart';
 import '../../../../core/session/session_store.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -143,6 +144,11 @@ class AuthRepositoryImpl implements AuthRepository {
       'user.isCrewVerified=${user.isCrewVerified}',
     );
 
+    final rawAccountStatus = data['account_status'] ??
+        payload['account_status'] ??
+        (rawUserMap != null ? rawUserMap['account_status'] : null);
+    final accountStatus = AccountStatus.parse(rawAccountStatus);
+
     return LoginResult(
       token: token,
       user: user,
@@ -150,6 +156,7 @@ class AuthRepositoryImpl implements AuthRepository {
       isCrewVerified: isCrewVerified,
       isStep2Complete: isStep2Complete,
       crewMemberId: crewMemberId,
+      accountStatus: accountStatus,
     );
   }
 

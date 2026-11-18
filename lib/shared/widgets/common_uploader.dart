@@ -38,10 +38,10 @@ class CommonUploader {
 
   /// FILES
   static Future<File?> pickFile() async {
-    final result = await FilePicker.pickFiles();
+    final file = await FilePicker.pickFile();
 
-    if (result != null && result.files.single.path != null) {
-      return File(result.files.single.path!);
+    if (file?.path != null) {
+      return File(file!.path!);
     }
     return null;
   }

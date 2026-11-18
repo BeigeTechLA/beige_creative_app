@@ -3,7 +3,71 @@
 Shared context for Claude Code and Codex. This file exists to prevent context
 drift when switching tools.
 
-Last updated: 2026-08-13 (signup profile API resume + temporary unverified auth).
+Last updated: 2026-11-13 (Shoot Details sticky header — see section below).
+
+## Shoot Details sticky header — 2026-11-13
+
+User approved `docs/feature/SHOOT_DETAILS_STICKY_HEADER_PLAN.md`. Shoot Details
+now uses a collapsing photo and pinned charcoal toolbar, with a plain 48-point
+back target and collapsed project title. This supersedes the November 4
+non-sticky preference for this screen. Keep the top contrast overlay attached
+to the toolbar, outside the scrolling photo, so bright images remain safe
+through intermediate collapse states. No Share/Favourite actions were added.
+The referenced Figma creator profile is not present in this CP repository.
+
+Navigation still pops to the caller or falls back to named Shoots when the
+button has no history; SDK MaterialPage routing is retained. Focused host tests
+pass 23/23, including white-image contrast at four offsets and real-screen
+back/gesture cases; scoped analysis is clean. Native iOS simulator navigation
+passes 29/29 on iOS 27.0. Physical-device,
+native Android, landscape and authenticated live-data smoke remain pending;
+see the linked plan for details.
+
+## AGP 9 upgrade (new, 2026-10-30)
+
+Separate standalone effort, canonical plan: `docs/upgrade/AGP9_UPGRADE.md`.
+Not a migration phase. Phase 0 dep audit = GREEN (no blockers, 3 watch items:
+`android_file_picker`, `open_file_android`, `jni`). Phases 1+2 executed together
+(AGP 8.11→9.0.1, Gradle 8.14→9.1.0, gms 4.4.2→4.5.0, crashlytics 3.0.2→3.0.7)
+in **legacy-compat mode** (`android.builtInKotlin=false`, `android.newDsl=false`).
+Built-in-Kotlin flip = Phase 3, not yet done. **Builds must use JBR 21** (set
+`JAVA_HOME`); the AS-bundled JDK 25 exceeds Gradle 9.1's Java range and also
+causes the AS "Gradle 8.14 incompatible with JVM 25" import error — fix is to
+set the IDE Gradle JDK to 21/17.
+
+## Standalone Flutter upgrade — current status
+
+Canonical plan: `docs/upgrade/FLUTTER_IOS27_UPGRADE.md`. This work is separate
+from the migration phases. U-01–U-10 are implemented on Flutter 3.47.0 / Dart
+3.13.0. **U-11 iOS 27 / Xcode 27 cutover remains skipped by user decision.**
+The app privacy manifest remains in place; release data disclosures still need
+confirmation before distribution.
+
+The user stopped Claude's parallel work and assigned the remaining U-12 work to
+Codex. **749/749 unit, widget and golden tests pass** with coverage; full-project
+`flutter analyze --no-pub --fatal-infos` reports no issues. The unsigned dev iOS
+build passes. Coverage is **11209 / 21804 = 51.41%**, below the unchanged 70% CI gate.
+
+Remaining regression fixes updated stale route/analytics/loading/drawer test
+expectations and removed the login test's global Flutter-error suppression.
+Claude's Riverpod migrations, retry fix and regenerated goldens are preserved.
+Both integration entry points now use `IntegrationTestWidgetsFlutterBinding`.
+The macOS Firebase lockfile was updated to 12.19.0 after its old 11.15.0 pin
+blocked native integration execution; Flutter also raised macOS minimum to 12.0.
+Native macOS compilation passed, but login/logout execution did not complete:
+Flutter reported `Failed to foreground app; open returned 1`. The runner was
+interrupted at the user's stop request; cancellation emitted stream/sink shutdown
+errors. Neither native journey is marked passed. Resume at the upgrade plan's
+**U-12 takeover report — paused 2026-10-21**, which contains the exact command.
+
+**Work is paused at the user’s request. U-12 remains open** for native integration, real-device smoke and Android/iOS CI verification.
+Coverage lift belongs to Phase 6.14 / 6.13 and is still pending. CocoaPods remains
+the native dependency manager: local SPM is disabled and iOS CI explicitly
+runs `flutter config --no-enable-swift-package-manager` before resolving packages.
+As of 2026-10-29, `pubspec.yaml` also sets
+`flutter.config.enable-swift-package-manager: false`, making this choice portable
+across checkouts and avoiding the Google Maps SPM compatibility warning.
+Do not treat old log entries or the earlier parallel ownership note as current.
 
 ## Read Order
 
@@ -23,7 +87,7 @@ Every AI session should read:
 - Phase 3: complete. Foundations are in place.
 - Phase 4: **complete**. `23 / 23` tasks done.
 - Phase 5: **complete** — `8 / 8` tasks done. Tasks `5.01`–`5.08` closed 2026-05-31.
-- Phase 6: in progress — 13 / 15 tasks done. Tasks 6.01 (test helpers) closed 2026-05-31; 6.02–6.12 closed 2026-06-03. 6.13 implementation is in place but the task remains 🟡 pending the first GitHub Actions Android/iOS run and coverage lift: `.github/workflows/ci.yml` now runs `flutter test --coverage`, uploads LCOV, writes a summary, and enforces `COVERAGE_MINIMUM=70`; `.github/workflows/integration.yml` runs Android emulator + iOS simulator integration tests on `push` to `main`. Current refreshed LCOV is `5358 / 11129 = 48.14%`, so the new gate will fail until coverage is raised. 6.11 added the login → home → logout journey; 6.12 added signup1 → signup2 → signup3. Both integration files still pass locally with `flutter test <file> -d macos`; device CI may require the documented binding swap to `IntegrationTestWidgetsFlutterBinding`. Next: `6.14` (models/utils/validators tests) and first remote CI feedback for `6.13`.
+- Phase 6: in progress — 13 / 15 tasks done. Tasks 6.01 (test helpers) closed 2026-05-31; 6.02–6.12 closed 2026-06-03. 6.13 implementation is in place but the task remains 🟡 pending the first GitHub Actions Android/iOS run and coverage lift: `.github/workflows/ci.yml` now runs `flutter test --coverage`, uploads LCOV, writes a summary, and enforces `COVERAGE_MINIMUM=70`; `.github/workflows/integration.yml` runs Android emulator + iOS simulator integration tests on `push` to `main`. Current refreshed LCOV is `11209 / 21804 = 51.41%`, so the new gate will fail until coverage is raised. 6.11 added the login → home → logout journey; 6.12 added signup1 → signup2 → signup3. Both integration files now use `IntegrationTestWidgetsFlutterBinding`; see the standalone upgrade report for current execution results. Next: `6.14` (models/utils/validators tests) and first remote CI feedback for `6.13`.
 - Task 6.15 (Location service + Google Maps consolidation) is 🟢 complete. Native iOS Maps wiring is fixed and aligned with rotated keys. LocationService and LocationException are fully unit tested (all 9 test cases passing) and verified clean.
 - Meetings UI Card & Create Meeting Screen redesign: complete as of 2026-06-09, matching Option 1 of the mockup specifications.
 - Messages UI sidecar plan (`docs/feature/MESSAGES_UI_PLAN.md`): M1–M5 are complete as of 2026-06-09. M5 added motion polish, a11y labels/touch-target fixes, message goldens, and widget tests. M6 remains pending for real REST + socket.io integration and is outside the completed UI scope.
@@ -87,7 +151,7 @@ For migrated features:
 - Create a data repository implementation under `data/repositories/`.
 - Expose repository and notifier providers under `presentation/providers/`.
 - Use immutable state classes with `copyWith`.
-- Use `AutoDisposeNotifier`, `AutoDisposeFamilyNotifier`, or `AsyncNotifier`.
+- Riverpod 3: use `Notifier` / `AsyncNotifier` with `.autoDispose` provider builders; family notifiers receive their argument through the constructor.
 - Screens are `ConsumerWidget` or `ConsumerStatefulWidget`.
 - Screens use `ref.watch` for state and `ref.read(provider.notifier)` for commands.
 - Use `ref.listen` in widgets for user-visible side effects like snackbars, route changes, and sheet dismissal.
@@ -164,3 +228,75 @@ with explicit logout and deduplicated until `markLoggedIn`; automatic expiry
 emits no user-initiated logout event. Storage cleanup failures are logged.
 Direct storage transfers and sockets remain outside this HTTP policy;
 real-device/backend verification remains pending.
+
+## Upgrade parallel coordination (2026-10-21)
+
+Claude owns U-12 test migration/generation and related regression fixes. Codex
+completed a separate CI/native configuration review and added an iOS-only
+`flutter config --no-enable-swift-package-manager` step to integration CI before
+dependency installation, preserving the verified CocoaPods/Crashlytics setup.
+Production Dart analysis, YAML/order checks, plist lint, and diff whitespace
+checks pass. No tests or production Dart files were edited by Codex in this pass.
+See the U-12 parallel review in `docs/upgrade/FLUTTER_IOS27_UPGRADE.md`.
+Full-suite results remain with Claude; simulator binding/remote CI and real-device
+smoke remain unverified. U-12 is active; U-11 remains skipped. The earlier
+"Next: U-06" sentence above is stale and superseded by this status.
+
+## App-wide iOS swipe-back follow-up (2026-11-04)
+
+Canonical plan: `docs/upgrade/IOS_SWIPE_BACK_FIX_PLAN.md`. **Implemented;** Phases
+1–4 and 6 (review/handoff) complete. Phase 5 open only for interactive human
+gesture QA (Q01–Q18) and physical-device smoke.
+
+Root cause: GoRouter 18.1.1 detects the separate `material_ui.MaterialApp`, while
+this app uses SDK MaterialApp, so its WidgetsApp fallback created
+`NoTransitionPage`s with no Cupertino edge-swipe detector. Verified by an iOS
+edge-swipe diagnostic that fails with the default page and passes with an
+explicit SDK `MaterialPage`.
+
+**Page convention (new cross-tool rule):** ordinary GoRoutes must create pages
+explicitly through `lib/app/route_page_builder.dart`, not via `builder:`. Use
+`pageBuilder: appPageBuilder((context, state) => Screen())` for ordinary routes
+and `appRoutePage(state, child)` for the shell page. The helper preserves
+`state.pageKey`, route name, path+query arguments and a `restorationId` derived
+from the page key. All 45 ordinary routes + the StatefulShellRoute page use it;
+the shoot-cancellation `CustomTransitionPage` is the one intentional exception
+(keep its opacity/barrier/slide). Do not reintroduce bare `builder:` for a
+swipe-eligible route. `state.extra` parsing stays inside feature builders.
+Branch state, navigator ownership, guards and redirects are unchanged; drawer
+items switch branches while the profile card pushes a route.
+
+Verification: full suite 761/761; `flutter analyze --no-pub --fatal-infos` clean;
+native integration `integration_test/navigation_back_test.dart` 14/14 on both
+iOS 27 sim and Pixel 9 API 36 emulator. Coverage tests
+`test/app/route_page_coverage_test.dart` + `test/app/route_page_builder_test.dart`
+pin the convention against the live route tree. Broader upgrade work is not
+implicitly resumed. The November 4 plain/non-sticky arrow preference has since been superseded
+by the approved November 13 sticky-header plan above; the arrow stays plain.
+
+
+## Account deletion preview — 2026-11-09
+
+Deletion screens now match beigeapp `2f8cdab`. User explicitly requires UI-only:
+no deletion APIs, session clearing or deletion analytics. Legacy notifier actions
+are inert with TODO integration comments. Do not restore live calls without a new
+request. See phase4/task_07_groupC_delete_account.md for verification status.
+
+
+## CP deletion functional audit — 2026-11-17
+
+The user authorized comparing beigeapp deletion with CP and fixing CP defects.
+The current working tree is API-bound; older preview-only instructions are
+historical. The repository now relies on canonical creative identity headers,
+OTP completion waits for the explicit CTA, and RetryInterceptor honors skipRetry.
+Logout clears in-memory deletion/account-status state while retaining the receipt
+until success-screen exit. Typed backend rejections preserve readable messages.
+See task 4.07 for the audit and regression coverage. Full analysis passes; runtime
+tests remain unverified because this sandbox denies Flutter's localhost test
+server socket. Existing unrelated work and beigeapp source were preserved.
+
+
+2026-11-17 commit verification: full-project `flutter analyze --no-pub` passes;
+focused deletion widget/repository, session expiry and router tests pass 59/59.
+This supersedes the earlier sandbox-blocked test result. Native visual/live API
+checks and remaining Figma layout/copy differences are still pending.

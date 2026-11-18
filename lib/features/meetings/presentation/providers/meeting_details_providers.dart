@@ -4,7 +4,7 @@ import '../../domain/models/meeting.dart';
 import 'meetings_repository_provider.dart';
 
 final meetingDetailsProvider =
-    AutoDisposeFutureProviderFamily<Meeting, String>((ref, id) {
+    FutureProvider.autoDispose.family<Meeting, String>((ref, id) {
   final repo = ref.watch(meetingsRepositoryProvider);
   return repo.getById(id);
 });

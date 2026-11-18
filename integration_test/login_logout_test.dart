@@ -10,6 +10,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,9 +30,7 @@ import 'robots/auth_robot.dart';
 /// Run locally with:
 ///   `flutter test integration_test/login_logout_test.dart -d macos`
 ///
-/// On-device promotion: swap the binding to
-/// `IntegrationTestWidgetsFlutterBinding.ensureInitialized()` and run with
-/// a device id (`flutter test -d <id> integration_test/login_logout_test.dart`).
+/// Uses the device integration binding for macOS and emulator/simulator CI.
 
 class _StubTelemetry implements TelemetryClient {
   int clearIdentityCalls = 0;
@@ -161,9 +160,7 @@ class _HomeStub extends ConsumerWidget {
 }
 
 void main() {
-  // Vm-mode binding. Swap to `IntegrationTestWidgetsFlutterBinding` for
-  // on-device promotion.
-  TestWidgetsFlutterBinding.ensureInitialized();
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
     Env.init(Environment.dev);

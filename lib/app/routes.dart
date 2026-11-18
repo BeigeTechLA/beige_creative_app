@@ -95,6 +95,14 @@ abstract class Routes {
     path: '/delete-account-success',
     trackScreenView: false, // momentary success — funnel noise (Phase F)
   );
+  static const accountDeletionPending = RouteSpec(
+    name: 'account_deletion_pending',
+    path: '/account-deletion-pending',
+  );
+  static const cancelAccountDeletion = RouteSpec(
+    name: 'cancel_account_deletion',
+    path: '/cancel-account-deletion',
+  );
 
   // Shoots
   static const upcomingShootDetails = RouteSpec(name: 'upcoming_shoot_details', path: '/upcoming-shoot-details');
@@ -139,6 +147,7 @@ abstract class Routes {
     featuredWorks, featuredWorkDetails, certificates, resume, appPreferences,
     changePassword, profileOtp, newPassword, profilePasswordSuccess,
     deleteAccount, deleteAccountOtp, deleteAccountSuccess,
+    accountDeletionPending, cancelAccountDeletion,
     upcomingShootDetails, cancelShoot, shootCancelotties,
     addAvailability,
     filesFolder, filesSuccess,

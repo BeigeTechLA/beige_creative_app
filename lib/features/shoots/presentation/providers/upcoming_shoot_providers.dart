@@ -50,10 +50,13 @@ class UpcomingShootDetailState {
   }
 }
 
-class UpcomingShootDetailNotifier
-    extends AutoDisposeFamilyNotifier<UpcomingShootDetailState, int> {
+class UpcomingShootDetailNotifier extends Notifier<UpcomingShootDetailState> {
+  UpcomingShootDetailNotifier(this.arg);
+
+  final int arg;
+
   @override
-  UpcomingShootDetailState build(int arg) {
+  UpcomingShootDetailState build() {
     Future.microtask(refresh);
     return const UpcomingShootDetailState(isLoading: true);
   }
@@ -129,7 +132,7 @@ class UpcomingShootDetailNotifier
 }
 
 final upcomingShootDetailProvider =
-    AutoDisposeNotifierProviderFamily<
+    NotifierProvider.autoDispose.family<
       UpcomingShootDetailNotifier,
       UpcomingShootDetailState,
       int

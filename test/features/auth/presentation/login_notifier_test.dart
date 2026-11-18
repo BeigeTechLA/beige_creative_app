@@ -175,6 +175,8 @@ class _FakeTelemetry implements TelemetryClient {
   }
 }
 
+late SharedPreferences _testPrefs;
+
 ProviderContainer _container({
   required _FakeAuthRepo repo,
   required SessionStore session,
@@ -182,6 +184,7 @@ ProviderContainer _container({
 }) {
   final c = ProviderContainer(
     overrides: [
+      prefsProvider.overrideWithValue(_testPrefs),
       authRepositoryProvider.overrideWithValue(repo),
       sessionStoreProvider.overrideWithValue(session),
       telemetryClientProvider.overrideWithValue(telemetry ?? _FakeTelemetry()),
@@ -192,10 +195,13 @@ ProviderContainer _container({
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   final keys = <({String key, Object value})>[];
   final logs = <String>[];
 
-  setUp(() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    _testPrefs = await SharedPreferences.getInstance();
     keys.clear();
     logs.clear();
     CrashlyticsBreadcrumbs.setCustomKey = (key, value) async {

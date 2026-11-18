@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/route_page_builder.dart';
 import '../../../../app/routes.dart';
 import '../screens/add_availability_screen.dart';
 
@@ -9,6 +10,8 @@ final List<RouteBase> availabilityRoutes = [
   GoRoute(
     path: Routes.addAvailability.path,
     name: Routes.addAvailability.name,
-    builder: (context, state) => const AddAvailabilityScreen(),
+    pageBuilder: appPageBuilder(
+      (context, state) => const AddAvailabilityScreen(),
+    ),
   ),
 ];

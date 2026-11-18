@@ -30,6 +30,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.47.0'
           channel: 'stable'
           cache: true
 
@@ -64,6 +65,12 @@ jobs:
           key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
+
+      # Match the CocoaPods setup used to verify the Firebase upgrade locally.
+      # SPM auto-migration breaks the existing Crashlytics Pods build phase.
+      - name: Keep iOS builds on CocoaPods
+        if: matrix.platform == 'ios'
+        run: flutter config --no-enable-swift-package-manager
 
       - name: Install dependencies
         run: flutter pub get

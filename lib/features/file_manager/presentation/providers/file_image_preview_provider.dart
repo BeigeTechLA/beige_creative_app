@@ -26,7 +26,7 @@ typedef _PreviewKey = ({
 });
 
 /// Value-based keys reuse state even when a refreshed listing recreates FmFile.
-AutoDisposeFutureProvider<String?> fileImagePreviewProvider(FmFile file) =>
+FutureProvider<String?> fileImagePreviewProvider(FmFile file) =>
     _imagePreviewProvider((
       cacheKey: fileImageCacheKey(file),
       isImage:
@@ -80,4 +80,9 @@ final _imagePreviewProvider = FutureProvider.autoDispose
         link.close();
         rethrow;
       }
-    });
+    },
+      // riverpod 3 auto-retries failed providers by default; a failed image
+      // sign must NOT retry (the UI shows a placeholder and re-requests on the
+      // next scroll-in), so opt out to preserve the pre-v3 single-shot behavior.
+      retry: (_, _) => null,
+    );

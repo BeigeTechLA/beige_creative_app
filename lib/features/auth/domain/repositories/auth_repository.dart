@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import '../../../../core/session/account_status.dart';
 import '../../../../core/session/session_store.dart';
 
 class LoginResult {
@@ -9,6 +10,7 @@ class LoginResult {
   final int isCrewVerified;
   final bool? isStep2Complete;
   final int? crewMemberId;
+  final AccountStatus accountStatus;
 
   const LoginResult({
     required this.token,
@@ -17,6 +19,7 @@ class LoginResult {
     this.isCrewVerified = 1,
     this.isStep2Complete,
     this.crewMemberId,
+    this.accountStatus = AccountStatus.active,
   });
 }
 
