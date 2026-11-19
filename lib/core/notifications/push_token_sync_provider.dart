@@ -34,7 +34,13 @@ final pushTokenSyncProvider = Provider<void>((ref) {
     pushService.onTokenRefreshed!(pushService.fcmToken!);
   }
 
-  // Listen to auth state changes to trigger manual token sync on login/logout
+  // Listen to auth state changes to trigger manual token sync on login.
+  //
+  // Logout/expiry token removal is intentionally NOT handled here: it lives in
+  // `AuthStateNotifier._endSession`, which deregisters the token BEFORE clearing
+  // the session so the DELETE still carries a valid Bearer token. Doing it here
+  // would race the session clear (token stripped → 401 → token orphaned) and
+  // double-fire the DELETE.
   ref.listen<bool>(authStateProvider, (previous, next) async {
     if (next && previous != next) {
       // User just logged in
@@ -47,18 +53,6 @@ final pushTokenSyncProvider = Provider<void>((ref) {
         }
       } catch (e, st) {
         AppLogger.e('pushTokenSyncProvider: Error fetching/syncing token on login', e, st);
-      }
-    } else if (!next && previous == true) {
-      // User just logged out, remove token from backend
-      try {
-        final lastSession = pushService.lastSessionId;
-        if (lastSession != null && lastSession.isNotEmpty) {
-          await ref.read(notificationRepositoryProvider).removeFcmToken(sessionId: lastSession);
-        }
-      } catch (e, st) {
-        AppLogger.e('pushTokenSyncProvider: Error removing token on logout', e, st);
-      } finally {
-        pushService.clearSession();
       }
     }
   }, fireImmediately: true);

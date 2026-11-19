@@ -68,9 +68,23 @@ In the Beige Flutter codebase, every HTTP request sent via `DioClient` is automa
 ## 3. Session & FCM Token Lifecycle
 
 ### 3.1 Session Identifier (`session_id`)
-- `session_id` is derived from the active user's persistent session state in `SessionStore` (`lib/core/session/session_store.dart`).
-- When a user logs in, `SessionStore` stores the `UserSnapshot` containing `user.id`.
-- The `user.id` (or auth session token) serves as the stable `session_id` for device token mapping.
+- `session_id` is a **random UUID v4** generated per `(install, user)` by
+  `PrefsSessionStore.getAppSessionId()` (`lib/core/session/prefs_session_store.dart`),
+  stored in `SharedPreferences` under the key `app_session_id_<userId>`.
+- It is **not** the raw `user.id`. The per-install UUID keeps multi-device
+  mapping distinct: the same user on two installs yields two `session_id`s, so
+  each device's token has its own backend row and logging out of one device does
+  not deregister the other.
+- The id is stable across logins for the same `(install, user)` pair (the prefs
+  key persists through `clearSession()`), so re-login re-registers under the same
+  `session_id`.
+- For logout, the id is also cached in memory by
+  `PushNotificationService.rememberSession()` so token removal still has the
+  correct `session_id` after prefs have been cleared.
+
+> **Implementation note (2026-11-19):** earlier drafts of this spec described
+> `session_id` as `user.id`; the implementation deliberately diverged to the
+> per-install UUID above. This section now matches the code.
 
 ---
 
@@ -97,7 +111,13 @@ In the Beige Flutter codebase, every HTTP request sent via `DioClient` is automa
 ### 3.3 Token Removal API Contract (Logout)
 
 #### `DELETE /push-notifications/tokens`
-- **When Called**: Triggered when the user explicitly logs out or when an unauthenticated 401 response occurs.
+- **When Called**: On explicit logout and on backend session expiry — both run
+  through `AuthStateNotifier._endSession`
+  (`lib/core/providers/auth_state_provider.dart`). The removal is awaited
+  **before** `SessionStore.clearSession()` so the request still carries a valid
+  `Authorization: Bearer` header (the `AuthInterceptor` reads the token live at
+  request time). It uses the in-memory `session_id` from
+  `PushNotificationService.lastSessionId`.
 - **Headers**:
   ```http
   Authorization: Bearer <AUTH_TOKEN>
@@ -206,11 +226,11 @@ void handlePushTap(Map<String, dynamic> data, BuildContext context) {
 ## 5. Developer Implementation Checklist
 
 - [x] **Header Stamping**: Verified `AppHeadersInterceptor` automatically stamps `device_type` header.
-- [ ] **FCM Service Initialization**: Implement `PushNotificationService` in `lib/core/services/push_notification_service.dart`.
-- [ ] **Login Hook**: Trigger `POST /push-notifications/tokens` inside `AuthNotifier` post-login.
-- [ ] **Logout Hook**: Trigger `DELETE /push-notifications/tokens` inside `AuthNotifier` / `SessionStore.clearSession()`.
-- [ ] **Preference Sync Hook**: Connect `NotificationSettingsNotifier` to call `PATCH /push-notifications/preferences`.
-- [ ] **Tap Routing Unit Tests**: Add unit test for `handlePushTap` in `test/core/services/push_notification_service_test.dart`.
+- [x] **FCM Service Initialization**: `PushNotificationService` implemented at `lib/core/notifications/push_notification_service.dart` (note: `notifications/`, not `services/`), booted from `startApp` in `lib/main.dart`.
+- [x] **Login Hook**: `POST /push-notifications/tokens` triggered by `pushTokenSyncProvider` (`lib/core/notifications/push_token_sync_provider.dart`) on the auth-state login transition and on every `onTokenRefreshed` callback — not inside `AuthNotifier`.
+- [x] **Logout Hook**: `DELETE /push-notifications/tokens` triggered by `AuthStateNotifier._endSession` (`lib/core/providers/auth_state_provider.dart._removeFcmToken`), awaited **before** `clearSession()`. Covers both explicit logout and session expiry.
+- [ ] **Preference Sync Hook**: Connect `NotificationSettingsNotifier` to call `PATCH /push-notifications/preferences`. (Not verified in the 2026-11-19 token-lifecycle audit.)
+- [ ] **Tap Routing Unit Tests**: Add unit test for `handleNotificationClick` / `_executeRouting` in `test/core/notifications/push_notification_service_test.dart`. (No such test exists yet.)
 
 ---
 

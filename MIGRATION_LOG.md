@@ -5041,3 +5041,34 @@ checks and remaining Figma layout/copy differences are still pending.
 
 Login notifier verification: fixed its missing mocked preferences override;
 all 17 login tests now pass (76 focused tests total).
+
+
+### 2026-11-19: Push notification audit + fixes (Phases 1–3)
+
+- Audited FCM setup (Android + iOS), token fetch/refresh, and logout removal.
+  Full report at `docs/audit/PUSH_NOTIFICATION_AUDIT_2026-11-19.md` (7 findings;
+  1 HIGH, 2 MEDIUM, 4 LOW). Phases 1–3 implemented; findings 4–7 deferred.
+- HIGH fix (logout token-removal race): moved the `DELETE /push-notifications/tokens`
+  into `AuthStateNotifier._endSession._removeFcmToken`, awaited **before**
+  `clearSession()`, so the request still carries a live `Authorization: Bearer`
+  header. Previously the removal ran in a separate `pushTokenSyncProvider`
+  listener that raced the session clear → DELETE usually went out unauthenticated
+  → token orphaned → device kept receiving push after logout. Removed the
+  redundant logout branch from `pushTokenSyncProvider` (now login-only) to avoid
+  a double DELETE. Singleton access guarded so Firebase-less test runs no-op.
+- MEDIUM fix (Android tray icon): `AndroidManifest.xml` `default_notification_icon`
+  `@mipmap/ic_launcher` → `@drawable/ic_notification` (monochrome). Also aligned
+  the background-isolate small icon in `push_notification_service.dart`. Colorful
+  `largeIcon` and app launcher icon unchanged. Fixes the white-square tray icon.
+- MEDIUM fix (spec drift): reconciled `docs/PUSH_NOTIFICATION_ARCHITECTURE_SPEC.md`
+  §3.1 (`session_id` is a per-(install,user) UUID, not `user.id`), §3.3 (removal
+  ordering), and checklist §209–211 (checked off with real
+  `lib/core/notifications/...` paths).
+- Verification: `flutter analyze` clean on all touched lib files;
+  `flutter test test/core/providers/ .../login_notifier_test.dart` passes 47/47
+  (incl. logout + session-expiry). On-device checks pending: logout DELETE
+  carries auth + returns 2xx (Android/iOS), old token stops receiving, Android
+  tray renders the monochrome glyph.
+- Deferred (findings 4–7): no `deleteToken()`/in-memory `_fcmToken` clear on
+  logout; `clearAppSessionId()` wrong-key bug + dropped `deviceType` param;
+  cold-start permission prompt; iOS badge reset. Tracked in the audit report.

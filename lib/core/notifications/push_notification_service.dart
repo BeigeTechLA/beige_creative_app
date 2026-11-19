@@ -33,7 +33,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     try {
       final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
       
-      const androidInitSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidInitSettings = AndroidInitializationSettings('@drawable/ic_notification');
       const darwinInitSettings = DarwinInitializationSettings(
         requestAlertPermission: false,
         requestBadgePermission: false,
@@ -80,7 +80,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         importance: importance,
         priority: importance == Importance.max ? Priority.max : (importance == Importance.high ? Priority.high : Priority.defaultPriority),
         color: AppColors.primary,
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
         largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
       );
 

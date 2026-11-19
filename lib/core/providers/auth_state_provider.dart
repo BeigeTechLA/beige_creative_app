@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../firebase/telemetry_client.dart';
+import '../notifications/push_notification_service.dart';
 import '../restoration/restoration_providers.dart';
 import '../utils/app_logger.dart';
 import 'core_providers.dart';
 import 'account_status_provider.dart';
+import '../../features/notification/presentation/providers/notification_list_providers.dart';
 import '../../features/profile/presentation/providers/delete_account_providers.dart';
 import '../session/temporary_auth_session.dart';
 import '../../features/profile/presentation/providers/notification_settings_providers.dart';
@@ -50,6 +52,12 @@ class AuthStateNotifier extends Notifier<bool> {
     ref.invalidate(deletionProvider);
     ref.read(temporaryAuthSessionProvider.notifier).clear();
     ref.invalidate(notificationSettingsProvider);
+    // Deregister the FCM token BEFORE clearing the session so the DELETE still
+    // carries a valid Bearer token (AuthInterceptor reads the token live at
+    // request time). Clearing the session first would strip the header and the
+    // backend would reject the removal, leaving the device registered after
+    // logout. Guarded so a removal failure never strands the session teardown.
+    await _cleanUp('fcm token', _removeFcmToken);
     await _cleanUp(
       'session',
       () => ref.read(sessionStoreProvider).clearSession(),
@@ -71,6 +79,28 @@ class AuthStateNotifier extends Notifier<bool> {
           .read(telemetryClientProvider)
           .clearUserIdentity(emitLogoutEvent: emitLogoutEvent),
     );
+  }
+
+  /// Removes the device's FCM token from the backend for the session it was
+  /// registered under. Uses the session id remembered in memory by
+  /// [PushNotificationService] so it is still available after prefs are wiped.
+  /// No-op when no token was ever registered this session.
+  Future<void> _removeFcmToken() async {
+    final PushNotificationService pushService;
+    try {
+      pushService = PushNotificationService.instance;
+    } catch (_) {
+      // The singleton constructs FirebaseMessaging on first access; in
+      // environments without Firebase (unit/widget tests) nothing was ever
+      // registered, so there is no token to remove.
+      return;
+    }
+    final lastSession = pushService.lastSessionId;
+    if (lastSession == null || lastSession.isEmpty) return;
+    await ref
+        .read(notificationRepositoryProvider)
+        .removeFcmToken(sessionId: lastSession);
+    pushService.clearSession();
   }
 
   Future<void> _cleanUp(String label, Future<void> Function() action) async {
