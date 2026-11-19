@@ -7,7 +7,6 @@ abstract class NotificationRepository {
   Future<void> saveFcmToken({
     required String fcmToken,
     required String sessionId,
-    String? deviceType,
   });
 
   /// Removes the device FCM token on logout (`DELETE /push-notifications/tokens`).

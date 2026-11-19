@@ -109,6 +109,15 @@ class PrefsSessionStore implements PrefsSessionBackend {
 
   @override
   Future<void> clearAppSessionId() async {
-    await _prefs.remove('app_session_id');
+    // Ids are stored per-user under `app_session_id_<userId>` (plus the bare
+    // `app_session_id` for the logged-out case), so remove every matching key —
+    // not just the bare one.
+    final keys = _prefs
+        .getKeys()
+        .where((k) => k.startsWith('app_session_id'))
+        .toList();
+    for (final key in keys) {
+      await _prefs.remove(key);
+    }
   }
 }

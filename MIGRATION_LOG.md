@@ -5072,3 +5072,28 @@ all 17 login tests now pass (76 focused tests total).
 - Deferred (findings 4–7): no `deleteToken()`/in-memory `_fcmToken` clear on
   logout; `clearAppSessionId()` wrong-key bug + dropped `deviceType` param;
   cold-start permission prompt; iOS badge reset. Tracked in the audit report.
+
+
+### 2026-11-19: Push notification audit — findings 4–7 (follow-up)
+
+- Implemented the four deferred LOW findings from the push audit.
+- F4 token teardown: new `PushNotificationService.resetToken({deleteFromFirebase})`
+  clears in-memory `_fcmToken` + remembered session id; on explicit logout also
+  calls `FirebaseMessaging.deleteToken()` to rotate the device token. Wired via
+  `AuthStateNotifier._removeFcmToken(deleteToken: emitLogoutEvent)` — explicit
+  logout rotates, transient `expireSession()` keeps the token (no churn).
+- F5 dead code: `PrefsSessionStore.clearAppSessionId()` now removes every
+  `app_session_id*` key (was only the bare key, never the `_<userId>` variants).
+  Dropped the unused `deviceType` param from `NotificationRepository.saveFcmToken`
+  and its impl (device_type already stamped by remote source + AppHeadersInterceptor).
+- F6 permission timing: moved `requestPermissions()` out of cold-start
+  `initialize()` into `pushTokenSyncProvider`'s authenticated branch (fires on
+  login and, via fireImmediately, for returning logged-in users), before
+  `ensureToken()`. Channels/listeners still initialise at cold start.
+- F7 iOS badge: `AppDelegate.applicationDidBecomeActive` zeroes the badge
+  (`setBadgeCount(0)` iOS 16+, `applicationIconBadgeNumber = 0` fallback). The
+  expiry-path silent DELETE (7b) is intentionally left guarded/as-is.
+- Verification: `flutter analyze` clean on all touched Dart files; full-project
+  analyze shows only 3 pre-existing `clearAppSessionId` override warnings in
+  Phase-6 test fakes (unrelated). Focused suites pass 48/48. iOS badge and the
+  post-auth permission prompt still need on-device confirmation.

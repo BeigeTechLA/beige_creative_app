@@ -20,7 +20,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
   }
 
   @override
-  Future<void> saveFcmToken({required String fcmToken, required String sessionId, String? deviceType}) async {
+  Future<void> saveFcmToken({required String fcmToken, required String sessionId}) async {
     await _remoteSource.saveFcmToken(
       fcmToken: fcmToken,
       sessionId: sessionId,

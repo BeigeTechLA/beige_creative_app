@@ -184,8 +184,10 @@ class PushNotificationService {
     // Setup multi-channel local notifications for Android & iOS
     await _setupLocalNotifications();
 
-    // Request permissions on app open according to iOS & Android best practices
-    await requestPermissions();
+    // NOTE: the OS permission prompt is intentionally NOT requested here (cold
+    // start, pre-login). It is requested from `pushTokenSyncProvider` once the
+    // user is authenticated, so the ask lands in a context the user understands.
+    // See requestPermissions().
 
     // Fetch initial FCM token & listen for refreshes
     _setupTokenManagement();
@@ -349,6 +351,26 @@ class PushNotificationService {
     final token = await fetchToken();
     if (token != null) _fcmToken = token;
     return token;
+  }
+
+  /// Clears cached token state on session end. When [deleteFromFirebase] is true
+  /// (explicit logout) the device token is also invalidated with Firebase so the
+  /// device identity rotates and the old token can never be reused. For a
+  /// transient session expiry it is left intact (cheaper re-login, no churn).
+  /// Always clears the in-memory token and remembered session id.
+  Future<void> resetToken({required bool deleteFromFirebase}) async {
+    if (deleteFromFirebase) {
+      try {
+        // ignore: deprecated_member_use
+        await _fcm.deleteToken();
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('[PushNotificationService] Error deleting FCM token: $e');
+        }
+      }
+    }
+    _fcmToken = null;
+    clearSession();
   }
 
   /// Fetch and listen for FCM Token updates.

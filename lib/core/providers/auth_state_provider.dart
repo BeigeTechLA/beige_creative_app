@@ -57,7 +57,7 @@ class AuthStateNotifier extends Notifier<bool> {
     // request time). Clearing the session first would strip the header and the
     // backend would reject the removal, leaving the device registered after
     // logout. Guarded so a removal failure never strands the session teardown.
-    await _cleanUp('fcm token', _removeFcmToken);
+    await _cleanUp('fcm token', () => _removeFcmToken(deleteToken: emitLogoutEvent));
     await _cleanUp(
       'session',
       () => ref.read(sessionStoreProvider).clearSession(),
@@ -85,7 +85,11 @@ class AuthStateNotifier extends Notifier<bool> {
   /// registered under. Uses the session id remembered in memory by
   /// [PushNotificationService] so it is still available after prefs are wiped.
   /// No-op when no token was ever registered this session.
-  Future<void> _removeFcmToken() async {
+  ///
+  /// [deleteToken] is true only for an explicit user logout: it additionally
+  /// invalidates the device token with Firebase so the old token fully dies.
+  /// Transient session expiry passes false to avoid token churn.
+  Future<void> _removeFcmToken({required bool deleteToken}) async {
     final PushNotificationService pushService;
     try {
       pushService = PushNotificationService.instance;
@@ -96,11 +100,16 @@ class AuthStateNotifier extends Notifier<bool> {
       return;
     }
     final lastSession = pushService.lastSessionId;
-    if (lastSession == null || lastSession.isEmpty) return;
+    if (lastSession == null || lastSession.isEmpty) {
+      // Nothing registered on the backend, but still rotate/clear local token
+      // state on an explicit logout.
+      await pushService.resetToken(deleteFromFirebase: deleteToken);
+      return;
+    }
     await ref
         .read(notificationRepositoryProvider)
         .removeFcmToken(sessionId: lastSession);
-    pushService.clearSession();
+    await pushService.resetToken(deleteFromFirebase: deleteToken);
   }
 
   Future<void> _cleanUp(String label, Future<void> Function() action) async {

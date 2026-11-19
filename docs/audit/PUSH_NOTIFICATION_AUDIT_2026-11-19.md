@@ -177,13 +177,43 @@ this token-lifecycle audit; §213's test path corrected.
 - **7** — iOS app badge is never cleared on open; `expireSession()`'s `DELETE`
   fails silently (the server session is already dead — low impact).
 
+**Implemented (2026-11-19):**
+
+- **4** — Added `PushNotificationService.resetToken({required deleteFromFirebase})`:
+  clears the in-memory `_fcmToken` and remembered session id, and on explicit
+  logout also calls `FirebaseMessaging.deleteToken()` so the device token
+  rotates. `_removeFcmToken` now takes `deleteToken` = `emitLogoutEvent`, so an
+  explicit logout fully tears down while a transient `expireSession()` keeps the
+  token (no churn). Guarded.
+- **5** — `clearAppSessionId()` now removes every key prefixed `app_session_id`
+  (both the bare key and the `_<userId>` variants). Dropped the unused
+  `deviceType` param from `NotificationRepository.saveFcmToken` and its impl (the
+  remote source + `AppHeadersInterceptor` already stamp `device_type`).
+- **6** — Removed the cold-start `requestPermissions()` from
+  `PushNotificationService.initialize()`; it is now requested from
+  `pushTokenSyncProvider` on the authenticated transition (and for returning
+  logged-in users on cold start via `fireImmediately`), before `ensureToken()`
+  so iOS APNS registration still proceeds. Channels/listeners still set up at
+  cold start.
+- **7** — iOS badge is now zeroed natively in `AppDelegate.applicationDidBecomeActive`
+  (`setBadgeCount(0)` on iOS 16+, `applicationIconBadgeNumber = 0` fallback). The
+  `expireSession()` silent-`DELETE` note (7b) is left as-is — intentional, the
+  server session is already dead and the call is guarded.
+
+**Verification:** `flutter analyze` on all touched Dart files — no issues
+(full-project analyze shows only 3 pre-existing `clearAppSessionId` override
+warnings in Phase-6 test fakes, unrelated to this work). Focused suites
+(`test/core/providers/`, `login_notifier_test.dart`,
+`notification_category_sheet_test.dart`) pass 48/48. iOS badge + permission-flow
+checks pending on device.
+
 ---
 
 ## Fixes Plan
 
 Scope: Finding 1 (must-fix) and Finding 2 (visible quality). Finding 3 is a doc
-update bundled in. Findings 4–7 are optional and tracked but not implemented
-here.
+update bundled in. Findings 4–7 were initially deferred and then implemented on
+2026-11-19 (see per-finding "Implemented" notes above and the Phase 5 row below).
 
 | Phase | Goal | Files Touched | Done Criteria | Status |
 |-------|------|---------------|---------------|--------|
@@ -191,6 +221,7 @@ here.
 | 2 | Point Android FCM default icon at the monochrome drawable | `android/app/src/main/AndroidManifest.xml`, `lib/core/notifications/push_notification_service.dart` | `default_notification_icon` = `@drawable/ic_notification`; tray icon renders as a clean monochrome glyph | Completed |
 | 3 | Reconcile spec doc with implementation | `docs/PUSH_NOTIFICATION_ARCHITECTURE_SPEC.md` | §3.1 describes the per-(install,user) UUID; §210/211 checklist items marked done with the real wiring location | Completed |
 | 4 | Verify + log | `MIGRATION_LOG.md`, this file | `flutter analyze` clean for touched files; focused tests green; findings table statuses updated | Completed |
+| 5 | Findings 4–7 (token teardown, dead code, permission timing, iOS badge) | `push_notification_service.dart`, `auth_state_provider.dart`, `push_token_sync_provider.dart`, `prefs_session_store.dart`, `notification_repository.dart(+impl)`, `ios/Runner/AppDelegate.swift` | `deleteToken()` on explicit logout; `clearAppSessionId` removes all keys; `deviceType` param gone; permission requested post-auth; iOS badge zeroed on active | Completed |
 
 ### Phase 1 — design detail
 

@@ -43,8 +43,12 @@ final pushTokenSyncProvider = Provider<void>((ref) {
   // double-fire the DELETE.
   ref.listen<bool>(authStateProvider, (previous, next) async {
     if (next && previous != next) {
-      // User just logged in
+      // User just logged in (also fires on cold start for an already-logged-in
+      // returning user via fireImmediately: previous == null, next == true).
       try {
+        // Request the OS notification permission now — contextual, post-auth —
+        // before fetching the token so iOS APNS registration can proceed.
+        await pushService.requestPermissions();
         final token = await pushService.ensureToken();
         if (token != null && token.isNotEmpty) {
           if (pushService.onTokenRefreshed != null) {
