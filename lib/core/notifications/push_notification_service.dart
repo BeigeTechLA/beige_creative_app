@@ -3,16 +3,35 @@ import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/colors.dart';
-import '../../app/navigator_key.dart';
-import '../../app/routes.dart';
-import '../../features/messages/presentation/routes/messages_args.dart';
-import '../../features/shoots/presentation/routes/shoots_args.dart';
+import '../firebase/crashlytics_service.dart';
 import 'notification_payload.dart';
+import 'notification_tap_router.dart';
+
+/// Background-isolate tap handler for local notifications shown while the app
+/// is backgrounded or terminated.
+///
+/// Runs in a separate isolate with no UI, so it cannot navigate. It persists
+/// the tapped payload so the main isolate can drain it on next launch/resume
+/// (see `PushNotificationService._drainPersistedTap`). Belt-and-suspenders for
+/// the `getNotificationAppLaunchDetails` capture, and the only path that
+/// receives notification taps delivered to the background isolate.
+@pragma('vm:entry-point')
+Future<void> _onDidReceiveBackgroundNotificationResponse(
+  NotificationResponse response,
+) async {
+  final payload = response.payload;
+  if (payload == null || payload.isEmpty) return;
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(PushNotificationService.pendingTapPrefsKey, payload);
+  } catch (_) {
+    // Best-effort — the foreground launch-details path is the primary capture.
+  }
+}
 
 /// Top-level background message handler required by Firebase Messaging.
 /// Must be annotated with `@pragma('vm:entry-point')`.
@@ -43,6 +62,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       
       await flutterLocalNotificationsPlugin.initialize(
         settings: initSettings,
+        onDidReceiveBackgroundNotificationResponse:
+            _onDidReceiveBackgroundNotificationResponse,
       );
 
       final title = message.data['title'] ?? 'New Notification';
@@ -169,7 +190,25 @@ class PushNotificationService {
   void rememberSession(String sessionId) => _lastSessionId = sessionId;
   void clearSession() => _lastSessionId = null;
 
-  NotificationPayload? _pendingPayload;
+  /// SharedPreferences key under which the background isolate persists a tapped
+  /// local-notification payload for the main isolate to drain on next launch.
+  static const String pendingTapPrefsKey = 'pending_notification_tap_payload';
+
+  /// Routes push taps once the authenticated router can accept them. Holds the
+  /// tap across cold start / auth redirects and retries on readiness change so
+  /// a terminated-state tap is never dropped. Mirrors `biegeapp`.
+  final tapRouter = NotificationTapRouter(
+    onError: (error, stack) {
+      unawaited(CrashlyticsService.recordError(error, stack));
+    },
+  );
+
+  /// Whether there is a pending notification payload waiting to be dispatched.
+  bool get hasPendingNotification => tapRouter.pending != null;
+
+  /// Current pending notification payload, if any.
+  NotificationPayload? get pendingPayload => tapRouter.pending;
+
   bool _isInitialized = false;
 
   /// Initializes FCM listeners, multi-channel setup, permission prompts,
@@ -192,14 +231,44 @@ class PushNotificationService {
     // Fetch initial FCM token & listen for refreshes
     _setupTokenManagement();
 
-    // Handle initial notification tap if launched from terminated state
+    // TERMINATED STATE capture. An FCM notification-type tap is delivered via
+    // getInitialMessage(). A data-only push shows a LOCAL notification from the
+    // background isolate, whose tap launches the app WITHOUT an FCM message —
+    // getInitialMessage() returns null, so it must be recovered from the
+    // local-notification launch details (and, belt-and-suspenders, from the
+    // payload the background isolate persisted to prefs).
     final initialMessage = await _fcm.getInitialMessage();
     if (initialMessage != null) {
       if (kDebugMode) {
         print('[PushNotificationService] App launched from terminated state via notification: ${initialMessage.data}');
       }
-      _pendingPayload = NotificationPayload.fromRemoteMessage(initialMessage);
+      tapRouter.enqueue(NotificationPayload.fromRemoteMessage(initialMessage));
+    } else {
+      final launchDetails =
+          await _localNotifications.getNotificationAppLaunchDetails();
+      final responsePayload = launchDetails?.notificationResponse?.payload;
+      if ((launchDetails?.didNotificationLaunchApp ?? false) &&
+          responsePayload != null &&
+          responsePayload.isNotEmpty) {
+        try {
+          final Map<String, dynamic> data = jsonDecode(responsePayload);
+          tapRouter.enqueue(NotificationPayload.fromMap(data));
+          if (kDebugMode) {
+            print('[PushNotificationService] Captured terminated local notification launch.');
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('[PushNotificationService] Failed to parse launch local notification payload: $e');
+          }
+        }
+      }
     }
+
+    // Drain any tap the background isolate persisted (data-only taps whose
+    // launch details the OS did not surface). Only adopts it when the launch
+    // capture above did not already set a pending payload, so a tap is never
+    // routed twice.
+    await _drainPersistedTap();
 
     // Handle background notification taps when app is resumed
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -282,6 +351,8 @@ class PushNotificationService {
           }
         }
       },
+      onDidReceiveBackgroundNotificationResponse:
+          _onDidReceiveBackgroundNotificationResponse,
     );
 
     // Create all 4 dedicated Android Notification Channels
@@ -443,114 +514,38 @@ class PushNotificationService {
     );
   }
 
-  /// Processes any pending notification payload captured during app startup.
-  void processPendingNotification(BuildContext context) {
-    if (_pendingPayload != null) {
-      final payload = _pendingPayload!;
-      _pendingPayload = null;
-      _executeRouting(context, payload);
-    }
-  }
-
-  /// Main handler to execute redirection based on notification payload type.
-  void handleNotificationClick(NotificationPayload payload) {
-    final context = rootNavigatorKey.currentContext;
-
-    if (context == null) {
-      if (kDebugMode) {
-        print('[PushNotificationService] Context not ready yet, queuing notification tap.');
-      }
-      _pendingPayload = payload;
-      return;
-    }
-    
+  /// Reads (and clears) any tapped payload the background isolate persisted via
+  /// `_onDidReceiveBackgroundNotificationResponse`. Only adopts it when the FCM
+  /// `getInitialMessage` / launch-details capture didn't already set a pending
+  /// payload, so a single tap never routes twice.
+  Future<void> _drainPersistedTap() async {
     try {
-      final currentPath = GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
-      if (currentPath == Routes.splash.path) {
-        _pendingPayload = payload;
-        return;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
+      final stored = prefs.getString(pendingTapPrefsKey);
+      if (stored == null || stored.isEmpty) return;
+      await prefs.remove(pendingTapPrefsKey);
+      if (tapRouter.pending != null) return;
+      final Map<String, dynamic> data = jsonDecode(stored);
+      tapRouter.enqueue(NotificationPayload.fromMap(data));
+      if (kDebugMode) {
+        print('[PushNotificationService] Captured persisted background tap.');
       }
-    } catch (_) {
-      _pendingPayload = payload;
-      return;
+    } catch (e) {
+      if (kDebugMode) {
+        print('[PushNotificationService] Failed to drain persisted background tap: $e');
+      }
     }
-
-    _executeRouting(context, payload);
   }
 
-  void _executeRouting(BuildContext context, NotificationPayload payload) {
-    if (kDebugMode) {
-      print('[PushNotificationService] Redirecting for notification type: ${payload.type}');
-    }
+  /// Re-attempts a pending tap. Wired to app resume + auth/router readiness
+  /// changes so a tap captured before the authenticated router was ready is
+  /// routed as soon as it becomes ready.
+  void processPendingNotification() => tapRouter.retry();
 
-    final router = GoRouter.of(context);
-
-    switch (payload.type) {
-      case NotificationType.chat:
-        if (payload.chatId != null && payload.chatId!.isNotEmpty) {
-          router.pushNamed(
-            Routes.chat.name,
-            extra: ChatArgs(conversationId: payload.chatId!).toExtra(),
-          );
-        } else {
-          router.goNamed(Routes.messages.name);
-        }
-        break;
-
-      case NotificationType.booking:
-        if (payload.bookingId != null && payload.bookingId!.isNotEmpty) {
-          router.pushNamed(
-            Routes.upcomingShootDetails.name,
-            extra: UpcomingShootDetailsArgs(projectId: int.tryParse(payload.bookingId!)).toExtra(),
-          );
-        } else {
-          router.goNamed(Routes.shoots.name);
-        }
-        break;
-
-      case NotificationType.meeting:
-        if (payload.meetingId != null && payload.meetingId!.isNotEmpty) {
-          // Using goNamed here because meetings is a top-level tab route in StatefulShellRoute
-          router.goNamed(
-            Routes.meetings.name,
-            queryParameters: {'meetingId': payload.meetingId!},
-          );
-        } else {
-          router.goNamed(Routes.meetings.name);
-        }
-        break;
-
-      case NotificationType.files:
-        final folderId = payload.folderId ?? payload.bookingId;
-        if (folderId != null && folderId.isNotEmpty) {
-          router.pushNamed(
-            Routes.filesFolder.name,
-            pathParameters: {'id': folderId},
-          );
-        } else {
-          router.goNamed(Routes.files.name);
-        }
-        break;
-
-      case NotificationType.profile:
-        router.goNamed(Routes.myProfile.name);
-        break;
-
-      case NotificationType.deeplink:
-        if (payload.targetRoute != null && payload.targetRoute!.isNotEmpty) {
-          router.push(payload.targetRoute!);
-        } else {
-          router.pushNamed(Routes.notificationList.name);
-        }
-        break;
-
-      case NotificationType.unknown:
-        if (payload.targetRoute != null && payload.targetRoute!.isNotEmpty) {
-          router.push(payload.targetRoute!);
-        } else {
-          router.pushNamed(Routes.notificationList.name);
-        }
-        break;
-    }
+  /// Enqueues a tap into the readiness-gated router. All tap sources (FCM
+  /// background open, local-notification tap, launch capture) funnel here.
+  void handleNotificationClick(NotificationPayload payload) {
+    tapRouter.enqueue(payload);
   }
 }

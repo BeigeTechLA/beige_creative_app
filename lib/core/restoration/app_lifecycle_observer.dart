@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../notifications/push_notification_service.dart';
 import 'route_restoration_service.dart';
 
 /// Stamps `lastActiveTs` whenever the app leaves the foreground so the splash
@@ -27,7 +28,9 @@ class AppLifecycleObserver with WidgetsBindingObserver {
       case AppLifecycleState.detached:
         _service.stampLastActive();
       case AppLifecycleState.resumed:
-        break;
+        // A background notification tap may have been captured while the app
+        // was not yet routable; re-attempt it now the UI is foreground.
+        PushNotificationService.instance.processPendingNotification();
     }
   }
 }

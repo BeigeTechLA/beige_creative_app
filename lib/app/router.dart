@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/connectivity/connectivity_providers.dart';
 import '../core/connectivity/connectivity_status.dart';
 import '../core/firebase/app_analytics_observer.dart';
+import '../core/notifications/push_notification_service.dart';
 import '../core/providers/account_status_provider.dart';
 import '../core/providers/auth_state_provider.dart';
 import '../core/providers/core_providers.dart';
@@ -98,6 +99,29 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   router.routerDelegate.addListener(persistOnChange);
   ref.onDispose(() => router.routerDelegate.removeListener(persistOnChange));
+
+  // Push-tap redirection. The router holds a captured tap (cold start /
+  // background open) until the authenticated router can accept it, then
+  // retries on any auth/account/connectivity flip via the same merged
+  // listenable that drives redirect.
+  final tapRouter = PushNotificationService.instance.tapRouter;
+  tapRouter.attach(
+    router,
+    canNavigate: () =>
+        ref.read(authStateProvider) &&
+        ref.read(accountStatusProvider) == AccountStatus.active &&
+        ref.read(connectivityStatusProvider) != ConnectivityStatus.offline &&
+        !Routes.publicPaths.contains(router.state.uri.path),
+    blockedReason: () =>
+        ref.read(accountStatusProvider) != AccountStatus.active
+            ? 'waiting_for_active_account'
+            : null,
+  );
+  notifier.addListener(tapRouter.retry);
+  ref.onDispose(() {
+    notifier.removeListener(tapRouter.retry);
+    tapRouter.detach();
+  });
 
   return router;
 });

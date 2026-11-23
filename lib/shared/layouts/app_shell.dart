@@ -13,7 +13,6 @@ import '../../app/spacing.dart';
 import '../../app/text_styles.dart';
 import '../../config/env.dart';
 import '../../core/firebase/analytics_service.dart';
-import '../../core/notifications/push_notification_service.dart';
 import '../../core/providers/guest_mode_provider.dart';
 import '../../shared/widgets/login_dialog.dart';
 import '../../features/affiliate/presentation/providers/affiliate_notifier.dart'
@@ -50,14 +49,10 @@ class AppShell extends ConsumerStatefulWidget {
 }
 
 class _AppShellState extends ConsumerState<AppShell> {
-  @override
-  void initState() {
-    super.initState();
-    // After the main UI mounts, check if we have a pending push payload to route.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      PushNotificationService.instance.processPendingNotification(context);
-    });
-  }
+  // Push-tap routing is owned by `NotificationTapRouter` (attached in
+  // `routerProvider`), which dispatches on every route settle + readiness
+  // change. The old single-shot `initState` drain raced cold start and is
+  // gone.
 
   void _goBranch(BuildContext context, WidgetRef ref, int index) {
     final isGuest = ref.read(guestModeProvider);

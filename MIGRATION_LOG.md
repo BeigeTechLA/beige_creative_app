@@ -1,5 +1,12 @@
 # Migration Log — Beige Creative App (Crew)
 
+### 2026-11-23: Push-tap redirection parity router (terminated-state fix)
+
+- Fixes dev-reported bug: app killed + notification sits in tray a while + tapped → redirect failed. Root cause: "time in tray" = process reclaimed → cold-start path. Old path dropped **data-only** terminated taps (no `getNotificationAppLaunchDetails()`; bg-handler local-notif plugin had no tap callback) and drained notification-type taps via a single-shot `AppShell.initState` postFrame with no readiness gate/retry.
+- Ported `NotificationTapRouter` from sibling `biegeapp` (readiness-gated dispatch + retry on route/auth/resume change + dedup via `GoRouterState` match). `_destination` adapted to CP `Routes` + `ChatArgs`/`UpcomingShootDetailsArgs`. Service now funnels all tap sources through `tapRouter.enqueue`; added launch-details capture + background-isolate prefs persistence (`_drainPersistedTap`). Wired `attach()` in `routerProvider` (gate: auth + account active + online + not public); removed fragile `AppShell` drain; added resume→`retry` in `app_lifecycle_observer.dart`.
+- Files: `lib/core/notifications/notification_tap_router.dart` (new), `push_notification_service.dart`, `lib/app/router.dart`, `lib/shared/layouts/app_shell.dart`, `lib/core/restoration/app_lifecycle_observer.dart`, `test/core/notifications/notification_tap_router_test.dart` (new). Plan: `docs/NOTIFICATION_REDIRECT_PARITY_PLAN.md`.
+- Verification: `flutter analyze` clean on changed files; router test **12/12**; full `flutter test` **784 pass / 2 fail**, both confirmed pre-existing (git-stash baseline identical) — `widget_test.dart` smoke (needs Firebase stub) + `route_page_coverage_test.dart` (notification-area page builder null). iOS/Android release builds + device QA pending.
+
 ### 2026-11-13: Shoot Details sticky header implemented
 
 - User approved the plan. Extracted the image/metadata into feature-local `shoot_details_header.dart`; screen uses `CustomScrollView`, pinned `SliverAppBar` and body adapter. Plain 48-point back control, collapsed project title, safe-area/status-icon styling and existing pop/named Shoots fallback retained. Supersedes the earlier non-sticky preference.
